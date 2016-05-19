@@ -20,5 +20,7 @@ import core.views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', core.views.main, name='main'),
+ #   url(r'^order/$',  core.views.add_order),
+    url(r'^order/add/$', core.views.add_order),
 
 ]

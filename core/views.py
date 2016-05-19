@@ -26,3 +26,21 @@ def main(request):
     messages = []
 
     return HttpResponse(template.render({'messages': messages},  request))
+
+def add_order(request):
+    messages = []
+    template = get_template('core/order.html')
+    if request.method == 'POST':
+        form = ManageOrder(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.append('Succesfully saved !')
+            # If the save was successful,  redirect to another page
+
+            return HttpResponseRedirect('/order/')
+    else:
+        form = ""
+
+    return HttpResponse(template.render({'form': form,
+                                         'action': 'Add'},
+                                        request))
