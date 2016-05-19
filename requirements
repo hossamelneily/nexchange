@@ -4,9 +4,12 @@ Django==1.9.6
 django-bootstrap3==7.0.1
 django-phonenumber-field==1.1.0
 django-rq==0.9.1
+django-safedelete==0.3.2
 django-softdelete==0.4.2
 phonenumberslite==7.4.0
+python-dateutil==2.5.3
 pytz==2016.4
 redis==2.10.5
 requests==2.10.0
 rq==0.6.0
+six==1.10.0
