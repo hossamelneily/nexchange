@@ -1,0 +1,41 @@
+{% extends "core/base.html" %}
+
+{% block main %}
+			<div class="page-header">
+				<h1>
+					BTC <small>Transaction {{action}}</small>
+				</h1>
+			</div>
+
+				<form method="post" class="form" enctype="multipart/form-data" >
+				    {% csrf_token %}
+				    {% for field in form %}
+				        <div class="row">
+				           <div class="col-xs-6 col-sm-6 col-md-6">{{ field.label_tag }}</div>
+        				   <div class="col-xs-6 col-sm-6 col-md-6"> {{ field }} </div>				        
+        				 {% if field.errors %}
+				           <div class="col-xs-12 col-sm-12 col-md-12">
+        				   <div class="alert alert-danger" role="alert">{{ field.errors }}</div>
+        				 </div>
+        				{% endif %}				         
+				        </div>
+				    {% endfor %}
+
+				    <div class="row">
+				    	<hr>
+						<div class="col-xs-3 col-sm-3 col-md-3"> <button type="submit" class="btn btn-success">Save</button></div>
+						<div class="col-xs-3 col-sm-3 col-md-3"> <button type="button" class="btn btn-warning" onclick="window.location.href='/transaction/'">Exit</button></div>
+					</div>    
+				    
+				</form>
+		
+	 
+<script>	
+   $(function() {
+    $( "#id_date" ).datepicker({ dateFormat: 'yy-mm-dd' }); 
+  });
+
+ 
+  </script>	
+						
+{% endblock %}

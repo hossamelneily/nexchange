@@ -1,0 +1,154 @@
+{# Load the tag library #}
+{% load bootstrap3 %}
+
+
+<script src="http://code.jquery.com/jquery.min.js"></script>
+<script   src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"   integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw="   crossorigin="anonymous"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.css" rel="stylesheet">
+
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>.:BTC-X:.</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" /> 
+
+
+	<!--link rel="stylesheet/less" href="less/bootstrap.less" type="text/css" /-->
+	<!--link rel="stylesheet/less" href="less/responsive.less" type="text/css" /-->
+	<!--script src="js/less-1.3.3.min.js"></script-->
+	<!--append ‘#!watch’ to the browser URL, then refresh the page. 
+	 -->
+
+  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+  <!--[if lt IE 9]>
+    <script src="js/html5shiv.js"></script>
+  <![endif]-->
+
+  <!-- Fav and touch icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="img/apple-touch-icon-144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/apple-touch-icon-114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/apple-touch-icon-72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="img/apple-touch-icon-57-precomposed.png">
+  <link rel="shortcut icon" href="img/favicon.png">    
+ <!-- 	-->
+  
+ 
+  <style>
+  .ui-autocomplete-loading {
+  }
+
+
+.post-content-menu {
+    background: none repeat scroll 0 0 #FFFFFF;
+    opacity: 0.8;
+    margin: -70px 10px ; 
+    font-size:20px;
+    font-weight:bold;
+    position: relative;
+}
+
+.texto-categorias-small {
+    background: none repeat scroll 0 0 #FFFFFF;
+    opacity: 0.8;
+    margin: -44px 10px 10px; 
+    position: relative;
+
+}
+
+#menu-items {
+
+    padding-bottom: 100px;
+
+}
+
+
+select {
+  
+  border: 1px solid #111;
+   background: transparent;
+   width: 190px;
+   padding: 5px 35px 5px 5px;
+   font-size: 16px;
+   border: 1px solid #ccc;
+   height: 34px;
+   -webkit-appearance: none;
+   -moz-appearance: none;
+   appearance: none;
+  background: url('/static/icons/br_down.png') 96% / 15% no-repeat #eee;
+} 
+
+
+/*target Internet Explorer 9 and Internet Explorer 10:*/
+@media screen and (min-width:0\0) { 
+    select {
+        background:none;
+        padding: 5px;
+    }
+}
+  </style>
+	
+	
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+    <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+  
+        <a class="navbar-brand" href="#">BTC Exchange App</a>
+        <ul class="nav navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/transaction/">Orders</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/stats/">New Order</a>
+          </li>
+          
+        </ul>
+      
+    </nav>
+
+   <div class="row"  >
+   	     {% if request.session.empresa and request.session.empresa.show_logo   %}
+			<div class='col-xs-3 col-sm-3 col-md-3' style="background-color:#F2F2F2; text-align:center">	 												
+	          <img src="{{ request.session.empresa.logo }}" class="img-responsive" alt="" height="{{ request.session.empresa.alto_logo }}" width="{{ request.session.empresa.ancho_logo }}" />
+	        </div>	
+		 {% endif %}
+
+		{% if user.is_authenticated %}
+		     <div class='col-xs-3 col-sm-3 col-md-3 col-md-offset-3' style="background-color:#F2F2F2; text-align:center" >	 												
+	         <h3> Usuario: <strong>{{ user.username  }}</strong> </h3>
+	        </div>		 		
+	     {% endif %}
+
+	     	{% if user.is_authenticated %}
+	        <div class='col-xs-3 col-sm-3 col-md-3' style="background-color:#F2F2F2; text-align:center">	 												
+	         <h3> <a href="/logout/">Logout</a></h3>
+	        </div>	
+	 		
+	     {% endif %}
+		 	
+	</div>
+		{% block main %}	
+
+		{% endblock %}
+			
+ </div>
+</body>
+</html>

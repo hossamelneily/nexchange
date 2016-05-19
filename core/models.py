@@ -49,13 +49,14 @@ class Order(TimeStampedModel, SoftDeletableModel):
     payment_window = models.IntegerField()
     rate_usd_btc = models.FloatField()
     rate_usd_rub = models.FloatField()
-    use = models.ForeignKey(User)
+    user = models.ForeignKey(User)
     is_paid = models.BooleanField(default=False)
     is_released = models.BooleanField(default=False)
     is_complete = models.BooleanField(default=False)
     # TODO: export max_length of reference to settings
     unique_reference = models.CharField(max_length=5)
-    admin_comment = models.CharField()
+    admin_comment = models.CharField(max_length=200)
+    wallet = models.CharField(max_length=32)
 
     def save(self, *args, **kwargs):
         # TODO: export max_length of reference to settings
@@ -68,7 +69,7 @@ class Order(TimeStampedModel, SoftDeletableModel):
 
 class Payment(TimeStampedModel, SoftDeletableModel):
     amount_cash = models.FloatField()
-    currency = models.ForeignKey(User)
+    currency = models.ForeignKey(Currency)
     is_redeemed = models.BooleanField()
     # To match order
     # TODO: export max_length of reference to settings
