@@ -9,7 +9,7 @@ from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
 from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
     DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
 
-from nexchange.nexchange.settings import UNIQUE_REFERENCE_LENGTH
+from nexchange.settings import UNIQUE_REFERENCE_LENGTH
 
 
 class TimeStampedModel(models.Model):
