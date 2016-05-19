@@ -9,6 +9,8 @@ from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
 from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
     DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
 
+from nexchange.nexchange.settings import UNIQUE_REFERENCE_LENGTH
+
 
 class TimeStampedModel(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
@@ -58,14 +60,14 @@ class Order(TimeStampedModel, SoftDeletableModel):
     admin_comment = models.CharField(max_length=200)
     wallet = models.CharField(max_length=32)
 
+
     def save(self, *args, **kwargs):
         # TODO: export max_length of reference to settings
-        self.unique_reference = get_random_string(length=5)
+        self.unique_reference = get_random_string(length=UNIQUE_REFERENCE_LENGTH)
         super(Order, self).save(*args, **kwargs)
 
     def rate_btc_rub(self):
         return self.rate_usd_rub * self.rate_usd_btc
-
 
 class Payment(TimeStampedModel, SoftDeletableModel):
     amount_cash = models.FloatField()
