@@ -11,9 +11,8 @@
 				<div class="col-xs-6 col-sm-6 col-md-6">
 								
 					<center>				
-					 <button type="button" class="btn btn-primary btn-lg" onclick="window.location.href='/transaction/add/'">Add New</button>
+					 <button type="button" class="btn btn-primary btn-lg" onclick="window.location.href='/order/add/'">Add New</button>
 					 <button type="button" class="btn btn-alert btn-lg" onclick="window.location.href='/'">Exit</button>
-					 <button type="button" class="btn btn-info btn-lg" onclick="window.location.href='/transaction/bulkload/'">CSV Load</button>
 					</center>				
 							
 				 </div>
@@ -31,43 +30,46 @@
 			<div class="col-xs-12 col-sm-12 col-md-12"> 
 			  <table class="table table-hover table-condensed">	 
   				<tr>
-  					<th>T.</th>
   					<th>Date</th>
-  					<th>From</th>
-  					<th>To</th>
-  					<th>Amnt.</th>
-  					<th>Tot.</th>
-  					<th>Rate</th>
-  					<th>From</th>
-  					<th>To</th>
-  					<th>K.Price</th>
-  					<th>Profit</th>
-  					<th>Opt</th>
+  					<th>Reference</th>
+  					<th>Currency</th>
+  					<th>Amount</th>
+  					<th>BTC</th>
+  					<th>Paid</th>
+  					<th>Released</th>
+  					<th>Completed</th>
   				</tr>
 	    		
-	    		{% for transaction in transactions %}
-	    		  {% if transaction.paid == 0 %}
+	    		{% for order in orders %}
+	    		  {% if order.paid == 0 %}
 			        <tr class="danger">
-			       {% elif transaction.provisional == 1 %}
+			       {% elif order.provisional == 1 %}
 			        <tr class="warning">
 			       {% else %}
 			        <tr >
 			       {% endif %}
-			    
-			        	<td>{{ transaction.type }}</td>	   
-			        	<td>{{ transaction.date |date:"D d M Y"}}</td>
-		            	<td>{{ transaction.currency_from.code }}</td>
-		            	<td>{{ transaction.currency_to.code }}</td>
-		                <td>{{ transaction.amount }}</td>
-		            	<td>{{ transaction.total }}</td>
-		            	<td>{{ transaction.rate }}</td>
-		            	<td>{{ transaction.resource_from }}</td>
-		            	<td>{{ transaction.resource_to }}</td>
-		            	<td>{{ transaction.kraken_price }}</td>
-		            	<td>{{ transaction.profit }}</td>
-
-			            <td><a href="edit/{{transaction.pk}}"> <img src="/static/icons/pencil_32.png" \></a>
-			        	<a href="delete/{{transaction.pk}}"> <img src="/static/icons/close_32.png"\> </a></td> 	
+			       
+			        	<td>{{ order.created_on |date:"D d M Y"}}</td>
+		            	<td>{{ order.unique_reference }}</td>
+		            	<td>{{ order.currency.code }}</td>
+		                <td>{{ order.amount_cash }}</td>
+		            	<td>{{ order.amount_btc }}</td>
+		            	{% if order.paid == 0 %}
+		            	<td><img src="/static/icons/check_16.png" \></td>
+		            	{% else %}
+		                <td><img src="/static/icons/close_16.png" \></td>
+		            	{% endif %}
+		            	{% if order.released == 0 %}
+		            	<td><img src="/static/icons/check_16.png" \></td>
+		            	{% else %}
+		                <td><img src="/static/icons/close_16.png" \></td>
+		            	{% endif %}
+		            	{% if order.completed == 0 %}
+		            	<td><img src="/static/icons/check_16.png" \></td>
+		            	{% else %}
+		                <td><img src="/static/icons/close_16.png" \></td>
+		            	{% endif %}
+	
 			        </tr>
 	        	        
 	        	{% empty %}
@@ -86,16 +88,16 @@
 
 		<div class="pagination">
 		    <span class="step-links">
-		        {% if transactions.has_previous %}
-		            <a href="?page={{ transactions.previous_page_number }}">previous</a>
+		        {% if orders.has_previous %}
+		            <a href="?page={{ orders.previous_page_number }}">previous</a>
 		        {% endif %}
 
 		        <span class="current">
-		            Page {{ transactions.number }} of {{ transactions.paginator.num_pages }}.
+		            Page {{ orders.number }} of {{ orders.paginator.num_pages }}.
 		        </span>
 
-		        {% if transactions.has_next %}
-		            <a href="?page={{ transactions.next_page_number }}">next</a>
+		        {% if orders.has_next %}
+		            <a href="?page={{ orders.next_page_number }}">next</a>
 		        {% endif %}
 		    </span>
 		</div>

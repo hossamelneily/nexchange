@@ -5,3 +5,7 @@ from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
 from models import *
 from django.forms import ModelForm,Textarea,TextInput,HiddenInput, CheckboxInput
 from django.forms.extras.widgets import SelectDateWidget
+
+
+class DateSearchForm(forms.Form):
+ 	date = forms.DateField(required=False, label="Search by Date") 

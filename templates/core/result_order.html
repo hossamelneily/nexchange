@@ -1,0 +1,30 @@
+{% extends "core/base.html" %}
+
+{% block main %}
+
+
+				   <div class="row">
+					<hr>
+				   </div>
+				   <div class="row">
+				   	  <div class="col-xs-6 col-sm-6 col-md-6 col-xs-offset-3">
+						<div class="jumbotron">
+						  <center><h1>Sucess !</h1></center>
+						  <p>Please tranfer to this bank account:</p> 
+						  <p>{{bank_account}}</p>
+						  <br>
+						  <p>Using this reference number:</p> 
+						  <p>{{unique_ref}}</p>
+						  <p><a class="btn btn-primary btn-lg" role="button" href="/order/">Done ! </a></p>
+						</div>
+					 </div><!-- /col -->
+
+					
+					</div><!-- /row -->
+	  
+				    <hr>
+
+    <script>
+      
+    </script>
+{% endblock %}

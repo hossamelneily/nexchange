@@ -60,16 +60,18 @@ class Order(TimeStampedModel, SoftDeletableModel):
     is_paid = models.BooleanField(default=False)
     is_released = models.BooleanField(default=False)
     is_complete = models.BooleanField(default=False)
-    unique_reference = models.CharField(max_length=UNIQUE_REFERENCE_LENGTH)
+    unique_reference = models.CharField(max_length=UNIQUE_REFERENCE_LENGTH, unique=True)
     admin_comment = models.CharField(max_length=200)
     wallet = models.CharField(max_length=32)
 
-
-    def get_random_string(length=UNIQUE_REFERENCE_LENGTH, chars=string.ascii_uppercase + string.digits):
-        return ''.join(random.choice(chars) for _ in range(length))
     
     def save(self, *args, **kwargs):
-        self.unique_reference = get_random_string()
+        unq = True
+        while unq:
+            self.unique_reference = get_random_string(length=UNIQUE_REFERENCE_LENGTH)
+            cnt_unq = Order.objects.filter(unique_reference=self.unique_reference).count()
+            if cnt_unq == 0:
+                unq = False
         super(Order, self).save(*args, **kwargs)
 
 
