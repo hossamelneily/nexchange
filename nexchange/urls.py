@@ -28,4 +28,5 @@ urlpatterns = [
  #   url(r'^order/$',  core.views.add_order),
     url(r'^order/add/$', core.views.add_order),
 
+    url(r'^registration/$', core.views.UserRegistration.as_view(), name='core.user_registration'),    
 ]
