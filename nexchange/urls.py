@@ -16,6 +16,11 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 import core.views
+from core.models import Currency, Profile
+
+admin.site.register(Currency)
+admin.site.register(Profile)
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),

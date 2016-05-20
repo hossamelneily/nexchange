@@ -9,6 +9,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Avg, Sum, Count, F
 from django.template.loader import get_template
 from decimal import Decimal
+from core.models import *
 # Create your views here.
 import os
 
@@ -31,16 +32,25 @@ def add_order(request):
     messages = []
     template = get_template('core/order.html')
     if request.method == 'POST':
-        form = ManageOrder(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.append('Succesfully saved !')
-            # If the save was successful,  redirect to another page
+        
+        # If the save was successful,  redirect to another page
 
-            return HttpResponseRedirect('/order/')
+        return HttpResponseRedirect('/order/')
     else:
-        form = ""
+        pass
+    
+    currencies = Currency.objects.all()
 
-    return HttpResponse(template.render({'form': form,
+    select_currency_from = """<select name ="currency_from">"""
+    select_currency_to = """<select name ="currency_to">"""
+
+    for ch in currencies:
+        select_currency_from += """<option value ="%s">%s</option>""" % (ch.code, ch.name)
+        select_currency_to += """<option value ="%s">%s</option>""" % (ch.code, ch.name)
+    select_currency_from += """</select>"""
+    select_currency_to += """</select>"""
+
+    
+    return HttpResponse(template.render({'slt1':select_currency_from, 'slt2':select_currency_to,
                                          'action': 'Add'},
                                         request))

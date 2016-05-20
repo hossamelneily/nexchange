@@ -9,7 +9,7 @@ from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
 from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
     DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
 
-from nexchange.settings import UNIQUE_REFERENCE_LENGTH
+from nexchange.settings import UNIQUE_REFERENCE_LENGTH,PAYMENT_WINDOW
 
 
 class TimeStampedModel(models.Model):
@@ -43,26 +43,27 @@ class Currency(TimeStampedModel, SoftDeletableModel):
     code = models.CharField(max_length=3)
     name = models.CharField(max_length=10)
 
+    def __str__(self):
+        return self.name
+
 
 class Order(TimeStampedModel, SoftDeletableModel):
     amount_cash = models.FloatField()
     amount_btc = models.FloatField()
     currency = models.ForeignKey(Currency)
-    payment_window = models.IntegerField()
+    payment_window = models.IntegerField(default=PAYMENT_WINDOW)
     rate_usd_btc = models.FloatField()
     rate_usd_rub = models.FloatField()
     user = models.ForeignKey(User)
     is_paid = models.BooleanField(default=False)
     is_released = models.BooleanField(default=False)
     is_complete = models.BooleanField(default=False)
-    # TODO: export max_length of reference to settings
-    unique_reference = models.CharField(max_length=5)
+    unique_reference = models.CharField(max_length=UNIQUE_REFERENCE_LENGTH)
     admin_comment = models.CharField(max_length=200)
     wallet = models.CharField(max_length=32)
 
 
     def save(self, *args, **kwargs):
-        # TODO: export max_length of reference to settings
         self.unique_reference = get_random_string(length=UNIQUE_REFERENCE_LENGTH)
         super(Order, self).save(*args, **kwargs)
 

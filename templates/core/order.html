@@ -10,17 +10,18 @@
 				<form method="post" class="form" enctype="multipart/form-data" >
 				    {% csrf_token %}
 				   <div class="row">
+				   <div class="col-xs-5 col-sm-5 col-md-5">
+				   	<p id="exchange-text">Exchange from <strong>BitCoins</strong> to <strong>Rusian Ru</strong> </p>
+				   </div>	
+				   </div>
+				   <div class="row">
 				   	  <div class="col-xs-5 col-sm-5 col-md-5">
 					      <div class="panel panel-default">
-						    <div class="panel-body">
+						    <div class="panel-body">						    	
 						           <div class="input-group">
 								      <input type="text" class="form-control">
 								      <div class="input-group-btn">
-								        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Currency <span class="caret"></span></button>
-								        <ul class="dropdown-menu pull-right">
-								          <li><a href="#">RUR</a></li>
-								          <li><a href="#">USD</a></li>
-								        </ul>
+										{{slt1 | safe}}
 								      </div><!-- /btn-group -->
 								    </div><!-- /input-group -->
 						    </div><!-- /pannel-body -->
@@ -37,11 +38,7 @@
 						           <div class="input-group">
 								      <input type="text" class="form-control">
 								      <div class="input-group-btn">
-								        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Currency <span class="caret"></span></button>
-								        <ul class="dropdown-menu pull-right">
-								          <li><a href="#">RUR</a></li>
-								          <li><a href="#">USD</a></li>
-								        </ul>
+								        {{slt2 | safe}}
 								      </div><!-- /btn-group -->
 								    </div><!-- /input-group -->
 						    </div><!-- /pannel-body -->
@@ -50,11 +47,19 @@
 
 					</div><!-- /row -->
 				    <div class="row">
-				    	<hr>
-						 <div class="col-xs-3 col-sm-3 col-md-3"> <button type="submit" class="btn btn-success">Save</button></div>
-						 <div class="col-xs-3 col-sm-3 col-md-3"> <button type="button" class="btn btn-warning" onclick="window.location.href='/transaction/'">Exit</button></div>
+						 <div class="col-xs-4 col-sm-4 col-md-4 col-xs-offset-3">
+						 	<div class="panel panel-default">
+						      <div class="panel-body">
+						      	<center>
+					    		<button type="submit" class="btn btn-success btn-lg">Place</button>
+					    		<button type="button" class="btn btn-warning btn-lg" onclick="window.location.href='/transaction/'">Exit</button>
+								</center>
+							 </div>
+							</div>
+						</div>
+
 					</div>    
-				    
+				    <hr>
 				</form>
 		
 	 
