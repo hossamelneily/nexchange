@@ -5,8 +5,7 @@ from django.contrib.auth.models import User   # fill in custom user info then sa
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
 from .models import *
-from django.forms import ModelForm,Textarea,TextInput,HiddenInput,\
-    CheckboxInput, inlineformset_factory
+from django.forms import ModelForm,Textarea,TextInput,HiddenInput, CheckboxInput
 from django.forms.extras.widgets import SelectDateWidget
 
 

@@ -63,9 +63,9 @@ def add_order(request):
 class UserRegistration(FormView):
     template_name = 'core/user_registration.html'
     form_class = UserRegistrationForm
-    success_url = reverse_lazy('main')
+    success_url = reverse_lazy('core.user_registration')
 
-    success_message = u'Registration completed. Check your e-mail for confirmation link.'
+    success_message = u'Registration completed. Check your phonr for SMS confirmation code.'
     error_message = u'Error during resgistration. <br>Details: (%s) '
 
 
