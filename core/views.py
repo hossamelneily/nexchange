@@ -39,14 +39,14 @@ def add_order(request):
     else:
         pass
     
-    currencies = Currency.objects.all()
+    currencies = Currency.objects.filter().exclude(code="BTC").order_by('code')
 
-    select_currency_from = """<select name ="currency_from">"""
-    select_currency_to = """<select name ="currency_to">"""
+    select_currency_from = """<select name="currency_from" class="currency currency-from">"""
+    select_currency_to = """<select name="currency_to" class="currency currency-to">"""
 
     for ch in currencies:
         select_currency_from += """<option value ="%s">%s</option>""" % (ch.code, ch.name)
-        select_currency_to += """<option value ="%s">%s</option>""" % (ch.code, ch.name)
+    select_currency_to += """<option value ="%s">%s</option>""" % ('BTC', 'BTC')
     select_currency_from += """</select>"""
     select_currency_to += """</select>"""
 

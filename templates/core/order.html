@@ -19,7 +19,7 @@
 					      <div class="panel panel-default">
 						    <div class="panel-body">						    	
 						           <div class="input-group">
-								      <input type="text" class="form-control">
+								      <input type="text" class="form-control amount amount-cash">
 								      <div class="input-group-btn">
 										{{slt1 | safe}}
 								      </div><!-- /btn-group -->
@@ -29,14 +29,14 @@
 					 </div><!-- /col -->
 
 					<div class="col-xs-1 col-sm-1 col-md-1">
-					<h2>TO</h1>
-					</div><!-- /col -->
+					<h2>TO</h2>
+                    </div><!-- /col -->
 					
 					<div class="col-xs-5 col-sm-5 col-md-5">
 					      <div class="panel panel-default">
 						    <div class="panel-body">
 						           <div class="input-group">
-								      <input type="text" class="form-control">
+								      <input type="text" class="form-control amount amount-coin" value="1">
 								      <div class="input-group-btn">
 								        {{slt2 | safe}}
 								      </div><!-- /btn-group -->
@@ -61,14 +61,51 @@
 					</div>    
 				    <hr>
 				</form>
-		
-	 
-<script>	
-   $(function() {
-    $( "#id_date" ).datepicker({ dateFormat: 'yy-mm-dd' }); 
-  });
+    <script>
+        $(function () {
+            var timer = null,
+                delay = 500;
+            updateOrder($('.amount-coin'))
 
- 
-  </script>	
-						
+            $('.amount').on('keyup', function () {
+                var self = this;
+                if (timer) {
+                    clearTimeout(timer);
+                    timer = null;
+                }
+                timer = setTimeout(function () {
+                    updateOrder($(self));
+                }, delay);
+            });
+
+            $('.currency').on('change', function () {
+                updateOrder($('.amount-coin'))
+            });
+        });
+
+    function updateOrder (elem) {
+        var btcToCashEndpoint = 'https://cex.io/api/convert/BTC/' + $('.currency-from').val(),
+            val,
+            rate,
+            floor = 100000000;
+
+        val = parseFloat(elem.val());
+
+        if (!val) {
+            return;
+        }
+
+        $.post(btcToCashEndpoint, {amnt: 1}, function(data) {
+            rate = data.amnt;
+
+            if (elem.hasClass('amount-coin')) {
+                var cashAmount = Math.round(rate * val);
+                $('.amount-cash').val(cashAmount);
+            } else {
+                var btcAmount = Math.floor(val / rate * floor) / floor;
+                $('.amount-coin').val(btcAmount);
+            }
+        });
+    }
+    </script>
 {% endblock %}
