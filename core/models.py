@@ -11,6 +11,8 @@ from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
 
 from nexchange.settings import UNIQUE_REFERENCE_LENGTH,PAYMENT_WINDOW
 
+import string
+import random
 
 class TimeStampedModel(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
@@ -52,8 +54,8 @@ class Order(TimeStampedModel, SoftDeletableModel):
     amount_btc = models.FloatField()
     currency = models.ForeignKey(Currency)
     payment_window = models.IntegerField(default=PAYMENT_WINDOW)
-    rate_usd_btc = models.FloatField()
-    rate_usd_rub = models.FloatField()
+#    rate_usd_btc = models.FloatField(null=True)
+#    rate_usd_rub = models.FloatField(null=True)
     user = models.ForeignKey(User)
     is_paid = models.BooleanField(default=False)
     is_released = models.BooleanField(default=False)
@@ -63,12 +65,13 @@ class Order(TimeStampedModel, SoftDeletableModel):
     wallet = models.CharField(max_length=32)
 
 
+    def get_random_string(length=UNIQUE_REFERENCE_LENGTH, chars=string.ascii_uppercase + string.digits):
+        return ''.join(random.choice(chars) for _ in range(length))
+    
     def save(self, *args, **kwargs):
-        self.unique_reference = get_random_string(length=UNIQUE_REFERENCE_LENGTH)
+        self.unique_reference = get_random_string()
         super(Order, self).save(*args, **kwargs)
 
-    def rate_btc_rub(self):
-        return self.rate_usd_rub * self.rate_usd_btc
 
 class Payment(TimeStampedModel, SoftDeletableModel):
     amount_cash = models.FloatField()
