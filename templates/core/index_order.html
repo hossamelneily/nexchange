@@ -54,17 +54,17 @@
 		            	<td>{{ order.currency.code }}</td>
 		                <td>{{ order.amount_cash }}</td>
 		            	<td>{{ order.amount_btc }}</td>
-		            	{% if order.paid == 0 %}
+		            	{% if order.is_paid == 1 %}
 		            	<td><img src="/static/icons/check_16.png" \></td>
 		            	{% else %}
 		                <td><img src="/static/icons/close_16.png" \></td>
 		            	{% endif %}
-		            	{% if order.released == 0 %}
+		            	{% if order.is_released == 1 %}
 		            	<td><img src="/static/icons/check_16.png" \></td>
 		            	{% else %}
 		                <td><img src="/static/icons/close_16.png" \></td>
 		            	{% endif %}
-		            	{% if order.completed == 0 %}
+		            	{% if order.is_complete == 1 %}
 		            	<td><img src="/static/icons/check_16.png" \></td>
 		            	{% else %}
 		                <td><img src="/static/icons/close_16.png" \></td>

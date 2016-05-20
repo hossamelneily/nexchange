@@ -37,15 +37,22 @@ def index_order(request):
     template = get_template('core/index_order.html')
     paginate_by = 10
     form = form_class(request.POST or None)
+    logged = request.user.is_authenticated()
+    kwargs={}
+    if request.user.is_authenticated():
+        kwargs={"user":request.user}
+    else:
+        kwargs={"user":0}
 
     if form.is_valid():
         my_date = form.cleaned_data['date']
         if my_date:
-            order_list = model.objects.filter(created_on__date=my_date)
+            order_list = model.objects.filter(created_on__date=my_date,
+                                              user=request.user)
         else:
-            order_list = model.objects.all()
+            order_list = model.objects.filter(user=request.user)
     else:
-        order_list = model.objects.all()
+        order_list = model.objects.filter(user=request.user)
     # print order_list.query
     # print len(order_list)
     # Show 10 rows per page
