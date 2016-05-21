@@ -29,8 +29,20 @@ class UserProfileForm(forms.ModelForm):
 
 
 class CustomUserCreationForm(UserCreationForm):
-
+    '''So username is not a required field'''
     class Meta:
         model = User
         fields = ['password1', 'password2']
+
+
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email',]
+
+
+class UpdateUserProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['first_name', 'last_name']
 

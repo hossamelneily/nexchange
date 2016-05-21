@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.template import RequestContext
@@ -21,8 +21,13 @@ import os
 
 import dateutil.parser
 
-from django.contrib.auth.forms import UserCreationForm
 from django.db import transaction
+from django.views.generic import View
+from django.views.generic.detail import SingleObjectMixin
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
+
 #from forms import *
 # Create your views here.
 # login_required(login_url ='/login/')
@@ -125,7 +130,6 @@ def add_order(request):
 
 def user_registration(request):
     template = 'core/user_registration.html'
-    success_url = reverse('core.user_registration')
     success_message = u'Registration completed. Check your phonr for SMS confirmation code.'
     error_message = u'Error during resgistration. <br>Details: (%s)'
 
@@ -146,13 +150,71 @@ def user_registration(request):
                     profile.save()
                     
                     messages.success(request, success_message)
+
+                # Authenticate user and redirect to "activation" page
+                user = authenticate(username=user.username, password=user_form.cleaned_data['password1'])
+                login(request, user)
+
+                return redirect(reverse('core.user_profile', args=[user.username]))
+                
+
             except Exception as e:
                 msg = error_message % (e)
                 messages.error(request, msg)
 
-            return HttpResponseRedirect(success_url)
     else:
         user_form = CustomUserCreationForm()
         profile_form = UserProfileForm()        
 
-    return render(request, template, {'user_form': user_form, 'profile_form': profile_form})    
+    return render(request, template, {'user_form': user_form, 'profile_form': profile_form})
+
+
+@method_decorator(login_required, name='dispatch')
+class UserUpdateView(SingleObjectMixin, View):    
+    model = User
+    slug_field = 'username'
+
+    def get_object(self, queryset=None):
+        ''' Testa se tem permissão de editar '''
+        obj = super(UserUpdateView, self).get_object()
+        if not obj == self.request.user:
+            raise PermissionDenied
+        return obj
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        user_form = UserForm(instance=self.object)
+        profile_form = UpdateUserProfileForm(instance=self.object.profile)
+
+        ctx = {
+            'user_form': user_form,
+            'profile_form': profile_form,
+        }
+
+        return render(request, 'core/user_profile.html', ctx,)
+        
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        user_form = UserForm(request.POST, instance=self.object)
+        profile_form = UpdateUserProfileForm(request.POST, instance=self.object.profile)
+        success_message = 'Profile updated with success'
+
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(self.request, success_message)
+
+            return redirect(reverse('core.user_profile', args=[self.object.username]))
+        else:
+            ctx = {
+                'user_form': user_form, 
+                'profile_form': profile_form, 
+            }            
+
+            return render(request, 'core/user_profile.html', ctx,)
+
+
+def user_logout(request):
+    logout(request)
+    messages.success(request, 'Session finished')
+    return redirect(reverse('main'))

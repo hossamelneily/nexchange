@@ -30,7 +30,9 @@ urlpatterns = [
     url(r'^order/$',  core.views.index_order),
     url(r'^order/add/$', core.views.add_order),
 
-    #url(r'^registration/$', core.views.UserRegistration.as_view(), name='core.user_registration'),    
-    url(r'^registration/$', core.views.user_registration, name='core.user_registration'),    
+    url(r'^registration/$', core.views.user_registration, name='core.user_registration'),
+    url(r'^profile/(?P<slug>[-\+\w\d]+)/$',  core.views.UserUpdateView.as_view(), name='core.user_profile'),
+    url(r'^logout/$',  core.views.user_logout, name='core.user_logout'),
+       
     
 ]
