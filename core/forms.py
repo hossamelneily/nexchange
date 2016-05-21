@@ -3,7 +3,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User   # fill in custom user info then save it 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import *
 from django.forms import ModelForm,Textarea,TextInput,HiddenInput, CheckboxInput
 from django.forms.extras.widgets import SelectDateWidget
@@ -25,4 +25,12 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        exclude = ['user', 'deleted', 'disabled']
+        fields = ['phone',]
+
+
+class CustomUserCreationForm(UserCreationForm):
+
+    class Meta:
+        model = User
+        fields = ['password1', 'password2']
+

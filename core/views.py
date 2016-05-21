@@ -130,13 +130,15 @@ def user_registration(request):
     error_message = u'Error during resgistration. <br>Details: (%s)'
 
     if request.method == 'POST':
-        user_form = UserCreationForm(request.POST)
+        user_form = CustomUserCreationForm(request.POST)
         profile_form = UserProfileForm(request.POST)
 
         if user_form.is_valid() and profile_form.is_valid():
             try:
                 with transaction.atomic(using='default'):
-                    user = user_form.save()                    
+                    user = user_form.save(commit=False)
+                    user.username = profile_form.cleaned_data['phone']
+                    user.save()
                     
                     profile_form = UserProfileForm(request.POST, instance=user.profile)                    
                     profile = profile_form.save(commit=False)
@@ -150,7 +152,7 @@ def user_registration(request):
 
             return HttpResponseRedirect(success_url)
     else:
-        user_form = UserCreationForm()
+        user_form = CustomUserCreationForm()
         profile_form = UserProfileForm()        
 
     return render(request, template, {'user_form': user_form, 'profile_form': profile_form})    
