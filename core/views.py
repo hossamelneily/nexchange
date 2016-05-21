@@ -7,22 +7,22 @@ from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.core.urlresolvers import reverse_lazy
+from django.core.urlresolvers import reverse
 from django.db.models import Avg, Sum, Count, F
 from django.template.loader import get_template
 from decimal import Decimal
 
 from nexchange.settings import MAIN_BANK_ACCOUNT
-from forms import *
+from .forms import *
 from core.models import *
-from .forms import UserRegistrationForm
 from django.views.generic.edit import FormView
 # Create your views here.
 import os
 
 import dateutil.parser
 
-
+from django.contrib.auth.forms import UserCreationForm
+from django.db import transaction
 #from forms import *
 # Create your views here.
 # login_required(login_url ='/login/')
@@ -123,23 +123,34 @@ def add_order(request):
                                          'action': 'Add'},
                                         request))
 
-class UserRegistration(FormView):
-    template_name = 'core/user_registration.html'
-    form_class = UserRegistrationForm
-    success_url = reverse_lazy('core.user_registration')
-
+def user_registration(request):
+    template = 'core/user_registration.html'
+    success_url = reverse('core.user_registration')
     success_message = u'Registration completed. Check your phonr for SMS confirmation code.'
-    error_message = u'Error during resgistration. <br>Details: (%s) '
+    error_message = u'Error during resgistration. <br>Details: (%s)'
 
+    if request.method == 'POST':
+        user_form = UserCreationForm(request.POST)
+        profile_form = UserProfileForm(request.POST)
 
-    def form_valid(self, form):
-        try:
-            form.save(request=self.request)
-            messages.success(self.request, self.success_message)
-            return HttpResponseRedirect(self.get_success_url())
-        except Exception as e:
-            msg = self.error_message % (e)
+        if user_form.is_valid() and profile_form.is_valid():
+            try:
+                with transaction.atomic(using='default'):
+                    user = user_form.save()                    
+                    
+                    profile_form = UserProfileForm(request.POST, instance=user.profile)                    
+                    profile = profile_form.save(commit=False)
+                    profile.disabled = True
+                    profile.save()
+                    
+                    messages.success(request, success_message)
+            except Exception as e:
+                msg = error_message % (e)
+                messages.error(request, msg)
 
-            messages.error(self.request, msg)
-            return super(UserRegistration, self).form_invalid(form)
+            return HttpResponseRedirect(success_url)
+    else:
+        user_form = UserCreationForm()
+        profile_form = UserProfileForm()        
 
+    return render(request, template, {'user_form': user_form, 'profile_form': profile_form})    

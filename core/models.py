@@ -35,10 +35,13 @@ class SoftDeletableModel(SoftDeleteMixin):
 
 
 class Profile(TimeStampedModel, SoftDeletableModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = PhoneNumberField(blank=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)    
+    phone = PhoneNumberField(blank=False, help_text='Enter phone number in internation format. eg. +555198786543')
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, blank=True)
+
+User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])
+
 
 
 class Currency(TimeStampedModel, SoftDeletableModel):
