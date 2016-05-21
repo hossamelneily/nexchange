@@ -9,6 +9,9 @@ from django.forms import ModelForm,Textarea,TextInput,HiddenInput, CheckboxInput
 from django.forms.extras.widgets import SelectDateWidget
 
 
+class DateSearchForm(forms.Form):
+ 	date = forms.DateField(required=False, label="Search by Date") 
+
 class UserRegistrationForm(forms.Form):
     PHONE_REGEX = r'\+[0-9]{12,}'  # pattern for a valid phone number    
     PASSWORD_REGEX = r'.*'  # pattern for a valid password

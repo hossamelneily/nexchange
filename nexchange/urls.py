@@ -16,16 +16,18 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 import core.views
-from core.models import Currency, Profile
+from core.models import Currency, Profile, Order
 
 admin.site.register(Currency)
 admin.site.register(Profile)
+admin.site.register(Order)
+
 
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', core.views.main, name='main'),
- #   url(r'^order/$',  core.views.add_order),
+    url(r'^order/$',  core.views.index_order),
     url(r'^order/add/$', core.views.add_order),
 
     url(r'^registration/$', core.views.UserRegistration.as_view(), name='core.user_registration'),    
