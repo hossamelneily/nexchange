@@ -135,7 +135,7 @@ def add_order(request):
 
 def user_registration(request):
     template = 'core/user_registration.html'
-    success_message = u'Registration completed. Check your phonr for SMS confirmation code.'
+    success_message = u'Registration completed. Check your phone for SMS confirmation code.'
     error_message = u'Error during resgistration. <br>Details: (%s)'
 
     if request.method == 'POST':
@@ -153,6 +153,9 @@ def user_registration(request):
                     profile = profile_form.save(commit=False)
                     profile.disabled = True
                     profile.save()
+
+                    # send SMS token
+                    message = _send_sms(user)
                     
                     messages.success(request, success_message)
 
@@ -208,7 +211,7 @@ class UserUpdateView(SingleObjectMixin, View):
             user_form.save()
             profile_form.save()
             messages.success(self.request, success_message)
-
+            
             return redirect(reverse('core.user_profile', args=[self.object.username]))
         else:
             ctx = {
@@ -225,14 +228,19 @@ def user_logout(request):
     return redirect(reverse('main'))
 
 
-@login_required(login_url='/login_backend/')
-def resend_sms(request):
-    msg = "BTC Exchange code: '%s'" % request.user.profile.sms_token
-    profile = request.user.profile
+def _send_sms(user):
+    msg = "BTC Exchange code: '%s'" % user.profile.sms_token    
 
     client = TwilioRestClient(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-    message = client.messages.create(body=msg, to=str(profile.phone), from_=settings.TWILIO_PHONE_FROM)
+    message = client.messages.create(body=msg, to=str(user.profile.phone), from_=settings.TWILIO_PHONE_FROM)
 
+    return message
+
+
+@login_required(login_url='/login_backend/')
+def resend_sms(request):
+    # Should we generate another token..?
+    message = _send_sms(request.user)
     return JsonResponse({'message_sid': message.sid}, safe=False)
 
 
