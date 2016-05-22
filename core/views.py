@@ -13,6 +13,7 @@ from django.template.loader import get_template
 from decimal import Decimal
 
 from nexchange.settings import MAIN_BANK_ACCOUNT
+
 from .forms import *
 from core.models import *
 from django.views.generic.edit import FormView
@@ -27,6 +28,10 @@ from django.views.generic.detail import SingleObjectMixin
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from twilio.rest import TwilioRestClient
+from django.conf import settings
+from django.http import JsonResponse
+import json
 
 #from forms import *
 # Create your views here.
@@ -218,3 +223,28 @@ def user_logout(request):
     logout(request)
     messages.success(request, 'Session finished')
     return redirect(reverse('main'))
+
+
+@login_required(login_url='/login_backend/')
+def resend_sms(request):
+    msg = "BTC Exchange code: '%s'" % request.user.profile.sms_token
+    profile = request.user.profile
+
+    client = TwilioRestClient(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+    message = client.messages.create(body=msg, to=str(profile.phone), from_=settings.TWILIO_PHONE_FROM)
+
+    return JsonResponse({'message_sid': message.sid}, safe=False)
+
+
+@login_required(login_url='/login_backend/')
+def verify_phone(request):
+    sent_token = request.POST.get('token')
+    if sent_token == request.user.profile.sms_token:
+        profile = request.user.profile
+        profile.disabled = False
+        profile.save()
+        status = 'OK'
+    else:
+        status = 'NOT_MATCH'
+
+    return JsonResponse({'status': status}, safe=False)

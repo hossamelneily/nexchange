@@ -131,7 +131,7 @@ select {
         {% if user.is_authenticated %}
         <ul class="nav navbar-nav navbar-right">
           <li class="nav-item">
-            <a class="nav-link" href="#">User: <strong>{{ user.username  }}</strong></a>
+            <a class="nav-link" href="{% url 'core.user_profile' user.username  %}">User: <strong>{{ user.username  }}</strong></a>
           </li>        
 
           <li class="nav-item">
@@ -147,5 +147,8 @@ select {
 		{% endblock %}
 			
  </div>
+ 
+    {% block extra_js_footer %} {% endblock %}
+
 </body>
 </html>

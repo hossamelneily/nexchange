@@ -31,7 +31,10 @@ urlpatterns = [
     url(r'^order/add/$', core.views.add_order),
 
     url(r'^registration/$', core.views.user_registration, name='core.user_registration'),
+    url(r'^profile/resendSMS/$',  core.views.resend_sms, name='core.resend_sms'),
+    url(r'^profile/verifyPhone/$',  core.views.verify_phone, name='core.verify_phone'),
     url(r'^profile/(?P<slug>[-\+\w\d]+)/$',  core.views.UserUpdateView.as_view(), name='core.user_profile'),
+    
     url(r'^logout/$',  core.views.user_logout, name='core.user_logout'),
        
     

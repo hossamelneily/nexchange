@@ -39,6 +39,24 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     phone = PhoneNumberField(blank=False, help_text='Enter phone number in internation format. eg. +555198786543')
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, blank=True)
+    sms_token = models.CharField(max_length=UNIQUE_REFERENCE_LENGTH, blank=True)
+
+    @staticmethod
+    def make_sms_token():
+        unq = True
+        while unq:
+            token = get_random_string(length=UNIQUE_REFERENCE_LENGTH)
+            cnt_unq = Profile.objects.filter(sms_token=token).count()
+            if cnt_unq == 0:
+                unq = False
+
+            return token
+
+    def save(self, *args, **kwargs):
+        '''Add a SMS token at creation. It will be used to verify phone number'''
+        if self.pk is None:
+            self.sms_token = Profile.make_sms_token()
+        super(Profile, self).save(*args, **kwargs)
 
 User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])
 

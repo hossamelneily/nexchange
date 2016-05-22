@@ -145,4 +145,7 @@ UNIQUE_REFERENCE_LENGTH = 5
 
 MAIN_BANK_ACCOUNT = "XXXX12345-1233-22"
 
-
+    
+TWILIO_ACCOUNT_SID = 'AC36b7cf2a5b759ce6b93c5c655ff8bec3' # Your Account SID from www.twilio.com/console
+TWILIO_AUTH_TOKEN = '3515b0c5001494e76c528591ff4bb8b7' # Auth Token from www.twilio.com/console
+TWILIO_PHONE_FROM = '+15012511775'
