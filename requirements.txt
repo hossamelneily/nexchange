@@ -13,3 +13,4 @@ redis==2.10.5
 requests==2.10.0
 rq==0.6.0
 six==1.10.0
+twilio==5.4.0
