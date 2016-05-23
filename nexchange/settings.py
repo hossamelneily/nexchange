@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+from django.core.urlresolvers import reverse_lazy
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -114,6 +115,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_PROFILE_MODULE = "core.Profile"
+
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -134,9 +138,31 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-UNIQUE_REFERENCE_LENGTH = 5
-
 STATICFILES_DIRS = (
     STATIC_PATH,
 )
 
+UNIQUE_REFERENCE_LENGTH = 5
+
+MAIN_BANK_ACCOUNT = "XXXX12345-1233-22"
+
+
+TWILIO_ACCOUNT_SID = 'AC36b7cf2a5b759ce6b93c5c655ff8bec3' # Your Account SID from www.twilio.com/console
+TWILIO_AUTH_TOKEN = '3515b0c5001494e76c528591ff4bb8b7' # Auth Token from www.twilio.com/console
+TWILIO_PHONE_FROM = '+15012511775'
+TWILIO_ACCOUNT_VERIFIED_PHONES = ['+555182459515'] # a small hack to avoid error while using my test account
+
+LOGIN_REDIRECT_URL = reverse_lazy('core.order')
+
+'''
+Configs for sending email for password reset.
+Run 'python -m smtpd -n -c DebuggingServer localhost:1025' 
+to see a dump of email that would be sent
+'''
+if DEBUG:
+    EMAIL_HOST = 'localhost'
+    EMAIL_PORT = 1025
+    EMAIL_HOST_USER = ''
+    EMAIL_HOST_PASSWORD = ''
+    EMAIL_USE_TLS = False
+    DEFAULT_FROM_EMAIL = 'testing@example.com'
