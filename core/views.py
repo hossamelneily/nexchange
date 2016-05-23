@@ -16,7 +16,6 @@ from nexchange.settings import MAIN_BANK_ACCOUNT
 
 from .forms import *
 from core.models import *
-from django.views.generic.edit import FormView
 # Create your views here.
 import os
 
@@ -27,13 +26,10 @@ from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login
 from twilio.rest import TwilioRestClient
 from django.conf import settings
 from django.http import JsonResponse
-import json
-from django.contrib.auth.forms import AuthenticationForm
-from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 
 #from forms import *
 # Create your views here.
