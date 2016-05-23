@@ -85,6 +85,8 @@ class Order(TimeStampedModel, SoftDeletableModel):
     admin_comment = models.CharField(max_length=200)
     wallet = models.CharField(max_length=32)
 
+    class Meta:
+        ordering = ['-created_on']
     
     def save(self, *args, **kwargs):
         unq = True
