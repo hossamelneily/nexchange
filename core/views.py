@@ -32,6 +32,8 @@ from twilio.rest import TwilioRestClient
 from django.conf import settings
 from django.http import JsonResponse
 import json
+from django.contrib.auth.forms import AuthenticationForm
+from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 
 #from forms import *
 # Create your views here.
@@ -222,29 +224,28 @@ class UserUpdateView(SingleObjectMixin, View):
             return render(request, 'core/user_profile.html', ctx,)
 
 
-def user_logout(request):
-    logout(request)
-    messages.success(request, 'Session finished')
-    return redirect(reverse('main'))
+def _send_sms(user):    
+    msg = "BTC Exchange code: '%s'" % user.profile.sms_token
+    phone_to = str(user.profile.phone)
 
-
-def _send_sms(user):
-    msg = "BTC Exchange code: '%s'" % user.profile.sms_token    
+    if settings.TWILIO_ACCOUNT_VERIFIED_PHONES and phone_to not in settings.TWILIO_ACCOUNT_VERIFIED_PHONES:
+        print("NOT SENDING SMS BECAUSE TEST ACCOUNT CANNOT SEND TO THIS PHONE")
+        return {'sid': 'FAKE_SID'}
 
     client = TwilioRestClient(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-    message = client.messages.create(body=msg, to=str(user.profile.phone), from_=settings.TWILIO_PHONE_FROM)
+    message = client.messages.create(body=msg, to=phone_to, from_=settings.TWILIO_PHONE_FROM)
 
     return message
 
 
-@login_required(login_url='/login_backend/')
+@login_required()
 def resend_sms(request):
     # Should we generate another token..?
     message = _send_sms(request.user)
     return JsonResponse({'message_sid': message.sid}, safe=False)
 
 
-@login_required(login_url='/login_backend/')
+@login_required()
 def verify_phone(request):
     sent_token = request.POST.get('token')
     if sent_token == request.user.profile.sms_token:
@@ -256,3 +257,4 @@ def verify_phone(request):
         status = 'NOT_MATCH'
 
     return JsonResponse({'status': status}, safe=False)
+

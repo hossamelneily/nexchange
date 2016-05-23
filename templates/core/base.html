@@ -120,9 +120,6 @@ select {
             <a class="nav-link" href="/order/add/">New Order</a>
           </li>
 
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'core.user_registration' %}">Registration</a>
-          </li>
           
         </ul>
       
@@ -135,7 +132,7 @@ select {
           </li>        
 
           <li class="nav-item">
-           <a class="nav-link" href="{% url 'core.user_logout' %}">Logout</a>
+           <a class="nav-link" href="{% url 'accounts.logout' %}">Logout</a>
           </li> 
 
         </ul>
@@ -143,9 +140,11 @@ select {
 
         <ul class="nav navbar-nav navbar-right">
           <li class="nav-item">
-           <a class="nav-link" href="/login">Login </a>
+           <a class="nav-link" href="{% url 'accounts.login' %}">Login </a>
           </li> 
-
+          <li>
+            <a class="nav-link" href="{% url 'core.user_registration' %}">Register</a>
+          </li>
         </ul>
         {% endif %}
     </nav>

@@ -46,3 +46,9 @@ class UpdateUserProfileForm(forms.ModelForm):
         model = Profile
         fields = ['first_name', 'last_name']
 
+
+class LoginForm(AuthenticationForm):
+    '''So username is labeled as "Phone"'''
+    def __init__(self, *args, **kwargs):
+        super(LoginForm, self).__init__(*args, **kwargs)
+        self.fields['username'].label = 'Phone'
