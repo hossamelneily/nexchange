@@ -9,3 +9,4 @@ _cache/
 _steps/
 _projects/
 .DS_Store
+db.sqlite3

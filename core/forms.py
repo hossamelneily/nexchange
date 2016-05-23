@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
+
 from django import forms
-from django.core.exceptions import ValidationError
-from django.contrib.auth.models import User   # fill in custom user info then save it 
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import *
-from django.forms import ModelForm,Textarea,TextInput,HiddenInput, CheckboxInput
-from django.forms.extras.widgets import SelectDateWidget
+from core.models import Profile
+from django.core.exceptions import ValidationError
 
 
 class DateSearchForm(forms.Form):
- 	date = forms.DateField(required=False, label="Search by Date") 
+    date = forms.DateField(required=False, label="Search by Date")
 
 
 class UserProfileForm(forms.ModelForm):
@@ -19,7 +17,7 @@ class UserProfileForm(forms.ModelForm):
         phone = self.cleaned_data.get('phone')
         if Profile.objects.filter(phone=phone).exists():
             raise ValidationError(u'This phone is already registered.',
-                code='invalid',)
+                                  code='invalid',)
 
         return phone
 
