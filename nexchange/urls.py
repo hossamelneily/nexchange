@@ -19,15 +19,18 @@ import django.contrib.auth.views as auth_views
 import core.views
 from core.models import Currency, Profile, Order
 from core.forms import LoginForm
+from django.conf.urls import include
+from django.conf.urls.i18n import i18n_patterns
+import  django.conf.urls.i18n
 
 admin.site.register(Currency)
 admin.site.register(Profile)
 admin.site.register(Order)
 
 
-
-urlpatterns = [
+urlpatterns = i18n_patterns(
     url(r'^admin/', admin.site.urls),
+    url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^$', core.views.main, name='main'),
     url(r'^order/$',  core.views.index_order, name='core.order'),
     url(r'^order/add/$', core.views.add_order),
@@ -48,4 +51,4 @@ urlpatterns = [
     # after saved the new passwd
     url(r'^accounts/password/done/$', auth_views.password_reset_complete),
     
-]
+)
