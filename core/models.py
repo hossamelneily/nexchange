@@ -14,6 +14,8 @@ from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW
 import string
 import random
 
+from .validators import validate_bc
+
 
 class TimeStampedModel(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
@@ -37,11 +39,13 @@ class SoftDeletableModel(SoftDeleteMixin):
 
 
 class Profile(TimeStampedModel, SoftDeletableModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)    
-    phone = PhoneNumberField(blank=False, help_text='Enter phone number in internation format. eg. +555198786543')
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone = PhoneNumberField(blank=False, help_text='Enter phone number in\
+     internation format. eg. +555198786543')
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, blank=True)
-    sms_token = models.CharField(max_length=UNIQUE_REFERENCE_LENGTH, blank=True)
+    sms_token = models.CharField(
+        max_length=UNIQUE_REFERENCE_LENGTH, blank=True)
 
     @staticmethod
     def make_sms_token():
@@ -55,13 +59,12 @@ class Profile(TimeStampedModel, SoftDeletableModel):
             return token
 
     def save(self, *args, **kwargs):
-        '''Add a SMS token at creation. It will be used to verify phone number'''
+        '''Add a SMS token at creation. Used to verify phone number'''
         if self.pk is None:
             self.sms_token = Profile.make_sms_token()
         super(Profile, self).save(*args, **kwargs)
 
 User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])
-
 
 
 class Currency(TimeStampedModel, SoftDeletableModel):
@@ -85,6 +88,8 @@ class Order(TimeStampedModel, SoftDeletableModel):
         max_length=UNIQUE_REFERENCE_LENGTH, unique=True)
     admin_comment = models.CharField(max_length=200)
     wallet = models.CharField(max_length=32)
+    withdraw_address = models.CharField(
+        max_length=34, validators=[validate_bc])
 
     class Meta:
         ordering = ['-created_on']
@@ -93,8 +98,8 @@ class Order(TimeStampedModel, SoftDeletableModel):
         unq = True
         failed_count = 0
         MX_LENGTH = UNIQUE_REFERENCE_LENGTH
-        while unq:     
-            
+        while unq:
+
             if failed_count >= 5:
                 MX_LENGTH += 1
 
@@ -105,7 +110,7 @@ class Order(TimeStampedModel, SoftDeletableModel):
             if cnt_unq == 0:
                 unq = False
             else:
-                failed_count+=1
+                failed_count += 1
 
         super(Order, self).save(*args, **kwargs)
 
