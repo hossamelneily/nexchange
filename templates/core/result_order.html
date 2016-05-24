@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-
+{% load tz %}
 {% block main %}
 
 
@@ -15,6 +15,9 @@
 						  <br>
 						  <p>Using this reference number:</p> 
 						  <p>{{unique_ref}}</p>
+						  {% localtime on %}
+						  <p id="pay_until_notice">Notice that you must pay until <strong>{{pay_until |date:"H:iA (e)"}}</strong> </p>
+						  {% endlocaltime %}
 						  <p><a class="btn btn-primary btn-lg" role="button" href="/order/">Done ! </a></p>
 						</div>
 					 </div><!-- /col -->

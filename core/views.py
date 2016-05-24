@@ -22,6 +22,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from datetime import timedelta
 
 
 def main(request):
@@ -44,7 +45,7 @@ def index_order(request):
     if form.is_valid():
         my_date = form.cleaned_data['date']
         if my_date:
-            kwargs["created_on__date"]= my_date
+            kwargs["created_on__date"] = my_date
             order_list = model.objects.filter(**kwargs)
         else:
             order_list = model.objects.filter(**kwargs)
@@ -85,10 +86,12 @@ def add_order(request):
                       currency=currency, user=user)
         order.save()
         uniq_ref = order.unique_reference
+        pay_until = order.created_on + timedelta(minutes=order.payment_window)
 
         return HttpResponse(template.render({'bank_account': MAIN_BANK_ACCOUNT,
                                              'unique_ref': uniq_ref,
-                                             'action': 'Result'},
+                                             'action': 'Result',
+                                             'pay_until': pay_until, },
                                             request))
     else:
         pass
@@ -129,15 +132,17 @@ def user_registration(request):
                     user = user_form.save(commit=False)
                     user.username = profile_form.cleaned_data['phone']
                     user.save()
-                    
-                    profile_form = UserProfileForm(request.POST, instance=user.profile)                    
+
+                    profile_form = UserProfileForm(
+                        request.POST, instance=user.profile)
                     profile = profile_form.save(commit=False)
                     profile.disabled = True
                     profile.save()
                     message = _send_sms(user)
                     messages.success(request, success_message)
 
-                user = authenticate(username=user.username, password=user_form.cleaned_data['password1'])
+                user = authenticate(username=user.username,
+                                    password=user_form.cleaned_data['password1'])
                 login(request, user)
 
                 return redirect(reverse('core.user_profile', args=[user.username]))
@@ -148,13 +153,13 @@ def user_registration(request):
 
     else:
         user_form = CustomUserCreationForm()
-        profile_form = UserProfileForm()        
+        profile_form = UserProfileForm()
 
     return render(request, template, {'user_form': user_form, 'profile_form': profile_form})
 
 
 @method_decorator(login_required, name='dispatch')
-class UserUpdateView(SingleObjectMixin, View):    
+class UserUpdateView(SingleObjectMixin, View):
     model = User
     slug_field = 'username'
 
@@ -176,29 +181,30 @@ class UserUpdateView(SingleObjectMixin, View):
         }
 
         return render(request, 'core/user_profile.html', ctx,)
-        
+
     def post(self, request):
         self.object = self.get_object()
         user_form = UserForm(request.POST, instance=self.object)
-        profile_form = UpdateUserProfileForm(request.POST, instance=self.object.profile)
+        profile_form = UpdateUserProfileForm(
+            request.POST, instance=self.object.profile)
         success_message = 'Profile updated with success'
 
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
             messages.success(self.request, success_message)
-            
+
             return redirect(reverse('core.user_profile', args=[self.object.username]))
         else:
             ctx = {
-                'user_form': user_form, 
-                'profile_form': profile_form, 
-            }            
+                'user_form': user_form,
+                'profile_form': profile_form,
+            }
 
             return render(request, 'core/user_profile.html', ctx,)
 
 
-def _send_sms(user):    
+def _send_sms(user):
     msg = "BTC Exchange code: '%s'" % user.profile.sms_token
     phone_to = str(user.profile.phone)
 
@@ -206,8 +212,10 @@ def _send_sms(user):
         print("NOT SENDING SMS BECAUSE TEST ACCOUNT CANNOT SEND TO THIS PHONE")
         return {'sid': 'FAKE_SID'}
 
-    client = TwilioRestClient(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-    message = client.messages.create(body=msg, to=phone_to, from_=settings.TWILIO_PHONE_FROM)
+    client = TwilioRestClient(
+        settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+    message = client.messages.create(
+        body=msg, to=phone_to, from_=settings.TWILIO_PHONE_FROM)
 
     return message
 
