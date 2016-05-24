@@ -89,7 +89,7 @@ class Order(TimeStampedModel, SoftDeletableModel):
     admin_comment = models.CharField(max_length=200)
     wallet = models.CharField(max_length=32)
     withdraw_address = models.CharField(
-        max_length=34, validators=[validate_bc])
+        max_length=35, validators=[validate_bc])
 
     class Meta:
         ordering = ['-created_on']
