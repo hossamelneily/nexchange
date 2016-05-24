@@ -1,9 +1,9 @@
 {% extends "core/base.html" %}
-
+{% load i18n %}
 {% block main %}
 			<div class="page-header">
 				<h1>
-					BTC - Exchange <small>Order {{action}}</small>
+					{% trans "BTC - Exchange" %} <small>{% trans "Order" %} {{action}} </small>
 				</h1>
 			</div>
 
@@ -11,7 +11,7 @@
 				    {% csrf_token %}
 				   <div class="row">
 				   <div class="col-xs-5 col-sm-5 col-md-5">
-				   	<p id="exchange-text">Exchange from <strong>BitCoins</strong> to <strong>Rusian Ru</strong> </p>
+				   	<p id="exchange-text">{% trans "Exchange from" %} <strong>{% trans "BitCoins" %}</strong> {% trans "to other Currencies" %}</strong> </p>
 				   </div>	
 				   </div>
 				   <div class="row">
@@ -51,8 +51,8 @@
 						 	<div class="panel panel-default">
 						      <div class="panel-body">
 						      	<center>
-					    		<button type="submit" class="btn btn-success btn-lg">Place</button>
-					    		<button type="button" class="btn btn-warning btn-lg" onclick="window.location.href='/transaction/'">Exit</button>
+					    		<button type="submit" class="btn btn-success btn-lg">{% trans "Place" %}</button>
+					    		<button type="button" class="btn btn-warning btn-lg" onclick="window.location.href='/transaction/'">{% trans "Exit" %}</button>
 								</center>
 							 </div>
 							</div>

@@ -1,9 +1,10 @@
 {% extends "core/base.html" %}
+{% load i18n %}
 
 {% block main %}
 	<div class="page-header">
 		<h1>
-			BTC - Exchange <small> </small>
+			{% trans "BTC - Exchange" %} <small> </small>
 		</h1>
 	</div>
 
@@ -12,7 +13,7 @@
       <div class="col-md-12 column">          
           <div class="alert alert-danger">
             <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-             <div id="alerta-mensaje"><strong>Atencion: </strong> {{ error }} </div>
+             <div id="alerta-mensaje"><strong>{% trans "Atencion:" %} </strong> {{ error }} </div>
           </div>
       </div>
     </div>    
@@ -22,7 +23,7 @@
       <div class="col-md-12 column">          
           <div class="alert alert-success" id="exito-mensaje">
             <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                <div id="exito-mensaje"><strong>Exito: </strong> {{ success }} </div>
+                <div id="exito-mensaje"><strong>{% trans "Exito:" %} </strong> {{ success }} </div>
           </div>
       </div>
     </div>    

@@ -14,6 +14,8 @@ from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW
 import string
 import random
 
+from django.utils.translation import ugettext_lazy as _
+
 
 class TimeStampedModel(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
@@ -38,7 +40,8 @@ class SoftDeletableModel(SoftDeleteMixin):
 
 class Profile(TimeStampedModel, SoftDeletableModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)    
-    phone = PhoneNumberField(blank=False, help_text='Enter phone number in internation format. eg. +555198786543')
+    phone = PhoneNumberField(blank=False, 
+     help_text=_('Enter phone number in internation format. eg. +555198786543'))
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, blank=True)
     sms_token = models.CharField(max_length=UNIQUE_REFERENCE_LENGTH, blank=True)

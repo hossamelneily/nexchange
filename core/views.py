@@ -23,6 +23,7 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 
+from django.utils.translation import ugettext_lazy as _
 
 def main(request):
     template = get_template('core/index.html')
@@ -44,7 +45,7 @@ def index_order(request):
     if form.is_valid():
         my_date = form.cleaned_data['date']
         if my_date:
-            kwargs["created_on__date"]= my_date
+            kwargs["created_on__date"] = my_date
             order_list = model.objects.filter(**kwargs)
         else:
             order_list = model.objects.filter(**kwargs)
@@ -63,9 +64,12 @@ def index_order(request):
     except EmptyPage:
         orders = paginator.page(paginator.num_pages)
 
+
+    my_action = _("Orders Main")
+
     return HttpResponse(template.render({'form': form,
                                          'orders': orders,
-                                         'action': 'Orders Main'
+                                         'action': my_action
                                          },
                                         request))
 
@@ -86,18 +90,21 @@ def add_order(request):
         order.save()
         uniq_ref = order.unique_reference
 
+        my_action = _("Result")
+
+
         return HttpResponse(template.render({'bank_account': MAIN_BANK_ACCOUNT,
                                              'unique_ref': uniq_ref,
-                                             'action': 'Result'},
+                                             'action': my_action},
                                             request))
     else:
         pass
 
     currencies = Currency.objects.filter().exclude(code="BTC").order_by('code')
 
-    select_currency_from = """<select name="currency_from" 
+    select_currency_from = """<select name="currency_from"
         class="currency currency-from">"""
-    select_currency_to = """<select name="currency_to" 
+    select_currency_to = """<select name="currency_to"
         class="currency currency-to">"""
 
     for ch in currencies:
@@ -108,16 +115,19 @@ def add_order(request):
     select_currency_from += """</select>"""
     select_currency_to += """</select>"""
 
+    my_action = _("Add")
+
+
     return HttpResponse(template.render({'slt1': select_currency_from,
                                          'slt2': select_currency_to,
-                                         'action': 'Add'},
+                                         'action': my_action},
                                         request))
 
 
 def user_registration(request):
     template = 'core/user_registration.html'
-    success_message = u'Registration completed. Check your phone for SMS confirmation code.'
-    error_message = u'Error during resgistration. <br>Details: (%s)'
+    success_message = _('Registration completed. Check your phone for SMS confirmation code.')
+    error_message = _('Error during resgistration. <br>Details: (%s)')
 
     if request.method == 'POST':
         user_form = CustomUserCreationForm(request.POST)
@@ -129,18 +139,25 @@ def user_registration(request):
                     user = user_form.save(commit=False)
                     user.username = profile_form.cleaned_data['phone']
                     user.save()
-                    
-                    profile_form = UserProfileForm(request.POST, instance=user.profile)                    
+
+                    profile_form = UserProfileForm(
+                        request.POST, instance=user.profile)
                     profile = profile_form.save(commit=False)
                     profile.disabled = True
                     profile.save()
                     message = _send_sms(user)
                     messages.success(request, success_message)
 
-                user = authenticate(username=user.username, password=user_form.cleaned_data['password1'])
+                user = authenticate(
+                    username=user.username,
+                    password=user_form.cleaned_data['password1'])
                 login(request, user)
 
-                return redirect(reverse('core.user_profile', args=[user.username]))
+                return redirect(
+                    reverse(
+                        'core.user_profile',
+                        args=[
+                            user.username]))
 
             except Exception as e:
                 msg = error_message % (e)
@@ -148,13 +165,15 @@ def user_registration(request):
 
     else:
         user_form = CustomUserCreationForm()
-        profile_form = UserProfileForm()        
+        profile_form = UserProfileForm()
 
-    return render(request, template, {'user_form': user_form, 'profile_form': profile_form})
+    return render(
+        request, template, {
+            'user_form': user_form, 'profile_form': profile_form})
 
 
 @method_decorator(login_required, name='dispatch')
-class UserUpdateView(SingleObjectMixin, View):    
+class UserUpdateView(SingleObjectMixin, View):
     model = User
     slug_field = 'username'
 
@@ -176,38 +195,46 @@ class UserUpdateView(SingleObjectMixin, View):
         }
 
         return render(request, 'core/user_profile.html', ctx,)
-        
+
     def post(self, request):
         self.object = self.get_object()
         user_form = UserForm(request.POST, instance=self.object)
-        profile_form = UpdateUserProfileForm(request.POST, instance=self.object.profile)
-        success_message = 'Profile updated with success'
+        profile_form = UpdateUserProfileForm(
+            request.POST, instance=self.object.profile)
+        success_message = _('Profile updated with success')
 
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
             messages.success(self.request, success_message)
-            
-            return redirect(reverse('core.user_profile', args=[self.object.username]))
+
+            return redirect(
+                reverse(
+                    'core.user_profile',
+                    args=[
+                        self.object.username]))
         else:
             ctx = {
-                'user_form': user_form, 
-                'profile_form': profile_form, 
-            }            
+                'user_form': user_form,
+                'profile_form': profile_form,
+            }
 
             return render(request, 'core/user_profile.html', ctx,)
 
 
-def _send_sms(user):    
-    msg = "BTC Exchange code: '%s'" % user.profile.sms_token
+def _send_sms(user):
+    msg = _("BTC Exchange code: '%s'" % user.profile.sms_token)
     phone_to = str(user.profile.phone)
 
     if settings.TWILIO_ACCOUNT_VERIFIED_PHONES and phone_to not in settings.TWILIO_ACCOUNT_VERIFIED_PHONES:
-        print("NOT SENDING SMS BECAUSE TEST ACCOUNT CANNOT SEND TO THIS PHONE")
+        print(_("NOT SENDING SMS BECAUSE TEST ACCOUNT CANNOT SEND TO THIS PHONE"))
         return {'sid': 'FAKE_SID'}
 
-    client = TwilioRestClient(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-    message = client.messages.create(body=msg, to=phone_to, from_=settings.TWILIO_PHONE_FROM)
+    client = TwilioRestClient(
+        settings.TWILIO_ACCOUNT_SID,
+        settings.TWILIO_AUTH_TOKEN)
+    message = client.messages.create(
+        body=msg, to=phone_to, from_=settings.TWILIO_PHONE_FROM)
 
     return message
 
@@ -227,6 +254,6 @@ def verify_phone(request):
         profile.save()
         status = 'OK'
     else:
-        status = 'NOT_MATCH'
+        status = _('NOT_MATCH')
 
     return JsonResponse({'status': status}, safe=False)

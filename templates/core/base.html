@@ -1,5 +1,6 @@
 {# Load the tag library #}
 {% load bootstrap3 %}
+{% load i18n %}
 
 
 <script src="http://code.jquery.com/jquery.min.js"></script>
@@ -111,13 +112,13 @@ select {
 
     <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
   
-        <a class="navbar-brand" href="/">BTC Exchange App</a>
+        <a class="navbar-brand" href="/"> {% trans "BTC Exchange App" %} </a>
         <ul class="nav navbar-nav">
           <li class="nav-item">
-            <a class="nav-link" href="/order/">Orders</a>
+            <a class="nav-link" href="/order/"> {% trans "Orders" %} </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/order/add/">New Order</a>
+            <a class="nav-link" href="/order/add/"> {% trans "New Order" %} </a>
           </li>
 
           
@@ -128,11 +129,11 @@ select {
         {% if user.is_authenticated %}
         <ul class="nav navbar-nav navbar-right">
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'core.user_profile' user.username  %}">User: <strong>{{ user.username  }}</strong></a>
+            <a class="nav-link" href="{% url 'core.user_profile' user.username  %}"> {% trans "User" %}: <strong> {{ user.username }} </strong></a>
           </li>        
 
           <li class="nav-item">
-           <a class="nav-link" href="{% url 'accounts.logout' %}">Logout</a>
+           <a class="nav-link" href="{% url 'accounts.logout' %}">{% trans "Logout" %}</a>
           </li> 
 
         </ul>
@@ -140,10 +141,10 @@ select {
 
         <ul class="nav navbar-nav navbar-right">
           <li class="nav-item">
-           <a class="nav-link" href="{% url 'accounts.login' %}">Login </a>
+           <a class="nav-link" href="{% url 'accounts.login' %}"> {% trans "Login" %} </a>
           </li> 
           <li>
-            <a class="nav-link" href="{% url 'core.user_registration' %}">Register</a>
+            <a class="nav-link" href="{% url 'core.user_registration' %}"> {% trans "Register" %} </a>
           </li>
         </ul>
         {% endif %}
