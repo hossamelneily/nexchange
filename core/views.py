@@ -223,7 +223,8 @@ class UserUpdateView(SingleObjectMixin, View):
 
 
 def _send_sms(user):
-    msg = _("BTC Exchange code: '%s'" % user.profile.sms_token)
+
+    msg = _("BTC Exchange code:") + '%s' % user.profile.sms_token
     phone_to = str(user.profile.phone)
 
     if settings.TWILIO_ACCOUNT_VERIFIED_PHONES and phone_to not in settings.TWILIO_ACCOUNT_VERIFIED_PHONES:
@@ -254,6 +255,6 @@ def verify_phone(request):
         profile.save()
         status = 'OK'
     else:
-        status = _('NOT_MATCH')
+        status = 'NOT_MATCH'
 
     return JsonResponse({'status': status}, safe=False)

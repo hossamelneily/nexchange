@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-24 01:28+0000\n"
+"POT-Creation-Date: 2016-05-24 14:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -51,49 +51,49 @@ msgstr ""
 msgid "Profile updated with success"
 msgstr ""
 
-#: core/views.py:226
-#, fuzzy, python-format
+#: core/views.py:227
+#, fuzzy
 #| msgid "BTC Exchange App"
-msgid "BTC Exchange code: '%s'"
+msgid "BTC Exchange code:"
 msgstr "BRC Vladivostok pp"
 
-#: core/views.py:230
+#: core/views.py:231
 msgid "NOT SENDING SMS BECAUSE TEST ACCOUNT CANNOT SEND TO THIS PHONE"
-msgstr ""
-
-#: core/views.py:257
-msgid "NOT_MATCH"
 msgstr ""
 
 #: nexchange/settings.py:35
 msgid "Rusian"
 msgstr ""
 
-#: templates/core/base.html:115
+#: nexchange/settings.py:36
+msgid "English"
+msgstr ""
+
+#: templates/core/base.html:122
 msgid "BTC Exchange App"
 msgstr "BRC Vladivostok pp"
 
-#: templates/core/base.html:118
+#: templates/core/base.html:125
 msgid "Orders"
 msgstr "Orderks"
 
-#: templates/core/base.html:121
+#: templates/core/base.html:128
 msgid "New Order"
 msgstr "Nk Ordersk"
 
-#: templates/core/base.html:132
+#: templates/core/base.html:136
 msgid "User"
 msgstr "Kuser"
 
-#: templates/core/base.html:136
+#: templates/core/base.html:140
 msgid "Logout"
 msgstr "Kout"
 
-#: templates/core/base.html:144 templates/core/user_login.html:8
+#: templates/core/base.html:148 templates/core/user_login.html:8
 msgid "Login"
 msgstr "Kin"
 
-#: templates/core/base.html:147
+#: templates/core/base.html:151
 msgid "Register"
 msgstr "Kreg"
 

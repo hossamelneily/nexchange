@@ -51,6 +51,12 @@
   .ui-autocomplete-loading {
   }
 
+.navbar-right {
+
+    float: right !important;
+    margin-right: 5px;
+
+}
 
 .post-content-menu {
     background: none repeat scroll 0 0 #FFFFFF;
@@ -80,7 +86,7 @@ select {
   
   border: 1px solid #111;
    background: transparent;
-   width: 190px;
+   width: 135px;
    padding: 5px 35px 5px 5px;
    font-size: 16px;
    border: 1px solid #ccc;
@@ -90,6 +96,7 @@ select {
    appearance: none;
   background: url('/static/icons/br_down.png') 96% / 15% no-repeat #eee;
 } 
+
 
 
 /*target Internet Explorer 9 and Internet Explorer 10:*/
@@ -120,12 +127,9 @@ select {
           <li class="nav-item">
             <a class="nav-link" href="/order/add/"> {% trans "New Order" %} </a>
           </li>
-
-          
-        </ul>
       
-    </nav>
-
+        </ul>
+          
         {% if user.is_authenticated %}
         <ul class="nav navbar-nav navbar-right">
           <li class="nav-item">
@@ -136,7 +140,7 @@ select {
            <a class="nav-link" href="{% url 'accounts.logout' %}">{% trans "Logout" %}</a>
           </li> 
 
-        </ul>
+        
         {% else %}
 
         <ul class="nav navbar-nav navbar-right">
@@ -146,8 +150,26 @@ select {
           <li>
             <a class="nav-link" href="{% url 'core.user_registration' %}"> {% trans "Register" %} </a>
           </li>
-        </ul>
+      
         {% endif %}
+
+          {% get_language_info_list for LANGUAGES as languages %}
+          <li class="nav-item">
+              <form action="{% url 'set_language' %}" method="post">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ redirect_to }}" />
+                <select name="language">
+                {% get_language_info_list for LANGUAGES as languages %}
+                {% for language in languages %}
+                <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected="selected"{% endif %}>
+                    {{ language.name_local }} ({{ language.code }})
+                </option>
+                {% endfor %}
+                </select>
+                <input type="submit" value="Go" />
+              </form>
+          </li>
+        </ul>
     </nav>
 
 		{% block main %}	
@@ -160,3 +182,4 @@ select {
 
 </body>
 </html>
+

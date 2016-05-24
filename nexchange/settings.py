@@ -33,6 +33,8 @@ LOCALE_PATHS = (
 )
 LANGUAGES = (
     ('ru', _('Rusian')),
+    ('en', _('English')),
+
 )
 
 # CUSTOM SETTINS
