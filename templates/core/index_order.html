@@ -81,7 +81,7 @@
 								data-emptytext="{% trans 'Not Defined' %}"
 								data-value="{{order.withdraw_address| default_if_none:''}}"
 								data-pk="{{order.pk}}" 
-								data-url="/en/order/update_withdraw_address/{{order.pk}}/" 
+								data-url="{% url 'core.update_withdraw_address' order.pk %}" 
 								data-title="{% trans "Change Withdraw Address"%}">
 								{{order.withdraw_address | default_if_none:_("Not Defined")}}
 							</span>
