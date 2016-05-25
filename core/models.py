@@ -40,9 +40,9 @@ class SoftDeletableModel(SoftDeleteMixin):
 
 
 class Profile(TimeStampedModel, SoftDeletableModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)    
-    phone = PhoneNumberField(blank=False, 
-     help_text=_('Enter phone number in internation format. eg. +555198786543'))
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone = PhoneNumberField(blank=False, help_text=_(
+        'Enter phone number in internation format. eg. +555198786543'))
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, blank=True)
     sms_token = models.CharField(
@@ -90,7 +90,7 @@ class Order(TimeStampedModel, SoftDeletableModel):
     admin_comment = models.CharField(max_length=200)
     wallet = models.CharField(max_length=32)
     withdraw_address = models.CharField(
-        max_length=35, validators=[validate_bc])
+        blank=True, null=True, max_length=35, validators=[validate_bc])
 
     class Meta:
         ordering = ['-created_on']

@@ -61,3 +61,11 @@ class PlaceOrderTestCase(TestCase):
 
         with self.assertRaises(ValidationError):
             order.full_clean()  # ensure validators run
+
+    def test_can_place_order_without_address(self):
+        order = Order(**self.data)
+        order.full_clean()  # ensure validators run
+        order.save()
+
+        fetch_order = Order.objects.filter(withdraw_address=None).count()
+        self.assertEqual(fetch_order, 1)
