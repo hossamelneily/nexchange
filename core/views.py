@@ -2,7 +2,7 @@
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.template.loader import get_template
@@ -21,9 +21,11 @@ from twilio.rest import TwilioRestClient
 from django.conf import settings
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 
 from django.utils.translation import ugettext_lazy as _
+from .validators import validate_bc
+
 
 def main(request):
     template = get_template('core/index.html')
@@ -64,7 +66,6 @@ def index_order(request):
     except EmptyPage:
         orders = paginator.page(paginator.num_pages)
 
-
     my_action = _("Orders Main")
 
     return HttpResponse(template.render({'form': form,
@@ -92,7 +93,6 @@ def add_order(request):
 
         my_action = _("Result")
 
-
         return HttpResponse(template.render({'bank_account': MAIN_BANK_ACCOUNT,
                                              'unique_ref': uniq_ref,
                                              'action': my_action},
@@ -117,7 +117,6 @@ def add_order(request):
 
     my_action = _("Add")
 
-
     return HttpResponse(template.render({'slt1': select_currency_from,
                                          'slt2': select_currency_to,
                                          'action': my_action},
@@ -126,7 +125,8 @@ def add_order(request):
 
 def user_registration(request):
     template = 'core/user_registration.html'
-    success_message = _('Registration completed. Check your phone for SMS confirmation code.')
+    success_message = _(
+        'Registration completed. Check your phone for SMS confirmation code.')
     error_message = _('Error during resgistration. <br>Details: (%s)')
 
     if request.method == 'POST':
@@ -227,8 +227,10 @@ def _send_sms(user):
     msg = _("BTC Exchange code:") + '%s' % user.profile.sms_token
     phone_to = str(user.profile.phone)
 
-    if settings.TWILIO_ACCOUNT_VERIFIED_PHONES and phone_to not in settings.TWILIO_ACCOUNT_VERIFIED_PHONES:
-        print(_("NOT SENDING SMS BECAUSE TEST ACCOUNT CANNOT SEND TO THIS PHONE"))
+    if settings.TWILIO_ACCOUNT_VERIFIED_PHONES\
+            and phone_to not in settings.TWILIO_ACCOUNT_VERIFIED_PHONES:
+        print(_("NOT SENDING SMS BECAUSE TEST \
+            ACCOUNT CANNOT SEND TO THIS PHONE"))
         return {'sid': 'FAKE_SID'}
 
     client = TwilioRestClient(
@@ -258,3 +260,28 @@ def verify_phone(request):
         status = 'NOT_MATCH'
 
     return JsonResponse({'status': status}, safe=False)
+
+
+@login_required()
+def update_withdraw_address(request, pk):
+    order = Order.objects.get(pk=pk)
+    new_address = request.POST.get('value')
+
+    if not order.user == request.user:
+        return HttpResponseForbidden(
+            _("You don't have permission to edit this order"))
+    else:
+        try:
+            if new_address == '':
+                # if user is 'cleaning' the value
+                new_address = None
+            else:
+                # If a value was sent, let's validate it
+                validate_bc(new_address)
+
+            order.withdraw_address = new_address
+            order.save()
+            return JsonResponse({'status': 'OK'}, safe=False)
+        except ValidationError as e:
+            msg = e.messages[0]
+            return JsonResponse({'status': 'ERR', 'msg': msg}, safe=False)

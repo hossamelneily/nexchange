@@ -1,7 +1,9 @@
 {% extends "core/base.html" %}
 {% load i18n %}
+{% load staticfiles %}
 
 {% block main %}
+        	
 			<div class="page-header">
 				<h1>
 					{% trans "BTC" %}<small> {{ action }} </small>
@@ -39,6 +41,7 @@
   					<th>{% trans "Paid" %}</th>
   					<th>{% trans "Released" %}</th>
   					<th>{% trans "Completed" %}</th>
+  					<th>{% trans "Withdraw Address" %}</th>
   				</tr>
 	    		
 	    		{% for order in orders %}
@@ -70,6 +73,19 @@
 		            	{% else %}
 		                <td><img src="/static/icons/close_16.png" \></td>
 		            	{% endif %}
+
+		            	<td title="{% trans 'Click to edit Withdraw Address' %}">
+		            		<i class="fa fa-pencil" aria-hidden="true"></i>
+							<span class="withdraw_address" 
+								data-type="text"
+								data-emptytext="{% trans 'Not Defined' %}"
+								data-value="{{order.withdraw_address| default_if_none:''}}"
+								data-pk="{{order.pk}}" 
+								data-url="/en/order/update_withdraw_address/{{order.pk}}/" 
+								data-title="{% trans "Change Withdraw Address"%}">
+								{{order.withdraw_address | default_if_none:_("Not Defined")}}
+							</span>
+		            	</td>
 	
 			        </tr>
 	        	        
@@ -110,6 +126,14 @@
 
  
   </script>	
-			
+
 			
 {% endblock %}
+
+
+{% block extra_js_footer %}     
+	<link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+    <script src="{% static 'js/index_orders.js' %}"></script>
+{% endblock %}
+
