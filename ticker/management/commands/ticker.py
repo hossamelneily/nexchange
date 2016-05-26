@@ -120,7 +120,7 @@ class Command(BaseCommand):
         if rub_price is None or usd_price is None:
             usd_price = spot_price * (1 + MIN_INTERVAL)
             rub_price = usd_price * rate
-        print(direction)
+
         return {
             'better_adds_count': better_adds,
             'rate': rate,
