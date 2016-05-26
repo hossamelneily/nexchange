@@ -16,6 +16,8 @@ import random
 
 from .validators import validate_bc
 from django.utils.translation import ugettext_lazy as _
+from datetime import timedelta
+from django.utils import timezone
 
 
 class TimeStampedModel(models.Model):
@@ -114,6 +116,26 @@ class Order(TimeStampedModel, SoftDeletableModel):
                 failed_count += 1
 
         super(Order, self).save(*args, **kwargs)
+
+    @property
+    def payment_deadline(self):
+        '''returns datetime of payment_deadline (creation + payment_window)'''
+        # TODO: Use this for pay until message on 'order success' screen
+        return (self.created_on + timedelta(minutes=self.payment_window))
+
+    @property
+    def expired(self):
+        '''Is expired if payment_deadline is exceeded and it's not paid yet'''
+        # TODO: validate this business rule
+        return (timezone.now() > self.payment_deadline) and (not self.is_paid)
+
+    @property
+    def frozen(self):
+        '''return a boolean indicating if order can be updated
+        Order is frozen if it is expired or has been paid
+        '''
+        # TODO: validate this business rule
+        return self.expired or self.is_paid
 
 
 class Payment(TimeStampedModel, SoftDeletableModel):

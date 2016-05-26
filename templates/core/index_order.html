@@ -58,11 +58,31 @@
 		            	<td>{{ order.currency.code }}</td>
 		                <td>{{ order.amount_cash }}</td>
 		            	<td>{{ order.amount_btc }}</td>
-		            	{% if order.is_paid == 1 %}
-		            	<td><img src="/static/icons/check_16.png" \></td>
-		            	{% else %}
-		                <td><img src="/static/icons/close_16.png" \></td>
-		            	{% endif %}
+
+		            	<td>
+							{% if order.frozen %}
+								{% if order.is_paid %}
+									<button type="button" style="width:90px" data-switch-toggle="readonly" disabled="disabled"  class="btn btn-success">{% trans 'Paid' %}</button>
+								{% else %}
+									<button type="button" style="width:90px" data-switch-toggle="readonly" disabled="disabled" class="btn btn-danger">{% trans 'Not Paid' %}</button>
+								{% endif %}
+							{% else %}
+								<label class="checkbox-inline">
+									<input type="checkbox"
+
+										data-offstyle="danger"
+										data-onstyle="success"
+										{% if order.is_paid %}
+											checked 
+										{% endif %}
+										data-toggle="toggle"  
+										data-on="{% trans 'Paid' %}" 
+										data-width="90px"
+										data-off="{% trans 'Not Paid' %}">
+								</label>
+							{% endif %}
+						</td>
+
 		            	{% if order.is_released == 1 %}
 		            	<td><img src="/static/icons/check_16.png" \></td>
 		            	{% else %}
@@ -135,5 +155,20 @@
 	<link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
     <script src="{% static 'js/index_orders.js' %}"></script>
-{% endblock %}
 
+	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+	<script>
+
+	 //$('').bootstrapToggle('enable')
+
+	  $(function() {
+	    $('.checkbox-inline input').change(function() {
+	    	console.log($(this).prop('checked'));      
+	    })
+	  })	
+
+	</script>
+
+{% endblock %}
