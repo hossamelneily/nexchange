@@ -8,6 +8,7 @@ from core.models import Order, Currency
 from datetime import timedelta
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.utils.translation import activate
 
 
 class ValidateBCTestCase(TestCase):
@@ -271,6 +272,8 @@ class OrderPayUntilTestCase(TestCase):
         username = '+555190909898'
         password = '123Mudar'
 
+        activate('en')
+        
         Currency(code='RUB', name='Russian Rubles').save()
         user = User.objects.create_user(username=username, password=password)
 
