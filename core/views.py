@@ -288,3 +288,26 @@ def update_withdraw_address(request, pk):
         except ValidationError as e:
             msg = e.messages[0]
             return JsonResponse({'status': 'ERR', 'msg': msg}, safe=False)
+
+
+@login_required()
+def payment_confirmation(request, pk):
+    order = Order.objects.get(pk=pk)
+    paid = (request.POST.get('paid') == 'true')
+
+    if not order.user == request.user:
+        return HttpResponseForbidden(
+            _("You don't have permission to edit this order"))
+    elif order.frozen:
+        return HttpResponseForbidden(
+            _("This order can not be edited because is frozen"))
+    else:
+        try:
+            order.is_paid = paid
+            order.save()
+            return JsonResponse({'status': 'OK',
+                                 'frozen': order.frozen,
+                                 'paid': order.is_paid}, safe=False)
+        except ValidationError as e:
+            msg = e.messages[0]
+            return JsonResponse({'status': 'ERR', 'msg': msg}, safe=False)

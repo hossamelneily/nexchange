@@ -70,9 +70,15 @@
 						</td>
 						{% else %}
 						<td>
+							<span id="spin_confirming_{{order.pk}}" style="display:none">
+								<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>&nbsp;
+								{% trans "Setting as paid..." %}
+							</span>
+
 							<label class="checkbox-inline">
 								<input type="checkbox"
-
+									data-url="{% url 'core.payment_confirmation' order.pk %}"
+									data-pk="{{order.pk}}"
 									data-offstyle="danger"
 									data-onstyle="success"
 									{% if order.is_paid %}
@@ -99,14 +105,19 @@
 		            	{% endif %}
 
 
-						{% if order.frozen %}
-						<td title="{% trans 'Click to edit Withdraw Address' %}">
+						
+						<td {% if not order.frozen %} style="display:none" {% endif %} 
+							id="td-frozen-withdraw-{{order.pk}}">
+
 							<span class="frozen">
 								{{order.withdraw_address | default_if_none:_("Not Defined")}}
 							</span>
 						</td>
-						{% else %}
-		            	<td title="{% trans 'Click to edit Withdraw Address' %}">
+						
+		            	<td title="{% trans 'Click to edit Withdraw Address' %}" 
+		            		{% if order.frozen %} style="display:none" {% endif %}
+		            		id="td-withdraw-{{order.pk}}" >
+
 		            		<i class="fa fa-pencil" aria-hidden="true"></i>
 							<span class="withdraw_address" 
 								data-type="text"
@@ -118,7 +129,7 @@
 								{{order.withdraw_address | default_if_none:_("Not Defined")}}
 							</span>
 		            	</td>
-		            	{% endif %}
+		            	
 	
 			        </tr>
 	        	        
@@ -164,24 +175,13 @@
 {% endblock %}
 
 
-{% block extra_js_footer %}     
+{% block extra_js_footer %}
+	
 	<link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
     <script src="{% static 'js/index_orders.js' %}"></script>
 
 	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
-
-	<script>
-
-	 //$('').bootstrapToggle('enable')
-
-	  $(function() {
-	    $('.checkbox-inline input').change(function() {
-	    	console.log($(this).prop('checked'));      
-	    })
-	  })	
-
-	</script>
 
 {% endblock %}

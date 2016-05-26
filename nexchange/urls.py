@@ -37,6 +37,9 @@ urlpatterns = i18n_patterns(
     url(r'^order/update_withdraw_address/(?P<pk>[\d]+)/$',
         core.views.update_withdraw_address,
         name='core.update_withdraw_address'),
+    url(r'^order/payment_confirmation/(?P<pk>[\d]+)/$',
+        core.views.payment_confirmation,
+        name='core.payment_confirmation'),
 
 
     url(r'^profile/add$', core.views.user_registration,
