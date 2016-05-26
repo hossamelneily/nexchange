@@ -204,7 +204,7 @@ class ValidateOrderPaymentTestCase(TestCase):
         order = Order.objects.last()
         order.created_on = timezone.now() - timedelta(minutes=120)  # 2h ago
 
-        # deadline i int the past
+        # deadline is in the past
         self.assertTrue(timezone.now() > order.payment_deadline)
 
         # but already paid
@@ -221,13 +221,13 @@ class ValidateOrderPaymentTestCase(TestCase):
         order = Order.objects.last()
         order.created_on = timezone.now() - timedelta(minutes=120)  # 2h ago
 
-        # deadline is int the past
+        # deadline is in the past
         self.assertTrue(timezone.now() > order.payment_deadline)
 
         # so it's frozen
         self.assertTrue(order.frozen)
 
-        # even tough it's not paid
+        # even though it's not paid
         self.assertFalse(order.is_paid)
 
     def test_is_frozen_if_paid(self):
@@ -237,13 +237,13 @@ class ValidateOrderPaymentTestCase(TestCase):
 
         order = Order.objects.last()
 
-        # it's not paid
+        # it's paid
         self.assertTrue(order.is_paid)
 
-        # therefor it's frozen
+        # therefore it's frozen
         self.assertTrue(order.frozen)
 
-        # even tough deadline is int the future
+        # even though deadline is in the future
         self.assertTrue(order.payment_deadline >= timezone.now())
 
     def test_is_not_frozen_if_is_not_paid_neither_expired(self):

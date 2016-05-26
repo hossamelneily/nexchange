@@ -29,7 +29,6 @@ $(document).ready(function() {
         var spin = $("#spin_confirming_" + pk );
         var container = $(this).closest('.checkbox-inline');
         var toggle = this;
-        var isAPICall = $(container).is(":visible"); // it was not triggered by the user
         var withdraw_address = $(".withdraw_address[data-pk=" + pk + "]"); // withdraw_address for this orders
 
         var treatError = function(msg) {
