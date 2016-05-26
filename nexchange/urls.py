@@ -21,7 +21,7 @@ from core.models import Currency, Profile, Order
 from core.forms import LoginForm
 from django.conf.urls import include
 from django.conf.urls.i18n import i18n_patterns
-import  django.conf.urls.i18n
+import django.conf.urls.i18n
 
 admin.site.register(Currency)
 admin.site.register(Profile)
@@ -34,21 +34,43 @@ urlpatterns = i18n_patterns(
     url(r'^$', core.views.main, name='main'),
     url(r'^order/$',  core.views.index_order, name='core.order'),
     url(r'^order/add/$', core.views.add_order),
+    url(r'^order/update_withdraw_address/(?P<pk>[\d]+)/$',
+        core.views.update_withdraw_address,
+        name='core.update_withdraw_address'),
+    url(r'^order/payment_confirmation/(?P<pk>[\d]+)/$',
+        core.views.payment_confirmation,
+        name='core.payment_confirmation'),
 
-    url(r'^profile/add$', core.views.user_registration, name='core.user_registration'),
-    url(r'^profile/resendSMS/$',  core.views.resend_sms, name='core.resend_sms'),
-    url(r'^profile/verifyPhone/$',  core.views.verify_phone, name='core.verify_phone'),    
-    url(r'^profile/(?P<slug>[-\+\w\d]+)/$', core.views.UserUpdateView.as_view(), name='core.user_profile'),
-    
-    url(r'^accounts/login/$', auth_views.login, {'template_name': 'core/user_login.html', 'authentication_form': LoginForm}, name='accounts.login'),
-    url(r'^accounts/logout/$', auth_views.logout, {'next_page': '/'}, name='accounts.logout'),       
+
+    url(r'^profile/add$', core.views.user_registration,
+        name='core.user_registration'),
+    url(r'^profile/resendSMS/$',  core.views.resend_sms,
+        name='core.resend_sms'),
+    url(r'^profile/verifyPhone/$',
+        core.views.verify_phone, name='core.verify_phone'),
+    url(r'^profile/(?P<slug>[-\+\w\d]+)/$',
+        core.views.UserUpdateView.as_view(), name='core.user_profile'),
+
+    url(r'^accounts/login/$', auth_views.login,
+        {'template_name': 'core/user_login.html',
+            'authentication_form': LoginForm},
+        name='accounts.login'),
+    url(r'^accounts/logout/$', auth_views.logout,
+        {'next_page': '/'},
+        name='accounts.logout'),
     # asking for passwd reset
-    url(r'^accounts/password/reset/$', auth_views.password_reset, {'post_reset_redirect' : '/accounts/password/reset/done/'}, name="accounts.password_reset"),
+    url(r'^accounts/password/reset/$', auth_views.password_reset,
+        {'post_reset_redirect': '/accounts/password/reset/done/'},
+        name="accounts.password_reset"),
     # passwd reset e-mail sent
     url(r'^accounts/password/reset/done/$', auth_views.password_reset_done),
     # paswd reset url with sent via e-mail
-    url(r'^accounts/password/reset/(?P<uidb64>[0-9A-Za-z_-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$', auth_views.password_reset_confirm, {'post_reset_redirect' : '/accounts/password/done/'}, name='accounts.password_reset_confirm'),
+    url(r'^accounts/password/reset/(?P<uidb64>[0-9A-Za-z_-]+)/\
+        (?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+        auth_views.password_reset_confirm, {
+            'post_reset_redirect': '/accounts/password/done/'},
+        name='accounts.password_reset_confirm'),
     # after saved the new passwd
     url(r'^accounts/password/done/$', auth_views.password_reset_complete),
-    
+
 )

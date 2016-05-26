@@ -1,7 +1,9 @@
 {% extends "core/base.html" %}
 {% load i18n %}
+{% load staticfiles %}
 
 {% block main %}
+        	
 			<div class="page-header">
 				<h1>
 					{% trans "BTC" %}<small> {{ action }} </small>
@@ -39,6 +41,7 @@
   					<th>{% trans "Paid" %}</th>
   					<th>{% trans "Released" %}</th>
   					<th>{% trans "Completed" %}</th>
+  					<th>{% trans "Withdraw Address" %}</th>
   				</tr>
 	    		
 	    		{% for order in orders %}
@@ -55,11 +58,41 @@
 		            	<td>{{ order.currency.code }}</td>
 		                <td>{{ order.amount_cash }}</td>
 		            	<td>{{ order.amount_btc }}</td>
-		            	{% if order.is_paid == 1 %}
-		            	<td><img src="/static/icons/check_16.png" \></td>
-		            	{% else %}
-		                <td><img src="/static/icons/close_16.png" \></td>
-		            	{% endif %}
+
+	            	
+						{% if order.frozen %}
+						<td class="frozen">
+							{% if order.is_paid %}
+								<button type="button" style="width:90px" data-switch-toggle="readonly" disabled="disabled"  class="btn btn-success">{% trans 'Paid' %}</button>
+							{% else %}
+								<button type="button" style="width:90px" data-switch-toggle="readonly" disabled="disabled" class="btn btn-danger">{% trans 'Not Paid' %}</button>
+							{% endif %}
+						</td>
+						{% else %}
+						<td>
+							<span id="spin_confirming_{{order.pk}}" style="display:none">
+								<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>&nbsp;
+								{% trans "Setting as paid..." %}
+							</span>
+
+							<label class="checkbox-inline">
+								<input type="checkbox"
+									data-url="{% url 'core.payment_confirmation' order.pk %}"
+									data-pk="{{order.pk}}"
+									data-offstyle="danger"
+									data-onstyle="success"
+									{% if order.is_paid %}
+										checked 
+									{% endif %}
+									data-toggle="toggle"  
+									data-on="{% trans 'Paid' %}" 
+									data-width="90px"
+									data-off="{% trans 'Not Paid' %}">
+							</label>
+						</td>	
+						{% endif %}
+						</td>
+
 		            	{% if order.is_released == 1 %}
 		            	<td><img src="/static/icons/check_16.png" \></td>
 		            	{% else %}
@@ -70,6 +103,33 @@
 		            	{% else %}
 		                <td><img src="/static/icons/close_16.png" \></td>
 		            	{% endif %}
+
+
+						
+						<td {% if not order.frozen %} style="display:none" {% endif %} 
+							id="td-frozen-withdraw-{{order.pk}}">
+
+							<span class="frozen">
+								{{order.withdraw_address | default_if_none:_("Not Defined")}}
+							</span>
+						</td>
+						
+		            	<td title="{% trans 'Click to edit Withdraw Address' %}" 
+		            		{% if order.frozen %} style="display:none" {% endif %}
+		            		id="td-withdraw-{{order.pk}}" >
+
+		            		<i class="fa fa-pencil" aria-hidden="true"></i>
+							<span class="withdraw_address" 
+								data-type="text"
+								data-emptytext="{% trans 'Not Defined' %}"
+								data-value="{{order.withdraw_address| default_if_none:''}}"
+								data-pk="{{order.pk}}" 
+								data-url="{% url 'core.update_withdraw_address' order.pk %}" 
+								data-title="{% trans "Change Withdraw Address"%}">
+								{{order.withdraw_address | default_if_none:_("Not Defined")}}
+							</span>
+		            	</td>
+		            	
 	
 			        </tr>
 	        	        
@@ -110,6 +170,18 @@
 
  
   </script>	
+
 			
-			
+{% endblock %}
+
+
+{% block extra_js_footer %}
+	
+	<link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+    <script src="{% static 'js/index_orders.js' %}"></script>
+
+	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
 {% endblock %}

@@ -1,12 +1,13 @@
 {# Load the tag library #}
 {% load bootstrap3 %}
+{% load staticfiles %}
 {% load i18n %}
 
 
 <script src="http://code.jquery.com/jquery.min.js"></script>
 <script   src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"   integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw="   crossorigin="anonymous"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.css" rel="stylesheet">
-
+<script src="{% static 'js/django_jquery_csrf_setup.js' %}"></script>
 
 {# Load CSS and JavaScript #}
 {% bootstrap_css %}
@@ -130,6 +131,14 @@ select {
   background: url('/static/icons/br_down.png') 96% / 15% no-repeat #eee;
 } 
 
+.withdraw_address:hover{
+    /* list orders page */
+    cursor:pointer;
+}
+
+.frozen:hover {
+  cursor:not-allowed !important;
+}
 
 
 /*target Internet Explorer 9 and Internet Explorer 10:*/
@@ -141,7 +150,12 @@ select {
 }
   </style>
 	
-	
+
+  <script type="text/javascript">
+    // TODO: which is the best way to translate JS messages?
+    var HTTP_500_MSG = "{% trans 'Service unavailable. Please try again later.' %}";
+    var UNKNOW_ERROR = HTTP_500_MSG;
+  </script>
 </head>
 
 
