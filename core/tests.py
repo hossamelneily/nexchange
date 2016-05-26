@@ -144,6 +144,16 @@ class UpdateWithdrawAddressTestCase(TestCase):
 
         self.assertJSONEqual(expected, str(response.content, encoding='utf8'),)
 
+    def test_forbiden_to_update_frozen_orders(self):
+        self.order.is_paid = True
+        self.order.save()
+
+        response = self.client.post(self.url, {
+            'pk': self.order.pk,
+            'value': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j', })
+
+        self.assertEqual(403, response.status_code)
+
 
 class ValidateOrderPaymentTestCase(TestCase):
 
