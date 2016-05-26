@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'bootstrap3',
     'core',
+    'ticker'
 ]
 
 MIDDLEWARE_CLASSES = [
