@@ -21,8 +21,7 @@ from core.models import Currency, Profile, Order
 from core.forms import LoginForm
 from django.conf.urls import include
 from django.conf.urls.i18n import i18n_patterns
-import django.conf.urls.i18n
-
+from ticker.urls import api_patterns
 # todo: move to admin.py
 admin.site.register(Currency)
 admin.site.register(Profile)
@@ -75,5 +74,5 @@ urlpatterns = i18n_patterns(
         name='accounts.password_reset_confirm'),
     # after saved the new passwd
     url(r'^accounts/password/done/$', auth_views.password_reset_complete),
-
+    url(r'^api/v1/', include(api_patterns)),
 )

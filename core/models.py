@@ -3,16 +3,12 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 from phonenumber_field.modelfields import PhoneNumberField
-from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
-    DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
 
 from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
     DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
 
 from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW
 
-import string
-import random
 
 from .validators import validate_bc
 from django.utils.translation import ugettext_lazy as _
