@@ -23,6 +23,7 @@ from django.conf.urls import include
 from django.conf.urls.i18n import i18n_patterns
 import django.conf.urls.i18n
 
+# todo: move to admin.py
 admin.site.register(Currency)
 admin.site.register(Profile)
 admin.site.register(Order)
@@ -33,19 +34,21 @@ urlpatterns = i18n_patterns(
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^$', core.views.main, name='main'),
     url(r'^order/$',  core.views.index_order, name='core.order'),
-    url(r'^order/add/$', core.views.add_order),
     url(r'^order/update_withdraw_address/(?P<pk>[\d]+)/$',
         core.views.update_withdraw_address,
         name='core.update_withdraw_address'),
     url(r'^order/payment_confirmation/(?P<pk>[\d]+)/$',
         core.views.payment_confirmation,
         name='core.payment_confirmation'),
-
-
     url(r'^profile/add$', core.views.user_registration,
         name='core.user_registration'),
     url(r'^profile/resendSMS/$',  core.views.resend_sms,
         name='core.resend_sms'),
+    url(r'^order/add/$', core.views.add_order, name='core.order_add'),
+
+    url(r'^profile/add$', core.views.user_registration,
+        name='core.user_registration'),
+    url(r'^profile/resendSMS/$',  core.views.resend_sms, name='core.resend_sms'),
     url(r'^profile/verifyPhone/$',
         core.views.verify_phone, name='core.verify_phone'),
     url(r'^profile/(?P<slug>[-\+\w\d]+)/$',

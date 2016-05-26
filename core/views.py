@@ -25,6 +25,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 
 from django.utils.translation import ugettext_lazy as _
 from .validators import validate_bc
+from datetime import timedelta
 
 
 def main(request):
@@ -90,12 +91,15 @@ def add_order(request):
                       currency=currency, user=user)
         order.save()
         uniq_ref = order.unique_reference
+        pay_until = order.created_on + timedelta(minutes=order.payment_window)
 
         my_action = _("Result")
 
         return HttpResponse(template.render({'bank_account': MAIN_BANK_ACCOUNT,
                                              'unique_ref': uniq_ref,
-                                             'action': my_action},
+                                             'action': my_action,
+                                             'pay_until': pay_until,
+                                             },
                                             request))
     else:
         pass
@@ -223,7 +227,6 @@ class UserUpdateView(SingleObjectMixin, View):
 
 
 def _send_sms(user):
-
     msg = _("BTC Exchange code:") + '%s' % user.profile.sms_token
     phone_to = str(user.profile.phone)
 
