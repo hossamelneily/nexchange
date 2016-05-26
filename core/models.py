@@ -75,6 +75,7 @@ class Currency(TimeStampedModel, SoftDeletableModel):
 
 
 class Order(TimeStampedModel, SoftDeletableModel):
+    # Todo: inherit from BTC base?
     amount_cash = models.FloatField()
     amount_btc = models.FloatField()
     currency = models.ForeignKey(Currency)
@@ -86,7 +87,9 @@ class Order(TimeStampedModel, SoftDeletableModel):
     unique_reference = models.CharField(
         max_length=UNIQUE_REFERENCE_LENGTH, unique=True)
     admin_comment = models.CharField(max_length=200)
+   #todo: migrate to Address model
     wallet = models.CharField(max_length=32)
+    #todo: migrate to Address model
     withdraw_address = models.CharField(
         blank=True, null=True, max_length=35, validators=[validate_bc])
 
@@ -141,3 +144,39 @@ class Payment(TimeStampedModel, SoftDeletableModel):
     # To match order
     # TODO: export max_length of reference to settings
     unique_reference = models.CharField(max_length=5)
+    # Super admin if we are paying for BTC
+    user = models.ForeignKey(User)
+    # Todo consider one to many for split payments, consider order field on payment
+    order = models.ForeignKey(Order, null=True)
+
+
+class BtcBase(TimeStampedModel):
+    class Meta:
+        abstract = True
+
+    WITHDRAW = 'W'
+    DEPOSIT = 'D'
+    TYPES = (
+        (WITHDRAW, 'WITHDRAW'),
+        (DEPOSIT, 'DEPOSIT'),
+    )
+    type = models.CharField(max_length=1, choices=TYPES)
+
+
+class Address(BtcBase, SoftDeletableModel):
+    WITHDRAW = 'W'
+    DEPOSIT = 'D'
+    TYPES = (
+        (WITHDRAW, 'WITHDRAW'),
+        (DEPOSIT, 'DEPOSIT'),
+    )
+    address = models.CharField(max_length=32)
+    user = models.ForeignKey(User)
+
+
+class Transaction(BtcBase):
+    # null if withdraw from our balance on Kraken
+    address_from = models.ForeignKey(Address, related_name='address_from')
+    address_to = models.ForeignKey(Address, related_name='address_to')
+    order = models.ForeignKey(Order)
+    is_verified = models.BooleanField()
