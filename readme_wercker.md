@@ -51,7 +51,7 @@ For dev and build pipelines a service with postgres+postgis is used. The life cy
 In the current config, when the app is deployed to a target, is does not have the database server automatically created, therefore **is expected that a database container is up and running  when the app container starts**.
 
 Currently, the database container is running an instance of [mdillon/postgis](https://hub.docker.com/r/mdillon/postgis/) image (the same one used in dev and build steps). This container was started with the folowing line:
-`docker run --name nexchange-db -v /data/database:/var/lib/postgresql/data -e POSTGRES_PASSWORD=a071fd4b1aac00497d4c561e530b5738 -e POSTGRES_USER=nexchnage -e POSTGRES_DB=nexchange -d mdillon/postgis`
+`docker run --name nexchange-db -v /data/database:/var/lib/postgresql/data -e POSTGRES_PASSWORD=a071fd4b1aac00497d4c561e530b5738 -e POSTGRES_USER=nexchange -e POSTGRES_DB=nexchange -d mdillon/postgis`
 
 ----
 # Enviroment variables #
