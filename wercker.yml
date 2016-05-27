@@ -107,6 +107,10 @@ build:
         cp -r [a-z]* /usr/src/app
         cp -r /usr/share/nginx/html/static $WERCKER_OUTPUT_DIR/staticfiles
         cp -r /usr/share/nginx/html/media $WERCKER_OUTPUT_DIR/mediafiles
+    - script:
+        name: place remove-containers.sh script 
+        code: |
+          mv "remove-containers.sh" "$WERCKER_OUTPUT_DIR/remove-containers.sh"        
     - create-file:
         #
         # PEM_FILE_CONTENT - the key to SSH into server (create key par via wercker web interface. remeber to install public key on server)
