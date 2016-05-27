@@ -38,7 +38,8 @@ EXCLUSION_LIST = [
     'HOTEL',
     'YANDEX',
     'QIWI',
-    'WEBMONEY'
+    'WEBMONEY',
+    'PAYPAL',
 ]
 
 
@@ -128,4 +129,3 @@ class Command(BaseCommand):
             'price_rub': rub_price,
             'type': Price.BUY if direction < 0 else Price.SELL
         }
-

@@ -17,7 +17,7 @@ var requestNewSMSToken = function() {
         );
         window.alert("Something went wrong. Please, try again.")
     });
-}
+};
 
 $("#resend_sms_button").on("click", requestNewSMSToken);
 
@@ -42,6 +42,6 @@ var verifyPhone = function() {
         window.alert("Something went wrong. Please, try again.")
     });
    
-}
+};
 
 $("#verify_phone_now").on("click", verifyPhone);

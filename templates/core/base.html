@@ -44,112 +44,9 @@
   <link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/apple-touch-icon-114-precomposed.png">
   <link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/apple-touch-icon-72-precomposed.png">
   <link rel="apple-touch-icon-precomposed" href="img/apple-touch-icon-57-precomposed.png">
-  <link rel="shortcut icon" href="img/favicon.png">    
+  <link rel="shortcut icon" href="img/favicon.png">
  <!-- 	-->
-  
- 
-  <style>
-  .ui-autocomplete-loading {
-  }
-
-.navbar-right {
-
-    float: right !important;
-    margin-right: 5px;
-
-}
-
-.post-content-menu {
-    background: none repeat scroll 0 0 #FFFFFF;
-    opacity: 0.8;
-    margin: -70px 10px ; 
-    font-size:20px;
-    font-weight:bold;
-    position: relative;
-}
-
-.texto-categorias-small {
-    background: none repeat scroll 0 0 #FFFFFF;
-    opacity: 0.8;
-    margin: -44px 10px 10px; 
-    position: relative;
-
-}
-
-#menu-items {
-
-    padding-bottom: 100px;
-
-}
-
-    /*Language chooser before header*/
-
-    .matbea-lang {
-        margin: 10px 0;
-        font-size: 0.8em;
-        text-align: right;
-    }
-    .matbea-lang .dropdown-menu {
-        left: auto;
-        right: 0;
-    }
-
-    .matbea-lang a {
-        color: #BEEBFF;
-    }
-
-    .matbea-lang .caret {
-        border-top-color: #BEEBFF;
-    }
-
-
-    /*------------------Navigation------------------*/
-
-
-
-    /*Dropdowns*/
-
-    .dropdown-menu {
-        z-index: 5000;
-    }
-
-
-
-
-select {
-  
-  border: 1px solid #111;
-   background: transparent;
-   width: 135px;
-   padding: 5px 35px 5px 5px;
-   font-size: 16px;
-   border: 1px solid #ccc;
-   height: 34px;
-   -webkit-appearance: none;
-   -moz-appearance: none;
-   appearance: none;
-  background: url('/static/icons/br_down.png') 96% / 15% no-repeat #eee;
-} 
-
-.withdraw_address:hover{
-    /* list orders page */
-    cursor:pointer;
-}
-
-.frozen:hover {
-  cursor:not-allowed !important;
-}
-
-
-/*target Internet Explorer 9 and Internet Explorer 10:*/
-@media screen and (min-width:0\0) { 
-    select {
-        background:none;
-        padding: 5px;
-    }
-}
-  </style>
-	
+    <link rel="stylesheet" href="{% static 'css/overrides.css' %}">
 
   <script type="text/javascript">
     // TODO: which is the best way to translate JS messages?
@@ -163,34 +60,6 @@ select {
 
 
 <div class="container">
-
-        <!-- Language choosing bar -->
-
-        {% get_language_info_list for LANGUAGES as languages %}
-        <div class="row">
-            <div class="col-md-10 col-xs-10 col-sm-10 col-lg-11"></div>
-            <div class="col-xs-3 col-xs-offset-10">          
-                      <form action="{% url 'set_language' %}" method="post">
-                        {% csrf_token %}
-                        <input name="next" type="hidden" value="{{ redirect_to }}" />
-                        <select name="language">
-                        {% get_language_info_list for LANGUAGES as languages %}
-                        {% for language in languages %}
-                        <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected="selected"{% endif %}>
-                            {{ language.name_local }} ({{ language.code }})
-                        </option>
-                        {% endfor %}
-                        </select>
-                        <input type="submit" value="Go" />
-                      </form>
-                  
-                </div>
-                 
-            </div>
-        
-
-        <!-- END Language choosing bar -->
-
     <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
   
         <a class="navbar-brand" href="/"> {% trans "Home" %} </a>
@@ -230,6 +99,32 @@ select {
           
         </ul>
     </nav>
+          <!-- Language choosing bar -->
+
+        {% get_language_info_list for LANGUAGES as languages %}
+        <div class="row">
+            <div class="col-md-10 col-xs-10 col-sm-10 col-lg-11"></div>
+            <div class="col-xs-3 col-xs-offset-10">
+                      <form action="{% url 'set_language' %}" method="post">
+                        {% csrf_token %}
+                        <input name="next" type="hidden" value="{{ redirect_to }}" />
+                        <select name="language">
+                        {% get_language_info_list for LANGUAGES as languages %}
+                        {% for language in languages %}
+                        <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected="selected"{% endif %}>
+                            {{ language.name_local }} ({{ language.code }})
+                        </option>
+                        {% endfor %}
+                        </select>
+                        <input type="submit" class="btn btn-warning" value="Go" />
+                      </form>
+
+                </div>
+
+            </div>
+
+
+        <!-- END Language choosing bar -->
 
 		{% block main %}	
 

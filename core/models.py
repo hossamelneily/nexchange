@@ -7,8 +7,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
     DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
 
-from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW
-
+from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW, REFERENCE_LOOKUP_ATTEMPS
 
 from .validators import validate_bc
 from django.utils.translation import ugettext_lazy as _
@@ -75,6 +74,7 @@ class Currency(TimeStampedModel, SoftDeletableModel):
 
 
 class Order(TimeStampedModel, SoftDeletableModel):
+    # Todo: inherit from BTC base?
     amount_cash = models.FloatField()
     amount_btc = models.FloatField()
     currency = models.ForeignKey(Currency)
@@ -86,9 +86,9 @@ class Order(TimeStampedModel, SoftDeletableModel):
     unique_reference = models.CharField(
         max_length=UNIQUE_REFERENCE_LENGTH, unique=True)
     admin_comment = models.CharField(max_length=200)
-    wallet = models.CharField(max_length=32)
-    withdraw_address = models.CharField(
-        blank=True, null=True, max_length=35, validators=[validate_bc])
+    # MIGRATED TO ADDRESS model
+    # address = models.CharField(
+    #    blank=True, null=True, max_length=35, validators=[validate_bc])
 
     class Meta:
         ordering = ['-created_on']
@@ -99,7 +99,7 @@ class Order(TimeStampedModel, SoftDeletableModel):
         MX_LENGTH = UNIQUE_REFERENCE_LENGTH
         while unq:
 
-            if failed_count >= 5:
+            if failed_count >= REFERENCE_LOOKUP_ATTEMPS:
                 MX_LENGTH += 1
 
             self.unique_reference = get_random_string(
@@ -138,6 +138,40 @@ class Payment(TimeStampedModel, SoftDeletableModel):
     amount_cash = models.FloatField()
     currency = models.ForeignKey(Currency)
     is_redeemed = models.BooleanField()
-    # To match order
-    # TODO: export max_length of reference to settings
-    unique_reference = models.CharField(max_length=5)
+    unique_reference = models.CharField(max_length=UNIQUE_REFERENCE_LENGTH)
+    # Super admin if we are paying for BTC
+    user = models.ForeignKey(User)
+    # Todo consider one to many for split payments, consider order field on payment
+    order = models.ForeignKey(Order, null=True)
+
+
+class BtcBase(TimeStampedModel):
+    class Meta:
+        abstract = True
+
+    WITHDRAW = 'W'
+    DEPOSIT = 'D'
+    TYPES = (
+        (WITHDRAW, 'WITHDRAW'),
+        (DEPOSIT, 'DEPOSIT'),
+    )
+    type = models.CharField(max_length=1, choices=TYPES)
+
+
+class Address(BtcBase, SoftDeletableModel):
+    WITHDRAW = 'W'
+    DEPOSIT = 'D'
+    TYPES = (
+        (WITHDRAW, 'WITHDRAW'),
+        (DEPOSIT, 'DEPOSIT'),
+    )
+    address = models.CharField(max_length=35, validators=[validate_bc])
+    user = models.ForeignKey(User)
+
+
+class Transaction(BtcBase):
+    # null if withdraw from our balance on Kraken
+    address_from = models.ForeignKey(Address, related_name='address_from')
+    address_to = models.ForeignKey(Address, related_name='address_to')
+    order = models.ForeignKey(Order)
+    is_verified = models.BooleanField()

@@ -33,57 +33,11 @@
           
       </div>
       <div class="col-md-4 column">          
-          <img src="/static/images/money.png" height="300" weight="200" \>
+          <img src="/static/images/money.png" height="300" weight="200">
       </div>
       <div class="col-md-4 column">          
          
       </div>
-  </div>  
-<script>	
-
-//get_menu_items();
-
-	
-function get_menu_items(submenu){
-
- if (typeof(submenu)==='undefined') {
- 	    
- 	    dt={};
- 	 
- 	 } else {
-
- 	 	dt={"submenu":submenu};
-
- 	 };
-
- $.ajax({
-    url: "/menuapp/get_menu_items/",
-    type: 'GET',
-      data : dt,
-      success: function(data) {    
-      //console.log(data.nuevo_cliente.razon_social);
-            $('#menus').html(data);   
-      },
-      error: function(jqXHR, textStatus ) {     
-      	//console.log(jqXHR)
-       $("#alerta").show();
-       $("#alerta-mensaje").html("Ha ocurrido un error obteniendo los itemns del menu, respuesta:  " + jqXHR.status + " - "+jqXHR.statusText );   
-             
-            }      
-      });
-
-}		
-
-function open_autocomanda(){
-  window.open('/restorant/autocomanda/','targetWindow',  'toolbar=no, location=no, status=no, menubar=no, scrollbars=no,  resizable=yes');
-
-}
-
-function open_postouch(){
-
-  window.open('/restorant/postouch/','targetWindow',  'toolbar=no, location=no, status=no, menubar=no, scrollbars=no,  resizable=no');
-
-}
-</script>		
-			
+  </div>
 {% endblock %}
+
