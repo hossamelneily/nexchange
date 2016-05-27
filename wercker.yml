@@ -1,19 +1,13 @@
 box: pitervergara/geodjango:nexchange
 
-services:
-  # TODO:
-  # This service will be used in production too.
-  # It's better to move this block into the "dev" pipeline
-  # so it aplies only there. Than set the posgtgres
-  # variables via wercker Web interface pointing to some production DB,
-  # so that when deployed to production the container connects to that server.
- - id: mdillon/postgis
-   env:
-     POSTGRES_USER: nexchange
-     POSTGRES_PASSWORD: nexchange
-     POSTGRES_DB: nexchange
-
 dev:
+  services:
+   - id: mdillon/postgis
+     env:
+       POSTGRES_USER: nexchange
+       POSTGRES_PASSWORD: nexchange
+       POSTGRES_DB: nexchange
+
   steps:
     - script:
         name: export django settings module
@@ -61,6 +55,13 @@ dev:
         reload: false 
 
 build:
+  services:
+   - id: mdillon/postgis
+     env:
+       POSTGRES_USER: ${POSTGIS_ENV_POSTGRES_USER}
+       POSTGRES_PASSWORD: ${POSTGIS_ENV_POSTGRES_PASSWORD}
+       POSTGRES_DB: ${POSTGIS_ENV_POSTGRES_DB}
+
   steps:
     - script:
         name: export django settings
