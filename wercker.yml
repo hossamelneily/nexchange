@@ -103,6 +103,7 @@ build:
     - script:
       name: copy files
       code: |
+        mkdir -p /usr/src/app
         cp -r [a-z]* /usr/src/app
         cp -r /usr/share/nginx/html/static $WERCKER_OUTPUT_DIR/staticfiles
         cp -r /usr/share/nginx/html/media $WERCKER_OUTPUT_DIR/mediafiles
