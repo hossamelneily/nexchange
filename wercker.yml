@@ -218,16 +218,16 @@ deploy:
         scp ${SSH_OPTIONS} /pipeline/source/remove-containers.sh ${SSH_DEST}:/tmp/${WERCKER_GIT_COMMIT}.sh
         ssh ${SSH_OPTIONS} ${SSH_DEST} << EOF
           # Login to docker hub (for private images)
-          docker login \
+          sudo docker login \
             -u $DOCKER_HUB_USER \
             -p $DOCKER_HUB_PASSWORD \
             --email $DOCKER_HUB_USER_EMAIL
           # pulls the next image
-          docker pull ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT}
+          sudo docker pull ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT}
           # remove current container
           bash /tmp/${WERCKER_GIT_COMMIT}.sh "nexchange_"
           # Start new instance
-          docker run \
+          sudo docker run \
               --name nexchange_${SUBSTR} \
               --link ${DATABASE_CONTAINER}:postgis \
               -P \
