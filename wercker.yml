@@ -175,10 +175,6 @@ deploy:
           echo "Gunicorn start"
           exec gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --log-file=/var/log/gunicorn_error.log --access-logfile=/var/log/gunicorn_access.log nexchange.wsgi:application "$@"
     - script:
-        name: place remove-containers.sh script 
-        code: |
-          mv "remove-containers.sh" "$WERCKER_OUTPUT_DIR/remove-containers.sh"
-    - script:
         name: create static and media root
         code: |
           mkdir -p /usr/share/nginx/html/static
@@ -219,7 +215,7 @@ deploy:
         SSH_OPTIONS="-o StrictHostKeyChecking=no -i $PRIVATEKEY_PATH"
         SSH_DEST="$SSH_USER@$DEST_HOST_ADDR"
         SUBSTR=${WERCKER_GIT_COMMIT:0:9}
-        scp ${SSH_OPTIONS} $WERCKER_SOURCE_DIR/remove-containers.sh ${SSH_DEST}:/tmp/${WERCKER_GIT_COMMIT}.sh
+        scp ${SSH_OPTIONS} /pipeline/source/remove-containers.sh ${SSH_DEST}:/tmp/${WERCKER_GIT_COMMIT}.sh
         ssh ${SSH_OPTIONS} ${SSH_DEST} << EOF
           # Login to docker hub (for private images)
           docker login \
