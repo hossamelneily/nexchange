@@ -93,6 +93,10 @@ build:
         code: |
           python manage.py migrate
     - script:
+        name: Django import fixtures
+        code: |
+          python manage.py loaddata core/fixtures/currency.json
+    - script:
         name: Django collect static
         code: |
           python manage.py collectstatic --noinput
@@ -151,6 +155,8 @@ build:
           #
           # Apply migrations
           python /usr/src/app/manage.py migrate
+          # Import fixtures
+          python /usr/src/app/manage.py loaddata core/fixtures/currency.json
           #
           # Prepare log files and start outputting logs to stdout
           # adapted from http://goo.gl/E7kRfL
