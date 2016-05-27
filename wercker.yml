@@ -101,13 +101,6 @@ build:
         code: |
           python manage.py test
     - script:
-        name: echo python information
-        code: |
-          echo "python version $(python --version) running"
-          echo "pip version $(pip --version) running"
-          echo "installed python packages:"
-          echo "$(pip freeze | sort)"
-    - script:
       name: copy files
       code: |
         cp -r [a-z]* $WERCKER_OUTPUT_DIR
@@ -169,6 +162,17 @@ build:
           #
           echo "Gunicorn start"
           exec gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --log-file=/var/log/gunicorn_error.log --access-logfile=/var/log/gunicorn_access.log nexchange.wsgi:application "$@"
+    - script:
+        name: set entrypoint as executable
+        code: |
+          echo chmod +x /entrypoint.sh
+    - script:
+        name: echo python information
+        code: |
+          echo "python version $(python --version) running"
+          echo "pip version $(pip --version) running"
+          echo "installed python packages:"
+          echo "$(pip freeze | sort)"
 
     - internal/docker-push:
         username: $DOCKER_HUB_USER
