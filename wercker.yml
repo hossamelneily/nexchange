@@ -39,9 +39,21 @@ dev:
         code: |
           sleep 10
     - script:
-        name: Django aplly migrations
+        name: Django aply migrations
         code: |
           python manage.py migrate
+    - script:
+        name: Django import fixtures
+        code: |
+          python manage.py loaddata core/fixtures/currency.json
+    - script:
+        name: Django run ticker update prices command
+        code: |
+          python manage.py ticker          
+    - script:
+        name: Django collect static
+        code: |
+          python manage.py collectstatic --noinput          
     - script:
         name: Django run tests
         code: |
