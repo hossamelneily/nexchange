@@ -3,8 +3,9 @@
 # Don't forget to set postgres parameters in wercker.yml (services section)
 # or in web interface, for the builds...
 X_GUNICORN_PORT=8000
-X_DOCKER_HUB_USER=dummycoder
-X_DOCKER_HUB_PASSWORD=123mudar
-X_DOCKER_HUB_REPO=dummycoder/wercker
+X_DOCKER_HUB_USER=onit
+X_DOCKER_HUB_PASSWORD=dock3r40n1t
+X_DOCKER_HUB_REPO=onitsoft/nexchange
 # Where to copy the app deploy
 X_APP_ROOT=/usr/src/app
+
