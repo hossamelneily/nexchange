@@ -2,4 +2,4 @@ from .settings import *
 
 DEBUG = False
 
-ALLOWED_HOSTS += ['nexchange.co.uk']
+ALLOWED_HOSTS += ['nexchange.co.uk', 'nexchange.ru']
