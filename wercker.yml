@@ -112,31 +112,25 @@ build:
         cp -r [a-z]* $WERCKER_OUTPUT_DIR
         cp -r /usr/share/nginx/html/static $WERCKER_OUTPUT_DIR/staticfiles
         cp -r /usr/share/nginx/html/media $WERCKER_OUTPUT_DIR/mediafiles
-
-deploy:
-  #
-  # Vars to be defined for each deploy target:
-  #
-  # PEM_FILE_CONTENT - the key to SSH into server (create key par via wercker web interface. remeber to install public key on server)
-  # SSH_USER - the user to SSH into server
-  # DEST_HOST_ADDR - server where to deploy  
-  #
-  # DATABASE_CONTAINER - DB to container to link to
-  # POSTGIS_ENV_POSTGRES_USER
-  # POSTGIS_ENV_POSTGRES_PASSWORD
-  # POSTGIS_ENV_POSTGRES_DB
-  #
-  # GOOGLE_MAPS_KEY - the google key..
-  # GUNICORN_PORT
-  #
-  # VOLUMES_PARAM - a list o volumes (each preceded by -v to mount in container)
-  # PORTS_PARAM - a list of ports (each preceded by -p to expose)
-  #
-  # DOCKER_HUB_USER - dockerhub username
-  # DOCKER_HUB_PASSWORD - dockerhub password (defined as a protectd var)
-  # DOCKER_HUB_REPO - the dockerhub repo where to push (repo must already exists and should be private)
-  steps:
     - create-file:
+        #
+        # PEM_FILE_CONTENT - the key to SSH into server (create key par via wercker web interface. remeber to install public key on server)
+        # SSH_USER - the user to SSH into server
+        # DEST_HOST_ADDR - server where to deploy  
+        #
+        # DATABASE_CONTAINER - DB to container to link to
+        # POSTGIS_ENV_POSTGRES_USER
+        # POSTGIS_ENV_POSTGRES_PASSWORD
+        # POSTGIS_ENV_POSTGRES_DB
+        #
+        # GUNICORN_PORT
+        #
+        # VOLUMES_PARAM - a list o volumes (each preceded by -v to mount in container)
+        # PORTS_PARAM - a list of ports (each preceded by -p to expose)
+        #
+        # DOCKER_HUB_USER - dockerhub username
+        # DOCKER_HUB_PASSWORD - dockerhub password (defined as a protectd var)
+        # DOCKER_HUB_REPO - the dockerhub repo where to push (repo must already exists and should be private)
         name: Create production entrypoint
         filename: /entrypoint.sh
         overwrite: true
@@ -150,7 +144,7 @@ deploy:
           # ###
           #
           export DJANGO_SETTINGS_MODULE=nexchange.settings_prod
-          # the following vars should br defined in wercker web interface, for each target          
+          # the following vars should br defined in wercker web interface
           export GUNICORN_PORT=${GUNICORN_PORT}
           export POSTGIS_ENV_POSTGRES_USER=${POSTGIS_ENV_POSTGRES_USER}
           export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}          
@@ -174,25 +168,7 @@ deploy:
           #
           echo "Gunicorn start"
           exec gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --log-file=/var/log/gunicorn_error.log --access-logfile=/var/log/gunicorn_access.log nexchange.wsgi:application "$@"
-    - script:
-        name: create static and media root
-        code: |
-          mkdir -p /usr/share/nginx/html/static
-          mkdir -p /usr/share/nginx/html/media
-    - script:
-        name: pip install requirements (with cache)
-        code: |
-          # If we were using a virtualenv it could have been made only on build.
-          pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
-          mkdir -p ${pip_download_cache}
-          echo gunicorn >> requirements.txt
-          pip install --cache-dir ${pip_download_cache} -r requirements.txt
-    - script:
-      name: copy files
-      code: |
-        chmod a+x /entrypoint.sh
-        mkdir -p /usr/src/app
-        cp -av /pipeline/source/* /usr/src/app
+
     - internal/docker-push:
         username: $DOCKER_HUB_USER
         password: $DOCKER_HUB_PASSWORD
@@ -202,6 +178,10 @@ deploy:
         entrypoint: /entrypoint.sh
         ports: ${GUNICORN_PORT}
         working-dir: /usr/src/app
+
+deploy:
+  box: pcfseceng/ci-ssh-client
+  steps:
     - mktemp:
         envvar: PRIVATEKEY_PATH
     - create-file:
