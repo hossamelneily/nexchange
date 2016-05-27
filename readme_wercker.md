@@ -13,35 +13,29 @@ During this pipeline, besides the steps executed in dev pipeline, the Django man
 
 Close to the end, the *echo python information* step prints a few useful data about python and python package versions in this build
 
-The last step (_copy files_) copies data to the  _$WERCKER_OUTPUT_DIR_, so the deploy pipeline has access to it.
+The step (_copy files_) copies data into the contianer, to the places they should be for runnning on production. The static and media, will be later copied again to another place. This is done in a second step because the container should be already in execution and with the volumes mounted (which is not the case during the build).
 
-As you see, the image is create but not publish in this pipeline. This is so that the _build_ step runs faster and developers can try it several times locally (passing through tests), before pushing to the remote repo.
+The build pipeline also creates an entripoint script at **/entrypoint.sh**, inside the container. This is the script executed by the container as soon as it starts.
+
+Once all the files are im place, the **internal/docker-push** step publishes the image in docker hub. It sends the image to the $DOCKER_HUB_REPO repo, tagging it as $WERCKER_GIT_COMMIT (a hash produced and exported by wercker each time).
+
 
 # Deploy #
-## The build, again ##
-This is the pipeline which pushes the image to docker hub, from where it will be later pulled to be deployed.
-This pipeline installs the requirements again (since the image from the previous pipeline was discarded). The bower dependencies are available in the copied files from build, so no need to install these again.
-The pipeline *imports* the data copied to the  _$WERCKER_OUTPUT_DIR_ of the build pipeline. This data is copied to **/usr/src/app**.
+In this step the pipeline remotely logis into the production server ($DEST_HOST_ADDR) and replaces the running container with the version corresponding to the last $WERCKER_GIT_COMMIT.
 
-
-An entrypoint script is created at **/entrypoint.sh**. This script cold have been created at build time, but generating it here allows that each deploy target define different values for the environment variables used in the initialization of the container.
-
-
-Once all the file are im place, the **internal/docker-push** step publishes the image in docker hub. It sends the image to the $DOCKER_HUB_REPO repo, tagging it as $WERCKER_GIT_COMMIT (a hash produced and exported by wercker each time).
-Note: This is a bad thing, because it depends that the target host has this script in that point.
+Initialy, the pipeline creates a local file containing the private key used to login and copy the **remove-containers.sh** script to the destination server.
 
 ## At the remote server ##
-The last step is *Do deploy*, which connects to *$SSH_USER@$DEST_HOST_ADDR* and executes the steps to stop the current version of the container and start the new one.
+The *Do deploy* step connects to *$SSH_USER@$DEST_HOST_ADDR* and executes the steps to stop the current version of the container and start the new one.
 
-After connecting on the remote server, the step logs in to dockerub (so the repo might be a private one) and pulls the ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT} image which was just pushed by the previous step.
-Once the image is there, the local script (**./destroy-containers.sh**) is invoked to stop and remove containers that have the same name of the one that is being deployed (it will have the same name if you trigger a deploy from wercker interface multiple times) and any other that comes from the ${DOCKER_HUB_REPO} repo, wich will be problably match only the previous version of the container that we are deploying.
+After connecting on the remote server, the step logs in to dockerub (so the repo might be a private one) and pulls the ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT} image which was pushed in the build pipeline.
+Once the image is there, the copy of **remove-container.sh** script is invoked to stop and remove containers which the name starts with *nexchange_*.
 
-After the current version is stoped the new one is start with a link to **${DATABASE_CONTAINER},** some ports publish (according to ${PORTS_PARAM}) and some volumes mounted (according to ${VOLUMES_PARAM}). As soon as it starts the */entrypoint.sh* script will run.
+After the current version is out the new one is started with a link to **${DATABASE_CONTAINER},** some ports publish (according to ${PORTS_PARAM}) and some volumes mounted (according to ${VOLUMES_PARAM}). As soon as it starts the */entrypoint.sh* script will run.
 
 ### About the entrypoint script ###
 The script exports a few variables, then runs the **migrate** management command to apply in the production database the new migrations created at build time (if any). Then the script copies the static and media files to the **/usr/share/nginx/html** which **is expected to be a volume from the host which is served by nginx**.
 
-Note: One better solution would be to mount host directories directly into /usr/src/app/static and /usr/src/app/media, if we can assure that everything that is in those directories can be recreated with *collectstatic* and *bower install*.
 Lastly the script starts a backgroud process to monitor the gunicorn logs (which allows `docker logs container` to show gunicorn logs) and start the gunicorn server at 0.0.0.0:${GUNICORN_PORT}.
 
 
@@ -50,7 +44,7 @@ For dev and build pipelines a service with postgres+postgis is used. The life cy
 
 In the current config, when the app is deployed to a target, is does not have the database server automatically created, therefore **is expected that a database container is up and running  when the app container starts**.
 
-Currently, the database container is running an instance of [mdillon/postgis](https://hub.docker.com/r/mdillon/postgis/) image (the same one used in dev and build steps). This container was started with the folowing line:
+Currently, the database container is running an instance of [mdillon/postgis](https://hub.docker.com/r/mdillon/postgis/) image (the same one used in dev and build steps). At the production server this container was started with the folowing line:
 `docker run --name nexchange-db -v /data/database:/var/lib/postgresql/data -e POSTGRES_PASSWORD=a071fd4b1aac00497d4c561e530b5738 -e POSTGRES_USER=nexchange -e POSTGRES_DB=nexchange -d mdillon/postgis`
 
 ----
@@ -71,3 +65,17 @@ Currently, the database container is running an instance of [mdillon/postgis](ht
 - `DOCKER_HUB_USER` - dockerhub username to push and pull container images
 - `DOCKER_HUB_PASSWORD` - password for DOCKER_HUB_USER (define it as a protectd var)
 - `DOCKER_HUB_REPO` - the dockerhub repo where to push (repo must already exists and could be  private)
+
+----
+# Other useful informations
+
+The nginx which serves as Web server is not containerized, but installed directly in the host *nexchange.co.uk*. The configuration file is not managed by the pipeline, although a copy of the first (and hopefully the current) version is in this repo. The file is  **nginx.conf**.
+
+The **ticker** component of nexchange is invoke by a cron job that runs at the host *nexchange.co.uk*. The cronjob **is not managed by the deploy**.
+The original (and hopefully the current) entry of the **/etc/cronjob** that invokes the ticker is the following:
+
+`* * * * * root docker exec $(docker ps -q -a --filter "name=nexchange_") python manage.py ticker`
+
+This line identifies the id of the container and runs a *docker exec* into it, calling the django management command.
+
+
