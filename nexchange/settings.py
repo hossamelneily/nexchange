@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import os
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
+import dj_database_url
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -38,7 +39,7 @@ LANGUAGES = (
 )
 
 # CUSTOM SETTINS
-PAYMENT_WINDOW = 60 #minutes
+PAYMENT_WINDOW = 60  # minutes
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -48,7 +49,7 @@ SECRET_KEY = 'vyq9ufbalb_a19d#=27pvv_17*h2j%gykvp7*xe%=yit0#vhkb'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -104,12 +105,17 @@ WSGI_APPLICATION = 'nexchange.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
+# defined by env specific configuration
+user = os.getenv('POSTGIS_ENV_POSTGRES_USER', 'postgres')
+password = os.getenv('POSTGIS_ENV_POSTGRES_PASSWORD', '')
+host = os.getenv('POSTGIS_PORT_5432_TCP_ADDR', '')
+port = os.getenv('POSTGIS_PORT_5432_TCP_PORT', '')
+db = os.getenv('POSTGIS_ENV_POSTGRES_DB', 'photobase')
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    'default': dj_database_url.config(default='postgis://{}:{}@{}:{}/{}'
+                                      .format(user, password, host, port, db))
+
 }
 
 
@@ -134,7 +140,6 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_PROFILE_MODULE = "core.Profile"
 
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
@@ -152,7 +157,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
+
 STATIC_URL = '/static/'
+STATIC_ROOT = '/usr/share/nginx/html/static'
+MEDIA_ROOT = '/usr/share/nginx/html/media'
+MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = (
     STATIC_PATH,
@@ -163,10 +172,13 @@ UNIQUE_REFERENCE_LENGTH = 5
 MAIN_BANK_ACCOUNT = "XXXX12345-1233-22"
 
 
-TWILIO_ACCOUNT_SID = 'AC36b7cf2a5b759ce6b93c5c655ff8bec3' # Your Account SID from www.twilio.com/console
-TWILIO_AUTH_TOKEN = '3515b0c5001494e76c528591ff4bb8b7' # Auth Token from www.twilio.com/console
+# Your Account SID from www.twilio.com/console
+TWILIO_ACCOUNT_SID = 'AC36b7cf2a5b759ce6b93c5c655ff8bec3'
+# Auth Token from www.twilio.com/console
+TWILIO_AUTH_TOKEN = '3515b0c5001494e76c528591ff4bb8b7'
 TWILIO_PHONE_FROM = '+15012511775'
-TWILIO_ACCOUNT_VERIFIED_PHONES = ['+555182459515'] # a small hack to avoid error while using my test account
+# a small hack to avoid error while using my test account
+TWILIO_ACCOUNT_VERIFIED_PHONES = ['+555182459515']
 
 LOGIN_REDIRECT_URL = reverse_lazy('core.order')
 

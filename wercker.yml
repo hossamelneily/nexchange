@@ -1,0 +1,229 @@
+box: pitervergara/geodjango:nexchange
+
+dev:
+  services:
+   - id: mdillon/postgis
+     env:
+       POSTGRES_USER: nexchange
+       POSTGRES_PASSWORD: nexchange
+       POSTGRES_DB: nexchange
+
+  steps:
+    - script:
+        name: export django settings module
+        code: |
+          export DJANGO_SETTINGS_MODULE=nexchange.settings_dev
+    - script:
+        name: create static and media root
+        code: |
+          mkdir -p /usr/share/nginx/html/static
+          mkdir -p /usr/share/nginx/html/media
+    - script:
+        name: pip install requirements (with cache)
+        code: |
+          pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
+          mkdir -p ${pip_download_cache}
+          pip install --cache-dir ${pip_download_cache} -r requirements.txt
+    - nahody/npm-install@1.1.1:
+      options: -g bower
+    - script:
+        name: install bower dependencies
+        code: |
+          cd static && bower install --allow-root
+    - script:
+        name: Django make migrations
+        code: |
+          python manage.py makemigrations
+    - script:
+        name: wait...
+        code: |
+          sleep 10
+    - script:
+        name: Django aplly migrations
+        code: |
+          python manage.py migrate
+    - script:
+        name: Django run tests
+        code: |
+          python manage.py test
+    - script:
+      name: Django create superuser
+      code: |
+          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
+    - internal/watch:
+        code: python manage.py runserver 0.0.0.0:8000
+        reload: false 
+
+build:
+  services:
+   - id: mdillon/postgis
+     env:
+       POSTGRES_USER: ${POSTGIS_ENV_POSTGRES_USER}
+       POSTGRES_PASSWORD: ${POSTGIS_ENV_POSTGRES_PASSWORD}
+       POSTGRES_DB: ${POSTGIS_ENV_POSTGRES_DB}
+
+  steps:
+    - script:
+        name: export django settings
+        code: |
+          export DJANGO_SETTINGS_MODULE=nexchange.settings_prod
+    - script:
+        name: create static and media root
+        code: |
+          mkdir -p /usr/share/nginx/html/static
+          mkdir -p /usr/share/nginx/html/media
+    - script:
+        name: pip install requirements (with cache)
+        code: |
+          pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
+          mkdir -p ${pip_download_cache}
+          pip install --cache-dir ${pip_download_cache} -r requirements.txt
+    - nahody/npm-install@1.1.1:
+      options: -g bower
+    - script:
+        name: install bower dependencies
+        code: |
+          cd static && bower install --allow-root
+    - script:
+        name: Django make migrations
+        code: |
+          python manage.py makemigrations
+    - script:
+        name: Django aplly migrations
+        code: |
+          python manage.py migrate
+    - script:
+        name: Django collect static
+        code: |
+          python manage.py collectstatic --noinput
+    - script:
+        name: Django run tests
+        code: |
+          python manage.py test
+    - script:
+      name: copy files
+      code: |
+        mkdir -p /usr/src/app
+        cp -r [a-z]* /usr/src/app
+        cp -r /usr/share/nginx/html/static $WERCKER_OUTPUT_DIR/staticfiles
+        cp -r /usr/share/nginx/html/media $WERCKER_OUTPUT_DIR/mediafiles
+    - script:
+        name: place remove-containers.sh script 
+        code: |
+          mv "remove-containers.sh" "$WERCKER_OUTPUT_DIR/remove-containers.sh"        
+    - create-file:
+        #
+        # PEM_FILE_CONTENT - the key to SSH into server (create key par via wercker web interface. remeber to install public key on server)
+        # SSH_USER - the user to SSH into server
+        # DEST_HOST_ADDR - server where to deploy  
+        #
+        # DATABASE_CONTAINER - DB to container to link to
+        # POSTGIS_ENV_POSTGRES_USER
+        # POSTGIS_ENV_POSTGRES_PASSWORD
+        # POSTGIS_ENV_POSTGRES_DB
+        #
+        # GUNICORN_PORT
+        #
+        # VOLUMES_PARAM - a list o volumes (each preceded by -v to mount in container)
+        # PORTS_PARAM - a list of ports (each preceded by -p to expose)
+        #
+        # DOCKER_HUB_USER - dockerhub username
+        # DOCKER_HUB_PASSWORD - dockerhub password (defined as a protectd var)
+        # DOCKER_HUB_REPO - the dockerhub repo where to push (repo must already exists and should be private)
+        name: Create production entrypoint
+        filename: /entrypoint.sh
+        overwrite: true
+        content: |-
+          #!/bin/bash
+          # ###
+          # This script is generate in deploy step and:
+          #   Exports variables
+          #   Apply migrations
+          #   Starts gunicorn
+          # ###
+          #
+          export DJANGO_SETTINGS_MODULE=nexchange.settings_prod
+          # the following vars should br defined in wercker web interface
+          export GUNICORN_PORT=${GUNICORN_PORT}
+          export POSTGIS_ENV_POSTGRES_USER=${POSTGIS_ENV_POSTGRES_USER}
+          export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}          
+          export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
+          #
+          # Apply migrations
+          python /usr/src/app/manage.py migrate
+          #
+          # Prepare log files and start outputting logs to stdout
+          # adapted from http://goo.gl/E7kRfL
+          touch /var/log/gunicorn_error.log
+          touch /var/log/gunicorn_access.log
+          tail -n 0 -f /var/log/*.log &          
+          #
+          # Copy static data to nginx volume
+          cp -ra $WERCKER_OUTPUT_DIR/staticfiles/* /usr/share/nginx/html/static
+          cp -ra $WERCKER_OUTPUT_DIR/mediafiles/* /usr/share/nginx/html/media
+          #
+          # Create superuser
+          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
+          #
+          echo "Gunicorn start"
+          exec gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --log-file=/var/log/gunicorn_error.log --access-logfile=/var/log/gunicorn_access.log nexchange.wsgi:application "$@"
+    - script:
+        name: set entrypoint as executable
+        code: |
+          chmod +x /entrypoint.sh
+    - script:
+        name: echo python information
+        code: |
+          echo "python version $(python --version) running"
+          echo "pip version $(pip --version) running"
+          echo "installed python packages:"
+          echo "$(pip freeze | sort)"
+
+    - internal/docker-push:
+        username: $DOCKER_HUB_USER
+        password: $DOCKER_HUB_PASSWORD
+        tag: $WERCKER_GIT_COMMIT
+        repository: $DOCKER_HUB_REPO
+        registry: https://registry.hub.docker.com
+        entrypoint: /entrypoint.sh
+        ports: ${GUNICORN_PORT}
+        working-dir: /usr/src/app
+
+deploy:
+  box: pcfseceng/ci-ssh-client
+  steps:
+    - mktemp:
+        envvar: PRIVATEKEY_PATH
+    - create-file:
+        name: write key
+        filename: $PRIVATEKEY_PATH
+        content: $PEM_FILE_CONTENT_PRIVATE  
+        overwrite: true
+    - script:
+      name: Do deploy
+      code: |
+        SSH_OPTIONS="-o StrictHostKeyChecking=no -i $PRIVATEKEY_PATH"
+        SSH_DEST="$SSH_USER@$DEST_HOST_ADDR"
+        SUBSTR=${WERCKER_GIT_COMMIT:0:9}
+        scp ${SSH_OPTIONS} remove-containers.sh ${SSH_DEST}:/tmp/${WERCKER_GIT_COMMIT}.sh
+        ssh ${SSH_OPTIONS} ${SSH_DEST} << EOF
+          # Login to docker hub (for private images)
+          sudo docker login \
+            -u $DOCKER_HUB_USER \
+            -p $DOCKER_HUB_PASSWORD \
+            --email $DOCKER_HUB_USER_EMAIL
+          # pulls the next image
+          sudo docker pull ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT}
+          # remove current container
+          bash /tmp/${WERCKER_GIT_COMMIT}.sh "nexchange_"
+          # Start new instance
+          sudo docker run \
+              --name nexchange_${SUBSTR} \
+              --link ${DATABASE_CONTAINER}:postgis \
+              -P \
+              ${PORTS_PARAM} \
+              ${VOLUMES_PARAM} \
+              --detach=true \
+              --restart=always \
+              ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT}
+        EOF
