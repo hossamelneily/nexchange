@@ -75,4 +75,7 @@ urlpatterns = i18n_patterns(
     # after saved the new passwd
     url(r'^accounts/password/done/$', auth_views.password_reset_complete),
     url(r'^api/v1/', include(api_patterns)),
+    url(r'^kraken/trades/$', core.views.k_trades_history, name='core.k_trades_history')
+
+
 )

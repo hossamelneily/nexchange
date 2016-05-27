@@ -27,6 +27,10 @@ from django.utils.translation import ugettext_lazy as _
 from .validators import validate_bc
 from datetime import timedelta
 
+from nexchange.settings import KRAKEN_PRIVATE_URL_API, KRAKEN_API_KEY, KRAKEN_API_SIGN
+
+import requests 
+import time
 
 def main(request):
     template = get_template('core/index.html')
@@ -314,3 +318,16 @@ def payment_confirmation(request, pk):
         except ValidationError as e:
             msg = e.messages[0]
             return JsonResponse({'status': 'ERR', 'msg': msg}, safe=False)
+
+def k_trades_history(request):
+    url = KRAKEN_PRIVATE_URL_API % "TradesHistory"
+    headers = {"API-Key": KRAKEN_API_KEY,
+               "API-Sign": KRAKEN_API_SIGN}
+    print (headers)
+    data = {"nonce": int(time.time())}
+    res = requests.post(url, headers=headers, data=data)
+
+    print (res.json())
+
+
+
