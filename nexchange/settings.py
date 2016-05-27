@@ -160,8 +160,13 @@ STATICFILES_DIRS = (
 
 UNIQUE_REFERENCE_LENGTH = 5
 
+REFERENCE_LOOKUP_ATTEMPS = 5
+
 MAIN_BANK_ACCOUNT = "XXXX12345-1233-22"
 
+KRAKEN_PRIVATE_URL_API= "https://api.kraken.com/0/private/%s"
+KRAKEN_API_KEY = "E6wsw96A+JsnY33k7SninDdg//JsoZSXcKBYtyrhUYlWyAxIeIIZn3ay"
+KRAKEN_API_SIGN = "hLg6LkI+kHtlLJs5ypJ0GnInK0go/HM3xMSVIGgCTcaqoqy8FsTl1KVdgFfWCCfu7CMZeCW4qqMbATrzZaFtRQ=="
 
 TWILIO_ACCOUNT_SID = 'AC36b7cf2a5b759ce6b93c5c655ff8bec3' # Your Account SID from www.twilio.com/console
 TWILIO_AUTH_TOKEN = '3515b0c5001494e76c528591ff4bb8b7' # Auth Token from www.twilio.com/console

@@ -7,8 +7,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
     DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
 
-from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW
-
+from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW, REFERENCE_LOOKUP_ATTEMPS
 
 from .validators import validate_bc
 from django.utils.translation import ugettext_lazy as _
@@ -87,11 +86,9 @@ class Order(TimeStampedModel, SoftDeletableModel):
     unique_reference = models.CharField(
         max_length=UNIQUE_REFERENCE_LENGTH, unique=True)
     admin_comment = models.CharField(max_length=200)
-   #todo: migrate to Address model
-    wallet = models.CharField(max_length=32)
-    #todo: migrate to Address model
-    withdraw_address = models.CharField(
-        blank=True, null=True, max_length=35, validators=[validate_bc])
+    # MIGRATED TO ADDRESS model
+    # address = models.CharField(
+    #    blank=True, null=True, max_length=35, validators=[validate_bc])
 
     class Meta:
         ordering = ['-created_on']
@@ -102,7 +99,7 @@ class Order(TimeStampedModel, SoftDeletableModel):
         MX_LENGTH = UNIQUE_REFERENCE_LENGTH
         while unq:
 
-            if failed_count >= 5:
+            if failed_count >= REFERENCE_LOOKUP_ATTEMPS:
                 MX_LENGTH += 1
 
             self.unique_reference = get_random_string(
@@ -141,9 +138,7 @@ class Payment(TimeStampedModel, SoftDeletableModel):
     amount_cash = models.FloatField()
     currency = models.ForeignKey(Currency)
     is_redeemed = models.BooleanField()
-    # To match order
-    # TODO: export max_length of reference to settings
-    unique_reference = models.CharField(max_length=5)
+    unique_reference = models.CharField(max_length=UNIQUE_REFERENCE_LENGTH)
     # Super admin if we are paying for BTC
     user = models.ForeignKey(User)
     # Todo consider one to many for split payments, consider order field on payment
@@ -170,7 +165,7 @@ class Address(BtcBase, SoftDeletableModel):
         (WITHDRAW, 'WITHDRAW'),
         (DEPOSIT, 'DEPOSIT'),
     )
-    address = models.CharField(max_length=32)
+    address = models.CharField(max_length=35, validators=[validate_bc])
     user = models.ForeignKey(User)
 
 
