@@ -1,0 +1,10 @@
+# About this file, check http://devcenter.wercker.com/cli/configuration/environment-variables.html
+
+# Don't forget to set postgres parameters in wercker.yml (services section)
+# or in web interface, for the builds...
+X_GUNICORN_PORT=8000
+X_DOCKER_HUB_USER=dummycoder
+X_DOCKER_HUB_PASSWORD=123mudar
+X_DOCKER_HUB_REPO=dummycoder/wercker
+# Where to copy the app deploy
+X_APP_ROOT=/usr/src/app

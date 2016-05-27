@@ -1,0 +1,22 @@
+{
+  "name": "nexchange",
+  "homepage": "https://github.com/onitsoft/nexchange",
+  "authors": [
+    "Oleg Tikhonov <hellgy@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^2.2.0",
+    "bootstrap": "^3.3.6"
+  }
+}

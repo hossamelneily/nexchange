@@ -32,7 +32,7 @@ class ValidateBCTestCase(TestCase):
 class PlaceOrderTestCase(TestCase):
 
     def setUp(self):
-        Currency(code='RUB', name='Russian Ruble').save()
+        Currency(code='RUB', name='Rubles').save()
         currency = Currency.objects.get(code='RUB')
         user = User.objects.create_user('+555182459988')
 
@@ -91,7 +91,7 @@ class UpdateWithdrawAddressTestCase(TestCase):
         translation.activate('en')
 
         """Creates an order"""
-        currency = Currency(code='RUB', name='Russian Rubles')
+        currency = Currency(code='RUB', name='Rubless')
         currency.save()
 
         data = {
@@ -159,7 +159,7 @@ class UpdateWithdrawAddressTestCase(TestCase):
 class ValidateOrderPaymentTestCase(TestCase):
 
     def setUp(self):
-        Currency(code='RUB', name='Russian Ruble').save()
+        Currency(code='RUB', name='Rubles').save()
         currency = Currency.objects.get(code='RUB')
         user = User.objects.create_user('+555182459988')
 
@@ -273,8 +273,8 @@ class OrderPayUntilTestCase(TestCase):
         password = '123Mudar'
 
         activate('en')
-        
-        Currency(code='RUB', name='Russian Rubles').save()
+
+        Currency(code='RUB', name='Rubless').save()
         user = User.objects.create_user(username=username, password=password)
 
         self.client = Client()

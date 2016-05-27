@@ -1,0 +1,61 @@
+box: pitervergara/geodjango:nexchange
+
+services:
+  # TODO:
+  # This service will be used in production too.
+  # It's better to move this block into the "dev" pipeline
+  # so it aplies only there. Than set the posgtgres
+  # variables via wercker Web interface pointing to some production DB,
+  # so that when deployed to production the container connects to that server.
+ - id: mdillon/postgis
+   env:
+     POSTGRES_USER: nexchange
+     POSTGRES_PASSWORD: nexchange
+     POSTGRES_DB: nexchange
+
+dev:
+  steps:
+    - script:
+        name: export django settings module
+        code: |
+          export DJANGO_SETTINGS_MODULE=nexchange.settings_dev
+    - script:
+        name: create static and media root
+        code: |
+          mkdir -p /usr/share/nginx/html/static
+          mkdir -p /usr/share/nginx/html/media
+    - script:
+        name: pip install requirements (with cache)
+        code: |
+          pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
+          mkdir -p ${pip_download_cache}
+          pip install --cache-dir ${pip_download_cache} -r requirements.txt
+    - nahody/npm-install@1.1.1:
+      options: -g bower
+    - script:
+        name: install bower dependencies
+        code: |
+          cd static && bower install --allow-root
+    - script:
+        name: Django make migrations
+        code: |
+          python manage.py makemigrations
+    - script:
+        name: wait...
+        code: |
+          sleep 10
+    - script:
+        name: Django aplly migrations
+        code: |
+          python manage.py migrate
+    - script:
+        name: Django run tests
+        code: |
+          python manage.py test
+    - script:
+      name: Django create superuser
+      code: |
+          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
+    - internal/watch:
+        code: python manage.py runserver 0.0.0.0:8000
+        reload: false 
