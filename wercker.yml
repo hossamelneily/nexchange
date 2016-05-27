@@ -59,3 +59,56 @@ dev:
     - internal/watch:
         code: python manage.py runserver 0.0.0.0:8000
         reload: false 
+
+build:
+  steps:
+    - script:
+        name: export django settings
+        code: |
+          export DJANGO_SETTINGS_MODULE=nexchange.settings_prod
+    - script:
+        name: create static and media root
+        code: |
+          mkdir -p /usr/share/nginx/html/static
+          mkdir -p /usr/share/nginx/html/media
+    - script:
+        name: pip install requirements (with cache)
+        code: |
+          pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
+          mkdir -p ${pip_download_cache}
+          pip install --cache-dir ${pip_download_cache} -r requirements.txt
+    - nahody/npm-install@1.1.1:
+      options: -g bower
+    - script:
+        name: install bower dependencies
+        code: |
+          cd static && bower install --allow-root
+    - script:
+        name: Django make migrations
+        code: |
+          python manage.py makemigrations
+    - script:
+        name: Django aplly migrations
+        code: |
+          python manage.py migrate
+    - script:
+        name: Django collect static
+        code: |
+          python manage.py collectstatic --noinput
+    - script:
+        name: Django run tests
+        code: |
+          python manage.py test
+    - script:
+        name: echo python information
+        code: |
+          echo "python version $(python --version) running"
+          echo "pip version $(pip --version) running"
+          echo "installed python packages:"
+          echo "$(pip freeze | sort)"
+    - script:
+      name: copy files
+      code: |
+        cp -r [a-z]* $WERCKER_OUTPUT_DIR
+        cp -r /usr/share/nginx/html/static $WERCKER_OUTPUT_DIR/staticfiles
+        cp -r /usr/share/nginx/html/media $WERCKER_OUTPUT_DIR/mediafiles
