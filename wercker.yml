@@ -103,7 +103,7 @@ build:
     - script:
       name: copy files
       code: |
-        cp -r [a-z]* $WERCKER_OUTPUT_DIR
+        cp -r [a-z]* /usr/src/app
         cp -r /usr/share/nginx/html/static $WERCKER_OUTPUT_DIR/staticfiles
         cp -r /usr/share/nginx/html/media $WERCKER_OUTPUT_DIR/mediafiles
     - create-file:
@@ -165,7 +165,7 @@ build:
     - script:
         name: set entrypoint as executable
         code: |
-          echo chmod +x /entrypoint.sh
+          chmod +x /entrypoint.sh
     - script:
         name: echo python information
         code: |
