@@ -5,4 +5,6 @@ from ticker.models import Price
 class PriceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Price
-        fields = ('price_rub', 'price_usd', 'rate', 'type', 'created_on')
+        fields = ('rate', 'type', 'created_on', 'unix_time', 'price_usd_formatted', 'price_rub_formatted')
+
+

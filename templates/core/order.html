@@ -1,25 +1,60 @@
 {% extends "core/base.html" %}
 {% load i18n %}
+{% load staticfiles %}
+
 {% block main %}
 			<div class="page-header">
 				<h1>
-					{% trans "BTC - Exchange" %} <small>{% trans "Order" %} {{action}} </small>
+					{% trans "BTC - Exchange" %} <small>{% trans "Order" %} </small>
 				</h1>
 			</div>
-
+                <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto">
+                </div>
 				<form method="post" class="form" enctype="multipart/form-data" >
 				    {% csrf_token %}
-				   <div class="row">
-				   <div class="col-xs-5 col-sm-5 col-md-5">
-				   	<p id="exchange-text">{% trans "Exchange from" %} <strong>{% trans "BitCoins" %}</strong> {% trans "to other Currencies" %}</strong> </p>
-				   </div>	
-				   </div>
+                    <div class="row">
+                        <div class="col-xs-5 col-sm-5 col-md-5 center-block controls">
+                                <div class="col-lg-12">
+                                    <h2 class="rate-buy">
+
+                                    </h2>
+                                    <h2 class="currency"></h2>
+                                </div>
+                                <div class="col-lg-12">
+                                  <span class="btn btn-success btn-lg active trigger trigger-buy">
+                                        {% trans "Buy" %}
+                                  </span>
+                                </div>
+                            </div>
+                        <div class="col-xs-1 col-sm-1 col-md-1"></div>
+                        <div class="col-xs-5 col-sm-5 col-md-5 controls">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <h2 class="rate-sell">
+
+                                    </h2>
+                                    <h2 class="currency"></h2>
+                                </div>
+                                <div class="col-lg-12">
+                                  <span class="btn btn-danger btn-lg trigger trigger-sell">
+                                        {% trans "Sell" %}
+                                  </span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+{#				   <div class="row">#}
+{#                       <div class="col-xs-5 col-sm-5 col-md-5">#}
+{#                        <p id="exchange-text">{% trans "Exchange from" %} <strong>{% trans "BitCoins" %}</strong> {% trans "to other Currencies" %}</strong> </p>#}
+{#                       </div>#}
+{#				   </div>#}
 				   <div class="row">
 				   	  <div class="col-xs-5 col-sm-5 col-md-5">
 					      <div class="panel panel-default">
 						    <div class="panel-body">						    	
 						           <div class="input-group">
-								      <input type="text" class="form-control amount amount-cash"  name="amount-cash">
+								      <input type="text" class="form-control amount amount-cash rate-buy"  name="amount-cash">
 								      <div class="input-group-btn">
 										{{slt1 | safe}}
 								      </div><!-- /btn-group -->
@@ -51,8 +86,10 @@
 						 	<div class="panel panel-default">
 						      <div class="panel-body">
 						      	<center>
-					    		<button type="submit" class="btn btn-success btn-lg">{% trans "Place" %}</button>
-					    		<button type="button" class="btn btn-warning btn-lg" onclick="window.location.href='/order/'">{% trans "Exit" %}</button>
+                                    <input type="hidden" name="type" value="buy" class="trade-type">
+					    		    <button type="submit" class="sell-go btn btn-danger btn-lg hidden">{% trans "Sell" %}</button>
+					    		    <button type="submit" class="buy-go btn btn-success btn-lg">{% trans "Buy" %}</button>
+{#					    		    <button type="button" class="btn btn-warning btn-lg" onclick="window.location.href='/order/'">{% trans "Exit" %}</button>#}
 								</center>
 							 </div>
 							</div>
@@ -61,51 +98,10 @@
 					</div>    
 				    <hr>
 				</form>
-    <script>
-        $(function () {
-            var timer = null,
-                delay = 500;
-            updateOrder($('.amount-coin'))
-
-            $('.amount').on('keyup', function () {
-                var self = this;
-                if (timer) {
-                    clearTimeout(timer);
-                    timer = null;
-                }
-                timer = setTimeout(function () {
-                    updateOrder($(self));
-                }, delay);
-            });
-
-            $('.currency').on('change', function () {
-                updateOrder($('.amount-coin'))
-            });
-        });
-
-    function updateOrder (elem) {
-        var btcToCashEndpoint = 'https://cex.io/api/convert/BTC/' + $('.currency-from').val(),
-            val,
-            rate,
-            floor = 100000000;
-
-        val = parseFloat(elem.val());
-
-        if (!val) {
-            return;
-        }
-
-        $.post(btcToCashEndpoint, {amnt: 1}, function(data) {
-            rate = data.amnt;
-
-            if (elem.hasClass('amount-coin')) {
-                var cashAmount = Math.round(rate * val);
-                $('.amount-cash').val(cashAmount);
-            } else {
-                var btcAmount = Math.floor(val / rate * floor) / floor;
-                $('.amount-coin').val(btcAmount);
-            }
-        });
-    }
-    </script>
+{% endblock %}
+{% block extra_js_footer %}
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
 {% endblock %}

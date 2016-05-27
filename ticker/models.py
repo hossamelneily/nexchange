@@ -1,5 +1,6 @@
 from django.db import models
 from core.models import TimeStampedModel
+from django.utils.dateformat import format
 
 
 class Price(TimeStampedModel):
@@ -14,3 +15,19 @@ class Price(TimeStampedModel):
     price_usd = models.FloatField()
     rate = models.FloatField()
     better_adds_count = models.IntegerField()
+
+    @property
+    def unix_time(self):
+        return format(self.created_on, 'U')
+
+    @property
+    def price_usd_formatted(self):
+        return float('{0:.2f}'.format(self.price_usd))
+
+    @property
+    def price_rub_formatted(self):
+        return float('{0:.2f}'.format(self.price_rub))
+
+
+
+

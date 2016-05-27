@@ -1,8 +1,7 @@
-
 $(document).ready(function() {
 
     /**
-     * Handles withdrawl address definition
+     * Handles withdaw address definition
      */
     $('.withdraw_address').editable({
         success: function(response, newValue) {
@@ -17,7 +16,7 @@ $(document).ready(function() {
             } else {
                 return response.responseText;
             }
-        },
+        }
     });
 
 
@@ -43,7 +42,7 @@ $(document).ready(function() {
             $(container).show();
 
             window.alert(msg);
-        }
+        };
 
         $.post( $(this).data('url'), {'paid': $(this).prop('checked')}, function( data ) {
 
@@ -74,8 +73,6 @@ $(document).ready(function() {
                 treatError(UNKNOW_ERROR);
             }
         });
-
-        
         
     })
 
