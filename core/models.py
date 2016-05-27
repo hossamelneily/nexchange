@@ -175,3 +175,23 @@ class Transaction(BtcBase):
     address_to = models.ForeignKey(Address, related_name='address_to')
     order = models.ForeignKey(Order)
     is_verified = models.BooleanField()
+
+
+class PaymentMethod(TimeStampedModel, SoftDeletableModel):
+    name = models.CharField(max_length=100)
+    Handler = models.CharField(max_length=100)
+    fee = models.FloatField(null=True)
+
+
+class PaymentPreference(TimeStampedModel, SoftDeletableModel):
+    # NULL or Admin for out own (buy adds)
+    user = models.ForeignKey(User)
+    payment_method = models.ForeignKey(PaymentMethod)
+    # Optional, sometimes we need this to confirm
+    method_owner = models.CharField(max_length=100)
+    identified = models.CharField(max_length=100)
+    comment = models.CharField(max_length=255)
+
+
+
+
