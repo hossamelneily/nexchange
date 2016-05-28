@@ -204,5 +204,7 @@ if DEBUG:
 
 # to test the API with localhost
 CORS_ORIGIN_WHITELIST = (
-    'nexchange.dev'
+    'nexchange.dev',
+    'nexchange.co.uk',
+    'nexchange.ru'
 )
