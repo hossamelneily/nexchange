@@ -1,5 +1,4 @@
 box: pitervergara/geodjango:nexchange
-no-response-timeout: 10
 
 dev:
   services:
