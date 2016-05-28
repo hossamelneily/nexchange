@@ -1,6 +1,7 @@
 !(function (window, $) {
-    var tickerHistoryUrl = '/api/v1/price/history',
-        tickerLatestUrl = '/api/v1/price/latest',
+    var apiRoot = 'http://nexchange.co.uk/en/api/v1',
+        tickerHistoryUrl = apiRoot +'/price/history',
+        tickerLatestUrl = apiRoot + '/price/latest',
         currency = 'rub',
         animationDelay = 3000,
         ACTION_BUY = 1,

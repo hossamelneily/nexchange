@@ -14,7 +14,7 @@ class LastPricesViewSet(viewsets.ViewSet):
 
 class PriceHistoryViewSet(viewsets.ViewSet):
     def list(self, request):
-        day_ago = datetime.datetime.now() - datetime.timedelta(days=1)
+        day_ago = datetime.datetime.now() - datetime.timedelta(days=0.5)
         queryset = Price.objects.filter(created_on__gte=day_ago).order_by('id')
         serializer = PriceSerializer(queryset, many=True)
         return Response(serializer.data)

@@ -201,3 +201,8 @@ if DEBUG:
     EMAIL_HOST_PASSWORD = ''
     EMAIL_USE_TLS = False
     DEFAULT_FROM_EMAIL = 'testing@example.com'
+
+# to test the API with localhost
+CORS_ORIGIN_WHITELIST = (
+    'nexchange.dev'
+)

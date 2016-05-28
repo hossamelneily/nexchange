@@ -4,8 +4,3 @@ DEBUG = False
 
 ALLOWED_HOSTS += ['nexchange.co.uk', 'nexchange.ru',
                   'www.nexchange.co.uk', 'www.nexchange.ru']
-
-# to test the API with localhost
-CORS_ORIGIN_WHITELIST = (
-    'nexchange.dev'
-)
