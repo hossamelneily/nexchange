@@ -176,17 +176,17 @@
                             var series = this.series[0];
                             setInterval(function () {
                                 $.get(tickerLatestUrl, function (resdata) {
-                                    var data = reonseToChart(resdata)[currency];
+                                    var lastdata = reonseToChart(resdata)[currency];
                                     if ( parseInt(resdata[0]["unix_time"]) >
                                          parseInt(chartDataRaw[chartDataRaw.length - 1]["unix_time"])
                                     ) {
                                         //Only update if a ticker 'tick' had occured
-                                        series.addPoint(data[0], true, true);
+                                        series.addPoint(lastdata[0], true, true);
                                         Array.prototype.push.apply(chartDataRaw, resdata);
                                     }
 
                                 });
-                        }, 1000 * 60);
+                        }, 1000 * 30);
                       }
                     }
                 },
