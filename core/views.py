@@ -323,8 +323,6 @@ def k_trades_history(request):
     print(headers)
     data = {"nonce": int(time.time())}
     res = requests.post(url, headers=headers, data=data)
-
-<<<<<<< HEAD
     print(res.json())
 
 
