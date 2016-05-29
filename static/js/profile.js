@@ -1,11 +1,12 @@
 
 var requestNewSMSToken = function() {
-    
+    var url = $("#resend_sms_button").data('url');
+
     $("#resend_sms_button").html(
         '<i class="fa fa-spinner fa-spin"></i>&nbsp;Sending you the token again...'
     );
 
-    $.post( "/profile/resendSMS/", function( data ) {
+    $.post( url , function( data ) {
         $("#resend_sms_button").html(
             '<i class="fa fa-repeat" aria-hidden="true"></i>&nbsp;Send-me the token again'
         );
@@ -23,10 +24,17 @@ var requestNewSMSToken = function() {
 $("#resend_sms_button").on("click", requestNewSMSToken);
 
 var verifyPhone = function() {
+    var url = $("#verify_phone_now").data('url');
+    var token = $("#verification_code").val();
+
     $("#alert_phone_not_verified").hide();
     $("#alert_verifying_phone").show();
 
+<<<<<<< HEAD
      $.post( "/en/profile/verifyPhone/", {'token': $("#verification_code").val()}, function( data ) {
+=======
+     $.post( url , {'token': token}, function( data ) {
+>>>>>>> Fix profile update  issues. Fix SMS verification issue. #TIME 2H
 
         if (data.status === 'OK') {
             window.location.reload(); //TODO: Ajax update screen..

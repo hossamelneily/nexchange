@@ -177,7 +177,7 @@ SMS_TOKEN_LENGTH = 10
 
 MAIN_BANK_ACCOUNT = "XXXX12345-1233-22"
 
-KRAKEN_PRIVATE_URL_API= "https://api.kraken.com/0/private/%s"
+KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 KRAKEN_API_KEY = "E6wsw96A+JsnY33k7SninDdg//JsoZSXcKBYtyrhUYlWyAxIeIIZn3ay"
 KRAKEN_API_SIGN = "hLg6LkI+kHtlLJs5ypJ0GnInK0go/HM3xMSVIGgCTcaqoqy8FsTl1KVdgFfWCCfu7CMZeCW4qqMbATrzZaFtRQ=="
 
@@ -186,8 +186,6 @@ TWILIO_ACCOUNT_SID = 'AC0bd0fa94c8ca0084f3e512c741965364'
 # Auth Token from www.twilio.com/console
 TWILIO_AUTH_TOKEN = '811a1791827b6088fcaa2d5b43ccf017'
 TWILIO_PHONE_FROM = '+447481341915'
-# a small hack to avoid error while using my test account
-TWILIO_ACCOUNT_VERIFIED_PHONES = ['+555182459515']
 
 LOGIN_REDIRECT_URL = reverse_lazy('core.order')
 

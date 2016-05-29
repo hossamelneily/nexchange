@@ -52,8 +52,8 @@ urlpatterns = i18n_patterns(
     url(r'^profile/resendSMS/$',  core.views.resend_sms, name='core.resend_sms'),
     url(r'^profile/verifyPhone/$',
         core.views.verify_phone, name='core.verify_phone'),
-    url(r'^profile/(?P<slug>[-\+\w\d]+)/$',
-        core.views.UserUpdateView.as_view(), name='core.user_profile'),
+    url(r'^profile/$', core.views.UserUpdateView.as_view(),
+        name='core.user_profile'),
 
     url(r'^accounts/login/$', auth_views.login,
         {'template_name': 'core/user_login.html',
@@ -77,11 +77,16 @@ urlpatterns = i18n_patterns(
     # after saved the new passwd
     url(r'^accounts/password/done/$', auth_views.password_reset_complete),
     url(r'^api/v1/', include(api_patterns)),
+<<<<<<< HEAD
     url(r'^kraken/trades/$', core.views.k_trades_history, name='core.k_trades_history'),
     url(r'^api/v1/phone$', core.views.user_by_phone, name='core.user_by_phone'),
     url(r'^api/v1/menu', core.views.ajax_menu, name='core.menu'),
     url(r'^api/v1/breadcrumbs', core.views.ajax_crumbs, name='core.breadcrumbs'),
 
+=======
+    url(r'^kraken/trades/$', core.views.k_trades_history,
+        name='core.k_trades_history')
+>>>>>>> Fix profile update  issues. Fix SMS verification issue. #TIME 2H
 
 
 )

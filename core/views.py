@@ -13,7 +13,6 @@ from core.forms import DateSearchForm, CustomUserCreationForm,\
 from core.models import Order, Currency, SmsToken, Profile, PaymentMethod, Payment
 from django.db import transaction
 from django.views.generic import View
-from django.views.generic.detail import SingleObjectMixin
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
@@ -21,16 +20,15 @@ from twilio.rest import TwilioRestClient
 from django.conf import settings
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import ValidationError
 
 from django.utils.translation import ugettext_lazy as _
 from .validators import validate_bc
 from datetime import timedelta
-from django.views.decorators.clickjacking import xframe_options_exempt
-from django.views.decorators.csrf import csrf_exempt 
+from django.views.decorators.csrf import csrf_exempt
 from nexchange.settings import KRAKEN_PRIVATE_URL_API, KRAKEN_API_KEY, KRAKEN_API_SIGN
 
-import requests 
+import requests
 import time
 
 
@@ -164,11 +162,7 @@ def user_registration(request):
                     password=user_form.cleaned_data['password1'])
                 login(request, user)
 
-                return redirect(
-                    reverse(
-                        'core.user_profile',
-                        args=[
-                            user.username]))
+                return redirect(reverse('core.user_profile'))
 
             except Exception as e:
                 msg = error_message % (e)
@@ -184,21 +178,12 @@ def user_registration(request):
 
 
 @method_decorator(login_required, name='dispatch')
-class UserUpdateView(SingleObjectMixin, View):
-    model = User
-    slug_field = 'username'
-
-    def get_object(self, queryset=None):
-        ''' Testa se tem permissão de editar '''
-        obj = super(UserUpdateView, self).get_object()
-        if not obj == self.request.user:
-            raise PermissionDenied
-        return obj
+class UserUpdateView(View):
 
     def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        user_form = UserForm(instance=self.object)
-        profile_form = UpdateUserProfileForm(instance=self.object.profile)
+        user_form = UserForm(instance=self.request.user)
+        profile_form = UpdateUserProfileForm(
+            instance=self.request.user.profile)
 
         ctx = {
             'user_form': user_form,
@@ -208,10 +193,9 @@ class UserUpdateView(SingleObjectMixin, View):
         return render(request, 'core/user_profile.html', ctx,)
 
     def post(self, request):
-        self.object = self.get_object()
-        user_form = UserForm(request.POST, instance=self.object)
+        user_form = UserForm(request.POST, instance=self.request.user)
         profile_form = UpdateUserProfileForm(
-            request.POST, instance=self.object.profile)
+            request.POST, instance=self.request.user.profile)
         success_message = _('Profile updated with success')
 
         if user_form.is_valid() and profile_form.is_valid():
@@ -219,11 +203,7 @@ class UserUpdateView(SingleObjectMixin, View):
             profile_form.save()
             messages.success(self.request, success_message)
 
-            return redirect(
-                reverse(
-                    'core.user_profile',
-                    args=[
-                        self.object.username]))
+            return redirect(reverse('core.user_profile'))
         else:
             ctx = {
                 'user_form': user_form,
@@ -344,6 +324,7 @@ def k_trades_history(request):
     data = {"nonce": int(time.time())}
     res = requests.post(url, headers=headers, data=data)
 
+<<<<<<< HEAD
     print(res.json())
 
 
@@ -432,3 +413,4 @@ def payment_ajax(request):
                                          'action': my_action,
                                          },
                                         request))
+

@@ -172,3 +172,67 @@ class OrderPayUntilTestCase(TestCase):
 
         # Is rendere in template?
         self.assertContains(response, 'id="pay_until_notice"')
+
+
+class ProfileUpdateTestCase(TestCase):
+
+    def setUp(self):
+        username = '+555190909898'
+        password = '123Mudar'
+
+        activate('en')
+
+        user = User.objects.create_user(username=username, password=password)
+
+        self.client = Client()
+        self.client.login(username=username, password=password)
+
+    def test_can_update_profile(self):
+        data = {
+            'first_name': 'John',
+            'last_name': 'Doe',
+            'email': 'johndoe@domain.com',
+        }
+
+        response = self.client.post(reverse('core.user_profile'), data)
+        self.assertEqual(302, response.status_code)  # Redirect after update
+
+        # saved the User instance data
+        user = User.objects.get(email=data['email'])
+        self.assertEqual(user.profile.first_name, data[
+                         'first_name'])  # saved the profile too
+        self.assertEqual(user.profile.last_name, data['last_name'])
+
+    def test_phone_verification_with_success(self):
+        user = User.objects.first()
+
+        # Ensure profile is disabled
+        profile = user.profile
+        profile.disabled = True
+        profile.save()
+        self.assertTrue(user.profile.disabled)
+
+        token = user.profile.sms_token
+
+        response = self.client.post(
+            reverse('core.verify_phone'), {'token': token})
+
+        # Ensure the token was correctly received
+        self.assertEqual(200, response.status_code)
+        self.assertJSONEqual('{"status": "OK"}', str(
+            response.content, encoding='utf8'),)
+
+        # Ensure profile was enabled
+        profile = user.profile
+        self.assertFalse(user.profile.disabled)
+
+    def test_phone_verification_fails_with_wrong_token(self):
+        user = User.objects.first()
+        token = "%sXX" % user.profile.sms_token  # a wrong token
+
+        response = self.client.post(
+            reverse('core.verify_phone'), {'token': token})
+        # Ensure the token was correctly received
+        self.assertEqual(200, response.status_code)  # succefuly runned
+        self.assertJSONEqual('{"status": "NOT_MATCH"}', str(  # failure reason indicator
+            response.content, encoding='utf8'),)
