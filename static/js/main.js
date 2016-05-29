@@ -1,5 +1,5 @@
 !(function (window, $) {
-    var apiRoot = 'http://nexchange.co.uk/en/api/v1',
+    var apiRoot = '/en/api/v1',
         tickerHistoryUrl = apiRoot +'/price/history',
         tickerLatestUrl = apiRoot + '/price/latest',
         currency = 'rub',
