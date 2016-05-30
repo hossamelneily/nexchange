@@ -39,7 +39,7 @@ class SoftDeletableModel(SoftDeleteMixin):
 class Profile(TimeStampedModel, SoftDeletableModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = PhoneNumberField(blank=False, help_text=_(
-        'Enter phone number in internation format. eg. +555198786543'))
+        'Enter phone number in international format. eg. +555198786543'))
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, blank=True)
     sms_token = models.CharField(
@@ -47,12 +47,12 @@ class Profile(TimeStampedModel, SoftDeletableModel):
 
     @staticmethod
     def make_sms_token():
-        unq = True
-        while unq:
-            token = get_random_string(length=UNIQUE_REFERENCE_LENGTH)
-            cnt_unq = Profile.objects.filter(sms_token=token).count()
+        duplicate = True
+        while duplicate:
+            token = User.objects.make_random_password(length=10, allowed_chars='123456789')
+            cnt_unq = Profile.objects.filter(sms_token=token, disabled=True).count()
             if cnt_unq == 0:
-                unq = False
+                duplicate = False
 
             return token
 

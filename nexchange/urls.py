@@ -31,7 +31,8 @@ admin.site.register(Order)
 urlpatterns = i18n_patterns(
     url(r'^admin/', admin.site.urls),
     url(r'^i18n/', include('django.conf.urls.i18n')),
-    url(r'^$', core.views.main, name='main'),
+    url(r'^$', core.views.add_order, name='core.order_add'),
+    url(r'^info/$', core.views.main, name='main'),
     url(r'^order/$',  core.views.index_order, name='core.order'),
     url(r'^order/update_withdraw_address/(?P<pk>[\d]+)/$',
         core.views.update_withdraw_address,
@@ -43,8 +44,6 @@ urlpatterns = i18n_patterns(
         name='core.user_registration'),
     url(r'^profile/resendSMS/$',  core.views.resend_sms,
         name='core.resend_sms'),
-    url(r'^order/add/$', core.views.add_order, name='core.order_add'),
-
     url(r'^profile/add$', core.views.user_registration,
         name='core.user_registration'),
     url(r'^profile/resendSMS/$',  core.views.resend_sms, name='core.resend_sms'),
