@@ -42,27 +42,28 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         'Enter phone number in international format. eg. +555198786543'))
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, blank=True)
-    sms_token = models.CharField(
-        max_length=UNIQUE_REFERENCE_LENGTH, blank=True)
-
-    @staticmethod
-    def make_sms_token():
-        duplicate = True
-        while duplicate:
-            token = User.objects.make_random_password(length=10, allowed_chars='123456789')
-            cnt_unq = Profile.objects.filter(sms_token=token, disabled=True).count()
-            if cnt_unq == 0:
-                duplicate = False
-
-            return token
 
     def save(self, *args, **kwargs):
         '''Add a SMS token at creation. Used to verify phone number'''
         if self.pk is None:
-            self.sms_token = Profile.make_sms_token()
+            token = SmsToken(user=self.user)
+            token.make_sms_token()
+            token.save()
         super(Profile, self).save(*args, **kwargs)
 
 User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])
+
+
+class SmsToken(TimeStampedModel, SoftDeletableModel):
+    sms_token = models.CharField(
+        max_length=UNIQUE_REFERENCE_LENGTH, blank=True)
+    user = models.ForeignKey(User, related_name='sms_token')
+
+    def save(self, *args, **kwargs):
+        self.sms_token =\
+            User.objects.make_random_password(length=10,
+                                              allowed_chars='123456789')
+        super(SmsToken, self).save(*args, **kwargs)
 
 
 class Currency(TimeStampedModel, SoftDeletableModel):

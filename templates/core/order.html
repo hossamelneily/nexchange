@@ -8,11 +8,11 @@
   <div class="process">
    <div class="process-row nav nav-tabs">
     <div class="process-step">
-     <button type="button" class="btn btn-info btn-circle" data-toggle="tab" href="#menu1"><i class="fa fa-info fa-3x"></i></button>
+     <button type="button" class="btn btn-info btn-circle" data-toggle="tab" href="#menu1"><i class="fa fa-bar-chart fa-3x"></i></button>
      <p><small>{% trans "Check" %}<br />{% trans "Graph" %}</small></p>
     </div>
     <div class="process-step">
-     <button type="button" class="btn btn-default btn-circle" data-toggle="tab" href="#menu2"><i class="fa fa-file-text-o fa-3x"></i></button>
+     <button type="button" class="btn btn-default btn-circle" data-toggle="tab" href="#menu2"><i class="fa fa-exchange fa-3x"></i></button>
      <p><small>{% trans "Set amount to" %}<br />{% trans "Buy or Sell" %}</small></p>
     </div>
    {% if not user.is_authenticated %}
@@ -108,22 +108,41 @@
 			  </div><!-- /pannel -->  
 		</div><!-- /col -->
 		</div><!-- /row -->
-    <ul class="list-unstyled list-inline pull-right">
+    <ul class="list-unstyled list-inline spa-navigation">
      <li><button type="button" class="btn btn-default prev-step"><i class="fa fa-chevron-left"></i> Back</button></li>
      <li><button type="button" class="btn btn-info next-step">Next <i class="fa fa-chevron-right"></i></button></li>
     </ul>
-   </div>
+    </div>
    <div id="menu3" class="tab-pane fade">
-   	{% if user.is_authenticated %}
-      <h3>{% trans "Your only " %}</h3>
-      <p>{% trans "1 Step away !" %}</p>
-     {% else %}
-           <p>{% trans "Please" %}
-          <a class="nav-link" href="{% url 'accounts.login' %}"> {% trans "Login" %} </a> </p>
-          <p>{% trans "Or" %}
-          <a class="nav-link" href="{% url 'core.user_registration' %}"> {% trans "Register" %} </a></p>
-     {% endif %} 
-    <ul class="list-unstyled list-inline pull-right">
+            <h4>{% trans "Phone verefication" %}</h4>
+            <div class="row register step1">
+                <div class="col col-lg-12">
+                    {% trans "Enter your phone" %}
+                </div>
+                <div class="col col-lg-12">
+                    <input type="text" name="phone" id="phone" value="+7">
+                </div>
+                <div class="col col-lg-12 center">
+                    <span class="btn btn-primary create-acc">
+                        {% trans "Send SMS" %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="row register step2 hidden">
+                <div class="col col-lg-12">
+                    {% trans "Enter verefication code from SMS" %}
+                </div>
+                <div class="col col-lg-12">
+                    <input type="text" name="token" id="token">
+                </div>
+                <div class="col col-lg-12 center">
+                    <span class="btn btn-primary verify-acc">
+                        {% trans "Send SMS" %}
+                    </span>
+                </div>
+            </div>
+    <ul class="list-unstyled list-inline spa-navigation">
      <li><button type="button" class="btn btn-default prev-step"><i class="fa fa-chevron-left"></i> Back</button></li>
      {% if user.is_authenticated %} 
      <li><button type="button" class="btn btn-info next-step">Next <i class="fa fa-chevron-right"></i></button></li>

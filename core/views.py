@@ -10,7 +10,7 @@ from django.template.loader import get_template
 from nexchange.settings import MAIN_BANK_ACCOUNT
 from core.forms import DateSearchForm, CustomUserCreationForm,\
     UserForm, UserProfileForm, UpdateUserProfileForm
-from core.models import Order, Currency
+from core.models import Order, Currency, SmsToken, Profile
 from django.db import transaction
 from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
@@ -231,14 +231,9 @@ class UserUpdateView(SingleObjectMixin, View):
 
 
 def _send_sms(user):
-    msg = _("BTC Exchange code:") + '%s' % user.profile.sms_token
-    phone_to = str(user.profile.phone)
-
-    if settings.TWILIO_ACCOUNT_VERIFIED_PHONES\
-            and phone_to not in settings.TWILIO_ACCOUNT_VERIFIED_PHONES:
-        print(_("NOT SENDING SMS BECAUSE TEST \
-            ACCOUNT CANNOT SEND TO THIS PHONE"))
-        return {'sid': 'FAKE_SID'}
+    sms_token = SmsToken.objects.filter(user=user).latest('id')
+    msg = _("BTC Exchange code:") + '%s' % sms_token.sms_token
+    phone_to = str(user.username)
 
     client = TwilioRestClient(
         settings.TWILIO_ACCOUNT_SID,
@@ -251,20 +246,35 @@ def _send_sms(user):
 
 @login_required()
 def resend_sms(request):
-    message = _send_sms(request.user)
+    phone = request.POST.get('phone')
+    if request.user.is_anonymous() and phone:
+        user = User.objects.get(profile__phone=phone)
+    else:
+        user = request.user
+    message = _send_sms(user)
     return JsonResponse({'message_sid': message.sid}, safe=False)
 
 
 @login_required()
 def verify_phone(request):
     sent_token = request.POST.get('token')
-    if sent_token == request.user.profile.sms_token:
+    phone = request.POST.get('phone')
+    if request.user.is_anonymous() and phone:
+        user = User.objects.get(profile__phone=phone)
+    else:
+        user = request.user
+    sms_token = SmsToken.objects.filter(user=user).latest('id')
+    if sent_token == sms_token:
         profile = request.user.profile
         profile.disabled = False
         profile.save()
         status = 'OK'
+        sms_token.delete()
+        if user.is_anonymous():
+            login(request, user)
+
     else:
-        status = 'NOT_MATCH'
+        status = 'NO_MATCH'
 
     return JsonResponse({'status': status}, safe=False)
 
@@ -319,15 +329,31 @@ def payment_confirmation(request, pk):
             msg = e.messages[0]
             return JsonResponse({'status': 'ERR', 'msg': msg}, safe=False)
 
+
 def k_trades_history(request):
+    # Todo use django rest framework
     url = KRAKEN_PRIVATE_URL_API % "TradesHistory"
     headers = {"API-Key": KRAKEN_API_KEY,
                "API-Sign": KRAKEN_API_SIGN}
-    print (headers)
+    print(headers)
     data = {"nonce": int(time.time())}
     res = requests.post(url, headers=headers, data=data)
 
-    print (res.json())
+    print(res.json())
+
+
+def user_by_phone(request):
+    phone = request.POST.get('phone')
+    user, created = User.objects.get_or_create(username=phone)
+    profile, created = Profile.objects.get_or_create(user=user)
+    if not created:
+        token = SmsToken(user=user)
+    _send_sms(user)
+    return JsonResponse({'status': 'ok'})
+
+
+def ajax_menu(request):
+    return render(request, 'core/partials/menu.html')
 
 
 

@@ -19,6 +19,7 @@ var requestNewSMSToken = function() {
     });
 };
 
+
 $("#resend_sms_button").on("click", requestNewSMSToken);
 
 var verifyPhone = function() {

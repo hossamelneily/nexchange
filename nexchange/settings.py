@@ -208,3 +208,6 @@ CORS_ORIGIN_WHITELIST = (
     'nexchange.co.uk',
     'nexchange.ru'
 )
+
+# 12 months
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 12
