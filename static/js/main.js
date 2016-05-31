@@ -14,7 +14,7 @@
             var timer = null,
                 delay = 500;
             updateOrder($('.amount-coin'));
-
+            
             $('.trigger').click( function(){
                 $('.trigger').removeClass('active');
                 $(this).addClass('active');
@@ -144,7 +144,7 @@
         return data['price_' + currency + '_formatted'];
     }
 
-    function setCurrency () {
+    function setCurrency () {   
         $('.currency').html(currency.toUpperCase());
         renderChart();
     }

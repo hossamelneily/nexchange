@@ -7,7 +7,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
     DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
 
-from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW, REFERENCE_LOOKUP_ATTEMPS
+from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW, REFERENCE_LOOKUP_ATTEMPS, SMS_TOKEN_LENGTH
 
 from .validators import validate_bc
 from django.utils.translation import ugettext_lazy as _
@@ -47,7 +47,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         '''Add a SMS token at creation. Used to verify phone number'''
         if self.pk is None:
             token = SmsToken(user=self.user)
-            token.make_sms_token()
+            #token.sms_token()
             token.save()
         super(Profile, self).save(*args, **kwargs)
 
@@ -56,7 +56,7 @@ User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])
 
 class SmsToken(TimeStampedModel, SoftDeletableModel):
     sms_token = models.CharField(
-        max_length=UNIQUE_REFERENCE_LENGTH, blank=True)
+        max_length=SMS_TOKEN_LENGTH, blank=True)
     user = models.ForeignKey(User, related_name='sms_token')
 
     def save(self, *args, **kwargs):
