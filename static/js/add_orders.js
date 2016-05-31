@@ -2,7 +2,9 @@ $(function() {
     // TODO: get api root via DI
     var apiRoot = '/en/api/v1',
         createAccEndpoint = apiRoot + '/phone',
-        validatePhoneEndpoint = '/profile/verifyPhone/';
+        menuEndpoint = apiRoot + '/menu',
+        breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
+        validatePhoneEndpoint = '/en/profile/verifyPhone/';
     $('.btn-circle').on('click', function () {
         $('.btn-circle.btn-info').removeClass('btn-info').addClass('btn-default');
         $(this).addClass('btn-info').removeClass('btn-default').blur();
@@ -11,18 +13,19 @@ $(function() {
     $('.next-step, .prev-step').on('click', changeState);
 
     $('.create-acc').on('click', function () {
-        var payload = {
+        var regPayload = {
             phone: $('#phone').val()
         };
         $.ajax({
             type: "POST",
             url: createAccEndpoint,
-            data: payload,
+            data: regPayload,
             success: function (data) {
-                $('.step2').removeClass('hidden');
+                $('.register .step2').removeClass('hidden');
                 $('.verify-acc').removeClass('hidden');
                 $(".create-acc").addClass('hidden');
-                $("#phone").attr("disabled", "disabled")
+                $(".create-acc.resend").removeClass('hidden');
+                //$("#phone").attr("disabled", "disabled")
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert('Invalid phone number');
@@ -31,18 +34,19 @@ $(function() {
     });
 
     $('.verify-acc').on('click', function () {
-        var payload = {
-            'token': $("#verification_code").val(),
-            'phone': $("#phone").val()
+        var verifyPayload = {
+            token: $("#verification_code").val(),
+            phone: $("#phone").val()
         };
         $.ajax({
             type: "POST",
             url: validatePhoneEndpoint,
-            data: payload,
+            data: verifyPayload,
             success: function (data) {
                 if (data.status === 'OK') {
+                    reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
                     changeState('next');
-                } else if (data.status === 'NOT_MATCH') {
+                } else {
                     window.alert("The code you sent was incorrect. Please, try again.")
                 }
             },
@@ -54,7 +58,7 @@ $(function() {
     });
 });
 function setButtonDefaultState (tabId) {
-    if (tabId == 'menu2') {
+    if (tabId === 'menu2') {
         var modifier = action === ACTION_SELL ? 'btn-danger' : 'btn-success';
         $('.next-step').removeClass('btn-info').addClass(modifier);
     } else {
@@ -70,11 +74,39 @@ function changeState (action) {
         tab = $('.tab-pane.active'),
         action = action || (this).hasClass('next-step') ? 'next' :'prev',
         nextStateId = tab[action](paneClass).attr('id'),
-        nextState = $('[href="#'+ nextStateId +'"]');
+        nextState = $('[href="#'+ nextStateId +'"]'),
+        menuPrefix = "menu",
+        numericId = parseInt(nextStateId.replace(menuPrefix, '')),
+        currStateId = menuPrefix + (numericId - 1),
+        currState =  $('[href="#'+ currStateId +'"]');
+
+    if(nextState.hasClass('disabled') &&
+        numericId < $(".process-step").length &&
+        numericId > 1) {
+        changeState(action);
+    }
 
     setButtonDefaultState(nextStateId);
+    currState.addClass('btn-success');
     nextState
         .addClass('btn-info')
         .removeClass('btn-default')
         .tab('show');
+}
+
+function reloadRoleRelatedElements (menuEndpoint, breadCrumbEndpoint) {
+    $.get(menuEndpoint, function (menu) {
+        $(".menuContainer").html($(menu));
+    });
+
+    $(".process-step .btn")
+        .removeClass('btn-info')
+        .removeClass('disabled')
+        .removeClass('disableClick')
+        .addClass('btn-default');
+    $(".step4 .btn").addClass('btn-info');
+    // Todo: is this required?
+    $(".step3 .btn")
+        .addClass('disableClick')
+        .addClass('disabled');
 }

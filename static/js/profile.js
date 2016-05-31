@@ -26,7 +26,7 @@ var verifyPhone = function() {
     $("#alert_phone_not_verified").hide();
     $("#alert_verifying_phone").show();
 
-     $.post( "/profile/verifyPhone/", {'token': $("#verification_code").val()}, function( data ) {
+     $.post( "/en/profile/verifyPhone/", {'token': $("#verification_code").val()}, function( data ) {
 
         if (data.status === 'OK') {
             window.location.reload(); //TODO: Ajax update screen..

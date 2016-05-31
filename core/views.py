@@ -260,18 +260,20 @@ def resend_sms(request):
 def verify_phone(request):
     sent_token = request.POST.get('token')
     phone = request.POST.get('phone')
-    if request.user.is_anonymous() and phone:
-        user = User.objects.get(profile__phone=phone)
+    anonymous = request.user.is_anonymous()
+    if anonymous and phone:
+        user = User.objects.get(username=phone)
     else:
         user = request.user
     sms_token = SmsToken.objects.filter(user=user).latest('id')
-    if sent_token == sms_token:
-        profile = request.user.profile
+    if sent_token == sms_token.sms_token:
+        profile = user.profile
         profile.disabled = False
         profile.save()
         status = 'OK'
         sms_token.delete()
-        if user.is_anonymous():
+        if anonymous:
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
             login(request, user)
 
     else:
@@ -355,6 +357,10 @@ def user_by_phone(request):
 
 def ajax_menu(request):
     return render(request, 'core/partials/menu.html')
+
+
+def ajax_crumbs(request):
+    return render(request, 'core/partials/breadcrumbs.html')
 
 
 

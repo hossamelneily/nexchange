@@ -48,6 +48,9 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         if self.pk is None:
             token = SmsToken(user=self.user)
             token.save()
+        if not self.phone:
+            self.phone = self.user.username
+
         super(Profile, self).save(*args, **kwargs)
 
 User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])

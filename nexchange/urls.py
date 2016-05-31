@@ -76,7 +76,9 @@ urlpatterns = i18n_patterns(
     url(r'^api/v1/', include(api_patterns)),
     url(r'^kraken/trades/$', core.views.k_trades_history, name='core.k_trades_history'),
     url(r'^api/v1/phone$', core.views.user_by_phone, name='core.user_by_phone'),
-    url(r'^api/v1/phone$', core.views.ajax_menu, name='core.menu'),
+    url(r'^api/v1/menu', core.views.ajax_menu, name='core.menu'),
+    url(r'^api/v1/breadcrumbs', core.views.ajax_crumbs, name='core.breadcrumbs'),
+
 
 
 )

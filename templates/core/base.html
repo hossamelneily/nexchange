@@ -62,7 +62,9 @@
 
 
 <div class="container">
-          {% include 'core/partials/menu.html' %}
+          <div class="menuContainer">
+                {% include 'core/partials/menu.html' %}
+          </div>
           <!-- Language choosing bar -->
 
         {% get_language_info_list for LANGUAGES as languages %}
