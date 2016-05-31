@@ -260,7 +260,6 @@ def resend_sms(request):
 def verify_phone(request):
     sent_token = request.POST.get('token')
     phone = request.POST.get('phone')
-    return JsonResponse({'p': phone, 't': sent_token})
     if request.user.is_anonymous() and phone:
         user = User.objects.get(profile__phone=phone)
     else:
