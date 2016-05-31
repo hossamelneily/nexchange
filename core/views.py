@@ -32,6 +32,7 @@ from nexchange.settings import KRAKEN_PRIVATE_URL_API, KRAKEN_API_KEY, KRAKEN_AP
 import requests 
 import time
 
+
 def main(request):
     template = get_template('core/index.html')
     _messages = []
@@ -230,9 +231,11 @@ class UserUpdateView(SingleObjectMixin, View):
             return render(request, 'core/user_profile.html', ctx,)
 
 
-def _send_sms(user):
-    sms_token = SmsToken.objects.filter(user=user).latest('id')
-    msg = _("BTC Exchange code:") + '%s' % sms_token.sms_token
+def _send_sms(user, token=None):
+    if token is None:
+        token = SmsToken.objects.filter(user=user).latest('id')
+
+    msg = _("BTC Exchange code:") + ' %s' % token.sms_token
     phone_to = str(user.username)
 
     client = TwilioRestClient(
@@ -244,7 +247,6 @@ def _send_sms(user):
     return message
 
 
-@login_required()
 def resend_sms(request):
     phone = request.POST.get('phone')
     if request.user.is_anonymous() and phone:
@@ -255,10 +257,10 @@ def resend_sms(request):
     return JsonResponse({'message_sid': message.sid}, safe=False)
 
 
-@login_required()
 def verify_phone(request):
     sent_token = request.POST.get('token')
     phone = request.POST.get('phone')
+    return JsonResponse({'p': phone, 't': sent_token})
     if request.user.is_anonymous() and phone:
         user = User.objects.get(profile__phone=phone)
     else:
@@ -345,10 +347,10 @@ def k_trades_history(request):
 def user_by_phone(request):
     phone = request.POST.get('phone')
     user, created = User.objects.get_or_create(username=phone)
-    profile, created = Profile.objects.get_or_create(user=user)
-    if not created:
-        token = SmsToken(user=user)
-    _send_sms(user)
+    Profile.objects.get_or_create(user=user)
+    token = SmsToken(user=user)
+    token.save()
+    _send_sms(user, token)
     return JsonResponse({'status': 'ok'})
 
 

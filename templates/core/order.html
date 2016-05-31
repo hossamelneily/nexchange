@@ -3,37 +3,8 @@
 {% load staticfiles %}
 
 {% block main %}
-
- <div class="row">
-  <div class="process">
-   <div class="process-row nav nav-tabs">
-    <div class="process-step">
-     <button type="button" class="btn btn-info btn-circle" data-toggle="tab" href="#menu1"><i class="fa fa-bar-chart fa-3x"></i></button>
-     <p><small>{% trans "Check" %}<br />{% trans "Graph" %}</small></p>
-    </div>
-    <div class="process-step">
-     <button type="button" class="btn btn-default btn-circle" data-toggle="tab" href="#menu2"><i class="fa fa-exchange fa-3x"></i></button>
-     <p><small>{% trans "Set amount to" %}<br />{% trans "Buy or Sell" %}</small></p>
-    </div>
-   {% if not user.is_authenticated %}
-    <div class="process-step">
-     <button type="button" class="btn btn-default btn-circle" data-toggle="tab" href="#menu3"><i class="fa fa-mobile fa-3x"></i></button>
-     <p><small>{% trans "Already User ?" %}<br />{% trans "Register !" %}</small></p>
-    </div>
-   {% endif %}
-    <div class="process-step">
-     <button type="button" class={% if user.is_authenticated %} "btn btn-default btn-circle"
-        {% else %} "btn btn-default btn-circle disabled disableClick" {% endif %}
-        data-toggle="tab" href="#menu4"><i class="fa fa-btc fa-3x"></i></button>
-     <p><small>{% trans "Confirm your" %}<br />{% trans "Order" %}</small></p>
-    </div>
-    <div class="process-step">
-     <button type="button" class={% if user.is_authenticated %} "btn btn-default btn-circle"
-        {% else %} "btn btn-default btn-circle disabled disableClick" {% endif %}
-        data-toggle="tab" href="#menu5"><i class="fa fa-money fa-3x"></i></button>
-     <p><small>{% trans "Process" %}<br />{% trans "the payment" %}</small></p>
-    </div>
-   </div>
+  <div class="row process-container">
+    {% include 'core/partials/breadcrumbs.html' %}
   </div>
   <div class="tab-content">
    <div id="menu1" class="tab-pane fade active in">
@@ -122,33 +93,34 @@
     {% if not user.is_authenticated %} 
    	<div id="menu3" class="tab-pane fade">
             <h4>{% trans "Phone verification" %}</h4>
-            <div class="row register step1">
-                <div class="col col-lg-12">
-                    {% trans "Enter your phone" %}
+            <div class="register">
+                <div class="step1">
+                    <div class="col col-lg-12">
+                        {% trans "Enter your phone" %}
+                    </div>
+                    <div class="col col-lg-12">
+                        <input type="text" name="phone" id="phone" value="+7">
+                    </div>
                 </div>
-                <div class="col col-lg-12">
-                    <input type="text" name="phone" id="phone" value="+7">
+                <div class="step2 hidden">
+                    <div class="col col-lg-12">
+                        {% trans "Enter verification code from SMS" %}
+                    </div>
+                    <div class="col col-lg-12">
+                        <input type="text" name="verification_code" id="verification_code">
+                    </div>
                 </div>
                 <div class="col col-lg-12 center">
                     <span class="btn btn-primary create-acc">
                         {% trans "Send SMS" %}
                     </span>
-                </div>
-            </div>
-
-            <div class="row register step2 hidden">
-                <div class="col col-lg-12">
-                    {% trans "Enter verification code from SMS" %}
-                </div>
-                <div class="col col-lg-12">
-                    <input type="text" name="token" id="token">
-                </div>
-                <div class="col col-lg-12 center">
-                    <span class="btn btn-primary verify-acc">
-                        {% trans "Verify Code" %}
+                    <span class="btn btn-primary verify-acc hidden">
+                        {% trans "Go" %}
                     </span>
                 </div>
             </div>
+
+
     <ul class="list-unstyled list-inline spa-navigation">
      <li><button type="button" class="btn btn-default prev-step"><i class="fa fa-chevron-left"></i> Back</button></li>
       </ul>

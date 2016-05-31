@@ -47,7 +47,6 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         '''Add a SMS token at creation. Used to verify phone number'''
         if self.pk is None:
             token = SmsToken(user=self.user)
-            #token.sms_token()
             token.save()
         super(Profile, self).save(*args, **kwargs)
 
@@ -61,8 +60,8 @@ class SmsToken(TimeStampedModel, SoftDeletableModel):
 
     def save(self, *args, **kwargs):
         self.sms_token =\
-            User.objects.make_random_password(length=10,
-                                              allowed_chars='123456789')
+            User.objects.make_random_password(length=4,
+                                              allowed_chars='1234567890')
         super(SmsToken, self).save(*args, **kwargs)
 
 
@@ -87,9 +86,6 @@ class Order(TimeStampedModel, SoftDeletableModel):
     unique_reference = models.CharField(
         max_length=UNIQUE_REFERENCE_LENGTH, unique=True)
     admin_comment = models.CharField(max_length=200)
-    # MIGRATED TO ADDRESS model
-    # address = models.CharField(
-    #    blank=True, null=True, max_length=35, validators=[validate_bc])
 
     class Meta:
         ordering = ['-created_on']

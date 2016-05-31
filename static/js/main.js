@@ -4,10 +4,11 @@
         tickerLatestUrl = apiRoot + '/price/latest',
         currency = 'rub',
         animationDelay = 3000,
-        ACTION_BUY = 1,
-        ACTION_SELL = 0,
-        action = ACTION_BUY, // 1 - BUY 0 - SELL
         chartDataRaw;
+
+    window.ACTION_BUY = 1;
+    window.ACTION_SELL = 0;
+    window.action = ACTION_BUY; // 1 - BUY 0 - SELL
 
     $(function () {
             setCurrency();
@@ -20,12 +21,14 @@
                 $(this).addClass('active');
                 if ($(this).hasClass('trigger-buy')) {
                     action = ACTION_BUY;
-                    $(".sell-go").addClass('hidden');
-                    $(".buy-go").removeClass('hidden');
+                    $('.next-step').removeClass('btn-danger').addClass('btn-success');
+                    $('.step4 i').removeClass('fa-btc').addClass('fa-money');
+                    $('.step3 i').removeClass('fa-money').addClass('fa-btc');
                 } else {
                     action = ACTION_SELL;
-                    $(".buy-go").addClass('hidden');
-                    $(".sell-go").removeClass('hidden');
+                    $('.next-step').removeClass('btn-success').addClass('btn-danger');
+                    $('.step3 i').removeClass('fa-money').addClass('fa-btc');
+                    $('.step4 i').removeClass('fa-btc').addClass('fa-money');
                 }
 
                 $(".trade-type").val(action);

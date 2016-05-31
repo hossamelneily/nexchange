@@ -177,3 +177,7 @@ select {
 .disableClick{
     pointer-events: none;
 }
+
+.row.register {
+    margin: 30px auto;
+}

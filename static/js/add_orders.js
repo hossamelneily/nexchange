@@ -1,61 +1,78 @@
-$(function(){
+$(function() {
     // TODO: get api root via DI
-     var apiRoot = '/en/api/v1',
-         createAccEndpoint = apiRoot + '/phone';
- $('.btn-circle').on('click',function(){
-   $('.btn-circle.btn-info').removeClass('btn-info').addClass('btn-default');
-   $(this).addClass('btn-info').removeClass('btn-default').blur();
- });
+    var apiRoot = '/en/api/v1',
+        createAccEndpoint = apiRoot + '/phone',
+        validatePhoneEndpoint = '/profile/verifyPhone/';
+    $('.btn-circle').on('click', function () {
+        $('.btn-circle.btn-info').removeClass('btn-info').addClass('btn-default');
+        $(this).addClass('btn-info').removeClass('btn-default').blur();
+    });
 
- $('.next-step, .prev-step').on('click', changeState);
+    $('.next-step, .prev-step').on('click', changeState);
 
-    $('.create-acc').on('click', function() {
+    $('.create-acc').on('click', function () {
         var payload = {
             phone: $('#phone').val()
         };
-        $.post(createAccEndpoint, payload, function (data) {
-            $('.step1').addClass('hidden');
-            $('.step2').removeClass('hidden');
-        })
+        $.ajax({
+            type: "POST",
+            url: createAccEndpoint,
+            data: payload,
+            success: function (data) {
+                $('.step2').removeClass('hidden');
+                $('.verify-acc').removeClass('hidden');
+                $(".create-acc").addClass('hidden');
+                $("#phone").attr("disabled", "disabled")
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('Invalid phone number');
+            }
+        });
     });
 
     $('.verify-acc').on('click', function () {
+        var payload = {
+            'token': $("#verification_code").val(),
+            'phone': $("#phone").val()
+        };
+        $.ajax({
+            type: "POST",
+            url: validatePhoneEndpoint,
+            data: payload,
+            success: function (data) {
+                if (data.status === 'OK') {
+                    changeState('next');
+                } else if (data.status === 'NOT_MATCH') {
+                    window.alert("The code you sent was incorrect. Please, try again.")
+                }
+            },
+            error: function () {
+                window.alert("Something went wrong. Please, try again.")
+            }
+        });
 
     });
-
-    $.post( "/profile/verifyPhone/", {'token': $("#verification_code").val()}, function( data ) {
-
-        if (data.status === 'OK') {
-            ; //TODO: Ajax update screen..
-        } else if (data.status === 'NOT_MATCH') {
-            $("#alert_verifying_phone").hide();
-            $("#alert_phone_not_verified").show();
-            window.alert("The code you sent was incorrect. Please, try again.")
-        }
-
-
-    }).fail(function(){
-        $("#alert_verifying_phone").hide();
-        $("#alert_phone_not_verified").show();
-        window.alert("Something went wrong. Please, try again.")
-    });
-
 });
-
-function setButtonDefaultState () {
+function setButtonDefaultState (tabId) {
+    if (tabId == 'menu2') {
+        var modifier = action === ACTION_SELL ? 'btn-danger' : 'btn-success';
+        $('.next-step').removeClass('btn-info').addClass(modifier);
+    } else {
+        $('.next-step').removeClass('btn-success').removeClass('btn-danger').addClass('btn-info');
+    }
     $('.btn-circle.btn-info')
         .removeClass('btn-info')
         .addClass('btn-default');
 }
 
-function changeState () {
+function changeState (action) {
     var paneClass = '.tab-pane',
         tab = $('.tab-pane.active'),
-        action = $(this).hasClass('next-step') ? 'next' :'prev',
+        action = action || (this).hasClass('next-step') ? 'next' :'prev',
         nextStateId = tab[action](paneClass).attr('id'),
         nextState = $('[href="#'+ nextStateId +'"]');
 
-    setButtonDefaultState();
+    setButtonDefaultState(nextStateId);
     nextState
         .addClass('btn-info')
         .removeClass('btn-default')
