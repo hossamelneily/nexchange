@@ -30,6 +30,7 @@ from nexchange.settings import KRAKEN_PRIVATE_URL_API, KRAKEN_API_KEY, KRAKEN_AP
 
 import requests
 import time
+from twilio.exceptions import TwilioRestException
 
 
 def main(request):
@@ -154,7 +155,7 @@ def user_registration(request):
                     profile = profile_form.save(commit=False)
                     profile.disabled = True
                     profile.save()
-                    message = _send_sms(user)
+                    res = _send_sms(user)
                     messages.success(request, success_message)
 
                 user = authenticate(
@@ -220,13 +221,15 @@ def _send_sms(user, token=None):
     msg = _("BTC Exchange code:") + ' %s' % token.sms_token
     phone_to = str(user.username)
 
-    client = TwilioRestClient(
-        settings.TWILIO_ACCOUNT_SID,
-        settings.TWILIO_AUTH_TOKEN)
-    message = client.messages.create(
-        body=msg, to=phone_to, from_=settings.TWILIO_PHONE_FROM)
-
-    return message
+    try:
+        client = TwilioRestClient(
+            settings.TWILIO_ACCOUNT_SID,
+            settings.TWILIO_AUTH_TOKEN)
+        message = client.messages.create(
+            body=msg, to=phone_to, from_=settings.TWILIO_PHONE_FROM)
+        return message
+    except TwilioRestException as err:
+        return err
 
 
 def resend_sms(request):
@@ -332,8 +335,11 @@ def user_by_phone(request):
     Profile.objects.get_or_create(user=user)
     token = SmsToken(user=user)
     token.save()
-    _send_sms(user, token)
-    return JsonResponse({'status': 'ok'})
+    res = _send_sms(user, token)
+    if isinstance(res, TwilioRestException):
+        return JsonResponse({'status': 'error'})
+    else:
+        return JsonResponse({'status': 'ok'})
 
 
 def ajax_menu(request):
