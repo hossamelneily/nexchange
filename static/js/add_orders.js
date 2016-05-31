@@ -10,6 +10,10 @@ $(function() {
         $(this).addClass('btn-info').removeClass('btn-default').blur();
     });
 
+
+    var csrf_token = $('#csrfmiddlewaretoken').val();
+    //console.log(csrf_token);
+
     $('.next-step, .prev-step').on('click', changeState);
 
     $('.create-acc').on('click', function () {
@@ -56,6 +60,38 @@ $(function() {
         });
 
     });
+    
+
+    $('.place-order').on('click', function () {
+        var verifyPayload = {
+            "trade-type": $(".trade-type").val(),
+            "csrfmiddlewaretoken": $("#csrfmiddlewaretoken").val(),
+            "amount-cash": $('.amount-cash').val(),
+            "amount-coin": $('.amount-coin').val(),
+            "currency_from": $('.currency-from').val()
+        };
+        console.log(verifyPayload);
+        breakalo;
+        $.ajax({
+            type: "POST",
+            url: placerAjaxOrder,
+            data: verifyPayload,
+            success: function (data) {
+                if (data.status === 'OK') {
+                    reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
+                    changeState('next');
+                } else {
+                    window.alert("The code you sent was incorrect. Please, try again.")
+                }
+            },
+            error: function () {
+                window.alert("Something went wrong. Please, try again.")
+            }
+        });
+
+    });
+
+
 });
 function setButtonDefaultState (tabId) {
     if (tabId === 'menu2') {

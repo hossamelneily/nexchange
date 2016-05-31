@@ -5,6 +5,8 @@
         currency = 'rub',
         animationDelay = 3000,
         chartDataRaw;
+        $(".trade-type").val("1");
+
 
     window.ACTION_BUY = 1;
     window.ACTION_SELL = 0;

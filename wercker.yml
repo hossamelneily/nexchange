@@ -43,9 +43,13 @@ dev:
         code: |
           python manage.py migrate
     - script:
-        name: Django import fixtures
+        name: Django import Currency fixture
         code: |
           python manage.py loaddata core/fixtures/currency.json
+    - script:
+        name: Django import Payment Methods fixture
+        code: |
+          python manage.py loaddata core/fixtures/payment_method.json
     - script:
         name: Django run ticker update prices command
         code: |

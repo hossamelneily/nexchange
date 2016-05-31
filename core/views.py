@@ -132,6 +132,7 @@ def add_order(request):
                                         request))
 
 
+
 def user_registration(request):
     template = 'core/user_registration.html'
     success_message = _(
@@ -363,4 +364,30 @@ def ajax_crumbs(request):
     return render(request, 'core/partials/breadcrumbs.html')
 
 
+def ajax_order(request):
+    if request.method == 'POST':
+        user = request.user
+        curr = request.POST.get("currency_from", "RUB")
+        amount_cash = request.POST.get("amount-cash")
+        amount_coin = request.POST.get("amount-coin")
+        currency = Currency.objects.filter(code=curr)[0]
+
+        order = Order(amount_cash=amount_cash, amount_btc=amount_coin,
+                      currency=currency, user=user)
+        order.save()
+        uniq_ref = order.unique_reference
+        pay_until = order.created_on + timedelta(minutes=order.payment_window)
+
+        my_action = _("Result")
+
+       
+        return JsonResponse({'status': 'ok'})
+#        return HttpResponse(template.render({'bank_account': MAIN_BANK_ACCOUNT,
+#                                             'unique_ref': uniq_ref,
+#                                             'action': my_action,
+#                                             'pay_until': pay_until,
+#                                             },
+#                                            request))
+    else:
+        return JsonResponse({'status': 'error', 'message':'Wrong Method'})
 

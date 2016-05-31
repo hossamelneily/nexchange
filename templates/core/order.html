@@ -15,8 +15,8 @@
     </ul>
    </div>
    <div id="menu2" class="tab-pane fade">
-	<form method="post" class="form" enctype="multipart/form-data" >
-	    {% csrf_token %}
+	{# <form method="post" class="form" enctype="multipart/form-data" > #}
+	    
 	    <div class="row">
 	        <div class="col-xs-5 col-sm-5 col-md-5 center-block controls">
 	                <div class="col-lg-12">
@@ -134,24 +134,21 @@
         <h3>{% trans "Order" %}</h3>
     <p>{% trans "amount:" %}</p>
     <h2 class="amount amount-cash rate-buy"></h2>
-
-      <input type="hidden" name="type" value="buy" class="trade-type">
-	     <button type="submit" class="sell-go btn btn-danger btn-lg hidden">{% trans "Sell" %}</button>
-	     <button type="submit" class="buy-go btn btn-success btn-lg">{% trans "Buy" %}</button>
-{#	     <button type="button" class="btn btn-warning btn-lg" onclick="window.location.href='/order/'">{% trans "Exit" %}</button>#}
+      <div style="display:none">
+          <input type="hidden" name="csrfmiddlewaretoken" id="csrfmiddlewaretoken" value="{{ csrf_token }}">
+      </div>
+      <input type="hidden" name="type" value="1" class="trade-type" >
+	     <button  class="sell-go btn btn-danger btn-lg place-order hidden">{% trans "Sell" %}</button>
+	     <button  class="buy-go btn btn-success btn-lg place-order ">{% trans "Buy" %}</button>
 	</div> 
 
    <div id="menu5" class="tab-pane fade">
         <h3>{% trans "Finally !" %}</h3>
-    <p>{% trans "Confirm to place you order" %}</p>
-      <input type="hidden" name="type" value="buy" class="trade-type">
+    <p>{% trans "Choos your payment method and pay !" %}</p>
 	     <button type="submit" class="sell-go btn btn-danger btn-lg hidden">{% trans "Sell" %}</button>
 	     <button type="submit" class="buy-go btn btn-success btn-lg">{% trans "Buy" %}</button>
 {#	     <button type="button" class="btn btn-warning btn-lg" onclick="window.location.href='/order/'">{% trans "Exit" %}</button>#}
 	</div> 
-
-   	
-  </form>
 
    </div>
   </div>
