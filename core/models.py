@@ -179,7 +179,7 @@ class Transaction(BtcBase):
 
 class PaymentMethod(TimeStampedModel, SoftDeletableModel):
     name = models.CharField(max_length=100)
-    Handler = models.CharField(max_length=100)
+    handler = models.CharField(max_length=100, null=True)
     fee = models.FloatField(null=True)
 
 
