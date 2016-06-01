@@ -4,7 +4,9 @@ $(function() {
         createAccEndpoint = apiRoot + '/phone',
         menuEndpoint = apiRoot + '/menu',
         breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
-        validatePhoneEndpoint = '/en/profile/verifyPhone/';
+        validatePhoneEndpoint = '/en/profile/verifyPhone/',
+        placerAjaxOrder = '/order/ajax/',
+        orderSuccessContainer = '.successOrder';
     $('.btn-circle').on('click', function () {
         $('.btn-circle.btn-info').removeClass('btn-info').addClass('btn-default');
         $(this).addClass('btn-info').removeClass('btn-default').blur();
@@ -71,18 +73,18 @@ $(function() {
             "currency_from": $('.currency-from').val()
         };
         console.log(verifyPayload);
-        breakalo;
+        
         $.ajax({
             type: "POST",
             url: placerAjaxOrder,
+            dataType: 'json',
             data: verifyPayload,
             success: function (data) {
-                if (data.status === 'OK') {
-                    reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
-                    changeState('next');
-                } else {
-                    window.alert("The code you sent was incorrect. Please, try again.")
-                }
+
+                $('.menu4').addClass('hidden')
+                $('successOrder').removeClass('hidden')
+                changeState('next');
+                
             },
             error: function () {
                 window.alert("Something went wrong. Please, try again.")
@@ -146,3 +148,9 @@ function reloadRoleRelatedElements (menuEndpoint, breadCrumbEndpoint) {
         .addClass('disableClick')
         .addClass('disabled');
 }
+
+function reloadElement (Endpoint, TargetDiv) {
+    
+        $(TargetDiv).removeClass('hidden')
+
+    }

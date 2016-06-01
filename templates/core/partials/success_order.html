@@ -1,11 +1,6 @@
-{% extends "core/base.html" %}
+{%  load i18n %}
 {% load tz %}
-{% block main %}
 
-
-	   <div class="row">
-		<hr>
-	   </div>
 	   <div class="row">
 	   	  <div class="col-xs-6 col-sm-6 col-md-6 col-xs-offset-3">
 			<div class="jumbotron">
@@ -18,10 +13,9 @@
 			  {% localtime on %}
 			  <p id="pay_until_notice">Notice that you must pay until <strong>{{pay_until |date:"H:iA (e)"}}</strong> </p>
 			  {% endlocaltime %}
-			  <p><a class="btn btn-primary btn-lg" role="button" href="/order/">Done ! </a></p>
+			{#  <p><a class="btn btn-primary btn-lg" role="button" href="/order/">Done ! </a></p> #}
 			</div>
 		 </div><!-- /col -->				
 		</div><!-- /row -->
 
-	    <hr>
-{% endblock %}
+	    

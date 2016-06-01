@@ -26,6 +26,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.utils.translation import ugettext_lazy as _
 from .validators import validate_bc
 from datetime import timedelta
+from django.views.decorators.clickjacking import xframe_options_exempt
 
 from nexchange.settings import KRAKEN_PRIVATE_URL_API, KRAKEN_API_KEY, KRAKEN_API_SIGN
 
@@ -363,31 +364,33 @@ def ajax_menu(request):
 def ajax_crumbs(request):
     return render(request, 'core/partials/breadcrumbs.html')
 
-
+@xframe_options_exempt
 def ajax_order(request):
-    if request.method == 'POST':
-        user = request.user
-        curr = request.POST.get("currency_from", "RUB")
-        amount_cash = request.POST.get("amount-cash")
-        amount_coin = request.POST.get("amount-coin")
-        currency = Currency.objects.filter(code=curr)[0]
+    template = get_template('core/partials/success_order.html')
 
-        order = Order(amount_cash=amount_cash, amount_btc=amount_coin,
-                      currency=currency, user=user)
-        order.save()
-        uniq_ref = order.unique_reference
-        pay_until = order.created_on + timedelta(minutes=order.payment_window)
+    print (request.GET)
+    user = request.user
+    curr = request.POST.get("currency_from", "RUB")
+    amount_cash = request.POST.get("amount-cash")
+    amount_coin = request.POST.get("amount-coin")
+    currency = Currency.objects.filter(code=curr)[0]
+    print ('#########',amount_cash,amount_coin,currency)
 
-        my_action = _("Result")
+    order = Order(amount_cash=amount_cash, amount_btc=amount_coin,
+                  currency=currency, user=user)
+    order.save()
+    uniq_ref = order.unique_reference
+    pay_until = order.created_on + timedelta(minutes=order.payment_window)
 
-       
-        return JsonResponse({'status': 'ok'})
-#        return HttpResponse(template.render({'bank_account': MAIN_BANK_ACCOUNT,
-#                                             'unique_ref': uniq_ref,
-#                                             'action': my_action,
-#                                             'pay_until': pay_until,
-#                                             },
-#                                            request))
-    else:
-        return JsonResponse({'status': 'error', 'message':'Wrong Method'})
+    my_action = _("Result")
+
+   
+    return template.render({'bank_account': MAIN_BANK_ACCOUNT,
+                                         'unique_ref': uniq_ref,
+                                         'action': my_action,
+                                         'pay_until': pay_until,
+                                         },
+                                        request)
+#    else:
+ #       return JsonResponse({'status': 'error', 'message':'Wrong Method'})
 

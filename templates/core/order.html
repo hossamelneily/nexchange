@@ -131,15 +131,22 @@
      {% endif %}
 
    <div id="menu4" class="tab-pane fade">
+   	  <div class="row  menu4">
+
         <h3>{% trans "Order" %}</h3>
-    <p>{% trans "amount:" %}</p>
-    <h2 class="amount amount-cash rate-buy"></h2>
-      <div style="display:none">
+        <p>{% trans "amount:" %}</p>
+       <h2 class="amount amount-cash rate-buy"></h2>
+        <div style="display:none">
           <input type="hidden" name="csrfmiddlewaretoken" id="csrfmiddlewaretoken" value="{{ csrf_token }}">
-      </div>
-      <input type="hidden" name="type" value="1" class="trade-type" >
-	     <button  class="sell-go btn btn-danger btn-lg place-order hidden">{% trans "Sell" %}</button>
-	     <button  class="buy-go btn btn-success btn-lg place-order ">{% trans "Buy" %}</button>
+        </div>
+      	<input type="hidden" name="type" value="1" class="trade-type" >
+	    <button  class="sell-go btn btn-danger btn-lg place-order hidden">{% trans "Sell" %}</button>
+	    <button  class="buy-go btn btn-success btn-lg place-order ">{% trans "Buy" %}</button>
+
+	    <div class="row  hidden ">
+    		{% include 'core/partials/success_order.html' %}
+  	    </div>
+	 </div>
 	</div> 
 
    <div id="menu5" class="tab-pane fade">
