@@ -10,7 +10,8 @@ from django.template.loader import get_template
 from nexchange.settings import MAIN_BANK_ACCOUNT
 from core.forms import DateSearchForm, CustomUserCreationForm,\
     UserForm, UserProfileForm, UpdateUserProfileForm
-from core.models import Order, Currency, SmsToken, Profile, PaymentMethod, Payment
+from core.models import Order, Currency, SmsToken, Profile, Transaction,\
+    Address, Payment, PaymentMethod
 from django.db import transaction
 from django.views.generic import View
 from django.utils.decorators import method_decorator
@@ -20,18 +21,18 @@ from twilio.rest import TwilioRestClient
 from django.conf import settings
 from django.http import JsonResponse
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 from django.utils.translation import ugettext_lazy as _
-from .validators import validate_bc
 from datetime import timedelta
 from django.views.decorators.csrf import csrf_exempt
-from nexchange.settings import KRAKEN_PRIVATE_URL_API, KRAKEN_API_KEY, KRAKEN_API_SIGN
+
+from nexchange.settings import KRAKEN_PRIVATE_URL_API, KRAKEN_API_KEY,\
+    KRAKEN_API_SIGN
 
 import requests
 import time
-from twilio.exceptions import TwilioRestException
-
+from twilio.exceptions import TwilioException
 
 def main(request):
     template = get_template('core/index.html')
@@ -74,9 +75,13 @@ def index_order(request):
 
     my_action = _("Orders Main")
 
+    addresses = request.user.address_set.all().extra(
+        select={'value': 'id', 'text': 'address'}).values('value', 'text')
+
     return HttpResponse(template.render({'form': form,
                                          'orders': orders,
-                                         'action': my_action
+                                         'action': my_action,
+                                         'withdraw_addresses': addresses,
                                          },
                                         request))
 
@@ -228,7 +233,7 @@ def _send_sms(user, token=None):
         message = client.messages.create(
             body=msg, to=phone_to, from_=settings.TWILIO_PHONE_FROM)
         return message
-    except TwilioRestException as err:
+    except TwilioException as err:
         return err
 
 
@@ -270,7 +275,7 @@ def verify_phone(request):
 @login_required()
 def update_withdraw_address(request, pk):
     order = Order.objects.get(pk=pk)
-    new_address = request.POST.get('value')
+    address_id = request.POST.get('value')
 
     if not order.user == request.user:
         return HttpResponseForbidden(
@@ -278,21 +283,30 @@ def update_withdraw_address(request, pk):
     elif order.frozen:
         return HttpResponseForbidden(
             _("This order can not be edited because is frozen"))
-    else:
-        try:
-            if new_address == '':
-                # if user is 'cleaning' the value
-                new_address = None
-            else:
-                # If a value was sent, let's validate it
-                validate_bc(new_address)
 
-            order.withdraw_address = new_address
-            order.save()
-            return JsonResponse({'status': 'OK'}, safe=False)
-        except ValidationError as e:
-            msg = e.messages[0]
-            return JsonResponse({'status': 'ERR', 'msg': msg}, safe=False)
+    print("ADDRESS ID %s" % address_id)
+    if address_id:
+        # be sure that user ows the address indicated
+        try:
+            address = Address.objects.get(
+                user=request.user, pk=address_id)
+        except ObjectDoesNotExist:
+            return HttpResponseForbidden(
+                _("Invalid addresses informed."))
+
+    if address_id == '':
+        # if user is 'cleaning' the value
+        # TODO: What to do here?
+        order.transaction_set.all().delete()
+    else:
+        # TODO: Validate this behavior
+        transaction = Transaction()
+        transaction.order = order
+        transaction.address_to = address
+        transaction.address_from = address  # TODO: this one should be our address, no?
+        transaction.save()
+
+    return JsonResponse({'status': 'OK'}, safe=False)
 
 
 @login_required()
@@ -306,6 +320,9 @@ def payment_confirmation(request, pk):
     elif order.frozen:
         return HttpResponseForbidden(
             _("This order can not be edited because is frozen"))
+    elif paid is True and not order.has_withdraw_address:
+        return HttpResponseForbidden(
+            _("An order can not be set as paid without a widthdraw address"))
     else:
         try:
             order.is_paid = paid
@@ -336,7 +353,7 @@ def user_by_phone(request):
     token = SmsToken(user=user)
     token.save()
     res = _send_sms(user, token)
-    if isinstance(res, TwilioRestException):
+    if isinstance(res, TwilioException):
         return JsonResponse({'status': 'error'})
     else:
         return JsonResponse({'status': 'ok'})
@@ -417,4 +434,3 @@ def payment_ajax(request):
                                          'action': my_action,
                                          },
                                         request))
-

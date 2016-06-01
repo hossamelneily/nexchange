@@ -125,13 +125,14 @@
 
 		            		<i class="fa fa-pencil" aria-hidden="true"></i>
 							<span class="withdraw_address" 
-								data-type="text"
+								data-type="select"
+								data-source="{{withdraw_addresses}}"
 								data-emptytext="{% trans 'Not Defined' %}"
 								data-value="{{order.withdraw_address| default_if_none:''}}"
 								data-pk="{{order.pk}}" 
 								data-url="{% url 'core.update_withdraw_address' order.pk %}" 
 								data-title="{% trans "Change Withdraw Address"%}">
-								{{order.withdraw_address | default_if_none:_("Not Defined")}}
+								{{order.transaction_set.first.address_to.address | default_if_none:_("Not Defined")}}
 							</span>
 		            	</td>
 		            	
@@ -177,7 +178,7 @@
  
   </script>	
 
-			
+
 {% endblock %}
 
 

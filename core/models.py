@@ -7,7 +7,8 @@ from phonenumber_field.modelfields import PhoneNumberField
 from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
     DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
 
-from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW, REFERENCE_LOOKUP_ATTEMPS, SMS_TOKEN_LENGTH
+from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW,\
+    REFERENCE_LOOKUP_ATTEMPS, SMS_TOKEN_LENGTH
 
 from .validators import validate_bc
 from django.utils.translation import ugettext_lazy as _
@@ -133,6 +134,13 @@ class Order(TimeStampedModel, SoftDeletableModel):
         # TODO: validate this business rule
         return self.expired or self.is_paid
 
+    @property
+    def has_withdraw_address(self):
+        '''return a boolean indicating if order has a withdraw adrress defined
+        '''
+        # TODO: Validate this buisness rule
+        return self.transaction_set.all().count() > 0
+
 
 class Payment(TimeStampedModel, SoftDeletableModel):
     amount_cash = models.FloatField()
@@ -141,7 +149,8 @@ class Payment(TimeStampedModel, SoftDeletableModel):
     unique_reference = models.CharField(max_length=UNIQUE_REFERENCE_LENGTH)
     # Super admin if we are paying for BTC
     user = models.ForeignKey(User)
-    # Todo consider one to many for split payments, consider order field on payment
+    # Todo consider one to many for split payments, consider order field on
+    # payment
     order = models.ForeignKey(Order, null=True)
 
     def save(self, *args, **kwargs):
@@ -165,6 +174,7 @@ class Payment(TimeStampedModel, SoftDeletableModel):
         super(Payment, self).save(*args, **kwargs)
 
 class BtcBase(TimeStampedModel):
+
     class Meta:
         abstract = True
 
@@ -193,7 +203,7 @@ class Transaction(BtcBase):
     address_from = models.ForeignKey(Address, related_name='address_from')
     address_to = models.ForeignKey(Address, related_name='address_to')
     order = models.ForeignKey(Order)
-    is_verified = models.BooleanField()
+    is_verified = models.BooleanField(default=False)
 
 
 class PaymentMethod(TimeStampedModel, SoftDeletableModel):
@@ -210,7 +220,3 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
     method_owner = models.CharField(max_length=100)
     identified = models.CharField(max_length=100)
     comment = models.CharField(max_length=255)
-
-
-
-
