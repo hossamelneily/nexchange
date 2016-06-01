@@ -86,8 +86,8 @@
 		</div><!-- /col -->
 		</div><!-- /row -->
     <ul class="list-unstyled list-inline spa-navigation">
-     <li><button type="button" class="btn btn-default prev-step"><i class="fa fa-chevron-left"></i> Back</button></li>
-     <li><button type="button" class="btn btn-info next-step">Next <i class="fa fa-chevron-right"></i></button></li>
+     <li><button type="button" class="btn btn-default prev-step choose-opr"><i class="fa fa-chevron-left"></i> Back</button></li>
+     <li><button type="button" class="btn btn-info next-step choose-opr ">Next <i class="fa fa-chevron-right"></i></button></li>
     </ul>
     </div>
     {% if not user.is_authenticated %} 
@@ -150,15 +150,30 @@
       </div>
 	</div> 
 
-   <div id="menu5" class="tab-pane fade">
-        <h3>{% trans "Payment" %}</h3>
-    <p>{% trans "Choose your payment method to finish !" %}</p>
+   <div id="menu5" class="tab-pane fade ">
+		<div class="row paymentMethodsHead ">
+   		<h3>{% trans "Payment" %}</h3>
+        <p>{% trans "Choose your payment method to finish !" %}</p>
+        
+        </div>
+   	    <div class="row paymentMethods hidden ">
 
-    <div class="row paymentMethods hidden ">
-        {% include 'core/partials/payment_methods.html' %}
-    </div>
-	     <button  class="sell-go btn btn-danger btn-lg hidden">{% trans "Pay" %}</button>
-	     <button  class="buy-go btn btn-success btn-lg">{% trans "Pay" %}</button>
+	        {% include 'core/partials/payment_methods.html' %}
+	      
+	    </div>
+
+	    <div class="row paymentSuccess hidden ">
+
+	        {% include 'core/partials/success_payment.html' %}
+	      
+	    </div>
+
+		<div class="row paymentMethodsHead ">
+
+         <button  class="btn btn-danger btn-lg make-payment hidden">{% trans "Pay" %}</button>
+	     <button  class="btn btn-success btn-lg make-payment">{% trans "Pay" %}</button>
+        </div>
+	  
 {#	     <button type="button" class="btn btn-warning btn-lg" onclick="window.location.href='/order/'">{% trans "Exit" %}</button>#}
 	</div> 
 

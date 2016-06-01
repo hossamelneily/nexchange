@@ -24,13 +24,13 @@
                 if ($(this).hasClass('trigger-buy')) {
                     action = ACTION_BUY;
                     $('.next-step').removeClass('btn-danger').addClass('btn-success');
-                    $('.step4 i').removeClass('fa-btc').addClass('fa-money');
-                    $('.step3 i').removeClass('fa-money').addClass('fa-btc');
+                    $('.step4').removeClass('fa-btc').addClass('fa-money');
+                    $('.step3').removeClass('fa-money').addClass('fa-btc');
                 } else {
                     action = ACTION_SELL;
                     $('.next-step').removeClass('btn-success').addClass('btn-danger');
-                    $('.step3 i').removeClass('fa-money').addClass('fa-btc');
-                    $('.step4 i').removeClass('fa-btc').addClass('fa-money');
+                    $('.step3').removeClass('fa-money').addClass('fa-btc');
+                    $('.step4').removeClass('fa-btc').addClass('fa-money');
                 }
 
                 $(".trade-type").val(action);

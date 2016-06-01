@@ -10,7 +10,7 @@ from django.template.loader import get_template
 from nexchange.settings import MAIN_BANK_ACCOUNT
 from core.forms import DateSearchForm, CustomUserCreationForm,\
     UserForm, UserProfileForm, UpdateUserProfileForm
-from core.models import Order, Currency, SmsToken, Profile, PaymentMethod
+from core.models import Order, Currency, SmsToken, Profile, PaymentMethod, Payment
 from django.db import transaction
 from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
@@ -410,25 +410,23 @@ def payment_ajax(request):
     template = get_template('core/partials/success_payment.html')
 
     # print (request)
-    user = request.user
+    # user = request.user
     curr = request.POST.get("currency_from", "RUB")
     amount_cash = request.POST.get("amount-cash")
-    amount_coin = request.POST.get("amount-coin")
+    # amount_coin = request.POST.get("amount-coin")
     user_id = request.POST.get("user_id")
     order_id = request.POST.get("order_id")
     currency = Currency.objects.filter(code=curr)[0]
     user = User.objects.get(pk=user_id)
     order = Order.objects.get(pk=order_id)
-    print ('#########',user_id,amount_cash,amount_coin,currency,order_id)
+    print ('#########',user_id,amount_cash,currency,order_id)
 
     payment = Payment(amount_cash=amount_cash, currency=currency, 
                     user=user, order = order)
     payment.save()
     uniq_ref = payment.unique_reference
-    pay_until = payment.created_on + timedelta(minutes=payment.payment_window)
 
     my_action = _("Result")
-
    
     return HttpResponse(template.render({'unique_ref': uniq_ref,
                                          'action': my_action,

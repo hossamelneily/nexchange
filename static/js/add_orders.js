@@ -6,7 +6,8 @@ $(function() {
         breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
         validatePhoneEndpoint = '/en/profile/verifyPhone/',
         placerAjaxOrder = '/en/order/ajax/',
-        paymentMethodsEndpoint = '/en/paymentmethods/ajax/'
+        paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
+        paymentAjax = '/en/payment/ajax/'
 
     $('.btn-circle').on('click', function () {
         $('.btn-circle.btn-info').removeClass('btn-info').addClass('btn-default');
@@ -18,6 +19,11 @@ $(function() {
     //console.log(csrf_token);
 
     $('.next-step, .prev-step').on('click', changeState);
+
+
+    $('.choose-opr').on('click', function () {
+        changeState('next');
+    });
 
     $('.create-acc').on('click', function () {
         var regPayload = {
@@ -33,6 +39,7 @@ $(function() {
                 $(".create-acc").addClass('hidden');
                 $(".create-acc.resend").removeClass('hidden');
                 //$("#phone").attr("disabled", "disabled")
+                changeState('next');
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert('Invalid phone number');
@@ -90,6 +97,41 @@ $(function() {
                 
                 loadPaymenMethods(paymentMethodsEndpoint);
                 
+                
+            },
+            error: function () {
+                window.alert("Something went wrong. Please, try again.")
+            }
+        });
+
+    });
+
+  $('.make-payment').on('click', function () {
+        var verifyPayload = {
+            "order_id": $(".trade-type").val(),
+            "csrfmiddlewaretoken": $("#csrfmiddlewaretoken").val(),
+            "amount-cash": $('.amount-cash').val(),
+            "currency_from": $('.currency-from').val(),
+            "user_id":$("#user_id").val()
+        };
+        //console.log(verifyPayload);
+        
+        $.ajax({
+            type: "post",
+            url: paymentAjax,
+            dataType: 'text',
+            data: verifyPayload,
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',    
+            success: function (data) {
+                //console.log(data)
+                $('.paymentMethodsHead').addClass('hidden');
+                $('.paymentMethods').addClass('hidden');
+                $('.paymentSuccess').removeClass('hidden');
+                $(".paymentSuccess").html($(data));
+                changeState('next');
+                
+               // loadPaymenMethods(paymentMethodsEndpoint);
+                
             },
             error: function () {
                 window.alert("Something went wrong. Please, try again.")
@@ -99,8 +141,8 @@ $(function() {
     });
 
 
-
 });
+
 function setButtonDefaultState (tabId) {
     if (tabId === 'menu2') {
         var modifier = action === ACTION_SELL ? 'btn-danger' : 'btn-success';
