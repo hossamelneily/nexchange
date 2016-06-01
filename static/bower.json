@@ -17,6 +17,8 @@
   ],
   "dependencies": {
     "jquery": "^2.2.0",
-    "bootstrap": "^3.3.6"
+    "bootstrap": "^3.3.6",
+    "moment-timezone": "^0.5.4",
+    "js-cookie": "^2.1.2"
   }
 }

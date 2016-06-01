@@ -9,6 +9,9 @@ from datetime import timedelta
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.utils.translation import activate
+from http.cookies import SimpleCookie
+import pytz
+from django.conf import settings
 
 
 class ValidateBCTestCase(TestCase):
@@ -173,6 +176,66 @@ class OrderPayUntilTestCase(TestCase):
         # Is rendere in template?
         self.assertContains(response, 'id="pay_until_notice"')
 
+    def test_pay_until_message_is_in_correct_time_zone(self):
+        # USER_TZ = 'America/Sao_Paulo'
+        USER_TZ = 'Asia/Vladivostok'
+        self.client.cookies.update(SimpleCookie(
+            {'USER_TZ': USER_TZ}))
+        response = self.client.post(reverse('core.order_add'), {
+            'amount-cash': '31000',
+            'currency_from': 'RUB',
+            'amount-coin': '1',
+            'currency_to': 'BTC'}
+        )
+
+        order = Order.objects.last()
+        pay_until = order.created_on + timedelta(minutes=order.payment_window)
+
+        # Should be saved if HTTP200re
+        self.assertEqual(200, response.status_code)
+
+        # Does context contains the atribute, with correct value?
+        self.assertEqual(pay_until, response.context['pay_until'])
+
+        # Is rendered in template?
+        self.assertContains(response, 'id="pay_until_notice"')
+
+        # Ensure template renders with localtime
+        timezone.activate(pytz.timezone(USER_TZ))
+        self.assertContains(
+            response,
+            timezone.localtime(pay_until).strftime("%H:%M%p (%Z)"))
+
+    def test_pay_until_message_uses_settingsTZ_for_invalid_time_zones(self):
+        USER_TZ = 'SOMETHING/FOOLISH'
+
+        self.client.cookies.update(SimpleCookie(
+            {'USER_TZ': USER_TZ}))
+        response = self.client.post(reverse('core.order_add'), {
+            'amount-cash': '31000',
+            'currency_from': 'RUB',
+            'amount-coin': '1',
+            'currency_to': 'BTC'}
+        )
+
+        order = Order.objects.last()
+        pay_until = order.created_on + timedelta(minutes=order.payment_window)
+
+        # Should be saved if HTTP200re
+        self.assertEqual(200, response.status_code)
+
+        # Does context contains the atribute, with correct value?
+        self.assertEqual(pay_until, response.context['pay_until'])
+
+        # Is rendered in template?
+        self.assertContains(response, 'id="pay_until_notice"')
+
+        # Ensure template renders with the timezone defined as default
+        timezone.activate(pytz.timezone(settings.TIME_ZONE))
+        self.assertContains(response,
+                            timezone.localtime(pay_until)
+                            .strftime("%H:%M%p (%Z)"))
+
 
 class ProfileUpdateTestCase(TestCase):
 
@@ -234,5 +297,6 @@ class ProfileUpdateTestCase(TestCase):
             reverse('core.verify_phone'), {'token': token})
         # Ensure the token was correctly received
         self.assertEqual(200, response.status_code)  # succefuly runned
-        self.assertJSONEqual('{"status": "NOT_MATCH"}', str(  # failure reason indicator
-            response.content, encoding='utf8'),)
+        self.assertJSONEqual('{"status": "NO_MATCH"}',
+                             str(  # failure reason indicator
+                                 response.content, encoding='utf8'),)
