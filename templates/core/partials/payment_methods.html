@@ -1,0 +1,19 @@
+{%  load i18n %}
+{% load tz %}
+
+<div class="col-xs-4 col-sm-4 col-md-4 col-xs-offset-4">
+  <div class="panel panel-success">
+    <div class="panel-body">
+           <div class="input-group">
+		      <div class="input-group-btn">     
+		      	<select name="payment_method" class="payment_method">   
+   	 				{% for pay in payment_methods %}
+        				<option value ="{{pay.id}}">{{pay.name}}</option>
+        			{% endfor%}
+        		</select>
+
+		      </div><!-- /btn-group -->
+		    </div><!-- /input-group -->
+    </div><!-- /pannel-body -->
+  </div><!-- /pannel --> 
+</div><!-- /col --> 

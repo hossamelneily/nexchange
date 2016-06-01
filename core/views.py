@@ -10,7 +10,7 @@ from django.template.loader import get_template
 from nexchange.settings import MAIN_BANK_ACCOUNT
 from core.forms import DateSearchForm, CustomUserCreationForm,\
     UserForm, UserProfileForm, UpdateUserProfileForm
-from core.models import Order, Currency, SmsToken, Profile
+from core.models import Order, Currency, SmsToken, Profile, PaymentMethod
 from django.db import transaction
 from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
@@ -27,7 +27,7 @@ from django.utils.translation import ugettext_lazy as _
 from .validators import validate_bc
 from datetime import timedelta
 from django.views.decorators.clickjacking import xframe_options_exempt
-
+from django.views.decorators.csrf import csrf_exempt 
 from nexchange.settings import KRAKEN_PRIVATE_URL_API, KRAKEN_API_KEY, KRAKEN_API_SIGN
 
 import requests 
@@ -364,17 +364,20 @@ def ajax_menu(request):
 def ajax_crumbs(request):
     return render(request, 'core/partials/breadcrumbs.html')
 
-@xframe_options_exempt
+
+@csrf_exempt 
 def ajax_order(request):
     template = get_template('core/partials/success_order.html')
 
-    print (request.GET)
+    # print (request)
     user = request.user
     curr = request.POST.get("currency_from", "RUB")
     amount_cash = request.POST.get("amount-cash")
     amount_coin = request.POST.get("amount-coin")
+    user_id = request.POST.get("user_id")
     currency = Currency.objects.filter(code=curr)[0]
-    print ('#########',amount_cash,amount_coin,currency)
+    user = User.objects.get(pk=user_id)
+    # print ('#########',user_id,amount_cash,amount_coin,currency)
 
     order = Order(amount_cash=amount_cash, amount_btc=amount_coin,
                   currency=currency, user=user)
@@ -385,12 +388,49 @@ def ajax_order(request):
     my_action = _("Result")
 
    
-    return template.render({'bank_account': MAIN_BANK_ACCOUNT,
+    return HttpResponse(template.render({'bank_account': MAIN_BANK_ACCOUNT,
                                          'unique_ref': uniq_ref,
                                          'action': my_action,
                                          'pay_until': pay_until,
                                          },
-                                        request)
-#    else:
- #       return JsonResponse({'status': 'error', 'message':'Wrong Method'})
+                                        request))
 
+def payment_methods_ajax(request):
+    template = get_template('core/partials/payment_methods.html')
+
+    payment_methods = PaymentMethod.objects.all()
+   
+    # print(payment_methods)
+    return HttpResponse(template.render({'payment_methods': payment_methods,
+                                         }, request))
+
+
+@csrf_exempt 
+def payment_ajax(request):
+    template = get_template('core/partials/success_payment.html')
+
+    # print (request)
+    user = request.user
+    curr = request.POST.get("currency_from", "RUB")
+    amount_cash = request.POST.get("amount-cash")
+    amount_coin = request.POST.get("amount-coin")
+    user_id = request.POST.get("user_id")
+    order_id = request.POST.get("order_id")
+    currency = Currency.objects.filter(code=curr)[0]
+    user = User.objects.get(pk=user_id)
+    order = Order.objects.get(pk=order_id)
+    print ('#########',user_id,amount_cash,amount_coin,currency,order_id)
+
+    payment = Payment(amount_cash=amount_cash, currency=currency, 
+                    user=user, order = order)
+    payment.save()
+    uniq_ref = payment.unique_reference
+    pay_until = payment.created_on + timedelta(minutes=payment.payment_window)
+
+    my_action = _("Result")
+
+   
+    return HttpResponse(template.render({'unique_ref': uniq_ref,
+                                         'action': my_action,
+                                         },
+                                        request))

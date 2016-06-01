@@ -99,7 +99,7 @@
                         {% trans "Enter your phone" %}
                     </div>
                     <div class="col col-lg-12">
-                        <input type="text" name="phone" id="phone" value="+7">
+                        <input type="text" name="phone" id="phone" placeholder ="+7">
                     </div>
                 </div>
                 <div class="step2 hidden">
@@ -143,17 +143,22 @@
 	    <button  class="sell-go btn btn-danger btn-lg place-order hidden">{% trans "Sell" %}</button>
 	    <button  class="buy-go btn btn-success btn-lg place-order ">{% trans "Buy" %}</button>
 
-	    <div class="row  hidden ">
-    		{% include 'core/partials/success_order.html' %}
-  	    </div>
 	 </div>
+     <div class="row successOrder hidden ">
+        {% include 'core/partials/success_order.html' %}
+
+      </div>
 	</div> 
 
    <div id="menu5" class="tab-pane fade">
-        <h3>{% trans "Finally !" %}</h3>
-    <p>{% trans "Choos your payment method and pay !" %}</p>
-	     <button type="submit" class="sell-go btn btn-danger btn-lg hidden">{% trans "Sell" %}</button>
-	     <button type="submit" class="buy-go btn btn-success btn-lg">{% trans "Buy" %}</button>
+        <h3>{% trans "Payment" %}</h3>
+    <p>{% trans "Choose your payment method to finish !" %}</p>
+
+    <div class="row paymentMethods hidden ">
+        {% include 'core/partials/payment_methods.html' %}
+    </div>
+	     <button  class="sell-go btn btn-danger btn-lg hidden">{% trans "Pay" %}</button>
+	     <button  class="buy-go btn btn-success btn-lg">{% trans "Pay" %}</button>
 {#	     <button type="button" class="btn btn-warning btn-lg" onclick="window.location.href='/order/'">{% trans "Exit" %}</button>#}
 	</div> 
 

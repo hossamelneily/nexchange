@@ -137,13 +137,32 @@ class Order(TimeStampedModel, SoftDeletableModel):
 class Payment(TimeStampedModel, SoftDeletableModel):
     amount_cash = models.FloatField()
     currency = models.ForeignKey(Currency)
-    is_redeemed = models.BooleanField()
+    is_redeemed = models.BooleanField(default = False)
     unique_reference = models.CharField(max_length=UNIQUE_REFERENCE_LENGTH)
     # Super admin if we are paying for BTC
     user = models.ForeignKey(User)
     # Todo consider one to many for split payments, consider order field on payment
     order = models.ForeignKey(Order, null=True)
 
+    def save(self, *args, **kwargs):
+        unq = True
+        failed_count = 0
+        MX_LENGTH = UNIQUE_REFERENCE_LENGTH
+        while unq:
+
+            if failed_count >= REFERENCE_LOOKUP_ATTEMPS:
+                MX_LENGTH += 1
+
+            self.unique_reference = get_random_string(
+                length=MX_LENGTH)
+            cnt_unq = Order.objects.filter(
+                unique_reference=self.unique_reference).count()
+            if cnt_unq == 0:
+                unq = False
+            else:
+                failed_count += 1
+
+        super(Payment, self).save(*args, **kwargs)
 
 class BtcBase(TimeStampedModel):
     class Meta:

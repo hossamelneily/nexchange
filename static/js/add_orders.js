@@ -5,8 +5,9 @@ $(function() {
         menuEndpoint = apiRoot + '/menu',
         breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
         validatePhoneEndpoint = '/en/profile/verifyPhone/',
-        placerAjaxOrder = '/order/ajax/',
-        orderSuccessContainer = '.successOrder';
+        placerAjaxOrder = '/en/order/ajax/',
+        paymentMethodsEndpoint = '/en/paymentmethods/ajax/'
+
     $('.btn-circle').on('click', function () {
         $('.btn-circle.btn-info').removeClass('btn-info').addClass('btn-default');
         $(this).addClass('btn-info').removeClass('btn-default').blur();
@@ -70,20 +71,24 @@ $(function() {
             "csrfmiddlewaretoken": $("#csrfmiddlewaretoken").val(),
             "amount-cash": $('.amount-cash').val(),
             "amount-coin": $('.amount-coin').val(),
-            "currency_from": $('.currency-from').val()
+            "currency_from": $('.currency-from').val(),
+            "user_id":$("#user_id").val()
         };
-        console.log(verifyPayload);
+        //console.log(verifyPayload);
         
         $.ajax({
-            type: "POST",
+            type: "post",
             url: placerAjaxOrder,
-            dataType: 'json',
+            dataType: 'text',
             data: verifyPayload,
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',    
             success: function (data) {
-
-                $('.menu4').addClass('hidden')
-                $('successOrder').removeClass('hidden')
-                changeState('next');
+                //console.log(data)
+                $('.menu4').addClass('hidden');
+                $('.successOrder').removeClass('hidden');
+                $(".successOrder").html($(data));
+                
+                loadPaymenMethods(paymentMethodsEndpoint);
                 
             },
             error: function () {
@@ -92,6 +97,7 @@ $(function() {
         });
 
     });
+
 
 
 });
@@ -149,8 +155,13 @@ function reloadRoleRelatedElements (menuEndpoint, breadCrumbEndpoint) {
         .addClass('disabled');
 }
 
-function reloadElement (Endpoint, TargetDiv) {
+function loadPaymenMethods(paymentMethodsEndpoint){
     
-        $(TargetDiv).removeClass('hidden')
+    $.get(paymentMethodsEndpoint, function (data) {
+        $(".paymentMethods").html($(data));
+    });
+    $('.paymentMethods').removeClass('hidden');
+
+
 
     }

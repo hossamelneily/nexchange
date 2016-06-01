@@ -41,6 +41,8 @@ urlpatterns = i18n_patterns(
     url(r'^order/payment_confirmation/(?P<pk>[\d]+)/$',
         core.views.payment_confirmation,
         name='core.payment_confirmation'),
+    url(r'^paymentmethods/ajax/$',  core.views.payment_methods_ajax, name='core.payment_methods_ajax'),
+    url(r'^payment/ajax/$',  core.views.payment_ajax, name='core.payment_ajax'),
     url(r'^profile/add$', core.views.user_registration,
         name='core.user_registration'),
     url(r'^profile/resendSMS/$',  core.views.resend_sms,
