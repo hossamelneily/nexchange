@@ -1,10 +1,9 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from core.validators import validate_bc
-from django.utils import translation
 from django.utils import timezone
 from django.test import Client
-from core.models import Order, Currency
+from core.models import Order, Currency, SmsToken
 from datetime import timedelta
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -246,7 +245,8 @@ class ProfileUpdateTestCase(TestCase):
         activate('en')
 
         user = User.objects.create_user(username=username, password=password)
-
+        token = SmsToken(user=user)
+        token.save()
         self.client = Client()
         self.client.login(username=username, password=password)
 
@@ -274,8 +274,8 @@ class ProfileUpdateTestCase(TestCase):
         profile.disabled = True
         profile.save()
         self.assertTrue(user.profile.disabled)
-
-        token = user.profile.sms_token
+        sms_token = SmsToken.objects.filter(user=user).latest('id')
+        token = sms_token.sms_token
 
         response = self.client.post(
             reverse('core.verify_phone'), {'token': token})
@@ -291,7 +291,7 @@ class ProfileUpdateTestCase(TestCase):
 
     def test_phone_verification_fails_with_wrong_token(self):
         user = User.objects.first()
-        token = "%sXX" % user.profile.sms_token  # a wrong token
+        token = "%sXX" % SmsToken.get_sms_token()  # a wrong token
 
         response = self.client.post(
             reverse('core.verify_phone'), {'token': token})

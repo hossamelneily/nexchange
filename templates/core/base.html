@@ -72,13 +72,9 @@ $( document ).ready(function() {
         <div class="menuContainer">
             {% include 'core/partials/menu.html' %}
         </div>
-
         {% block main %}
         {% endblock %}
     </div>
-    {% block main %}
-
-    {% endblock %}
     {% block extra_js_footer %} {% endblock %}
 </body>
 </html>

@@ -62,10 +62,13 @@ class SmsToken(TimeStampedModel, SoftDeletableModel):
         max_length=SMS_TOKEN_LENGTH, blank=True)
     user = models.ForeignKey(User, related_name='sms_token')
 
+    @staticmethod
+    def get_sms_token():
+        return User.objects.make_random_password(length=4,
+                                                 allowed_chars='1234567890')
+
     def save(self, *args, **kwargs):
-        self.sms_token =\
-            User.objects.make_random_password(length=4,
-                                              allowed_chars='1234567890')
+        self.sms_token = SmsToken.get_sms_token()
         super(SmsToken, self).save(*args, **kwargs)
 
 

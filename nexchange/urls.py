@@ -77,16 +77,8 @@ urlpatterns = i18n_patterns(
     # after saved the new passwd
     url(r'^accounts/password/done/$', auth_views.password_reset_complete),
     url(r'^api/v1/', include(api_patterns)),
-<<<<<<< HEAD
     url(r'^kraken/trades/$', core.views.k_trades_history, name='core.k_trades_history'),
     url(r'^api/v1/phone$', core.views.user_by_phone, name='core.user_by_phone'),
     url(r'^api/v1/menu', core.views.ajax_menu, name='core.menu'),
     url(r'^api/v1/breadcrumbs', core.views.ajax_crumbs, name='core.breadcrumbs'),
-
-=======
-    url(r'^kraken/trades/$', core.views.k_trades_history,
-        name='core.k_trades_history')
->>>>>>> Fix profile update  issues. Fix SMS verification issue. #TIME 2H
-
-
 )
