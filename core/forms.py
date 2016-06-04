@@ -12,10 +12,11 @@ class DateSearchForm(forms.Form):
 
 
 class UserProfileForm(forms.ModelForm):
+
     def clean_phone(self):
         '''Ensure phone is unique'''
         phone = self.cleaned_data.get('phone')
-        if Profile.objects.filter(phone=phone).exists():
+        if Profile.objects.filter(phone=phone).exclude(pk=self.instance.pk).exists():
             raise ValidationError(u'This phone is already registered.',
                                   code='invalid',)
 
@@ -23,7 +24,7 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ['phone',]
+        fields = ['phone', ]
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -34,12 +35,14 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class UserForm(forms.ModelForm):
+
     class Meta:
         model = User
-        fields = ['email',]
+        fields = ['email', ]
 
 
 class UpdateUserProfileForm(forms.ModelForm):
+
     class Meta:
         model = Profile
         fields = ['first_name', 'last_name']
@@ -47,6 +50,7 @@ class UpdateUserProfileForm(forms.ModelForm):
 
 class LoginForm(AuthenticationForm):
     '''So username is labeled as "Phone"'''
+
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.fields['username'].label = 'Phone'
