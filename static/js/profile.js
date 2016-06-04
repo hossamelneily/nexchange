@@ -30,12 +30,7 @@ var verifyPhone = function() {
     $("#alert_phone_not_verified").hide();
     $("#alert_verifying_phone").show();
 
-<<<<<<< HEAD
-     $.post( "/en/profile/verifyPhone/", {'token': $("#verification_code").val()}, function( data ) {
-=======
      $.post( url , {'token': token}, function( data ) {
->>>>>>> Fix profile update  issues. Fix SMS verification issue. #TIME 2H
-
         if (data.status === 'OK') {
             window.location.reload(); //TODO: Ajax update screen..
         } else if (data.status === 'NOT_MATCH') {
