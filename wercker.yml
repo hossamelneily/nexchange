@@ -25,7 +25,7 @@ dev:
           mkdir -p ${pip_download_cache}
           pip install --cache-dir ${pip_download_cache} -r requirements.txt
     - nahody/npm-install@1.1.1:
-      options: -g bower
+      options: -g bower karma-cli
     - script:
         name: install bower dependencies
         code: |

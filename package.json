@@ -1,0 +1,37 @@
+{
+  "name": "nexchange",
+  "version": "0.0.1",
+  "description": "Nexchange Project",
+  "main": "index.js",
+  "dependencies": {
+    "jasmine": "^2.4.1",
+    "jasmine-core": "^2.4.1",
+    "karma-jasmine": "^1.0.2",
+    "karma": "^0.13.22"
+  },
+  "devDependencies": {
+    "jasmine": "^2.4.1",
+    "karma": "^0.13.22",
+    "karma-chrome-launcher": "^1.0.1",
+    "karma-firefox-launcher": "^1.0.0",
+    "karma-jasmine": "^1.0.2"
+  },
+  "scripts": {
+    "test": "karma init"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/onitsoft/nexchange.git"
+  },
+  "keywords": [
+    "bitcoin",
+    "nexchange",
+    "onitsoft"
+  ],
+  "author": "onitsoft",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/onitsoft/nexchange/issues"
+  },
+  "homepage": "https://github.com/onitsoft/nexchange#readme"
+}
