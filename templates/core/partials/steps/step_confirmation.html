@@ -1,0 +1,14 @@
+{% extends 'core/partials/steps/step_base.html' %}
+{% load i18n %}
+
+{% block step_content %}
+    <h3>{% trans "Order" %}</h3>
+    <p>{% trans "amount:" %}</p>
+    <h2 class="amount amount-cash rate-buy"></h2>
+    <div style="display:none">
+      <input type="hidden" name="csrfmiddlewaretoken" id="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    </div>
+    <input type="hidden" name="type" value="1" class="trade-type" >
+    <button  class="sell-go btn btn-danger btn-lg place-order hidden">{% trans "Sell" %}</button>
+    <button  class="buy-go btn btn-success btn-lg place-order ">{% trans "Buy" %}</button>
+{% endblock %}

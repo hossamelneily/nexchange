@@ -22,22 +22,22 @@
                 $('.trigger').removeClass('active');
                 $(this).addClass('active');
                 if ($(this).hasClass('trigger-buy')) {
-                    action = ACTION_BUY;
+                    window.action = window.ACTION_BUY;
                     $('.next-step').removeClass('btn-danger').addClass('btn-success');
-                    $('.step4').removeClass('fa-btc').addClass('fa-money');
-                    $('.step3').removeClass('fa-money').addClass('fa-btc');
+                    $('.step4 i').removeClass('fa-btc').addClass('fa-money');
+                    $('.step5 i').removeClass('fa-money').addClass('fa-btc');
                 } else {
-                    action = ACTION_SELL;
+                    window.action = window.ACTION_SELL;
                     $('.next-step').removeClass('btn-success').addClass('btn-danger');
-                    $('.step3').removeClass('fa-money').addClass('fa-btc');
-                    $('.step4').removeClass('fa-btc').addClass('fa-money');
+                    $('.step4 i').removeClass('fa-money').addClass('fa-btc');
+                    $('.step5 i').removeClass('fa-btc').addClass('fa-money');
                 }
 
-                $(".trade-type").val(action);
+                $(".trade-type").val(window.action);
 
                 updateOrder($('.amount-coin'));
 
-                var newCashClass = action === ACTION_BUY ? 'rate-buy' : 'rate-sell';
+                var newCashClass = action === window.ACTION_BUY ? 'rate-buy' : 'rate-sell';
                 $('.amount-cash')
                     .removeClass('rate-buy')
                     .removeClass('rate-sell')
