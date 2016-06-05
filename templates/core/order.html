@@ -49,42 +49,39 @@
 	        </div>
 
 	    </div>
-	{#				   <div class="row">#}
-	{#                       <div class="col-xs-5 col-sm-5 col-md-5">#}
-	{#                        <p id="exchange-text">{% trans "Exchange from" %} <strong>{% trans "BitCoins" %}</strong> {% trans "to other Currencies" %}</strong> </p>#}
-	{#                       </div>#}
-	{#				   </div>#}
-	   <div class="row">
-	   	  <div class="col-xs-5 col-sm-5 col-md-5">
-		      <div class="panel panel-default">
-			    <div class="panel-body">						    	
-			           <div class="input-group">
-					      <input type="text" class="form-control amount amount-cash rate-buy"  name="amount-cash">
-					      <div class="input-group-btn">
-							{{slt1 | safe}}
-					      </div><!-- /btn-group -->
-					    </div><!-- /input-group -->
-			    </div><!-- /pannel-body -->
-			  </div><!-- /pannel -->
-		 </div><!-- /col -->
 
-		<div class="col-xs-1 col-sm-1 col-md-1">
-		<h2>TO</h2>
-	    </div><!-- /col -->
-		
-		<div class="col-xs-5 col-sm-5 col-md-5">
-		      <div class="panel panel-default">
-			    <div class="panel-body">
-			           <div class="input-group">
-					      <input type="text" class="form-control amount amount-coin" value="1" name="amount-coin">
-					      <div class="input-group-btn">
-					        {{slt2 | safe}}
-					      </div><!-- /btn-group -->
-					    </div><!-- /input-group -->
-			    </div><!-- /pannel-body -->
-			  </div><!-- /pannel -->  
-		</div><!-- /col -->
-		</div><!-- /row -->
+        <div class="row">
+            <div class="col-xs-12 col-sm-5 col-md-5">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="input-group">
+                            <input type="text" class="form-control amount amount-cash rate-buy"  name="amount-cash">
+                            <div class="input-group-btn">
+                                {{slt1 | safe}}
+                            </div><!-- /btn-group -->
+                        </div><!-- /input-group -->
+                    </div><!-- /pannel-body -->
+                </div><!-- /pannel -->
+            </div><!-- /col -->
+
+            <div class="col-xs-12 col-sm-1 col-md-1">
+                <h2>TO</h2>
+            </div><!-- /col -->
+
+            <div class="col-xs-12 col-sm-5 col-md-5">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="input-group">
+                            <input type="text" class="form-control amount amount-coin" value="1" name="amount-coin">
+                            <div class="input-group-btn">
+                                {{slt2 | safe}}
+                            </div><!-- /btn-group -->
+                        </div><!-- /input-group -->
+                    </div><!-- /pannel-body -->
+                </div><!-- /pannel -->  
+            </div><!-- /col -->
+        </div><!-- /row -->
+
     <ul class="list-unstyled list-inline spa-navigation">
      <li><button type="button" class="btn btn-default prev-step choose-opr"><i class="fa fa-chevron-left"></i> Back</button></li>
      <li><button type="button" class="btn btn-info next-step choose-opr ">Next <i class="fa fa-chevron-right"></i></button></li>
