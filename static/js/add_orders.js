@@ -7,7 +7,7 @@ $(function() {
         validatePhoneEndpoint = '/en/profile/verifyPhone/',
         placerAjaxOrder = '/en/order/ajax/',
         paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
-        paymentAjax = '/en/payment/ajax/'
+        paymentAjax = '/en/payment/ajax/';
 
     $('.btn-circle').on('click', function () {
         $('.btn-circle.btn-info').removeClass('btn-info').addClass('btn-default');
@@ -94,10 +94,7 @@ $(function() {
                 $('.menu4').addClass('hidden');
                 $('.successOrder').removeClass('hidden');
                 $(".successOrder").html($(data));
-                
                 loadPaymenMethods(paymentMethodsEndpoint);
-                
-                
             },
             error: function () {
                 window.alert("Something went wrong. Please, try again.")
@@ -198,12 +195,8 @@ function reloadRoleRelatedElements (menuEndpoint, breadCrumbEndpoint) {
 }
 
 function loadPaymenMethods(paymentMethodsEndpoint){
-    
     $.get(paymentMethodsEndpoint, function (data) {
         $(".paymentMethods").html($(data));
     });
     $('.paymentMethods').removeClass('hidden');
-
-
-
-    }
+}
