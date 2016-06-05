@@ -11,3 +11,4 @@ _projects/
 .DS_Store
 db.sqlite3
 static/bower_components/
+node_modules/
