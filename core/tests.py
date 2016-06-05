@@ -3,13 +3,15 @@ from django.core.exceptions import ValidationError
 from core.validators import validate_bc
 from django.utils import timezone
 from django.test import Client
-from core.models import Order, Currency, SmsToken
+from core.models import Order, Currency, SmsToken, Profile, Address,\
+    Transaction
 from datetime import timedelta
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.utils.translation import activate
 from http.cookies import SimpleCookie
 import pytz
+import json
 from django.conf import settings
 
 
@@ -300,3 +302,104 @@ class ProfileUpdateTestCase(TestCase):
         self.assertJSONEqual('{"status": "NO_MATCH"}',
                              str(  # failure reason indicator
                                  response.content, encoding='utf8'),)
+
+
+class RegistrationTestCase(TestCase):
+
+    def setUp(self):
+        activate('en')
+
+        self.client = Client()
+
+        self.data = {
+            'phone': '+555190909898',
+            'password1': '123Mudar',
+            'password2': '123Mudar',
+        }
+
+    def test_can_register(self):
+
+        response = self.client.post(
+            reverse('core.user_registration'), self.data)
+
+        # Redirect is to user profile Page
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('core.user_profile'), response.url)
+
+        # Saved data Ok
+        user = User.objects.first()
+        self.assertEqual(self.data['phone'], user.profile.phone)
+
+    def test_cannot_register_existant_phone(self):
+
+        # Creates first with the phone
+        response = self.client.post(
+            reverse('core.user_registration'), self.data)
+
+        # ensure is created
+        self.assertIsInstance(
+            Profile.objects.get(phone=self.data['phone']), Profile)
+
+        self.client.logout()
+        response = self.client.post(
+            reverse('core.user_registration'), self.data)
+
+        self.assertFormError(response, 'profile_form', 'phone',
+                             'This phone is already registered.')
+
+
+class SetAsPaidTestCase(TestCase):
+
+    def setUp(self):
+        activate('en')
+
+        Currency(code='RUB', name='Rubles').save()
+        currency = Currency.objects.get(code='RUB')
+
+        username = '+555190909898'
+        password = '123Mudar'
+        self.user = User.objects.create_user(username, password=password)
+
+        self.data = {
+            'amount_cash': 30674.85,
+            'amount_btc': 1,
+            'currency': currency,
+            'user': self.user,
+            'admin_comment': 'test Order',
+            'unique_reference': '12345'
+        }
+        self.order = Order(**self.data)
+        self.order.save()
+
+        self.url = reverse('core.payment_confirmation',
+                           kwargs={'pk': self.order.pk})
+
+        self.client = Client()
+        self.client.login(username=username, password=password)
+
+    def test_cannot_set_as_paid_if_has_no_widthdraw_address(self):
+
+        response = self.client.post(self.url, {'paid': 'true'})
+        self.assertEqual(403, response.status_code)
+
+        self.assertEquals(
+            response.content,
+            b'An order can not be set as paid without a widthdraw address')
+
+    def test_can_set_as_paid_if_has_widthdraw_address(self):
+        # Creates an withdraw address fro this user
+        address = Address(
+            user=self.user, type='W',
+            address='17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j')
+        address.save()
+
+        # Creates an Transaction for the Order, using the user Address
+        transaction = Transaction(
+            order=self.order, address_to=address, address_from=address)
+        transaction.save()
+
+        # Set Order as Paid
+        response = self.client.post(self.url, {'paid': 'true'})
+        expected = {"frozen": True, "paid": True, "status": "OK"}
+        self.assertJSONEqual(json.dumps(expected), str(
+            response.content, encoding='utf8'),)

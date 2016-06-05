@@ -34,6 +34,7 @@ import requests
 import time
 from twilio.exceptions import TwilioException
 
+
 def main(request):
     template = get_template('core/index.html')
     _messages = []
@@ -75,8 +76,10 @@ def index_order(request):
 
     my_action = _("Orders Main")
 
-    addresses = request.user.address_set.all().extra(
-        select={'value': 'id', 'text': 'address'}).values('value', 'text')
+    addresses = []
+    if not request.user.is_anonymous():
+        addresses = request.user.address_set.filter(type=Address.WITHDRAW).extra(
+            select={'value': 'id', 'text': 'address'}).values('value', 'text')
 
     return HttpResponse(template.render({'form': form,
                                          'orders': orders,
@@ -135,7 +138,6 @@ def add_order(request):
                                          'slt2': select_currency_to,
                                          'action': my_action},
                                         request))
-
 
 
 def user_registration(request):
@@ -277,6 +279,9 @@ def update_withdraw_address(request, pk):
     order = Order.objects.get(pk=pk)
     address_id = request.POST.get('value')
 
+    from_address = Address.objects.filter(
+        user__username='onitsoft', type='W').first()
+
     if not order.user == request.user:
         return HttpResponseForbidden(
             _("You don't have permission to edit this order"))
@@ -284,7 +289,6 @@ def update_withdraw_address(request, pk):
         return HttpResponseForbidden(
             _("This order can not be edited because is frozen"))
 
-    print("ADDRESS ID %s" % address_id)
     if address_id:
         # be sure that user ows the address indicated
         try:
@@ -303,7 +307,7 @@ def update_withdraw_address(request, pk):
         transaction = Transaction()
         transaction.order = order
         transaction.address_to = address
-        transaction.address_from = address  # TODO: this one should be our address, no?
+        transaction.address_from = from_address
         transaction.save()
 
     return JsonResponse({'status': 'OK'}, safe=False)
@@ -367,7 +371,7 @@ def ajax_crumbs(request):
     return render(request, 'core/partials/breadcrumbs.html')
 
 
-@csrf_exempt 
+@csrf_exempt
 def ajax_order(request):
     template = get_template('core/partials/success_order.html')
 
@@ -389,7 +393,6 @@ def ajax_order(request):
 
     my_action = _("Result")
 
-   
     return HttpResponse(template.render({'bank_account': MAIN_BANK_ACCOUNT,
                                          'unique_ref': uniq_ref,
                                          'action': my_action,
@@ -397,17 +400,18 @@ def ajax_order(request):
                                          },
                                         request))
 
+
 def payment_methods_ajax(request):
     template = get_template('core/partials/payment_methods.html')
 
     payment_methods = PaymentMethod.objects.all()
-   
+
     # print(payment_methods)
     return HttpResponse(template.render({'payment_methods': payment_methods,
                                          }, request))
 
 
-@csrf_exempt 
+@csrf_exempt
 def payment_ajax(request):
     template = get_template('core/partials/success_payment.html')
 
@@ -421,15 +425,15 @@ def payment_ajax(request):
     currency = Currency.objects.filter(code=curr)[0]
     user = User.objects.get(pk=user_id)
     order = Order.objects.get(pk=order_id)
-    print ('#########',user_id,amount_cash,currency,order_id)
+    print ('#########', user_id, amount_cash, currency, order_id)
 
-    payment = Payment(amount_cash=amount_cash, currency=currency, 
-                    user=user, order = order)
+    payment = Payment(amount_cash=amount_cash, currency=currency,
+                      user=user, order=order)
     payment.save()
     uniq_ref = payment.unique_reference
 
     my_action = _("Result")
-   
+
     return HttpResponse(template.render({'unique_ref': uniq_ref,
                                          'action': my_action,
                                          },
