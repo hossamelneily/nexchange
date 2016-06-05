@@ -89,7 +89,7 @@ class Order(TimeStampedModel, SoftDeletableModel):
     user = models.ForeignKey(User)
     is_paid = models.BooleanField(default=False)
     is_released = models.BooleanField(default=False)
-    is_complete = models.BooleanField(default=False)
+    is_completed = models.BooleanField(default=False)
     unique_reference = models.CharField(
         max_length=UNIQUE_REFERENCE_LENGTH, unique=True)
     admin_comment = models.CharField(max_length=200)
@@ -148,7 +148,8 @@ class Order(TimeStampedModel, SoftDeletableModel):
 class Payment(TimeStampedModel, SoftDeletableModel):
     amount_cash = models.FloatField()
     currency = models.ForeignKey(Currency)
-    is_redeemed = models.BooleanField(default = False)
+    is_redeemed = models.BooleanField(default=False)
+    is_complete = models.BooleanField(default=False)
     unique_reference = models.CharField(max_length=UNIQUE_REFERENCE_LENGTH)
     # Super admin if we are paying for BTC
     user = models.ForeignKey(User)

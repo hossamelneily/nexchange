@@ -22,15 +22,15 @@
                 $('.trigger').removeClass('active');
                 $(this).addClass('active');
                 if ($(this).hasClass('trigger-buy')) {
-                    $('.buy-go').addClass('hidden');
-                    $('.sell-go').removeClass('hidden');
+                    $('.buy-go').removeClass('hidden');
+                    $('.sell-go').addClass('hidden');
                     window.action = window.ACTION_BUY;
                     $('.next-step').removeClass('btn-danger').addClass('btn-success');
                     $('.step4 i').removeClass('fa-btc').addClass('fa-money');
                     $('.step5 i').removeClass('fa-money').addClass('fa-btc');
                 } else {
-                    $('.sell-go').addClass('hidden');
-                    $('.buy-go').removeClass('hidden');
+                    $('.buy-go').addClass('hidden');
+                    $('.sell-go').removeClass('hidden');
                     window.action = window.ACTION_SELL;
                     $('.next-step').removeClass('btn-success').addClass('btn-danger');
                     $('.step4 i').removeClass('fa-money').addClass('fa-btc');

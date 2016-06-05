@@ -409,12 +409,8 @@ def payment_methods_ajax(request):
 @csrf_exempt
 def payment_ajax(request):
     template = get_template('core/partials/success_payment.html')
-
-    # print (request)
-    # user = request.user
     curr = request.POST.get("currency_from", "RUB")
     amount_cash = request.POST.get("amount-cash")
-    # amount_coin = request.POST.get("amount-coin")
     order_id = request.POST.get("order_id")
     currency = Currency.objects.filter(code=curr)[0]
     user = request.user
