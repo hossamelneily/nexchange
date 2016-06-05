@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from core.validators import validate_bc
 from django.utils import timezone
 from django.test import Client
-from core.models import Order, Currency, SmsToken
+from core.models import Order, Currency, SmsToken, Profile
 from datetime import timedelta
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -300,3 +300,47 @@ class ProfileUpdateTestCase(TestCase):
         self.assertJSONEqual('{"status": "NO_MATCH"}',
                              str(  # failure reason indicator
                                  response.content, encoding='utf8'),)
+
+
+class RegistrationTestCase(TestCase):
+
+    def setUp(self):
+        activate('en')
+
+        self.client = Client()
+
+        self.data = {
+            'phone': '+555190909898',
+            'password1': '123Mudar',
+            'password2': '123Mudar',
+        }
+
+    def test_can_register(self):
+
+        response = self.client.post(
+            reverse('core.user_registration'), self.data)
+
+        # Redirect is to user profile Page
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('core.user_profile'), response.url)
+
+        # Saved data Ok
+        user = User.objects.first()
+        self.assertEqual(self.data['phone'], user.profile.phone)
+
+    def test_cannot_register_existant_phone(self):
+
+        # Creates first with the phone
+        response = self.client.post(
+            reverse('core.user_registration'), self.data)
+
+        # ensure is created
+        self.assertIsInstance(
+            Profile.objects.get(phone=self.data['phone']), Profile)
+
+        self.client.logout()
+        response = self.client.post(
+            reverse('core.user_registration'), self.data)
+
+        self.assertFormError(response, 'profile_form', 'phone',
+                             'This phone is already registered.')
