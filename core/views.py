@@ -374,16 +374,11 @@ def ajax_crumbs(request):
 @csrf_exempt
 def ajax_order(request):
     template = get_template('core/partials/success_order.html')
-
-    # print (request)
     user = request.user
     curr = request.POST.get("currency_from", "RUB")
     amount_cash = request.POST.get("amount-cash")
     amount_coin = request.POST.get("amount-coin")
-    user_id = request.POST.get("user_id")
     currency = Currency.objects.filter(code=curr)[0]
-    user = User.objects.get(pk=user_id)
-    # print ('#########',user_id,amount_cash,amount_coin,currency)
 
     order = Order(amount_cash=amount_cash, amount_btc=amount_coin,
                   currency=currency, user=user)
@@ -420,12 +415,10 @@ def payment_ajax(request):
     curr = request.POST.get("currency_from", "RUB")
     amount_cash = request.POST.get("amount-cash")
     # amount_coin = request.POST.get("amount-coin")
-    user_id = request.POST.get("user_id")
     order_id = request.POST.get("order_id")
     currency = Currency.objects.filter(code=curr)[0]
-    user = User.objects.get(pk=user_id)
+    user = request.user
     order = Order.objects.get(pk=order_id)
-    print ('#########', user_id, amount_cash, currency, order_id)
 
     payment = Payment(amount_cash=amount_cash, currency=currency,
                       user=user, order=order)
