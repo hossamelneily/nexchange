@@ -1,0 +1,9 @@
+<div id="{{ id }}" class="tab-pane {% if id == 'menu1' %} active in {% else %} fade {% endif %}">
+    <div class="row {{ id }}">
+        {% block step_content %}
+        {% endblock %}
+        {% if id != 'menu4' %}
+            {% include 'core/partials/spa_navigation.html' %}
+        {% endif %}
+    </div>
+</div>

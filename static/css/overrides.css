@@ -190,6 +190,15 @@ select {
     .process-row:before{
         top: 30px;
     }
+
+    .input-group {
+        display: block;
+    }
+    .amount, .currency-select {
+        clear: both;
+        border-radius: 2px;
+        width: 100%;
+    }
 }
 .navlink {
     float: left;
@@ -202,4 +211,16 @@ select {
 
 .navlink.active {
   background-color: #ccc;
+}
+
+.amount {
+    min-width: 40px;
+}
+
+#formLogin {
+    margin-top: 10px;
+}
+
+.col.register {
+    margin: 10px auto;
 }
