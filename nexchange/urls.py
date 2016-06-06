@@ -17,7 +17,7 @@ from django.conf.urls import url
 from django.contrib import admin
 import django.contrib.auth.views as auth_views
 import core.views
-from core.models import Currency, Profile, Order, SmsToken
+from core.models import Currency, Profile, Order, SmsToken, PaymentMethod 
 from core.forms import LoginForm
 from django.conf.urls import include
 from django.conf.urls.i18n import i18n_patterns
@@ -27,6 +27,7 @@ admin.site.register(Currency)
 admin.site.register(Profile)
 admin.site.register(Order)
 admin.site.register(SmsToken)
+admin.site.register(PaymentMethod)
 
 urlpatterns = i18n_patterns(
     url(r'^admin/', admin.site.urls),

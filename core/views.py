@@ -99,7 +99,6 @@ def add_order(request):
         amount_cash = request.POST.get("amount-cash")
         amount_coin = request.POST.get("amount-coin")
         currency = Currency.objects.filter(code=curr)[0]
-
         order = Order(amount_cash=amount_cash, amount_btc=amount_coin,
                       currency=currency, user=user)
         order.save()
