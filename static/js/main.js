@@ -6,6 +6,7 @@
         animationDelay = 3000,
         chartDataRaw;
         $(".trade-type").val("1");
+        paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
 
 
     window.ACTION_BUY = 1;
@@ -28,6 +29,9 @@
                     $('.next-step').removeClass('btn-danger').addClass('btn-success');
                     $('.step4 i').removeClass('fa-btc').addClass('fa-money');
                     $('.step5 i').removeClass('fa-money').addClass('fa-btc');
+                    loadPaymenMethods(paymentMethodsEndpoint);
+
+                    $("#PayMethModal").modal({backdrop: "static"});
                 } else {
                     $('.buy-go').addClass('hidden');
                     $('.sell-go').removeClass('hidden');
@@ -35,6 +39,8 @@
                     $('.next-step').removeClass('btn-success').addClass('btn-danger');
                     $('.step4 i').removeClass('fa-money').addClass('fa-btc');
                     $('.step5 i').removeClass('fa-btc').addClass('fa-money');
+                    $("#UserAccountModal").modal({backdrop: "static"});
+
                 }
 
                 $(".trade-type").val(window.action);
@@ -169,6 +175,14 @@
         });
 
         return elem;
+    }
+
+
+    function loadPaymenMethods(paymentMethodsEndpoint) {
+        $.get(paymentMethodsEndpoint, function (data) {
+            $(".paymentMethods").html($(data));
+        });
+        $('.paymentMethods').removeClass('hidden');
     }
 
     function renderChart () {

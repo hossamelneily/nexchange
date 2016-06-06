@@ -6,7 +6,6 @@ $(function() {
         breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
         validatePhoneEndpoint = '/en/profile/verifyPhone/',
         placerAjaxOrder = '/en/order/ajax/',
-        paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
         paymentAjax = '/en/payment/ajax/';
 
     $('.btn-circle').on('click', function () {
@@ -194,9 +193,3 @@ function reloadRoleRelatedElements (menuEndpoint, breadCrumbEndpoint) {
         .addClass('disabled');
 }
 
-function loadPaymenMethods(paymentMethodsEndpoint){
-    $.get(paymentMethodsEndpoint, function (data) {
-        $(".paymentMethods").html($(data));
-    });
-    $('.paymentMethods').removeClass('hidden');
-}
