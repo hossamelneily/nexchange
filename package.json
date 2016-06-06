@@ -3,21 +3,21 @@
   "version": "0.0.1",
   "description": "Nexchange Project",
   "main": "index.js",
-  "dependencies": {
-    "jasmine": "^2.4.1",
-    "jasmine-core": "^2.4.1",
-    "karma-jasmine": "^1.0.2",
-    "karma": "^0.13.22"
-  },
+  "dependencies": {},
   "devDependencies": {
     "jasmine": "^2.4.1",
+    "jasmine-core": "^2.4.1",
     "karma": "^0.13.22",
-    "karma-chrome-launcher": "^1.0.1",
-    "karma-firefox-launcher": "^1.0.0",
-    "karma-jasmine": "^1.0.2"
+    "karma-jasmine": "^1.0.2",
+    "karma-jasmine-jquery": "^0.1.1",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "phantomjs-prebuilt": "~2.1",
+    "karma-cli": "~1.0.0",
+    "bower": "~1.7.9"
   },
   "scripts": {
-    "test": "karma init"
+    "test": "karma start --single-run",
+    "bower": "cd static && bower install --allow-root && cd - "    
   },
   "repository": {
     "type": "git",

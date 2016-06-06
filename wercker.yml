@@ -18,18 +18,22 @@ dev:
         code: |
           mkdir -p /usr/share/nginx/html/static
           mkdir -p /usr/share/nginx/html/media
+    - npm-install          
+    - script:
+        name: install bower dependencies
+        code: |
+          npm run-script bower
+    - script:
+        name: Karma/Jasmine run frontend tests
+        code: |
+          export PHANTOMJS_BIN="${WERCKER_SOURCE_DIR}/node_modules/phantomjs/lib/phantom/bin/phantomjs"
+          npm test          
     - script:
         name: pip install requirements (with cache)
         code: |
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
           mkdir -p ${pip_download_cache}
           pip install --cache-dir ${pip_download_cache} -r requirements.txt
-    - nahody/npm-install@1.1.1:
-      options: -g bower karma-cli
-    - script:
-        name: install bower dependencies
-        code: |
-          cd static && bower install --allow-root
     - script:
         name: Django make migrations
         code: |
