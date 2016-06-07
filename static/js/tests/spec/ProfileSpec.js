@@ -1,6 +1,6 @@
 describe("Profile function", function() {
     
-    jasmine.getFixtures().fixturesPath = 'base/static/js/tests/spec/fixtures/';
+    jasmine.getFixtures().fixturesPath = 'base/static/js/tests/fixtures/';
 
     describe("verifyPhone", function() {
         beforeEach(function () {

@@ -10,23 +10,23 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['jasmine-jquery','jasmine'],
+    frameworks: ['jasmine-jquery', 'jasmine'],
 
 
     // list of files / patterns to load in the browser
     files: [
-      { pattern: 'static/js/tests/spec/fixtures/*.html*', included: false, served: true },
-      'static/bower_components/jquery/dist/jquery.js',
-      'static/bower_components/jasmine-jquery/lib/jasmine-jquery.js',
-      'static/js/*.js',
-      'static/js/tests/**/*.js',
-      'static/js/tests/**/*.js'
+      {pattern: 'static/bower_components/jquery/dist/jquery.js', included: true, served: true},
+      {pattern: 'static/bower_components/bootstrap/dist/js/bootstrap.js', included: true, served: true},
+      {pattern: 'static/bower_components/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.js', included: true, served: true},
+      {pattern: 'static/js/*.js', included: true, served: true},
+      {pattern: 'static/js/tests/fixtures/*.html*', included: false, served: true},      
+      {pattern: 'static/js/tests/spec/*.js', included: true, served: true}
     ],
 
 
     // list of files to exclude
     exclude: [
-      'static/js/tests/**/*.swp'
+      'static/js/tests/**/*.swp',
     ],
 
 
