@@ -76,10 +76,10 @@
                 setCurrency();
                 updateOrder($('.amount-coin'));
             });
-
+            //using this form because the object is inside a modal screen
             $(document).on('change','.payment-method', function () {
                 var pm = $('.payment-method option:selected').val();
-                
+                $('#payment_method_id').val(pm);
                 loadPaymenMethodsAccount(paymentMethodsAccountEndpoint,pm);
 
             });

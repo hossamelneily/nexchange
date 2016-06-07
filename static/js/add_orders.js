@@ -1,5 +1,8 @@
 $(function() {
     // TODO: get api root via DI
+    $('#payment_method_id').val("");
+    $('#user_address_id').val("");
+    $('#new_user_account').val("");
     var apiRoot = '/en/api/v1',
         createAccEndpoint = apiRoot + '/phone',
         menuEndpoint = apiRoot + '/menu',
@@ -8,10 +11,18 @@ $(function() {
         placerAjaxOrder = '/en/order/ajax/',
         paymentAjax = '/en/payment/ajax/';
 
-    $('.btn-circle').on('click', function () {
-        $('.btn-circle.btn-info').removeClass('btn-info').addClass('btn-default');
-        $(this).addClass('btn-info').removeClass('btn-default').blur();
-    });
+    // $('.btn-circle').on('click', function () {
+    //     console.log($(this).hasClass('btn-register'),canProceedtoRegister('btn-register'))
+    //     if ( $(this).hasClass('btn-register') && 
+    //          !canProceedtoRegister('btn-register') ){
+    //         window.alert("Need to pick BUY or SELL.");
+    //         return false;
+    //     } else {
+        
+    //         $('.btn-circle.btn-info').removeClass('btn-info').addClass('btn-default');
+    //         $(this).addClass('btn-info').removeClass('btn-default').blur();
+    //     }
+    // });
 
 
     var csrf_token = $('#csrfmiddlewaretoken').val();
@@ -19,10 +30,6 @@ $(function() {
 
     $('.next-step, .prev-step').on('click', changeState);
 
-
-    $('.choose-opr').on('click', function () {
-        changeState('next');
-    });
 
     $('.create-acc').on('click', function () {
         var regPayload = {
@@ -72,6 +79,8 @@ $(function() {
     
 
     $('.place-order').on('click', function () {
+        //TODO verify if $(this).hasClass('sell-go') add 
+        // the othre type of transaction
         var verifyPayload = {
             "trade-type": $(".trade-type").val(),
             "csrfmiddlewaretoken": $("#csrfmiddlewaretoken").val(),
@@ -90,10 +99,11 @@ $(function() {
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',    
             success: function (data) {
                 //console.log(data)
-                $('.menu4').addClass('hidden');
-                $('.successOrder').removeClass('hidden');
+                $('.step-confirm').addClass('hidden');
+                //$('.successOrder').removeClass('hidden');
                 $(".successOrder").html($(data));
-                loadPaymenMethods(paymentMethodsEndpoint);
+                $("#orderSuccessModal").modal({backdrop: "static"});
+
             },
             error: function () {
                 window.alert("Something went wrong. Please, try again.")
@@ -168,12 +178,20 @@ function changeState (action) {
         changeState(action);
     }
 
-    setButtonDefaultState(nextStateId);
-    currState.addClass('btn-success');
-    nextState
-        .addClass('btn-info')
-        .removeClass('btn-default')
-        .tab('show');
+    //console.log(currStateId);
+
+    if ( !canProceedtoRegister(currStateId) ){
+        
+        window.alert("Need to pick BUY or SELL.")
+
+    } else {
+        setButtonDefaultState(nextStateId);
+        currState.addClass('btn-success');
+        nextState
+            .addClass('btn-info')
+            .removeClass('btn-default')
+            .tab('show');
+    }
 }
 
 function reloadRoleRelatedElements (menuEndpoint, breadCrumbEndpoint) {
@@ -191,5 +209,19 @@ function reloadRoleRelatedElements (menuEndpoint, breadCrumbEndpoint) {
     $(".step3 .btn")
         .addClass('disableClick')
         .addClass('disabled');
+}
+
+function canProceedtoRegister(objectName){
+    payMeth = $('#payment_method_id').val();
+    userAcc = $('#user_address_id').val();
+    userAccId = $('#new_user_account').val();
+    //console.log(payMeth,userAcc,userAccId);
+    if ( (objectName == 'menu2' || objectName == 'btn-register') &&  payMeth == '' 
+        && userAcc == '' && userAccId == '' ){
+        return false;
+    } else {
+        return true;
+    }
+
 }
 

@@ -372,6 +372,8 @@ def ajax_crumbs(request):
 
 @csrf_exempt
 def ajax_order(request):
+    # TODO re query to kraken to get the price to avoid
+    # passing ammounts to ajax
     template = get_template('core/partials/success_order.html')
     user = request.user
     curr = request.POST.get("currency_from", "RUB")

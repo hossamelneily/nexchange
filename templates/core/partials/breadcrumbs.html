@@ -2,27 +2,27 @@
   <div class="process">
    <div class="process-row nav nav-tabs">
     <div class="process-step step1">
-     <button type="button" class="btn btn-info btn-circle" data-toggle="tab" href="#menu1"><i class="fa fa-bar-chart fa-3x"></i></button>
+     <button type="button" class="btn btn-info btn-circle disableClick" data-toggle="tab" href="#menu1"><i class="fa fa-bar-chart fa-3x"></i></button>
      <p><small>{% trans "Check" %}<br />{% trans "Graph" %}</small></p>
     </div>
     <div class="process-step step2">
-     <button type="button" class="btn btn-default btn-circle choose-opr" data-toggle="tab" href="#menu2"><i class="fa fa-exchange fa-3x"></i></button>
+     <button type="button" class="btn btn-default btn-circle choose-opr disableClick" data-toggle="tab" href="#menu2"><i class="fa fa-exchange fa-3x"></i></button>
      <p><small>{% trans "Set amount to" %}<br />{% trans "Buy or Sell" %}</small></p>
     </div>
    {% if not user.is_authenticated %}
     <div class="process-step step3">
-     <button type="button" class="btn btn-default btn-circle" data-toggle="tab" href="#menu3"><i class="fa fa-mobile fa-3x"></i></button>
+     <button type="button" class="btn btn-default btn-circle btn-register disableClick" data-toggle="tab" href="#menu3"><i class="fa fa-mobile fa-3x"></i></button>
      <p><small>{% trans "Already User ?" %}<br />{% trans "Register !" %}</small></p>
     </div>
    {% endif %}
     <div class="process-step step4">
-     <button type="button" class={% if user.is_authenticated %} "btn btn-default btn-circle"
+     <button type="button" class={% if user.is_authenticated %} "btn btn-default btn-circle disableClick"
         {% else %} "btn btn-default btn-circle disabled disableClick" {% endif %}
         data-toggle="tab" href="#menu4"><i class="fa fa-money fa-3x"></i></button>
      <p><small>{% trans "Confirm your" %}<br />{% trans "Order" %}</small></p>
     </div>
     <div class="process-step step5">
-     <button type="button" class={% if user.is_authenticated %} "btn btn-default btn-circle"
+     <button type="button" class={% if user.is_authenticated %} "btn btn-default btn-circle disableClick"
         {% else %} "btn btn-default btn-circle disabled disableClick" {% endif %}
         data-toggle="tab" href="#menu5"><i class="fa fa-btc fa-3x"></i></button>
      <p><small>{% trans "Process" %}<br />{% trans "the payment" %}</small></p>
