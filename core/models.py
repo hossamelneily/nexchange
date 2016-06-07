@@ -112,7 +112,7 @@ class Order(TimeStampedModel, SoftDeletableModel):
                 unique_reference=self.unique_reference).count()
             if cnt_unq == 0:
                 unq = False
-            else:
+            else:   
                 failed_count += 1
 
         super(Order, self).save(*args, **kwargs)

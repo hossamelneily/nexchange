@@ -404,6 +404,31 @@ def payment_methods_ajax(request):
     return HttpResponse(template.render({'payment_methods': payment_methods,
                                          }, request))
 
+def payment_methods_account_ajax(request):
+    pm  = request.GET.get("payment_method", None)
+    template = get_template('core/partials/payment_methods_account.html')
+    account = ''
+    fee = ''
+    
+    if pm:
+        payment_method = PaymentMethod.objects.get(pk = pm)
+        account = payment_method.handler
+        fee = payment_method.fee
+
+    # print(payment_methods)
+    return HttpResponse(template.render({'account': account,
+                                         'fee': fee,
+                                         }, request))
+
+def user_address_ajax(request):
+    user = request.user
+    template = get_template('core/partials/user_address.html')
+    
+    addresses = Address.objects.filter(user = user, type="D")
+
+    # print(payment_methods)
+    return HttpResponse(template.render({'addresses':addresses,
+                                         }, request))
 
 @csrf_exempt
 def payment_ajax(request):

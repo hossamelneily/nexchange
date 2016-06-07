@@ -7,6 +7,7 @@
         chartDataRaw;
         $(".trade-type").val("1");
         paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
+        paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
 
 
     window.ACTION_BUY = 1;
@@ -65,11 +66,24 @@
                 }, delay);
             });
 
+             $('.payment-method').on('change', function () {
+                loadPaymenMethodsAccount(paymentMethodsAccountEndpoint);
+
+            });
+
             $('.currency-select').on('change', function () {
                 currency = $(this).val().toLowerCase();
                 setCurrency();
                 updateOrder($('.amount-coin'));
             });
+
+            $(document).on('change','.payment-method', function () {
+                var pm = $('.payment-method option:selected').val();
+                
+                loadPaymenMethodsAccount(paymentMethodsAccountEndpoint,pm);
+
+            });
+
         });
 
 
@@ -183,6 +197,14 @@
             $(".paymentMethods").html($(data));
         });
         $('.paymentMethods').removeClass('hidden');
+    }
+
+    function loadPaymenMethodsAccount(paymentMethodsAccountEndpoint,pm) {
+        data = {'payment_method': pm}
+        $.get(paymentMethodsAccountEndpoint, data,function (data) {
+            $(".paymentMethodsAccount").html($(data));
+        });
+        $('.paymentMethodsAccount').removeClass('hidden');
     }
 
     function renderChart () {
