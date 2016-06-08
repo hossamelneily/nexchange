@@ -19,10 +19,8 @@ dev:
           mkdir -p /usr/share/nginx/html/static
           mkdir -p /usr/share/nginx/html/media
     - npm-install
-    - script:
-        name: install bower dependencies
-        code: |
-          npm run-script bower
+    - maxon/npm-run:
+        script: bower
     - script:
         name: pip install requirements (with cache)
         code: |
@@ -88,23 +86,18 @@ build:
         code: |
           export DJANGO_SETTINGS_MODULE=nexchange.settings_prod
     - script:
+      name: refreseh up node packages
+      code: |
+        # https://github.com/wercker/support/issues/227 :(
+        rm -fr node_modules && npm install
+    - script:
         name: create static and media root
         code: |
           mkdir -p /usr/share/nginx/html/static
           mkdir -p /usr/share/nginx/html/media
-    - nahody/npm-install@1.1.1:
-      options: -g bower -g karma-cli          
-    - script:
-        name: install bower dependencies
-        code: |
-          npm run-script bower
-    - script:
-        name: Karma/Jasmine run frontend tests
-        code: |
-          export IP=127.0.0.1
-          nslookup localhost
-          export PHANTOMJS_BIN="${WERCKER_SOURCE_DIR}/node_modules/phantomjs/lib/phantom/bin/phantomjs"
-          npm test
+    - npm-install
+    - maxon/npm-run:
+        script: bower
     - script:
         name: pip install requirements (with cache)
         code: |
@@ -131,6 +124,11 @@ build:
         name: Django run tests
         code: |
           python manage.py test
+    - script:
+        name: Karma/Jasmine run frontend tests
+        code: |
+          export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs 
+          npm run-script test
     - script:
       name: copy files
       code: |
