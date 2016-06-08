@@ -6,6 +6,8 @@
         animationDelay = 3000,
         chartDataRaw;
         $(".trade-type").val("1");
+        paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
+        paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
 
 
     window.ACTION_BUY = 1;
@@ -28,6 +30,9 @@
                     $('.next-step').removeClass('btn-danger').addClass('btn-success');
                     $('.step4 i').removeClass('fa-btc').addClass('fa-money');
                     $('.step5 i').removeClass('fa-money').addClass('fa-btc');
+                    loadPaymenMethods(paymentMethodsEndpoint);
+
+                    $("#PayMethModal").modal({backdrop: "static"});
                 } else {
                     $('.buy-go').addClass('hidden');
                     $('.sell-go').removeClass('hidden');
@@ -35,6 +40,8 @@
                     $('.next-step').removeClass('btn-success').addClass('btn-danger');
                     $('.step4 i').removeClass('fa-money').addClass('fa-btc');
                     $('.step5 i').removeClass('fa-btc').addClass('fa-money');
+                    $("#UserAccountModal").modal({backdrop: "static"});
+
                 }
 
                 $(".trade-type").val(window.action);
@@ -59,11 +66,24 @@
                 }, delay);
             });
 
+             $('.payment-method').on('change', function () {
+                loadPaymenMethodsAccount(paymentMethodsAccountEndpoint);
+
+            });
+
             $('.currency-select').on('change', function () {
                 currency = $(this).val().toLowerCase();
                 setCurrency();
                 updateOrder($('.amount-coin'));
             });
+            //using this form because the object is inside a modal screen
+            $(document).on('change','.payment-method', function () {
+                var pm = $('.payment-method option:selected').val();
+                $('#payment_method_id').val(pm);
+                loadPaymenMethodsAccount(paymentMethodsAccountEndpoint,pm);
+
+            });
+
         });
 
 
@@ -169,6 +189,22 @@
         });
 
         return elem;
+    }
+
+
+    function loadPaymenMethods(paymentMethodsEndpoint) {
+        $.get(paymentMethodsEndpoint, function (data) {
+            $(".paymentMethods").html($(data));
+        });
+        $('.paymentMethods').removeClass('hidden');
+    }
+
+    function loadPaymenMethodsAccount(paymentMethodsAccountEndpoint,pm) {
+        data = {'payment_method': pm}
+        $.get(paymentMethodsAccountEndpoint, data,function (data) {
+            $(".paymentMethodsAccount").html($(data));
+        });
+        $('.paymentMethodsAccount').removeClass('hidden');
     }
 
     function renderChart () {

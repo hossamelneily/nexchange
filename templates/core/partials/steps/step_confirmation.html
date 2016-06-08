@@ -2,8 +2,9 @@
 {% load i18n %}
 
 {% block step_content %}
+    
+    <div class="row step-confirm">
     <h3>{% trans "Order" %}</h3>
-    <div class="row">
     <div class="col-sm-12 center">
         <div class="col-sm-5 col-md-5">
                 <div class="col-lg-12">
@@ -24,12 +25,38 @@
                 {%  trans "RUB" %}
             </div>
         </div>
-    </div>
-    </div>
+
     <div style="display:none">
       <input type="hidden" name="csrfmiddlewaretoken" id="csrfmiddlewaretoken" value="{{ csrf_token }}">
     </div>
     <input type="hidden" name="type" value="1" class="trade-type" >
     <button  class="sell-go btn btn-danger btn-lg place-order hidden">{% trans "Sell" %}</button>
     <button  class="buy-go btn btn-success btn-lg place-order ">{% trans "Buy" %}</button>
+
+    </div>
+    </div>
+    
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="orderSuccessModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">×</button>
+          <h4 class="modal-title">Success</h4>
+        </div>
+        <div class="modal-body successOrder">
+                    {% include 'core/partials/success_order.html' %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
 {% endblock %}

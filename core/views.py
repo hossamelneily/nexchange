@@ -99,7 +99,6 @@ def add_order(request):
         amount_cash = request.POST.get("amount-cash")
         amount_coin = request.POST.get("amount-coin")
         currency = Currency.objects.filter(code=curr)[0]
-
         order = Order(amount_cash=amount_cash, amount_btc=amount_coin,
                       currency=currency, user=user)
         order.save()
@@ -373,6 +372,8 @@ def ajax_crumbs(request):
 
 @csrf_exempt
 def ajax_order(request):
+    # TODO re query to kraken to get the price to avoid
+    # passing ammounts to ajax
     template = get_template('core/partials/success_order.html')
     user = request.user
     curr = request.POST.get("currency_from", "RUB")
@@ -405,6 +406,31 @@ def payment_methods_ajax(request):
     return HttpResponse(template.render({'payment_methods': payment_methods,
                                          }, request))
 
+def payment_methods_account_ajax(request):
+    pm  = request.GET.get("payment_method", None)
+    template = get_template('core/partials/payment_methods_account.html')
+    account = ''
+    fee = ''
+    
+    if pm:
+        payment_method = PaymentMethod.objects.get(pk = pm)
+        account = payment_method.handler
+        fee = payment_method.fee
+
+    # print(payment_methods)
+    return HttpResponse(template.render({'account': account,
+                                         'fee': fee,
+                                         }, request))
+
+def user_address_ajax(request):
+    user = request.user
+    template = get_template('core/partials/user_address.html')
+    
+    addresses = Address.objects.filter(user = user, type="D")
+
+    # print(payment_methods)
+    return HttpResponse(template.render({'addresses':addresses,
+                                         }, request))
 
 @csrf_exempt
 def payment_ajax(request):

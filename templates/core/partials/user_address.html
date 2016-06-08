@@ -3,9 +3,9 @@
 
 <div class="input-group">
   <div class="input-group-btn">     
-  	<select name="payment-method" class="payment-method">   
-		{% for pay in payment_methods %}
-			<option value ="{{pay.id}}">{{pay.name}}</option>
+  	<select name="user-address" class="user-address">   
+		{% for add in addresses %}
+			<option value ="{{add.id}}">{{add.address}}</option>
 		{% endfor%}
 	</select>
 
