@@ -119,58 +119,6 @@ $(function() {
                 window.alert("Something went wrong. Please, try again.")
             }
         });
-        /**
-        //if the transaction type is Sell
-        if (window.action == 0){ 
-            var verifyPayload = {
-                "trade-type": $(".trade-type").val(),
-                "csrfmiddlewaretoken": $("#csrfmiddlewaretoken").val(),
-                "amount-cash": $('.amount-cash').val(),
-                "amount-coin": $('.amount-coin').val(),
-                "currency_from": $('.currency-from').val(),
-                "user_id":$("#user_id").val()
-            };
-            
-            $.ajax({
-                type: "post",
-                url: placerAjaxOrder,
-                dataType: 'text',
-                data: verifyPayload,
-                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',    
-                success: function (data) {
-                    //console.log(data)
-                    $('.step-confirm').addClass('hidden');
-                    //$('.successOrder').removeClass('hidden');
-                    $(".successOrder").html($(data));
-                    $("#orderSuccessModal").modal({backdrop: "static"});
-
-                },
-                error: function () {
-                    window.alert("Something went wrong. Please, try again.")
-                }
-            });
-        }
-        //if the transaction type is Buy
-        else{
-
-            $.ajax({
-                type: "get",
-                url: getBtcAddress,
-                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',    
-                success: function (data) {
-                    console.log(data);
-                    console.log(data['address']);
-                    console.log(data['error']);
-                    $('.step-confirm').addClass('hidden');
-                    $('#btcAddress').text(data['address']);
-                    $("#orderSuccessModalSell").modal({backdrop: "static"});
-
-                },
-                error: function () {
-                    window.alert("Something went wrong. Please, try again.")
-                }
-            });
-        } **/
 
     });
 
