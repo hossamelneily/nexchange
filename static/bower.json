@@ -19,10 +19,12 @@
     "jquery": "^2.2.0",
     "bootstrap": "^3.3.6",
     "moment-timezone": "^0.5.4",
-    "js-cookie": "^2.1.2"
+    "js-cookie": "^2.1.2",
+    "x-editable": "^1.5.1"
   },
   "devDependencies": {
     "jasmine-core": "jasmine#^2.4.1",
-    "jasmine-jquery": "^2.1.1"
+    "jasmine-jquery": "^2.1.1",
+    "bootstrap-toggle": "^2.2.2"
   }
 }

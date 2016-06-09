@@ -18,18 +18,15 @@ dev:
         code: |
           mkdir -p /usr/share/nginx/html/static
           mkdir -p /usr/share/nginx/html/media
+    - npm-install
+    - maxon/npm-run:
+        script: bower
     - script:
         name: pip install requirements (with cache)
         code: |
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
           mkdir -p ${pip_download_cache}
           pip install --cache-dir ${pip_download_cache} -r requirements.txt
-    - nahody/npm-install@1.1.1:
-      options: -g bower
-    - script:
-        name: install bower dependencies
-        code: |
-          cd static && bower install --allow-root
     - script:
         name: Django make migrations
         code: |
@@ -63,6 +60,11 @@ dev:
         code: |
           python manage.py test
     - script:
+        name: Karma/Jasmine run frontend tests
+        code: |
+          export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs 
+          npm run-script test
+    - script:
       name: Django create superuser
       code: |
           echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
@@ -84,22 +86,24 @@ build:
         code: |
           export DJANGO_SETTINGS_MODULE=nexchange.settings_prod
     - script:
+      name: refreseh up node packages
+      code: |
+        # https://github.com/wercker/support/issues/227 :(
+        rm -fr node_modules && npm install
+    - script:
         name: create static and media root
         code: |
           mkdir -p /usr/share/nginx/html/static
           mkdir -p /usr/share/nginx/html/media
+    - npm-install
+    - maxon/npm-run:
+        script: bower
     - script:
         name: pip install requirements (with cache)
         code: |
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
           mkdir -p ${pip_download_cache}
           pip install --cache-dir ${pip_download_cache} -r requirements.txt
-    - nahody/npm-install@1.1.1:
-      options: -g bower
-    - script:
-        name: install bower dependencies
-        code: |
-          cd static && bower install --allow-root
     - script:
         name: Django make migrations
         code: |
@@ -120,6 +124,11 @@ build:
         name: Django run tests
         code: |
           python manage.py test
+    - script:
+        name: Karma/Jasmine run frontend tests
+        code: |
+          export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs 
+          npm run-script test
     - script:
       name: copy files
       code: |
