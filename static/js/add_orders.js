@@ -9,7 +9,8 @@ $(function() {
         breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
         validatePhoneEndpoint = '/en/profile/verifyPhone/',
         placerAjaxOrder = '/en/order/ajax/',
-        paymentAjax = '/en/payment/ajax/';
+        paymentAjax = '/en/payment/ajax/',
+        getBtcAddress = '/en/kraken/genAddress/';
 
     // $('.btn-circle').on('click', function () {
     //     console.log($(this).hasClass('btn-register'),canProceedtoRegister('btn-register'))
@@ -81,16 +82,16 @@ $(function() {
     $('.place-order').on('click', function () {
         //TODO verify if $(this).hasClass('sell-go') add 
         // the othre type of transaction
-        var verifyPayload = {
-            "trade-type": $(".trade-type").val(),
-            "csrfmiddlewaretoken": $("#csrfmiddlewaretoken").val(),
-            "amount-cash": $('.amount-cash').val(),
-            "amount-coin": $('.amount-coin').val(),
-            "currency_from": $('.currency-from').val(),
-            "user_id":$("#user_id").val()
-        };
-        //console.log(verifyPayload);
         
+        var verifyPayload = {
+                "trade-type": $(".trade-type").val(),
+                "csrfmiddlewaretoken": $("#csrfmiddlewaretoken").val(),
+                "amount-cash": $('.amount-cash').val(),
+                "amount-coin": $('.amount-coin').val(),
+                "currency_from": $('.currency-from').val(),
+                "user_id":$("#user_id").val()
+            };
+            
         $.ajax({
             type: "post",
             url: placerAjaxOrder,
@@ -99,10 +100,19 @@ $(function() {
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',    
             success: function (data) {
                 //console.log(data)
-                $('.step-confirm').addClass('hidden');
-                //$('.successOrder').removeClass('hidden');
-                $(".successOrder").html($(data));
-                $("#orderSuccessModal").modal({backdrop: "static"});
+                //if the transaction is Buy
+                if (window.action == 1){ 
+                    $('.step-confirm').addClass('hidden');
+                    //$('.successOrder').removeClass('hidden');
+                    $(".successOrder").html($(data));
+                    $("#orderSuccessModal").modal({backdrop: "static"});
+                }
+                //if the transaction is Sell
+                else{
+                    $('.step-confirm').addClass('hidden');
+                    $('#btcAddress').text(data['address']);
+                    $("#orderSuccessModalSell").modal({backdrop: "static"});
+                }
 
             },
             error: function () {
@@ -177,8 +187,6 @@ function changeState (action) {
         numericId > 1) {
         changeState(action);
     }
-
-    //console.log(currStateId);
 
     if ( !canProceedtoRegister(currStateId) ){
         

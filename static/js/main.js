@@ -14,6 +14,7 @@
     window.ACTION_SELL = 0;
     window.action = ACTION_BUY; // 1 - BUY 0 - SELL
 
+
     $(function () {
             setCurrency();
             var timer = null,
@@ -127,6 +128,8 @@
                 var btcAmount = Math.floor(val / rate * floor) / floor;
                 $('.amount-coin').val(btcAmount);
             }
+            $('.btc-amount-confirm').text($('.amount-coin').val()); // add
+            $('.cash-amount-confirm').text($('.amount-cash').val()); //add
         });
     }
 
