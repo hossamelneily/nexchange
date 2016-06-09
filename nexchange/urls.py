@@ -85,4 +85,8 @@ urlpatterns = i18n_patterns(
     url(r'^api/v1/phone$', core.views.user_by_phone, name='core.user_by_phone'),
     url(r'^api/v1/menu', core.views.ajax_menu, name='core.menu'),
     url(r'^api/v1/breadcrumbs', core.views.ajax_crumbs, name='core.breadcrumbs'),
+    url(r'^kraken/genAddress/$', core.views.k_generate_address,
+        name='core.k_generate_address'),
+    url(r'^kraken/depositStatus/$', core.views.k_deposit_status,
+        name='core.k_deposit_status'),
 )
