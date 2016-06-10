@@ -7,6 +7,7 @@ dev:
        POSTGRES_USER: nexchange
        POSTGRES_PASSWORD: nexchange
        POSTGRES_DB: nexchange
+
   steps:
     - script:
         name: export django settings module
@@ -234,6 +235,7 @@ deploy:
               --restart=always \
               ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT}
         EOF
+
 
 tests:
   services:
