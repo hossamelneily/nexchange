@@ -182,6 +182,7 @@ build:
           python /usr/src/app/manage.py migrate
           # Import fixtures
           python /usr/src/app/manage.py loaddata core/fixtures/currency.json
+          python /usr/src/app/manage.py loaddata core/fixtures/payment_method.json
           #
           # Prepare log files and start outputting logs to stdout
           # adapted from http://goo.gl/E7kRfL
