@@ -34,6 +34,12 @@ import requests
 import time
 from twilio.exceptions import TwilioException
 
+from .validators import validate_bc
+
+from .kraken_api import api
+
+kraken = api.API()
+
 
 def main(request):
     template = get_template('core/index.html')
@@ -338,17 +344,6 @@ def payment_confirmation(request, pk):
             return JsonResponse({'status': 'ERR', 'msg': msg}, safe=False)
 
 
-def k_trades_history(request):
-    # Todo use django rest framework
-    url = KRAKEN_PRIVATE_URL_API % "TradesHistory"
-    headers = {"API-Key": KRAKEN_API_KEY,
-               "API-Sign": KRAKEN_API_SIGN}
-    print(headers)
-    data = {"nonce": int(time.time())}
-    res = requests.post(url, headers=headers, data=data)
-    print(res.json())
-
-
 def user_by_phone(request):
     phone = request.POST.get('phone')
     user, created = User.objects.get_or_create(username=phone)
@@ -380,6 +375,7 @@ def ajax_order(request):
     amount_cash = request.POST.get("amount-cash")
     amount_coin = request.POST.get("amount-coin")
     currency = Currency.objects.filter(code=curr)[0]
+    tradeType = request.POST.get("trade-type")
 
     order = Order(amount_cash=amount_cash, amount_btc=amount_coin,
                   currency=currency, user=user)
@@ -388,11 +384,16 @@ def ajax_order(request):
     pay_until = order.created_on + timedelta(minutes=order.payment_window)
 
     my_action = _("Result")
+    address = ""
+    if (tradeType == 0):
+        address = k_generate_address()
+
 
     return HttpResponse(template.render({'bank_account': MAIN_BANK_ACCOUNT,
                                          'unique_ref': uniq_ref,
                                          'action': my_action,
                                          'pay_until': pay_until,
+                                         'address': address
                                          },
                                         request))
 
@@ -453,3 +454,60 @@ def payment_ajax(request):
                                          'action': my_action,
                                          },
                                         request))
+
+
+def k_generate_address():
+    
+    params = {'method' : 'Bitcoin',
+        'asset' : 'XBT',
+        'new' : True}
+    
+    k = kraken.query_private('DepositAddresses', params)
+
+    error = ""
+    address = ""
+
+    if k['error']:
+        error = k['error']
+    else:
+        address = k['result'][0]['address']
+    return JsonResponse({'address':address})
+
+
+def k_trades_history(request):
+    # Todo use django rest framework
+    k = kraken.query_private('TradesHistory')
+    if k['error']:
+        result = k['error']
+    else:
+        result = k['result']
+    return JsonResponse({'result':result})
+
+
+def k_deposit_status(request):
+
+    params = {'method' : 'Bitcoin',
+        'asset' : 'XBT',
+        }
+    
+    k = kraken.query_private('DepositStatus', params)
+    if k['error']:
+        result = k['error']
+    else:
+        result = k['result']
+
+    return JsonResponse({'result':k})
+
+
+
+def user_btcAddress(request):
+    btcAddress = request.POST.get('btcAddress')
+    user = request.user
+    print (type(btcAddress))
+    validate_bc(str(btcAddress))
+    address = Address(address=btcAddress, user=user)
+    address.save()
+
+    return JsonResponse({'status': 'OK'})
+
+

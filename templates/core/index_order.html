@@ -118,23 +118,31 @@
 								{{order.withdraw_address | default_if_none:_("Not Defined")}}
 							</span>
 						</td>
-						
-		            	<td title="{% trans 'Click to edit Withdraw Address' %}" 
-		            		{% if order.frozen %} style="display:none" {% endif %}
-		            		id="td-withdraw-{{order.pk}}" >
 
-		            		<i class="fa fa-pencil" aria-hidden="true"></i>
-							<span class="withdraw_address" 
-								data-type="select"
-								data-source="{{withdraw_addresses}}"
-								data-emptytext="{% trans 'Not Defined' %}"
-								data-value="{{order.withdraw_address| default_if_none:''}}"
-								data-pk="{{order.pk}}" 
-								data-url="{% url 'core.update_withdraw_address' order.pk %}" 
-								data-title="{% trans "Select Withdraw Address"%}">
-								{{order.transaction_set.first.address_to.address | default_if_none:_("Not Defined")}}
-							</span>
-		            	</td>
+						{% if withdraw_addresses %} {# if user has at least one withdraw address #}
+						
+			            	<td title="{% trans 'Click to edit Withdraw Address' %}" 
+			            		{% if order.frozen %} style="display:none" {% endif %}
+			            		id="td-withdraw-{{order.pk}}" >
+
+			            		<i class="fa fa-pencil" aria-hidden="true"></i>
+								<span class="withdraw_address" id="span-withdraw-{{order.pk}}"
+									data-type="select"
+									data-tip="select"
+									data-source="{{withdraw_addresses}}"
+									data-emptytext="{% trans 'Not Defined' %}"
+									data-value="{{order.withdraw_address| default_if_none:''}}"
+									data-pk="{{order.pk}}" 
+									data-url="{% url 'core.update_withdraw_address' order.pk %}" 
+									data-title="{% trans "Select Withdraw Address"%}">
+									{{order.transaction_set.first.address_to.address | default_if_none:_("Not Defined")}}
+								</span>
+			            	</td>
+
+			            {% else %}
+			            	<td><a href="{% url 'core.user_profile' %}">You need to create a Withdraw Address</a></td>
+			            	{# TODO: Add logic to create withdraw here instead of guinding user to profile page #}
+			            {% endif %}
 		            	
 	
 			        </tr>
@@ -184,11 +192,11 @@
 
 {% block extra_js_footer %}
 	
-	<link href="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet"/>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+	<link href="{% static 'bower_components/x-editable/dist/bootstrap3-editable/css/bootstrap-editable.css' %}" rel="stylesheet"/>
+	<script src="{% static 'bower_components/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.min.js' %}"></script>
     <script src="{% static 'js/index_orders.js' %}"></script>
 
-	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
-	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+	<link href="{% static 'bower_components/bootstrap-toggle/css/bootstrap-toggle.min.css' %}" rel="stylesheet">
+	<script src="{% static 'bower_components/bootstrap-toggle/js/bootstrap-toggle.min.js' %}"></script>
 
 {% endblock %}
