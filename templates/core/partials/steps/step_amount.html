@@ -47,8 +47,8 @@
             </div><!-- /pannel -->
         </div><!-- /col -->
 
-        <div class="col-xs-12 col-sm-1 col-md-1">
-            <h2>TO</h2>
+        <div class="col-xs-12 col-sm-2 col-md-2">
+            <h2>{% trans "To" %}</h2>
         </div><!-- /col -->
 
         <div class="col-xs-12 col-sm-5 col-md-5">
@@ -105,9 +105,8 @@
           <h4 class="modal-title">Pick one of your previous accounts</h4>
         </div>
         <div class="modal-body">
-                    {% include 'core/partials/user_address.html' %}
-                <input type="hidden" name="user_address_id" id="user_address_id" value="">
-
+            {% include 'core/partials/user_address.html' %}
+            <input type="hidden" name="user_address_id" id="user_address_id" value="">
         </div>
                   <p>Or just use a new one !</p>
                 <input type="text" name="new_user_account" id="new_user_account" value="">
