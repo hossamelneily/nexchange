@@ -294,13 +294,8 @@ tests:
           npm run-script test
 
 static-validation:
+  box: pitervergara/geodjango:static-validation
   steps:
-    - script:
-        name: pip install requirements (with cache)
-        code: |
-          pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
-          mkdir -p ${pip_download_cache}
-          pip install --cache-dir ${pip_download_cache} flake8
     - script:
         name: Run static-validation.sh
         code: |
