@@ -1,10 +1,10 @@
 from .settings import *
 
 DATABASES = {
-'default': {
-  'ENGINE': 'django.db.backends.sqlite3',
-     'NAME': 'testDB',
-   }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'tests',
+    }
 }
 
 DEBUG = True
