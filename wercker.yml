@@ -58,9 +58,16 @@ dev:
       name: Django create superuser
       code: |
           echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
+    - script:
+        name: Link pre-commit hook script
+        code: |     
+          chmod +x .pre-commit.sh 
+          cd .git/hooks/
+          ln -fs ../../.pre-commit.sh pre-commit
+          cd -
     - internal/watch:
         code: python manage.py runserver 0.0.0.0:8000
-        reload: false 
+        reload: true 
 
 build:
   services:
@@ -261,7 +268,8 @@ tests:
     - script:
       name: Install node requirements
       code: |
-        rm -fr node_modules && npm install
+        # rm -fr node_modules && npm install
+        echo "Keeping node_modules"
     - maxon/npm-run:
         script: bower
     - script:
@@ -284,3 +292,16 @@ tests:
         code: |
           export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs 
           npm run-script test
+
+static-validation:
+  steps:
+    - script:
+        name: pip install requirements (with cache)
+        code: |
+          pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
+          mkdir -p ${pip_download_cache}
+          pip install --cache-dir ${pip_download_cache} flake8
+    - script:
+        name: Run static-validation.sh
+        code: |
+          bash static-validation.sh
