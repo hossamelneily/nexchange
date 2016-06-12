@@ -280,7 +280,7 @@ tests:
     - script:
         name: Backend tests
         code: |
-          python manage.py test
+          python manage.py test -v 3
     - script:
         name: Frontend tests
         code: |
