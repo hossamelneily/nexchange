@@ -9,7 +9,7 @@ run `$ werker build` to check if the build will go OK when you push your code
 
 Build pipelines looks like the 'dev' one. But after starting the container DJANGO_SETTINGS_MODULE is setted to **'nexchange.settings_prod'**. If the build is local the variables from  **ENVIRONMENT** file are exported, if the build is remote the variables defined in the web interface of wercker are exported.
 
-During this pipeline, besides the steps executed in dev pipeline, the Django management commands **collectstatic** and **test** are also executed.
+During this pipeline, besides the steps executed in dev pipeline, the Django management commands **collectstatic** and **loaddata** are also executed.
 
 Close to the end, the *echo python information* step prints a few useful data about python and python package versions in this build
 
@@ -19,6 +19,18 @@ The build pipeline also creates an entripoint script at **/entrypoint.sh**, insi
 
 Once all the files are im place, the **internal/docker-push** step publishes the image in docker hub. It sends the image to the $DOCKER_HUB_REPO repo, tagging it as $WERCKER_GIT_COMMIT (a hash produced and exported by wercker each time).
 
+
+# Tests #
+The test pipeline builds the container run tests and exit. 
+
+After starting the container DJANGO_SETTINGS_MODULE is setted to **'nexchange.settings_test'**. If the build is local the variables from  **ENVIRONMENT** file are exported, if the build is remote the variables defined in the web interface of wercker are exported.
+
+The pipeline installs all the requirements (frontend and backend), creates and runs migrations and loads the fixtures. After that, the backend test as triggered with `django manage.py run test`. The next step runs frontend tests with `npm run-script test` which will invoke the corresponding script inside the file **package.json**.
+The tests are runned by [karma](https://karma-runner.github.io/0.13/index.html), using the headless *browser* [phantomjs](http://phantomjs.org/).
+
+Karma is configured via **karma.conf** file and **it's important that 3rd libs** including those installed via bower are added  to the section *files* in this configuration. 
+
+The test files that will be running are the ones into **static/js/tests/spec** directory, they shoul be written using the [jasmine](http://jasmine.github.io/2.4/introduction.html). Fixture .html files placed into **static/js/tests/fixtures/** will be served by karma and can be loaded in your test spec with the [jasmine-jquery](https://github.com/velesin/jasmine-jquery) extension.
 
 # Deploy #
 In this step the pipeline remotely logis into the production server ($DEST_HOST_ADDR) and replaces the running container with the version corresponding to the last $WERCKER_GIT_COMMIT.
