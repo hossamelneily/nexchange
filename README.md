@@ -8,4 +8,8 @@
 
 4. Access http://localhost:8000
 
+# Tests # 
+
+1. To run the tests, do `wercker build --pipeline tests --docker-local`
+
 #### ALL DONE ####
