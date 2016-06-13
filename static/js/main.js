@@ -5,9 +5,9 @@
         currency = 'rub',
         animationDelay = 3000,
         chartDataRaw;
-        $(".trade-type").val("1");
+        $(".trade-type").val("1"),
         paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
-        paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
+        paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/';
 
 
     window.ACTION_BUY = 1;
@@ -29,8 +29,7 @@
                     $('.sell-go').addClass('hidden');
                     window.action = window.ACTION_BUY;
                     $('.next-step').removeClass('btn-danger').addClass('btn-success');
-                    $('.step4 i').removeClass('fa-btc').addClass('fa-money');
-                    $('.step5 i').removeClass('fa-money').addClass('fa-btc');
+                    $('.step4 i').removeClass('fa-money').addClass('fa-btc');
                     loadPaymenMethods(paymentMethodsEndpoint);
 
                     $("#PayMethModal").modal({backdrop: "static"});
@@ -39,8 +38,7 @@
                     $('.sell-go').removeClass('hidden');
                     window.action = window.ACTION_SELL;
                     $('.next-step').removeClass('btn-success').addClass('btn-danger');
-                    $('.step4 i').removeClass('fa-money').addClass('fa-btc');
-                    $('.step5 i').removeClass('fa-btc').addClass('fa-money');
+                    $('.step4 i').removeClass('fa-btc').addClass('fa-money');
                     $("#UserAccountModal").modal({backdrop: "static"});
 
                 }
@@ -226,7 +224,7 @@
                             setInterval(function () {
                                 $.get(tickerLatestUrl, function (resdata) {
                                     var lastdata = reonseToChart(resdata)[currency];
-                                    if ( parseInt(resdata[0]["unix_time"]) >
+                                    if ( chartDataRaw.length && parseInt(resdata[0]["unix_time"]) >
                                          parseInt(chartDataRaw[chartDataRaw.length - 1]["unix_time"])
                                     ) {
                                         //Only update if a ticker 'tick' had occured

@@ -29,8 +29,6 @@ $(function() {
                 $('.verify-acc').removeClass('hidden');
                 $(".create-acc").addClass('hidden');
                 $(".create-acc.resend").removeClass('hidden');
-                //$("#phone").attr("disabled", "disabled")
-                changeState('next');
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert('Invalid phone number');

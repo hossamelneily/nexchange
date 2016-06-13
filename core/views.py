@@ -385,9 +385,8 @@ def ajax_order(request):
 
     my_action = _("Result")
     address = ""
-    if (tradeType == 0):
+    if tradeType == Order.SELL:
         address = k_generate_address()
-
 
     return HttpResponse(template.render({'bank_account': MAIN_BANK_ACCOUNT,
                                          'unique_ref': uniq_ref,
@@ -403,9 +402,9 @@ def payment_methods_ajax(request):
 
     payment_methods = PaymentMethod.objects.all()
 
-    # print(payment_methods)
     return HttpResponse(template.render({'payment_methods': payment_methods,
                                          }, request))
+
 
 def payment_methods_account_ajax(request):
     pm  = request.GET.get("payment_method", None)
@@ -457,21 +456,19 @@ def payment_ajax(request):
 
 
 def k_generate_address():
-    
-    params = {'method' : 'Bitcoin',
-        'asset' : 'XBT',
-        'new' : True}
+    params = {
+        'method': 'Bitcoin',
+        'asset': 'XBT',
+        'new': True
+    }
     
     k = kraken.query_private('DepositAddresses', params)
 
-    error = ""
-    address = ""
-
     if k['error']:
-        error = k['error']
+        address = k['error']
     else:
         address = k['result'][0]['address']
-    return JsonResponse({'address':address})
+    return JsonResponse({'address': address})
 
 
 def k_trades_history(request):
@@ -496,14 +493,12 @@ def k_deposit_status(request):
     else:
         result = k['result']
 
-    return JsonResponse({'result':k})
+    return JsonResponse({'result': k})
 
 
-
-def user_btcAddress(request):
+def user_btc_adress(request):
     btcAddress = request.POST.get('btcAddress')
     user = request.user
-    print (type(btcAddress))
     validate_bc(str(btcAddress))
     address = Address(address=btcAddress, user=user)
     address.save()

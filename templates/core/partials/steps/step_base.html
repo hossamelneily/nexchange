@@ -2,8 +2,8 @@
     <div class="row {{ id }}">
         {% block step_content %}
         {% endblock %}
-        {% if id != 'menu4' %}
+        {% block spa_navigation %}
             {% include 'core/partials/spa_navigation.html' %}
-        {% endif %}
+        {% endblock %}
     </div>
 </div>

@@ -3,7 +3,7 @@
     "model": "core.paymentmethod",
     "pk": 1,
     "fields": {
-      "name": "Alpha Bank",
+      "name": "Alpha Bank MasterCard",
       "handler": "4261 0125 5546 4222 - RUB",
       "fee": "0.00",
       "created_on":"2016-05-20T17:41:28+00:00",

@@ -81,7 +81,15 @@ class Currency(TimeStampedModel, SoftDeletableModel):
 
 
 class Order(TimeStampedModel, SoftDeletableModel):
+    BUY = 1
+    SELL = 0
+    TYPES = (
+        (SELL, 'SELL'),
+        (BUY, 'BUY'),
+    )
+
     # Todo: inherit from BTC base?
+    order_type = models.CharField(choices=TYPES)
     amount_cash = models.FloatField()
     amount_btc = models.FloatField()
     currency = models.ForeignKey(Currency)
@@ -177,8 +185,8 @@ class Payment(TimeStampedModel, SoftDeletableModel):
 
         super(Payment, self).save(*args, **kwargs)
 
-class BtcBase(TimeStampedModel):
 
+class BtcBase(TimeStampedModel):
     class Meta:
         abstract = True
 
@@ -198,21 +206,26 @@ class Address(BtcBase, SoftDeletableModel):
         (WITHDRAW, 'WITHDRAW'),
         (DEPOSIT, 'DEPOSIT'),
     )
+    name = models.CharField(max_length=100, blank=True)
     address = models.CharField(max_length=35, validators=[validate_bc])
     user = models.ForeignKey(User)
+    order = models.ForeignKey(Order)
 
 
 class Transaction(BtcBase):
     # null if withdraw from our balance on Kraken
+    confirmations = models.IntegerField(max_length=2, default=0)
+    tx_id = models.CharField(max_length=35)
     address_from = models.ForeignKey(Address, related_name='address_from')
     address_to = models.ForeignKey(Address, related_name='address_to')
-    order = models.ForeignKey(Order)
+    order = models.OneToOneField(Order, related_name='transaction')
     is_verified = models.BooleanField(default=False)
 
 
 class PaymentMethod(TimeStampedModel, SoftDeletableModel):
     name = models.CharField(max_length=100)
     handler = models.CharField(max_length=100, null=True)
+    bin = models.IntegerField(max_length=6)
     fee = models.FloatField(null=True)
 
 
