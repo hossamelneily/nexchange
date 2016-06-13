@@ -13,3 +13,15 @@
 1. To run the tests, do `wercker build --pipeline tests --docker-local`
 
 #### ALL DONE ####
+
+# Tests
+
+**Every time  you do `git commit` the script.pre-commit.sh will run**.
+It will trigger static validation of the code, running [flake8](https://flake8.readthedocs.io/en/latest/) followed by backenda nd frontend tests. (You can read more about the tests in the *readme_werker.md* on this directory.) 
+**If any of this steps fail, file won't be commited.**
+
+* To manually run the tests, do `wercker build --direct-mount --pipeline tests`
+
+* To  manually run static validation (flake8) of the files you have changed, do `wercker build --direct-mount --pipeline static-validation`
+
+

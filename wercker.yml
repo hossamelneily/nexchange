@@ -7,7 +7,6 @@ dev:
        POSTGRES_USER: nexchange
        POSTGRES_PASSWORD: nexchange
        POSTGRES_DB: nexchange
-
   steps:
     - script:
         name: export django settings module
@@ -27,6 +26,14 @@ dev:
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
           mkdir -p ${pip_download_cache}
           pip install --cache-dir ${pip_download_cache} -r requirements.txt
+          has_krakenex=$(python -c "import importlib; k = importlib.find_loader('krakenex'); print(str(k is not None))")
+          if [ "${has_krakenex}" == "False" ]; then
+            git clone https://github.com/onitsoft/python3-krakenex.git /usr/src/krakenex
+            cd /usr/src/krakenex
+            python3 setup.py install
+            cd -
+          fi
+          python -c "import krakenex; print('import krakenex sucessfully executed')"
     - script:
         name: Django make migrations
         code: |
@@ -59,9 +66,16 @@ dev:
       name: Django create superuser
       code: |
           echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
+    - script:
+        name: Link pre-commit hook script
+        code: |     
+          chmod +x .pre-commit.sh 
+          cd .git/hooks/
+          ln -fs ../../.pre-commit.sh pre-commit
+          cd -
     - internal/watch:
         code: python manage.py runserver 0.0.0.0:8000
-        reload: false 
+        reload: true 
 
 build:
   services:
@@ -93,9 +107,13 @@ build:
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
           mkdir -p ${pip_download_cache}
           pip install --cache-dir ${pip_download_cache} -r requirements.txt
-          git clone https://github.com/onitsoft/python3-krakenex.git /usr/src/krakenex
-          cd /usr/src/krakenex
-          python3 setup.py install
+          has_krakenex=$(python -c "import importlib; k = importlib.find_loader('krakenex'); print(str(k is not None))")
+          if [ "${has_krakenex}" == "False" ]; then
+            git clone https://github.com/onitsoft/python3-krakenex.git /usr/src/krakenex
+            cd /usr/src/krakenex
+            python3 setup.py install
+            cd -
+          fi
           python -c "import krakenex; print('import krakenex sucessfully executed')"
     - script:
         name: Django migrations
@@ -237,12 +255,6 @@ deploy:
         EOF
 
 tests:
-  services:
-   - id: mdillon/postgis
-     env:
-       POSTGRES_USER: ${POSTGIS_ENV_POSTGRES_USER}
-       POSTGRES_PASSWORD: ${POSTGIS_ENV_POSTGRES_PASSWORD}
-       POSTGRES_DB: ${POSTGIS_ENV_POSTGRES_DB}
   steps:
     - script:
         name: export django settings
@@ -254,15 +266,19 @@ tests:
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
           mkdir -p ${pip_download_cache}
           pip install --cache-dir ${pip_download_cache} -r requirements.txt
-          git clone https://github.com/onitsoft/python3-krakenex.git /usr/src/krakenex
-          cd /usr/src/krakenex
-          python3 setup.py install
-          cd -
+          has_krakenex=$(python -c "import importlib; k = importlib.find_loader('krakenex'); print(str(k is not None))")
+          if [ "${has_krakenex}" == "False" ]; then
+            git clone https://github.com/onitsoft/python3-krakenex.git /usr/src/krakenex
+            cd /usr/src/krakenex
+            python3 setup.py install
+            cd -
+          fi
           python -c "import krakenex; print('import krakenex sucessfully executed')"
     - script:
       name: Install node requirements
       code: |
-        rm -fr node_modules && npm install
+        # rm -fr node_modules && npm install
+        echo "Keeping node_modules"
     - maxon/npm-run:
         script: bower
     - script:
@@ -279,9 +295,16 @@ tests:
     - script:
         name: Backend tests
         code: |
-          python manage.py test
+          python manage.py test -v 3
     - script:
         name: Frontend tests
         code: |
           export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs 
           npm run-script test
+
+static-validation:
+  steps:
+    - script:
+        name: Run static-validation.sh
+        code: |
+          bash static-validation.sh
