@@ -303,7 +303,6 @@ tests:
           npm run-script test
 
 static-validation:
-  box: pitervergara/geodjango:static-validation
   steps:
     - script:
         name: Run static-validation.sh
