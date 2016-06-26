@@ -9,6 +9,13 @@ $(document).ready(function() {
 
         var span = $(this);
         var popover = $(this).data("bs.popover");
+        var forms = popover.tip().find("form");
+
+        var form_update = forms.first();
+        var form_create = forms.last();
+
+        var select_addresses = form_update.find("select:first");
+        var input_address = form_create.find("input[type=text]:first");
 
         // Links that closes the popover
         $(".closepopover").click(function(event){
@@ -21,35 +28,36 @@ $(document).ready(function() {
             $(".create_withdraw_address").toggle();
         });
 
-        // if there is one address set, select it
-        var select = $(".set_withdraw_address:visible:first select:visible:first");
-        select.children("option").each(function(index, option){            
+        // Copy options from the template object
+        // (it may have changed duo to new addresses beend added)
+        var options = $("#popover-template select:first > option").clone();
+        select_addresses.append(options);
+
+        // if there is one address set for this order, select it
+        select_addresses.children("option").each(function(index, option){
             if ( $.trim($(option).text()) === $.trim(span.html()) ) {
-                select.prop('selectedIndex', index);
+                select_addresses.prop('selectedIndex', index);
             }
         })
         
         /**
-         * The form the handles 'select one of the existing addresses'
+         * The form which handles 'select one of the existing addresses'
          */
-        $(".set_withdraw_address:visible:first form:visible:first").submit(function(event) {            
+        form_update.submit(function(event) {       
             event.preventDefault();
-
             withdraw_address_error(''); // clean up
 
-            var form = event.target;
-            var selected = $(form).find("select:first option:selected").eq(0);
-            
+            var selected = select_addresses.find("option:selected").first();            
             if (selected.val() === "") {
                 withdraw_address_error("You must select an address first.");
                 return false;
             }
 
-            var btn = $(form).find("button[type=submit]:first");
+            var btn = form_update.find("button[type=submit]:first");
             btn.button('loading');
 
             $.post( span.data('url-update'), {'value': selected.val()}, function( data ) {
-                if (data.status === 'OK') {                    
+                if (data.status === 'OK') {
                     span.html(selected.text());
                     span.trigger("click");
                 } else {
@@ -60,6 +68,8 @@ $(document).ready(function() {
             }).fail(function(jqXHR){
                 if (jqXHR.status == 403) {
                     withdraw_address_error(jqXHR.responseText);
+                } else if(data.status === 'ERR') {
+                    withdraw_address_error(data.msg);
                 } else {
                     withdraw_address_error(UNKNOW_ERROR);
                 }
@@ -70,34 +80,40 @@ $(document).ready(function() {
         /**
          * The form the handles 'add a new address'
          */
-        $(".create_withdraw_address:last form:first").submit(function(event) {            
+        form_create.submit(function(event) {            
             event.preventDefault();
-
             withdraw_address_error(''); // clean up
-
-            var form = event.target;
-            var selected = $(form).find("input[type=text]:first").eq(0);
             
-            if (selected.val() === "") {
+            if (input_address.val() === "") {
                 withdraw_address_error("You must insert an address first.");
                 return false;
             }
 
-            var btn = $(form).find("button[type=submit]:first");
+            var btn = form_create.find("button[type=submit]:first");
             btn.button('loading');
 
-            $.post( span.data('url-create'), {'value': selected.val()}, function( data ) {
+            $.post( span.data('url-create'), {'value': input_address.val()}, function( data ) {
                 if (data.status === 'OK') {
-                    var select = $(".set_withdraw_address:last select:first");
 
-                    select
+                    // Add this address as an option to the select
+                    select_addresses
                         .append($("<option></option>")
                         .attr("value", data.pk)
-                        .text(selected.val()));
+                        .text(input_address.val()));
+                    select_addresses.val(data.pk);  // select it
 
-                    select.val(data.pk);
+                    // updates the template element
+                    $("#popover-template select:first")
+                        .append($("<option></option>")
+                        .attr("value", data.pk)
+                        .text(input_address.val()));
 
-                    $(".toggle_widthdraw_address_form:first").trigger("click");
+                    // clean up the input
+                    input_address.val('');  
+
+                    // back to select form
+                    form_create.find(".toggle_widthdraw_address_form:first").trigger("click");
+
                 } else if(data.status === 'ERR') {
                     withdraw_address_error(data.msg);
                 } else {
