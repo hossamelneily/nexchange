@@ -69,15 +69,6 @@
 		            	<td>{{ order.amount_btc }}</td>
 
 	            	
-						{% if order.frozen %}
-						<td class="frozen">
-							{% if order.is_paid %}
-								<button type="button" style="width:90px" data-switch-toggle="readonly" disabled="disabled"  class="btn btn-success">{% trans 'Paid' %}</button>
-							{% else %}
-								<button type="button" style="width:90px" data-switch-toggle="readonly" disabled="disabled" class="btn btn-danger">{% trans 'Not Paid' %}</button>
-							{% endif %}
-						</td>
-						{% else %}
 						<td>
 							<span id="spin_confirming_{{order.pk}}" style="display:none">
 								<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>&nbsp;
@@ -93,15 +84,17 @@
 									{% if order.is_paid %}
 										checked 
 									{% endif %}
+									{% if order.frozen %}
+										disabled
+									{% endif %}
 									data-toggle="toggle"  
 									data-on="{% trans 'Paid' %}" 
 									data-width="90px"
 									data-off="{% trans 'Not Paid' %}">
 							</label>
 						</td>	
-						{% endif %}
-						</td>
-
+						
+						
 		            	{% if order.is_released == 1 %}
 		            	<td><img src="/static/icons/check_16.png" \></td>
 		            	{% else %}
@@ -113,18 +106,20 @@
 		                <td><img src="/static/icons/close_16.png" \></td>
 		            	{% endif %}
 
+							<td id="td-frozen-withdraw-{{order.pk}}"
+								{% if not order.frozen %} 
+									style="display:none" 
+								{% endif %}>
 
-						{% if order.frozen %}
-							
-							<td id="td-frozen-withdraw-{{order.pk}}">
 								<span class="frozen">
 									{{order.withdraw_address | default_if_none:"Not Defined"}}
 								</span>
 							</td>
 
-						{% else %}
-
-			            	<td id="td-withdraw-{{order.pk}}">
+			            	<td id="td-withdraw-{{order.pk}}"
+									{% if order.frozen %} 
+										style="display:none" 
+									{% endif %}>
 
 			            		<i class="fa fa-pencil" aria-hidden="true"></i>
 
@@ -134,15 +129,13 @@
 			            			data-html="true"
 			            			data-container="body"
 			            			data-placement="top"
-			            			data-order-pk="{{order.pk}}"
+			            			data-pk="{{order.pk}}"
 			            			data-url-update="{% url 'core.update_withdraw_address' order.pk %}"
 			            			data-url-create="{% url 'core.create_withdraw_address' %}">
 			            			
 			            			{{order.withdraw_address | default_if_none:"Not Defined"}}
 		            			</span>
 			            	</td>
-			            {% endif %}
-		            	
 	
 			        </tr>
 	        	        

@@ -167,8 +167,9 @@ $(document).ready(function() {
                     $(toggle).bootstrapToggle('disable');
 
                     // so user cannot edit withdraw_address
-                    $("#td-withdraw-" + pk).hide(); 
-                    $("#td-frozen-withdraw-" + pk).html($(withdraw_address).html()).show();                    
+                    $("#td-frozen-withdraw-" + pk + " .frozen").html($(withdraw_address).html())
+                    $("#td-withdraw-" + pk).hide();                     
+                    $("#td-frozen-withdraw-" + pk).show();
                 } 
 
                 $(spin).hide();
