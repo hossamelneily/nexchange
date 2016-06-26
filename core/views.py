@@ -329,11 +329,12 @@ def create_withdraw_address(request):
     addr.address = address
 
     try:
+        validate_bc(addr.address)
         addr.save()
         resp = {'status': 'OK', 'pk': addr.pk}
 
     except ValidationError:
-        resp = {'status': 'ERR', 'msg': 'The address supplied is invalid'}
+        resp = {'status': 'ERR', 'msg': 'The supplied address is invalid.'}
 
     except Exception as e:
         msg = error_message % (e)

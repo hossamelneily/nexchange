@@ -1,7 +1,7 @@
 <div id="popover-template" style="display:none">
 
     <div class="row">
-        <div class="col-md-12 set_withdraw_address" {% if not withdraw_addresses %} style="display:none" {% endif %}>
+        <div class="col-md-12 set_withdraw_address" style="display:none">
             <form method="post">
                 <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}" />
                 <div class="form-group">
@@ -23,7 +23,7 @@
             </form>
         </div>
 
-        <div class="col-md-12 create_withdraw_address" {% if withdraw_addresses %} style="display:none" {% endif %}>
+        <div class="col-md-12 create_withdraw_address" style="display:none">
             <form method="post">
 
                 <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}" />
@@ -36,12 +36,7 @@
                     <button type="submit" data-loading-text='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> OK' class="btn btn-primary" autocomplete="off">
                         OK
                     </button>
-
-                    {% if withdraw_addresses %}
-                    <a href="#" class="toggle_widthdraw_address_form">Cancel</a>
-                    {% else %}
-                    <a href="#" class="closepopover">Cancel</a>
-                    {% endif %}
+                    <a href="#" class="cancel_btn">Cancel</a>
                 </div>
             </form>
         </div>

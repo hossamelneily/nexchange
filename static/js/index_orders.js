@@ -16,22 +16,28 @@ $(document).ready(function() {
 
         var select_addresses = form_update.find("select:first");
         var input_address = form_create.find("input[type=text]:first");
+        var btnSetAddress = form_update.find("button[type=submit]:first");        
 
-        // Links that closes the popover
-        $(".closepopover").click(function(event){
+
+        var close_popover = function() {
             span.trigger("click");
-        });
+        };
 
-        // Buttons to toggle between select/add address
-        $(".toggle_widthdraw_address_form").click(function(){
+        var toggle_forms = function() {
             $(".set_withdraw_address").toggle();
             $(".create_withdraw_address").toggle();
-        });
+        };
+
+        // Links that closes the popover
+        $(".closepopover").click(close_popover);
+
+        // Buttons to toggle between select/add address
+        $(".toggle_widthdraw_address_form").click(toggle_forms);
 
         // Copy options from the template object
         // (it may have changed duo to new addresses beend added)
         var options = $("#popover-template select:first > option").clone();
-        select_addresses.append(options);
+        select_addresses.empty().append(options);
 
         // if there is one address set for this order, select it
         select_addresses.children("option").each(function(index, option){
@@ -53,8 +59,7 @@ $(document).ready(function() {
                 return false;
             }
 
-            var btn = form_update.find("button[type=submit]:first");
-            btn.button('loading');
+            btnSetAddress.button('loading');
 
             $.post( span.data('url-update'), {'value': selected.val()}, function( data ) {
                 if (data.status === 'OK') {
@@ -64,7 +69,7 @@ $(document).ready(function() {
                     withdraw_address_error(UNKNOW_ERROR);
                 }
 
-                btn.button('reset');
+                btnSetAddress.button('reset');
             }).fail(function(jqXHR){
                 if (jqXHR.status == 403) {
                     withdraw_address_error(jqXHR.responseText);
@@ -73,7 +78,7 @@ $(document).ready(function() {
                 } else {
                     withdraw_address_error(UNKNOW_ERROR);
                 }
-                btn.button('reset');
+                btnSetAddress.button('reset');
             });
         });
 
@@ -111,8 +116,9 @@ $(document).ready(function() {
                     // clean up the input
                     input_address.val('');  
 
-                    // back to select form
+                    // get back to select form and submit it
                     form_create.find(".toggle_widthdraw_address_form:first").trigger("click");
+                    btnSetAddress.trigger("click");
 
                 } else if(data.status === 'ERR') {
                     withdraw_address_error(data.msg);
@@ -131,6 +137,15 @@ $(document).ready(function() {
             });
         });
 
+
+        // Defines wich form will show up when popover opens
+        if ( options.length > 1 ) {
+            popover.tip().find(".set_withdraw_address:first").toggle();
+            popover.tip().find(".cancel_btn").click(toggle_forms);
+        } else {
+            popover.tip().find(".create_withdraw_address:first").toggle();
+            popover.tip().find(".cancel_btn").click(close_popover);
+        }
     })
 
     /**
