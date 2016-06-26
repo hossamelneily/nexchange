@@ -5,6 +5,8 @@
 {% block main %}
 
 
+{% include 'core/partials/popover_withdraw_address.html' %}
+
         	
 			<div class="page-header">
 				<h1>
@@ -116,7 +118,7 @@
 							
 							<td id="td-frozen-withdraw-{{order.pk}}">
 								<span class="frozen">
-									{{order.withdraw_address | default_if_none:_("Not Defined")}}
+									{{order.withdraw_address | default_if_none:"Not Defined"}}
 								</span>
 							</td>
 
@@ -130,10 +132,12 @@
 			            			data-toggle="popover"
 			            			title="Set Withdraw Address"
 			            			data-html="true"
+			            			data-container="body"
 			            			data-placement="top"
-			            			data-content='{% include 'core/partials/popover_withdraw_address.html' %}'>
+			            			data-url-update="{% url 'core.update_withdraw_address' order.pk %}"
+			            			data-url-create="{% url 'core.create_withdraw_address' %}">
 			            			
-			            			{{order.transaction_set.first.address_to.address | default_if_none:_("Not Defined")}}
+			            			{{order.withdraw_address | default_if_none:"Not Defined"}}
 		            			</span>
 			            	</td>
 			            {% endif %}
@@ -185,9 +189,6 @@
 
 
 {% block extra_js_footer %}
-	
-	<link href="{% static 'bower_components/x-editable/dist/bootstrap3-editable/css/bootstrap-editable.css' %}" rel="stylesheet"/>
-	<script src="{% static 'bower_components/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.min.js' %}"></script>
     <script src="{% static 'js/index_orders.js' %}"></script>
 
 	<link href="{% static 'bower_components/bootstrap-toggle/css/bootstrap-toggle.min.css' %}" rel="stylesheet">
@@ -195,16 +196,7 @@
 
 	<script type="text/javascript">
 		$(function () {
-		  $('[data-toggle="popover"]').popover()
+		  $('[data-toggle="popover"]').popover({content: $("#popover-template").html()})
 		})
-		function close_popover(order_pk) {
-			$("#span-withdraw-" + order_pk).trigger('click');
-		}
-
-		function toggle_widthdraw_address_form(order_pk) {
-			$("#select-withdraw_address-" + order_pk).toggle();
-			$("#insert-withdraw_address-" + order_pk).toggle();
-		}
-
 	</script>
 {% endblock %}

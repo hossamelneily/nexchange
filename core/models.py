@@ -112,7 +112,7 @@ class Order(TimeStampedModel, SoftDeletableModel):
                 unique_reference=self.unique_reference).count()
             if cnt_unq == 0:
                 unq = False
-            else:   
+            else:
                 failed_count += 1
 
         super(Order, self).save(*args, **kwargs)
@@ -143,6 +143,15 @@ class Order(TimeStampedModel, SoftDeletableModel):
         '''
         # TODO: Validate this buisness rule
         return self.transaction_set.all().count() > 0
+
+    @property
+    def withdraw_address(self):
+        addr = None
+
+        if self.has_withdraw_address:
+            addr = self.transaction_set.first().address_to.address
+
+        return addr
 
 
 class Payment(TimeStampedModel, SoftDeletableModel):
@@ -176,6 +185,7 @@ class Payment(TimeStampedModel, SoftDeletableModel):
                 failed_count += 1
 
         super(Payment, self).save(*args, **kwargs)
+
 
 class BtcBase(TimeStampedModel):
 

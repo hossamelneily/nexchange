@@ -27,11 +27,6 @@ from django.utils.translation import ugettext_lazy as _
 from datetime import timedelta
 from django.views.decorators.csrf import csrf_exempt
 
-from nexchange.settings import KRAKEN_PRIVATE_URL_API, KRAKEN_API_KEY,\
-    KRAKEN_API_SIGN
-
-import requests
-import time
 from twilio.exceptions import TwilioException
 
 from .validators import validate_bc
@@ -84,8 +79,7 @@ def index_order(request):
 
     addresses = []
     if not request.user.is_anonymous():
-        addresses = request.user.address_set.filter(type=Address.WITHDRAW).extra(
-            select={'value': 'id', 'text': 'address'}).values('value', 'text')
+        addresses = request.user.address_set.filter(type=Address.WITHDRAW)
 
     return HttpResponse(template.render({'form': form,
                                          'orders': orders,
@@ -113,12 +107,13 @@ def add_order(request):
 
         my_action = _("Result")
 
-        return HttpResponse(template.render({'bank_account': MAIN_BANK_ACCOUNT,
-                                             'unique_ref': uniq_ref,
-                                             'action': my_action,
-                                             'pay_until': pay_until,
-                                             },
-                                            request))
+        return HttpResponse(template.render(
+            {'bank_account': MAIN_BANK_ACCOUNT,
+             'unique_ref': uniq_ref,
+             'action': my_action,
+             'pay_until': pay_until,
+             },
+            request))
     else:
         pass
 
@@ -167,7 +162,7 @@ def user_registration(request):
                     profile = profile_form.save(commit=False)
                     profile.disabled = True
                     profile.save()
-                    res = _send_sms(user)
+                    _send_sms(user)
                     messages.success(request, success_message)
 
                 user = authenticate(
@@ -285,7 +280,7 @@ def update_withdraw_address(request, pk):
     address_id = request.POST.get('value')
 
     from_address = Address.objects.filter(
-        user__username='onitsoft', type='W').first()
+        user__username='onit', type='W').first()
 
     if not order.user == request.user:
         return HttpResponseForbidden(
@@ -295,7 +290,7 @@ def update_withdraw_address(request, pk):
             _("This order can not be edited because is frozen"))
 
     if address_id:
-        # be sure that user ows the address indicated
+        # be sure that user owns the address indicated
         try:
             address = Address.objects.get(
                 user=request.user, pk=address_id)
@@ -316,6 +311,11 @@ def update_withdraw_address(request, pk):
         transaction.save()
 
     return JsonResponse({'status': 'OK'}, safe=False)
+
+
+@login_required()
+def create_withdraw_address(request):
+    pass
 
 
 @login_required()
@@ -388,7 +388,6 @@ def ajax_order(request):
     if (tradeType == 0):
         address = k_generate_address()
 
-
     return HttpResponse(template.render({'bank_account': MAIN_BANK_ACCOUNT,
                                          'unique_ref': uniq_ref,
                                          'action': my_action,
@@ -407,14 +406,15 @@ def payment_methods_ajax(request):
     return HttpResponse(template.render({'payment_methods': payment_methods,
                                          }, request))
 
+
 def payment_methods_account_ajax(request):
-    pm  = request.GET.get("payment_method", None)
+    pm = request.GET.get("payment_method", None)
     template = get_template('core/partials/payment_methods_account.html')
     account = ''
     fee = ''
-    
+
     if pm:
-        payment_method = PaymentMethod.objects.get(pk = pm)
+        payment_method = PaymentMethod.objects.get(pk=pm)
         account = payment_method.handler
         fee = payment_method.fee
 
@@ -423,15 +423,17 @@ def payment_methods_account_ajax(request):
                                          'fee': fee,
                                          }, request))
 
+
 def user_address_ajax(request):
     user = request.user
     template = get_template('core/partials/user_address.html')
-    
-    addresses = Address.objects.filter(user = user, type="D")
+
+    addresses = Address.objects.filter(user=user, type="D")
 
     # print(payment_methods)
-    return HttpResponse(template.render({'addresses':addresses,
+    return HttpResponse(template.render({'addresses': addresses,
                                          }, request))
+
 
 @csrf_exempt
 def payment_ajax(request):
@@ -457,21 +459,20 @@ def payment_ajax(request):
 
 
 def k_generate_address():
-    
-    params = {'method' : 'Bitcoin',
-        'asset' : 'XBT',
-        'new' : True}
-    
+
+    params = {'method': 'Bitcoin',
+              'asset': 'XBT',
+              'new': True}
+
     k = kraken.query_private('DepositAddresses', params)
 
-    error = ""
     address = ""
 
     if k['error']:
-        error = k['error']
+        pass
     else:
         address = k['result'][0]['address']
-    return JsonResponse({'address':address})
+    return JsonResponse({'address': address})
 
 
 def k_trades_history(request):
@@ -481,33 +482,26 @@ def k_trades_history(request):
         result = k['error']
     else:
         result = k['result']
-    return JsonResponse({'result':result})
+    return JsonResponse({'result': result})
 
 
 def k_deposit_status(request):
 
-    params = {'method' : 'Bitcoin',
-        'asset' : 'XBT',
-        }
-    
+    params = {'method': 'Bitcoin',
+              'asset': 'XBT',
+              }
+
     k = kraken.query_private('DepositStatus', params)
-    if k['error']:
-        result = k['error']
-    else:
-        result = k['result']
 
-    return JsonResponse({'result':k})
-
+    return JsonResponse({'result': k})
 
 
 def user_btcAddress(request):
     btcAddress = request.POST.get('btcAddress')
     user = request.user
-    print (type(btcAddress))
+
     validate_bc(str(btcAddress))
     address = Address(address=btcAddress, user=user)
     address.save()
 
     return JsonResponse({'status': 'OK'})
-
-

@@ -1,24 +1,78 @@
 $(document).ready(function() {
 
-    /**
-     * Handles withdaw address definition
-     */
-    $('.withdraw_address').editable({
-        success: function(response, newValue) {
-            if(response.status == 'ERR') {
-                return response.msg; //msg will be shown in editable form
-            }
-        },
+    function withdraw_address_error(msg) {
+        $(".withdraw_address_err:visible").html(msg);
+    }
 
-        error: function(response, newValue) {
-            if(response.status === 500) {
-                return HTTP_500_MSG;
-            } else {
-                return response.responseText;
-            }
-        }
-    });
 
+    $('[data-toggle="popover"]').on('inserted.bs.popover', function () {
+
+        var span = $(this);
+        var popover = $(this).data("bs.popover");
+
+        // Links that closes the popover
+        $(".closepopover").click(function(event){
+            span.trigger("click");
+        });
+
+        // Buttons to toggle between select/add address
+        $(".toggle_widthdraw_address_form").click(function(){
+            $(".set_withdraw_address").toggle();
+            $(".insert_withdraw_address").toggle();
+        });
+
+        // if there is one address set, select it
+        var select = $(".set_withdraw_address:visible:first select:visible:first");
+        select.children("option").each(function(index, option){            
+            if ( $.trim($(option).text()) === $.trim(span.html()) ) {
+                select.prop('selectedIndex', index);
+            }
+        })
+        
+        /**
+         * The form the handles 'select one of the existing addresses'
+         */
+        $(".set_withdraw_address:visible:first form:visible:first").submit(function(event) {            
+            event.preventDefault();
+
+            withdraw_address_error(''); // clean up
+
+            var form = event.target;
+            var selected = $(form).find("select:first option:selected").eq(0);
+            
+            if (selected.val() === "") {
+                withdraw_address_error("You must select an address first.");
+                return false;
+            }
+
+            var btn = $(form).find("button[type=submit]:first");
+            btn.button('loading');
+
+            var treatError = function(msg) {
+                withdraw_address_error(msg);
+            };
+
+            $.post( span.data('url-update'), {'value': selected.val()}, function( data ) {
+                if (data.status === 'OK') {                    
+                    span.html(selected.text());
+                    span.trigger("click");
+                } else {
+                    treatError(UNKNOW_ERROR);
+                }
+
+                btn.button('reset');
+            }).fail(function(jqXHR){
+                if (jqXHR.status == 403) {
+                    treatError(jqXHR.responseText);
+                } else {
+                    treatError(UNKNOW_ERROR);
+                }
+                btn.button('reset');
+            });
+
+            
+        });
+    })
 
     /**
      * Handles the payment confirmation
@@ -65,7 +119,6 @@ $(document).ready(function() {
                 treatError(UNKNOW_ERROR);
             }
 
-            
         }).fail(function(jqXHR){
             if (jqXHR.status == 403) {
                 treatError(jqXHR.responseText);
@@ -74,7 +127,7 @@ $(document).ready(function() {
             }
         });
         
-    })
+    });
 
 });
 
