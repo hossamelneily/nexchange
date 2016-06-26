@@ -83,7 +83,7 @@ $(document).ready(function() {
         });
 
         /**
-         * The form the handles 'add a new address'
+         * The form which handles 'add a new address'
          */
         form_create.submit(function(event) {            
             event.preventDefault();
