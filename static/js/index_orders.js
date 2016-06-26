@@ -18,7 +18,7 @@ $(document).ready(function() {
         // Buttons to toggle between select/add address
         $(".toggle_widthdraw_address_form").click(function(){
             $(".set_withdraw_address").toggle();
-            $(".insert_withdraw_address").toggle();
+            $(".create_withdraw_address").toggle();
         });
 
         // if there is one address set, select it
@@ -48,30 +48,73 @@ $(document).ready(function() {
             var btn = $(form).find("button[type=submit]:first");
             btn.button('loading');
 
-            var treatError = function(msg) {
-                withdraw_address_error(msg);
-            };
-
             $.post( span.data('url-update'), {'value': selected.val()}, function( data ) {
                 if (data.status === 'OK') {                    
                     span.html(selected.text());
                     span.trigger("click");
                 } else {
-                    treatError(UNKNOW_ERROR);
+                    withdraw_address_error(UNKNOW_ERROR);
                 }
 
                 btn.button('reset');
             }).fail(function(jqXHR){
                 if (jqXHR.status == 403) {
-                    treatError(jqXHR.responseText);
+                    withdraw_address_error(jqXHR.responseText);
                 } else {
-                    treatError(UNKNOW_ERROR);
+                    withdraw_address_error(UNKNOW_ERROR);
                 }
                 btn.button('reset');
             });
-
-            
         });
+
+        /**
+         * The form the handles 'add a new address'
+         */
+        $(".create_withdraw_address:last form:first").submit(function(event) {            
+            event.preventDefault();
+
+            withdraw_address_error(''); // clean up
+
+            var form = event.target;
+            var selected = $(form).find("input[type=text]:first").eq(0);
+            
+            if (selected.val() === "") {
+                withdraw_address_error("You must insert an address first.");
+                return false;
+            }
+
+            var btn = $(form).find("button[type=submit]:first");
+            btn.button('loading');
+
+            $.post( span.data('url-create'), {'value': selected.val()}, function( data ) {
+                if (data.status === 'OK') {
+                    var select = $(".set_withdraw_address:last select:first");
+
+                    select
+                        .append($("<option></option>")
+                        .attr("value", data.pk)
+                        .text(selected.val()));
+
+                    select.val(data.pk);
+
+                    $(".toggle_widthdraw_address_form:first").trigger("click");
+                } else if(data.status === 'ERR') {
+                    withdraw_address_error(data.msg);
+                } else {
+                    withdraw_address_error(UNKNOW_ERROR);
+                }
+
+                btn.button('reset');
+            }).fail(function(jqXHR){
+                if (jqXHR.status == 403) {
+                    withdraw_address_error(jqXHR.responseText);
+                } else {
+                    withdraw_address_error(UNKNOW_ERROR);
+                }
+                btn.button('reset');
+            });
+        });
+
     })
 
     /**

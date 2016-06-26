@@ -229,6 +229,10 @@ select {
     max-width: 100%;
 }
 
-.insert_withdraw_address input[type=text], .set_withdraw_address select {
+.create_withdraw_address input[type=text], .set_withdraw_address select {
   width:300px;
+}
+
+.withdraw_address_err {
+  max-width: 300px;
 }

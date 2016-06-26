@@ -304,10 +304,14 @@ def update_withdraw_address(request, pk):
         order.transaction_set.all().delete()
     else:
         # TODO: Validate this behavior
-        transaction = Transaction()
-        transaction.order = order
+        if order.has_withdraw_address:
+            transaction = order.transaction_set.first()
+        else:
+            transaction = Transaction()
+            transaction.order = order
+            transaction.address_from = from_address
+
         transaction.address_to = address
-        transaction.address_from = from_address
         transaction.save()
 
     return JsonResponse({'status': 'OK'}, safe=False)
@@ -315,7 +319,27 @@ def update_withdraw_address(request, pk):
 
 @login_required()
 def create_withdraw_address(request):
-    pass
+    error_message = 'Error creating address: %s'
+
+    address = request.POST.get('value')
+
+    addr = Address()
+    addr.type = Address.WITHDRAW
+    addr.user = request.user
+    addr.address = address
+
+    try:
+        addr.save()
+        resp = {'status': 'OK', 'pk': addr.pk}
+
+    except ValidationError:
+        resp = {'status': 'ERR', 'msg': 'The address supplied is invalid'}
+
+    except Exception as e:
+        msg = error_message % (e)
+        resp = {'status': 'ERR', 'msg': msg}
+
+    return JsonResponse(resp, safe=False)
 
 
 @login_required()

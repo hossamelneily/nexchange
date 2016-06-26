@@ -23,7 +23,7 @@
             </form>
         </div>
 
-        <div class="col-xs-12 col-sm-12 col-md-12 insert_withdraw_address" {% if withdraw_addresses %} style="display:none" {% endif %}>
+        <div class="col-xs-12 col-sm-12 col-md-12 create_withdraw_address" {% if withdraw_addresses %} style="display:none" {% endif %}>
             <form method="post">
 
                 <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}" />
