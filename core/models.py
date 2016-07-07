@@ -89,7 +89,7 @@ class Order(TimeStampedModel, SoftDeletableModel):
     )
 
     # Todo: inherit from BTC base?
-    order_type = models.CharField(choices=TYPES)
+    order_type = models.IntegerField(choices=TYPES, default=BUY)
     amount_cash = models.FloatField()
     amount_btc = models.FloatField()
     currency = models.ForeignKey(Currency)
@@ -120,7 +120,7 @@ class Order(TimeStampedModel, SoftDeletableModel):
                 unique_reference=self.unique_reference).count()
             if cnt_unq == 0:
                 unq = False
-            else:   
+            else:
                 failed_count += 1
 
         super(Order, self).save(*args, **kwargs)
@@ -150,7 +150,7 @@ class Order(TimeStampedModel, SoftDeletableModel):
         '''return a boolean indicating if order has a withdraw adrress defined
         '''
         # TODO: Validate this buisness rule
-        return self.transaction_set.all().count() > 0
+        return len(self.transaction_set.all()) > 0
 
 
 class Payment(TimeStampedModel, SoftDeletableModel):
@@ -163,7 +163,7 @@ class Payment(TimeStampedModel, SoftDeletableModel):
     user = models.ForeignKey(User)
     # Todo consider one to many for split payments, consider order field on
     # payment
-    order = models.ForeignKey(Order, null=True)
+    order = models.ForeignKey(Order, null=True, default=None)
 
     def save(self, *args, **kwargs):
         unq = True
@@ -209,23 +209,24 @@ class Address(BtcBase, SoftDeletableModel):
     name = models.CharField(max_length=100, blank=True)
     address = models.CharField(max_length=35, validators=[validate_bc])
     user = models.ForeignKey(User)
-    order = models.ForeignKey(Order)
+    order = models.ForeignKey(Order, null=True, default=None)
 
 
 class Transaction(BtcBase):
     # null if withdraw from our balance on Kraken
-    confirmations = models.IntegerField(max_length=2, default=0)
-    tx_id = models.CharField(max_length=35)
+    confirmations = models.IntegerField(default=0)
+    tx_id = models.CharField(max_length=35, default=None, null=True)
     address_from = models.ForeignKey(Address, related_name='address_from')
     address_to = models.ForeignKey(Address, related_name='address_to')
-    order = models.OneToOneField(Order, related_name='transaction')
+    # TODO: how to handle cancellation?
+    order = models.ForeignKey(Order)
     is_verified = models.BooleanField(default=False)
 
 
 class PaymentMethod(TimeStampedModel, SoftDeletableModel):
     name = models.CharField(max_length=100)
     handler = models.CharField(max_length=100, null=True)
-    bin = models.IntegerField(max_length=6)
+    bin = models.IntegerField(null=True, default=None)
     fee = models.FloatField(null=True)
 
 

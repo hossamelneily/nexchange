@@ -27,11 +27,6 @@ from django.utils.translation import ugettext_lazy as _
 from datetime import timedelta
 from django.views.decorators.csrf import csrf_exempt
 
-from nexchange.settings import KRAKEN_PRIVATE_URL_API, KRAKEN_API_KEY,\
-    KRAKEN_API_SIGN
-
-import requests
-import time
 from twilio.exceptions import TwilioException
 
 from .validators import validate_bc
@@ -84,8 +79,10 @@ def index_order(request):
 
     addresses = []
     if not request.user.is_anonymous():
-        addresses = request.user.address_set.filter(type=Address.WITHDRAW).extra(
-            select={'value': 'id', 'text': 'address'}).values('value', 'text')
+        addresses = \
+            request.user.address_set.filter(type=Address.WITHDRAW).extra(
+                select={'value': 'id', 'text': 'address'})\
+            .values('value', 'text')
 
     return HttpResponse(template.render({'form': form,
                                          'orders': orders,
@@ -149,7 +146,7 @@ def user_registration(request):
     template = 'core/user_registration.html'
     success_message = _(
         'Registration completed. Check your phone for SMS confirmation code.')
-    error_message = _('Error during resgistration. <br>Details: (%s)')
+    error_message = _('Error during resgistration. <br>Details: {}')
 
     if request.method == 'POST':
         user_form = CustomUserCreationForm(request.POST)
@@ -168,6 +165,7 @@ def user_registration(request):
                     profile.disabled = True
                     profile.save()
                     res = _send_sms(user)
+                    assert res
                     messages.success(request, success_message)
 
                 user = authenticate(
@@ -178,7 +176,7 @@ def user_registration(request):
                 return redirect(reverse('core.user_profile'))
 
             except Exception as e:
-                msg = error_message % (e)
+                msg = error_message.format(e)
                 messages.error(request, msg)
 
     else:
@@ -193,7 +191,7 @@ def user_registration(request):
 @method_decorator(login_required, name='dispatch')
 class UserUpdateView(View):
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         user_form = UserForm(instance=self.request.user)
         profile_form = UpdateUserProfileForm(
             instance=self.request.user.profile)
@@ -302,6 +300,8 @@ def update_withdraw_address(request, pk):
         except ObjectDoesNotExist:
             return HttpResponseForbidden(
                 _("Invalid addresses informed."))
+    else:
+        address = None
 
     if address_id == '':
         # if user is 'cleaning' the value
@@ -309,11 +309,11 @@ def update_withdraw_address(request, pk):
         order.transaction_set.all().delete()
     else:
         # TODO: Validate this behavior
-        transaction = Transaction()
-        transaction.order = order
-        transaction.address_to = address
-        transaction.address_from = from_address
-        transaction.save()
+        t = Transaction()
+        t.order = order
+        t.address_to = address
+        t.address_from = from_address
+        t.save()
 
     return JsonResponse({'status': 'OK'}, safe=False)
 
@@ -331,7 +331,7 @@ def payment_confirmation(request, pk):
             _("This order can not be edited because is frozen"))
     elif paid is True and not order.has_withdraw_address:
         return HttpResponseForbidden(
-            _("An order can not be set as paid without a widthdraw address"))
+            _("An order can not be set as paid without a withdraw address"))
     else:
         try:
             order.is_paid = paid
@@ -375,7 +375,7 @@ def ajax_order(request):
     amount_cash = request.POST.get("amount-cash")
     amount_coin = request.POST.get("amount-coin")
     currency = Currency.objects.filter(code=curr)[0]
-    tradeType = request.POST.get("trade-type")
+    trade_type = request.POST.get("trade-type")
 
     order = Order(amount_cash=amount_cash, amount_btc=amount_coin,
                   currency=currency, user=user)
@@ -385,7 +385,7 @@ def ajax_order(request):
 
     my_action = _("Result")
     address = ""
-    if tradeType == Order.SELL:
+    if trade_type == Order.SELL:
         address = k_generate_address()
 
     return HttpResponse(template.render({'bank_account': MAIN_BANK_ACCOUNT,
@@ -407,13 +407,12 @@ def payment_methods_ajax(request):
 
 
 def payment_methods_account_ajax(request):
-    pm  = request.GET.get("payment_method", None)
+    pm = request.GET.get("payment_method", None)
     template = get_template('core/partials/payment_methods_account.html')
     account = ''
     fee = ''
-    
     if pm:
-        payment_method = PaymentMethod.objects.get(pk = pm)
+        payment_method = PaymentMethod.objects.get(pk=pm)
         account = payment_method.handler
         fee = payment_method.fee
 
@@ -422,15 +421,14 @@ def payment_methods_account_ajax(request):
                                          'fee': fee,
                                          }, request))
 
+
 def user_address_ajax(request):
     user = request.user
     template = get_template('core/partials/user_address.html')
-    
-    addresses = Address.objects.filter(user = user, type="D")
+    addresses = Address.objects.filter(user=user, type="D")
+    return HttpResponse(template.render({'addresses': addresses},
+                                        request))
 
-    # print(payment_methods)
-    return HttpResponse(template.render({'addresses':addresses,
-                                         }, request))
 
 @csrf_exempt
 def payment_ajax(request):
@@ -461,7 +459,7 @@ def k_generate_address():
         'asset': 'XBT',
         'new': True
     }
-    
+
     k = kraken.query_private('DepositAddresses', params)
 
     if k['error']:
@@ -478,31 +476,29 @@ def k_trades_history(request):
         result = k['error']
     else:
         result = k['result']
-    return JsonResponse({'result':result})
+    return JsonResponse({'result': result})
 
 
 def k_deposit_status(request):
 
-    params = {'method' : 'Bitcoin',
-        'asset' : 'XBT',
-        }
-    
+    params = {
+        'method': 'Bitcoin',
+        'asset': 'XBT',
+    }
+
     k = kraken.query_private('DepositStatus', params)
     if k['error']:
         result = k['error']
     else:
         result = k['result']
 
-    return JsonResponse({'result': k})
+    return JsonResponse({'result': result})
 
 
 def user_btc_adress(request):
-    btcAddress = request.POST.get('btcAddress')
+    btc_address = request.POST.get('btcAddress')
     user = request.user
-    validate_bc(str(btcAddress))
-    address = Address(address=btcAddress, user=user)
+    validate_bc(str(btc_address))
+    address = Address(address=btc_address, user=user)
     address.save()
-
     return JsonResponse({'status': 'OK'})
-
-

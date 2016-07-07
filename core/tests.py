@@ -57,9 +57,11 @@ class ValidateOrderPaymentTestCase(TestCase):
 
         order = Order(**self.data)
         order.payment_window = payment_window
-        order.save()
-
         expected = created_on + timedelta(minutes=payment_window)
+        order.save()
+        # ignore ms
+        self.assertTrue(abs(expected - order.payment_deadline) <
+                        timedelta(seconds=1))
 
     def test_is_expired_after_payment_deadline(self):
         order = Order(**self.data)
@@ -151,7 +153,7 @@ class OrderPayUntilTestCase(TestCase):
         activate('en')
 
         Currency(code='RUB', name='Rubless').save()
-        user = User.objects.create_user(username=username, password=password)
+        User.objects.create_user(username=username, password=password)
 
         self.client = Client()
         self.client.login(username=username, password=password)
@@ -292,15 +294,14 @@ class ProfileUpdateTestCase(TestCase):
         self.assertFalse(user.profile.disabled)
 
     def test_phone_verification_fails_with_wrong_token(self):
-        user = User.objects.first()
         token = "%sXX" % SmsToken.get_sms_token()  # a wrong token
 
         response = self.client.post(
             reverse('core.verify_phone'), {'token': token})
         # Ensure the token was correctly received
-        self.assertEqual(200, response.status_code)  # succefuly runned
+        self.assertEqual(200, response.status_code)
         self.assertJSONEqual('{"status": "NO_MATCH"}',
-                             str(  # failure reason indicator
+                             str(
                                  response.content, encoding='utf8'),)
 
 
@@ -384,9 +385,9 @@ class SetAsPaidTestCase(TestCase):
 
         self.assertEquals(
             response.content,
-            b'An order can not be set as paid without a widthdraw address')
+            b'An order can not be set as paid without a withdraw address')
 
-    def test_can_set_as_paid_if_has_widthdraw_address(self):
+    def test_can_set_as_paid_if_has_withdraw_address(self):
         # Creates an withdraw address fro this user
         address = Address(
             user=self.user, type='W',
