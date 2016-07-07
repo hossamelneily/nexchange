@@ -3,12 +3,16 @@ import requests
 from ticker.models import Price
 import logging
 
-# This module will be run in a cron every minute via manage.py
-# Next steps are adding Tor tunnels for anonymity, migrating to redis and an independent
+# This module will be run in a cron every
+# minute via manage.py
+# Next steps are adding Tor tunnels for anonymity
+# migrating to redis and an independent
 # micro-component, as well as using celery instead of cron
 
-BITFINEX_TICKER = "https://api.bitfinex.com/v1/pubticker/btcusd"
-LOCALBTC_URL = "https://localbitcoins.com/{}-bitcoins-online/ru/russian-federation/.json"
+BITFINEX_TICKER =\
+    "https://api.bitfinex.com/v1/pubticker/btcusd"
+LOCALBTC_URL =\
+    "https://localbitcoins.com/{}-bitcoins-online/ru/russian-federation/.json"
 
 # direction 1
 ACTION_SELL = "sell"
@@ -44,8 +48,9 @@ EXCLUSION_LIST = [
 
 
 class Command(BaseCommand):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         logging.basicConfig(filename='ticker.log', level=logging.INFO)
+        super(Command, self).__init__(*args, **kwargs)
 
     def add_arguments(self, parser):
         pass
@@ -70,7 +75,8 @@ class Command(BaseCommand):
                 return True
 
             if all([excluded not in item['data']['online_provider'].upper() and
-                    excluded not in item['data']['bank_name'].upper() for excluded in EXCLUSION_LIST]):
+                    excluded not in item['data']['bank_name'].upper()
+                    for excluded in EXCLUSION_LIST]):
                 return True
             return False
 
@@ -87,6 +93,12 @@ class Command(BaseCommand):
         return self.adds_iterator(filtered_data, spot_price, direction)
 
     def adds_iterator(self, adds, spot_price, direction):
+        score_escepe_chars = ['+', ' ']
+
+        def normalize_score(x):
+            return int(''.join([char for char in x
+                                if char not in score_escepe_chars]))
+
         rate = None
         rub_price = None
         usd_price = None
@@ -109,13 +121,18 @@ class Command(BaseCommand):
                 continue
 
             # check user profile
-            if int(add_data['profile']['feedback_score']) < MIN_FEEDBACK_SCORE or \
-                int(add_data['profile']['trade_count'].replace('+', '')) < MIN_TRADE_COUNT:
+            if int(add_data['profile']['feedback_score']) \
+                    < MIN_FEEDBACK_SCORE or \
+               normalize_score(add_data['profile']['trade_count']) \
+                    < MIN_TRADE_COUNT:
                 continue
 
-            if add_price_usd * direction > spot_price * direction * (1 + MIN_INTERVAL * direction):
-                rub_price = add_price_rub * (1 + direction * DISCOUNT_MULTIPLIER)
-                usd_price = add_price_usd * (1 + direction * DISCOUNT_MULTIPLIER)
+            if add_price_usd * direction > spot_price * direction * \
+                    (1 + MIN_INTERVAL * direction):
+                rub_price = add_price_rub * \
+                    (1 + direction * DISCOUNT_MULTIPLIER)
+                usd_price = add_price_usd * \
+                    (1 + direction * DISCOUNT_MULTIPLIER)
                 break
 
         if rub_price is None or usd_price is None:
