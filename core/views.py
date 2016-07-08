@@ -113,7 +113,7 @@ def add_order(request):
                 'unique_ref': uniq_ref,
                 'action': my_action,
                 'pay_until': pay_until,
-             },
+            },
             request))
     else:
         pass

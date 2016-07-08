@@ -2,10 +2,10 @@
 
 FILES_CACHED=$(git diff --cached --name-only --diff-filter=ACM | grep -e '\.py$')
 
-# If we only check for '--cached', when one does 'git commit -a' static validation will be skiped...
+# If we only check for '--cached', when one does 'git commit -a' static validation will be skipped...
 FILES=$(git diff --name-only --diff-filter=ACM | grep -e '\.py$')
 
-OPTIONS="--ignore=F403" 
+OPTIONS="--ignore=F403  --exclude=*/migrations/*"
 
 
 if [ -n "$FILES" ] || [ -n "$FILES_CACHED" ] ; then
