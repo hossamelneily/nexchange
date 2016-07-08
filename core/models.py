@@ -152,6 +152,15 @@ class Order(TimeStampedModel, SoftDeletableModel):
         # TODO: Validate this buisness rule
         return len(self.transaction_set.all()) > 0
 
+    @property
+    def withdraw_address(self):
+        addr = None
+
+        if self.has_withdraw_address:
+            addr = self.transaction_set.first().address_to.address
+
+        return addr
+
 
 class Payment(TimeStampedModel, SoftDeletableModel):
     amount_cash = models.FloatField()

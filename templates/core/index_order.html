@@ -3,6 +3,10 @@
 {% load staticfiles %}
 {% load bootstrap3 %}
 {% block main %}
+
+
+{% include 'core/partials/popover_withdraw_address.html' %}
+
         	
 			<div class="page-header">
 				<h1>
@@ -65,15 +69,6 @@
 		            	<td>{{ order.amount_btc }}</td>
 
 	            	
-						{% if order.frozen %}
-						<td class="frozen">
-							{% if order.is_paid %}
-								<button type="button" style="width:90px" data-switch-toggle="readonly" disabled="disabled"  class="btn btn-success">{% trans 'Paid' %}</button>
-							{% else %}
-								<button type="button" style="width:90px" data-switch-toggle="readonly" disabled="disabled" class="btn btn-danger">{% trans 'Not Paid' %}</button>
-							{% endif %}
-						</td>
-						{% else %}
 						<td>
 							<span id="spin_confirming_{{order.pk}}" style="display:none">
 								<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>&nbsp;
@@ -89,15 +84,17 @@
 									{% if order.is_paid %}
 										checked 
 									{% endif %}
+									{% if order.frozen %}
+										disabled
+									{% endif %}
 									data-toggle="toggle"  
 									data-on="{% trans 'Paid' %}" 
 									data-width="90px"
 									data-off="{% trans 'Not Paid' %}">
 							</label>
 						</td>	
-						{% endif %}
-						</td>
-
+						
+						
 		            	{% if order.is_released == 1 %}
 		            	<td><img src="/static/icons/check_16.png" \></td>
 		            	{% else %}
@@ -109,41 +106,36 @@
 		                <td><img src="/static/icons/close_16.png" \></td>
 		            	{% endif %}
 
+							<td id="td-frozen-withdraw-{{order.pk}}"
+								{% if not order.frozen %} 
+									style="display:none" 
+								{% endif %}>
 
-						
-						<td {% if not order.frozen %} style="display:none" {% endif %} 
-							id="td-frozen-withdraw-{{order.pk}}">
+								<span class="frozen">
+									{{order.withdraw_address | default_if_none:"Not Defined"}}
+								</span>
+							</td>
 
-							<span class="frozen">
-								{{order.withdraw_address | default_if_none:_("Not Defined")}}
-							</span>
-						</td>
-
-						{% if withdraw_addresses %} {# if user has at least one withdraw address #}
-						
-			            	<td title="{% trans 'Click to edit Withdraw Address' %}" 
-			            		{% if order.frozen %} style="display:none" {% endif %}
-			            		id="td-withdraw-{{order.pk}}" >
+			            	<td id="td-withdraw-{{order.pk}}"
+									{% if order.frozen %} 
+										style="display:none" 
+									{% endif %}>
 
 			            		<i class="fa fa-pencil" aria-hidden="true"></i>
-								<span class="withdraw_address" id="span-withdraw-{{order.pk}}"
-									data-type="select"
-									data-tip="select"
-									data-source="{{withdraw_addresses}}"
-									data-emptytext="{% trans 'Not Defined' %}"
-									data-value="{{order.withdraw_address| default_if_none:''}}"
-									data-pk="{{order.pk}}" 
-									data-url="{% url 'core.update_withdraw_address' order.pk %}" 
-									data-title="{% trans "Select Withdraw Address"%}">
-									{{order.transaction_set.first.address_to.address | default_if_none:_("Not Defined")}}
-								</span>
-			            	</td>
 
-			            {% else %}
-			            	<td><a href="{% url 'core.user_profile' %}">You need to create a Withdraw Address</a></td>
-			            	{# TODO: Add logic to create withdraw here instead of guinding user to profile page #}
-			            {% endif %}
-		            	
+			            		<span class="withdraw_address" id="span-withdraw-{{order.pk}}"
+			            			data-toggle="popover"
+			            			title="Set Withdraw Address"
+			            			data-html="true"
+			            			data-container="body"
+			            			data-placement="top"
+			            			data-pk="{{order.pk}}"
+			            			data-url-update="{% url 'core.update_withdraw_address' order.pk %}"
+			            			data-url-create="{% url 'core.create_withdraw_address' %}">
+			            			
+			            			{{order.withdraw_address | default_if_none:"Not Defined"}}
+		            			</span>
+			            	</td>
 	
 			        </tr>
 	        	        
@@ -191,12 +183,14 @@
 
 
 {% block extra_js_footer %}
-	
-	<link href="{% static 'bower_components/x-editable/dist/bootstrap3-editable/css/bootstrap-editable.css' %}" rel="stylesheet"/>
-	<script src="{% static 'bower_components/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.min.js' %}"></script>
     <script src="{% static 'js/index_orders.js' %}"></script>
 
 	<link href="{% static 'bower_components/bootstrap-toggle/css/bootstrap-toggle.min.css' %}" rel="stylesheet">
 	<script src="{% static 'bower_components/bootstrap-toggle/js/bootstrap-toggle.min.js' %}"></script>
 
+	<script type="text/javascript">
+		$(function () {
+		  $('[data-toggle="popover"]').popover({content: $("#popover-template").html()})
+		})
+	</script>
 {% endblock %}

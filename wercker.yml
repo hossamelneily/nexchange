@@ -47,6 +47,10 @@ dev:
         code: |
           python manage.py migrate
     - script:
+      name: Django create superuser
+      code: |
+          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
+    - script:
         name: Django import Currency fixture
         code: |
           python manage.py loaddata core/fixtures/currency.json
@@ -55,6 +59,10 @@ dev:
         code: |
           python manage.py loaddata core/fixtures/payment_method.json
     - script:
+        name: Django import Withdraw address fixture
+        code: |
+          python manage.py loaddata core/fixtures/withdraw_address.json
+    - script:
         name: Django run ticker update prices command
         code: |
           python manage.py ticker          
@@ -62,10 +70,6 @@ dev:
         name: Django collect static
         code: |
           python manage.py collectstatic --noinput          
-    - script:
-      name: Django create superuser
-      code: |
-          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
     - script:
         name: Link pre-commit hook script
         code: |     
@@ -177,6 +181,8 @@ build:
           # Import fixtures
           python /usr/src/app/manage.py loaddata core/fixtures/currency.json
           python /usr/src/app/manage.py loaddata core/fixtures/payment_method.json
+          echo "To load the 'withdraw_address' fixture, uncomment the next line"
+          # python manage.py loaddata core/fixtures/withdraw_address.json
           #
           # Prepare log files and start outputting logs to stdout
           # adapted from http://goo.gl/E7kRfL
@@ -287,10 +293,15 @@ tests:
           python manage.py makemigrations
           python manage.py migrate
     - script:
+      name: Django create superuser
+      code: |
+          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
+    - script:
         name: Django import fixtures
         code: |
           python manage.py loaddata core/fixtures/currency.json
           python manage.py loaddata core/fixtures/payment_method.json
+          python manage.py loaddata core/fixtures/withdraw_address.json
           python manage.py ticker  # not a fixture, but same propose...
     - script:
         name: Backend tests

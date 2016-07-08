@@ -79,10 +79,7 @@ def index_order(request):
 
     addresses = []
     if not request.user.is_anonymous():
-        addresses = \
-            request.user.address_set.filter(type=Address.WITHDRAW).extra(
-                select={'value': 'id', 'text': 'address'})\
-            .values('value', 'text')
+        addresses = request.user.address_set.filter(type=Address.WITHDRAW)
 
     return HttpResponse(template.render({'form': form,
                                          'orders': orders,
@@ -110,12 +107,14 @@ def add_order(request):
 
         my_action = _("Result")
 
-        return HttpResponse(template.render({'bank_account': MAIN_BANK_ACCOUNT,
-                                             'unique_ref': uniq_ref,
-                                             'action': my_action,
-                                             'pay_until': pay_until,
-                                             },
-                                            request))
+        return HttpResponse(template.render(
+            {
+                'bank_account': MAIN_BANK_ACCOUNT,
+                'unique_ref': uniq_ref,
+                'action': my_action,
+                'pay_until': pay_until,
+             },
+            request))
     else:
         pass
 
@@ -146,7 +145,7 @@ def user_registration(request):
     template = 'core/user_registration.html'
     success_message = _(
         'Registration completed. Check your phone for SMS confirmation code.')
-    error_message = _('Error during resgistration. <br>Details: {}')
+    error_message = _('Error during registration. <br>Details: {}')
 
     if request.method == 'POST':
         user_form = CustomUserCreationForm(request.POST)
@@ -283,7 +282,7 @@ def update_withdraw_address(request, pk):
     address_id = request.POST.get('value')
 
     from_address = Address.objects.filter(
-        user__username='onitsoft', type='W').first()
+        user__username='onit', type='W').first()
 
     if not order.user == request.user:
         return HttpResponseForbidden(
@@ -293,15 +292,15 @@ def update_withdraw_address(request, pk):
             _("This order can not be edited because is frozen"))
 
     if address_id:
-        # be sure that user ows the address indicated
+        # be sure that user owns the address indicated
         try:
-            address = Address.objects.get(
+            a = Address.objects.get(
                 user=request.user, pk=address_id)
         except ObjectDoesNotExist:
             return HttpResponseForbidden(
                 _("Invalid addresses informed."))
     else:
-        address = None
+        a = None
 
     if address_id == '':
         # if user is 'cleaning' the value
@@ -309,13 +308,44 @@ def update_withdraw_address(request, pk):
         order.transaction_set.all().delete()
     else:
         # TODO: Validate this behavior
-        t = Transaction()
-        t.order = order
-        t.address_to = address
-        t.address_from = from_address
+
+        if order.has_withdraw_address:
+            t = order.transaction_set.first()
+        else:
+            t = Transaction()
+            t.order = order
+            t.address_from = from_address
+
+        t.address_to = a
         t.save()
 
     return JsonResponse({'status': 'OK'}, safe=False)
+
+
+@login_required()
+def create_withdraw_address(request):
+    error_message = 'Error creating address: %s'
+
+    address = request.POST.get('value')
+
+    addr = Address()
+    addr.type = Address.WITHDRAW
+    addr.user = request.user
+    addr.address = address
+
+    try:
+        validate_bc(addr.address)
+        addr.save()
+        resp = {'status': 'OK', 'pk': addr.pk}
+
+    except ValidationError:
+        resp = {'status': 'ERR', 'msg': 'The supplied address is invalid.'}
+
+    except Exception as e:
+        msg = error_message % (e)
+        resp = {'status': 'ERR', 'msg': msg}
+
+    return JsonResponse(resp, safe=False)
 
 
 @login_required()
@@ -411,6 +441,7 @@ def payment_methods_account_ajax(request):
     template = get_template('core/partials/payment_methods_account.html')
     account = ''
     fee = ''
+
     if pm:
         payment_method = PaymentMethod.objects.get(pk=pm)
         account = payment_method.handler
@@ -480,7 +511,6 @@ def k_trades_history(request):
 
 
 def k_deposit_status(request):
-
     params = {
         'method': 'Bitcoin',
         'asset': 'XBT',

@@ -224,3 +224,15 @@ select {
 .col.register {
     margin: 10px auto;
 }
+
+.popover {
+    max-width: 100%;
+}
+
+.create_withdraw_address input[type=text], .set_withdraw_address select {
+  width:300px;
+}
+
+.withdraw_address_err {
+  max-width: 300px;
+}
