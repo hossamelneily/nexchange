@@ -225,15 +225,6 @@ deploy:
         filename: $PRIVATEKEY_PATH
         content: $PEM_FILE_CONTENT_PRIVATE  
         overwrite: true
-
-    - mktemp:
-        envvar: CLONE_KEY_PATH
-    - create-file:
-        name: write clone key
-        filename: $CLONE_KEY_PATH
-        content: $FRONTEND_DEPLOY_KEY_PRIVATE  
-        overwrite: true
-
     - script:
       name: Do deploy
       code: |
