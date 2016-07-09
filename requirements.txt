@@ -39,3 +39,4 @@ simplegeneric==0.8.1
 six==1.10.0
 traitlets==4.2.1
 twilio==5.4.0
+newrelic

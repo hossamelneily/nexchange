@@ -38,7 +38,13 @@ LANGUAGES = (
 
 )
 
-# CUSTOM SETTINS
+
+# CUSTOM SETTINGS
+SMS_TOKEN_VALIDITY = 30
+SMS_TOKEN_CHARS = '1234567890'
+UNIQUE_REFERENCE_LENGTH = 5
+REFERENCE_LOOKUP_ATTEMPTS = 5
+SMS_TOKEN_LENGTH = 4
 PAYMENT_WINDOW = 60  # minutes
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
@@ -127,16 +133,24 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME':
+            'django.contrib.auth.'
+            'password_validation.UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME':
+            'django.contrib.auth.'
+            'password_validation.MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME':
+            'django.contrib.auth.'
+            'password_validation.CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME':
+            'django.contrib.auth.'
+            'password_validation.NumericPasswordValidator',
     },
 ]
 
@@ -170,17 +184,12 @@ STATICFILES_DIRS = (
     STATIC_PATH,
 )
 
-UNIQUE_REFERENCE_LENGTH = 5
-
-REFERENCE_LOOKUP_ATTEMPS = 5
-
-SMS_TOKEN_LENGTH = 10
-
 MAIN_BANK_ACCOUNT = "XXXX12345-1233-22"
 
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 KRAKEN_API_KEY = "E6wsw96A+JsnY33k7SninDdg//JsoZSXcKBYtyrhUYlWyAxIeIIZn3ay"
-KRAKEN_API_SIGN = "hLg6LkI+kHtlLJs5ypJ0GnInK0go/HM3xMSVIGgCTcaqoqy8FsTl1KVdgFfWCCfu7CMZeCW4qqMbATrzZaFtRQ=="
+KRAKEN_API_SIGN = "hLg6LkI+kHtlLJs5ypJ0GnInK0go/HM3xMSVIGgCTc" \
+                  "aqoqy8FsTl1KVdgFfWCCfu7CMZeCW4qqMbATrzZaFtRQ=="
 
 # Your Account SID from www.twilio.com/console
 TWILIO_ACCOUNT_SID = 'AC0bd0fa94c8ca0084f3e512c741965364'
@@ -190,11 +199,11 @@ TWILIO_PHONE_FROM = '+447481341915'
 
 LOGIN_REDIRECT_URL = reverse_lazy('core.order')
 
-'''
+"""
 Configs for sending email for password reset.
-Run 'python -m smtpd -n -c DebuggingServer localhost:1025' 
+Run 'python -m smtpd -n -c DebuggingServer localhost:1025'
 to see a dump of email that would be sent
-'''
+"""
 if DEBUG:
     EMAIL_HOST = 'localhost'
     EMAIL_PORT = 1025

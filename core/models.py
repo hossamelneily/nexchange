@@ -10,7 +10,8 @@ from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
     DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
 
 from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW,\
-    REFERENCE_LOOKUP_ATTEMPS, SMS_TOKEN_LENGTH
+    REFERENCE_LOOKUP_ATTEMPTS, SMS_TOKEN_LENGTH, SMS_TOKEN_VALIDITY,\
+    SMS_TOKEN_CHARS
 
 from .validators import validate_bc
 from django.utils.translation import ugettext_lazy as _
@@ -29,6 +30,27 @@ class SoftDeletableModel(SoftDeleteMixin):
 
     class Meta:
         abstract = True
+
+
+class UniqueFieldMixin(models.Model):
+    class Meta:
+        abstract = True
+
+    @staticmethod
+    def gen_unique_value(val_gen, set_len_gen, start_len):
+        failed_count = 0
+        max_len = start_len
+        while True:
+            if failed_count >= REFERENCE_LOOKUP_ATTEMPTS:
+                failed_count = 0
+                max_len += 1
+
+            val = val_gen(max_len)
+            cnt_unq = set_len_gen(val)
+            if cnt_unq == 0:
+                return val
+            else:
+                failed_count += 1
 
 
 class Profile(TimeStampedModel, SoftDeletableModel):
@@ -51,18 +73,25 @@ class Profile(TimeStampedModel, SoftDeletableModel):
 User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])
 
 
-class SmsToken(TimeStampedModel, SoftDeletableModel):
+class SmsToken(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     sms_token = models.CharField(
         max_length=SMS_TOKEN_LENGTH, blank=True)
     user = models.ForeignKey(User, related_name='sms_token')
 
     @staticmethod
     def get_sms_token():
-        return User.objects.make_random_password(length=4,
-                                                 allowed_chars='1234567890')
+        return User.objects.make_random_password(
+            length=SMS_TOKEN_LENGTH,
+            allowed_chars=SMS_TOKEN_CHARS
+        )
+
+    @property
+    def valid(self):
+        return self.created_on > timezone.now() -\
+            timedelta(minutes=SMS_TOKEN_VALIDITY)
 
     def save(self, *args, **kwargs):
-        self.sms_token = SmsToken.get_sms_token()
+        self.sms_token = self.get_sms_token()
         super(SmsToken, self).save(*args, **kwargs)
 
 
@@ -74,7 +103,7 @@ class Currency(TimeStampedModel, SoftDeletableModel):
         return self.name
 
 
-class Order(TimeStampedModel, SoftDeletableModel):
+class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     USD = "USD"
     RUB = "RUB"
     BUY = 1
@@ -102,27 +131,15 @@ class Order(TimeStampedModel, SoftDeletableModel):
         ordering = ['-created_on']
 
     def save(self, *args, **kwargs):
-        self.generate_unique_ref()
+        self.unique_reference = \
+            self.gen_unique_value(
+                lambda x: get_random_string(x),
+                lambda x: Order.objects.filter(unique_reference=x).count(),
+                UNIQUE_REFERENCE_LENGTH
+            )
         self.convert_coin_to_cash()
 
         super(Order, self).save(*args, **kwargs)
-
-    def generate_unique_ref(self):
-        unq = False
-        failed_count = 0
-        MX_LENGTH = UNIQUE_REFERENCE_LENGTH
-        while not unq:
-            if failed_count >= REFERENCE_LOOKUP_ATTEMPS:
-                MX_LENGTH += 1
-
-            self.unique_reference = get_random_string(
-                length=MX_LENGTH)
-            cnt_unq = Order.objects.filter(
-                unique_reference=self.unique_reference).count()
-            if cnt_unq == 0:
-                unq = True
-            else:
-                failed_count += 1
 
     def convert_coin_to_cash(self):
         self.amount_btc = float(self.amount_btc)
@@ -161,6 +178,8 @@ class Order(TimeStampedModel, SoftDeletableModel):
     def expired(self):
         """Is expired if payment_deadline is exceeded and it's not paid yet"""
         # TODO: validate this business rule
+        # TODO: Refactor, it is unreasonable to have different standards of
+        # time in the DB
         return (timezone.now() > self.payment_deadline) and (not self.is_paid)
 
     @property
@@ -193,32 +212,11 @@ class Payment(TimeStampedModel, SoftDeletableModel):
     currency = models.ForeignKey(Currency)
     is_redeemed = models.BooleanField(default=False)
     is_complete = models.BooleanField(default=False)
-    unique_reference = models.CharField(max_length=UNIQUE_REFERENCE_LENGTH)
     # Super admin if we are paying for BTC
     user = models.ForeignKey(User)
     # Todo consider one to many for split payments, consider order field on
     # payment
     order = models.ForeignKey(Order, null=True, default=None)
-
-    def save(self, *args, **kwargs):
-        unq = True
-        failed_count = 0
-        MX_LENGTH = UNIQUE_REFERENCE_LENGTH
-        while unq:
-
-            if failed_count >= REFERENCE_LOOKUP_ATTEMPS:
-                MX_LENGTH += 1
-
-            self.unique_reference = get_random_string(
-                length=MX_LENGTH)
-            cnt_unq = Order.objects.filter(
-                unique_reference=self.unique_reference).count()
-            if cnt_unq == 0:
-                unq = False
-            else:
-                failed_count += 1
-
-        super(Payment, self).save(*args, **kwargs)
 
 
 class BtcBase(TimeStampedModel):

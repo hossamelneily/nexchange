@@ -13,7 +13,25 @@ from django.utils.translation import activate
 from http.cookies import SimpleCookie
 import pytz
 import json
+import time
 from django.conf import settings
+
+
+def data_provider(fn_data_provider):
+    """
+    Data provider decorator
+    allows another callable to provide the data for the test
+    """
+    def test_decorator(fn):
+        def repl(self):
+            for i in fn_data_provider():
+                try:
+                    fn(self, *i)
+                except AssertionError as e:
+                    print("Assertion error caught with data set ", i)
+                    raise e
+        return repl
+    return test_decorator
 
 
 class ValidateBCTestCase(TestCase):
@@ -34,7 +52,7 @@ class ValidateBCTestCase(TestCase):
             '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j'))
 
 
-class UserTestCase(TestCase):
+class UserBaseTestCase(TestCase):
     def setUp(self):
         self.username = '+555190909898'
         self.password = '123Mudar'
@@ -57,10 +75,10 @@ class UserTestCase(TestCase):
         success = self.client.login(username=self.username,
                                     password=self.password)
         assert success
-        super(UserTestCase, self).setUpClass()
+        super(UserBaseTestCase, self).setUpClass()
 
 
-class ProfileUpdateTestCase(UserTestCase):
+class ProfileUpdateTestCase(UserBaseTestCase):
     def test_can_update_profile(self):
         response = self.client.post(reverse('core.user_profile'), self.data)
         # Redirect after update
@@ -173,7 +191,7 @@ class OrderBaseTestCase(TestCase):
         super(OrderBaseTestCase, cls).setUpClass()
 
 
-class OrderSetAsPaidTestCase(UserTestCase, OrderBaseTestCase):
+class OrderSetAsPaidTestCase(UserBaseTestCase, OrderBaseTestCase):
     def setUp(self):
         super(OrderSetAsPaidTestCase, self).setUp()
         currency = self.RUB
@@ -219,7 +237,7 @@ class OrderSetAsPaidTestCase(UserTestCase, OrderBaseTestCase):
             response.content, encoding='utf8'),)
 
 
-class OrderValidatePaymentTestCase(UserTestCase, OrderBaseTestCase):
+class OrderValidatePaymentTestCase(UserBaseTestCase, OrderBaseTestCase):
     def setUp(self):
         super(OrderValidatePaymentTestCase, self).setUp()
         currency = self.RUB
@@ -229,7 +247,6 @@ class OrderValidatePaymentTestCase(UserTestCase, OrderBaseTestCase):
             'currency': currency,
             'user': self.user,
             'admin_comment': 'test Order',
-            'unique_reference': '12345'
 
         }
 
@@ -326,7 +343,7 @@ class OrderValidatePaymentTestCase(UserTestCase, OrderBaseTestCase):
         self.assertFalse(order.frozen)
 
 
-class OrderPayUntilTestCase(OrderBaseTestCase, UserTestCase):
+class OrderPayUntilTestCase(OrderBaseTestCase, UserBaseTestCase):
     def test_pay_until_message_is_in_context_and_is_rendered(self):
         response = self.client.post(
             reverse('core.order_add'),
@@ -416,7 +433,7 @@ class OrderPayUntilTestCase(OrderBaseTestCase, UserTestCase):
                             .strftime("%H:%M%p (%Z)"))
 
 
-class OrderPriceGenerationTest(OrderBaseTestCase, UserTestCase):
+class OrderPriceGenerationTest(OrderBaseTestCase, UserBaseTestCase):
     @classmethod
     def setUpClass(cls):
         super(OrderPriceGenerationTest, cls).setUpClass()
@@ -455,3 +472,40 @@ class OrderPriceGenerationTest(OrderBaseTestCase, UserTestCase):
                            currency=self.RUB, user=self.user)
         self.order.save()
         self.assertEqual(self.order.amount_cash, expected)
+
+
+class OrderUniqueReferenceTestsCase(UserBaseTestCase, OrderBaseTestCase):
+    def setUp(self):
+        super(OrderUniqueReferenceTestsCase, self).setUp()
+        self.data = {
+            'amount_cash': 36000,
+            'amount_btc': 1,
+            'currency': self.RUB,
+            'user': self.user,
+            'admin_comment': 'test Order',
+        }
+
+    def get_data_provider(self, x):
+        return lambda:\
+            ((lambda data: Order(**data), i) for i in range(x))
+
+    @data_provider(get_data_provider(None, 1000))
+    def test_unique_token_creation(self, order_gen, counter):
+        order = order_gen(self.data)
+        order.save()
+        objects = Order.objects.filter(unique_reference=order.unique_reference)
+        self.assertEqual(len(objects), 1)
+        self.assertIsInstance(counter, int)
+
+    @data_provider(get_data_provider(None, 10000))
+    def test_timing_token_creation(self, order_gen, counter):
+        max_execution = 0.5
+        start = time.time()
+        order = order_gen(self.data)
+        order.save()
+        end = time.time()
+        delta = end - start
+        self.assertEqual(settings.UNIQUE_REFERENCE_LENGTH,
+                         len(order.unique_reference))
+        self.assertGreater(max_execution, delta)
+        self.assertIsInstance(counter, int)

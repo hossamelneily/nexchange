@@ -260,7 +260,7 @@ def verify_phone(request):
     else:
         user = request.user
     sms_token = SmsToken.objects.filter(user=user).latest('id')
-    if sent_token == sms_token.sms_token:
+    if sent_token == sms_token.sms_token and sms_token.valid:
         profile = user.profile
         profile.disabled = False
         profile.save()
