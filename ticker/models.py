@@ -1,6 +1,6 @@
 from django.db import models
-from core.models import TimeStampedModel
 from django.utils.dateformat import format
+from core.common.models import TimeStampedModel
 
 
 class Price(TimeStampedModel):
@@ -14,7 +14,12 @@ class Price(TimeStampedModel):
     price_rub = models.FloatField()
     price_usd = models.FloatField()
     rate = models.FloatField()
-    better_adds_count = models.IntegerField()
+    better_adds_count = models.IntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        if not self.rate:
+            self.rate = self.price_rub / self.price_usd
+        super(Price, self).save(*args, **kwargs)
 
     @property
     def unix_time(self):
@@ -27,7 +32,3 @@ class Price(TimeStampedModel):
     @property
     def price_rub_formatted(self):
         return float('{0:.2f}'.format(self.price_rub))
-
-
-
-

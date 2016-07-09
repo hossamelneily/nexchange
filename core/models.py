@@ -1,8 +1,10 @@
 from django.db import models
+from core.common.models import TimeStampedModel
 
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 from phonenumber_field.modelfields import PhoneNumberField
+from ticker.models import Price
 
 from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
     DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
@@ -14,14 +16,6 @@ from .validators import validate_bc
 from django.utils.translation import ugettext_lazy as _
 from datetime import timedelta
 from django.utils import timezone
-
-
-class TimeStampedModel(models.Model):
-    created_on = models.DateTimeField(auto_now_add=True)
-    modified_on = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
 
 
 SoftDeleteMixin = safedelete_mixin_factory(policy=SOFT_DELETE,
@@ -45,7 +39,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     last_name = models.CharField(max_length=20, blank=True)
 
     def save(self, *args, **kwargs):
-        '''Add a SMS token at creation. Used to verify phone number'''
+        """Add a SMS token at creation. Used to verify phone number"""
         if self.pk is None:
             token = SmsToken(user=self.user)
             token.save()
@@ -81,6 +75,8 @@ class Currency(TimeStampedModel, SoftDeletableModel):
 
 
 class Order(TimeStampedModel, SoftDeletableModel):
+    USD = "USD"
+    RUB = "RUB"
     BUY = 1
     SELL = 0
     TYPES = (
@@ -106,11 +102,16 @@ class Order(TimeStampedModel, SoftDeletableModel):
         ordering = ['-created_on']
 
     def save(self, *args, **kwargs):
-        unq = True
+        self.generate_unique_ref()
+        self.convert_coin_to_cash()
+
+        super(Order, self).save(*args, **kwargs)
+
+    def generate_unique_ref(self):
+        unq = False
         failed_count = 0
         MX_LENGTH = UNIQUE_REFERENCE_LENGTH
-        while unq:
-
+        while not unq:
             if failed_count >= REFERENCE_LOOKUP_ATTEMPS:
                 MX_LENGTH += 1
 
@@ -119,36 +120,61 @@ class Order(TimeStampedModel, SoftDeletableModel):
             cnt_unq = Order.objects.filter(
                 unique_reference=self.unique_reference).count()
             if cnt_unq == 0:
-                unq = False
+                unq = True
             else:
                 failed_count += 1
 
-        super(Order, self).save(*args, **kwargs)
+    def convert_coin_to_cash(self):
+        self.amount_btc = float(self.amount_btc)
+        queryset = Price.objects.filter().order_by('-id')[:2]
+        price_sell = [price for price in queryset if price.type == Price.SELL]
+        price_buy = [price for price in queryset if price.type == Price.BUY]
+
+        # Below calculation affect real money the client pays
+        assert all([len(price_sell),
+                    price_sell[0].price_usd,
+                    price_buy[0].price_rub])
+
+        assert all([len(price_buy),
+                    price_buy[0].price_usd,
+                    price_buy[0].price_rub])
+
+        # TODO: Make this logic more generic
+
+        if self.order_type == Order.SELL and self.currency.code == Order.USD:
+            self.amount_cash = self.amount_btc * price_sell[0].price_usd
+        elif self.order_type == Order.SELL and self.currency.code == Order.RUB:
+            self.amount_cash = self.amount_btc * price_sell[0].price_rub
+
+        if self.order_type == Order.BUY and self.currency.code == Order.USD:
+            self.amount_cash = self.amount_btc * price_buy[0].price_usd
+        elif self.order_type == Order.BUY and self.currency.code == Order.RUB:
+            self.amount_cash = self.amount_btc * price_buy[0].price_rub
 
     @property
     def payment_deadline(self):
-        '''returns datetime of payment_deadline (creation + payment_window)'''
+        """returns datetime of payment_deadline (creation + payment_window)"""
         # TODO: Use this for pay until message on 'order success' screen
-        return (self.created_on + timedelta(minutes=self.payment_window))
+        return self.created_on + timedelta(minutes=self.payment_window)
 
     @property
     def expired(self):
-        '''Is expired if payment_deadline is exceeded and it's not paid yet'''
+        """Is expired if payment_deadline is exceeded and it's not paid yet"""
         # TODO: validate this business rule
         return (timezone.now() > self.payment_deadline) and (not self.is_paid)
 
     @property
     def frozen(self):
-        '''return a boolean indicating if order can be updated
+        """return a boolean indicating if order can be updated
         Order is frozen if it is expired or has been paid
-        '''
+        """
         # TODO: validate this business rule
         return self.expired or self.is_paid
 
     @property
     def has_withdraw_address(self):
-        '''return a boolean indicating if order has a withdraw adrress defined
-        '''
+        """return a boolean indicating if order has a withdraw adrress defined
+        """
         # TODO: Validate this buisness rule
         return len(self.transaction_set.all()) > 0
 
