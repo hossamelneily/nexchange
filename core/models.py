@@ -33,6 +33,7 @@ class SoftDeletableModel(SoftDeleteMixin):
 
 
 class UniqueFieldMixin(models.Model):
+
     class Meta:
         abstract = True
 
@@ -53,12 +54,23 @@ class UniqueFieldMixin(models.Model):
                 failed_count += 1
 
 
+class ProfileManager(models.Manager):
+
+    def get_by_natural_key(self, username):
+        return self.get(user__usernam=username)
+
+
 class Profile(TimeStampedModel, SoftDeletableModel):
+    objects = ProfileManager()
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = PhoneNumberField(blank=False, help_text=_(
         'Enter phone number in international format. eg. +555198786543'))
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, blank=True)
+
+    def natural_key(self):
+        return (self.user.username)
 
     def save(self, *args, **kwargs):
         """Add a SMS token at creation. Used to verify phone number"""
@@ -220,6 +232,7 @@ class Payment(TimeStampedModel, SoftDeletableModel):
 
 
 class BtcBase(TimeStampedModel):
+
     class Meta:
         abstract = True
 
@@ -256,11 +269,23 @@ class Transaction(BtcBase):
     is_verified = models.BooleanField(default=False)
 
 
+class PaymentMethodManager(models.Manager):
+
+    def get_by_natural_key(self, bin):
+        return self.get(bin=bin)
+
+
 class PaymentMethod(TimeStampedModel, SoftDeletableModel):
+    objects = PaymentMethodManager()
+
     name = models.CharField(max_length=100)
     handler = models.CharField(max_length=100, null=True)
     bin = models.IntegerField(null=True, default=None)
     fee = models.FloatField(null=True)
+    is_slow = models.BooleanField(default=False)
+
+    def natural_key(self):
+        return (self.bin)
 
 
 class PaymentPreference(TimeStampedModel, SoftDeletableModel):

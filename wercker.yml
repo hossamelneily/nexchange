@@ -59,6 +59,10 @@ dev:
         code: |
           python manage.py loaddata core/fixtures/payment_method.json
     - script:
+        name: Django import Payment Preference fixture
+        code: |
+          python manage.py loaddata core/fixtures/payment_preference.json
+    - script:
         name: Django import Withdraw address fixture
         code: |
           python manage.py loaddata core/fixtures/withdraw_address.json
