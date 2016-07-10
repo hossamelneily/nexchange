@@ -1,0 +1,80 @@
+[
+  {
+    "model": "core.paymentpreference",
+    "pk": 1,
+    "fields": {
+      "user": ["onit"],
+      "payment_method": ["+7"],
+      "method_owner": "Onit",
+      "identified": "+79856441427",
+      "comment": "one comment",
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.paymentpreference",
+    "pk": 2,
+    "fields": {
+      "user": ["onit"],
+      "payment_method": ["426101"],
+      "method_owner": "Onit",
+      "identified": "4261012555464222",
+      "comment": "one comments",
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.paymentpreference",
+    "pk": 3,
+    "fields": {
+      "user": ["onit"],
+      "payment_method": ["555957"],
+      "method_owner": "Onit",
+      "identified": "5559572060308089",
+      "comment": "one comments",
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.paymentpreference",
+    "pk": 4,
+    "fields": {
+      "user": ["onit"],
+      "payment_method": ["555958"],
+      "method_owner": "Onit",
+      "identified": "4274278009643456",
+      "comment": "one comments",
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
+    }
+  },  
+  {
+    "model": "core.paymentpreference",
+    "pk": 5,
+    "fields": {
+      "user": ["onit"],
+      "payment_method": ["427427"],
+      "method_owner": "Onit",
+      "identified": "4274278007570958",
+      "comment": "one comments",
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
+    }
+  },  
+  {
+    "model": "core.paymentpreference",
+    "pk": 6,
+    "fields": {
+      "user": ["onit"],
+      "payment_method": ["533205"],
+      "method_owner": "Onit",
+      "identified": "5332058092720842",
+      "comment": "one comments",
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
+    }
+  } 
+]

@@ -3,33 +3,102 @@
     "model": "core.paymentmethod",
     "pk": 1,
     "fields": {
-      "name": "Alpha Bank MasterCard",
-      "handler": "4261 0125 5546 4222 - RUB",
+      "name": "Alpha Bank Visa",
+      "bin": "426101",
       "fee": "0.00",
-      "created_on":"2016-05-20T17:41:28+00:00",
-      "modified_on":"2016-05-20T17:41:28+00:00"
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
     }
   },
   {
     "model": "core.paymentmethod",
     "pk": 2,
     "fields": {
-      "name": "Sber Bank",
-      "handler": "4274 2780 0964 3456 RUB",
+      "name": "Alpha Bank Master Card",
+      "bin": "555957",
       "fee": "0.00",
-      "created_on":"2016-05-20T17:41:28+00:00",
-      "modified_on":"2016-05-20T17:41:28+00:00"
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
     }
   },
   {
     "model": "core.paymentmethod",
     "pk": 3,
-     "fields": {
-      "name": "Qiwi",
-      "handler": "+79856441427",
-      "fee": "2.00",
-      "created_on":"2016-05-20T17:41:28+00:00",
-      "modified_on":"2016-05-20T17:41:28+00:00"
+    "fields": {
+      "name": "Sber Bank Visa RUB",
+      "bin": "555958",
+      "fee": "0.00",
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
     }
+  },
+    {
+    "model": "core.paymentmethod",
+    "pk": 4,
+    "fields": {
+      "name": "Sber Bank Visa USD",
+      "bin": "427427",
+      "fee": "0.00",
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
+    }
+  },
+    {
+    "model": "core.paymentmethod",
+    "pk": 5,
+    "fields": {
+      "name": "Sber Bank Master Card EUR",
+      "bin": "533205",
+      "fee": "0.00",
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.paymentmethod",
+    "pk": 6,
+     "fields": {
+      "name": "Qiwi RU" ,
+      "bin": "+7",
+      "fee": "2.00",
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.paymentmethod",
+    "pk": 7,
+     "fields": {
+      "name": "Qiwi Ukraine" ,
+      "bin": "+380",
+      "fee": "2.00",
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
+    }
+  },
+{
+  "model": "core.paymentmethod",
+  "pk": 8,
+   "fields": {
+    "name": "Master Card Other Bank" ,
+    "bin": "5",
+    "fee": "2.00",
+    "is_slow": 1,
+    "created_on":"2016-07-20T17:41:28+00:00",
+    "modified_on":"2016-07-20T17:41:28+00:00"
   }
+},
+  {
+  "model": "core.paymentmethod",
+  "pk": 9,
+   "fields": {
+    "name": "Visa Other Bank" ,
+    "bin": "4",
+    "fee": "2.00",
+    "created_on":"2016-07-20T17:41:28+00:00",
+    "modified_on":"2016-07-20T17:41:28+00:00"
+  }
+}  
+
 ]
+
