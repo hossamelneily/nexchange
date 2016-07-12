@@ -107,9 +107,20 @@ class SmsToken(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         super(SmsToken, self).save(*args, **kwargs)
 
 
+class CurrencyManager(models.Manager):
+
+    def get_by_natural_key(self, code):
+        return self.get(code=code)
+
+
 class Currency(TimeStampedModel, SoftDeletableModel):
+    objects = CurrencyManager()
+
     code = models.CharField(max_length=3)
     name = models.CharField(max_length=10)
+
+    def natural_key(self):
+        return (self.code)
 
     def __str__(self):
         return self.name
@@ -292,6 +303,7 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
     # NULL or Admin for out own (buy adds)
     user = models.ForeignKey(User)
     payment_method = models.ForeignKey(PaymentMethod)
+    currency = models.ForeignKey(Currency, null=True)
     # Optional, sometimes we need this to confirm
     method_owner = models.CharField(max_length=100)
     identified = models.CharField(max_length=100)
