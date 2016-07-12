@@ -17,7 +17,7 @@ dev:
         code: |
           mkdir -p /usr/share/nginx/html/static
           mkdir -p /usr/share/nginx/html/media
-    - npm-install
+    - npm-install    
     - maxon/npm-run:
         script: bower
     - script:
