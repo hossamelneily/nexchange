@@ -7,10 +7,10 @@ FILES=$(git diff --name-only --diff-filter=ACM | grep -e '\.py$')
 
 
 function use_running_container {
-    docker exec -t ${RUNNING_CONTAINER} pwd
-    #docker exec -t ${RUNNING_CONTAINER} bash static-validation.sh &&
-    #    docker exec ${RUNNING_CONTAINER} -t python manage.py test -v 3 &&
-    #        docker exec ${RUNNING_CONTAINER} -t npm run-script test
+    
+    docker exec -t ${RUNNING_CONTAINER} bash -c "cd /pipeline/source && ./static-validation.sh" &&
+        docker exec -t ${RUNNING_CONTAINER} bash -c "cd /pipeline/source && python manage.py test -v 3" &&
+            docker exec -t ${RUNNING_CONTAINER} bash -c "cd /pipeline/source && npm run-script test"
 }
 
 function use_wercker {
