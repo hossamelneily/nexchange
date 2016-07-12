@@ -133,24 +133,20 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME':
-            'django.contrib.auth.'
-            'password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.'
+        'password_validation.UserAttributeSimilarityValidator',
     },
     {
-        'NAME':
-            'django.contrib.auth.'
-            'password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.'
+        'password_validation.MinimumLengthValidator',
     },
     {
-        'NAME':
-            'django.contrib.auth.'
-            'password_validation.CommonPasswordValidator',
+        'NAME': 'django.contrib.auth.'
+        'password_validation.CommonPasswordValidator',
     },
     {
-        'NAME':
-            'django.contrib.auth.'
-            'password_validation.NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.'
+        'password_validation.NumericPasswordValidator',
     },
 ]
 
@@ -221,3 +217,7 @@ CORS_ORIGIN_WHITELIST = (
 
 # 12 months
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 12
+
+
+# https://docs.djangoproject.com/en/1.9/ref/settings/#secure-proxy-ssl-header
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
