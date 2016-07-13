@@ -13,4 +13,8 @@ if [ -n "$FILES" ] || [ -n "$FILES_CACHED" ] ; then
     echo "======= CHECKING FILES: $FILES $FILES_CACHED"
     echo "======================="
     flake8 $OPTIONS $FILES $FILES_CACHED
+else
+    echo "======================="
+    echo "======= No .py FILES TO COMMIT. SKIPING STATIC VALIDATION. "
+    echo "======================="
 fi

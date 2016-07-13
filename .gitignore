@@ -12,3 +12,4 @@ _projects/
 db.sqlite3
 static/bower_components/
 node_modules/
+frontend/

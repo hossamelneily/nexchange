@@ -32,6 +32,10 @@ Karma is configured via **karma.conf** file and **it's important that 3rd libs**
 
 The test files that will be running are the ones into **static/js/tests/spec** directory, they shoul be written using the [jasmine](http://jasmine.github.io/2.4/introduction.html). Fixture .html files placed into **static/js/tests/fixtures/** will be served by karma and can be loaded in your test spec with the [jasmine-jquery](https://github.com/velesin/jasmine-jquery) extension.
 
+**If the tests are tiggered via the pre-commit hook script**, the script will look for a running instance of the nexchange container (supposedly started with wercker dev). If it finds one, it will try to run the tests inside this instance to minimize the time spent on the job. If no container is found, then one is created as described above int this section.
+The container will be searched via docker ps with these filters:
+`docker ps -q --filter "ancestor=pitervergara/geodjango:nexchange" --filter name="wercker-pipeline-" --filter status=running`
+
 # Deploy #
 In this step the pipeline remotely logis into the production server ($DEST_HOST_ADDR) and replaces the running container with the version corresponding to the last $WERCKER_GIT_COMMIT.
 
