@@ -246,7 +246,7 @@
                     type: 'datetime',
                     dateTimeLabelFormats: {
                         day: '%b %e',
-                        hour: '%b %e'
+                        hour: '%H %M'
                     }
                 },
                 yAxis: {
