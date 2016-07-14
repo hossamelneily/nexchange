@@ -245,7 +245,9 @@
                 xAxis: {
                     type: 'datetime',
                     dateTimeLabelFormats: {
-                        day: '%b %e-%H:%M'
+                        day: '%b %e',
+                        hour: '%H:%M'
+
                     }
                 },
                 yAxis: {
@@ -266,7 +268,8 @@
 
                 series: [{
                     name: currency === 'rub' ? 'цена' : 'Price',
-                    data: data
+                    data: data,
+                    pointInterval: 1 * 3600 * 1000 // one day
                 }]
             });
         });
