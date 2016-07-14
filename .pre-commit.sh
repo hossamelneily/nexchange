@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 RUNNING_CONTAINER=$(docker ps -q --filter "ancestor=pitervergara/geodjango:nexchange" --filter name="wercker-pipeline-" --filter status=running)
 
