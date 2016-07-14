@@ -269,7 +269,7 @@
                 series: [{
                     name: currency === 'rub' ? 'цена' : 'Price',
                     data: data,
-                    pointInterval: 1 * 3600 * 1000 // one day
+                    pointInterval: 3600 * 1000 
                 }]
             });
         });
