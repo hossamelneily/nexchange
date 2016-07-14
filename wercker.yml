@@ -41,7 +41,7 @@ dev:
     - script:
         name: wait...
         code: |
-          sleep 10
+          sleep 20
     - script:
         name: Django aply migrations
         code: |
