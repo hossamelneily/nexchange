@@ -4,12 +4,11 @@
         tickerLatestUrl = apiRoot + '/price/latest',
         currency = 'rub',
         animationDelay = 3000,
-        chartDataRaw;
-        $(".trade-type").val("1"),
+        chartDataRaw,
         paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
         paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/';
 
-
+     $(".trade-type").val("1");
     window.ACTION_BUY = 1;
     window.ACTION_SELL = 0;
     window.action = ACTION_BUY; // 1 - BUY 0 - SELL
@@ -269,6 +268,7 @@
                 series: [{
                     name: currency === 'rub' ? 'цена' : 'Price',
                     data: data,
+                    // TODO: fix this!
                     pointInterval: 3600 * 1000 
                 }]
             });
