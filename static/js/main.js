@@ -20,7 +20,7 @@
                 delay = 500;
             updateOrder($('.amount-coin'));
             
-            $('.trigger').click( function(){
+            $('.trigger').click( function(event, isNext){
                 $('.trigger').removeClass('active');
                 $(this).addClass('active');
                 if ($(this).hasClass('trigger-buy')) {
@@ -30,7 +30,6 @@
                     $('.next-step').removeClass('btn-danger').addClass('btn-success');
                     $('.step4 i').removeClass('fa-money').addClass('fa-btc');
                     loadPaymenMethods(paymentMethodsEndpoint);
-
                     $("#PayMethModal").modal({backdrop: "static"});
                 } else {
                     $('.buy-go').addClass('hidden');
@@ -38,7 +37,18 @@
                     window.action = window.ACTION_SELL;
                     $('.next-step').removeClass('btn-success').addClass('btn-danger');
                     $('.step4 i').removeClass('fa-btc').addClass('fa-money');
+
+                    $("#card-form").card({
+                        container: '.card-wrapper',
+                        placeholders: {
+                            number: '**** **** **** ****',
+                            name: 'Ivan Ivanov',
+                            expiry: '**/****',
+                            cvc: '***'
+                        }
+                    });
                     $("#UserAccountModal").modal({backdrop: "static"});
+
 
                 }
 

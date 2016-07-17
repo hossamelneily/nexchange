@@ -64,60 +64,6 @@
             </div><!-- /pannel -->
         </div><!-- /col -->
     </div>
-
-
-  <!-- Modal -->
-  <div class="modal fade" id="PayMethModal" role="dialog">
-    <div class="modal-dialog">
-    
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">×</button>
-          <h4 class="modal-title">Pick a payment method</h4>
-        </div>
-        <div class="modal-body">
-            <div class=" paymentMethods ">
-                {% include 'core/partials/payment_methods.html' %}
-            </div >         
-            <div class=" paymentMethodsAccount hidden">
-                {% include 'core/partials/payment_methods_account.html' %}
-            </div >
-            <input type="hidden" name="payment_method_id" id="payment_method_id" value=""                                 >
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-      
-    </div>
-  </div>
-
-
-  <!-- Modal -->
-  <div class="modal fade" id="UserAccountModal" role="dialog">
-    <div class="modal-dialog">
-    
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">×</button>
-          <h4 class="modal-title">Pick one of your previous accounts</h4>
-        </div>
-        <div class="modal-body">
-            {% include 'core/partials/user_address.html' %}
-            <input type="hidden" name="user_address_id" id="user_address_id" value="">
-        </div>
-                  <p>Or just use a new one !</p>
-                <input type="text" name="new_user_account" id="new_user_account" value="">
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-      
-    </div>
-  </div>
-
-
+ {% include 'core/partials/modals/buy.html' %}
+ {% include 'core/partials/modals/sell.html' %}
 {% endblock %}

@@ -14,6 +14,7 @@
     {% endif %}
     {% include 'core/partials/steps/step_confirmation.html' with id="menu4" %}
     {% include 'core/partials/steps/step_success.html' with id="menu5" %}
+</div>
 {% endblock %}
 {% block extra_js_footer %}
     <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -21,4 +22,5 @@
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/add_orders.js' %}"></script>
+    <script src="{% static 'bower_components/card/lib/js/jquery.card.js' %}"></script>
 {% endblock %}

@@ -171,9 +171,7 @@ function changeState (action) {
     }
 
     if ( !canProceedtoRegister(currStateId) ){
-        
-        window.alert("Need to pick BUY or SELL.")
-
+        $('.trigger-buy').trigger('click', true);
     } else {
         setButtonDefaultState(nextStateId);
         currState.addClass('btn-success');
@@ -205,13 +203,12 @@ function canProceedtoRegister(objectName){
     var payMeth = $('#payment_method_id').val(),
     userAcc = $('#user_address_id').val(),
     userAccId = $('#new_user_account').val();
-    //console.log(payMeth,userAcc,userAccId);
-    if ( (objectName == 'menu2' || objectName == 'btn-register') &&  payMeth == ''
-        && userAcc == '' && userAccId == '' ){
-        return false;
+    if (!((objectName == 'menu2' || objectName == 'btn-register') && payMeth == ''
+        && userAcc == '' && userAccId == '')) {
+            return true;
     }
-
-    return true;
-
+    return false;
 }
 
+//Ugly hack
+window.changeState = changeState;
