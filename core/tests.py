@@ -401,7 +401,6 @@ class OrderPayUntilTestCase(OrderBaseTestCase, UserBaseTestCase):
         # Is rendered in template?
         self.assertContains(response, 'id="pay_until_notice"')
 
-        # TODO: fix this test! 4fdr4fa
         # Ensure template renders with localtime
         timezone.activate(pytz.timezone(user_tz))
         self.assertContains(
