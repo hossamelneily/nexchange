@@ -81,6 +81,10 @@ dev:
           cd .git/hooks/
           ln -fs ../../.pre-commit.sh pre-commit
           cd -
+    - script:
+        name: Set new Relic key
+        code: |
+          sed -i s/X_NEW_RELIC_LICENCE_KEY/${NEW_RELIC_LICENCE_KEY}/ ${NEW_RELIC_CONFIG_FILE}
     - internal/watch:
         code: newrelic-admin run-program python manage.py runserver 0.0.0.0:8000
         reload: false 
@@ -319,7 +323,7 @@ tests:
           export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs 
           npm run-script test
     - script:
-        name: Test New Relic communication
+        name: Validate New Relic config file
         code: |
           newrelic-admin validate-config ${NEW_RELIC_CONFIG_FILE}
 
