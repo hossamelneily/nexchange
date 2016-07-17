@@ -53,6 +53,7 @@ class ValidateBCTestCase(TestCase):
 
 
 class UserBaseTestCase(TestCase):
+
     def setUp(self):
         self.username = '+555190909898'
         self.password = '123Mudar'
@@ -79,6 +80,7 @@ class UserBaseTestCase(TestCase):
 
 
 class ProfileUpdateTestCase(UserBaseTestCase):
+
     def test_can_update_profile(self):
         response = self.client.post(reverse('core.user_profile'), self.data)
         # Redirect after update
@@ -126,6 +128,7 @@ class ProfileUpdateTestCase(UserBaseTestCase):
 
 
 class RegistrationTestCase(TestCase):
+
     def setUp(self):
         self.data = {
             'phone': '+555190909891',
@@ -192,6 +195,7 @@ class OrderBaseTestCase(TestCase):
 
 
 class OrderSetAsPaidTestCase(UserBaseTestCase, OrderBaseTestCase):
+
     def setUp(self):
         super(OrderSetAsPaidTestCase, self).setUp()
         currency = self.RUB
@@ -238,6 +242,7 @@ class OrderSetAsPaidTestCase(UserBaseTestCase, OrderBaseTestCase):
 
 
 class OrderValidatePaymentTestCase(UserBaseTestCase, OrderBaseTestCase):
+
     def setUp(self):
         super(OrderValidatePaymentTestCase, self).setUp()
         currency = self.RUB
@@ -344,6 +349,7 @@ class OrderValidatePaymentTestCase(UserBaseTestCase, OrderBaseTestCase):
 
 
 class OrderPayUntilTestCase(OrderBaseTestCase, UserBaseTestCase):
+
     def test_pay_until_message_is_in_context_and_is_rendered(self):
         response = self.client.post(
             reverse('core.order_add'),
@@ -371,7 +377,7 @@ class OrderPayUntilTestCase(OrderBaseTestCase, UserBaseTestCase):
     def test_pay_until_message_is_in_correct_time_zone(self):
         user_tz = 'Asia/Vladivostok'
         self.client.cookies.update(SimpleCookie(
-            {'user_tz': user_tz}))
+            {'USER_TZ': user_tz}))
         response = self.client.post(
             reverse('core.order_add'),
             {
@@ -395,12 +401,11 @@ class OrderPayUntilTestCase(OrderBaseTestCase, UserBaseTestCase):
         # Is rendered in template?
         self.assertContains(response, 'id="pay_until_notice"')
 
-        # TODO: fix this test! 4fdr4fa
         # Ensure template renders with localtime
-        # timezone.activate(pytz.timezone(user_tz))
-        # self.assertContains(
-        #     response,
-        #     timezone.localtime(pay_until).strftime("%H:%M%p (%Z)"))
+        timezone.activate(pytz.timezone(user_tz))
+        self.assertContains(
+            response,
+            timezone.localtime(pay_until).strftime("%H:%M%p (%Z)"))
 
     def test_pay_until_message_uses_settingsTZ_for_invalid_time_zones(self):
         user_tz = 'SOMETHING/FOOLISH'
@@ -434,6 +439,7 @@ class OrderPayUntilTestCase(OrderBaseTestCase, UserBaseTestCase):
 
 
 class OrderPriceGenerationTest(OrderBaseTestCase, UserBaseTestCase):
+
     @classmethod
     def setUpClass(cls):
         super(OrderPriceGenerationTest, cls).setUpClass()
@@ -475,6 +481,7 @@ class OrderPriceGenerationTest(OrderBaseTestCase, UserBaseTestCase):
 
 
 class OrderUniqueReferenceTestsCase(UserBaseTestCase, OrderBaseTestCase):
+
     def setUp(self):
         super(OrderUniqueReferenceTestsCase, self).setUp()
         self.data = {
