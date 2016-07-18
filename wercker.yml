@@ -81,10 +81,6 @@ dev:
           cd .git/hooks/
           ln -fs ../../.pre-commit.sh pre-commit
           cd -
-    - script:
-        name: Set new Relic key
-        code: |
-          sed -i s/X_NEW_RELIC_LICENCE_KEY/${NEW_RELIC_LICENCE_KEY}/ ${NEW_RELIC_CONFIG_FILE}
     - internal/watch:
         code: newrelic-admin run-program python manage.py runserver 0.0.0.0:8000
         reload: false 
@@ -185,6 +181,7 @@ build:
           export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
           export NEW_RELIC_CONFIG_FILE=${NEW_RELIC_CONFIG_FILE}
           export NEW_RELIC_ENVIRONMENT=${NEW_RELIC_ENVIRONMENT}
+          export NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
           #
           # Apply migrations
           python /usr/src/app/manage.py migrate
