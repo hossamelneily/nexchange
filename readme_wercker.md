@@ -1,11 +1,11 @@
 This file describes the wercker pipelines in this project and documents the configuration vars. All the pipelines are using the same image, which is `pitervergara/geodjango:nexchange`. This image is based on python:3.5 and adds geodjango required libs plus the python packages required by nexchange project at the time of the image creation. You can see the image details at https://hub.docker.com/r/pitervergara/geodjango/
 
 # Dev #
-run `$ werker dev --publish 8000` to start container
+run `$ wercker dev --publish 8000` to start container
 On dev pipeline, a docker container based on the public image is started and the app directory is mounted inside the container. The DJANGO_SETTINGS_MODULE is setted to **'nexchange.settings_dev'** and the variables from **ENVIRONMENT** file are exported by wercker. Then, the python requirements and the bower dependencies are installed, the migrations are created and applied. After all these steps, the django runserver command is executed, starting the server on port 8000.
 
 # Build #
-run `$ werker build` to check if the build will go OK when you push your code
+run `$ wercker build` to check if the build will go OK when you push your code
 
 Build pipelines looks like the 'dev' one. But after starting the container DJANGO_SETTINGS_MODULE is setted to **'nexchange.settings_prod'**. If the build is local the variables from  **ENVIRONMENT** file are exported, if the build is remote the variables defined in the web interface of wercker are exported.
 
@@ -81,6 +81,10 @@ Currently, the database container is running an instance of [mdillon/postgis](ht
 - `DOCKER_HUB_USER` - dockerhub username to push and pull container images
 - `DOCKER_HUB_PASSWORD` - password for DOCKER_HUB_USER (define it as a protectd var)
 - `DOCKER_HUB_REPO` - the dockerhub repo where to push (repo must already exists and could be  private)
+- `NEW_RELIC_CONFIG_FILE` - The name of the file inside the project which contains the New Relic Python angent configuration
+- `NEW_RELIC_ENVIRONMENT` - The name of the environment. New Relic agent takes it into account to specialize config
+- `NEW_RELIC_LICENSE_KEY` - The key of the New Relic account to which the data should be sent
+
 
 ----
 # Other useful informations
