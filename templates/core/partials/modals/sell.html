@@ -1,40 +1,38 @@
 {% load i18n %}
-
 <!-- Modal -->
-<div class="modal fade" id="UserAccountModal" role="dialog">
+<div class="modal fade sellMethModal" id="{{ id }}" role="dialog">
     <div class="modal-dialog">
-
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal">×</button>
-          <h4 class="modal-title">{% trans 'Pick one of your saved accounts' %}</h4>
+          <h4 class="modal-title">{% trans 'Select payout option' %}</h4>
         </div>
         <div class="modal-body">
-            {% include 'core/partials/user_address.html' %}
-            <input type="hidden" name="user_address_id" id="user_address_id" value="">
+            <div class="payment-widget">
+                {% if user.is_authenticated and addresses %}
+                    <div class="row">
+                        <h4 class="modal-title">
+                            {% trans 'Pick one of your saved accounts' %}
+                        </h4>
+                    </div>
+                    <div class="row">
+                        <div class="col col-xs-12">
+                            {% include 'core/partials/user_address.html' %}
+                            <input type="hidden" name="user_address_id" id="user_address_id" value="">
+                        </div>
+                        <div class="col col-xs-12">
+                            <span class="btn btn-primary">{% trans "Use this "|add:method %}</span>
+                        </div>
+                    </div>
+                {% endif %}
+                {% include 'core/partials/forms/'|add:form|add:'.html' with legend=legend %}
+            </div>
         </div>
-        <div class="card-wrapper"></div>
-        <form action="" name="card-form" id="card-form">
-            <legend>{% trans 'Or just use a new one!' %}</legend>
-            <div class="row">
-                <div class="col col-sm-6 columns">
-                    <input placeholder="{% trans "Card number" %}" type="text" name="number">
-                </div>
-                <div class="col col-sm-6 columns">
-                    <input placeholder="{% trans "Full name" %}" type="text" name="name">
-                </div>
-            </div>
-            <div class="row collapse">
-                <div class="small-3 columns">
-                    <span class="btn btn-primary" id="save-card">{% trans "Go" %}</span>
-                </div>
-            </div>
-        </form>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
+          <span class="btn btn-default" data-dismiss="modal">Close</span>
+          <span class="btn btn-warning back back">{% trans 'back' %}</span>
         </div>
       </div>
-
     </div>
 </div>

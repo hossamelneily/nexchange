@@ -418,7 +418,7 @@ def ajax_order(request):
     if trade_type == Order.SELL:
         address = k_generate_address()
 
-    return HttpResponse(template.render({'bank_account': MAIN_BANK_ACCOUNT,
+    return HttpResponse(template.render({'bank_account': Order,
                                          'unique_ref': uniq_ref,
                                          'action': my_action,
                                          'pay_until': pay_until,

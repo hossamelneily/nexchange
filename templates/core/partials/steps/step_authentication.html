@@ -5,12 +5,7 @@
     <h4>{% trans "Phone verification" %}</h4>
     <div class="register">
         <div class="step1">
-            <div class="col col-lg-12 register">
-                {% trans "Enter your phone" %}
-            </div>
-            <div class="col col-lg-12 register">
-                <input type="text" name="phone" id="phone" placeholder ="+7">
-            </div>
+            {% include 'core/partials/forms/phone.html' with label="Enter your phone" %}
         </div>
         <div class="step2 hidden">
             <div class="col col-lg-12 register">

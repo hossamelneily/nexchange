@@ -8,13 +8,14 @@
         paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
         paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/';
 
-     $(".trade-type").val("1");
+    $(".trade-type").val("1");
     window.ACTION_BUY = 1;
     window.ACTION_SELL = 0;
     window.action = ACTION_BUY; // 1 - BUY 0 - SELL
 
 
     $(function () {
+             $(".phone").intlTelInput();
             setCurrency();
             var timer = null,
                 delay = 500;

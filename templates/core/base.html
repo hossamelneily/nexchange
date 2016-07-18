@@ -3,30 +3,12 @@
 {% load staticfiles %}
 {% load i18n %}
 
-
-<script src="https://code.jquery.com/jquery.min.js"></script>
-<script   src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"
-          integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw="
-          crossorigin="anonymous"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.css" rel="stylesheet">
-<script src="{% static 'js/django_jquery_csrf_setup.js' %}"></script>
-
-<script src="{% static 'bower_components/moment/moment.js' %}"></script>
-<script src="{% static 'bower_components/moment-timezone/builds/moment-timezone-with-data.min.js' %}"></script>
-<script src="{% static 'bower_components/js-cookie/src/js.cookie.js' %}"></script>
-<script>
-$( document ).ready(function() {
-  Cookies.set("USER_TZ", moment.tz.guess());
-});
-</script>
-
-
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-
 {# Load CSS and JavaScript #}
 {% bootstrap_css %}
-{% bootstrap_javascript %}
-
+{% block css %}
+{% endblock %}
 {# Display django.contrib.messages as Bootstrap alerts #}
 {% bootstrap_messages %}
 
@@ -40,17 +22,14 @@ $( document ).ready(function() {
     <meta name="description" content="">
     <meta name="author" content="">
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-
-    <script src="https://use.fontawesome.com/9a25f329b7.js"></script>
     <!--link rel="stylesheet/less" href="less/bootstrap.less" type="text/css" /-->
     <!--link rel="stylesheet/less" href="less/responsive.less" type="text/css" /-->
     <!--script src="js/less-1.3.3.min.js"></script-->
     <!--append ‘#!watch’ to the browser URL, then refresh the page.
     -->
-
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-    <script src="js/html5shiv.js"></script>
+        <script src="js/html5shiv.js"></script>
     <![endif]-->
 
     <!-- Fav and touch icons -->
@@ -75,6 +54,21 @@ $( document ).ready(function() {
         {% block main %}
         {% endblock %}
     </div>
+    <script src="https://code.jquery.com/jquery.min.js"></script>
+    <script   src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"
+          integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw="
+          crossorigin="anonymous"></script>
+    <script src="https://use.fontawesome.com/9a25f329b7.js"></script>
+    <script src="{% static 'js/django_jquery_csrf_setup.js' %}"></script>
+    <script src="{% static 'bower_components/moment/moment.js' %}"></script>
+    <script src="{% static 'bower_components/moment-timezone/builds/moment-timezone-with-data.min.js' %}"></script>
+    <script src="{% static 'bower_components/js-cookie/src/js.cookie.js' %}"></script>
+    <script>
+        $( document ).ready(function() {
+          Cookies.set("USER_TZ", moment.tz.guess());
+        });
+    </script>
+    {% bootstrap_javascript %}
     {% block extra_js_footer %} {% endblock %}
 </body>
 </html>

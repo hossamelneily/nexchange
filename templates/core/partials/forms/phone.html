@@ -1,0 +1,10 @@
+{% load i18n %}
+<div class="row">
+    <div class="col col-lg-12">{% trans label %}</div>
+</div>
+<div class="row">
+    <div class="col col-lg-12">
+        <input type="text" name="phone" id="phone" class="phone"
+               value="{% if user.is_authenticated  %}{{ user.profile.phone }}{% else %}+7{% endif %}">
+    </div>
+</div>

@@ -236,3 +236,32 @@ select {
 .withdraw_address_err {
   max-width: 300px;
 }
+
+.payment-method-icon {
+    height: 50px;
+    width: 150px;
+}
+
+.payment-type-trigger {
+    padding: 20px 0;
+}
+
+.payment-label {
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.payment-type-trigger i {
+    font-size: 42px;
+}
+
+.unique_ref {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.col-centered{
+    float: none;
+    margin: 0 auto;
+}

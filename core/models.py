@@ -70,7 +70,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     last_name = models.CharField(max_length=20, blank=True)
 
     def natural_key(self):
-        return (self.user.username)
+        return self.user.username
 
     def save(self, *args, **kwargs):
         """Add a SMS token at creation. Used to verify phone number"""
@@ -120,10 +120,40 @@ class Currency(TimeStampedModel, SoftDeletableModel):
     name = models.CharField(max_length=10)
 
     def natural_key(self):
-        return (self.code)
+        return self.code
 
     def __str__(self):
         return self.name
+
+
+class PaymentMethodManager(models.Manager):
+
+    def get_by_natural_key(self, bin):
+        return self.get(bin=bin)
+
+
+class PaymentMethod(TimeStampedModel, SoftDeletableModel):
+    objects = PaymentMethodManager()
+
+    name = models.CharField(max_length=100)
+    handler = models.CharField(max_length=100, null=True)
+    bin = models.IntegerField(null=True, default=None)
+    fee = models.FloatField(null=True)
+    is_slow = models.BooleanField(default=False)
+
+    def natural_key(self):
+        return self.bin
+
+
+class PaymentPreference(TimeStampedModel, SoftDeletableModel):
+    # NULL or Admin for out own (buy adds)
+    user = models.ForeignKey(User)
+    payment_method = models.ForeignKey(PaymentMethod, default=None)
+    currency = models.ForeignKey(Currency, null=True)
+    # Optional, sometimes we need this to confirm
+    method_owner = models.CharField(max_length=100)
+    identified = models.CharField(max_length=100)
+    comment = models.CharField(max_length=255)
 
 
 class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
@@ -149,6 +179,8 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     unique_reference = models.CharField(
         max_length=UNIQUE_REFERENCE_LENGTH, unique=True)
     admin_comment = models.CharField(max_length=200)
+    payment_preference = models.ForeignKey(PaymentPreference, default=None,
+                                           null=True)
 
     class Meta:
         ordering = ['-created_on']
@@ -278,33 +310,3 @@ class Transaction(BtcBase):
     # TODO: how to handle cancellation?
     order = models.ForeignKey(Order)
     is_verified = models.BooleanField(default=False)
-
-
-class PaymentMethodManager(models.Manager):
-
-    def get_by_natural_key(self, bin):
-        return self.get(bin=bin)
-
-
-class PaymentMethod(TimeStampedModel, SoftDeletableModel):
-    objects = PaymentMethodManager()
-
-    name = models.CharField(max_length=100)
-    handler = models.CharField(max_length=100, null=True)
-    bin = models.IntegerField(null=True, default=None)
-    fee = models.FloatField(null=True)
-    is_slow = models.BooleanField(default=False)
-
-    def natural_key(self):
-        return (self.bin)
-
-
-class PaymentPreference(TimeStampedModel, SoftDeletableModel):
-    # NULL or Admin for out own (buy adds)
-    user = models.ForeignKey(User)
-    payment_method = models.ForeignKey(PaymentMethod)
-    currency = models.ForeignKey(Currency, null=True)
-    # Optional, sometimes we need this to confirm
-    method_owner = models.CharField(max_length=100)
-    identified = models.CharField(max_length=100)
-    comment = models.CharField(max_length=255)

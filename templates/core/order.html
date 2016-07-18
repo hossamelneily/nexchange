@@ -1,7 +1,9 @@
 {% extends "core/base.html" %}
 {% load i18n %}
 {% load staticfiles %}
-
+{% block css %}
+    <link rel="stylesheet" href="{% static 'bower_components/intl-tel-input/build/css/intlTelInput.css' %}">
+{% endblock %}
 {% block main %}
 <div class="tab-content">
   <div class="row breadcrumbsContainer">
@@ -20,7 +22,10 @@
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/highcharts-more.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="{% static 'js/models/Order.js' %}"></script>
+    <script src="{% static 'js/models/PaymentPreference.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/add_orders.js' %}"></script>
     <script src="{% static 'bower_components/card/lib/js/jquery.card.js' %}"></script>
+    <script src="{% static 'bower_components/intl-tel-input/build/js/intlTelInput.min.js' %}"></script>
 {% endblock %}

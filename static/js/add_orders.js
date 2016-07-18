@@ -18,7 +18,7 @@ $(function() {
 
     $('.create-acc').on('click', function () {
         var regPayload = {
-            phone: $('#phone').val()
+            phone: $('.register .phone').val()
         };
         $.ajax({
             type: "POST",
@@ -138,7 +138,29 @@ $(function() {
 
     });
 
+    $('.buy .payment-type-trigger').on('click', function () {
+        var paymentType = $(this).data('type');
+        $("#PayMethModal").modal('toggle');
+        $(".payment-method").val(paymentType);
+    });
 
+    $('.sell .payment-type-trigger').on('click', function () {
+        var paymentType = $(this).data('type');
+        $("#UserAccountModal").modal('toggle');
+        if (paymentType === 'c2c') {
+            $("#CardSellModal").modal('toggle');
+        } else if(paymentType === 'qiwi') {
+            $("#QiwiSellModal").modal('toggle');
+        }
+        else {
+            $(".payment-method").val(paymentType);
+        }
+    });
+
+    $('.sellMethModal .back').click(function () {
+        $(this).closest('.modal').modal('toggle');
+        $("#UserAccountModal").modal('toggle');
+    });
 });
 
 function setButtonDefaultState (tabId) {
@@ -210,5 +232,5 @@ function canProceedtoRegister(objectName){
     return false;
 }
 
-//Ugly hack
+//Ugly hack to call from main.js
 window.changeState = changeState;
