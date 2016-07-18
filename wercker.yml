@@ -82,8 +82,8 @@ dev:
           ln -fs ../../.pre-commit.sh pre-commit
           cd -
     - internal/watch:
-        code: python manage.py runserver 0.0.0.0:8000
-        reload: true 
+        code: newrelic-admin run-program python manage.py runserver 0.0.0.0:8000
+        reload: false 
 
 build:
   services:
@@ -177,8 +177,11 @@ build:
           # the following vars should br defined in wercker web interface
           export GUNICORN_PORT=${GUNICORN_PORT}
           export POSTGIS_ENV_POSTGRES_USER=${POSTGIS_ENV_POSTGRES_USER}
-          export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}          
+          export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}
           export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
+          export NEW_RELIC_CONFIG_FILE=${NEW_RELIC_CONFIG_FILE}
+          export NEW_RELIC_ENVIRONMENT=${NEW_RELIC_ENVIRONMENT}
+          export NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
           #
           # Apply migrations
           python /usr/src/app/manage.py migrate
@@ -202,7 +205,7 @@ build:
           echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
           #
           echo "Gunicorn start"
-          exec gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --log-file=/var/log/gunicorn_error.log --access-logfile=/var/log/gunicorn_access.log nexchange.wsgi:application "$@"
+          exec newrelic-admin run-program gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --log-file=/var/log/gunicorn_error.log --access-logfile=/var/log/gunicorn_access.log nexchange.wsgi:application "$@"
     - script:
         name: set entrypoint as executable
         code: |
@@ -316,6 +319,11 @@ tests:
         code: |
           export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs 
           npm run-script test
+    - script:
+        name: Validate New Relic config file
+        code: |
+          newrelic-admin validate-config ${NEW_RELIC_CONFIG_FILE}
+
 
 static-validation:
   steps:
