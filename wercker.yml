@@ -314,7 +314,9 @@ tests:
         name: Backend tests
         code: |
           coverage erase
-          python manage.py test -v 3
+          coverage run --source="." manage.py test -v 3
+          coverage report
+          coverage html -d cover
     - script:
         name: Frontend tests
         code: |
