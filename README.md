@@ -25,4 +25,6 @@ It will trigger, in order:
 
 **If any of this steps fail, file won't be commited.**
 
+(After you run the tests, you can see a coverage report of the backend tests at http://localhost:8000/cover/index.html)
+
 You can read more about these tests in the *readme_werker.md* on this directory.
