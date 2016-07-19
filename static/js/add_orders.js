@@ -68,10 +68,12 @@ $(function() {
         var verifyPayload = {
                 "trade-type": $(".trade-type").val(),
                 "csrfmiddlewaretoken": $("#csrfmiddlewaretoken").val(),
-                "amount-cash": $('.amount-cash').val(),
                 "amount-coin": $('.amount-coin').val(),
-                "currency_from": $('.currency-from').val(),
-                "user_id":$("#user_id").val()
+                "currency_from": $('.currency-from').val(), //fiat
+                "currency_to": $('.currency-to').val(), //crypto
+                "pp_type": $(".payment-method"),
+                "pp_identifier": $(".payment-preference-identifier"),
+                "pp_owner": $(".payment-preference-owner")
             };
             
         $.ajax({
@@ -160,6 +162,15 @@ $(function() {
     $('.sellMethModal .back').click(function () {
         $(this).closest('.modal').modal('toggle');
         $("#UserAccountModal").modal('toggle');
+    });
+
+    $('.sellMethModal .save').on('click', function () {
+        var preferenceIdentifier = $(this).find('.val').val(),
+            preferenceOwner = $(this).find('.name').val();
+
+        $(".payment-preference-owner").val(preferenceOwner);
+        $(".payment-preference-identifier").val(preferenceIdentifier);
+        changeState("next");
     });
 });
 

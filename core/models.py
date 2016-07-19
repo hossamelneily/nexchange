@@ -133,8 +133,8 @@ class PaymentMethodManager(models.Manager):
 
 
 class PaymentMethod(TimeStampedModel, SoftDeletableModel):
+    BIN_LENGTH = 6
     objects = PaymentMethodManager()
-
     name = models.CharField(max_length=100)
     handler = models.CharField(max_length=100, null=True)
     bin = models.IntegerField(null=True, default=None)
@@ -152,8 +152,23 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
     currency = models.ForeignKey(Currency, null=True)
     # Optional, sometimes we need this to confirm
     method_owner = models.CharField(max_length=100)
-    identified = models.CharField(max_length=100)
+    identifier = models.CharField(max_length=100)
     comment = models.CharField(max_length=255)
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        self.payment_method = self.guess_payment_method()
+        super(PaymentPreference, self).save()
+
+    def guess_payment_method(self):
+        bin = self.identifier[:PaymentMethod.BIN_LENGTH]
+        payment_method = None
+
+        while payment_method is None and len(bin) > 1:
+            bin = bin[:-1]
+            payment_method = PaymentMethod.objects.filter(bin=bin)
+
+        return bin
 
 
 class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):

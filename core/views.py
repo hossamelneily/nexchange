@@ -11,7 +11,7 @@ from nexchange.settings import MAIN_BANK_ACCOUNT
 from core.forms import DateSearchForm, CustomUserCreationForm,\
     UserForm, UserProfileForm, UpdateUserProfileForm
 from core.models import Order, Currency, SmsToken, Profile, Transaction,\
-    Address, Payment, PaymentMethod
+    Address, Payment, PaymentMethod, PaymentPreference
 from django.db import transaction
 from django.views.generic import View
 from django.utils.decorators import method_decorator
@@ -402,12 +402,19 @@ def ajax_order(request):
     template = get_template('core/partials/success_order.html')
     user = request.user
     curr = request.POST.get("currency_from", "RUB")
-    amount_cash = request.POST.get("amount-cash")
     amount_coin = request.POST.get("amount-coin")
     currency = Currency.objects.filter(code=curr)[0]
     trade_type = request.POST.get("trade-type")
+    owner = request.POST.get("pp_owner")
+    identifier = request.POST.get("pp_identifier")
+    payment_pref, created = PaymentPreference.objects.get_or_create(
+        user=user,
+        currency=currency,
+        method_owner=owner,
+        identifier=identifier
+    )
 
-    order = Order(amount_cash=amount_cash, amount_btc=amount_coin,
+    order = Order(amount_btc=amount_coin,
                   currency=currency, user=user)
     order.save()
     uniq_ref = order.unique_reference

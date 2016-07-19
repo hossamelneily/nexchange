@@ -4,15 +4,15 @@
     <legend>{% trans legend %}</legend>
     <div class="row">
         <div class="col col-sm-4 col-sm-offset-2">
-            <input placeholder="{% trans "Card number" %}" type="text" name="number">
+            <input class="val" placeholder="{% trans "Card number" %}" type="text" name="number">
         </div>
         <div class="col col-sm-4">
             <input placeholder="{% trans "Full name" %}" type="text" name="name">
         </div>
     </div>
-    <div class="row collapse">
-        <div class="small-3 columns">
-            <span class="btn btn-primary" id="save-card">{% trans "Go" %}</span>
+    <div class="row">
+        <div class="col-sm-4 col-sm-offset-4">
+            <span class="btn btn-primary save save-card">{% trans "Go" %}</span>
         </div>
     </div>
 </form>

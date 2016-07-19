@@ -32,6 +32,7 @@
         <input type="hidden" name="payment-option" value="" class="payment-option">
         <input type="hidden" name="payment-preference" value="" class="payment-preference">
         <input type="hidden" name="payment-preference-identifier" value="" class="payment-preference-identifier">
+        <input type="hidden" name="payment-preference-owner" value="" class="payment-preference-owner">
         <span class="btn btn-info buy-go btn-lg" href="/">Cancel</span>
         <button  class="sell-go btn btn-danger btn-lg place-order hidden">{% trans "Sell" %}</button>
         <button  class="buy-go btn btn-success btn-lg place-order ">{% trans "Buy" %}</button>
@@ -39,28 +40,8 @@
     </div>
 </div>
 
-  <!-- Modal -->
-  <div class="modal fade" id="orderSuccessModal" role="dialog">
-    <div class="modal-dialog">
-    
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">×</button>
-          <h4 class="modal-title">Success</h4>
-        </div>
-        <div class="modal-body successOrder">
-            {% include 'core/partials/success_order.html' %}
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-      
-    </div>
-  </div>
-
-
+{% include 'core/partials/modals/order_success_buy.html' %}
+{% include 'core/partials/modals/order_success_sell.html' %}
 
 {% endblock %}
 {% block spa_navigation %}
