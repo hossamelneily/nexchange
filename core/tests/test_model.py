@@ -6,10 +6,7 @@ from core.models import Order
 from datetime import timedelta
 import time
 from django.conf import settings
-
-
-from .utils import UserBaseTestCase, data_provider
-from .test_order import OrderBaseTestCase
+from .utils import UserBaseTestCase, OrderBaseTestCase, data_provider
 
 
 class OrderValidatePaymentTestCase(UserBaseTestCase, OrderBaseTestCase):
@@ -185,7 +182,7 @@ class OrderUniqueReferenceTestsCase(UserBaseTestCase, OrderBaseTestCase):
         self.assertEqual(len(objects), 1)
         self.assertIsInstance(counter, int)
 
-    @data_provider(get_data_provider(None, 10000))
+    @data_provider(get_data_provider(None, 3000))
     def test_timing_token_creation(self, order_gen, counter):
         max_execution = 0.5
         start = time.time()
