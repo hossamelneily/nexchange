@@ -34,7 +34,10 @@
                     $('.buy-go').removeClass('hidden');
                     $('.sell-go').addClass('hidden');
                     window.action = window.ACTION_BUY;
-                    $('.next-step').removeClass('btn-danger').addClass('btn-success');
+                    $('.next-step')
+                        .removeClass('btn-info')
+                        .removeClass('btn-danger')
+                        .addClass('btn-success');
                     $('.step4 i').removeClass('fa-money').addClass('fa-btc');
                     loadPaymenMethods(paymentMethodsEndpoint);
                     $("#PayMethModal").modal({backdrop: "static"});
@@ -42,16 +45,20 @@
                     $('.buy-go').addClass('hidden');
                     $('.sell-go').removeClass('hidden');
                     window.action = window.ACTION_SELL;
-                    $('.next-step').removeClass('btn-success').addClass('btn-danger');
+                    $('.next-step')
+                        .removeClass('btn-info')
+                        .removeClass('btn-success')
+                        .addClass('btn-danger');
                     $('.step4 i').removeClass('fa-btc').addClass('fa-money');
 
                     $("#card-form").card({
                         container: '.card-wrapper',
+                        width: 200,
                         placeholders: {
-                            number: '**** **** **** ****',
+                            number: '•••• •••• •••• ••••',
                             name: 'Ivan Ivanov',
-                            expiry: '**/****',
-                            cvc: '***'
+                            expiry: '••/••',
+                            cvc: '•••'
                         }
                     });
                     $("#UserAccountModal").modal({backdrop: "static"});
@@ -64,7 +71,7 @@
                 updateOrder($('.amount-coin'));
 
                 var newCashClass = action === window.ACTION_BUY ? 'rate-buy' : 'rate-sell';
-                $('.amount-cash')
+                $('.amount-cash, .amount-coin')
                     .removeClass('rate-buy')
                     .removeClass('rate-sell')
                     .addClass(newCashClass);
@@ -233,6 +240,13 @@
                 chart: {
                     type: 'arearange',
                     zoomType: 'x',
+                  backgroundColor: {
+                     linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+                     stops: [
+                        [0, '#e3ffda'],
+                        [1, '#e3ffda']
+                     ]
+                  },
                     events : {
                         load : function () {
                             // set up the updating of the chart each second
@@ -285,6 +299,7 @@
                 series: [{
                     name: currency === 'rub' ? 'цена' : 'Price',
                     data: data,
+                    color: 'lightgreen',
                     // TODO: fix this!
                     pointInterval: 3600 * 1000 
                 }]

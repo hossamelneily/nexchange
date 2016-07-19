@@ -164,13 +164,36 @@ $(function() {
         $("#UserAccountModal").modal('toggle');
     });
 
-    $('.sellMethModal .save').on('click', function () {
+    $('.payment-widget .val').on('keyup', function() {
+        var val = $(this).closest('.val');
+        if (!val.val().length) {
+           $(this).removeClass('error').removeClass('valid');
+            return;
+        }
+       if (val.hasClass('jp-card-invalid')) {
+            $(this).removeClass('valid').addClass('error');
+            $('.save-card').addClass('disabled');
+        } else {
+           $(this).removeClass('error').addClass('valid');
+           $('.save-card').removeClass('disabled');
+       }
+
+    });
+
+    $('.payment-widget .save-card').on('click', function () {
+        if ($(this).hasClass('disabled')) {
+            return false;
+        }
         var preferenceIdentifier = $(this).find('.val').val(),
             preferenceOwner = $(this).find('.name').val();
 
         $(".payment-preference-owner").val(preferenceOwner);
         $(".payment-preference-identifier").val(preferenceIdentifier);
-        changeState("next");
+
+        $(this).closest('.modal').modal('dismiss').delay(500).queue( function (next){
+            changeState("next");
+            next();
+        });
     });
 });
 
@@ -197,6 +220,7 @@ function changeState (action) {
         currStateId = menuPrefix + (numericId - 1),
         currState =  $('[href="#'+ currStateId +'"]');
 
+    //skip disabled state, check if at the end
     if(nextState.hasClass('disabled') &&
         numericId < $(".process-step").length &&
         numericId > 1) {
@@ -213,6 +237,8 @@ function changeState (action) {
             .removeClass('btn-default')
             .tab('show');
     }
+
+    $(window).trigger('resize');
 }
 
 function reloadRoleRelatedElements (menuEndpoint, breadCrumbEndpoint) {

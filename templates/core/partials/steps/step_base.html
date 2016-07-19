@@ -1,4 +1,4 @@
-<div id="{{ id }}" class="tab-pane {% if id == 'menu1' %} active in {% else %} fade {% endif %}">
+<div id="{{ id }}" class="menuSection tab-pane {% if id == 'menu1' %} active in {% elif id == 'menu2' %} active in panel {% else %} fade {% endif %}">
     <div class="row {{ id }}">
         {% block step_content %}
         {% endblock %}

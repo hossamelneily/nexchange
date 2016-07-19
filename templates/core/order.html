@@ -6,10 +6,9 @@
 {% endblock %}
 {% block main %}
 <div class="tab-content">
-  <div class="row breadcrumbsContainer">
+  <div class="breadcrumbsContainer">
     {% include 'core/partials/breadcrumbs.html' %}
   </div>
-    {% include 'core/partials/steps/step_graph.html' with id="menu1" %}
     {% include 'core/partials/steps/step_amount.html' with id="menu2" %}
     {% if not user.is_authenticated %}
         {% include 'core/partials/steps/step_authentication.html' with id="menu3" %}
@@ -17,6 +16,9 @@
     {% include 'core/partials/steps/step_confirmation.html' with id="menu4" %}
     {% include 'core/partials/steps/step_success.html' with id="menu5" %}
 </div>
+    {% include 'core/partials/testemonials.html' %}
+    {% include 'core/partials/press.html' %}
+    {% include 'core/partials/supported_paymnets.html' %}
 {% endblock %}
 {% block extra_js_footer %}
     <script src="https://code.highcharts.com/highcharts.js"></script>

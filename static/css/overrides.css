@@ -1,5 +1,6 @@
 html body {
     overflow-x: hidden;
+    background-color: #f6fff6;
 }
 .center, .tab-pane {
     text-align: center;
@@ -114,7 +115,9 @@ select {
 }
 
 .currency-select {
-    border-radius: 0 5px 5px 0;
+    border-radius: 0;
+    min-width: 55px;
+    min-height: 37px;
 }
 
 .up {
@@ -167,7 +170,7 @@ select {
 .process-step p{
   margin-top:4px
 }
-.btn-circle{
+.process-step .btn-circle{
   width:80px;
   height:80px;
   text-align:center;
@@ -264,4 +267,56 @@ select {
 .col-centered{
     float: none;
     margin: 0 auto;
+}
+
+.error{
+    border: 3px solid red;
+}
+
+html body .btn {
+    border-radius: 0;
+}
+
+html body .form-control {
+    border-radius: 0;
+}
+
+.supported-payments {
+    background: lightgreen;
+    padding: 50px 0;
+    height: 150px;
+}
+
+.supported_payment {
+    height: 35px;
+    width: 120px;
+    margin: 30px 0;
+}
+
+html body .tab-pane{
+    margin-bottom: 0;
+}
+.tab-content {
+    min-height: 600px;
+}
+
+.navbar-light {
+    background: lightgreen;
+}
+
+footer {
+    height: 40px;
+    position: static;
+    bottom: 0;
+    left: 0;
+    color: whitesmoke;
+    width: 100%;
+    background: lightgreen;
+    text-align: center;
+    margin: 10px auto 0 auto;
+    padding: 10px 0;
+}
+
+.menuSection {
+    min-height: 60%;
 }

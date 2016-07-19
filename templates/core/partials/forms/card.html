@@ -3,16 +3,18 @@
 <form action="" name="card-form" id="card-form">
     <legend>{% trans legend %}</legend>
     <div class="row">
-        <div class="col col-sm-4 col-sm-offset-2">
-            <input class="val" placeholder="{% trans "Card number" %}" type="text" name="number">
-        </div>
-        <div class="col col-sm-4">
-            <input placeholder="{% trans "Full name" %}" type="text" name="name">
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-4 col-sm-offset-4">
-            <span class="btn btn-primary save save-card">{% trans "Go" %}</span>
+        <div class="col col-lg-10 col-lg-offset-1 panel">
+            <div class="col col-sm-5 col-sm-offset-1">
+                <input class="val" placeholder="{% trans "Card number" %}"
+                       type="text" name="number">
+            </div>
+            <div class="col col-sm-5">
+                <input placeholder="{% trans "Full name" %}" type="text"
+                       value="Ivan Ivanov" name="name">
+            </div>
+            <div class="col-sm-4 col-sm-offset-4">
+                <span class="btn btn-primary save save-card disabled">{% trans "Go" %}</span>
+            </div>
         </div>
     </div>
 </form>

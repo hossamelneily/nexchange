@@ -12,7 +12,7 @@ import logging
 BITFINEX_TICKER =\
     "https://api.bitfinex.com/v1/pubticker/btcusd"
 LOCALBTC_URL =\
-    "https://localbitcoins.com/{}-bitcoins-online/ru/russian-federation/.json"
+    "https://localbitcoins.com/{}-bitcoins-online/ru/russian-federation/banks/.json"
 
 # direction 1
 ACTION_SELL = "sell"
