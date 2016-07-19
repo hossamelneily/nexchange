@@ -23,6 +23,11 @@ from core.forms import LoginForm
 from django.conf.urls import include
 from django.conf.urls.i18n import i18n_patterns
 from ticker.urls import api_patterns
+from django.conf import settings
+from django.conf.urls.static import static
+import os
+
+
 # todo: move to admin.py
 admin.site.register(Currency)
 admin.site.register(Profile)
@@ -105,3 +110,8 @@ urlpatterns = i18n_patterns(
     url(r'^kraken/depositStatus/$', core.views.k_deposit_status,
         name='core.k_deposit_status'),
 )
+
+
+if settings.DEBUG:
+    urlpatterns += static('/cover', document_root=os.path.join(
+        settings.BASE_DIR, 'cover'))
