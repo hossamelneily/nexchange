@@ -20,7 +20,7 @@
   "scripts": {
     "test": "karma start --single-run",
     "bower": "cd static && bower install --allow-root && cd - ",
-    "bower-prd": "cd static && bower install --allow-root --production --force && cd - "
+    "bower-prd": "cd static && bower install --allow-root --production && cd - "
   },
   "repository": {
     "type": "git",

@@ -22,7 +22,7 @@
     "js-cookie": "^2.1.2",
     "x-editable": "^1.5.1",
     "card": "^2.0.1",
-    "intl-tel-input": "^9.0.4"
+    "intl-tel-input": "https://github.com/onitsoft/intl-tel-input.git"
   },
   "devDependencies": {
     "jasmine-core": "jasmine#^2.4.1",

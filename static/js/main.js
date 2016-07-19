@@ -15,10 +15,16 @@
 
 
     $(function () {
-             $(".phone").intlTelInput();
             setCurrency();
             var timer = null,
-                delay = 500;
+                delay = 500,
+                phones = $(".phone");
+
+            phones.each(function (idx) {
+                if(typeof $(this).intlTelInput === 'function') {
+                    $(this).intlTelInput();
+                }
+            });
             updateOrder($('.amount-coin'));
             
             $('.trigger').click( function(event, isNext){
