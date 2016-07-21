@@ -2,8 +2,8 @@ from django.test import TestCase
 from django.core.exceptions import ValidationError
 from core.validators import validate_bc
 from django.utils import timezone
-from core.models import Order, UniqueFieldMixin, Currency, PaymentMethod,\
-    PaymentPreference
+from core.models import Order, UniqueFieldMixin, Currency, PaymentPreference,\
+    PaymentMethod
 from datetime import timedelta
 import time
 from django.conf import settings
@@ -245,7 +245,7 @@ class CurrencyTestCase(OrderBaseTestCase):
 class PaymentMethodTestCase(UserBaseTestCase, OrderBaseTestCase):
 
     def setUp(self):
-        super(PaymentMethodTestCase, self).setUp()
+        PaymentMethod.objects.all().delete()
         self.method_data = {
             'bin': 426101,
             'fee': 0.0,
@@ -255,6 +255,7 @@ class PaymentMethodTestCase(UserBaseTestCase, OrderBaseTestCase):
 
         self.payment_method = PaymentMethod(**self.method_data)
         self.payment_method.save()
+        super(PaymentMethodTestCase, self).setUp()
 
     def test_find_payment_method_by_natural_key(self):
         natural_key = self.payment_method.natural_key()
