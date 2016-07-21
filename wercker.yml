@@ -267,7 +267,6 @@ deploy:
               ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT}
         EOF
 
-
 tests:
   steps:
     - script:
