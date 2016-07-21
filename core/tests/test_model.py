@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.core.exceptions import ValidationError
 from core.validators import validate_bc
 from django.utils import timezone
-from core.models import Order
+from core.models import Order, UniqueFieldMixin
 from datetime import timedelta
 import time
 from django.conf import settings
@@ -212,3 +212,16 @@ class ValidateBCTestCase(TestCase):
     def test_validator_recognizes_good_address(self):
         self.assertEqual(None, validate_bc(
             '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j'))
+
+
+class ValidateUniqueFieldMixinTestCase(TestCase):
+
+    def test_detects_uniqe_value_colision(self):
+
+        unq = UniqueFieldMixin.gen_unique_value(
+            lambda x: 'A' * x,
+            lambda x: 1 if x == 'A' else 0,
+            1
+        )
+
+        self.assertEqual(unq, 'AA')
