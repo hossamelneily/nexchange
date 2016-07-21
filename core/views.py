@@ -93,13 +93,13 @@ def add_order(request):
     template = get_template('core/order.html')
 
     if request.method == 'POST':
+        # Not in use order is added via ajax
         template = get_template('core/result_order.html')
         user = request.user
         curr = request.POST.get("currency_from", "RUB")
-        amount_cash = request.POST.get("amount-cash")
         amount_coin = request.POST.get("amount-coin")
         currency = Currency.objects.filter(code=curr)[0]
-        order = Order(amount_cash=amount_cash, amount_btc=amount_coin,
+        order = Order(amount_btc=amount_coin,
                       currency=currency, user=user)
         order.save()
         uniq_ref = order.unique_reference
@@ -117,26 +117,41 @@ def add_order(request):
             request))
     else:
         pass
-
-    currencies = Currency.objects.filter().exclude(code="BTC").order_by('code')
+    crypto_pairs = [{'code': 'BTC'}]
+    currencies = Currency.objects.filter().exclude(code='BTC')
+    currencies = sorted(currencies, key=lambda x: x.code != 'RUB')
 
     select_currency_from = """<select name="currency_from"
         class="currency-select currency-from">"""
     select_currency_to = """<select name="currency_to"
         class="currency-select currency-to">"""
+    select_currency_pair = """<select name="currency_pair"
+        class="currency-select currency-pair">"""
 
     for ch in currencies:
-        select_currency_from += """<option value ="%s">%s</option>""" % (
-            ch.code, ch.name)
-    select_currency_to += """<option value ="%s">%s</option>""" % (
-        'BTC', 'BTC')
+        select_currency_from += """<option value="{}">{}</option>"""\
+            .format(ch.code, ch.name)
+        for cpair in crypto_pairs:
+            fiat = ch.code
+            crypto = cpair['code']
+
+            val = "{}/{}".format(crypto, fiat)
+            select_currency_pair += """<option value="{fiat}" data-fiat="{fiat}"
+            data-crypto={crypto}>{val}</option>"""\
+                .format(fiat=fiat, crypto=crypto, val=val)
+
+    select_currency_to += """<option value="{val}">{val}</option>"""\
+        .format(val='BTC')
+
     select_currency_from += """</select>"""
     select_currency_to += """</select>"""
+    select_currency_pair += """</select>"""
 
     my_action = _("Add")
 
-    return HttpResponse(template.render({'slt1': select_currency_from,
-                                         'slt2': select_currency_to,
+    return HttpResponse(template.render({'select_pair': select_currency_pair,
+                                         'select_from': select_currency_from,
+                                         'select_to': select_currency_to,
                                          'action': my_action},
                                         request))
 

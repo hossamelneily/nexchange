@@ -25,7 +25,7 @@
                     $(this).intlTelInput();
                 }
             });
-            updateOrder($('.amount-coin'));
+            updateOrder($('.amount-coin'), true);
             
             $('.trigger').click( function(event, isNext){
                 $('.trigger').removeClass('active');
@@ -95,59 +95,73 @@
 
             $('.currency-select').on('change', function () {
                 currency = $(this).val().toLowerCase();
-                setCurrency();
+                setCurrency($(this));
+                //bind all select boxes
+                $('.currency-select').val($(this).val());
                 updateOrder($('.amount-coin'));
             });
             //using this form because the object is inside a modal screen
             $(document).on('change','.payment-method', function () {
                 var pm = $('.payment-method option:selected').val();
                 $('#payment_method_id').val(pm);
-                loadPaymenMethodsAccount(paymentMethodsAccountEndpoint,pm);
+                loadPaymenMethodsAccount(paymentMethodsAccountEndpoint, pm);
 
             });
 
         });
 
-
-
-    function reonseToChart(data) {
+    function responseToChart(data) {
         var i,
             resRub = [],
-            resUsd = [];
+            resUsd = [],
+            resEur = [];
+
         for (i = 0; i < data.length; i+=2) {
             var sell = data[i],
             buy = data[i + 1];
             resRub.push([sell['created_on'], buy['price_rub_formatted'], sell['price_rub_formatted']]);
             resUsd.push([sell['created_on'], buy['price_usd_formatted'], sell['price_usd_formatted']]);
+            resEur.push([sell['created_on'], buy['price_eur_formatted'], sell['price_eur_formatted']]);
         }
 
         return {
             rub: resRub,
-            usd: resUsd
+            usd: resUsd,
+            eur: resEur
         }
     }
 
-    function updateOrder (elem) {
+    function updateOrder (elem, isInitial) {
         var val,
             rate,
             floor = 100000000;
 
-        val = parseFloat(elem.val());
+        isInitial = isInitial || !elem.val().trim();
+        val = isInitial ? elem.attr('placeholder') : elem.val();
 
         if (!val) {
             return;
         }
 
         $.get(tickerLatestUrl, function(data) {
+            // TODO: protect against NaN
             updatePrice(getPrice(data[ACTION_BUY]), $('.rate-buy'));
             updatePrice(getPrice(data[ACTION_SELL]), $('.rate-sell'));
             rate = data[action]['price_' + currency + '_formatted'];
             if (elem.hasClass('amount-coin')) {
                 var cashAmount = rate * val;
-                $('.amount-cash').val(cashAmount);
+                if (isInitial) {
+                    $('.amount-cash').attr('placeholder', cashAmount);
+                } else {
+                    $('.amount-cash').val(cashAmount);
+                }
             } else {
                 var btcAmount = Math.floor(val / rate * floor) / floor;
-                $('.amount-coin').val(btcAmount);
+                if (isInitial) {
+                    $('.amount-coin').attr('placeholder', btcAmount);
+                } else {
+                    $('.amount-coin').val(btcAmount);
+                }
             }
             $('.btc-amount-confirm').text($('.amount-coin').val()); // add
             $('.cash-amount-confirm').text($('.amount-cash').val()); //add
@@ -165,7 +179,8 @@
             elem.html(price);
             return;
         }
-        isReasonableChange = price < currentPrice * 2;
+        // TODO: refactor this logic
+        isReasonableChange = price < currentPrice * 1.05;
         if (currentPrice < price && isReasonableChange) {
             animatePrice(price, elem, true);
         }
@@ -173,7 +188,7 @@
             setPrice(elem, price);
         }
 
-        isReasonableChange = price * 2 > currentPrice;
+        isReasonableChange = price * 1.05 > currentPrice;
         if (currentPrice > price && isReasonableChange) {
             animatePrice(price, elem);
         }
@@ -197,7 +212,11 @@
         return data['price_' + currency + '_formatted'];
     }
 
-    function setCurrency () {   
+    function setCurrency (elem) {
+        if (elem && elem.hasClass('currency_pair')) {
+            $('.currency_to').val(elem.data('crypto'));
+        }
+
         $('.currency').html(currency.toUpperCase());
         renderChart();
     }
@@ -224,7 +243,7 @@
     }
 
     function loadPaymenMethodsAccount(paymentMethodsAccountEndpoint,pm) {
-        data = {'payment_method': pm}
+        data = {'payment_method': pm};
         $.get(paymentMethodsAccountEndpoint, data,function (data) {
             $(".paymentMethodsAccount").html($(data));
         });
@@ -234,7 +253,7 @@
     function renderChart () {
          $.get(tickerHistoryUrl, function(resdata) {
             chartDataRaw = resdata;
-            var data = reonseToChart(resdata)[currency];
+            var data = responseToChart(resdata)[currency];
           $('#container').highcharts({
 
                 chart: {
@@ -253,7 +272,7 @@
                             var series = this.series[0];
                             setInterval(function () {
                                 $.get(tickerLatestUrl, function (resdata) {
-                                    var lastdata = reonseToChart(resdata)[currency];
+                                    var lastdata = responseToChart(resdata)[currency];
                                     if ( chartDataRaw.length && parseInt(resdata[0]["unix_time"]) >
                                          parseInt(chartDataRaw[chartDataRaw.length - 1]["unix_time"])
                                     ) {

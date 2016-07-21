@@ -12,7 +12,8 @@ import logging
 BITFINEX_TICKER =\
     "https://api.bitfinex.com/v1/pubticker/btcusd"
 LOCALBTC_URL =\
-    "https://localbitcoins.com/{}-bitcoins-online/ru/russian-federation/banks/.json"
+    "https://localbitcoins.com/{}-bitcoins-online/" \
+    "ru/russian-federation/banks/.json"
 
 # direction 1
 ACTION_SELL = "sell"
@@ -141,7 +142,7 @@ class Command(BaseCommand):
 
         return {
             'better_adds_count': better_adds,
-            'rate': rate,
+            'rate_usd': rate,
             'price_usd': usd_price,
             'price_rub': rub_price,
             'type': Price.BUY if direction < 0 else Price.SELL

@@ -1,6 +1,9 @@
 {% extends 'core/partials/steps/step_base.html' %}
 {% load i18n %}
 {% block step_content %}
+   <div class="input-group-btn">
+        {{select_pair| safe}}
+    </div>
     <div id="container" style="width: 100%; height: 350px; margin: 0 auto">
     </div>
     <div class="row">
@@ -40,9 +43,9 @@
             <div class="panel panel-default">
                 <div class="panel-body">
                     <div class="input-group">
-                        <input type="text" class="form-control amount amount-cash rate-buy"  name="amount-cash">
+                        <input type="text" class="form-control amount amount-cash rate-buy" name="amount-cash">
                         <div class="input-group-btn">
-                            {{slt1 | safe}}
+                            {{select_from | safe}}
                         </div><!-- /btn-group -->
                     </div><!-- /input-group -->
                 </div><!-- /pannel-body -->
@@ -57,9 +60,9 @@
             <div class="panel panel-default">
                 <div class="panel-body">
                     <div class="input-group">
-                        <input type="text" class="form-control amount amount-coin" value="1" name="amount-coin">
+                        <input type="text" class="form-control amount amount-coin" placeholder="1" name="amount-coin">
                         <div class="input-group-btn">
-                            {{slt2 | safe}}
+                            {{select_to | safe}}
                         </div><!-- /btn-group -->
                     </div><!-- /input-group -->
                 </div><!-- /pannel-body -->

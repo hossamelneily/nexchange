@@ -210,6 +210,11 @@ function setButtonDefaultState (tabId) {
 }
 
 function changeState (action) {
+    if($(this).hasClass('disabled')) {
+        //todo: allow user to buy placeholder value or block 'next'?
+        return;
+    }
+
     var paneClass = '.tab-pane',
         tab = $('.tab-pane.active'),
         action = action || (this).hasClass('next-step') ? 'next' :'prev',

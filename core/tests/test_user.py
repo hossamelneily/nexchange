@@ -48,7 +48,6 @@ class RegistrationTestCase(TestCase):
 
 
 class ProfileUpdateTestCase(UserBaseTestCase):
-
     def test_can_update_profile(self):
         response = self.client.post(reverse('core.user_profile'), self.data)
         # Redirect after update
@@ -91,5 +90,12 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         # Ensure the token was correctly received
         self.assertEqual(200, response.status_code)
         self.assertJSONEqual('{"status": "NO_MATCH"}',
-                             str(
-                                 response.content, encoding='utf8'),)
+                             str(response.content, encoding='utf8'),)
+
+
+class ShortRegistrationTestCase(TestCase):
+    def test_short_registration_success(self):
+        pass
+
+    def test_short_registration_failure(self):
+        pass
