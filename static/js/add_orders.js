@@ -12,12 +12,11 @@ $(function() {
         paymentAjax = '/en/payment/ajax/',
         getBtcAddress = '/en/kraken/genAddress/';
 
-
     $('.next-step, .prev-step').on('click', changeState);
-
 
     $('.create-acc').on('click', function () {
         var regPayload = {
+            // TODO: check collision with qiwi wallet
             phone: $('.register .phone').val()
         };
         $.ajax({
@@ -38,8 +37,8 @@ $(function() {
 
     $('.verify-acc').on('click', function () {
         var verifyPayload = {
-            token: $("#verification_code").val(),
-            phone: $("#phone").val()
+            token: $('#verification_code').val(),
+            phone: $('.register .phone').val()
         };
         $.ajax({
             type: "POST",
@@ -181,6 +180,7 @@ $(function() {
     });
 
     $('.payment-widget .save-card').on('click', function () {
+        // TODO: Add handling for qiwi wallet with .intlTelInput("getNumber")
         if ($(this).hasClass('disabled')) {
             return false;
         }

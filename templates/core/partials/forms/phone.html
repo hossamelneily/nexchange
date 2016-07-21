@@ -4,7 +4,7 @@
 </div>
 <div class="row">
     <div class="col col-lg-12">
-        <input type="text" name="phone" id="phone" class="phone val"
+        <input type="text" name="phone" class="phone val"
                value="{% if user.is_authenticated  %}{{ user.profile.phone }}{% else %}+7{% endif %}">
     </div>
     <div class="row">

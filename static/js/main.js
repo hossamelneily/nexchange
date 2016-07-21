@@ -22,6 +22,7 @@
 
             phones.each(function (idx) {
                 if(typeof $(this).intlTelInput === 'function') {
+                    // with AMD move to https://codepen.io/jackocnr/pen/RNVwPo
                     $(this).intlTelInput();
                 }
             });
