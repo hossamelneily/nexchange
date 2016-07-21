@@ -32,5 +32,3 @@ class TestPrice(TestCase):
         p.save()
 
         self.assertEqual(p.rate_usd, test_usd_rub)
-
-

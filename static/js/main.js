@@ -119,9 +119,9 @@
         for (i = 0; i < data.length; i+=2) {
             var sell = data[i],
             buy = data[i + 1];
-            resRub.push([sell['created_on'], buy['price_rub_formatted'], sell['price_rub_formatted']]);
-            resUsd.push([sell['created_on'], buy['price_usd_formatted'], sell['price_usd_formatted']]);
-            resEur.push([sell['created_on'], buy['price_eur_formatted'], sell['price_eur_formatted']]);
+            resRub.push([Date.parse(sell['created_on']), buy['price_rub_formatted'], sell['price_rub_formatted']]);
+            resUsd.push([Date.parse(sell['created_on']), buy['price_usd_formatted'], sell['price_usd_formatted']]);
+            resEur.push([Date.parse(sell['created_on']), buy['price_eur_formatted'], sell['price_eur_formatted']]);
         }
 
         return {
@@ -294,8 +294,8 @@
                 xAxis: {
                     type: 'datetime',
                     dateTimeLabelFormats: {
-                        day: '%b %e',
-                        hour: '%H:%M'
+                       day: '%e %b',
+                        hour: '%H %M'
 
                     }
                 },

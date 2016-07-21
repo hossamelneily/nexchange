@@ -7,5 +7,3 @@ class PriceSerializer(serializers.ModelSerializer):
         model = Price
         fields = ('type', 'created_on', 'unix_time', 'price_usd_formatted',
                   'price_rub_formatted', 'price_eur_formatted')
-
-
