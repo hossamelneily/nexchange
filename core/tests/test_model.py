@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.core.exceptions import ValidationError
 from core.validators import validate_bc
 from django.utils import timezone
-from core.models import Order, UniqueFieldMixin
+from core.models import Order, UniqueFieldMixin, Currency
 from datetime import timedelta
 import time
 from django.conf import settings
@@ -225,3 +225,17 @@ class ValidateUniqueFieldMixinTestCase(TestCase):
         )
 
         self.assertEqual(unq, 'AA')
+
+
+class CurrencyTestCase(OrderBaseTestCase):
+
+    def setUp(self):
+        self.currency = self.USD
+
+    def test_find_currency_by_natural_key(self):
+        natural_key = self.currency.natural_key()
+        currency = Currency.objects.get_by_natural_key(natural_key)
+        self.assertEqual(currency, self.currency)
+
+    def test_print_currency_name(self):
+        self.assertEqual(str(self.currency), 'US Dollars')
