@@ -1,12 +1,15 @@
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.contrib.auth.models import User
 from http.cookies import SimpleCookie
 from datetime import timedelta
 import pytz
 import json
 
-from core.models import Order, Address, Transaction
+
+from core.models import Order, Address, Transaction, PaymentMethod,\
+    PaymentPreference
 from .utils import UserBaseTestCase, OrderBaseTestCase
 
 
@@ -145,3 +148,100 @@ class OrderPayUntilTestCase(OrderBaseTestCase, UserBaseTestCase):
         self.assertContains(response,
                             timezone.localtime(pay_until)
                             .strftime("%H:%M%p (%Z)"))
+
+
+class UpdateWithdrawAddressTestCase(UserBaseTestCase, OrderBaseTestCase):
+
+    def xsetUp(self):
+        super(UpdateWithdrawAddressTestCase, self).setUp()
+
+        method_data = {
+            'bin': 426101,
+            'fee': 0.0,
+            'is_slow': 0,
+            'name': 'Alpha Bank Visa'
+        }
+        payment_method = PaymentMethod(**method_data)
+        payment_method.save()
+
+        pref_data = {
+            'user': self.user,
+            'currency': self.USD,
+            'method_owner': 'The owner',
+            'identifier': str(payment_method.bin),
+            'comment': 'Just testing'
+        }
+        pref = PaymentPreference(**pref_data)
+        pref.save()
+
+        """Creates an order"""
+        data = {
+            'amount_cash': 30674.85,
+            'amount_btc': 1,
+            'currency': self.USD,
+            'user': self.user,
+            'admin_comment': 'test Order',
+            'unique_reference': '12345',
+            'withdraw_address': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+            'payment_preference': pref
+        }
+
+        order = Order(**data)
+        order.full_clean()  # ensure is initially correct
+        order.save()
+        self.order = order
+
+        pk = self.order.pk
+        self.url = reverse('core.update_withdraw_address', kwargs={'pk': pk})
+
+    def tearDown(self):
+        Order.objects.all().delete()
+        PaymentMethod.objects.all().delete()
+        Transaction.objects.all().delete()
+        Address.objects.all().delete()
+
+    def xtest_forbiden_to_update_other_users_orders(self):
+        username = '+555190909100'
+        password = '321Changed'
+        User.objects.create_user(username=username, password=password)
+
+        client = self.client
+
+        response = client.post(self.url, {
+            'pk': self.order.pk,
+            'value': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j', })
+
+        self.assertEqual(403, response.status_code)
+
+    def xtest_sucess_to_update_withdraw_adrress(self):
+
+        addr_data = {
+            'type': 'W',
+            'name': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+            'address': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+
+        }
+        addr = Address(**addr_data)
+        addr.user = self.user
+        addr.save()
+
+        # The 'other' address for the Transaction
+        user = User.objects.create_user(username='onit')
+        addr2 = Address(**addr_data)
+        addr2.user = user
+        addr2.save()
+
+        response = self.client.post(self.url, {
+            'pk': self.order.pk,
+            'value': addr.pk, })
+
+        self.assertJSONEqual('{"status": "OK"}', str(
+            response.content, encoding='utf8'),)
+
+        self.assertEqual(self.order.withdraw_address, addr.address)
+
+    def xtest_throw_error_for_invalid_withdraw_adrress(self):
+        response = self.client.post(
+            self.url, {'pk': self.order.pk, 'value': 50})
+
+        self.assertEqual(b'Invalid addresses informed.', response.content)
