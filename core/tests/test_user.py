@@ -105,7 +105,9 @@ class ProfileFindTestCase(UserBaseTestCase):
         self.profile.save()
 
     def test_finds_profile_by_natural_key(self):
-        profile = Profile.objects.get_by_natural_key(self.username)
+        natural_key = self.user.profile.natural_key()
+
+        profile = Profile.objects.get_by_natural_key(natural_key)
         self.assertEqual(profile, self.profile)
 
 
