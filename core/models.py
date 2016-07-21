@@ -57,7 +57,7 @@ class UniqueFieldMixin(models.Model):
 class ProfileManager(models.Manager):
 
     def get_by_natural_key(self, username):
-        return self.get(user__usernam=username)
+        return self.get(user__username=username)
 
 
 class Profile(TimeStampedModel, SoftDeletableModel):

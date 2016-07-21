@@ -95,6 +95,20 @@ class ProfileUpdateTestCase(UserBaseTestCase):
                                  response.content, encoding='utf8'),)
 
 
+class ProfileFindTestCase(UserBaseTestCase):
+
+    def setUp(self):
+        super(ProfileFindTestCase, self).setUp()
+
+        self.profile = Profile()
+        self.profile.user = self.user
+        self.profile.save()
+
+    def test_finds_profile_by_natural_key(self):
+        profile = Profile.objects.get_by_natural_key(self.username)
+        self.assertEqual(profile, self.profile)
+
+
 class LoginTestCase(UserBaseTestCase):
 
     def test_login_should_display_correctly(self):
