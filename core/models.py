@@ -165,10 +165,10 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
         payment_method = None
 
         while payment_method is None and len(bin) > 1:
+            payment_method = PaymentMethod.objects.get(bin=bin)
             bin = bin[:-1]
-            payment_method = PaymentMethod.objects.filter(bin=bin)
 
-        return bin
+        return payment_method
 
 
 class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
