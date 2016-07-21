@@ -152,8 +152,10 @@ class OrderPayUntilTestCase(OrderBaseTestCase, UserBaseTestCase):
 
 class UpdateWithdrawAddressTestCase(UserBaseTestCase, OrderBaseTestCase):
 
-    def xsetUp(self):
+    def setUp(self):
         super(UpdateWithdrawAddressTestCase, self).setUp()
+
+        PaymentMethod.objects.all().delete()
 
         method_data = {
             'bin': 426101,
@@ -194,53 +196,50 @@ class UpdateWithdrawAddressTestCase(UserBaseTestCase, OrderBaseTestCase):
         pk = self.order.pk
         self.url = reverse('core.update_withdraw_address', kwargs={'pk': pk})
 
-    def tearDown(self):
-        Order.objects.all().delete()
-        PaymentMethod.objects.all().delete()
-        Transaction.objects.all().delete()
-        Address.objects.all().delete()
-
-    def xtest_forbiden_to_update_other_users_orders(self):
-        username = '+555190909100'
-        password = '321Changed'
-        User.objects.create_user(username=username, password=password)
-
-        client = self.client
-
-        response = client.post(self.url, {
-            'pk': self.order.pk,
-            'value': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j', })
-
-        self.assertEqual(403, response.status_code)
-
-    def xtest_sucess_to_update_withdraw_adrress(self):
-
-        addr_data = {
+        self.addr_data = {
             'type': 'W',
             'name': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
             'address': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
 
         }
-        addr = Address(**addr_data)
-        addr.user = self.user
-        addr.save()
+        self.addr = Address(**self.addr_data)
+        self.addr.user = self.user
+        self.addr.save()
 
         # The 'other' address for the Transaction
         user = User.objects.create_user(username='onit')
-        addr2 = Address(**addr_data)
+        addr2 = Address(**self.addr_data)
         addr2.user = user
         addr2.save()
 
+    def test_forbiden_to_update_other_users_orders(self):
+        username = '+555190909100'
+        password = '321Changed'
+        User.objects.create_user(username=username, password=password)
+
+        client = self.client
+        client.login(username=username, password=password)
+
+        response = client.post(self.url, {
+            'pk': self.order.pk,
+            'value': self.addr.pk})
+
+        self.assertEqual(403, response.status_code)
+
+        self.client.login(username=self.user.username, password='password')
+
+    def test_sucess_to_update_withdraw_adrress(self):
+
         response = self.client.post(self.url, {
             'pk': self.order.pk,
-            'value': addr.pk, })
+            'value': self.addr.pk, })
 
         self.assertJSONEqual('{"status": "OK"}', str(
             response.content, encoding='utf8'),)
 
-        self.assertEqual(self.order.withdraw_address, addr.address)
+        self.assertEqual(self.order.withdraw_address, self.addr.address)
 
-    def xtest_throw_error_for_invalid_withdraw_adrress(self):
+    def test_throw_error_for_invalid_withdraw_adrress(self):
         response = self.client.post(
             self.url, {'pk': self.order.pk, 'value': 50})
 
