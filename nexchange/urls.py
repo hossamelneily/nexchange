@@ -112,6 +112,6 @@ urlpatterns = i18n_patterns(
 )
 
 
-if settings.DEBUG:
+if settings.DEBUG:  # pragma: no cover
     urlpatterns += static('/cover', document_root=os.path.join(
         settings.BASE_DIR, 'cover'))
