@@ -8,6 +8,7 @@ from datetime import timedelta
 import time
 from django.conf import settings
 from .utils import UserBaseTestCase, OrderBaseTestCase, data_provider
+from unittest import mock
 
 
 class OrderValidatePaymentTestCase(UserBaseTestCase, OrderBaseTestCase):
@@ -276,3 +277,43 @@ class PaymentMethodTestCase(UserBaseTestCase, OrderBaseTestCase):
         pref.save()
 
         self.assertEqual(self.payment_method, pref.payment_method)
+
+
+class ValidateDataProviderDecorator(TestCase):
+
+    def test_calls_fn_data_provider(self):
+        func_that_provides_data = mock.MagicMock(return_value='x')
+        func_that_is_decorated = mock.MagicMock()
+
+        decorator = data_provider(func_that_provides_data)
+        decorated = decorator(func_that_is_decorated)
+        decorated(None)
+
+        self.assertTrue(func_that_provides_data.called)
+
+    def test_calls_decorated_func_with_data_provided(self):
+        param = '123'
+        expected_calls = [((None, '1'),), ((None, '2'),), ((None, '3'),)]
+
+        func_that_provides_data = mock.MagicMock(return_value=param)
+        func_that_is_decorated = mock.MagicMock()
+
+        decorator = data_provider(func_that_provides_data)
+        decorated = decorator(func_that_is_decorated)
+
+        decorated(None)
+
+        self.assertEqual(func_that_is_decorated.call_count, 3)
+        self.assertEqual(func_that_is_decorated.call_args_list, expected_calls)
+
+    def test_catches_assertionError_on_decorated(self):
+
+        func_that_provides_data = mock.MagicMock(return_value='1')
+        func_that_is_decorated = mock.MagicMock(
+            side_effect=AssertionError('Boom!'))
+
+        decorator = data_provider(func_that_provides_data)
+        decorated = decorator(func_that_is_decorated)
+
+        with self.assertRaises(AssertionError):
+            decorated(None)
