@@ -10,7 +10,8 @@ $(function() {
         validatePhoneEndpoint = '/en/profile/verifyPhone/',
         placerAjaxOrder = '/en/order/ajax/',
         paymentAjax = '/en/payment/ajax/',
-        getBtcAddress = '/en/kraken/genAddress/';
+        getBtcAddress = '/en/kraken/genAddress/',
+        DEFAULT_AMOUNT = 1;
 
     $('.next-step, .prev-step').on('click', changeState);
 
@@ -67,12 +68,12 @@ $(function() {
         var verifyPayload = {
                 "trade-type": $(".trade-type").val(),
                 "csrfmiddlewaretoken": $("#csrfmiddlewaretoken").val(),
-                "amount-coin": $('.amount-coin').val(),
+                "amount-coin": $('.amount-coin').val() || DEFAULT_AMOUNT,
                 "currency_from": $('.currency-from').val(), //fiat
                 "currency_to": $('.currency-to').val(), //crypto
-                "pp_type": $(".payment-method"),
-                "pp_identifier": $(".payment-preference-identifier"),
-                "pp_owner": $(".payment-preference-owner")
+                "pp_type": $(".payment-method").val(),
+                "pp_identifier": $(".payment-preference-identifier").val(),
+                "pp_owner": $(".payment-preference-owner").val()
             };
             
         $.ajax({

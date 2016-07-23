@@ -98,7 +98,7 @@
                 currency = $(this).val().toLowerCase();
                 setCurrency($(this));
                 //bind all select boxes
-                $('.currency-select').val($(this).val());
+                $('.currency-select').not('.currency-to').val($(this).val());
                 updateOrder($('.amount-coin'));
             });
             //using this form because the object is inside a modal screen

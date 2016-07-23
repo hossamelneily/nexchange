@@ -260,7 +260,7 @@ deploy:
               --name nexchange_app \
               --link ${DATABASE_CONTAINER}:postgis \
               -P \
-              ${PORTS_PARAM} \
+              ${PORTS_PARAM} v\
               ${VOLUMES_PARAM} \
               --detach=true \
               --restart=always \
