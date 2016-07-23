@@ -23,8 +23,7 @@
     "lint": "jshint static/js/**",
     "test": "karma start --single-run",
     "bower": "cd static && bower install --allow-root && cd - ",
-    "bower-prd": "cd static && bower install --allow-root --production && cd - ",
-    "build-js": "browserify static/js/*.js static/js/models/*.js > static/js/all.js"
+    "bower-prd": "cd static && bower install --allow-root --production && cd - "
   },
   "repository": {
     "type": "git",
