@@ -111,6 +111,8 @@ build:
         rm -fr node_modules && npm install --production
     - maxon/npm-run:
         script: bower-prd
+    - maxon/npm-run:
+        script: build-js
     - script:
         name: Install python requirements
         code: |
