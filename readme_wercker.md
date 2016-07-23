@@ -119,3 +119,6 @@ To configure a new server as a deployment target you should:
 `# (check the section **About the database** above for details)`
 - Define de *NEW_RELIC_ENVIRONMENT* variable with the name of the enviroment which this target server represents
 `# check the newrelic.ini file inside the project, for details`
+
+- Start a webserver container
+`# docker run -v /data/letsencrypt:/etc/letsencrypt -v /data/mediafiles:/usr/share/nginx/html/media -v /data/staticfiles:/usr/share/nginx/html/static --link nexchange_app:GUNICORN_HOST -e GUNICORN_PORT=8000 -p 80:80 -p 443:443 -d nexchange_web`
