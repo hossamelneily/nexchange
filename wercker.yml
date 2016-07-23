@@ -221,7 +221,7 @@ build:
     - internal/docker-push:
         username: $DOCKER_HUB_USER
         password: $DOCKER_HUB_PASSWORD
-        tag: $WERCKER_GIT_COMMIT
+        tag: latest
         repository: $DOCKER_HUB_REPO
         registry: https://registry.hub.docker.com
         entrypoint: /entrypoint.sh
@@ -252,19 +252,19 @@ deploy:
             -p $DOCKER_HUB_PASSWORD \
             --email $DOCKER_HUB_USER_EMAIL
           # pulls the next image
-          sudo docker pull ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT}
+          sudo docker pull ${DOCKER_HUB_REPO}:latest
           # remove current container
-          bash /tmp/${WERCKER_GIT_COMMIT}.sh "nexchange_"
+          bash /tmp/${WERCKER_GIT_COMMIT}.sh "nexchange"
           # Start new instance
           sudo docker run \
-              --name nexchange_${SUBSTR} \
+              --name nexchange \
               --link ${DATABASE_CONTAINER}:postgis \
               -P \
               ${PORTS_PARAM} \
               ${VOLUMES_PARAM} \
               --detach=true \
               --restart=always \
-              ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT}
+              ${DOCKER_HUB_REPO}:latest
         EOF
 
 tests:

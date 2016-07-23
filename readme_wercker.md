@@ -60,7 +60,8 @@ For dev and build pipelines a service with postgres+postgis is used. The life cy
 
 In the current config, when the app is deployed to a target, is does not have the database server automatically created, therefore **is expected that a database container is up and running  when the app container starts**.
 
-Currently, the database container is running an instance of [mdillon/postgis](https://hub.docker.com/r/mdillon/postgis/) image (the same one used in dev and build steps). At the production server this container was started with the folowing line:
+Currently, the database container is running an instance of [mdillon/postgis](https://hub.docker.com/r/mdillon/postgis/) image (the same one used in dev and build steps). 
+The data is saved on the host at the */data/database* directory (docker automatically creates it when the container starts for the first time). At the production and stagging servers this container was started with the folowing line:
 `docker run --name nexchange-db -v /data/database:/var/lib/postgresql/data -e POSTGRES_PASSWORD=a071fd4b1aac00497d4c561e530b5738 -e POSTGRES_USER=nexchange -e POSTGRES_DB=nexchange -d mdillon/postgis`
 
 ----
@@ -99,3 +100,22 @@ The original (and hopefully the current) entry of the **/etc/cronjob** that invo
 This line identifies the id of the container and runs a *docker exec* into it, calling the django management command.
 
 
+
+To configure a new server as a deployment target you should:
+
+- Install docker on the server
+- Create a user to be used by the wercker web interface
+`# useradd -u 1000 -s /bin/bash --comment "Deployment User" -d /home/wercker wercker`
+- Create and install the public key which the deploy script will use to SSH into the server. The creation is done via wercker web interface, by creating a new Environment variable called PEM_FILE_CONTENT, of the type _SSH Key pair_ in the the pipeline. To install do this:
+```
+# mkdir -p /home/wercker/.ssh
+# echo "PUT SSH PUBLIC KEY HERE. THIS APPEARS IN WERCKER INTERFACE AS *PEM_FILE_CONTENT_PUBLIC*" > /home/wercker/.ssh/authorized_keys
+# chmod 700 /home/wercker/.ssh
+# chmod 600 /home/wercker/.ssh/authorized_keys
+```
+- Allow the deploy user to run docker with sudo, without asking for password
+`# echo "wercker ALL=(ALL) NOPASSWD: /usr/bin/docker" > /etc/sudoers.d/wercker`
+- Start a database server instance 
+`# (check the section **About the database** above for details)`
+- Define de *NEW_RELIC_ENVIRONMENT* variable with the name of the enviroment which this target server represents
+`# check the newrelic.ini file inside the project, for details`
