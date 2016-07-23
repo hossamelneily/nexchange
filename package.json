@@ -15,12 +15,14 @@
     "karma-jasmine-jquery": "^0.1.1",
     "karma-jquery": "^0.1.0",
     "karma-phantomjs-launcher": "^0.1.4",
-    "phantomjs-prebuilt": "~2.1"
+    "phantomjs-prebuilt": "~2.1",
+    "browserify": "latest"
   },
   "scripts": {
     "test": "karma start --single-run",
     "bower": "cd static && bower install --allow-root && cd - ",
-    "bower-prd": "cd static && bower install --allow-root --production && cd - "
+    "bower-prd": "cd static && bower install --allow-root --production && cd - ",
+    "build-js": "browserify static/js/*.js static/js/models/*.js > static/js/all.js"
   },
   "repository": {
     "type": "git",

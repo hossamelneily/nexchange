@@ -20,6 +20,8 @@ dev:
     - npm-install    
     - maxon/npm-run:
         script: bower
+    - maxon/npm-run:
+        script: build-js
     - script:
         name: pip install requirements (with cache)
         code: |
