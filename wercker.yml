@@ -254,10 +254,10 @@ deploy:
           # pulls the next image
           sudo docker pull ${DOCKER_HUB_REPO}:latest
           # remove current container
-          bash /tmp/${WERCKER_GIT_COMMIT}.sh "nexchange"
+          bash /tmp/${WERCKER_GIT_COMMIT}.sh "nexchange_app"
           # Start new instance
           sudo docker run \
-              --name nexchange \
+              --name nexchange_app \
               --link ${DATABASE_CONTAINER}:postgis \
               -P \
               ${PORTS_PARAM} \
