@@ -20,8 +20,6 @@ dev:
     - npm-install    
     - maxon/npm-run:
         script: bower
-    - maxon/npm-run:
-        script: build-js
     - script:
         name: pip install requirements (with cache)
         code: |
@@ -111,8 +109,6 @@ build:
         rm -fr node_modules && npm install --production
     - maxon/npm-run:
         script: bower-prd
-    - maxon/npm-run:
-        script: build-js
     - script:
         name: Install python requirements
         code: |
@@ -225,7 +221,7 @@ build:
     - internal/docker-push:
         username: $DOCKER_HUB_USER
         password: $DOCKER_HUB_PASSWORD
-        tag: latest
+        tag: $WERCKER_GIT_COMMIT
         repository: $DOCKER_HUB_REPO
         registry: https://registry.hub.docker.com
         entrypoint: /entrypoint.sh
@@ -256,19 +252,19 @@ deploy:
             -p $DOCKER_HUB_PASSWORD \
             --email $DOCKER_HUB_USER_EMAIL
           # pulls the next image
-          sudo docker pull ${DOCKER_HUB_REPO}:latest
+          sudo docker pull ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT}
           # remove current container
-          bash /tmp/${WERCKER_GIT_COMMIT}.sh "nexchange_app"
+          bash /tmp/${WERCKER_GIT_COMMIT}.sh "nexchange_"
           # Start new instance
           sudo docker run \
-              --name nexchange_app \
+              --name nexchange_${SUBSTR} \
               --link ${DATABASE_CONTAINER}:postgis \
               -P \
-              ${PORTS_PARAM} v\
+              ${PORTS_PARAM} \
               ${VOLUMES_PARAM} \
               --detach=true \
               --restart=always \
-              ${DOCKER_HUB_REPO}:latest
+              ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT}
         EOF
 
 tests:
@@ -298,8 +294,6 @@ tests:
         npm install
     - maxon/npm-run:
         script: bower
-    - maxon/npm-run:
-        script: build-js
     - script:
         name: Django migrations
         code: |
