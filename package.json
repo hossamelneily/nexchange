@@ -7,18 +7,20 @@
     "bower": "~1.7.9"
   },
   "devDependencies": {
+    "browserify": "latest",
     "jasmine": "^2.4.1",
     "jasmine-core": "^2.4.1",
+    "jshint": "^2.9.2",
     "karma": "^0.13.22",
     "karma-cli": "~1.0.0",
     "karma-jasmine": "^1.0.2",
     "karma-jasmine-jquery": "^0.1.1",
     "karma-jquery": "^0.1.0",
     "karma-phantomjs-launcher": "^0.1.4",
-    "phantomjs-prebuilt": "~2.1",
-    "browserify": "latest"
+    "phantomjs-prebuilt": "~2.1"
   },
   "scripts": {
+    "lint": "jshint static/js/**",
     "test": "karma start --single-run",
     "bower": "cd static && bower install --allow-root && cd - ",
     "bower-prd": "cd static && bower install --allow-root --production && cd - ",

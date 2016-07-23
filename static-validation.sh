@@ -12,7 +12,7 @@ if [ -n "$FILES" ] || [ -n "$FILES_CACHED" ] ; then
     echo "======================="
     echo "======= CHECKING FILES: $FILES $FILES_CACHED"
     echo "======================="
-    flake8 $OPTIONS $FILES $FILES_CACHED
+    flake8 $OPTIONS $FILES $FILES_CACHED && npm run lint
 else
     echo "======================="
     echo "======= No .py FILES TO COMMIT. SKIPING STATIC VALIDATION. "
