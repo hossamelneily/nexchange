@@ -99,26 +99,29 @@ The original (and hopefully the current) entry of the **/etc/cronjob** that invo
 
 This line identifies the id of the container and runs a *docker exec* into it, calling the django management command.
 
-
-
-To configure a new server as a deployment target you should:
+## How to configure a new server as a deployment target 
 
 - Install docker on the server
 - Create a user to be used by the wercker web interface
-`# useradd -u 1000 -s /bin/bash --comment "Deployment User" -d /home/wercker wercker`
+ `# useradd -u 1000 -s /bin/bash --comment "Deployment User" -d /home/wercker wercker`
+
 - Create and install the public key which the deploy script will use to SSH into the server. The creation is done via wercker web interface, by creating a new Environment variable called PEM_FILE_CONTENT, of the type _SSH Key pair_ in the the pipeline. To install do this:
-```
-# mkdir -p /home/wercker/.ssh
-# echo "PUT SSH PUBLIC KEY HERE. THIS APPEARS IN WERCKER INTERFACE AS *PEM_FILE_CONTENT_PUBLIC*" > /home/wercker/.ssh/authorized_keys
-# chmod 700 /home/wercker/.ssh
-# chmod 600 /home/wercker/.ssh/authorized_keys
-```
+`# mkdir -p /home/wercker/.ssh`
+`# echo "PUT SSH PUBLIC KEY HERE. THIS APPEARS IN WERCKER INTERFACE AS *PEM_FILE_CONTENT_PUBLIC*" > /home/wercker/.ssh/authorized_keys `
+`# chmod 700 /home/wercker/.ssh`
+`# chmod 600 /home/wercker/.ssh/authorized_keys`
+
 - Allow the deploy user to run docker with sudo, without asking for password
 `# echo "wercker ALL=(ALL) NOPASSWD: /usr/bin/docker" > /etc/sudoers.d/wercker`
+
 - Start a database server instance 
-`# (check the section **About the database** above for details)`
+`docker run --name nexchange_db -v /data/database:/var/lib/postgresql/data -e POSTGRES_PASSWORD=a071fd4b1aac00497d4c561e530b5738 -e POSTGRES_USER=nexchange -e POSTGRES_DB=nexchange -d mdillon/postgis`
+
 - Define de *NEW_RELIC_ENVIRONMENT* variable with the name of the enviroment which this target server represents
 `# check the newrelic.ini file inside the project, for details`
 
+- Deploy the app container for the first time
+`# This depends on the workflow configured on wercker web, but you probably need just a git push`
+
 - Start a webserver container
-`# docker run -v /data/letsencrypt:/etc/letsencrypt -v /data/mediafiles:/usr/share/nginx/html/media -v /data/staticfiles:/usr/share/nginx/html/static --link nexchange_app:GUNICORN_HOST -e GUNICORN_PORT=8000 -p 80:80 -p 443:443 -d nexchange_web`
+`# docker run --name nexchange_web -v /data/letsencrypt:/etc/letsencrypt -v /data/mediafiles:/usr/share/nginx/html/media -v /data/staticfiles:/usr/share/nginx/html/static --link nexchange_app:GUNICORN_HOST -e GUNICORN_PORT=8000 -p 80:80 -p 443:443 -d onitsoft/nginx:nexchange-staging`
