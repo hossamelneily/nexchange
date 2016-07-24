@@ -242,7 +242,9 @@ function changeState (action) {
             .addClass('btn-info')
             .removeClass('btn-default')
             .tab('show');
-    }
+        $('#'+nextStateId).removeClass('hidden')
+
+    } 
 
     $(window).trigger('resize');
 }
