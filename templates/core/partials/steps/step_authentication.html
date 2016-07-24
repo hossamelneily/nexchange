@@ -2,8 +2,9 @@
 {% load i18n %}
 
 {% block step_content %}
-    <h4>{% trans "Phone verification" %}</h4>
+    
     <div class="register">
+        <h4>{% trans "Phone verification" %}</h4>
         <div class="step1">
             {% include 'core/partials/forms/phone.html' with label="Enter your phone" %}
         </div>
