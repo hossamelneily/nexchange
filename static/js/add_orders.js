@@ -143,7 +143,12 @@ $(function() {
     $('.buy .payment-type-trigger').on('click', function () {
         var paymentType = $(this).data('type');
         $("#PayMethModal").modal('toggle');
-        $(".payment-method").val(paymentType);
+        console.log(paymentType)
+        $(".payment-preference").val(paymentType);
+        $(".payment-preference-confirm").text(paymentType);
+        console.log($(".payment-preference"))
+        console.log($('.payment-preference').length)
+
     });
 
     $('.sell .payment-type-trigger').on('click', function () {
