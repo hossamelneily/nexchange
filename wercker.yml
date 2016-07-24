@@ -69,11 +69,11 @@ dev:
     - script:
         name: Django run ticker update prices command
         code: |
-          python manage.py ticker          
+          python manage.py ticker
     - script:
         name: Django collect static
         code: |
-          python manage.py collectstatic --noinput          
+          python manage.py collectstatic --noinput
     - script:
         name: Link pre-commit hook script
         code: |     
@@ -93,10 +93,8 @@ build:
        POSTGRES_PASSWORD: ${POSTGIS_ENV_POSTGRES_PASSWORD}
        POSTGRES_DB: ${POSTGIS_ENV_POSTGRES_DB}
   steps:
-    - script:
-        name: export django settings
-        code: |
-          export DJANGO_SETTINGS_MODULE=nexchange.settings_prod
+    - install-packages:
+      packages: netcat
     - script:
         name: create static and media root
         code: |
@@ -139,24 +137,15 @@ build:
         cp -r /usr/share/nginx/html/static $WERCKER_OUTPUT_DIR/staticfiles
         cp -r /usr/share/nginx/html/media $WERCKER_OUTPUT_DIR/mediafiles
     - script:
-        name: place remove-containers.sh script 
+        name: place docker-compose and nginx.conf files
         code: |
-          mv "remove-containers.sh" "$WERCKER_OUTPUT_DIR/remove-containers.sh"        
+          mv "nginx.conf" "$WERCKER_OUTPUT_DIR/nginx.conf"
+          mv "docker-compose.yml" "$WERCKER_OUTPUT_DIR/docker-compose.yml"
     - create-file:
         #
         # PEM_FILE_CONTENT - the key to SSH into server (create key par via wercker web interface. remeber to install public key on server)
         # SSH_USER - the user to SSH into server
         # DEST_HOST_ADDR - server where to deploy  
-        #
-        # DATABASE_CONTAINER - DB to container to link to
-        # POSTGIS_ENV_POSTGRES_USER
-        # POSTGIS_ENV_POSTGRES_PASSWORD
-        # POSTGIS_ENV_POSTGRES_DB
-        #
-        # GUNICORN_PORT
-        #
-        # VOLUMES_PARAM - a list o volumes (each preceded by -v to mount in container)
-        # PORTS_PARAM - a list of ports (each preceded by -p to expose)
         #
         # DOCKER_HUB_USER - dockerhub username
         # DOCKER_HUB_PASSWORD - dockerhub password (defined as a protectd var)
@@ -172,16 +161,23 @@ build:
           #   Apply migrations
           #   Starts gunicorn
           # ###
-          #
-          export DJANGO_SETTINGS_MODULE=nexchange.settings_prod
-          # the following vars should br defined in wercker web interface
+          export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
           export GUNICORN_PORT=${GUNICORN_PORT}
           export POSTGIS_ENV_POSTGRES_USER=${POSTGIS_ENV_POSTGRES_USER}
           export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}
           export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
+          export POSTGIS_PORT_5432_TCP_ADDR=${POSTGIS_PORT_5432_TCP_ADDR}
+          export POSTGIS_PORT_5432_TCP_PORT=${POSTGIS_PORT_5432_TCP_PORT}
           export NEW_RELIC_CONFIG_FILE=${NEW_RELIC_CONFIG_FILE}
           export NEW_RELIC_ENVIRONMENT=${NEW_RELIC_ENVIRONMENT}
           export NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
+          #
+          while ! nc -z ${POSTGIS_PORT_5432_TCP_ADDR} ${POSTGIS_PORT_5432_TCP_PORT}
+          do 
+            >&2 echo "PostgreSQL '(${POSTGIS_PORT_5432_TCP_ADDR}:${POSTGIS_PORT_5432_TCP_PORT})' not ready - waiting..."
+            sleep 1;
+          done
+          echo "PostgreSQL '(${POSTGIS_PORT_5432_TCP_ADDR}:${POSTGIS_PORT_5432_TCP_PORT})' is ready - moving on..."
           #
           # Apply migrations
           python /usr/src/app/manage.py migrate
@@ -195,8 +191,7 @@ build:
           # adapted from http://goo.gl/E7kRfL
           touch /var/log/gunicorn_error.log
           touch /var/log/gunicorn_access.log
-          tail -n 0 -f /var/log/*.log &          
-          #
+          tail -n 0 -f /var/log/*.log &
           # Copy static data to nginx volume
           cp -ra $WERCKER_OUTPUT_DIR/staticfiles/* /usr/share/nginx/html/static
           cp -ra $WERCKER_OUTPUT_DIR/mediafiles/* /usr/share/nginx/html/media
@@ -221,7 +216,7 @@ build:
     - internal/docker-push:
         username: $DOCKER_HUB_USER
         password: $DOCKER_HUB_PASSWORD
-        tag: $WERCKER_GIT_COMMIT
+        tag: ${DOCKER_IMAGE_TAG}
         repository: $DOCKER_HUB_REPO
         registry: https://registry.hub.docker.com
         entrypoint: /entrypoint.sh
@@ -244,27 +239,24 @@ deploy:
         SSH_OPTIONS="-o StrictHostKeyChecking=no -i $PRIVATEKEY_PATH"
         SSH_DEST="$SSH_USER@$DEST_HOST_ADDR"
         SUBSTR=${WERCKER_GIT_COMMIT:0:9}
-        scp ${SSH_OPTIONS} remove-containers.sh ${SSH_DEST}:/tmp/${WERCKER_GIT_COMMIT}.sh
+        scp ${SSH_OPTIONS} nginx.conf ${SSH_DEST}:/nexchange/etc/nginx/nginx.conf
+        scp ${SSH_OPTIONS} docker-compose.yml ${SSH_DEST}:/nexchange/docker-compose.yml
         ssh ${SSH_OPTIONS} ${SSH_DEST} << EOF
+          # export the variables that docker-compose will inject into DB container
+          export POSTGIS_ENV_POSTGRES_USER=${POSTGIS_ENV_POSTGRES_USER}
+          export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}
+          export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
+          export DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
+          echo "Printing current env:"
+          /usr/bin/env
+          echo "env of env"
           # Login to docker hub (for private images)
           sudo docker login \
             -u $DOCKER_HUB_USER \
-            -p $DOCKER_HUB_PASSWORD \
-            --email $DOCKER_HUB_USER_EMAIL
-          # pulls the next image
-          sudo docker pull ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT}
-          # remove current container
-          bash /tmp/${WERCKER_GIT_COMMIT}.sh "nexchange_"
+            -p $DOCKER_HUB_PASSWORD
           # Start new instance
-          sudo docker run \
-              --name nexchange_${SUBSTR} \
-              --link ${DATABASE_CONTAINER}:postgis \
-              -P \
-              ${PORTS_PARAM} \
-              ${VOLUMES_PARAM} \
-              --detach=true \
-              --restart=always \
-              ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT}
+          sudo -E docker-compose -f /nexchange/docker-compose.yml pull
+          sudo -E docker-compose -f /nexchange/docker-compose.yml up -d
         EOF
 
 tests:
@@ -295,22 +287,6 @@ tests:
     - maxon/npm-run:
         script: bower
     - script:
-        name: Django migrations
-        code: |
-          python manage.py makemigrations
-          python manage.py migrate
-    - script:
-      name: Django create superuser
-      code: |
-          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
-    - script:
-        name: Django import fixtures
-        code: |
-          python manage.py loaddata core/fixtures/currency.json
-          python manage.py loaddata core/fixtures/payment_method.json
-          python manage.py loaddata core/fixtures/withdraw_address.json
-          python manage.py ticker  # not a fixture, but same propose...
-    - script:
         name: Backend tests
         code: |
           coverage erase
@@ -320,7 +296,7 @@ tests:
     - script:
         name: Frontend tests
         code: |
-          export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs 
+          export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs
           npm run-script test
     - script:
         name: Validate New Relic config file
