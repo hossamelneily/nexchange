@@ -137,7 +137,8 @@ def add_order(request):
             crypto = cpair['code']
 
             val = "{}/{}".format(crypto, fiat)
-            select_currency_pair += """<option value="{fiat}" data-fiat="{fiat}"
+            select_currency_pair +=\
+                """<option value="{fiat}" data-fiat="{fiat}"
             data-crypto={crypto}>{val}</option>"""\
                 .format(fiat=fiat, crypto=crypto, val=val)
 

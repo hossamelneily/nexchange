@@ -244,3 +244,59 @@ class UpdateWithdrawAddressTestCase(UserBaseTestCase, OrderBaseTestCase):
             self.url, {'pk': self.order.pk, 'value': 50})
 
         self.assertEqual(b'Invalid addresses informed.', response.content)
+
+
+class OrderIndexOrderTestCase(UserBaseTestCase, OrderBaseTestCase):
+
+    def setUp(self):
+        super(OrderIndexOrderTestCase, self).setUp()
+
+    def test_renders_empty_list_of_orders_for_anonymous(self):
+        self.client.logout()
+        with self.assertTemplateUsed('core/index_order.html'):
+            response = self.client.get(reverse('core.order'))
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(0, len(response.context['orders'].object_list))
+
+        success = self.client.login(
+            username=self.username, password=self.password)
+        self.assertTrue(success)
+
+    def test_renders_empty_list_of_user_orders(self):
+        Order.objects.filter(user=self.user).delete()
+        with self.assertTemplateUsed('core/index_order.html'):
+            response = self.client.get(reverse('core.order'))
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(0, len(response.context['orders'].object_list))
+
+    def test_renders_non_empty_list_of_user_orders(self):
+        Order.objects.filter(user=self.user).delete()
+        OrderBaseTestCase.create_order(self.user)
+
+        with self.assertTemplateUsed('core/index_order.html'):
+            response = self.client.get(reverse('core.order'))
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(1, len(response.context['orders'].object_list))
+
+        Order.objects.filter(user=self.user).delete()
+
+    def test_filters_list_of_user_orders(self):
+        Order.objects.filter(user=self.user).delete()
+        OrderBaseTestCase.create_order(self.user)
+
+        date = timezone.now().strftime("%Y-%m-%d")
+
+        response = self.client.post(reverse('core.order'), {'date': date})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['orders'].object_list))
+
+        date = (timezone.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        response = self.client.post(reverse('core.order'), {'date': date})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, len(response.context['orders'].object_list))
+
+        response = self.client.post(reverse('core.order'), {'date': None})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['orders'].object_list))
+
+        Order.objects.filter(user=self.user).delete()
