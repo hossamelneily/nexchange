@@ -50,11 +50,11 @@ $(function() {
                     reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
                     changeState('next');
                 } else {
-                    window.alert("The code you sent was incorrect. Please, try again.")
+                    window.alert("The code you sent was incorrect. Please, try again.");
                 }
             },
             error: function () {
-                window.alert("Something went wrong. Please, try again.")
+                window.alert("Something went wrong. Please, try again.");
             }
         });
 
@@ -71,7 +71,7 @@ $(function() {
                 "amount-coin": $('.amount-coin').val() || DEFAULT_AMOUNT,
                 "currency_from": $('.currency-from').val(), //fiat
                 "currency_to": $('.currency-to').val(), //crypto
-                "pp_type": $(".payment-method").val(),
+                "pp_type": $(".payment-preference").val(),
                 "pp_identifier": $(".payment-preference-identifier").val(),
                 "pp_owner": $(".payment-preference-owner").val()
             };
@@ -94,13 +94,13 @@ $(function() {
                 //if the transaction is Sell
                 else{
                     $('.step-confirm').addClass('hidden');
-                    $('#btcAddress').text(data['address']);
+                    $('#btcAddress').text(data.address);
                     $("#orderSuccessModalSell").modal({backdrop: "static"});
                 }
 
             },
             error: function () {
-                window.alert("Something went wrong. Please, try again.")
+                window.alert("Something went wrong. Please, try again.");
             }
         });
 
@@ -134,7 +134,7 @@ $(function() {
                 
             },
             error: function () {
-                window.alert("Something went wrong. Please, try again.")
+                window.alert("Something went wrong. Please, try again.");
             }
         });
 
@@ -143,11 +143,11 @@ $(function() {
     $('.buy .payment-type-trigger').on('click', function () {
         var paymentType = $(this).data('type');
         $("#PayMethModal").modal('toggle');
-        console.log(paymentType)
+        // console.log(paymentType);
         $(".payment-preference").val(paymentType);
         $(".payment-preference-confirm").text(paymentType);
-        console.log($(".payment-preference"))
-        console.log($('.payment-preference').length)
+        // console.log($(".payment-preference"))
+        // console.log($('.payment-preference').length)
 
     });
 
@@ -223,8 +223,8 @@ function changeState (action) {
 
     var paneClass = '.tab-pane',
         tab = $('.tab-pane.active'),
-        action = action || (this).hasClass('next-step') ? 'next' :'prev',
-        nextStateId = tab[action](paneClass).attr('id'),
+        action2 = action || (this).hasClass('next-step') ? 'next' :'prev',
+        nextStateId = tab[action2](paneClass).attr('id'),
         nextState = $('[href="#'+ nextStateId +'"]'),
         menuPrefix = "menu",
         numericId = parseInt(nextStateId.replace(menuPrefix, '')),
@@ -235,7 +235,7 @@ function changeState (action) {
     if(nextState.hasClass('disabled') &&
         numericId < $(".process-step").length &&
         numericId > 1) {
-        changeState(action);
+        changeState(action2);
     }
 
     if ( !canProceedtoRegister(currStateId) ){
@@ -247,7 +247,7 @@ function changeState (action) {
             .addClass('btn-info')
             .removeClass('btn-default')
             .tab('show');
-        $('#'+nextStateId).removeClass('hidden')
+        $('#'+nextStateId).removeClass('hidden');
 
     } 
 
@@ -275,8 +275,8 @@ function canProceedtoRegister(objectName){
     var payMeth = $('#payment_method_id').val(),
     userAcc = $('#user_address_id').val(),
     userAccId = $('#new_user_account').val();
-    if (!((objectName == 'menu2' || objectName == 'btn-register') && payMeth == ''
-        && userAcc == '' && userAccId == '')) {
+    if (!((objectName === 'menu2' || objectName === 'btn-register') && 
+        payMeth === '' && userAcc === '' && userAccId === '')) {
             return true;
     }
     return false;

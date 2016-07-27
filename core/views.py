@@ -33,6 +33,7 @@ from .validators import validate_bc
 
 from .kraken_api import api
 
+
 kraken = api.API()
 
 
@@ -420,14 +421,24 @@ def ajax_order(request):
     amount_coin = request.POST.get("amount-coin")
     currency = Currency.objects.filter(code=curr)[0]
     trade_type = request.POST.get("trade-type")
-    owner = request.POST.get("pp_owner")
-    identifier = request.POST.get("pp_identifier")
+    payment_met = request.POST.get("pp_type")
+    owner = request.POST.get("pp_owner", None)
+    identifier = request.POST.get("pp_identifier", None)
+
+    # TO-DO: Fix modal to present data from DB to match here
+    payment_method = PaymentMethod.objects.filter(
+        name__icontains=payment_met)[0]
+
+    # print("#########", payment_met, payment_method)
     payment_pref, created = PaymentPreference.objects.get_or_create(
         user=user,
         currency=currency,
         method_owner=owner,
+        payment_method=payment_method,
         identifier=identifier
     )
+
+    # print(payment_pref, created)
 
     order = Order(amount_btc=amount_coin,
                   currency=currency, user=user)

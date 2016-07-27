@@ -120,16 +120,16 @@
         for (i = 0; i < data.length; i+=2) {
             var sell = data[i],
             buy = data[i + 1];
-            resRub.push([Date.parse(sell['created_on']), buy['price_rub_formatted'], sell['price_rub_formatted']]);
-            resUsd.push([Date.parse(sell['created_on']), buy['price_usd_formatted'], sell['price_usd_formatted']]);
-            resEur.push([Date.parse(sell['created_on']), buy['price_eur_formatted'], sell['price_eur_formatted']]);
+            resRub.push([Date.parse(sell.created_on), buy.price_rub_formatted, sell.price_rub_formatted]);
+            resUsd.push([Date.parse(sell.created_on), buy.price_usd_formatted, sell.price_usd_formatted]);
+            resEur.push([Date.parse(sell.created_on), buy.price_eur_formatted, sell.price_eur_formatted]);
         }
 
         return {
             rub: resRub,
             usd: resUsd,
             eur: resEur
-        }
+        };
     }
 
     function updateOrder (elem, isInitial) {
@@ -174,7 +174,7 @@
             currentPrice,
             isReasonableChange;
 
-        if (currentPriceText != '') {
+        if (currentPriceText !== '') {
             currentPrice = parseFloat(currentPriceText);
         } else {
             elem.html(price);
@@ -274,8 +274,8 @@
                             setInterval(function () {
                                 $.get(tickerLatestUrl, function (resdata) {
                                     var lastdata = responseToChart(resdata)[currency];
-                                    if ( chartDataRaw.length && parseInt(resdata[0]["unix_time"]) >
-                                         parseInt(chartDataRaw[chartDataRaw.length - 1]["unix_time"])
+                                    if ( chartDataRaw.length && parseInt(resdata[0].unix_time) >
+                                         parseInt(chartDataRaw[chartDataRaw.length - 1].unix_time)
                                     ) {
                                         //Only update if a ticker 'tick' had occured
                                         series.addPoint(lastdata[0], true, true);
@@ -326,4 +326,4 @@
             });
         });
     }
-} (window, window.jQuery));
+} (window, window.jQuery)); // jshint ignore:line
