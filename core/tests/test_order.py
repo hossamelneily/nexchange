@@ -1,12 +1,15 @@
 from django.utils import timezone
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.contrib.auth.models import User
 from http.cookies import SimpleCookie
 from datetime import timedelta
 import pytz
 import json
 
-from core.models import Order, Address, Transaction
+
+from core.models import Order, Address, Transaction, PaymentMethod,\
+    PaymentPreference
 from .utils import UserBaseTestCase, OrderBaseTestCase
 
 
@@ -145,3 +148,155 @@ class OrderPayUntilTestCase(OrderBaseTestCase, UserBaseTestCase):
         self.assertContains(response,
                             timezone.localtime(pay_until)
                             .strftime("%H:%M%p (%Z)"))
+
+
+class UpdateWithdrawAddressTestCase(UserBaseTestCase, OrderBaseTestCase):
+
+    def setUp(self):
+        super(UpdateWithdrawAddressTestCase, self).setUp()
+
+        PaymentMethod.objects.all().delete()
+
+        method_data = {
+            'bin': 426101,
+            'fee': 0.0,
+            'is_slow': 0,
+            'name': 'Alpha Bank Visa'
+        }
+        payment_method = PaymentMethod(**method_data)
+        payment_method.save()
+
+        pref_data = {
+            'user': self.user,
+            'currency': self.USD,
+            'method_owner': 'The owner',
+            'identifier': str(payment_method.bin),
+            'comment': 'Just testing'
+        }
+        pref = PaymentPreference(**pref_data)
+        pref.save()
+
+        """Creates an order"""
+        data = {
+            'amount_cash': 30674.85,
+            'amount_btc': 1,
+            'currency': self.USD,
+            'user': self.user,
+            'admin_comment': 'test Order',
+            'unique_reference': '12345',
+            'withdraw_address': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+            'payment_preference': pref
+        }
+
+        order = Order(**data)
+        order.full_clean()  # ensure is initially correct
+        order.save()
+        self.order = order
+
+        pk = self.order.pk
+        self.url = reverse('core.update_withdraw_address', kwargs={'pk': pk})
+
+        self.addr_data = {
+            'type': 'W',
+            'name': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+            'address': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+
+        }
+        self.addr = Address(**self.addr_data)
+        self.addr.user = self.user
+        self.addr.save()
+
+        # The 'other' address for the Transaction
+        user = User.objects.create_user(username='onit')
+        addr2 = Address(**self.addr_data)
+        addr2.user = user
+        addr2.save()
+
+    def test_forbiden_to_update_other_users_orders(self):
+        username = '+555190909100'
+        password = '321Changed'
+        User.objects.create_user(username=username, password=password)
+
+        client = self.client
+        client.login(username=username, password=password)
+
+        response = client.post(self.url, {
+            'pk': self.order.pk,
+            'value': self.addr.pk})
+
+        self.assertEqual(403, response.status_code)
+
+        self.client.login(username=self.user.username, password='password')
+
+    def test_sucess_to_update_withdraw_adrress(self):
+
+        response = self.client.post(self.url, {
+            'pk': self.order.pk,
+            'value': self.addr.pk, })
+
+        self.assertJSONEqual('{"status": "OK"}', str(
+            response.content, encoding='utf8'),)
+
+        self.assertEqual(self.order.withdraw_address, self.addr.address)
+
+    def test_throw_error_for_invalid_withdraw_adrress(self):
+        response = self.client.post(
+            self.url, {'pk': self.order.pk, 'value': 50})
+
+        self.assertEqual(b'Invalid addresses informed.', response.content)
+
+
+class OrderIndexOrderTestCase(UserBaseTestCase, OrderBaseTestCase):
+
+    def setUp(self):
+        super(OrderIndexOrderTestCase, self).setUp()
+
+    def test_renders_empty_list_of_orders_for_anonymous(self):
+        self.client.logout()
+        with self.assertTemplateUsed('core/index_order.html'):
+            response = self.client.get(reverse('core.order'))
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(0, len(response.context['orders'].object_list))
+
+        success = self.client.login(
+            username=self.username, password=self.password)
+        self.assertTrue(success)
+
+    def test_renders_empty_list_of_user_orders(self):
+        Order.objects.filter(user=self.user).delete()
+        with self.assertTemplateUsed('core/index_order.html'):
+            response = self.client.get(reverse('core.order'))
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(0, len(response.context['orders'].object_list))
+
+    def test_renders_non_empty_list_of_user_orders(self):
+        Order.objects.filter(user=self.user).delete()
+        OrderBaseTestCase.create_order(self.user)
+
+        with self.assertTemplateUsed('core/index_order.html'):
+            response = self.client.get(reverse('core.order'))
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(1, len(response.context['orders'].object_list))
+
+        Order.objects.filter(user=self.user).delete()
+
+    def test_filters_list_of_user_orders(self):
+        Order.objects.filter(user=self.user).delete()
+        OrderBaseTestCase.create_order(self.user)
+
+        date = timezone.now().strftime("%Y-%m-%d")
+
+        response = self.client.post(reverse('core.order'), {'date': date})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['orders'].object_list))
+
+        date = (timezone.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        response = self.client.post(reverse('core.order'), {'date': date})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, len(response.context['orders'].object_list))
+
+        response = self.client.post(reverse('core.order'), {'date': None})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['orders'].object_list))
+
+        Order.objects.filter(user=self.user).delete()

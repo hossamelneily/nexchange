@@ -20,7 +20,7 @@ describe("Profile function", function() {
             $('#verify_phone_now').trigger('click');
 
             expect('click').toHaveBeenTriggeredOn('#verify_phone_now');
-            expect($.ajax.calls.mostRecent().args[0]["url"]).toEqual('/profile/verifyPhone/');            
+            expect($.ajax.calls.mostRecent().args[0].url).toEqual('/profile/verifyPhone/');            
         });
 
         it("should show 'loading...' while processing", function() {

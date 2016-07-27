@@ -15,18 +15,18 @@
                     position: "absolute"
                 }).animate({
                     top: footerTop
-                })
+                });
             } else {
                 $footer.css({
                     position: "static"
-                })
+                });
             }
 
         }
 
         $(window)
             .scroll(positionFooter)
-            .resize(positionFooter)
+            .resize(positionFooter);
 
     });
-}(window, window.jQuery));
+}(window, window.jQuery)); // jshint ignore:line

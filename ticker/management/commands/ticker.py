@@ -49,6 +49,7 @@ EXCLUSION_LIST = [
 
 
 class Command(BaseCommand):
+
     def __init__(self, *args, **kwargs):
         logging.basicConfig(filename='ticker.log', level=logging.INFO)
         super(Command, self).__init__(*args, **kwargs)
@@ -58,9 +59,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         spot_data = requests.get(BITFINEX_TICKER).json()
-        sell_spot_price = float(spot_data['ask'])
+        sell_spot_price = float(spot_data.get('ask', 0.00))
         sell_price = self.get_price(sell_spot_price, ACTION_BUY)
-        buy_spot_price = float(spot_data['bid'])
+        buy_spot_price = float(spot_data.get('bid', 0.00))
         buy_price = self.get_price(buy_spot_price, ACTION_SELL)
         logging.info("sell price: {}".format(sell_price))
         logging.info("buy price: {}".format(buy_price))
