@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 import requests
 from ticker.models import Price
 import logging
+from datetime import datetime
 
 # This module will be run in a cron every
 # minute via manage.py
@@ -53,6 +54,7 @@ class Command(BaseCommand):
     def __init__(self, *args, **kwargs):
         logging.basicConfig(filename='ticker.log', level=logging.INFO)
         super(Command, self).__init__(*args, **kwargs)
+        self.stdout.write('%s running ticker' % datetime.now(), ending='\n')
 
     def add_arguments(self, parser):
         pass
