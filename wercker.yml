@@ -222,6 +222,8 @@ build:
           # Create superuser
           echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
           #
+          # Start Cron Process
+          cron
           echo "Gunicorn start"
           exec newrelic-admin run-program gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --log-file=/var/log/gunicorn_error.log --access-logfile=/var/log/gunicorn_access.log nexchange.wsgi:application "$@"
     - script:
@@ -249,7 +251,6 @@ build:
         code: |
           chmod +x /ticker.sh
           echo "* * * * * root /ticker.sh" > /etc/crontab
-          cron
     - script:
         name: echo python information
         code: |
