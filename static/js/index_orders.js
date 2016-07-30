@@ -44,7 +44,7 @@ $(document).ready(function() {
             if ( $.trim($(option).text()) === $.trim(span.html()) ) {
                 select_addresses.prop('selectedIndex', index);
             }
-        })
+        });
         
         /**
          * The form which handles 'select one of the existing addresses'
@@ -146,7 +146,7 @@ $(document).ready(function() {
             popover.tip().find(".create_withdraw_address:first").toggle();
             popover.tip().find(".cancel_btn").click(close_popover);
         }
-    })
+    });
 
     /**
      * Handles the payment confirmation
@@ -182,7 +182,7 @@ $(document).ready(function() {
                     $(toggle).bootstrapToggle('disable');
 
                     // so user cannot edit withdraw_address
-                    $("#td-frozen-withdraw-" + pk + " .frozen").html($(withdraw_address).html())
+                    $("#td-frozen-withdraw-" + pk + " .frozen").html($(withdraw_address).html());
                     $("#td-withdraw-" + pk).hide();                     
                     $("#td-frozen-withdraw-" + pk).show();
                 } 

@@ -2,7 +2,8 @@ from django.test import TestCase
 from django.core.exceptions import ValidationError
 from core.validators import validate_bc
 from django.utils import timezone
-from core.models import Order
+from core.models import Order, UniqueFieldMixin, Currency, PaymentPreference,\
+    PaymentMethod
 from datetime import timedelta
 import time
 from django.conf import settings
@@ -212,3 +213,66 @@ class ValidateBCTestCase(TestCase):
     def test_validator_recognizes_good_address(self):
         self.assertEqual(None, validate_bc(
             '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j'))
+
+
+class ValidateUniqueFieldMixinTestCase(TestCase):
+
+    def test_detects_uniqe_value_colision(self):
+
+        unq = UniqueFieldMixin.gen_unique_value(
+            lambda x: 'A' * x,
+            lambda x: 1 if x == 'A' else 0,
+            1
+        )
+
+        self.assertEqual(unq, 'AA')
+
+
+class CurrencyTestCase(OrderBaseTestCase):
+
+    def setUp(self):
+        self.currency = self.USD
+
+    def test_find_currency_by_natural_key(self):
+        natural_key = self.currency.natural_key()
+        currency = Currency.objects.get_by_natural_key(natural_key)
+        self.assertEqual(currency, self.currency)
+
+    def test_print_currency_name(self):
+        self.assertEqual(str(self.currency), 'US Dollars')
+
+
+class PaymentMethodTestCase(UserBaseTestCase, OrderBaseTestCase):
+
+    def setUp(self):
+        PaymentMethod.objects.all().delete()
+        self.method_data = {
+            'bin': 426101,
+            'fee': 0.0,
+            'is_slow': 0,
+            'name': 'Alpha Bank Visa'
+        }
+
+        self.payment_method = PaymentMethod(**self.method_data)
+        self.payment_method.save()
+        super(PaymentMethodTestCase, self).setUp()
+
+    def test_find_payment_method_by_natural_key(self):
+        natural_key = self.payment_method.natural_key()
+        payment_method = PaymentMethod.objects.get_by_natural_key(natural_key)
+        self.assertEqual(payment_method, self.payment_method)
+
+    def test_guess_payment_preference(self):
+
+        pref_data = {
+            'user': self.user,
+            'currency': self.USD,
+            'method_owner': 'The owner',
+            'identifier': str(self.payment_method.bin),
+            'comment': 'Just testing'
+        }
+
+        pref = PaymentPreference(**pref_data)
+        pref.save()
+
+        self.assertEqual(self.payment_method, pref.payment_method)

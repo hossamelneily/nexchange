@@ -2,7 +2,7 @@
 {% load static %}
 <div class="row {{ type }}">
     {% if type == 'buy' %}
-    <div class="col col-xs-12 col-sm-4 payment-type-trigger" data-type="alfabank">
+    <div class="col col-xs-12 col-sm-4 payment-type-trigger" data-type="Alpha">
         <div class="col col-xs-12">
             <img src="{% static 'icons/alfa.png' %}"
                  alt="{% trans 'Alfa-bank' %}"
@@ -12,7 +12,7 @@
             {% trans 'Alfa-bank' %}
         </div>
     </div>
-    <div class="col col-xs-12 col-sm-4 payment-type-trigger" data-type="sberbank">
+    <div class="col col-xs-12 col-sm-4 payment-type-trigger" data-type="Sber">
         <div class="col col-xs-12">
             <img src="{% static 'icons/sber.png' %}"
                  alt="{% trans 'Sberbank' %}"

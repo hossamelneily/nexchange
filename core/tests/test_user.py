@@ -48,6 +48,7 @@ class RegistrationTestCase(TestCase):
 
 
 class ProfileUpdateTestCase(UserBaseTestCase):
+
     def test_can_update_profile(self):
         response = self.client.post(reverse('core.user_profile'), self.data)
         # Redirect after update
@@ -99,3 +100,58 @@ class ShortRegistrationTestCase(TestCase):
 
     def test_short_registration_failure(self):
         pass
+
+
+class ProfileFindTestCase(UserBaseTestCase):
+
+    def setUp(self):
+        super(ProfileFindTestCase, self).setUp()
+
+        self.profile = Profile()
+        self.profile.user = self.user
+        self.profile.save()
+
+    def test_finds_profile_by_natural_key(self):
+        natural_key = self.user.profile.natural_key()
+
+        profile = Profile.objects.get_by_natural_key(natural_key)
+        self.assertEqual(profile, self.profile)
+
+
+class LoginTestCase(UserBaseTestCase):
+
+    def test_login_should_display_correctly(self):
+        # setup
+        self.client.logout()
+        response = self.client.get(reverse('accounts.login'))
+
+        # tests
+        self.assertEqual(response.status_code, 200)
+
+        # teardown
+        self.client.login(username=self.user.username, password='password')
+
+    def test_login_should_log_in_user(self):
+        # setup
+        self.client.logout()
+        response = self.client.post(reverse('accounts.login'), {
+            'username': self.user.username,
+            'password': self.password
+        }, follow=True)
+
+        # tests
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['request'].user, self.user)
+
+
+class LogoutTestCase(UserBaseTestCase):
+
+    def test_logout_should_log_out_user(self):
+        # setup
+        response = self.client.get(reverse('accounts.logout'), follow=True)
+
+        # tests
+        self.assertNotEqual(response.context['request'].user, self.user)
+
+        # teardown
+        self.client.login(username=self.user.username, password='password')

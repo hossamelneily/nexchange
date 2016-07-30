@@ -2,7 +2,8 @@ from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.utils.translation import activate
 
-from core.models import SmsToken, Currency, Price
+from core.models import SmsToken, Currency, Price, PaymentMethod,\
+    PaymentPreference, Order
 
 
 def data_provider(fn_data_provider):
@@ -73,3 +74,47 @@ class OrderBaseTestCase(TestCase):
                   price_usd=OrderBaseTestCase.PRICE_SELL_USD)
         cls.ticker_sell.save()
         super(OrderBaseTestCase, cls).setUpClass()
+
+    @classmethod
+    def create_order(cls, user):
+        cls.setUpClass()
+
+        payment_method = PaymentMethod.objects.first()
+
+        if payment_method is None:
+            method_data = {
+                'bin': 426101,
+                'fee': 0.0,
+                'is_slow': 0,
+                'name': 'Alpha Bank Visa'
+            }
+            payment_method = PaymentMethod(**method_data)
+            payment_method.save()
+
+        pref_data = {
+            'user': user,
+            'currency': cls.USD,
+            'method_owner': 'The owner',
+            'identifier': str(payment_method.bin),
+            'comment': 'Just testing'
+        }
+        pref = PaymentPreference(**pref_data)
+        pref.save()
+
+        """Creates an order"""
+        data = {
+            'amount_cash': 30674.85,
+            'amount_btc': 1,
+            'currency': cls.USD,
+            'user': user,
+            'admin_comment': 'test Order',
+            'unique_reference': '12345',
+            'withdraw_address': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+            'payment_preference': pref
+        }
+
+        order = Order(**data)
+        order.full_clean()  # ensure is initially correct
+        order.save()
+
+        return order
