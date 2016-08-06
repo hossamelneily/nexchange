@@ -1,3 +1,4 @@
+
 box: pitervergara/geodjango:nexchange
 
 dev:
@@ -81,6 +82,28 @@ dev:
           cd .git/hooks/
           ln -fs ../../.pre-commit.sh pre-commit
           cd -
+    - create-file:
+        name: Create cron invoked script to run ticker
+        filename: /ticker.sh
+        overwrite: true
+        content: |-
+          #!/bin/bash
+          #
+          export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+          export POSTGIS_ENV_POSTGRES_USER=${POSTGIS_ENV_POSTGRES_USER}
+          export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}
+          export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
+          export POSTGIS_PORT_5432_TCP_ADDR=${POSTGIS_PORT_5432_TCP_ADDR}
+          export POSTGIS_PORT_5432_TCP_PORT=${POSTGIS_PORT_5432_TCP_PORT}
+          #
+          cd ${WERCKER_SOURCE_DIR}
+          /usr/local/bin/python manage.py ticker >> /var/log/cron.log 2>&1
+    - script:
+        name: Add cron job
+        code: |
+          chmod +x /ticker.sh
+          echo "* * * * * root /ticker.sh" > /etc/crontab
+          cron
     - internal/watch:
         code: newrelic-admin run-program python manage.py runserver 0.0.0.0:8000
         reload: false 
@@ -199,12 +222,35 @@ build:
           # Create superuser
           echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
           #
+          # Start Cron Process
+          cron
           echo "Gunicorn start"
           exec newrelic-admin run-program gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --log-file=/var/log/gunicorn_error.log --access-logfile=/var/log/gunicorn_access.log nexchange.wsgi:application "$@"
     - script:
         name: set entrypoint as executable
         code: |
           chmod +x /entrypoint.sh
+    - create-file:
+        name: Create cron invoked script to run ticker
+        filename: /ticker.sh
+        overwrite: true
+        content: |-
+          #!/bin/bash
+          #
+          export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+          export POSTGIS_ENV_POSTGRES_USER=${POSTGIS_ENV_POSTGRES_USER}
+          export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}
+          export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
+          export POSTGIS_PORT_5432_TCP_ADDR=${POSTGIS_PORT_5432_TCP_ADDR}
+          export POSTGIS_PORT_5432_TCP_PORT=${POSTGIS_PORT_5432_TCP_PORT}
+          #
+          cd ${WERCKER_SOURCE_DIR}
+          /usr/local/bin/python manage.py ticker >> /var/log/cron.log 2>&1
+    - script:
+        name: Add cron job
+        code: |
+          chmod +x /ticker.sh
+          echo "* * * * * root /ticker.sh" > /etc/crontab
     - script:
         name: echo python information
         code: |
