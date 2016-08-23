@@ -10,7 +10,7 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['jasmine-jquery', 'jasmine'],
+    frameworks: ['jasmine-jquery', 'jasmine', 'browserify'],
 
 
     // list of files / patterns to load in the browser
@@ -18,7 +18,7 @@ module.exports = function(config) {
       {pattern: 'static/bower_components/jquery/dist/jquery.js', included: true, served: true},
       {pattern: 'static/bower_components/bootstrap/dist/js/bootstrap.js', included: true, served: true},
       {pattern: 'static/bower_components/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.js', included: true, served: true},
-      {pattern: 'static/js/*.js', included: true, served: true},
+      {pattern: 'static/js/bundle.js', included: true, served: true},
       {pattern: 'static/js/tests/fixtures/*.html*', included: false, served: true},      
       {pattern: 'static/js/tests/spec/*.js', included: true, served: true}
     ],
@@ -26,7 +26,7 @@ module.exports = function(config) {
 
     // list of files to exclude
     exclude: [
-      'static/js/tests/**/*.swp',
+      'static/js/tests/**/*.swp'
     ],
 
 
@@ -69,7 +69,8 @@ module.exports = function(config) {
     plugins: [
       'karma-phantomjs-launcher',
       'karma-jasmine-jquery',
-      'karma-jasmine'
+      'karma-jasmine',
+      'karma-browserify'
     ],
 
     // Continuous Integration mode

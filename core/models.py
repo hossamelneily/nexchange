@@ -155,25 +155,19 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
     identifier = models.CharField(max_length=100)
     comment = models.CharField(max_length=255)
 
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-
-        # This only worked for SELLing, BUYing doesnt ask for
-        # credit card type nor identifier so breaks here
-        # so i changed to:
-
-        if len(self.identifier) > 0:  # there IS identifier = Selling
-            self.payment_method = self.guess_payment_method()
-
-        super(PaymentPreference, self).save()
+    def save(self, *args, **kwargs):
+        self.payment_method = self.guess_payment_method()
+        super(PaymentPreference, self).save(*args, **kwargs)
 
     def guess_payment_method(self):
-        bin = self.identifier[:PaymentMethod.BIN_LENGTH]
+        card_bin = self.identifier[:PaymentMethod.BIN_LENGTH]
         payment_method = None
 
-        while payment_method is None and len(bin) > 1:
-            payment_method = PaymentMethod.objects.get(bin=bin)
-            bin = bin[:-1]
+        while all([self.identifier,
+                   payment_method is None,
+                   len(card_bin) > 1]):
+            payment_method = PaymentMethod.objects.get(bin=card_bin)
+            card_bin = card_bin[:-1]
 
         return payment_method
 
@@ -208,11 +202,12 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         ordering = ['-created_on']
 
     def save(self, *args, **kwargs):
-        self.unique_reference = self.gen_unique_value(
-            lambda x: get_random_string(x),
-            lambda x: Order.objects.filter(unique_reference=x).count(),
-            UNIQUE_REFERENCE_LENGTH
-        )
+        self.unique_reference = \
+            self.gen_unique_value(
+                lambda x: get_random_string(x),
+                lambda x: Order.objects.filter(unique_reference=x).count(),
+                UNIQUE_REFERENCE_LENGTH
+            )
         self.convert_coin_to_cash()
 
         super(Order, self).save(*args, **kwargs)
