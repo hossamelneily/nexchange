@@ -18,15 +18,15 @@ module.exports = function(config) {
       {pattern: 'static/bower_components/jquery/dist/jquery.js', included: true, served: true},
       {pattern: 'static/bower_components/bootstrap/dist/js/bootstrap.js', included: true, served: true},
       {pattern: 'static/bower_components/x-editable/dist/bootstrap3-editable/js/bootstrap-editable.js', included: true, served: true},
-      {pattern: 'static/js/bundle.js', included: true, served: true},
-      {pattern: 'static/js/tests/fixtures/*.html*', included: false, served: true},      
+      {pattern: 'static/js/*.js', included: true, served: true},
+      {pattern: 'static/js/tests/fixtures/*.html*', included: false, served: true},
       {pattern: 'static/js/tests/spec/*.js', included: true, served: true}
     ],
 
 
     // list of files to exclude
     exclude: [
-      'static/js/tests/**/*.swp'
+      'static/js/tests/**/*.swp','static/js/main.js'
     ],
 
 

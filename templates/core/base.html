@@ -56,6 +56,9 @@
         {% block main %}
         {% endblock %}
     </div>
+   {% block seo_footer %}
+    {% include 'core/partials/supported_paymnets.html' %}
+   {% endblock %}
    {% block footer %}
    {%  endblock %}
     {% include 'core/partials/popular_faq.html' %}

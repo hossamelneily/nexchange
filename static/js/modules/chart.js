@@ -111,9 +111,3 @@
         tickerLatestUrl: tickerLatestUrl
     };
 }(window, window.jQuery)); //jshint ignore:line
-
-
-
-
-
-

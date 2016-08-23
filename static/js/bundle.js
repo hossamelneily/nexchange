@@ -120,6 +120,10 @@
         $('#payment_method_id').val("");
         $('#user_address_id').val("");
         $('#new_user_account').val("");
+        //TO-DO: if no amount coin selected DEFAULT_AMOUNT to confirm
+        //confirm = $('.amount-coin').val() ? $('.amount-coin').val() : DEFAULT_AMOUNT;
+        //$(".btc-amount-confirm").text(confirm);
+
         var apiRoot = '/en/api/v1',
             createAccEndpoint = apiRoot + '/phone',
             menuEndpoint = apiRoot + '/menu',
@@ -127,7 +131,6 @@
             validatePhoneEndpoint = '/en/profile/verifyPhone/',
             placerAjaxOrder = '/en/order/ajax/',
             paymentAjax = '/en/payment/ajax/',
-           // getBtcAddress = '/en/kraken/genAddress/',
             DEFAULT_AMOUNT = 1;
 
         $('.next-step, .prev-step').on('click', orderObject.changeState);
@@ -183,7 +186,10 @@
         $('.place-order').on('click', function () {
             //TODO verify if $(this).hasClass('sell-go') add
             // the othre type of transaction
-
+            //debugger;
+            paymentType = $('.payment-preference-confirm').text() ;
+            preferenceIdentifier = $('.payment-preference-identifier-confirm').text();
+            preferenceOwner = $('.payment-preference-owner-confirm').text();
             var verifyPayload = {
                     "trade-type": $(".trade-type").val(),
                     "csrfmiddlewaretoken": $("#csrfmiddlewaretoken").val(),
@@ -438,12 +444,6 @@
     };
 }(window, window.jQuery)); //jshint ignore:line
 
-
-
-
-
-
-
 },{}],3:[function(require,module,exports){
 !(function(window, $) {
     "use strict";
@@ -457,10 +457,8 @@
         var val,
             rate,
             amountCoin = $('.amount-coin'),
-            floor = 100000000,
-            floorCash = 1000,
-            cashAmount,
-            btcAmount;
+            amountCashConfirm = 0,
+            floor = 100000000;
 
         isInitial = isInitial || !elem.val().trim();
         val = isInitial ? elem.attr('placeholder') : elem.val();
@@ -475,26 +473,23 @@
             updatePrice(getPrice(data[window.ACTION_SELL], currency), $('.rate-sell'));
             rate = data[window.action]['price_' + currency + '_formatted'];
             if (elem.hasClass('amount-coin')) {
-                cashAmount = Math.floor(val * rate * floorCash) / floorCash;
-                btcAmount = val;
+                var cashAmount = rate * val;
+                amountCashConfirm = cashAmount;
                 if (isInitial) {
                     $('.amount-cash').attr('placeholder', cashAmount);
                 } else {
                     $('.amount-cash').val(cashAmount);
                 }
-
             } else {
-                btcAmount = Math.floor(val / rate * floor) / floor;
-                cashAmount = val;
-
+                var btcAmount = Math.floor(val / rate * floor) / floor;
                 if (isInitial) {
                     $('.amount-coin').attr('placeholder', btcAmount);
                 } else {
                     $('.amount-coin').val(btcAmount);
                 }
             }
-            $('.btc-amount-confirm').text(btcAmount); // add
-            $('.cash-amount-confirm').text(cashAmount); //add
+            $('.btc-amount-confirm').text(amountCoin.val()); // add
+            $('.cash-amount-confirm').text(amountCashConfirm); //add
         });
     }
 
@@ -651,9 +646,6 @@
     };
 }(window, window.jQuery)); //jshint ignore:line
 
-
-
-
 },{"./chart.js":2,"./register.js":5}],4:[function(require,module,exports){
 !(function(window ,$) {
     "use strict";
@@ -680,6 +672,7 @@
     };
 
 }(window, window.jQuery)); //jshint ignore:line
+
 },{}],5:[function(require,module,exports){
 !(function(window, $) {
     "use strict";

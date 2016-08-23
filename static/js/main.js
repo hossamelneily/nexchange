@@ -119,6 +119,10 @@
         $('#payment_method_id').val("");
         $('#user_address_id').val("");
         $('#new_user_account').val("");
+        //TO-DO: if no amount coin selected DEFAULT_AMOUNT to confirm
+        //confirm = $('.amount-coin').val() ? $('.amount-coin').val() : DEFAULT_AMOUNT;
+        //$(".btc-amount-confirm").text(confirm);
+
         var apiRoot = '/en/api/v1',
             createAccEndpoint = apiRoot + '/phone',
             menuEndpoint = apiRoot + '/menu',
@@ -126,7 +130,6 @@
             validatePhoneEndpoint = '/en/profile/verifyPhone/',
             placerAjaxOrder = '/en/order/ajax/',
             paymentAjax = '/en/payment/ajax/',
-           // getBtcAddress = '/en/kraken/genAddress/',
             DEFAULT_AMOUNT = 1;
 
         $('.next-step, .prev-step').on('click', orderObject.changeState);
@@ -182,7 +185,10 @@
         $('.place-order').on('click', function () {
             //TODO verify if $(this).hasClass('sell-go') add
             // the othre type of transaction
-
+            //debugger;
+            paymentType = $('.payment-preference-confirm').text() ;
+            preferenceIdentifier = $('.payment-preference-identifier-confirm').text();
+            preferenceOwner = $('.payment-preference-owner-confirm').text();
             var verifyPayload = {
                     "trade-type": $(".trade-type").val(),
                     "csrfmiddlewaretoken": $("#csrfmiddlewaretoken").val(),

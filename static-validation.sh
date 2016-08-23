@@ -12,6 +12,8 @@ if [ -n "$FILES" ] || [ -n "$FILES_CACHED" ] ; then
     echo "======================="
     echo "======= CHECKING FILES: $FILES $FILES_CACHED"
     echo "======================="
+    echo "workaround flake8 command not found"
+    pip install flake8
     flake8 $OPTIONS $FILES $FILES_CACHED && npm run lint
 else
     echo "======================="

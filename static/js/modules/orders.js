@@ -10,10 +10,8 @@
         var val,
             rate,
             amountCoin = $('.amount-coin'),
-            floor = 100000000,
-            floorCash = 1000,
-            cashAmount,
-            btcAmount;
+            amountCashConfirm = 0,
+            floor = 100000000;
 
         isInitial = isInitial || !elem.val().trim();
         val = isInitial ? elem.attr('placeholder') : elem.val();
@@ -28,26 +26,23 @@
             updatePrice(getPrice(data[window.ACTION_SELL], currency), $('.rate-sell'));
             rate = data[window.action]['price_' + currency + '_formatted'];
             if (elem.hasClass('amount-coin')) {
-                cashAmount = Math.floor(val * rate * floorCash) / floorCash;
-                btcAmount = val;
+                var cashAmount = rate * val;
+                amountCashConfirm = cashAmount;
                 if (isInitial) {
                     $('.amount-cash').attr('placeholder', cashAmount);
                 } else {
                     $('.amount-cash').val(cashAmount);
                 }
-
             } else {
-                btcAmount = Math.floor(val / rate * floor) / floor;
-                cashAmount = val;
-
+                var btcAmount = Math.floor(val / rate * floor) / floor;
                 if (isInitial) {
                     $('.amount-coin').attr('placeholder', btcAmount);
                 } else {
                     $('.amount-coin').val(btcAmount);
                 }
             }
-            $('.btc-amount-confirm').text(btcAmount); // add
-            $('.cash-amount-confirm').text(cashAmount); //add
+            $('.btc-amount-confirm').text(amountCoin.val()); // add
+            $('.cash-amount-confirm').text(amountCashConfirm); //add
         });
     }
 
@@ -203,6 +198,3 @@
         reloadRoleRelatedElements: reloadRoleRelatedElements
     };
 }(window, window.jQuery)); //jshint ignore:line
-
-
-
