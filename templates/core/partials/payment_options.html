@@ -2,7 +2,9 @@
 {% load static %}
 <div class="row {{ type }}">
     {% if type == 'buy' %}              <!-- TO-DO get this from database ??-->
-    <div class="col col-xs-12 col-sm-4 payment-type-trigger" data-type="Alpha">
+    <div class="col col-xs-12 col-sm-4 payment-type-trigger"
+         data-type="Alpha"
+         data-identifier="{{ cards.alfa.identifier }}">
         <div class="col col-xs-12">
             <img src="{% static 'icons/alfa.png' %}"
                  alt="{% trans 'Alfa-bank' %}"
@@ -12,7 +14,9 @@
             {% trans 'Alfa-bank' %}
         </div>
     </div>                              <!-- TO-DO get this from database ??-->
-    <div class="col col-xs-12 col-sm-4 payment-type-trigger" data-type="Sber">
+    <div class="col col-xs-12 col-sm-4 payment-type-trigger"
+         data-type="Sber"
+         data-identifier="{{ cards.sber.identifier }}">
         <div class="col col-xs-12">
             <img src="{% static 'icons/sber.png' %}"
                  alt="{% trans 'Sberbank' %}"
@@ -42,7 +46,9 @@
         </div>
     </div>
     {% endif %}                         <!-- TO-DO get this from database ??-->
-    <div class="col col-xs-12 col-sm-4 payment-type-trigger qiwi" data-type="Qiwi">
+    <div class="col col-xs-12 col-sm-4 payment-type-trigger qiwi"
+         data-type="Qiwi"
+         data-identifier="{{ cards.qiwi.identifier }}">
         <div class="col col-xs-12">
             <img src="{% static 'icons/qiwi.png' %}"
                  alt="{% trans 'Qiwi wallet' %}"

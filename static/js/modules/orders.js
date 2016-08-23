@@ -101,7 +101,6 @@
 
         $('.currency').html(currency.toUpperCase());
         chartObject.renderChart(currency);
-        reloadCardsPerCurrency();
     }
 
     function setPrice(elem, price) {
@@ -205,7 +204,7 @@
     }
 
     function reloadCardsPerCurrency(currency, cardsModalEndpoint) {
-        $.get(cardsModalEndpoint, {currency: currency}, function (data) {
+        $.post(cardsModalEndpoint, {currency: currency}, function (data) {
             $('.paymentSelectionContainer').html($(data));
         });
     }

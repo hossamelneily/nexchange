@@ -149,7 +149,7 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
     # NULL or Admin for out own (buy adds)
     user = models.ForeignKey(User)
     payment_method = models.ForeignKey(PaymentMethod, default=None)
-    currency = models.ForeignKey(Currency, null=True)
+    currency = models.ManyToManyField(Currency, null=True)
     # Optional, sometimes we need this to confirm
     method_owner = models.CharField(max_length=100)
     identifier = models.CharField(max_length=100)

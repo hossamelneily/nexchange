@@ -5,11 +5,11 @@
         <h1>{% trans 'Order placed successfully' %}</h1>
         <div class="row">
             <div class="col col xs-12"></div>
-            {% trans 'Please make payment to the following' %} {{ payment_method }}
+            {% trans 'Please make payment to the following' %} {{ order.payment_preference.payment_method.name }}
         </div>
         <div class="row">
             <div class="col col-lg-12">
-                <p><strong>{{bank_account}}</strong></p>
+                <p><strong>{{order.payment_preference.identifier}}</strong></p>
             </div>
         </div>
         <div class="row">
