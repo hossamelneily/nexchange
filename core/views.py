@@ -559,10 +559,31 @@ def k_deposit_status(request):
     return JsonResponse({'result': result})
 
 
-def user_btc_adress(request):
+def cards(request):
     btc_address = request.POST.get('btcAddress')
     user = request.user
     validate_bc(str(btc_address))
     address = Address(address=btc_address, user=user)
     address.save()
     return JsonResponse({'status': 'OK'})
+
+
+def get_card_per_currency(request):
+    def get_pref_by_name(name):
+        curr_obj = Currency.objects.get(code=currency)
+        card = \
+            PaymentPreference.objects.filter(currency=curr_obj,
+                                             user__is_staff=True,
+                                             payment_option__name__like=name)
+        return card
+
+    template = get_template('core/partials/')
+    currency = request.POST.get("currency")
+
+    cards = {
+        'sber': get_pref_by_name('Sber'),
+        'alfa': get_pref_by_name('Alfa'),
+        'qiwi': get_pref_by_name('Qiwi'),
+    }
+    return HttpResponse(template.render({'cards': cards, 'type': 'buy'},
+                                        request))

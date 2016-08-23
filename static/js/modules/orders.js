@@ -93,12 +93,15 @@
         return data['price_' + currency + '_formatted'];
     }
 
-    function setCurrency (elem, currency) {if (elem && elem.hasClass('currency_pair')) {
+    function setCurrency (elem, currency) {
+        if (elem && elem.hasClass('currency_pair')) {
             $('.currency_to').val(elem.data('crypto'));
+
         }
 
         $('.currency').html(currency.toUpperCase());
         chartObject.renderChart(currency);
+        reloadCardsPerCurrency();
     }
 
     function setPrice(elem, price) {
@@ -131,6 +134,21 @@
             //todo: allow user to buy placeholder value or block 'next'?
             return;
         }
+
+        if (!$('.payment-preference-confirm').html().trim()) {
+            $("#PayMethModal").modal('toggle');
+            return;
+        }
+
+        var valElem = $('.amount-coin'),
+            val;
+        if (!valElem.val().trim()) {
+            //set placeholder as value.
+            val = valElem.attr('placeholder').trim();
+            valElem.val(val).trigger('change');
+            $('.btc-amount-confirm').html(val);
+        }
+
         var paneClass = '.tab-pane',
             tab = $('.tab-pane.active'),
             action2 =  $(this).hasClass('next-step') ? 'next' :'prev',// jshint ignore:line
@@ -186,6 +204,12 @@
             .addClass('disabled');
     }
 
+    function reloadCardsPerCurrency(currency, cardsModalEndpoint) {
+        $.get(cardsModalEndpoint, {currency: currency}, function (data) {
+            $('.paymentSelectionContainer').html($(data));
+        });
+    }
+
     module.exports = {
         updateOrder: updateOrder,
         updatePrice: updatePrice,
@@ -195,6 +219,7 @@
         setPrice: setPrice,
         setButtonDefaultState: setButtonDefaultState,
         changeState: changeState,
-        reloadRoleRelatedElements: reloadRoleRelatedElements
+        reloadRoleRelatedElements: reloadRoleRelatedElements,
+        reloadCardsPerCurrency: reloadCardsPerCurrency
     };
 }(window, window.jQuery)); //jshint ignore:line

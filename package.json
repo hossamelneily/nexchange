@@ -19,7 +19,6 @@
     "karma-phantomjs-launcher": "^0.1.4",
     "phantomjs-prebuilt": "~2.1",
     "karma-browserify":"latest",
-    "browserify": "latest",
     "watchify": "latest"
   },
   "scripts": {

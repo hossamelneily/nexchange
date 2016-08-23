@@ -4,6 +4,7 @@
        var  currency = 'rub',
         paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
         paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
+        cardsEndpoint = '/en/api/v1/cards',
         // Required modules
         orderObject = require("./modules/orders.js"),
         paymentObject = require("./modules/payment.js"),
@@ -120,8 +121,8 @@
         $('#user_address_id').val("");
         $('#new_user_account').val("");
         //TO-DO: if no amount coin selected DEFAULT_AMOUNT to confirm
-        //confirm = $('.amount-coin').val() ? $('.amount-coin').val() : DEFAULT_AMOUNT;
-        //$(".btc-amount-confirm").text(confirm);
+        var confirm = $('.amount-coin').val() ? $('.amount-coin').val() : DEFAULT_AMOUNT;
+        $(".btc-amount-confirm").text(confirm);
 
         var apiRoot = '/en/api/v1',
             createAccEndpoint = apiRoot + '/phone',

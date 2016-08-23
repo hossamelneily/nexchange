@@ -28,6 +28,11 @@ html body {
      width: 100%;
 }
 
+.btc-amount-confirm, .cash-amount-confirm {
+    font-weight: bold;
+    font-size: 20px;
+}
+
 .post-content-menu {
     background: none repeat scroll 0 0 #FFFFFF;
     opacity: 0.8;
@@ -370,4 +375,8 @@ footer {
 #verification_code {
     max-width: 206px;
     margin: 0 auto;
+}
+
+.step-confirm div.confirmation-elem{
+    margin: 15px auto;
 }
