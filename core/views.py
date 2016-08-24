@@ -414,45 +414,43 @@ def ajax_crumbs(request):
 
 @csrf_exempt
 def ajax_order(request):
-    # TODO re query to kraken to get the price to avoid
-    # passing ammounts to ajax
     template = get_template('core/partials/success_order.html')
-    user = request.user
+    trade_type = request.POST.get("trade-type")
     curr = request.POST.get("currency_from", "RUB")
     amount_coin = request.POST.get("amount-coin")
     currency = Currency.objects.filter(code=curr)[0]
-    trade_type = request.POST.get("trade-type")
-    payment_met = request.POST.get("pp_type")
-    owner = request.POST.get("pp_owner", None)
+    # payment_method = request.POST.get("pp_type")
     identifier = request.POST.get("pp_identifier", None)
 
-    # TO-DO: Fix modal to present data from DB to match here
-    payment_method = PaymentMethod.objects.filter(
-        name__icontains=payment_met)[0]
-
-    # print("#########", payment_met, payment_method)
-    payment_pref, created = PaymentPreference.objects.get_or_create(
-        user=user,
-        currency=currency,
-        method_owner=owner,
-        payment_method=payment_method,
-        identifier=identifier
-    )
-
-    # print(payment_pref, created)
+    if trade_type == 'sell':
+        order_type = Order.SELL
+        payment_pref, created = PaymentPreference.objects.get_or_create(
+            user=request.user,
+            identifier=identifier
+        )
+        payment_pref.currency.add(currency)
+        payment_pref.save()
+    else:
+        order_type = Order.BUY
+        payment_pref = PaymentPreference.objects.get(
+            user__is_staff=True,
+            currency__in=[currency],
+            identifier=identifier
+        )
 
     order = Order(amount_btc=amount_coin,
-                  currency=currency, user=user)
+                  order_type=order_type, payment_preference=payment_pref,
+                  currency=currency, user=request.user)
     order.save()
     uniq_ref = order.unique_reference
     pay_until = order.created_on + timedelta(minutes=order.payment_window)
 
     my_action = _("Result")
     address = ""
-    if trade_type == Order.SELL:
+    if order_type == Order.SELL:
         address = k_generate_address()
 
-    return HttpResponse(template.render({'bank_account': Order,
+    return HttpResponse(template.render({'order': order,
                                          'unique_ref': uniq_ref,
                                          'action': my_action,
                                          'pay_until': pay_until,
@@ -566,3 +564,25 @@ def user_btc_adress(request):
     address = Address(address=btc_address, user=user)
     address.save()
     return JsonResponse({'status': 'OK'})
+
+
+def cards(request):
+    def get_pref_by_name(name):
+        curr_obj = Currency.objects.get(code=currency.upper())
+        card = \
+            PaymentPreference.\
+            objects.filter(currency__in=[curr_obj],
+                           user__is_staff=True,
+                           payment_method__name__icontains=name)
+        return card[0]
+
+    template = get_template('core/partials/modals/payment_type.html')
+    currency = request.POST.get("currency")
+
+    cards = {
+        'sber': get_pref_by_name('Sber'),
+        'alfa': get_pref_by_name('Alpha'),
+        'qiwi': get_pref_by_name('Qiwi'),
+    }
+    return HttpResponse(template.render({'cards': cards, 'type': 'buy'},
+                                        request))

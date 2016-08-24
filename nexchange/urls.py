@@ -17,8 +17,7 @@ from django.conf.urls import url
 from django.contrib import admin
 import django.contrib.auth.views as auth_views
 import core.views
-from core.models import Currency, Profile, Order, SmsToken, PaymentMethod,\
-    Address, PaymentPreference
+
 from core.forms import LoginForm
 from django.conf.urls import include
 from django.conf.urls.i18n import i18n_patterns
@@ -26,16 +25,6 @@ from ticker.urls import api_patterns
 from django.conf import settings
 from django.conf.urls.static import static
 import os
-
-
-# todo: move to admin.py
-admin.site.register(Currency)
-admin.site.register(Profile)
-admin.site.register(Order)
-admin.site.register(SmsToken)
-admin.site.register(PaymentMethod)
-admin.site.register(PaymentPreference)
-admin.site.register(Address)
 
 urlpatterns = i18n_patterns(
     url(r'^admin/', admin.site.urls),
@@ -107,6 +96,8 @@ urlpatterns = i18n_patterns(
     url(r'^api/v1/menu', core.views.ajax_menu, name='core.menu'),
     url(r'^api/v1/breadcrumbs', core.views.ajax_crumbs,
         name='core.breadcrumbs'),
+    url(r'^api/v1/cards', core.views.cards,
+        name='core.cards'),
     url(r'^kraken/depositStatus/$', core.views.k_deposit_status,
         name='core.k_deposit_status'),
 )
