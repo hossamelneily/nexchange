@@ -56,9 +56,6 @@
         {% block main %}
         {% endblock %}
     </div>
-   {% block seo_footer %}
-    {% include 'core/partials/supported_paymnets.html' %}
-   {% endblock %}
 
    {% block footer %}
    {%  endblock %}
@@ -80,8 +77,8 @@
           Cookies.set("USER_TZ", moment.tz.guess());
         });
     </script>
-    <script src="{% static 'js/footer.js' %}"></script>
     <script src="{% static 'js/bundle.js' %}"></script>
+    <script src="{% static 'js/footer.js' %}"></script>
 
     {% bootstrap_javascript %}
     {% block extra_js_footer %} {% endblock %}
