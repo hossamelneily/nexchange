@@ -227,7 +227,8 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
                     price_buy[0].price_usd,
                     price_buy[0].price_rub])
 
-        # TODO: Make this logic more generic
+        # TODO: Make this logic more generic,
+        # TODO: migrate to using currency through payment_preference
 
         if self.order_type == Order.SELL and self.currency.code == Order.USD:
             self.amount_cash = self.amount_btc * price_sell[0].price_usd

@@ -169,12 +169,13 @@ class UpdateWithdrawAddressTestCase(UserBaseTestCase, OrderBaseTestCase):
 
         pref_data = {
             'user': self.user,
-            'currency': self.USD,
             'method_owner': 'The owner',
             'identifier': str(payment_method.bin),
             'comment': 'Just testing'
         }
         pref = PaymentPreference(**pref_data)
+        pref.save()
+        pref.currency.add(self.USD)
         pref.save()
 
         """Creates an order"""

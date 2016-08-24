@@ -426,9 +426,10 @@ def ajax_order(request):
         order_type = Order.SELL
         payment_pref, created = PaymentPreference.objects.get_or_create(
             user=request.user,
-            currency__in=[currency],
             identifier=identifier
         )
+        payment_pref.currency.add(currency)
+        payment_pref.save()
     else:
         order_type = Order.BUY
         payment_pref = PaymentPreference.objects.get(
@@ -569,9 +570,10 @@ def cards(request):
     def get_pref_by_name(name):
         curr_obj = Currency.objects.get(code=currency.upper())
         card = \
-            PaymentPreference.objects.filter(currency=curr_obj,
-                                             user__is_staff=True,
-                                             payment_method__name__icontains=name)
+            PaymentPreference.\
+            objects.filter(currency__in=[curr_obj],
+                           user__is_staff=True,
+                           payment_method__name__icontains=name)
         return card[0]
 
     template = get_template('core/partials/modals/payment_type.html')

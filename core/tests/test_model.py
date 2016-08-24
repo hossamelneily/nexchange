@@ -266,13 +266,14 @@ class PaymentMethodTestCase(UserBaseTestCase, OrderBaseTestCase):
 
         pref_data = {
             'user': self.user,
-            'currency': self.USD,
             'method_owner': 'The owner',
             'identifier': str(self.payment_method.bin),
             'comment': 'Just testing'
         }
 
         pref = PaymentPreference(**pref_data)
+        pref.save()
+        pref.currency.add(self.USD)
         pref.save()
 
         self.assertEqual(self.payment_method, pref.payment_method)
