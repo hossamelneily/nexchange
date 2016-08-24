@@ -8,7 +8,7 @@ describe("Profile function", function() {
 
             spyOn($, "ajax").and.callFake(function() {
                 var dfd = jQuery.Deferred();
-                dfd.resolve('{"STATUS":"ERR"}');
+                dfd.resolve('{"error":"error"}');
                 return dfd.promise();
             });
         });

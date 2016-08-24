@@ -29,4 +29,4 @@
             .resize(positionFooter);
 
     });
-}(window, window.jQuery)); // jshint ignore:line
+}(window, window.jQuery)); //jshint ignore:line

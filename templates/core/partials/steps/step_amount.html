@@ -70,7 +70,8 @@
         </div><!-- /col -->
     </div>
  {% include 'core/partials/modals/payment_type.html' with id="UserAccountModal" type="sell" %}
- {% include 'core/partials/modals/payment_type.html' with id="PayMethModal" type="buy" %}
+    <div class="paymentSelectionContainer">
+    </div>
  {% include 'core/partials/modals/sell.html' with id="CardSellModal" method="card" form="card" legend="Add a new payout card" %}
  {% include 'core/partials/modals/sell.html' with id="QiwiSellModal" type="wallet" form="phone" legend="Add a new payout wallet" %}
 {% endblock %}

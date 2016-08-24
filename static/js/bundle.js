@@ -1,3 +1,4 @@
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
 !(function (window, $) {
@@ -336,3 +337,393 @@
     });
 
 } (window, window.jQuery)); //jshint ignore:line
+},{"./modules/orders.js":3,"./modules/payment.js":4}],2:[function(require,module,exports){
+!(function(window ,$) {
+    "use strict";
+
+    var apiRoot = '/en/api/v1',
+        chartDataRaw,
+        tickerHistoryUrl = apiRoot +'/price/history',
+        tickerLatestUrl = apiRoot + '/price/latest';
+
+    function responseToChart(data) {
+        var i,
+            resRub = [],
+            resUsd = [],
+            resEur = [];
+
+        for (i = 0; i < data.length; i+=2) {
+            var sell = data[i],
+            buy = data[i + 1];
+            resRub.push([Date.parse(sell.created_on), buy.price_rub_formatted, sell.price_rub_formatted]);
+            resUsd.push([Date.parse(sell.created_on), buy.price_usd_formatted, sell.price_usd_formatted]);
+            resEur.push([Date.parse(sell.created_on), buy.price_eur_formatted, sell.price_eur_formatted]);
+        }
+        return {
+            rub: resRub,
+            usd: resUsd,
+            eur: resEur
+        };
+    }
+
+    function renderChart (currency) {
+         $.get(tickerHistoryUrl, function(resdata) {
+            chartDataRaw = resdata;
+            var data = responseToChart(resdata)[currency];
+          $('#container').highcharts({
+
+                chart: {
+                    type: 'arearange',
+                    zoomType: 'x',
+                  backgroundColor: {
+                     linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+                     stops: [
+                        [0, '#e3ffda'],
+                        [1, '#e3ffda']
+                     ]
+                  },
+                    events : {
+                        load : function () {
+                            // set up the updating of the chart each second
+                            var series = this.series[0];
+                            setInterval(function () {
+                                $.get(tickerLatestUrl, function (resdata) {
+                                    var lastdata = responseToChart(resdata)[currency];
+                                    if ( chartDataRaw.length && parseInt(resdata[0].unix_time) >
+                                         parseInt(chartDataRaw[chartDataRaw.length - 1].unix_time)
+                                    ) {
+                                        //Only update if a ticker 'tick' had occured
+                                        series.addPoint(lastdata[0], true, true);
+                                        Array.prototype.push.apply(chartDataRaw, resdata);
+                                    }
+
+                                });
+                        }, 1000 * 30);
+                      }
+                    }
+                },
+
+                title: {
+                    text: 'BTC/' + currency.toUpperCase()
+                },
+
+                xAxis: {
+                    type: 'datetime',
+                    dateTimeLabelFormats: {
+                       day: '%e %b',
+                        hour: '%H %M'
+
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: null
+                    }
+                },
+
+                tooltip: {
+                    crosshairs: true,
+                    shared: true,
+                    valueSuffix: ' ' + currency.toLocaleUpperCase()
+                },
+
+                legend: {
+                    enabled: false
+                },
+
+                series: [{
+                    name: currency === 'rub' ? 'цена' : 'Price',
+                    data: data,
+                    color: 'lightgreen',
+                    // TODO: fix this!
+                    pointInterval: 3600 * 1000
+                }]
+            });
+        });
+    }
+
+    module.exports = {
+        responseToChart:responseToChart,
+        renderChart: renderChart,
+        apiRoot: apiRoot,
+        chartDataRaw: chartDataRaw,
+        tickerHistoryUrl: tickerHistoryUrl,
+        tickerLatestUrl: tickerLatestUrl
+    };
+}(window, window.jQuery)); //jshint ignore:line
+
+},{}],3:[function(require,module,exports){
+!(function(window, $) {
+    "use strict";
+
+      // Required modules
+     var chartObject = require("./chart.js"),
+         registerObject = require("./register.js"),
+         animationDelay = 3000;
+
+    function updateOrder (elem, isInitial, currency) {
+        var val,
+            rate,
+            amountCoin = $('.amount-coin'),
+            amountCashConfirm = 0,
+            floor = 100000000;
+
+        isInitial = isInitial || !elem.val().trim();
+        val = isInitial ? elem.attr('placeholder') : elem.val();
+
+        if (!val) {
+            return;
+        }
+
+        $.get(chartObject.tickerLatestUrl, function(data) {
+            // TODO: protect against NaN
+            updatePrice(getPrice(data[window.ACTION_BUY], currency), $('.rate-buy'));
+            updatePrice(getPrice(data[window.ACTION_SELL], currency), $('.rate-sell'));
+            rate = data[window.action]['price_' + currency + '_formatted'];
+            if (elem.hasClass('amount-coin')) {
+                var cashAmount = rate * val;
+                amountCashConfirm = cashAmount;
+                if (isInitial) {
+                    $('.amount-cash').attr('placeholder', cashAmount);
+                } else {
+                    $('.amount-cash').val(cashAmount);
+                }
+            } else {
+                var btcAmount = Math.floor(val / rate * floor) / floor;
+                if (isInitial) {
+                    $('.amount-coin').attr('placeholder', btcAmount);
+                } else {
+                    $('.amount-coin').val(btcAmount);
+                }
+            }
+            $('.btc-amount-confirm').text(amountCoin.val()); // add
+            $('.cash-amount-confirm').text(amountCashConfirm); //add
+        });
+    }
+
+    //order.js
+    function updatePrice (price, elem) {
+        var currentPriceText = elem.html().trim(),
+            currentPrice,
+            isReasonableChange;
+
+        if (currentPriceText !== '') {
+            currentPrice = parseFloat(currentPriceText);
+        } else {
+            elem.html(price);
+            return;
+        }
+        // TODO: refactor this logic
+        isReasonableChange = price < currentPrice * 1.05;
+        if (currentPrice < price && isReasonableChange) {
+            animatePrice(price, elem, true);
+        }
+        else if (!isReasonableChange) {
+            setPrice(elem, price);
+        }
+
+        isReasonableChange = price * 1.05 > currentPrice;
+        if (currentPrice > price && isReasonableChange) {
+            animatePrice(price, elem);
+        }
+        else if (!isReasonableChange) {
+            setPrice(elem, price);
+        }
+    }
+
+    // order.js
+    function animatePrice (price, elem, isRaise) {
+        var animationClass = isRaise ? 'up' : 'down';
+        elem.addClass(animationClass).delay(animationDelay).queue(function (next) {
+                        setPrice(elem, price).delay(animationDelay / 2).queue(function(next) {
+                elem.removeClass(animationClass);
+                next();
+            });
+            next();
+        });
+    }
+
+    //order.js
+    function getPrice (data, currency) {
+        return data['price_' + currency + '_formatted'];
+    }
+
+    function setCurrency (elem, currency) {
+        if (elem && elem.hasClass('currency_pair')) {
+            $('.currency_to').val(elem.data('crypto'));
+
+        }
+
+        $('.currency').html(currency.toUpperCase());
+        chartObject.renderChart(currency);
+    }
+
+    function setPrice(elem, price) {
+        elem.each(function () {
+            if ($(this).hasClass('amount-cash')) {
+                price = price * $('.amount-coin');
+                price = Math.round(price * 100) / 100;
+            } else {
+                $(this).html(price);
+            }
+        });
+
+        return elem;
+    }
+
+    function setButtonDefaultState (tabId) {
+        if (tabId === 'menu2') {
+            var modifier = window.ACTION_SELL ? 'btn-danger' : 'btn-success';
+            $('.next-step').removeClass('btn-info').addClass(modifier);
+        } else {
+            $('.next-step').removeClass('btn-success').removeClass('btn-danger').addClass('btn-info');
+        }
+        $('.btn-circle.btn-info')
+            .removeClass('btn-info')
+            .addClass('btn-default');
+    }
+
+    function changeState (action) {
+        if ( $(this).hasClass('disabled') ) {// jshint ignore:line
+            //todo: allow user to buy placeholder value or block 'next'?
+            return;
+        }
+
+        if (!$('.payment-preference-confirm').html().trim()) {
+            $("#PayMethModal").modal('toggle');
+            return;
+        }
+
+        var valElem = $('.amount-coin'),
+            val;
+        if (!valElem.val().trim()) {
+            //set placeholder as value.
+            val = valElem.attr('placeholder').trim();
+            valElem.val(val).trigger('change');
+            $('.btc-amount-confirm').html(val);
+        }
+
+        var paneClass = '.tab-pane',
+            tab = $('.tab-pane.active'),
+            action2 =  $(this).hasClass('next-step') ? 'next' :'prev',// jshint ignore:line
+            nextStateId = tab[action2](paneClass).attr('id'),
+            nextState = $('[href="#'+ nextStateId +'"]'),
+            nextStateTrigger = $('#' + nextStateId),
+            menuPrefix = "menu",
+            numericId = parseInt(nextStateId.replace(menuPrefix, '')),
+            currStateId = menuPrefix + (numericId - 1),
+            currState =  $('[href="#'+ currStateId +'"]');
+
+        //skip disabled state, check if at the end
+        if(nextState.hasClass('disabled') &&
+            numericId < $(".process-step").length &&
+            numericId > 1) {
+            changeState(action);
+        }
+
+
+        if (nextStateTrigger.hasClass('hidden')) {
+            nextStateTrigger.removeClass('hidden');
+        }
+
+
+        if ( !registerObject.canProceedtoRegister(currStateId) ){
+            $('.trigger-buy').trigger('click', true);
+        } else {
+            setButtonDefaultState(nextStateId);
+            currState.addClass('btn-success');
+            nextState
+                .addClass('btn-info')
+                .removeClass('btn-default')
+                .tab('show');
+        }
+
+        $(window).trigger('resize');
+    }
+
+    function reloadRoleRelatedElements (menuEndpoint) {
+        $.get(menuEndpoint, function (menu) {
+            $(".menuContainer").html($(menu));
+        });
+
+        $(".process-step .btn")
+            .removeClass('btn-info')
+            .removeClass('disabled')
+            .removeClass('disableClick')
+            .addClass('btn-default');
+        $(".step4 .btn").addClass('btn-info');
+        // Todo: is this required?
+        $(".step3 .btn")
+            .addClass('disableClick')
+            .addClass('disabled');
+    }
+
+    function reloadCardsPerCurrency(currency, cardsModalEndpoint) {
+        $.post(cardsModalEndpoint, {currency: currency}, function (data) {
+            $('.paymentSelectionContainer').html($(data));
+        });
+    }
+
+    module.exports = {
+        updateOrder: updateOrder,
+        updatePrice: updatePrice,
+        animatePrice: animatePrice,
+        getPrice: getPrice,
+        setCurrency: setCurrency,
+        setPrice: setPrice,
+        setButtonDefaultState: setButtonDefaultState,
+        changeState: changeState,
+        reloadRoleRelatedElements: reloadRoleRelatedElements,
+        reloadCardsPerCurrency: reloadCardsPerCurrency
+    };
+}(window, window.jQuery)); //jshint ignore:line
+
+},{"./chart.js":2,"./register.js":5}],4:[function(require,module,exports){
+!(function(window ,$) {
+    "use strict";
+
+    function loadPaymenMethods(paymentMethodsEndpoint) {
+        $.get(paymentMethodsEndpoint, function (data) {
+            $(".paymentMethods").html($(data));
+        });
+        $('.paymentMethods').removeClass('hidden');
+    }
+
+    function loadPaymenMethodsAccount(paymentMethodsAccountEndpoint, pm) {
+        var data = {'payment_method': pm};
+        $.get(paymentMethodsAccountEndpoint, data, function (data) {
+            $(".paymentMethodsAccount").html($(data));
+        });
+        $('.paymentMethodsAccount').removeClass('hidden');
+    }
+
+    module.exports =
+    {
+        loadPaymenMethods: loadPaymenMethods,
+        loadPaymenMethodsAccount: loadPaymenMethodsAccount
+    };
+
+}(window, window.jQuery)); //jshint ignore:line
+
+},{}],5:[function(require,module,exports){
+!(function(window, $) {
+    "use strict";
+
+    function canProceedtoRegister(objectName) {
+        var payMeth = $('#payment_method_id').val(),
+            userAcc = $('#user_address_id').val(),
+            userAccId = $('#new_user_account').val();
+        if (!((objectName == 'menu2' || objectName == 'btn-register') &&
+            payMeth === '' &&
+            userAcc === '' &&
+            userAccId === '')) {
+            return true;
+        }
+        return false;
+    }
+
+    module.exports = {
+        canProceedtoRegister: canProceedtoRegister
+    };
+}(window, window.jQuery)); //jshint ignore:line
+},{}]},{},[1]);
