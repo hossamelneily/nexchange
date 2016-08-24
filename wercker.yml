@@ -1,7 +1,5 @@
 
 box: pitervergara/geodjango:nexchange
-ports:
-  - "8000"
 
 dev:
   services:
@@ -23,8 +21,6 @@ dev:
     - npm-install    
     - maxon/npm-run:
         script: bower
-    - maxon/npm-run:
-        script: build-js
     - script:
         name: pip install requirements (with cache)
         code: |
@@ -46,15 +42,11 @@ dev:
     - script:
         name: wait...
         code: |
-          sleep 5
+          sleep 20
     - script:
-        name: Django apply migrations
+        name: Django aply migrations
         code: |
           python manage.py migrate
-    - script:
-        name: Django compile messages
-        code: |
-          # python manage.py compilemessages
     - script:
       name: Django create superuser
       code: |
@@ -113,7 +105,7 @@ dev:
           echo "* * * * * root /ticker.sh" > /etc/crontab
           cron
     - internal/watch:
-        code: npm run watch-js & newrelic-admin run-program  python manage.py runserver 0.0.0.0:8000
+        code: newrelic-admin run-program python manage.py runserver 0.0.0.0:8000
         reload: false 
 
 build:
@@ -138,8 +130,6 @@ build:
         rm -fr node_modules && npm install --production
     - maxon/npm-run:
         script: bower-prd
-    - maxon/npm-run:
-        script: build-js
     - script:
         name: Install python requirements
         code: |
@@ -158,10 +148,6 @@ build:
         name: Django migrations
         code: |
           python manage.py makemigrations
-    - script:
-        name: django collect and compile translations
-        code: |
-          # python manage.py compilemessages
     - script:
         name: Django collect static
         code: |
@@ -210,7 +196,7 @@ build:
           export NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
           #
           while ! nc -z ${POSTGIS_PORT_5432_TCP_ADDR} ${POSTGIS_PORT_5432_TCP_PORT}
-          do
+          do 
             >&2 echo "PostgreSQL '(${POSTGIS_PORT_5432_TCP_ADDR}:${POSTGIS_PORT_5432_TCP_PORT})' not ready - waiting..."
             sleep 1;
           done
@@ -356,8 +342,8 @@ tests:
     - script:
         name: Frontend tests
         code: |
-          # export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs
-          # npm run-script test
+          export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs
+          npm run-script test
     - script:
         name: Validate New Relic config file
         code: |
