@@ -1,10 +1,8 @@
 {% load i18n %}
 {% load static %}
 <div class="row {{ type }}">
-    {% if type == 'buy' %}              <!-- TO-DO get this from database ??-->
-    <div class="col col-xs-12 col-sm-4 payment-type-trigger"
-         data-type="Alpha"
-         data-identifier="{{ cards.alfa.identifier }}">
+    {% if type == 'buy' %}
+    <div class="col col-xs-12 col-sm-4 payment-type-trigger" data-type="Alpha">
         <div class="col col-xs-12">
             <img src="{% static 'icons/alfa.png' %}"
                  alt="{% trans 'Alfa-bank' %}"
@@ -13,10 +11,8 @@
         <div class="col col-xs-12 payment-label">
             {% trans 'Alfa-bank' %}
         </div>
-    </div>                              <!-- TO-DO get this from database ??-->
-    <div class="col col-xs-12 col-sm-4 payment-type-trigger"
-         data-type="Sber"
-         data-identifier="{{ cards.sber.identifier }}">
+    </div>
+    <div class="col col-xs-12 col-sm-4 payment-type-trigger" data-type="Sber">
         <div class="col col-xs-12">
             <img src="{% static 'icons/sber.png' %}"
                  alt="{% trans 'Sberbank' %}"
@@ -26,7 +22,7 @@
             {% trans 'Sberbank' %}
         </div>
     </div>
-    {% else %}                          <!-- TO-DO get this from database ??-->
+    {% else %}
     <div class="col col-xs-12 col-sm-4 payment-type-trigger bank" data-type="c2c">
         <div class="col col-xs-12">
             <i class="fa fa-credit-card-alt fa-5 payment-method-icon btn btn-primary">
@@ -35,7 +31,7 @@
         <div class="col col-xs-12 payment-label">
             {% trans 'Card 2 card - any bank' %}
         </div>
-    </div>                              <!-- TO-DO get this from database ??-->
+    </div>
     <div class="col col-xs-12 col-sm-4 payment-type-trigger" data-type="cash">
         <div class="col col-xs-12">
             <i class="fa fa-money fa-5 payment-method-icon btn btn-primary">
@@ -45,10 +41,8 @@
             {% trans 'Cash payment' %}
         </div>
     </div>
-    {% endif %}                         <!-- TO-DO get this from database ??-->
-    <div class="col col-xs-12 col-sm-4 payment-type-trigger qiwi"
-         data-type="Qiwi"
-         data-identifier="{{ cards.qiwi.identifier }}">
+    {% endif %}
+    <div class="col col-xs-12 col-sm-4 payment-type-trigger qiwi" data-type="qiwi">
         <div class="col col-xs-12">
             <img src="{% static 'icons/qiwi.png' %}"
                  alt="{% trans 'Qiwi wallet' %}"

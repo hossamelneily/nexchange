@@ -5,20 +5,18 @@
     
     <div class="register">
         <h4>{% trans "Phone verification" %}</h4>
-        <div class="auth-steps">
-            <div class="step1">
-                {% include 'core/partials/forms/phone.html' with label="Enter your phone" %}
+        <div class="step1">
+            {% include 'core/partials/forms/phone.html' with label="Enter your phone" %}
+        </div>
+        <div class="step2 hidden">
+            <div class="col col-lg-12 register">
+                {% trans "Enter verification code from SMS" %}
             </div>
-            <div class="step2 hidden">
-                <div class="col col-lg-12 register">
-                    <label for="verification_code">
-                        {% trans "Enter verification code from SMS" %}
-                    </label>
-                    <input type="text" name="verification_code" id="verification_code">
-                </div>
+            <div class="col col-lg-12 register">
+                <input type="text" name="verification_code" id="verification_code">
             </div>
         </div>
-        <div class="col col-lg-12 center controls">
+        <div class="col col-lg-12 center register">
             <span class="btn btn-primary create-acc">
                 {% trans "Send SMS" %}
             </span>

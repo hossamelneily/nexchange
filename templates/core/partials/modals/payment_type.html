@@ -1,6 +1,6 @@
 {% load i18n %}
 <!-- Modal -->
-<div class="modal fade" id="{{ id|default:"PayMethModal"}}" role="dialog">
+<div class="modal fade" id="{{ id }}" role="dialog">
     <div class="modal-dialog">
 
       <!-- Modal content-->
@@ -14,7 +14,7 @@
             {% endif %}
         </div>
         <div class="modal-body">
-            {% include 'core/partials/payment_options.html' with type=type cards=cards %}
+            {% include 'core/partials/payment_options.html' with type=type %}
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">
