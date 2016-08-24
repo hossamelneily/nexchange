@@ -59,6 +59,7 @@
    {% block seo_footer %}
     {% include 'core/partials/supported_paymnets.html' %}
    {% endblock %}
+
    {% block footer %}
    {%  endblock %}
     {% include 'core/partials/popular_faq.html' %}
@@ -80,6 +81,7 @@
         });
     </script>
     <script src="{% static 'js/footer.js' %}"></script>
+    <script src="{% static 'js/bundle.js' %}"></script>
 
     {% bootstrap_javascript %}
     {% block extra_js_footer %} {% endblock %}
