@@ -151,8 +151,8 @@
 
         var paneClass = '.tab-pane',
             tab = $('.tab-pane.active'),
-            action2 =  $(this).hasClass('next-step') ? 'next' :'prev',// jshint ignore:line
-            nextStateId = tab[action2](paneClass).attr('id'),
+            action = action || $(this).hasClass('next-step') ? 'next' : 'prev',// jshint ignore:line
+            nextStateId = tab[action](paneClass).attr('id'),
             nextState = $('[href="#'+ nextStateId +'"]'),
             nextStateTrigger = $('#' + nextStateId),
             menuPrefix = "menu",

@@ -299,7 +299,7 @@
             $("#UserAccountModal").modal('toggle');
         });
 
-        $('.payment-widget .val').on('keyup', function() {
+        $('.payment-widget .val').on('keyup, keydown', function() {
             var val = $(this).closest('.val');
             if (!val.val().length) {
                $(this).removeClass('error').removeClass('valid');
@@ -307,10 +307,10 @@
             }
            if (val.hasClass('jp-card-invalid')) {
                 $(this).removeClass('valid').addClass('error');
-                $('.save-card').addClass('disabled');
+                // $('.save-card').addClass('disabled');
             } else {
                $(this).removeClass('error').addClass('valid');
-               $('.save-card').removeClass('disabled');
+               // $('.save-card').removeClass('disabled');
            }
 
         });
@@ -320,17 +320,21 @@
             if ($(this).hasClass('disabled')) {
                 return false;
             }
-            preferenceIdentifier = $(this).find('.val').val();
-            preferenceOwner = $(this).find('.name').val();
+
+            var panel = $(this).closest('.panel');
+
+            preferenceIdentifier = panel.find('.val').val();
+            preferenceOwner = panel.find('.name').val();
 
             $(".payment-preference-owner").val(preferenceOwner);
             $(".payment-preference-identifier").val(preferenceIdentifier);
             $(".payment-preference-identifier-confirm").text(preferenceIdentifier);
 
-            $(this).closest('.modal').modal('dismiss').delay(500).queue( function (next){
+            $(this).closest('.modal').modal('hide');
+            
+            setTimeout(function () {
                 orderObject.changeState("next");
-                next();
-            });
+            }, 600);
         });
     });
 
