@@ -421,6 +421,7 @@ def ajax_order(request):
     currency = Currency.objects.filter(code=curr)[0]
     # payment_method = request.POST.get("pp_type")
     identifier = request.POST.get("pp_identifier", None)
+    identifier = identifier.replace(" ", "")
 
     if trade_type == Order.SELL:
         payment_pref, created = PaymentPreference.objects.get_or_create(

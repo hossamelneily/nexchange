@@ -384,7 +384,7 @@ footer {
 body #card-form .panel {
     background: none;
     border-bottom: none;
-    margin: 10px auto;
+    margin: 10px inherit;
 }
 
 body #card-form .pay-row {

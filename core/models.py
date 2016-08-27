@@ -169,14 +169,14 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
     def guess_payment_method(self):
         card_bin = self.identifier[:PaymentMethod.BIN_LENGTH]
         payment_method = None
-
         while all([self.identifier,
                    payment_method is None,
                    len(card_bin) > 1]):
-            payment_method = PaymentMethod.objects.get(bin=card_bin)
+            payment_method = PaymentMethod.objects.filter(bin=card_bin)
             card_bin = card_bin[:-1]
 
-        return payment_method or PaymentMethod.objects.all()[1]
+            if len(payment_method):
+                return payment_method[0]
 
 
 class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
