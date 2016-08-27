@@ -572,7 +572,7 @@ def cards(request):
             objects.filter(currency__in=[curr_obj],
                            user__is_staff=True,
                            payment_method__name__icontains=name)
-        return card[0]
+        return card[0] if len(card) else 'None'
 
     template = get_template('core/partials/modals/payment_type.html')
     currency = request.POST.get("currency")
