@@ -380,3 +380,13 @@ footer {
 .step-confirm div.confirmation-elem{
     margin: 15px auto;
 }
+
+body #card-form .panel {
+    background: none;
+    border-bottom: none;
+    margin: 10px auto;
+}
+
+body #card-form .pay-row {
+    height: 50px;
+}
