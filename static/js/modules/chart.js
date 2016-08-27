@@ -30,7 +30,7 @@
          $.get(tickerHistoryUrl, function(resdata) {
             chartDataRaw = resdata;
             var data = responseToChart(resdata)[currency];
-          $('#container').highcharts({
+          $('#container-graph').highcharts({
 
                 chart: {
                     type: 'arearange',
