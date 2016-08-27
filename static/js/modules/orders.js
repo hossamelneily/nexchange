@@ -187,7 +187,7 @@
         $(window).trigger('resize');
     }
 
-    function reloadRoleRelatedElements (menuEndpoint) {
+function reloadRoleRelatedElements (menuEndpoint) {
         $.get(menuEndpoint, function (menu) {
             $(".menuContainer").html($(menu));
         });
@@ -197,9 +197,9 @@
             .removeClass('disabled')
             .removeClass('disableClick')
             .addClass('btn-default');
-        $(".step4 .btn").addClass('btn-info');
-        // Todo: is this required?
-        $(".step3 .btn")
+
+        $(".step2 .btn")
+            .addClass('btn-info')
             .addClass('disableClick')
             .addClass('disabled');
     }
