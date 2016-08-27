@@ -47,6 +47,7 @@
     }
 
     //order.js
+
     function updatePrice (price, elem) {
         var currentPriceText = elem.html().trim(),
             currentPrice,

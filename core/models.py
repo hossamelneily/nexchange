@@ -11,7 +11,7 @@ from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
 
 from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW,\
     REFERENCE_LOOKUP_ATTEMPTS, SMS_TOKEN_LENGTH, SMS_TOKEN_VALIDITY,\
-    SMS_TOKEN_CHARS
+    SMS_TOKEN_CHARS, MAX_EXPIRED_ORDERS_LIMIT
 
 from .validators import validate_bc
 from django.utils.translation import ugettext_lazy as _
@@ -68,6 +68,13 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         'Enter phone number in international format. eg. +555198786543'))
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, blank=True)
+
+    def is_banned(self):
+        return \
+            Order.objects.filter(user=self,
+                                 is_paid=True,
+                                 expired=True).length \
+            > MAX_EXPIRED_ORDERS_LIMIT
 
     def natural_key(self):
         return self.user.username
@@ -169,7 +176,7 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
             payment_method = PaymentMethod.objects.get(bin=card_bin)
             card_bin = card_bin[:-1]
 
-        return payment_method
+        return payment_method or PaymentMethod.objects.all()[1]
 
 
 class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
@@ -252,7 +259,8 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         # TODO: validate this business rule
         # TODO: Refactor, it is unreasonable to have different standards of
         # time in the DB
-        return (timezone.now() > self.payment_deadline) and (not self.is_paid)
+        return (timezone.now() > self.payment_deadline) and\
+               (not self.is_paid) and not self.is_released
 
     @property
     def frozen(self):

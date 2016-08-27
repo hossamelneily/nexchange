@@ -76,29 +76,29 @@
       "modified_on":"2016-07-20T17:41:28+00:00"
     }
   },
-{
-  "model": "core.paymentmethod",
-  "pk": 8,
-   "fields": {
-    "name": "Master Card Other Bank" ,
-    "bin": "5",
-    "fee": "2.00",
-    "is_slow": 1,
-    "created_on":"2016-07-20T17:41:28+00:00",
-    "modified_on":"2016-07-20T17:41:28+00:00"
-  }
-},
   {
-  "model": "core.paymentmethod",
-  "pk": 9,
-   "fields": {
-    "name": "Visa Other Bank" ,
-    "bin": "4",
-    "fee": "2.00",
-    "created_on":"2016-07-20T17:41:28+00:00",
-    "modified_on":"2016-07-20T17:41:28+00:00"
+    "model": "core.paymentmethod",
+    "pk": 8,
+     "fields": {
+      "name": "Master Card Other Bank",
+      "bin": "5",
+      "fee": "2.00",
+      "is_slow": 1,
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.paymentmethod",
+    "pk": 9,
+     "fields": {
+      "name": "Visa Other Bank" ,
+      "bin": "4",
+      "fee": "2.00",
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
+    }
   }
-}  
 
 ]
 

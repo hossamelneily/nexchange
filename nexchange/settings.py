@@ -46,6 +46,7 @@ UNIQUE_REFERENCE_LENGTH = 5
 REFERENCE_LOOKUP_ATTEMPTS = 5
 SMS_TOKEN_LENGTH = 4
 PAYMENT_WINDOW = 60  # minutes
+MAX_EXPIRED_ORDERS_LIMIT = 3
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 

@@ -71,7 +71,6 @@
                     });
                     $("#UserAccountModal").modal({backdrop: "static"});
 
-
                 }
 
                 $(".trade-type").val(window.action);
@@ -282,7 +281,7 @@
         });
 
         $('.sell .payment-type-trigger').on('click', function () {
-            paymentType = $(this).data('type');
+            paymentType = $(this).data('type').toLocaleLowerCase();
             $(".payment-preference-confirm").text(paymentType);
             $("#UserAccountModal").modal('toggle');
             if (paymentType === 'c2c') {

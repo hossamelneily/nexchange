@@ -415,15 +415,14 @@ def ajax_crumbs(request):
 @csrf_exempt
 def ajax_order(request):
     template = get_template('core/partials/success_order.html')
-    trade_type = request.POST.get("trade-type")
+    trade_type = int(request.POST.get("trade-type"))
     curr = request.POST.get("currency_from", "RUB")
     amount_coin = request.POST.get("amount-coin")
     currency = Currency.objects.filter(code=curr)[0]
     # payment_method = request.POST.get("pp_type")
     identifier = request.POST.get("pp_identifier", None)
 
-    if trade_type == 'sell':
-        order_type = Order.SELL
+    if trade_type == Order.SELL:
         payment_pref, created = PaymentPreference.objects.get_or_create(
             user=request.user,
             identifier=identifier
@@ -431,7 +430,6 @@ def ajax_order(request):
         payment_pref.currency.add(currency)
         payment_pref.save()
     else:
-        order_type = Order.BUY
         payment_pref = PaymentPreference.objects.get(
             user__is_staff=True,
             currency__in=[currency],
@@ -439,7 +437,7 @@ def ajax_order(request):
         )
 
     order = Order(amount_btc=amount_coin,
-                  order_type=order_type, payment_preference=payment_pref,
+                  order_type=trade_type, payment_preference=payment_pref,
                   currency=currency, user=request.user)
     order.save()
     uniq_ref = order.unique_reference
@@ -447,7 +445,7 @@ def ajax_order(request):
 
     my_action = _("Result")
     address = ""
-    if order_type == Order.SELL:
+    if trade_type == Order.SELL:
         address = k_generate_address()
 
     return HttpResponse(template.render({'order': order,
