@@ -46,6 +46,10 @@
         var HTTP_500_MSG = "{% trans 'Service unavailable. Please try again later.' %}";
         var UNKNOW_ERROR = HTTP_500_MSG;
     </script>
+
+    {% if GOOGLE_ANALYTICS_PROPERTY_ID %}
+        {% include "core/analitycs/ga.html" %}
+    {% endif %}
 </head>
 <body>
    <div class="menuContainer">
