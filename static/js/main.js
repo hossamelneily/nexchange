@@ -33,7 +33,12 @@
                 }
             });
             orderObject.updateOrder($('.amount-coin'), true, currency);
-                        // if not used event, isNext remove  jshint
+            // if not used event, isNext remove  jshint
+            $("#graph-range").on('change', function() {
+                orderObject.setCurrency(false, currency);
+            });
+
+
             $('.trigger').click( function(){
                 $('.trigger').removeClass('active');
                 $(this).addClass('active');

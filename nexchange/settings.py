@@ -205,6 +205,9 @@ TWILIO_PHONE_FROM = '+447481341915'
 
 LOGIN_REDIRECT_URL = reverse_lazy('core.order')
 
+GRAPH_HOUR_RANGES = [1, 4, 6, 8, 12, 16, 24]
+DEFAULT_HOUR_RANGE = 1
+
 """
 Configs for sending email for password reset.
 Run 'python -m smtpd -n -c DebuggingServer localhost:1025'
@@ -224,6 +227,10 @@ CORS_ORIGIN_WHITELIST = (
     'nexchange.co.uk',
     'nexchange.ru'
 )
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
+}
 
 # 12 months
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 12

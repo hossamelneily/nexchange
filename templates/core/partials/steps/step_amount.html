@@ -4,6 +4,13 @@
    <div class="input-group-btn">
         {{select_pair| safe}}
     </div>
+   <div class="input-group-btn">
+       <select name="graph-range" id="graph-range">
+           {% for range in graph_ranges %}
+               <option value="{{  range }}">{{ range }} {% trans 'hours' %}</option>
+           {% endfor %}
+       </select>
+    </div>
     <div id="container-graph" style="width: 100%; height: 350px; margin: 0 auto">
     </div>
     <div class="row">

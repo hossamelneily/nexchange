@@ -384,9 +384,23 @@ footer {
 body #card-form .panel {
     background: none;
     border-bottom: none;
-    margin: 10px inherit;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 body #card-form .pay-row {
     height: 50px;
+}
+
+.successOrder .panel-body .row {
+    margin: 10px auto;
+}
+
+.successOrder .btn.btn-success {
+    width: 350px;
+}
+
+.successOrder .qrContainer {
+    width: 350px;
+    margin: auto;
 }

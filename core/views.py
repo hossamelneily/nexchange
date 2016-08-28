@@ -151,11 +151,15 @@ def add_order(request):
 
     my_action = _("Add")
 
-    return HttpResponse(template.render({'select_pair': select_currency_pair,
-                                         'select_from': select_currency_from,
-                                         'select_to': select_currency_to,
-                                         'action': my_action},
-                                        request))
+    context = {
+        'select_pair': select_currency_pair,
+        'select_from': select_currency_from,
+        'select_to': select_currency_to,
+        'graph_ranges': settings.GRAPH_HOUR_RANGES,
+        'action': my_action
+    }
+
+    return HttpResponse(template.render(context, request))
 
 
 def user_registration(request):
@@ -412,6 +416,7 @@ def ajax_crumbs(request):
     return render(request, 'core/partials/breadcrumbs.html')
 
 
+@login_required
 @csrf_exempt
 def ajax_order(request):
     trade_type = int(request.POST.get("trade-type"))

@@ -26,8 +26,12 @@
         };
     }
 
-    function renderChart (currency) {
-         $.get(tickerHistoryUrl, function(resdata) {
+    function renderChart (currency, hours) {
+        var actualUrl = tickerHistoryUrl;
+        if (hours) {
+            actualUrl = actualUrl + '?hours=' + hours;
+        }
+         $.get(actualUrl, function(resdata) {
             chartDataRaw = resdata;
             var data = responseToChart(resdata)[currency];
           $('#container-graph').highcharts({

@@ -101,7 +101,7 @@
         }
 
         $('.currency').html(currency.toUpperCase());
-        chartObject.renderChart(currency);
+        chartObject.renderChart(currency, $("#graph-range").val());
     }
 
     function setPrice(elem, price) {

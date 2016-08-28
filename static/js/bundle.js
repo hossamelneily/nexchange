@@ -34,7 +34,12 @@
                 }
             });
             orderObject.updateOrder($('.amount-coin'), true, currency);
-                        // if not used event, isNext remove  jshint
+            // if not used event, isNext remove  jshint
+            $("#graph-range").on('change', function() {
+                orderObject.setCurrency(false, currency);
+            });
+
+
             $('.trigger').click( function(){
                 $('.trigger').removeClass('active');
                 $(this).addClass('active');
@@ -369,8 +374,12 @@
         };
     }
 
-    function renderChart (currency) {
-         $.get(tickerHistoryUrl, function(resdata) {
+    function renderChart (currency, hours) {
+        var actualUrl = tickerHistoryUrl;
+        if (hours) {
+            actualUrl = actualUrl + '?hours=' + hours;
+        }
+         $.get(actualUrl, function(resdata) {
             chartDataRaw = resdata;
             var data = responseToChart(resdata)[currency];
           $('#container-graph').highcharts({
@@ -559,7 +568,7 @@
         }
 
         $('.currency').html(currency.toUpperCase());
-        chartObject.renderChart(currency);
+        chartObject.renderChart(currency, $("#graph-range").val());
     }
 
     function setPrice(elem, price) {
