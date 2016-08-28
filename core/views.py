@@ -414,7 +414,6 @@ def ajax_crumbs(request):
 
 @csrf_exempt
 def ajax_order(request):
-    template = get_template('core/partials/success_order.html')
     trade_type = int(request.POST.get("trade-type"))
     curr = request.POST.get("currency_from", "RUB")
     amount_coin = request.POST.get("amount-coin")
@@ -422,6 +421,10 @@ def ajax_order(request):
     # payment_method = request.POST.get("pp_type")
     identifier = request.POST.get("pp_identifier", None)
     identifier = identifier.replace(" ", "")
+
+    template = 'core/partials/modals/order_success_{}.html'.\
+        format('buy' if trade_type else 'sell')
+    template = get_template(template)
 
     if trade_type == Order.SELL:
         payment_pref, created = PaymentPreference.objects.get_or_create(
@@ -522,13 +525,13 @@ def k_generate_address():
         'new': True
     }
 
-    k = kraken.query_private('DepositAddresses', params)
+    kraken_res = kraken.query_private('DepositAddresses', params)
 
-    if k['error']:
-        address = k['error']
+    if kraken_res['error']:
+        address = settings.MAIN_DEPOSIT_ADDRESSES[0]
     else:
-        address = k['result'][0]['address']
-    return JsonResponse({'address': address})
+        address = kraken_res['result'][0]['address']
+    return address
 
 
 def k_trades_history(request):

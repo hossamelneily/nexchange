@@ -215,18 +215,18 @@
                     //console.log(data)
                     //if the transaction is Buy
                     if (window.action == 1){
-                        $('.step-confirm').addClass('hidden');
+                        // $('.step-confirm').addClass('hidden');
                         //$('.successOrder').removeClass('hidden');
-                        $(".successOrder").html($(data));
-                        $("#orderSuccessModal").modal({backdrop: "static"});
                     }
                     //if the transaction is Sell
                     else{
-                        $('.step-confirm').addClass('hidden');
+                        // $('.step-confirm').addClass('hidden');
                         //$('#btcAddress').text(data.address);
-                        $(".successOrderSell").html($(data));
-                        $("#orderSuccessModalSell").modal({backdrop: "static"});
+                        // $(".successOrder").html($(data));
+                        // $("#orderSuccessModalSell").modal({backdrop: "static"});
                     }
+                    $(".successOrder").html($(data));
+                    $("#orderSuccessModal").modal({backdrop: "static"});
 
                 },
                 error: function () {

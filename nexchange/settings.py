@@ -187,6 +187,15 @@ KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 KRAKEN_API_KEY = "E6wsw96A+JsnY33k7SninDdg//JsoZSXcKBYtyrhUYlWyAxIeIIZn3ay"
 KRAKEN_API_SIGN = "hLg6LkI+kHtlLJs5ypJ0GnInK0go/HM3xMSVIGgCTc" \
                   "aqoqy8FsTl1KVdgFfWCCfu7CMZeCW4qqMbATrzZaFtRQ=="
+# KRAKEN_API_KEY = os.environ['KRAKEN_API_KEY']
+# KRAKEN_API_SIGN = os.environ['KRAKEN_API_SECRET']
+MAIN_DEPOSIT_ADDRESSES = [
+    '38veBMhDeudaZs7zmDUy68cYJZupaHVBvR',
+    '36Av3jUjCfRGQ7p9BTTfN7HEf5N3qqK18Q',
+    '3KSZsqhHosSW9AAXedmUZ7s6W97xpj5ETX',
+    '3AmU2SdVvucgX1eu4JR1sWWERmnWDXS3Dy',
+    '3MTRfeeQb96ynFZqEV2EeMppgFu8cvowBj'
+]
 
 # Your Account SID from www.twilio.com/console
 TWILIO_ACCOUNT_SID = 'AC0bd0fa94c8ca0084f3e512c741965364'
