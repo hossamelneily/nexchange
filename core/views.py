@@ -7,7 +7,6 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.template.loader import get_template
 
-from nexchange.settings import MAIN_BANK_ACCOUNT
 from core.forms import DateSearchForm, CustomUserCreationForm,\
     UserForm, UserProfileForm, UpdateUserProfileForm
 from core.models import Order, Currency, SmsToken, Profile, Transaction,\
@@ -110,7 +109,6 @@ def add_order(request):
 
         return HttpResponse(template.render(
             {
-                'bank_account': MAIN_BANK_ACCOUNT,
                 'unique_ref': uniq_ref,
                 'action': my_action,
                 'pay_until': pay_until,
@@ -152,11 +150,7 @@ def add_order(request):
     my_action = _("Add")
 
     context = {
-        'select_pair': select_currency_pair,
-        'select_from': select_currency_from,
-        'select_to': select_currency_to,
-        'graph_ranges': settings.GRAPH_HOUR_RANGES,
-        'action': my_action
+        'selbuyion': my_action
     }
 
     return HttpResponse(template.render(context, request))

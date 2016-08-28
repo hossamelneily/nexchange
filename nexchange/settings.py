@@ -181,7 +181,6 @@ STATICFILES_DIRS = (
     STATIC_PATH,
 )
 
-MAIN_BANK_ACCOUNT = "XXXX12345-1233-22"
 
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 KRAKEN_API_KEY = "E6wsw96A+JsnY33k7SninDdg//JsoZSXcKBYtyrhUYlWyAxIeIIZn3ay"
@@ -205,7 +204,20 @@ TWILIO_PHONE_FROM = '+447481341915'
 
 LOGIN_REDIRECT_URL = reverse_lazy('core.order')
 
-GRAPH_HOUR_RANGES = [1, 4, 6, 8, 12, 16, 24]
+GRAPH_HOUR_RANGES = [
+    {'val': 1, 'name': '1 Hour'},
+    {'val': 4, 'name': '4 Hours'},
+    {'val': 6, 'name': '6 Hours'},
+    {'val': 8, 'name': '8 Hours'},
+    {'val': 12, 'name': '12 Hours'},
+    {'val': 16, 'name': '16 Hours'},
+    {'val': 24, 'name': '1 Day'},
+    {'val': 24 * 7, 'name': '7 Days'},
+    {'val': 24 * 31, 'name': '1 Month'},
+    {'val': 24 * 31 * 3, 'name': '3 Months'},
+    {'val': 24 * 31 * 6, 'name': '6 Months'},
+    {'val': 24 * 365, 'name': '1 Year'}
+]
 DEFAULT_HOUR_RANGE = 1
 
 """

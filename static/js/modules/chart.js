@@ -15,9 +15,11 @@
         for (i = 0; i < data.length; i+=2) {
             var sell = data[i],
             buy = data[i + 1];
-            resRub.push([Date.parse(sell.created_on), buy.price_rub_formatted, sell.price_rub_formatted]);
-            resUsd.push([Date.parse(sell.created_on), buy.price_usd_formatted, sell.price_usd_formatted]);
-            resEur.push([Date.parse(sell.created_on), buy.price_eur_formatted, sell.price_eur_formatted]);
+            if(!!sell && !!buy) {
+                resRub.push([Date.parse(sell.created_on), buy.price_rub_formatted, sell.price_rub_formatted]);
+                resUsd.push([Date.parse(sell.created_on), buy.price_usd_formatted, sell.price_usd_formatted]);
+                resEur.push([Date.parse(sell.created_on), buy.price_eur_formatted, sell.price_eur_formatted]);
+            }
         }
         return {
             rub: resRub,
@@ -99,7 +101,7 @@
                     name: currency === 'rub' ? 'цена' : 'Price',
                     data: data,
                     color: 'lightgreen',
-                    // TODO: fix this!
+                    // TODO: fix this! make dynamic
                     pointInterval: 3600 * 1000
                 }]
             });

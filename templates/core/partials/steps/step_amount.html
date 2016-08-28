@@ -7,7 +7,7 @@
    <div class="input-group-btn">
        <select name="graph-range" id="graph-range">
            {% for range in graph_ranges %}
-               <option value="{{  range }}">{{ range }} {% trans 'hours' %}</option>
+               <option value="{{  range.val }}"> range </option>
            {% endfor %}
        </select>
     </div>
