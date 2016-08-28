@@ -88,7 +88,7 @@
     "modified_on":"2016-07-20T17:41:28+00:00"
   }
 },
-  {
+{
   "model": "core.paymentmethod",
   "pk": 9,
    "fields": {
@@ -98,7 +98,17 @@
     "created_on":"2016-07-20T17:41:28+00:00",
     "modified_on":"2016-07-20T17:41:28+00:00"
   }
-}  
+},
+{
+  "model": "core.paymentmethod",
+  "pk": 10,
+   "fields": {
+    "name": "Cash",
+    "fee": "0.00",
+    "created_on":"2016-07-20T17:41:28+00:00",
+    "modified_on":"2016-07-20T17:41:28+00:00"
+  }
+}
 
 ]
 

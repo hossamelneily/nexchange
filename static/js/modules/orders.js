@@ -129,6 +129,24 @@
             .addClass('btn-default');
     }
 
+    function toggleBuyModal () {
+        $("#PayMethModal").modal('toggle');
+    }
+
+    function toggleSellModal () {
+        $("#card-form").card({
+            container: '.card-wrapper',
+            width: 200,
+            placeholders: {
+                number: '•••• •••• •••• ••••',
+                name: 'Ivan Ivanov',
+                expiry: '••/••',
+                cvc: '•••'
+            }
+        });
+        $("#UserAccountModal").modal({backdrop: "static"});
+    }
+
     function changeState (action) {
         if ( $(this).hasClass('disabled') ) {// jshint ignore:line
             //todo: allow user to buy placeholder value or block 'next'?
@@ -136,7 +154,11 @@
         }
 
         if (!$('.payment-preference-confirm').html().trim()) {
-            $("#PayMethModal").modal('toggle');
+            if (window.action == window.ACTION_BUY){
+                toggleBuyModal();
+            } else {
+                toggleSellModal();
+            }
             return;
         }
 
@@ -220,6 +242,8 @@ function reloadRoleRelatedElements (menuEndpoint) {
         setButtonDefaultState: setButtonDefaultState,
         changeState: changeState,
         reloadRoleRelatedElements: reloadRoleRelatedElements,
-        reloadCardsPerCurrency: reloadCardsPerCurrency
+        reloadCardsPerCurrency: reloadCardsPerCurrency,
+        toggleBuyModal: toggleBuyModal,
+        toggleSellModal: toggleSellModal
     };
 }(window, window.jQuery)); //jshint ignore:line

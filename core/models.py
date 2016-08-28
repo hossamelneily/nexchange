@@ -175,7 +175,8 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
             payment_method = PaymentMethod.objects.filter(bin=card_bin)
             card_bin = card_bin[:-1]
 
-        return payment_method[0]
+        return payment_method[0] if len(payment_method) \
+            else PaymentMethod.objects.get(name='Cash')
 
 
 class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):

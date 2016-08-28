@@ -52,7 +52,7 @@
                         .addClass('btn-success');
                     $('.step4 i').removeClass('fa-money').addClass('fa-btc');
                     paymentObject.loadPaymenMethods(paymentMethodsEndpoint);
-                    $("#PayMethModal").modal({backdrop: "static"});
+                    orderObject.toggleBuyModal();
                 } else {
                     $('.buy-go').addClass('hidden');
                     $('.sell-go').removeClass('hidden');
@@ -64,17 +64,7 @@
                     $('.step4 i').removeClass('fa-btc').addClass('fa-money');
 
                     //TODO: export to card module
-                    $("#card-form").card({
-                        container: '.card-wrapper',
-                        width: 200,
-                        placeholders: {
-                            number: '•••• •••• •••• ••••',
-                            name: 'Ivan Ivanov',
-                            expiry: '••/••',
-                            cvc: '•••'
-                        }
-                    });
-                    $("#UserAccountModal").modal({backdrop: "static"});
+                    orderObject.toggleSellModal();
 
                 }
 
@@ -326,10 +316,10 @@
                 return false;
             }
 
-            var panel = $(this).closest('.panel');
+            var form = $(this).closest('.modal-body');
 
-            preferenceIdentifier = panel.find('.val').val();
-            preferenceOwner = panel.find('.name').val();
+            preferenceIdentifier = form.find('.val').val();
+            preferenceOwner = form.find('.name').val();
 
             $(".payment-preference-owner").val(preferenceOwner);
             $(".payment-preference-identifier").val(preferenceIdentifier);

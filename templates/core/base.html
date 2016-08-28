@@ -64,7 +64,7 @@
     {% include 'core/partials/footer.html' %}
 
     <script src="https://code.jquery.com/jquery.min.js"></script>
-    <script   src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"
           integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw="
           crossorigin="anonymous"></script>
     <script src="https://use.fontawesome.com/9a25f329b7.js"></script>
@@ -77,9 +77,7 @@
           Cookies.set("USER_TZ", moment.tz.guess());
         });
     </script>
-    <script src="{% static 'js/bundle.js' %}"></script>
     <script src="{% static 'js/footer.js' %}"></script>
-
     {% bootstrap_javascript %}
     {% block extra_js_footer %} {% endblock %}
 </body>

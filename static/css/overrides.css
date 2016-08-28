@@ -404,3 +404,7 @@ body #card-form .pay-row {
     width: 350px;
     margin: auto;
 }
+
+.save.save-card{
+    margin-top: 10px;
+}
