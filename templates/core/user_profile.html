@@ -42,7 +42,7 @@
             </div>
         </div>
     {% else %}
-        <label class="control-label" for="phone">{% trans "Phone" %}</label>
+        <label class="control-label" for="phone">{% trans "Phone"%}</label>
         <div class="input-group"> 
             <input type="text" aria-describedby="basic-addon2" value="{{request.user.profile.phone}}" disabled="disabled" class="form-control disabled">
             <span id="basic-addon2" class="input-group-addon">

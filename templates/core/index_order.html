@@ -161,7 +161,7 @@
 		        {% endif %}
 
 		        <span class="current">
-		            Page {{ orders.number }} of {{ orders.paginator.num_pages }}.
+		            {% trans "Page"%} {{ orders.number }} {% trans "of"%}  {{ orders.paginator.num_pages }}.
 		        </span>
 
 		        {% if orders.has_next %}
