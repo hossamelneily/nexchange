@@ -5,10 +5,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from core.models import Profile
 from django.core.exceptions import ValidationError
-
+from django.utils.translation import ugettext_lazy as _
 
 class DateSearchForm(forms.Form):
-    date = forms.DateField(required=False, label="Search by Date")
+    date = forms.DateField(required=False, label=_("Search by Date"))
 
 
 class UserProfileForm(forms.ModelForm):

@@ -22,12 +22,12 @@ msgstr ""
 
 #: core/models.py:68
 msgid "Enter phone number in international format. eg. +555198786543"
-msgstr "Введите ваш номер мобильного телефона"
+msgstr "Введите ваш номер мобильного телефона в формате +555198786543"
 
 #: core/validators.py:27
 #, python-format
 msgid "%(value)s has invalid characters for a valid bit coin address"
-msgstr "%(value) имеет неверные символы в адресе"
+msgstr "%(value)s имеет неверные символы в адресе"
 
 #: core/validators.py:34
 #, python-format
@@ -37,6 +37,10 @@ msgstr "%(value)s не верный биткин адрес"
 #: core/views.py:79
 msgid "Orders Main"
 msgstr "Список ордеров"
+
+#: core/forms.py:11
+msgid "Search by Date"
+msgstr "Поиск по дате"
 
 #: core/views.py:110 core/views.py:447 core/views.py:514
 msgid "Result"
@@ -133,6 +137,14 @@ msgstr "новый"
 msgid "Exit"
 msgstr "выход"
 
+#: templates/core/index_order.html:164
+msgid "Page"
+msgstr "Страница"
+
+#: templates/core/index_order.html:164
+msgid "of"
+msgstr "из"
+
 #: templates/core/index_order.html:45
 msgid "Date"
 msgstr "дата"
@@ -211,7 +223,7 @@ msgstr "Заказ"
 
 #: templates/core/partials/footer.html:3
 msgid "All rights reserved, Onit Solutions LLC 2015-2016"
-msgstr "Все права защищены. "
+msgstr "Все права защищены, Onit Solutions LLC 2015-2016"
 
 #: templates/core/partials/forms/card.html:8
 msgid "Card number"
@@ -222,7 +234,8 @@ msgid "Full name"
 msgstr "Полное имя"
 
 #: templates/core/partials/forms/card.html:16
-#: templates/core/partials/steps/step_authentication.html:27
+#: templates/core/partials/steps/step_authentication.html:29
+#: templates/core/partials/menu.html:27
 msgid "Go"
 msgstr "Вперед"
 
@@ -247,17 +260,19 @@ msgstr "Выйти"
 msgid "Login"
 msgstr "Зайти"
 
+
 #: templates/core/partials/menu.html:28
+#: templates/core/user_registration.html:8
 msgid "Register"
 msgstr "Зарегистрироваться"
 
 #: templates/core/partials/modals/payment_type.html:11
 msgid "How would you like to pay?"
-msgstr "Каким образом вы хотите расплатиться?"
+msgstr "Каким образом Вы хотите расплатиться?"
 
 #: templates/core/partials/modals/payment_type.html:13
 msgid "How would you like to get paid?"
-msgstr ""
+msgstr "Каким образом Вы хотите получить платеж?"
 
 #: templates/core/partials/modals/payment_type.html:21
 msgid "Close"
@@ -279,13 +294,13 @@ msgstr "Использовать это"
 msgid "back"
 msgstr "Назад"
 
-#: templates/core/partials/payment_options.html:8
-#: templates/core/partials/payment_options.html:12
+#: templates/core/partials/payment_options.html:10
+#: templates/core/partials/payment_options.html:14
 msgid "Alfa-bank"
 msgstr "Альфа-банк"
 
-#: templates/core/partials/payment_options.html:18
 #: templates/core/partials/payment_options.html:22
+#: templates/core/partials/payment_options.html:26
 msgid "Sberbank"
 msgstr "Сбербанк"
 
@@ -297,8 +312,8 @@ msgstr "С карты на другую карту - другого банка"
 msgid "Cash payment"
 msgstr "Наличный рассчет"
 
-#: templates/core/partials/payment_options.html:48
-#: templates/core/partials/payment_options.html:52
+#: templates/core/partials/payment_options.html:54
+#: templates/core/partials/payment_options.html:58
 msgid "Qiwi wallet"
 msgstr "Киви кошелек"
 
@@ -335,6 +350,10 @@ msgstr "Отправить СМС"
 #: templates/core/partials/steps/step_authentication.html:24
 msgid "Send again"
 msgstr "Прислать код подтверждения еще раз"
+
+#: templates/core/partials/steps/step_authentication.html:10
+msgid "Enter your phone"
+msgstr "Введите Ваш номер телефона"
 
 #: templates/core/partials/steps/step_confirmation.html:5
 
@@ -414,6 +433,7 @@ msgstr "Ваш телефон был подтвержден."
 #: templates/core/user_registration.html:8
 msgid "User Registration"
 msgstr "Регистрация"
+
 
 #~ msgid "Во время регистрации произошла ошибка"
 #~ msgstr "Во время регистрации произошла ошибка"
