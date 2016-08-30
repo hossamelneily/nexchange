@@ -92,7 +92,6 @@ def index_order(request):
 
 def add_order(request):
     template = get_template('core/order.html')
-
     if request.method == 'POST':
         # Not in use order is added via ajax
         template = get_template('core/result_order.html')
@@ -150,6 +149,11 @@ def add_order(request):
     select_currency_pair += """</select>"""
 
     my_action = _("Add")
+
+    # localization
+    # if request.COOKIES.get("USER_LOCALE") is not None:
+    #     translation.activate(request.COOKIES.get("USER_LOCALE"))
+    #     # request.LANGUAGE_CODE = request.COOKIES.get("USER_LOCALE")
 
     return HttpResponse(template.render({'select_pair': select_currency_pair,
                                          'select_from': select_currency_from,

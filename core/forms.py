@@ -7,6 +7,7 @@ from core.models import Profile
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
+
 class DateSearchForm(forms.Form):
     date = forms.DateField(required=False, label=_("Search by Date"))
 
@@ -16,7 +17,8 @@ class UserProfileForm(forms.ModelForm):
     def clean_phone(self):
         '''Ensure phone is unique'''
         phone = self.cleaned_data.get('phone')
-        if Profile.objects.filter(phone=phone).exclude(pk=self.instance.pk).exists():
+        if Profile.objects.filter(phone=phone)\
+                .exclude(pk=self.instance.pk).exists():
             raise ValidationError(u'This phone is already registered.',
                                   code='invalid',)
 

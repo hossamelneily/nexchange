@@ -70,11 +70,18 @@
     <script src="https://use.fontawesome.com/9a25f329b7.js"></script>
     <script src="{% static 'js/django_jquery_csrf_setup.js' %}"></script>
     <script src="{% static 'bower_components/moment/moment.js' %}"></script>
+    <script src="{% static 'bower_components/moment/min/moment-with-locales.min.js' %}"></script>
     <script src="{% static 'bower_components/moment-timezone/builds/moment-timezone-with-data.min.js' %}"></script>
     <script src="{% static 'bower_components/js-cookie/src/js.cookie.js' %}"></script>
     <script>
         $( document ).ready(function() {
           Cookies.set("USER_TZ", moment.tz.guess());
+          var userLang= Cookies.get("USER_LOCALE");
+          if (!userLang)  {
+              userLang = navigator.language || navigator.userLanguage;
+{#              console.log(Cookies.get("USER_LOCALE"));#}
+              Cookies.set("django_language", userLang.substring(0,2).toLowerCase());
+          }
         });
     </script>
     <script src="{% static 'js/bundle.js' %}"></script>
