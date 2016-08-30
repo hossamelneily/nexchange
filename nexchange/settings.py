@@ -33,7 +33,7 @@ LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
 LANGUAGES = (
-    ('ru', _('Rusian')),
+    ('ru', _('Russian')),
     ('en', _('English')),
 
 )
