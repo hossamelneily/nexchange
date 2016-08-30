@@ -79,6 +79,11 @@
     <script>
         $( document ).ready(function() {
           Cookies.set("USER_TZ", moment.tz.guess());
+            var userLang= Cookies.get("django_language");
+            if (!userLang)  {
+              userLang = navigator.language || navigator.userLanguage;
+              Cookies.set("django_language", userLang.substring(0,2).toLowerCase());
+            }
         });
     </script>
     <script src="{% static 'js/footer.js' %}"></script>
