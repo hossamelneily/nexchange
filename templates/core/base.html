@@ -76,7 +76,7 @@
     <script>
         $( document ).ready(function() {
           Cookies.set("USER_TZ", moment.tz.guess());
-          var userLang= Cookies.get("USER_LOCALE");
+          var userLang= Cookies.get("django_language");
           if (!userLang)  {
               userLang = navigator.language || navigator.userLanguage;
 {#              console.log(Cookies.get("USER_LOCALE"));#}
