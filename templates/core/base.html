@@ -46,6 +46,10 @@
         var HTTP_500_MSG = "{% trans 'Service unavailable. Please try again later.' %}";
         var UNKNOW_ERROR = HTTP_500_MSG;
     </script>
+
+    {% if GOOGLE_ANALYTICS_PROPERTY_ID %}
+        {% include "core/analitycs/ga.html" %}
+    {% endif %}
 </head>
 <body>
    <div class="menuContainer">
@@ -75,6 +79,11 @@
     <script>
         $( document ).ready(function() {
           Cookies.set("USER_TZ", moment.tz.guess());
+            var userLang= Cookies.get("django_language");
+            if (!userLang)  {
+              userLang = navigator.language || navigator.userLanguage;
+              Cookies.set("django_language", userLang.substring(0,2).toLowerCase());
+            }
         });
     </script>
     <script src="{% static 'js/footer.js' %}"></script>

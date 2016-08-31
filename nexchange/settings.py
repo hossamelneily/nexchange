@@ -33,7 +33,7 @@ LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
 LANGUAGES = (
-    ('ru', _('Rusian')),
+    ('ru', _('Russian')),
     ('en', _('English')),
 
 )
@@ -107,6 +107,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
+                'core.context_processors.google_analytics',
 
             ],
         },
