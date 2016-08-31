@@ -421,7 +421,7 @@ def ajax_order(request):
     curr = request.POST.get("currency_from", "RUB")
     amount_coin = request.POST.get("amount-coin")
     currency = Currency.objects.filter(code=curr)[0]
-    # payment_method = request.POST.get("pp_type")
+    payment_method = request.POST.get("pp_type")
     identifier = request.POST.get("pp_identifier", None)
     identifier = identifier.replace(" ", "")
 
@@ -440,7 +440,7 @@ def ajax_order(request):
         payment_pref = PaymentPreference.objects.get(
             user__is_staff=True,
             currency__in=[currency],
-            identifier=identifier
+            payment_method__name__icontains=payment_method
         )
 
     order = Order(amount_btc=amount_coin,

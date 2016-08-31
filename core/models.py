@@ -1,35 +1,21 @@
 from django.db import models
-from core.common.models import TimeStampedModel
+from core.common.models import TimeStampedModel, SoftDeletableModel, Currency
 
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 from phonenumber_field.modelfields import PhoneNumberField
 from ticker.models import Price
+from referrals.models import ReferralCode
+from .validators import validate_bc
 
-from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
-    DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
 
 from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW,\
     REFERENCE_LOOKUP_ATTEMPTS, SMS_TOKEN_LENGTH, SMS_TOKEN_VALIDITY,\
     SMS_TOKEN_CHARS, MAX_EXPIRED_ORDERS_LIMIT
 
-from .validators import validate_bc
 from django.utils.translation import ugettext_lazy as _
 from datetime import timedelta
 from django.utils import timezone
-
-
-SoftDeleteMixin = safedelete_mixin_factory(policy=SOFT_DELETE,
-                                           visibility=DELETED_VISIBLE_BY_PK)
-
-
-class SoftDeletableModel(SoftDeleteMixin):
-    disabled = models.BooleanField(default=False)
-    active_objects = safedelete_manager_factory(
-        models.Manager, models.QuerySet, DELETED_INVISIBLE)()
-
-    class Meta:
-        abstract = True
 
 
 class UniqueFieldMixin(models.Model):
@@ -87,6 +73,9 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         if not self.phone:
             self.phone = self.user.username
 
+        referral_code = ReferralCode(user=self.user)
+        referral_code.save()
+
         super(Profile, self).save(*args, **kwargs)
 
 User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])
@@ -114,25 +103,6 @@ class SmsToken(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         super(SmsToken, self).save(*args, **kwargs)
 
 
-class CurrencyManager(models.Manager):
-
-    def get_by_natural_key(self, code):
-        return self.get(code=code)
-
-
-class Currency(TimeStampedModel, SoftDeletableModel):
-    objects = CurrencyManager()
-
-    code = models.CharField(max_length=3)
-    name = models.CharField(max_length=10)
-
-    def natural_key(self):
-        return self.code
-
-    def __str__(self):
-        return self.name
-
-
 class PaymentMethodManager(models.Manager):
 
     def get_by_natural_key(self, bin):
@@ -156,7 +126,7 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
     # NULL or Admin for out own (buy adds)
     user = models.ForeignKey(User)
     payment_method = models.ForeignKey(PaymentMethod, default=None)
-    currency = models.ManyToManyField(Currency, null=True)
+    currency = models.ManyToManyField(Currency)
     # Optional, sometimes we need this to confirm
     method_owner = models.CharField(max_length=100)
     identifier = models.CharField(max_length=100)
@@ -204,6 +174,7 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     admin_comment = models.CharField(max_length=200)
     payment_preference = models.ForeignKey(PaymentPreference, default=None,
                                            null=True)
+    # withdraw_address = models.ForeignKey(Address)
 
     class Meta:
         ordering = ['-created_on']
@@ -238,14 +209,14 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         # TODO: migrate to using currency through payment_preference
 
         if self.order_type == Order.SELL and self.currency.code == Order.USD:
-            self.amount_cash = self.amount_btc * price_sell[0].price_usd
+            self.amount_cash = self.amount_btc * price_buy[0].price_usd
         elif self.order_type == Order.SELL and self.currency.code == Order.RUB:
-            self.amount_cash = self.amount_btc * price_sell[0].price_rub
+            self.amount_cash = self.amount_btc * price_buy[0].price_rub
 
         if self.order_type == Order.BUY and self.currency.code == Order.USD:
-            self.amount_cash = self.amount_btc * price_buy[0].price_usd
+            self.amount_cash = self.amount_btc * price_sell[0].price_usd
         elif self.order_type == Order.BUY and self.currency.code == Order.RUB:
-            self.amount_cash = self.amount_btc * price_buy[0].price_rub
+            self.amount_cash = self.amount_btc * price_sell[0].price_rub
 
     @property
     def payment_deadline(self):
@@ -300,7 +271,6 @@ class Payment(TimeStampedModel, SoftDeletableModel):
 
 
 class BtcBase(TimeStampedModel):
-
     class Meta:
         abstract = True
 

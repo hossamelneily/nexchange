@@ -3,7 +3,7 @@
     "model": "core.paymentmethod",
     "pk": 1,
     "fields": {
-      "name": "Alpha Bank Visa",
+      "name": "Alfa Bank Visa",
       "bin": "426101",
       "fee": "0.00",
       "created_on":"2016-07-20T17:41:28+00:00",
@@ -14,7 +14,7 @@
     "model": "core.paymentmethod",
     "pk": 2,
     "fields": {
-      "name": "Alpha Bank Master Card",
+      "name": "Alfa Bank Master Card",
       "bin": "555957",
       "fee": "0.00",
       "created_on":"2016-07-20T17:41:28+00:00",

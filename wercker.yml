@@ -20,7 +20,7 @@ dev:
         code: |
           mkdir -p /usr/share/nginx/html/static
           mkdir -p /usr/share/nginx/html/media
-    - npm-install    
+    - npm-install
     - maxon/npm-run:
         script: bower
     - maxon/npm-run:
@@ -39,6 +39,10 @@ dev:
             cd -
           fi
           python -c "import krakenex; print('import krakenex sucessfully executed')"
+    - script:
+        name: Django flush
+        code: |
+          cat <(echo "yes") - | python manage.py flush
     - script:
         name: Django make migrations
         code: |

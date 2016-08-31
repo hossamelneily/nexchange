@@ -124,8 +124,10 @@ class OrderPriceGenerationTest(OrderBaseTestCase, UserBaseTestCase):
         super(OrderPriceGenerationTest, cls).setUpClass()
 
     def test_auto_set_amount_cash_buy_btc_with_usd(self):
+        # When the client slees we buy and vice versa
+        # TODO: consider different naming conventions
         amount_btc = 2.5
-        expected = OrderBaseTestCase.PRICE_BUY_USD * amount_btc
+        expected = OrderBaseTestCase.PRICE_SELL_USD * amount_btc
         self.order = Order(order_type=Order.BUY, amount_btc=amount_btc,
                            currency=self.USD, user=self.user)
         self.order.save()
@@ -134,7 +136,7 @@ class OrderPriceGenerationTest(OrderBaseTestCase, UserBaseTestCase):
 
     def test_auto_set_amount_cash_buy_btc_with_rub(self):
         amount_btc = 2.5
-        expected = OrderBaseTestCase.PRICE_BUY_RUB * amount_btc
+        expected = OrderBaseTestCase.PRICE_SELL_RUB * amount_btc
         self.order = Order(order_type=Order.BUY, amount_btc=amount_btc,
                            currency=self.RUB, user=self.user)
         self.order.save()
@@ -143,7 +145,7 @@ class OrderPriceGenerationTest(OrderBaseTestCase, UserBaseTestCase):
 
     def test_auto_set_amount_cash_sell_btc_for_usd(self):
         amount_btc = 2.5
-        expected = OrderBaseTestCase.PRICE_SELL_USD * amount_btc
+        expected = OrderBaseTestCase.PRICE_BUY_USD * amount_btc
         self.order = Order(order_type=Order.SELL, amount_btc=amount_btc,
                            currency=self.USD, user=self.user)
         self.order.save()
@@ -152,7 +154,7 @@ class OrderPriceGenerationTest(OrderBaseTestCase, UserBaseTestCase):
 
     def test_auto_set_amount_cash_sell_btc_for_rub(self):
         amount_btc = 2.5
-        expected = OrderBaseTestCase.PRICE_SELL_RUB * amount_btc
+        expected = OrderBaseTestCase.PRICE_BUY_RUB * amount_btc
         self.order = Order(order_type=Order.SELL, amount_btc=amount_btc,
                            currency=self.RUB, user=self.user)
         self.order.save()
