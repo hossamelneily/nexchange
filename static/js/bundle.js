@@ -336,6 +336,7 @@
         });
     });
 
+    //for test selenium
     function submit_phone(){
         var apiRoot = '/en/api/v1',
             menuEndpoint = apiRoot + '/menu',
