@@ -102,6 +102,9 @@ class SmsToken(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         self.sms_token = self.get_sms_token()
         super(SmsToken, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return "{} ({})".format(self.sms_token, self.user.profile.phone)
+
 
 class PaymentMethodManager(models.Manager):
 
@@ -120,6 +123,9 @@ class PaymentMethod(TimeStampedModel, SoftDeletableModel):
 
     def natural_key(self):
         return self.bin
+
+    def __str__(self):
+        return "{} ({})".format(self.name, self.bin)
 
 
 class PaymentPreference(TimeStampedModel, SoftDeletableModel):
@@ -147,6 +153,9 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
 
         return payment_method[0] if len(payment_method) \
             else PaymentMethod.objects.get(name='Cash')
+
+    def __str__(self):
+        return "{} - ({})".format(self.identifier, self.payment_method.name)
 
 
 class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
@@ -256,6 +265,14 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
             addr = self.transaction_set.first().address_to.address
 
         return addr
+
+    def __str__(self):
+        return "{} {} {} BTC {} {}".format(self.user.username or
+                                           self.user.profile.phone,
+                                           self.order_type,
+                                           self.amount_btc,
+                                           self.amount_cash,
+                                           self.currency)
 
 
 class Payment(TimeStampedModel, SoftDeletableModel):
