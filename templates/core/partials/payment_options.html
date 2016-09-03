@@ -3,7 +3,7 @@
 <div class="row {{ type }}">
     {% if type == 'buy' %}              <!-- TO-DO get this from database ??-->
     <div class="col col-xs-12 col-sm-4 payment-type-trigger"
-         data-type="Alfa"
+         data-type="Alfa Bank"
          data-identifier="{{ cards.alfa.identifier }}">
         <div class="col col-xs-12">
             <img src="{% static 'icons/alfa.png' %}"
@@ -15,7 +15,7 @@
         </div>
     </div>                              <!-- TO-DO get this from database ??-->
     <div class="col col-xs-12 col-sm-4 payment-type-trigger"
-         data-type="Sber"
+         data-type="Sberbank"
          data-identifier="{{ cards.sber.identifier }}">
         <div class="col col-xs-12">
             <img src="{% static 'icons/sber.png' %}"
