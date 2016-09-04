@@ -52,12 +52,12 @@
     {% endif %}
 </head>
 <body>
-   <div class="menuContainer">
-        {% include 'core/partials/menu.html' %}
-    </div>
     <div class="container">
-        {% block main %}
-        {% endblock %}
+        <div class="menuContainer">
+            {% include 'core/partials/menu.html' %}
+        </div>
+            {% block main %}
+            {% endblock %}
     </div>
 
    {% block footer %}
