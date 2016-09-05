@@ -314,3 +314,7 @@ body #card-form .pay-row {
 .save.save-card{
     margin-top: 10px;
 }
+.menuSection {
+    text-align: center;
+    margin: auto;
+}
