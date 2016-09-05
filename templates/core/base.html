@@ -39,6 +39,7 @@
     <link rel="apple-touch-icon-precomposed" href="img/apple-touch-icon-57-precomposed.png">
     <link rel="shortcut icon" href="img/favicon.png">
     <!-- 	-->
+    <link rel="stylesheet" href="{% static 'css/overrides_old.css' %}">
     <link rel="stylesheet" href="{% static 'css/overrides.css' %}">
     <link rel="stylesheet" href="{% static 'css/forms.css' %}">
     <script type="text/javascript">
@@ -52,16 +53,16 @@
     {% endif %}
 </head>
 <body>
-   <div class="menuContainer">
-        {% include 'core/partials/menu.html' %}
-    </div>
     <div class="container">
-        {% block main %}
-        {% endblock %}
+        <div class="menuContainer">
+            {% include 'core/partials/menu.html' %}
+        </div>
+            {% block main %}
+            {% endblock %}
     </div>
 
    {% block footer %}
-       {% include 'core/partials/supported_paymnets.html' %}
+       {% include 'core/partials/supported_payments.html' %}
    {% endblock %}
     {% include 'core/partials/popular_faq.html' %}
     {% include 'core/partials/seo_footer.html' %}

@@ -6,7 +6,7 @@
          registerObject = require("./register.js"),
          animationDelay = 3000;
 
-    function updateOrder (elem, isInitial, currency) {
+    function updateOrder (elem, isInitial, currency, cb) {
         var val,
             rate,
             amountCoin = $('.amount-coin'),
@@ -43,6 +43,8 @@
             }
             $('.btc-amount-confirm').text(amountCoin.val()); // add
             $('.cash-amount-confirm').text(amountCashConfirm); //add
+
+            cb && cb();
         });
     }
 
@@ -147,7 +149,10 @@
         $("#UserAccountModal").modal({backdrop: "static"});
     }
 
-    function changeState (action) {
+    function changeState (e, action) {
+        if (e) {
+            e.preventDefault();
+        }
         if ( $(this).hasClass('disabled') ) {// jshint ignore:line
             //todo: allow user to buy placeholder value or block 'next'?
             return;
@@ -186,7 +191,7 @@
         if(nextState.hasClass('disabled') &&
             numericId < $(".process-step").length &&
             numericId > 1) {
-            changeState(action);
+            changeState(null, action);
         }
 
 
