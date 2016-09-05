@@ -474,6 +474,7 @@ a:focus
     }
     .price_box_selectbox_cont_selectbox{
         min-width: 100px;
+        width: 100%;
         display: block;
     }
     .price_box_mid {
