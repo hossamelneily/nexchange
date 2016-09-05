@@ -120,12 +120,15 @@ def add_order(request):
     currencies = Currency.objects.filter().exclude(code='BTC')
     currencies = sorted(currencies, key=lambda x: x.code != 'RUB')
 
+    # TODO: this code is utestable shit, move to template
     select_currency_from = """<select name="currency_from"
-        class="currency-select currency-from">"""
+        class="currency-select currency-from
+        price_box_selectbox_cont_selectbox classic">"""
     select_currency_to = """<select name="currency_to"
-        class="currency-select currency-to">"""
+        class="currency-select
+         currency-to price_box_selectbox_cont_selectbox classic">"""
     select_currency_pair = """<select name="currency_pair"
-        class="currency-select currency-pair">"""
+        class="currency-select currency-pair chart_panel_selectbox classic">"""
 
     for ch in currencies:
         select_currency_from += """<option value="{}">{}</option>"""\

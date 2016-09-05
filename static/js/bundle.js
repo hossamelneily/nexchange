@@ -379,13 +379,16 @@
                 chart: {
                     type: 'arearange',
                     zoomType: 'x',
-                  backgroundColor: {
-                     linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-                     stops: [
-                        [0, '#e3ffda'],
-                        [1, '#e3ffda']
-                     ]
-                  },
+                    style: {
+                        fontFamily: 'Gotham'
+                    },
+                    backgroundColor: {
+                        linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+                        stops: [
+                            [0, '#F3F3F3'],
+                            [1, '#F3F3F3']
+                        ]
+                    },
                     events : {
                         load : function () {
                             // set up the updating of the chart each second
@@ -436,9 +439,9 @@
                 },
 
                 series: [{
-                    name: currency === 'rub' ? 'цена' : 'Price',
+                    name: currency.toLowerCase() === 'rub' ? 'цена' : 'Price',
                     data: data,
-                    color: 'lightgreen',
+                    color: '#8cc63f',
                     // TODO: fix this! make dynamic
                     pointInterval: 3600 * 1000
                 }]

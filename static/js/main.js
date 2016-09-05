@@ -65,7 +65,6 @@
 
                     //TODO: export to card module
                     orderObject.toggleSellModal();
-
                 }
 
                 $(".trade-type").val(window.action);

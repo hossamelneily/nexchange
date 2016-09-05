@@ -7,7 +7,7 @@
 
     <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 topright_panel">
         {% get_language_info_list for LANGUAGES as languages %}
-          <form class="form" id="formLogin" action="{% url 'set_language' %}" method="post">
+          <form class="form pull-right" id="formLogin" action="{% url 'set_language' %}" method="post">
             {% csrf_token %}
             <input name="next" type="hidden" value="{{ redirect_to }}" />
             <select name="language" class="topright_selectbox classic">
@@ -18,7 +18,7 @@
             </option>
             {% endfor %}
             </select>
-            <input type="submit" class="topright_panel_submit" value={% trans "Go"%} />
+            <input type="submit" class="topright_panel_submit" value="Go" />
           </form>
     </div>
 </div>
@@ -33,6 +33,8 @@
             <span class="icon-bar"></span>
         </button>
         </div>
+
+
         <div class="collapse navbar-collapse menupanel">
             <ul class="nav navbar-nav">
                 <li class="{% if request.resolver_match.url_name == 'core.order_add' %} active {% endif %}">

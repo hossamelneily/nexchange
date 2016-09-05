@@ -1,5 +1,12 @@
 /*new design start*/
 @font-face {
+	font-family: 'Gotham';
+	src: url('../fonts/GothaProBol.otf');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
 	font-family: 'Montserrat-Regular';
 	src: url('../fonts/Montserrat-Regular.eot');
 	src: url('../fonts/Montserrat-Regular.eot?#iefix') format('embedded-opentype'),
@@ -30,8 +37,56 @@
 }
 
 
-*
+@-webkit-keyframes spin1 {
+    0% { -webkit-transform: rotate(0deg);}
+    100% { -webkit-transform: rotate(360deg);}
+}
+@-moz-keyframes spin1 {
+    0% { -moz-transform: rotate(0deg);}
+    100% { -moz-transform: rotate(360deg);}
+}
+@-o-keyframes spin1 {
+    0% { -o-transform: rotate(0deg);}
+    100% { -o-transform: rotate(360deg);}
+}
+@-ms-keyframes spin1 {
+    0% { -ms-transform: rotate(0deg);}
+    100% { -ms-transform: rotate(360deg);}
+}
+@-keyframes spin1 {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+}
+
+textarea, input, select { outline: none !important; }
+
+#container-graph {
+    width: 100%;
+    height: 250px; margin: 0 auto;
+    border: 2px solid #8cc63f;
+    border-radius: 1em;
+    background: #F3F3F3;
+}
+.highcharts-container {
+    border-radius: 1em;
+}
+
+.exchange-sign
 {
+    color: #8cc63f;
+}
+
+.exchange-sign.loading {
+    -webkit-animation: spin1 2s infinite linear;
+    -moz-animation: spin1 2s infinite linear;
+    -o-animation: spin1 2s infinite linear;
+    -ms-animation: spin1 2s infinite linear;
+    animation: spin1 2s infinite linear;
+    display: block;
+}
+
+
+* {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
@@ -60,7 +115,7 @@ li {  display: inline-block}
 body {
 	overflow-x:hidden;
 	min-height:100% !important;
-	font-family: 'Montserrat-Regular';
+	font-family: 'Montserrat-Regular', 'Gotham';
 
 }
 
@@ -174,7 +229,12 @@ a:focus
 
 .logo_panel img{width:100%; max-width:266px;}
 
-.topright_panel{text-align:right; font-size:16px; font-family: 'Montserrat-Light'; margin:15px 0 0 0;}
+.topright_panel{
+    text-align:right;
+    font-size:16px;
+    font-family: 'Montserrat-Light', 'Gotham';
+    margin:15px 0 0 0;
+}
 
 .topright_panel a{padding:0 7px;}
 
@@ -217,50 +277,53 @@ a:focus
 
 .step_panel{width:100%; max-width:644px; display:inline-block; background-image:url(../images/step_bg.png); background-size:100% auto; background-repeat:no-repeat; background-position:center 10%; margin:50px 0; }
 
-.step_panel_box{display:inline-block; width:32%; vertical-align:top; font-size:13px; color:#000; font-family: 'Montserrat-Light'; }
+.step_panel_box{display:inline-block; width:32%; vertical-align:top; font-size:13px; color:#000; font-weight: bold; font-family: 'Montserrat-Light', 'Gotham'; }
 
-.step_panel_box p{width:100%; float:left; margin:10px 0; background-color:#FFF;}
+.step_panel_box p{width:100%; float:left; margin:10px 0; background-color:#FFF; font-weight: bold;}
 
 
 .chart_panel_large_image{position:relative; z-index:1; margin:-25px 0 0 0; width:100%;}
 
-.chart_panel_selectbox_panel{display:inline-block; text-align:center; width:100%;}
+.chart_panel_selectbox_panel{
+    display:inline-block; text-align:center; width:100%;
+}
 
-.chart_panel_selectbox{position:relative; z-index:2;  width: 200px;
+.chart_panel_selectbox{
+    position:relative; z-index:2;  width: 200px;
     background-color: #FFF;
     border: 2px solid #8cc63f;
     padding: 10px 15px;
     font-size: 14px;
-    margin: 7px 0;
     color: #666;
     -webkit-appearance: none;
     -moz-appearance: none;
-	display:inline-block;
-	vertical-align:middle;
-	text-align:center;
-	}
+    display:inline-block;
+    vertical-align:middle;
+    text-align:center;
+    margin-bottom: -22px;
+}
 
 
-.price_box{text-align:center; font-size:35px; font-family: 'Montserrat-Light'; margin:40px 0;}
+.price_box{text-align:center; font-size:35px; font-family: 'Montserrat-Light', 'Gotham'; margin:40px 0;}
 
-.price_box span{font-family: 'Montserrat-Bold';}
+.price_box span{font-family: 'Montserrat-Bold', 'Gotham';}
 
-.price_box a{width:210px; color:#FFF; font-size:30px; padding:5px 0; background-color:#8cc63f; border-radius:8px; display:inline-block;}
+.price_box a{width:210px; max-width: 100%; color:#FFF; font-size:30px; padding:5px 0; background-color:#8cc63f; border-radius:8px; display:inline-block;}
 
 .price_box a:hover{background-color:#000 !important;}
 
 .price_box2_a{background-color:#ee1d25 !important;}
 
-.price_box_mid{text-align:center;}
+.price_box_mid{text-align:center; margin-top: 220px;}
 
 .price_box_mid img{margin:240px 0 0 0;}
 
 .price_box_selectbox_cont{display:inline-block; width:100%; border:2px solid #8cc63f; margin:40px 0 0 0;}
 
-.price_box_selectbox_cont_textbox{float:left; width:65%; background-color:transparent; border:solid #8cc63f; text-align:left; font-size:18px; padding:8px 10px;border-width:0 2px 0 0; }
+.price_box_selectbox_cont_textbox{float:left; text-align: center; width:65%; background-color:transparent; border:solid #8cc63f; font-size:18px; padding:8px 10px;border-width:0 2px 0 0; }
 
 .price_box_selectbox_cont_selectbox{float:left; width:33%; margin:0px 0 0 0; font-size:18px;  -webkit-appearance: none;
-    -moz-appearance: none; border:none; padding:8px 10px; font-family: 'Montserrat-Regular';}
+    -moz-appearance: none; border:none; padding:8px 10px; font-family: 'Montserrat-Regular', 'Gotham';}
 
 
 .price_box_next_cont{text-align:center;}
@@ -269,9 +332,9 @@ a:focus
 
 .price_box_next:hover{background-color:#000; color:#FFF;}
 
-.greypanel{background-color:#f4f5f5; padding:30px 0;}
+.greypanel{background-color:#f4f5f5; padding:30px 0; margin-top: 20px;}
 
-.greypanel img{width:16.3%; padding:10px 5px;}
+.greypanel img{width:100%; padding:10px 5px;}
 
 .footer{background-color:#8dc73f; color:#CCC; font-size:21px; padding:30px 0;}
 
@@ -323,7 +386,7 @@ a:focus
 
 .navbar-nav
 {
-	float:none !important; display:inline-block; text-align:center;
+	float:none !important; display:inline-block; text-align:left;
 }
 
 .menupanel{text-align:center; float:none;margin:10px 0 0 0; }
@@ -332,19 +395,16 @@ a:focus
 
 
 @media screen and (max-width:950px)
-
 {
 
 
 }
 
 @media screen and (max-width:900px)
-
 {
 }
 
 @media screen and (max-width:850px)
-
 {
 
 
@@ -353,7 +413,6 @@ a:focus
 }
 
 @media screen and (max-width:800px)
-
 {
 
 
@@ -361,7 +420,6 @@ a:focus
 
 
 @media screen and (max-width:767px)
-
 {
 .top_panel{text-align:center;}
 
@@ -369,7 +427,7 @@ a:focus
 
 .top_panel{padding:10px 0;}
 
-.price_box_mid img{margin:0;}
+.price_box_mid img{margin: 0}
 
 .footer{text-align:center;}
 
@@ -379,12 +437,10 @@ a:focus
 
 
 @media screen and (max-width:700px)
-
 {
 }
 
 @media screen and (max-width:667px)
-
 {
 
 
@@ -396,12 +452,39 @@ a:focus
 
 }
 
-@media screen and (max-width:550px)
+@media screen and (max-width:550px) {
+ .step-icon
+ {
+    height: 55px;
+ }
+    #container-graph{
+        padding-top: 20px;
+        width: 90%;
+    }
+    .chart_panel_selectbox {
+        width: 120px;
+    }
+    .price_box_mid .fa.exchange-sign{
+        font-size: 2em;
+    }
 
-{
+    .price_box_selectbox_cont_textbox{
+        border-width: 0 0 2px 0;
+        width: 100%;
+    }
+    .price_box_selectbox_cont_selectbox{
+        min-width: 100px;
+        display: block;
+    }
+    .price_box_mid {
+        margin-top: 260px;
+    }
+}
+    /*
+vertical design
 .step_panel_box{width:100%; margin:10px 0;}
-
 .step_panel{width:100%; background-image:url(../images/step_bg2.png); background-size:auto 100%; background-position:center top; padding:40px 0 20px 0; }
+*/
 }
 
 
@@ -420,3 +503,4 @@ a:focus
 }
 
 /*end new design responsive*/
+
