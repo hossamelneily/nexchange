@@ -1,20 +1,29 @@
 {% load i18n %}
-  <div class="process panel">
-   <div class="process-row nav nav-tabs">
-    <div class="process-step step1">
-     <button type="button" class="btn btn-info btn-circle disableClick" data-toggle="tab" href="#menu1">
-      <i class="fa fa-bar-chart fa-3x"></i></button>
-     <p><small>{% trans "Check" %}<br />{% trans "Graph" %}</small></p>
+{% load static %}
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 step_panel_cont">
+    <div class="step_panel">
+        <div class="step_panel_box process-step step1">
+            <a href="#menu1" data-toggle="tab">
+                <img src="{% static 'images/step_circle.png' %}"
+                     class="step-icon" alt="{% trans "Order" %}">
+                <p>{% trans "Order" %}</p>
+            </a>
+         </div>
+
+        <div class="step_panel_box process-step step2">
+            <a href="#menu2" data-toggle="tab">
+                <img src="{% static 'images/step_circle2.png' %}"
+                     class="step-icon" alt="{% trans "Authentication" %}">
+                <p>{% trans "Login" %}</p>
+            </a>
+        </div>
+
+          <div class="step_panel_box process-step step3">
+            <a href="#menu3" data-toggle="tab">
+                <img src="{% static 'images/step_circle3.png' %}"
+                     class="step-icon" alt="{% trans 'Confirmation' %}">
+                <p>{% trans 'Confirm' %}</p>
+            </a>
+         </div>
     </div>
-    <div class="process-step step2">
-     <button type="button" class="btn btn-default btn-circle btn-register disableClick"
-             data-toggle="tab" href="#menu2"><i class="fa fa-mobile fa-3x"></i></button>
-     <p><small>{% trans "Already a User ?" %}<br />{% trans "Register !" %}</small></p>
-    </div>
-    <div class="process-step step3">
-     <button type="button" class="btn btn-default btn-circle disableClick"
-        data-toggle="tab" href="#menu3"><i class="fa fa-btc fa-3x"></i></button>
-     <p><small>{% trans "Confirm your" %}<br />{% trans "Order" %}</small></p>
-    </div>
-   </div>
-  </div>
+</div>

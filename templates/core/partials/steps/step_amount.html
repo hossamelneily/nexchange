@@ -1,76 +1,56 @@
 {% extends 'core/partials/steps/step_base.html' %}
 {% load i18n %}
 {% block step_content %}
-   <div class="input-group-btn">
-        {{select_pair| safe}}
-    </div>
-    <div id="container" style="width: 100%; height: 350px; margin: 0 auto">
-    </div>
-    <div class="row">
-        <div class="col-xs-5 col-sm-5 col-md-5 center-block controls">
-            <div class="col-lg-12">
-                <h2 class="rate-buy">
-
-                </h2>
-                <h2 class="currency"></h2>
-            </div>
-            <div class="col-lg-12">
-              <span class="btn btn-success btn-lg trigger trigger-buy">
-                    {% trans "Buy" %}
-              </span>
-            </div>
+    <div class="chart_panel_selectbox_panel">
+       <div class="input-group-btn">
+            {{select_pair| safe}}
         </div>
-        <div class="col-md-2 col-xs-2"></div>
-        <div class="col-xs-5 col-sm-5 col-md-5 controls">
-            <div class="row">
-                <div class="col-lg-12">
-                    <h2 class="rate-sell">
-
-                    </h2>
-                    <h2 class="currency"></h2>
-                </div>
-                <div class="col-lg-12">
-                  <span class="btn btn-danger btn-lg trigger trigger-sell">
-                        {% trans "Sell" %}
-                  </span>
-                </div>
-            </div>
+       <div class="input-group-btn">
+           <select name="graph-range" id="graph-range" class="chart_panel_selectbox classic">
+               {% for range in graph_ranges %}
+                   <option value="{{  range.val }}"> {{ range.name }} </option>
+               {% endfor %}
+           </select>
         </div>
     </div>
-
-    <div class="row">
-        <div class="col-xs-5 col-sm-5 col-md-5 amounts">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <div class="input-group">
-                        <input type="text" class="form-control amount amount-cash rate-buy" name="amount-cash">
-                        <div class="input-group-btn">
-                            {{select_from | safe}}
-                        </div><!-- /btn-group -->
-                    </div><!-- /input-group -->
-                </div><!-- /pannel-body -->
-            </div><!-- /pannel -->
-        </div><!-- /col -->
-
-        <div class="col-xs-2 col-sm-2 col-md-2">
-            <h2>{% trans "To" %}</h2>
-        </div><!-- /col -->
-
-        <div class="col-sm-5 col-xs-5 col-md-5 amounts">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <div class="input-group">
-                        <input type="text" class="form-control amount amount-coin" placeholder="1" name="amount-coin">
-                        <div class="input-group-btn">
-                            {{select_to | safe}}
-                        </div><!-- /btn-group -->
-                    </div><!-- /input-group -->
-                </div><!-- /pannel-body -->
-            </div><!-- /pannel -->
-        </div><!-- /col -->
+    <div id="container-graph">
     </div>
+
+
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+           	  <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5 price_box">
+                	<span class="rate-buy"></span>
+                    <br><span class="currency"></span><br>
+
+                    <a href="#" class="trigger trigger-buy">{% trans "Buy" %}</a>
+
+                <div class="price_box_selectbox_cont">
+                    	<input type="text" class="price_box_selectbox_cont_textbox amount amount-cash" placeholder="">
+                        {{select_from | safe}}
+                    </div>
+
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 price_box_mid">
+                    <i class="fa fa-refresh fa-5x exchange-sign" aria-hidden="true"></i>
+                </div>
+              <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5 price_box">
+
+                	<span class="rate-sell"></span>
+                    <br><span class="currency"></span><br>
+
+                <a href="#" class="price_box2_a trigger trigger-sell">{% trans "Sell" %}</a>
+
+                <div class="price_box_selectbox_cont">
+                    	<input type="text" class="price_box_selectbox_cont_textbox amount amount-coin" placeholder="0.1">
+                        {{select_to | safe}}
+                </div>
+
+              </div>
+            </div>
+
  {% include 'core/partials/modals/payment_type.html' with id="UserAccountModal" type="sell" %}
- {% include 'core/partials/modals/payment_type.html' with id="PayMethModal" type="buy" %}
+    <div class="paymentSelectionContainer">
+    </div>
  {% include 'core/partials/modals/sell.html' with id="CardSellModal" method="card" form="card" legend="Add a new payout card" %}
  {% include 'core/partials/modals/sell.html' with id="QiwiSellModal" type="wallet" form="phone" legend="Add a new payout wallet" %}
 {% endblock %}

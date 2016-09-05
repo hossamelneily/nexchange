@@ -1,35 +1,21 @@
 from django.db import models
-from core.common.models import TimeStampedModel
+from core.common.models import TimeStampedModel, SoftDeletableModel, Currency
 
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 from phonenumber_field.modelfields import PhoneNumberField
 from ticker.models import Price
+from referrals.models import ReferralCode
+from .validators import validate_bc
 
-from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
-    DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
 
 from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW,\
     REFERENCE_LOOKUP_ATTEMPTS, SMS_TOKEN_LENGTH, SMS_TOKEN_VALIDITY,\
-    SMS_TOKEN_CHARS
+    SMS_TOKEN_CHARS, MAX_EXPIRED_ORDERS_LIMIT
 
-from .validators import validate_bc
 from django.utils.translation import ugettext_lazy as _
 from datetime import timedelta
 from django.utils import timezone
-
-
-SoftDeleteMixin = safedelete_mixin_factory(policy=SOFT_DELETE,
-                                           visibility=DELETED_VISIBLE_BY_PK)
-
-
-class SoftDeletableModel(SoftDeleteMixin):
-    disabled = models.BooleanField(default=False)
-    active_objects = safedelete_manager_factory(
-        models.Manager, models.QuerySet, DELETED_INVISIBLE)()
-
-    class Meta:
-        abstract = True
 
 
 class UniqueFieldMixin(models.Model):
@@ -69,6 +55,13 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, blank=True)
 
+    def is_banned(self):
+        return \
+            Order.objects.filter(user=self,
+                                 is_paid=True,
+                                 expired=True).length \
+            > MAX_EXPIRED_ORDERS_LIMIT
+
     def natural_key(self):
         return self.user.username
 
@@ -79,6 +72,9 @@ class Profile(TimeStampedModel, SoftDeletableModel):
             token.save()
         if not self.phone:
             self.phone = self.user.username
+
+        referral_code = ReferralCode(user=self.user)
+        referral_code.save()
 
         super(Profile, self).save(*args, **kwargs)
 
@@ -106,24 +102,8 @@ class SmsToken(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         self.sms_token = self.get_sms_token()
         super(SmsToken, self).save(*args, **kwargs)
 
-
-class CurrencyManager(models.Manager):
-
-    def get_by_natural_key(self, code):
-        return self.get(code=code)
-
-
-class Currency(TimeStampedModel, SoftDeletableModel):
-    objects = CurrencyManager()
-
-    code = models.CharField(max_length=3)
-    name = models.CharField(max_length=10)
-
-    def natural_key(self):
-        return self.code
-
     def __str__(self):
-        return self.name
+        return "{} ({})".format(self.sms_token, self.user.profile.phone)
 
 
 class PaymentMethodManager(models.Manager):
@@ -144,38 +124,38 @@ class PaymentMethod(TimeStampedModel, SoftDeletableModel):
     def natural_key(self):
         return self.bin
 
+    def __str__(self):
+        return "{} ({})".format(self.name, self.bin)
+
 
 class PaymentPreference(TimeStampedModel, SoftDeletableModel):
     # NULL or Admin for out own (buy adds)
     user = models.ForeignKey(User)
     payment_method = models.ForeignKey(PaymentMethod, default=None)
-    currency = models.ForeignKey(Currency, null=True)
+    currency = models.ManyToManyField(Currency)
     # Optional, sometimes we need this to confirm
     method_owner = models.CharField(max_length=100)
     identifier = models.CharField(max_length=100)
     comment = models.CharField(max_length=255)
 
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-
-        # This only worked for SELLing, BUYing doesnt ask for
-        # credit card type nor identifier so breaks here
-        # so i changed to:
-
-        if len(self.identifier) > 0:  # there IS identifier = Selling
-            self.payment_method = self.guess_payment_method()
-
-        super(PaymentPreference, self).save()
+    def save(self, *args, **kwargs):
+        self.payment_method = self.guess_payment_method()
+        super(PaymentPreference, self).save(*args, **kwargs)
 
     def guess_payment_method(self):
-        bin = self.identifier[:PaymentMethod.BIN_LENGTH]
-        payment_method = None
+        card_bin = self.identifier[:PaymentMethod.BIN_LENGTH]
+        payment_method = []
+        while all([self.identifier,
+                   not len(payment_method),
+                   len(card_bin) > 0]):
+            payment_method = PaymentMethod.objects.filter(bin=card_bin)
+            card_bin = card_bin[:-1]
 
-        while payment_method is None and len(bin) > 1:
-            payment_method = PaymentMethod.objects.get(bin=bin)
-            bin = bin[:-1]
+        return payment_method[0] if len(payment_method) \
+            else PaymentMethod.objects.get(name='Cash')
 
-        return payment_method
+    def __str__(self):
+        return "{} - ({})".format(self.identifier, self.payment_method.name)
 
 
 class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
@@ -203,16 +183,18 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     admin_comment = models.CharField(max_length=200)
     payment_preference = models.ForeignKey(PaymentPreference, default=None,
                                            null=True)
+    # withdraw_address = models.ForeignKey(Address)
 
     class Meta:
         ordering = ['-created_on']
 
     def save(self, *args, **kwargs):
-        self.unique_reference = self.gen_unique_value(
-            lambda x: get_random_string(x),
-            lambda x: Order.objects.filter(unique_reference=x).count(),
-            UNIQUE_REFERENCE_LENGTH
-        )
+        self.unique_reference = \
+            self.gen_unique_value(
+                lambda x: get_random_string(x),
+                lambda x: Order.objects.filter(unique_reference=x).count(),
+                UNIQUE_REFERENCE_LENGTH
+            )
         self.convert_coin_to_cash()
 
         super(Order, self).save(*args, **kwargs)
@@ -232,17 +214,18 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
                     price_buy[0].price_usd,
                     price_buy[0].price_rub])
 
-        # TODO: Make this logic more generic
+        # TODO: Make this logic more generic,
+        # TODO: migrate to using currency through payment_preference
 
         if self.order_type == Order.SELL and self.currency.code == Order.USD:
-            self.amount_cash = self.amount_btc * price_sell[0].price_usd
+            self.amount_cash = self.amount_btc * price_buy[0].price_usd
         elif self.order_type == Order.SELL and self.currency.code == Order.RUB:
-            self.amount_cash = self.amount_btc * price_sell[0].price_rub
+            self.amount_cash = self.amount_btc * price_buy[0].price_rub
 
         if self.order_type == Order.BUY and self.currency.code == Order.USD:
-            self.amount_cash = self.amount_btc * price_buy[0].price_usd
+            self.amount_cash = self.amount_btc * price_sell[0].price_usd
         elif self.order_type == Order.BUY and self.currency.code == Order.RUB:
-            self.amount_cash = self.amount_btc * price_buy[0].price_rub
+            self.amount_cash = self.amount_btc * price_sell[0].price_rub
 
     @property
     def payment_deadline(self):
@@ -256,7 +239,8 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         # TODO: validate this business rule
         # TODO: Refactor, it is unreasonable to have different standards of
         # time in the DB
-        return (timezone.now() > self.payment_deadline) and (not self.is_paid)
+        return (timezone.now() > self.payment_deadline) and\
+               (not self.is_paid) and not self.is_released
 
     @property
     def frozen(self):
@@ -282,6 +266,14 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
 
         return addr
 
+    def __str__(self):
+        return "{} {} {} BTC {} {}".format(self.user.username or
+                                           self.user.profile.phone,
+                                           self.order_type,
+                                           self.amount_btc,
+                                           self.amount_cash,
+                                           self.currency)
+
 
 class Payment(TimeStampedModel, SoftDeletableModel):
     amount_cash = models.FloatField()
@@ -296,7 +288,6 @@ class Payment(TimeStampedModel, SoftDeletableModel):
 
 
 class BtcBase(TimeStampedModel):
-
     class Meta:
         abstract = True
 

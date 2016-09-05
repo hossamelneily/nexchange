@@ -2,7 +2,6 @@ from django.test import TestCase
 from core.models import SmsToken, Profile
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
-
 from .utils import UserBaseTestCase
 
 

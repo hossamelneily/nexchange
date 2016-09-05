@@ -42,3 +42,4 @@ six>=1.10.0
 traitlets>=4.2.1
 twilio>=5.4.0
 requests-mock>=1.0.0
+django-filter>=0.14.0

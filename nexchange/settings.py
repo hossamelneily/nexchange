@@ -33,7 +33,7 @@ LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
 LANGUAGES = (
-    ('ru', _('Rusian')),
+    ('ru', _('Russian')),
     ('en', _('English')),
 
 )
@@ -42,10 +42,13 @@ LANGUAGES = (
 # CUSTOM SETTINGS
 SMS_TOKEN_VALIDITY = 30
 SMS_TOKEN_CHARS = '1234567890'
+REFERRAL_CODE_LENGTH = 10
+REFERRAL_CODE_CHARS = 'ABCDEFGIKJKLMNOPRSTXYZ1234567890'
 UNIQUE_REFERENCE_LENGTH = 5
 REFERENCE_LOOKUP_ATTEMPTS = 5
 SMS_TOKEN_LENGTH = 4
 PAYMENT_WINDOW = 60  # minutes
+MAX_EXPIRED_ORDERS_LIMIT = 3
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -72,7 +75,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'core',
-    'ticker'
+    'ticker',
+    'referrals'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -103,6 +107,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
+                'core.context_processors.google_analytics',
 
             ],
         },
@@ -180,12 +185,20 @@ STATICFILES_DIRS = (
     STATIC_PATH,
 )
 
-MAIN_BANK_ACCOUNT = "XXXX12345-1233-22"
 
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 KRAKEN_API_KEY = "E6wsw96A+JsnY33k7SninDdg//JsoZSXcKBYtyrhUYlWyAxIeIIZn3ay"
 KRAKEN_API_SIGN = "hLg6LkI+kHtlLJs5ypJ0GnInK0go/HM3xMSVIGgCTc" \
                   "aqoqy8FsTl1KVdgFfWCCfu7CMZeCW4qqMbATrzZaFtRQ=="
+# KRAKEN_API_KEY = os.environ['KRAKEN_API_KEY']
+# KRAKEN_API_SIGN = os.environ['KRAKEN_API_SECRET']
+MAIN_DEPOSIT_ADDRESSES = [
+    '38veBMhDeudaZs7zmDUy68cYJZupaHVBvR',
+    '36Av3jUjCfRGQ7p9BTTfN7HEf5N3qqK18Q',
+    '3KSZsqhHosSW9AAXedmUZ7s6W97xpj5ETX',
+    '3AmU2SdVvucgX1eu4JR1sWWERmnWDXS3Dy',
+    '3MTRfeeQb96ynFZqEV2EeMppgFu8cvowBj'
+]
 
 # Your Account SID from www.twilio.com/console
 TWILIO_ACCOUNT_SID = 'AC0bd0fa94c8ca0084f3e512c741965364'
@@ -194,6 +207,22 @@ TWILIO_AUTH_TOKEN = '811a1791827b6088fcaa2d5b43ccf017'
 TWILIO_PHONE_FROM = '+447481341915'
 
 LOGIN_REDIRECT_URL = reverse_lazy('core.order')
+
+GRAPH_HOUR_RANGES = [
+    {'val': 1, 'name': '1 Hour'},
+    {'val': 4, 'name': '4 Hours'},
+    {'val': 6, 'name': '6 Hours'},
+    {'val': 8, 'name': '8 Hours'},
+    {'val': 12, 'name': '12 Hours'},
+    {'val': 16, 'name': '16 Hours'},
+    {'val': 24, 'name': '1 Day'},
+    {'val': 24 * 7, 'name': '7 Days'},
+    {'val': 24 * 31, 'name': '1 Month'},
+    {'val': 24 * 31 * 3, 'name': '3 Months'},
+    {'val': 24 * 31 * 6, 'name': '6 Months'},
+    {'val': 24 * 365, 'name': '1 Year'}
+]
+DEFAULT_HOUR_RANGE = 1
 
 """
 Configs for sending email for password reset.
@@ -214,6 +243,10 @@ CORS_ORIGIN_WHITELIST = (
     'nexchange.co.uk',
     'nexchange.ru'
 )
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
+}
 
 # 12 months
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 12

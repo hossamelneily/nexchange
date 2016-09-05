@@ -19,7 +19,7 @@
 								
 					<center>				
 					 <button type="button" class="btn btn-primary btn-lg" onclick="window.location.href='/order/add/'"> {% trans "New" %}</button>
-					 <button type="button" class="btn btn-alert btn-lg" onclick="window.location.href='/'"> {% trans "Exit" %}</button>
+					 <button type="button" class="btn btn-alert btn-lg" onclick="window.location.href='/'"> {% trans "Exit"%}</button>
 					</center>				
 							
 				</div>
@@ -161,7 +161,7 @@
 		        {% endif %}
 
 		        <span class="current">
-		            Page {{ orders.number }} of {{ orders.paginator.num_pages }}.
+		            {% trans "Page"%} {{ orders.number }} {% trans "of"%}  {{ orders.paginator.num_pages }}.
 		        </span>
 
 		        {% if orders.has_next %}
@@ -169,28 +169,15 @@
 		        {% endif %}
 		    </span>
 		</div>
-	 
- <script>	
-   $(function() {
-    $( "#id_date" ).datepicker({ dateFormat: 'yy-mm-dd' }); 
-  });
-
- 
-  </script>	
-
-
 {% endblock %}
-
-
 {% block extra_js_footer %}
     <script src="{% static 'js/index_orders.js' %}"></script>
-
 	<link href="{% static 'bower_components/bootstrap-toggle/css/bootstrap-toggle.min.css' %}" rel="stylesheet">
 	<script src="{% static 'bower_components/bootstrap-toggle/js/bootstrap-toggle.min.js' %}"></script>
-
 	<script type="text/javascript">
 		$(function () {
-		  $('[data-toggle="popover"]').popover({content: $("#popover-template").html()})
-		})
+            $('[data-toggle="popover"]').popover({content: $("#popover-template").html()});
+            $( "#id_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
+		});
 	</script>
 {% endblock %}

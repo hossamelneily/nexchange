@@ -1,0 +1,36 @@
+{% load static %}
+{% load i18n %}
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 footer">
+  <div class="footer_container">
+    	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+        	<a href="#"><img src="{% static 'images/logo-footer.png' %}" alt="NEXCHANGE" class="footer_logo"></a>
+        </div>
+       	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+        	<h4>{% trans 'ACCOUNT' %} </h4>
+            <a href="#">{% trans 'Login' %}</a>
+			<a href="#">SignUp</a>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+        	<h4>{% trans 'ABOUT' %} </h4>
+            <a href="#">{% trans 'About Us' %}</a>
+            <a href="#">{% trans 'Careers' %}</a>
+            <a href="#">{% trans 'Press' %}</a>
+            <a href="#">{% trans 'Conference' %}</a>
+            <a href="#">{% trans 'Legal' %} &amp; {% trans 'Privacy' %}</a>
+            <a href="#">Security</a>
+        </div>
+        <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+        	<h4>{% trans 'RESOURCES' %} </h4>
+            <a href="#">{% trans 'FAQ' %}</a>
+            <a href="#">{% trans 'Blog' %}</a>
+            <a href="#">{% trans 'Fees' %}</a>
+            <a href="#">{% trans 'Support' %}</a>
+            <a href="#">{% trans 'Trading Guide' %}</a>
+        </div>
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+   	  <h4>{% trans 'Social' %}</h4>
+      <a href="#" class="footer_social"><img src="{% static 'images/tw-icon.png' %}" alt="Twitter"></a>
+       <a href="#" class="footer_social"><img src="{% static 'images/fb-icon.png' %}" alt="Facebook"></a>
+      </div>
+  </div>
+</div>
