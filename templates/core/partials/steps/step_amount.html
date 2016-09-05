@@ -22,10 +22,10 @@
                 	<span class="rate-buy"></span>
                     <br><span class="currency"></span><br>
 
-                    <a href="#">{% trans "Buy" %}</a>
+                    <a href="#" class="trigger trigger-buy">{% trans "Buy" %}</a>
 
                 <div class="price_box_selectbox_cont">
-                    	<input type="text" class="price_box_selectbox_cont_textbox amount-cash">
+                    	<input type="text" class="price_box_selectbox_cont_textbox amount amount-cash" placeholder="">
                         {{select_from | safe}}
                     </div>
 
@@ -35,13 +35,13 @@
                 </div>
               <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5 price_box">
 
-                	36377.01
-                    <br><span>RUB</span><br>
+                	<span class="rate-sell"></span>
+                    <br><span class="currency"></span><br>
 
-                <a href="#" class="price_box2_a">Sell</a>
+                <a href="#" class="price_box2_a trigger trigger-buy">{% trans "Sell" %}</a>
 
                 <div class="price_box_selectbox_cont">
-                    	<input type="text" class="price_box_selectbox_cont_textbox amount-coin">
+                    	<input type="text" class="price_box_selectbox_cont_textbox amount amount-coin" placeholder="0.1">
                         {{select_to | safe}}
                 </div>
 

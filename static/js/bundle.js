@@ -41,8 +41,8 @@
 
 
             $('.trigger').click( function(){
-                $('.trigger').removeClass('active');
-                $(this).addClass('active');
+                $('.trigger').removeClass('activeAction');
+                $(this).addClass('activeAction');
                 if ($(this).hasClass('trigger-buy')) {
                     $('.buy-go').removeClass('hidden');
                     $('.sell-go').addClass('hidden');
@@ -62,11 +62,11 @@
                         .removeClass('btn-info')
                         .removeClass('btn-success')
                         .addClass('btn-danger');
+                    // todo: step4 is dead, remove
                     $('.step4 i').removeClass('fa-btc').addClass('fa-money');
 
                     //TODO: export to card module
                     orderObject.toggleSellModal();
-
                 }
 
                 $(".trade-type").val(window.action);
@@ -81,13 +81,25 @@
             });
 
             $('.amount').on('keyup', function () {
-                var self = this;
+                var self = this,
+                    loaderElem = $('.exchange-sign'),
+                    cb = function animationCallback() {
+                        loaderElem.one('animationiteration webkitAnimationIteration', function() {
+                            loaderElem.removeClass('loading');
+                        });
+                        
+                        setTimeout(function () {
+                            loaderElem.removeClass('loading');
+                        }, 2000)// max animation duration
+                    };
+                
+                loaderElem.addClass('loading');
                 if (timer) {
                     clearTimeout(timer);
                     timer = null;
                 }
                 timer = setTimeout(function () {
-                    orderObject.updateOrder($(self), false, currency);
+                    orderObject.updateOrder($(self), false, currency, cb);
                 }, delay);
             });
 
@@ -169,7 +181,7 @@
                 success: function (data) {
                     if (data.status === 'OK') {
                         orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
-                        orderObject.changeState('next');
+                        orderObject.changeState(null, 'next');
                     } else {
                         window.alert("The code you sent was incorrect. Please, try again.");
                     }
@@ -273,7 +285,7 @@
             $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
             $("#PayMethModal").modal('toggle');
             $(".payment-method").val(paymentType);
-            orderObject.changeState("next");
+            orderObject.changeState(null, "next");
         });
 
         $('.sell .payment-type-trigger').on('click', function () {
@@ -329,7 +341,7 @@
             $(this).closest('.modal').modal('hide');
             
             setTimeout(function () {
-                orderObject.changeState("next");
+                orderObject.changeState(null, "next");
             }, 600);
         });
     });
@@ -468,7 +480,7 @@
          registerObject = require("./register.js"),
          animationDelay = 3000;
 
-    function updateOrder (elem, isInitial, currency) {
+    function updateOrder (elem, isInitial, currency, cb) {
         var val,
             rate,
             amountCoin = $('.amount-coin'),
@@ -505,6 +517,8 @@
             }
             $('.btc-amount-confirm').text(amountCoin.val()); // add
             $('.cash-amount-confirm').text(amountCashConfirm); //add
+
+            cb && cb();
         });
     }
 
@@ -609,7 +623,10 @@
         $("#UserAccountModal").modal({backdrop: "static"});
     }
 
-    function changeState (action) {
+    function changeState (e, action) {
+        if (e) {
+            e.preventDefault();
+        }
         if ( $(this).hasClass('disabled') ) {// jshint ignore:line
             //todo: allow user to buy placeholder value or block 'next'?
             return;
@@ -648,7 +665,7 @@
         if(nextState.hasClass('disabled') &&
             numericId < $(".process-step").length &&
             numericId > 1) {
-            changeState(action);
+            changeState(null, action);
         }
 
 
