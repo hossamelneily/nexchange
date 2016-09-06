@@ -1,5 +1,5 @@
 
-box: pitervergara/geodjango:nexchange
+box: onitsoft/nexchange:baseimage
 
 dev:
   services:
