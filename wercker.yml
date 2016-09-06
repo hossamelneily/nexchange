@@ -1,5 +1,5 @@
 
-box: onitsoft/nexchange:baseimage
+box: onitsoft/nexchange:newbase
 
 dev:
   services:
