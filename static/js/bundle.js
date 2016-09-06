@@ -1,6 +1,8 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
+
+
 !(function (window, $) {
        var  currency = 'rub',
         paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
@@ -346,6 +348,36 @@
         });
     });
 
+    //for test selenium
+    function submit_phone(){
+        var apiRoot = '/en/api/v1',
+            menuEndpoint = apiRoot + '/menu',
+            breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
+            validatePhoneEndpoint = '/en/profile/verifyPhone/';
+            var verifyPayload = {
+                token: $('#verification_code').val(),
+                phone: $('.register .phone').val()
+            };
+            $.ajax({
+                type: "POST",
+                url: validatePhoneEndpoint,
+                data: verifyPayload,
+                success: function (data) {
+                    if (data.status === 'OK') {
+                        orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
+                        orderObject.changeState('next');
+                    } else {
+                        window.alert("The code you sent was incorrect. Please, try again.");
+                    }
+                },
+                error: function () {
+                    window.alert("Something went wrong. Please, try again.");
+                }
+            });
+
+    }
+
+    window.submit_phone=submit_phone;
 } (window, window.jQuery)); //jshint ignore:line
 },{"./modules/orders.js":3,"./modules/payment.js":4}],2:[function(require,module,exports){
 !(function(window ,$) {

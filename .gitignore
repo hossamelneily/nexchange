@@ -16,3 +16,4 @@ frontend/
 .wercker/
 cover/
 helpers.sh
+/core/management/commands/Screenshots/

@@ -1,5 +1,7 @@
 "use strict";
 
+
+
 !(function (window, $) {
        var  currency = 'rub',
         paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
@@ -345,4 +347,34 @@
         });
     });
 
+    //for test selenium
+    function submit_phone(){
+        var apiRoot = '/en/api/v1',
+            menuEndpoint = apiRoot + '/menu',
+            breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
+            validatePhoneEndpoint = '/en/profile/verifyPhone/';
+            var verifyPayload = {
+                token: $('#verification_code').val(),
+                phone: $('.register .phone').val()
+            };
+            $.ajax({
+                type: "POST",
+                url: validatePhoneEndpoint,
+                data: verifyPayload,
+                success: function (data) {
+                    if (data.status === 'OK') {
+                        orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
+                        orderObject.changeState('next');
+                    } else {
+                        window.alert("The code you sent was incorrect. Please, try again.");
+                    }
+                },
+                error: function () {
+                    window.alert("Something went wrong. Please, try again.");
+                }
+            });
+
+    }
+
+    window.submit_phone=submit_phone;
 } (window, window.jQuery)); //jshint ignore:line

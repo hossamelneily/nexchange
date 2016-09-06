@@ -12,6 +12,15 @@ dev:
        POSTGRES_DB: nexchange
   steps:
     - script:
+        name: install phantomjs
+        code: |
+          cd /usr/local/share
+          sudo wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2
+          sudo tar xfj phantomjs-1.9.8-linux-x86_64.tar.bz2
+          sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/share/phantomjs
+          sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
+          sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/bin/phantomjs
+    - script:
         name: export django settings module
         code: |
           export DJANGO_SETTINGS_MODULE=nexchange.settings_dev
@@ -118,7 +127,7 @@ dev:
           cron
     - internal/watch:
         code: npm run watch-js & newrelic-admin run-program  python manage.py runserver 0.0.0.0:8000
-        reload: false 
+        reload: false
 
 build:
   services:
@@ -274,7 +283,6 @@ build:
           echo "pip version $(pip --version) running"
           echo "installed python packages:"
           echo "$(pip freeze | sort)"
-
     - internal/docker-push:
         username: $DOCKER_HUB_USER
         password: $DOCKER_HUB_PASSWORD
@@ -364,7 +372,21 @@ tests:
         name: Validate New Relic config file
         code: |
           newrelic-admin validate-config ${NEW_RELIC_CONFIG_FILE}
+    - script:
+        name: Install Phantomjs tests frontend
+        code: |
+          cd /usr/local/share
+          sudo wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2
+          sudo tar xfj phantomjs-1.9.8-linux-x86_64.tar.bz2
+          sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/share/phantomjs
+          sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
+          sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/bin/phantomjs
 
+    - script:
+        name: Test_selenium
+        code: |
+          cd /pipeline/source
+#          python manage.py test_selenium
 
 static-validation:
   steps:

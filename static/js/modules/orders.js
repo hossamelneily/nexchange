@@ -136,16 +136,19 @@
     }
 
     function toggleSellModal () {
-        $("#card-form").card({
-            container: '.card-wrapper',
-            width: 200,
-            placeholders: {
-                number: '•••• •••• •••• ••••',
-                name: 'Ivan Ivanov',
-                expiry: '••/••',
-                cvc: '•••'
-            }
-        });
+        try{
+            $("#card-form").card({
+                container: '.card-wrapper',
+                width: 200,
+                placeholders: {
+                    number: '•••• •••• •••• ••••',
+                    name: 'Ivan Ivanov',
+                    expiry: '••/••',
+                    cvc: '•••'
+                }
+            });
+        }
+        catch(e) {}
         $("#UserAccountModal").modal({backdrop: "static"});
     }
 

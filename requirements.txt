@@ -37,6 +37,7 @@ pytz>=2016.4
 redis>=2.10.5
 requests>=2.10.0
 rq>=0.6.0
+selenium>=2.53.6
 simplegeneric>=0.8.1
 six>=1.10.0
 traitlets>=4.2.1
