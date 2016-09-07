@@ -89,7 +89,7 @@
                         
                         setTimeout(function () {
                             loaderElem.removeClass('loading');
-                        }, 2000)// max animation duration
+                        }, 2000);// max animation duration
                     };
                 
                 loaderElem.addClass('loading');

@@ -195,7 +195,7 @@ msgstr "предыдущий"
 
 #: templates/core/index_order.html:168
 msgid "next"
-msgstr "следующий"
+msgstr "Далее"
 
 #: templates/core/partials/breadcrumbs.html:7
 msgid "Check"
@@ -218,8 +218,12 @@ msgid "Confirm your"
 msgstr "Подтвердите"
 
 #: templates/core/partials/breadcrumbs.html:17
+msgid "Confirm"
+msgstr "Подтвердите"
+
+#: templates/core/partials/breadcrumbs.html:17
 msgid "Order"
-msgstr "Заказ"
+msgstr "Заказать"
 
 #: templates/core/partials/footer.html:3
 msgid "All rights reserved, Onit Solutions LLC 2015-2016"
@@ -241,15 +245,23 @@ msgstr "Вперед"
 
 #: templates/core/partials/menu.html:14
 msgid "Home"
-msgstr "Домой"
+msgstr "Начало"
 
 #: templates/core/partials/menu.html:16
 msgid "Orders"
 msgstr "Заказы"
 
+#: templates/core/partials/menu.html:16
+msgid "My Orders"
+msgstr "Мои Заказы"
+
 #: templates/core/partials/menu.html:17
 msgid "New Order"
 msgstr "Новый заказ"
+
+#: templates/core/partials/menu.html:17
+msgid "Referrals"
+msgstr "Направления"
 
 #: templates/core/partials/menu.html:25
 msgid "Logout"
@@ -258,7 +270,7 @@ msgstr "Выйти"
 #: templates/core/partials/menu.html:27 templates/core/user_login.html:8
 #: templates/core/user_login.html:18
 msgid "Login"
-msgstr "Зайти"
+msgstr "Войти"
 
 
 #: templates/core/partials/menu.html:28
@@ -319,7 +331,7 @@ msgstr "Киви кошелек"
 
 #: templates/core/partials/spa_navigation.html:5
 msgid "Next"
-msgstr "Следующий"
+msgstr "Далее"
 
 #: templates/core/partials/steps/step_amount.html:19
 #: templates/core/partials/steps/step_confirmation.html:47
@@ -434,6 +446,9 @@ msgstr "Ваш телефон был подтвержден."
 msgid "User Registration"
 msgstr "Регистрация"
 
+#: templates/core/partials/seo_footer.html:8
+msgid "ACCOUNT"
+msgstr "Аккаунт"
 
 #~ msgid "Во время регистрации произошла ошибка"
 #~ msgstr "Во время регистрации произошла ошибка"

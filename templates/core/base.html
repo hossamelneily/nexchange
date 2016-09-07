@@ -1,4 +1,5 @@
 {# Load the tag library #}
+{% load cms_tags menu_tags sekizai_tags %}
 {% load bootstrap3 %}
 {% load staticfiles %}
 {% load i18n %}
@@ -51,8 +52,10 @@
     {% if GOOGLE_ANALYTICS_PROPERTY_ID %}
         {% include "core/analitycs/ga.html" %}
     {% endif %}
+    {% render_block "css" %}
 </head>
 <body>
+    {% cms_toolbar %}
     <div class="container">
         <div class="menuContainer">
             {% include 'core/partials/menu.html' %}
@@ -60,10 +63,13 @@
             {% block main %}
             {% endblock %}
     </div>
-
+    {% block content %} {% placeholder "Content" %}
+    {% render_model_block request.current_page "changelist" %}{% endrender_model_block %}
+    {% endblock content %}
    {% block footer %}
        {% include 'core/partials/supported_payments.html' %}
    {% endblock %}
+
     {% include 'core/partials/popular_faq.html' %}
     {% include 'core/partials/seo_footer.html' %}
     {% include 'core/partials/footer.html' %}
@@ -90,6 +96,7 @@
     <script src="{% static 'js/footer.js' %}"></script>
     {% bootstrap_javascript %}
     {% block extra_js_footer %} {% endblock %}
+    {% render_block "js" %}
 </body>
 </html>
 
