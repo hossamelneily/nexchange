@@ -8,7 +8,7 @@
        	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
         	<h4>{% trans 'ACCOUNT' %} </h4>
             <a href="/login">{% trans 'Login' %}</a>
-			<a href="/signup">SignUp</a>
+			<a href="/signup">{% trans 'SignUp' %}</a>
         </div>
         <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
         	<h4>{% trans 'ABOUT' %} </h4>
@@ -17,7 +17,7 @@
             <a href="/press">{% trans 'Press' %}</a>
             <a href="/conference">{% trans 'Conference' %}</a>
             <a href="/legal_Privacy">{% trans 'Legal' %} &amp; {% trans 'Privacy' %}</a>
-            <a href="security">Security</a>
+            <a href="security">{% trans  'Security' %}</a>
         </div>
         <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
         	<h4>{% trans 'RESOURCES' %} </h4>
@@ -29,8 +29,8 @@
         </div>
     <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
    	  <h4>{% trans 'Social' %}</h4>
-      <a href="#" class="footer_social"><img src="{% static 'images/tw-icon.png' %}" alt="Twitter"></a>
-       <a href="#" class="footer_social"><img src="{% static 'images/fb-icon.png' %}" alt="Facebook"></a>
+      <a href="/twitter" class="footer_social"><img src="{% static 'images/tw-icon.png' %}" alt="Twitter"></a>
+       <a href="/facebook" class="footer_social"><img src="{% static 'images/fb-icon.png' %}" alt="Facebook"></a>
       </div>
   </div>
 </div>

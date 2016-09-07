@@ -269,6 +269,7 @@ msgstr "Выйти"
 
 #: templates/core/partials/menu.html:27 templates/core/user_login.html:8
 #: templates/core/user_login.html:18
+#: templates/core/partials/seo_footer.html:8
 msgid "Login"
 msgstr "Войти"
 
@@ -449,6 +450,71 @@ msgstr "Регистрация"
 #: templates/core/partials/seo_footer.html:8
 msgid "ACCOUNT"
 msgstr "Аккаунт"
+
+#: templates/core/partials/seo_footer.html:8
+msgid "SignUp"
+msgstr "Регистрация"
+
+#: templates/core/partials/seo_footer.html:8
+msgid "ABOUT"
+msgstr "О"
+
+#: templates/core/partials/seo_footer.html:8
+msgid "About Us"
+msgstr "О Нас"
+
+
+#: templates/core/partials/seo_footer.html:8
+msgid "Careers"
+msgstr "Карьера"
+
+#: templates/core/partials/seo_footer.html:8
+msgid "Press"
+msgstr "Пресса"
+
+#: templates/core/partials/seo_footer.html:8
+msgid "Conference"
+msgstr "Конференция"
+
+#: templates/core/partials/seo_footer.html:8
+msgid "RESOURCES"
+msgstr "Ресурсы"
+
+#: templates/core/partials/seo_footer.html:8
+msgid "FAQ"
+msgstr "Вопросы-Ответы"
+
+#: templates/core/partials/seo_footer.html:8
+msgid "Blog"
+msgstr "Блог"
+
+#: templates/core/partials/seo_footer.html:8
+msgid "Fees"
+msgstr "Сборы"
+
+#: templates/core/partials/seo_footer.html:8
+msgid "Support"
+msgstr "Поддержка"
+
+#: templates/core/partials/seo_footer.html:8
+msgid "Trading Guide"
+msgstr "Торговое руководство"
+
+#: templates/core/partials/seo_footer.html:8
+msgid "Social"
+msgstr "Социальные сети"
+
+#: templates/core/partials/seo_footer.html:8
+msgid "Legal"
+msgstr "легальность"
+
+#: templates/core/partials/seo_footer.html:8
+msgid "Privacy"
+msgstr "Конфиденциальность"
+
+#: templates/core/partials/seo_footer.html:8
+msgid "Security"
+msgstr "Безопасность"
 
 #~ msgid "Во время регистрации произошла ошибка"
 #~ msgstr "Во время регистрации произошла ошибка"
