@@ -518,7 +518,8 @@
             $('.btc-amount-confirm').text(amountCoin.val()); // add
             $('.cash-amount-confirm').text(amountCashConfirm); //add
 
-            cb && cb();
+            // cb && cb();
+            if(cb) cb();
         });
     }
 
