@@ -90,7 +90,7 @@
                         
                         setTimeout(function () {
                             loaderElem.removeClass('loading');
-                        }, 2000)// max animation duration
+                        }, 2000);// max animation duration
                     };
                 
                 loaderElem.addClass('loading');
@@ -286,6 +286,26 @@
             $("#PayMethModal").modal('toggle');
             $(".payment-method").val(paymentType);
             orderObject.changeState(null, "next");
+        });
+
+        $(document).on('click', '.payment-type-trigger-footer', function () {
+            // console.log('111);
+            paymentType = $(this).data('type');
+            console.log(paymentType);
+            preferenceIdentifier = $(this).data('identifier');
+            $(".payment-preference-confirm").text(paymentType);
+            $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
+            // $("#PayMethModal").modal('toggle');
+            $(".payment-method").val(paymentType);
+            orderObject.changeState(null, "next");
+            $(".footerpay").addClass('hidden');
+            $('.buy-go').removeClass('hidden');
+            $('.sell-go').addClass('hidden');
+            window.action = window.ACTION_BUY;
+            $('.next-step')
+                .removeClass('btn-info')
+                .removeClass('btn-danger')
+                .addClass('btn-success');
         });
 
         $('.sell .payment-type-trigger').on('click', function () {
