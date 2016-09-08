@@ -395,7 +395,7 @@ def payment_confirmation(request, pk):
             msg = e.messages[0]
             return JsonResponse({'status': 'ERR', 'msg': msg}, safe=False)
 
-
+@csrf_exempt
 def user_by_phone(request):
     phone = request.POST.get('phone')
     user, created = User.objects.get_or_create(username=phone)
