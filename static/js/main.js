@@ -1,8 +1,6 @@
-"use strict";
-
-
-
 !(function (window, $) {
+      "use strict";
+
        var  currency = 'rub',
         paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
         paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
@@ -27,7 +25,7 @@
             var timer = null,
                 delay = 500,
                 phones = $(".phone");
-                            //if not used idx: remove jshint
+            //if not used idx: remove jshint
             phones.each(function () {
                 if(typeof $(this).intlTelInput === 'function') {
                     // with AMD move to https://codepen.io/jackocnr/pen/RNVwPo
@@ -91,7 +89,7 @@
                         
                         setTimeout(function () {
                             loaderElem.removeClass('loading');
-                        }, 2000)// max animation duration
+                        }, 2000);// max animation duration
                     };
                 
                 loaderElem.addClass('loading');
@@ -132,7 +130,7 @@
         $('#payment_method_id').val("");
         $('#user_address_id').val("");
         $('#new_user_account').val("");
-        //TO-DO: if no amount coin selected DEFAULT_AMOUNT to confirm
+        // TODO: if no amount coin selected DEFAULT_AMOUNT to confirm
         var confirm = $('.amount-coin').val() ? $('.amount-coin').val() : DEFAULT_AMOUNT;
         $(".btc-amount-confirm").text(confirm);
 
@@ -156,14 +154,12 @@
                 type: "POST",
                 url: createAccEndpoint,
                 data: regPayload,
-                //success: function (data) {
                 success: function () {
                     $('.register .step2').removeClass('hidden');
                     $('.verify-acc').removeClass('hidden');
                     $(".create-acc").addClass('hidden');
                     $(".create-acc.resend").removeClass('hidden');
                 },
-                //error: function (jqXHR, textStatus, errorThrown) {
                 error: function () {
                     window.alert('Invalid phone number');
                 }
@@ -197,7 +193,7 @@
 
         $('.place-order').on('click', function () {
             //TODO verify if $(this).hasClass('sell-go') add
-            // the othre type of transaction
+            // the other type of transaction
             // add security checks
             paymentType = $('.payment-preference-confirm').text() ;
             preferenceIdentifier = $('.payment-preference-identifier-confirm').text();
@@ -221,7 +217,6 @@
                 data: verifyPayload,
                 contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 success: function (data) {
-                    //console.log(data)
                     //if the transaction is Buy
                     if (window.action == 1){
                         // $('.step-confirm').addClass('hidden');
@@ -253,7 +248,6 @@
                 "currency_from": $('.currency-from').val(),
                 "user_id":$("#user_id").val()
             };
-            //console.log(verifyPayload);
 
             $.ajax({
                 type: "post",
@@ -262,15 +256,11 @@
                 data: verifyPayload,
                 contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 success: function (data) {
-                    //console.log(data)
                     $('.paymentMethodsHead').addClass('hidden');
                     $('.paymentMethods').addClass('hidden');
-                    $('.paymentSuccess').removeClass('hidden');
-                    $(".paymentSuccess").html($(data));
+                    $('.paymentSuccess').removeClass('hidden').html($(data));
                     $('.next-step').click();
-
                    // loadPaymenMethods(paymentMethodsEndpoint);
-
                 },
                 error: function () {
                     window.alert("Something went wrong. Please, try again.");
@@ -287,6 +277,25 @@
             $("#PayMethModal").modal('toggle');
             $(".payment-method").val(paymentType);
             orderObject.changeState(null, "next");
+        });
+
+        $(document).on('click', '.payment-type-trigger-footer', function () {
+            paymentType = $(this).data('type');
+            console.log(paymentType);
+            preferenceIdentifier = $(this).data('identifier');
+            $(".payment-preference-confirm").text(paymentType);
+            $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
+            // $("#PayMethModal").modal('toggle');
+            $(".payment-method").val(paymentType);
+            orderObject.changeState(null, "next");
+            $(".footerpay").addClass('hidden');
+            $('.buy-go').removeClass('hidden');
+            $('.sell-go').addClass('hidden');
+            window.action = window.ACTION_BUY;
+            $('.next-step')
+                .removeClass('btn-info')
+                .removeClass('btn-danger')
+                .addClass('btn-success');
         });
 
         $('.sell .payment-type-trigger').on('click', function () {

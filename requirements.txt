@@ -44,3 +44,5 @@ traitlets>=4.2.1
 twilio>=5.4.0
 requests-mock>=1.0.0
 django-filter>=0.14.0
+django-cms==3.3.2
+djangocms-text-ckeditor >= 3.0

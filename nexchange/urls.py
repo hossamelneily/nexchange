@@ -111,6 +111,9 @@ urlpatterns = i18n_patterns(
         name='core.cards'),
     url(r'^kraken/depositStatus/$', core.views.k_deposit_status,
         name='core.k_deposit_status'),
+    url(r'^', include('cms.urls')),
+    url(r'^about', include('cms.urls')),
+    url(r'^press', include('cms.urls')),
 )
 
 

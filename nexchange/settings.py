@@ -32,11 +32,17 @@ STATIC_URL = '/static/'
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
-LANGUAGES = (
-    ('ru', _('Russian')),
-    ('en', _('English')),
+# LANGUAGES = (
+#     ('ru', _('Russian')),
+#     ('en', _('English')),
+#
+# )
 
-)
+LANGUAGE_CODE = 'en'
+LANGUAGES = [
+    ('ru', 'Russian'),
+    ('en', 'English'),
+]
 
 
 # CUSTOM SETTINGS
@@ -64,6 +70,14 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 # Application definition
 
 INSTALLED_APPS = [
+    'cms',
+    'treebeard',
+    'menus',
+    'sekizai',
+    'djangocms_admin_style',
+    'djangocms_text_ckeditor',
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -79,6 +93,8 @@ INSTALLED_APPS = [
     'referrals'
 ]
 
+SITE_ID = 1
+
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -91,6 +107,10 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.TimezoneMiddleware',
+    'cms.middleware.user.CurrentUserMiddleware',
+    'cms.middleware.page.CurrentPageMiddleware',
+    'cms.middleware.toolbar.ToolbarMiddleware',
+    'cms.middleware.language.LanguageCookieMiddleware',
 ]
 
 ROOT_URLCONF = 'nexchange.urls'
@@ -108,11 +128,55 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
                 'core.context_processors.google_analytics',
-
+                'sekizai.context_processors.sekizai',
+                'cms.context_processors.cms_settings',
             ],
         },
     },
 ]
+
+CMS_TEMPLATES = (
+    ('cms/cms_default.html', 'Default Template'),
+    ('some_other.html', 'Some Other Template'),
+)
+
+CMS_PLACEHOLDER_CONF = {
+    'content': {
+        'name': _('Content'),
+        'plugins': ['TextPlugin', 'LinkPlugin'],
+        'default_plugins': [
+            {
+                'plugin_type': 'TextPlugin',
+                'values': {
+                    'body': '<p>Great websites :'
+                            ' %(_tag_child_1)s and %(_tag_child_2)s</p>'
+                },
+                'children': [
+                    {
+                        'plugin_type': 'LinkPlugin',
+                        'values': {
+                            'name': 'django',
+                            'url': 'https://www.djangoproject.com/'
+                        },
+                    },
+                    {
+                        'plugin_type': 'LinkPlugin',
+                        'values': {
+                            'name': 'django-cms',
+                            'url': 'https://www.django-cms.org'
+                        },
+                    },
+                ]
+            },
+        ]
+    }
+}
+
+CKEDITOR_SETTINGS = {
+    'language': '{{ language }}',
+    'toolbar': 'CMS',
+    'skin': 'moono',
+}
 
 WSGI_APPLICATION = 'nexchange.wsgi.application'
 
@@ -161,7 +225,7 @@ AUTH_PROFILE_MODULE = "core.Profile"
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 

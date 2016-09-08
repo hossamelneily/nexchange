@@ -1,0 +1,12 @@
+{% extends "core/base.html" %}
+{% load cms_tags menu_tags sekizai_tags %}
+{% load bootstrap3 %}
+{% load staticfiles %}
+{% load i18n %}
+{% render_model_block request.current_page "changelist" %}
+    <h3>Menu</h3>
+    <ul>
+        {% show_menu 1 100 0 1 "sidebar_submenu_root.html" %}
+    </ul>
+{% endrender_model_block %}
+{% load cms_tags menu_tags sekizai_tags i18n staticfiles %}
