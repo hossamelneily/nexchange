@@ -430,13 +430,13 @@ msgstr "Забыли пароль?"
 
 #: templates/core/user_login.html:23
 msgid "Reset it here"
-msgstr "восстановить пароль"
+msgstr "Восстановить пароль"
 
 #: templates/core/user_profile.html:9
 msgid "User Profile"
 msgstr "Профиль пользователя"
 
-#: templates/core/user_profile.html:45
+#: templates/core/user_profile.html:44
 msgid "Phone"
 msgstr "Телефон"
 
