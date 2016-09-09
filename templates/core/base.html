@@ -62,9 +62,10 @@
         </div>
             {% block main %}
             {% endblock %}
+    {% placeholder "Content" %}
+{#    {% render_model_block request.current_page "changelist" %}{% endrender_model_block %}#}
     </div>
-    {% block content %} {% placeholder "Content" %}
-    {% render_model_block request.current_page "changelist" %}{% endrender_model_block %}
+    {% block content %}
     {% endblock content %}
    {% block footer %}
        {% include 'core/partials/supported_payments.html' %}

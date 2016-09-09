@@ -280,6 +280,7 @@ msgid "Register"
 msgstr "Зарегистрироваться"
 
 #: templates/core/partials/modals/payment_type.html:11
+#: core/views.py:589
 msgid "How would you like to pay?"
 msgstr "Каким образом Вы хотите расплатиться?"
 
