@@ -4,7 +4,6 @@
     <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 logo_panel">
         <a href="#"><img src="{% static 'images/logo.png' %}" alt="nexchange"></a>
     </div>
-
     <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 topright_panel">
         {% get_language_info_list for LANGUAGES as languages %}
           <form class="form pull-right" id="formLogin" action="{% url 'set_language' %}" method="post">
@@ -64,6 +63,9 @@
                     {{ user.profile.phone_number }}
                 {% endif %}
             </a>
+             (<a href="{% url 'accounts.logout' %}">
+                {% trans 'Logout' %}
+            </a>)
         {% else %}
             <li>
               <a href="{% url 'accounts.login' %}">{% trans "Login" %}</a>
