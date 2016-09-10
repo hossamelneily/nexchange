@@ -1,9 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-"use strict";
-
-
-
 !(function (window, $) {
+      "use strict";
+
        var  currency = 'rub',
         paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
         paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
@@ -28,7 +26,7 @@
             var timer = null,
                 delay = 500,
                 phones = $(".phone");
-                            //if not used idx: remove jshint
+            //if not used idx: remove jshint
             phones.each(function () {
                 if(typeof $(this).intlTelInput === 'function') {
                     // with AMD move to https://codepen.io/jackocnr/pen/RNVwPo
@@ -133,7 +131,7 @@
         $('#payment_method_id').val("");
         $('#user_address_id').val("");
         $('#new_user_account').val("");
-        //TO-DO: if no amount coin selected DEFAULT_AMOUNT to confirm
+        // TODO: if no amount coin selected DEFAULT_AMOUNT to confirm
         var confirm = $('.amount-coin').val() ? $('.amount-coin').val() : DEFAULT_AMOUNT;
         $(".btc-amount-confirm").text(confirm);
 
@@ -157,14 +155,12 @@
                 type: "POST",
                 url: createAccEndpoint,
                 data: regPayload,
-                //success: function (data) {
                 success: function () {
                     $('.register .step2').removeClass('hidden');
                     $('.verify-acc').removeClass('hidden');
                     $(".create-acc").addClass('hidden');
                     $(".create-acc.resend").removeClass('hidden');
                 },
-                //error: function (jqXHR, textStatus, errorThrown) {
                 error: function () {
                     window.alert('Invalid phone number');
                 }
@@ -198,7 +194,7 @@
 
         $('.place-order').on('click', function () {
             //TODO verify if $(this).hasClass('sell-go') add
-            // the othre type of transaction
+            // the other type of transaction
             // add security checks
             paymentType = $('.payment-preference-confirm').text() ;
             preferenceIdentifier = $('.payment-preference-identifier-confirm').text();
@@ -222,7 +218,6 @@
                 data: verifyPayload,
                 contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 success: function (data) {
-                    //console.log(data)
                     //if the transaction is Buy
                     if (window.action == 1){
                         // $('.step-confirm').addClass('hidden');
@@ -254,7 +249,6 @@
                 "currency_from": $('.currency-from').val(),
                 "user_id":$("#user_id").val()
             };
-            //console.log(verifyPayload);
 
             $.ajax({
                 type: "post",
@@ -263,15 +257,11 @@
                 data: verifyPayload,
                 contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 success: function (data) {
-                    //console.log(data)
                     $('.paymentMethodsHead').addClass('hidden');
                     $('.paymentMethods').addClass('hidden');
-                    $('.paymentSuccess').removeClass('hidden');
-                    $(".paymentSuccess").html($(data));
+                    $('.paymentSuccess').removeClass('hidden').html($(data));
                     $('.next-step').click();
-
                    // loadPaymenMethods(paymentMethodsEndpoint);
-
                 },
                 error: function () {
                     window.alert("Something went wrong. Please, try again.");
@@ -291,7 +281,6 @@
         });
 
         $(document).on('click', '.payment-type-trigger-footer', function () {
-            // console.log('111);
             paymentType = $(this).data('type');
             console.log(paymentType);
             preferenceIdentifier = $(this).data('identifier');

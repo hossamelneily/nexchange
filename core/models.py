@@ -155,7 +155,10 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
             else PaymentMethod.objects.get(name='Cash')
 
     def __str__(self):
-        return "{} - ({})".format(self.identifier, self.payment_method.name)
+        return "{} - {} - ({})".format(self.user.profile.phone or
+                                       self.user.username,
+                                       self.identifier,
+                                       self.payment_method.name)
 
 
 class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
