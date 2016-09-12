@@ -98,6 +98,8 @@ urlpatterns = i18n_patterns(
         name='core.breadcrumbs'),
     url(r'^api/v1/cards', core.views.cards,
         name='core.cards'),
+    url(r'^api/v1/ajaxcards', core.views.ajax_cards,
+        name='core.ajax_cards'),
     url(r'^kraken/depositStatus/$', core.views.k_deposit_status,
         name='core.k_deposit_status'),
 )

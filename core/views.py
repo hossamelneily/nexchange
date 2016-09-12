@@ -609,3 +609,25 @@ def cards(request):
     }
     return HttpResponse(template.render({'cards': cards, 'type': 'buy'},
                                         request))
+
+
+@csrf_exempt
+def ajax_cards(request):
+    def get_pref_by_name(name):
+        curr_obj = Currency.objects.get(code=currency.upper())
+        card = \
+            PaymentPreference.\
+            objects.filter(currency__in=[curr_obj],
+                           user__is_staff=True,
+                           payment_method__name__icontains=name)
+        return card[0].identifier if len(card) else 'None'
+
+    currency = request.POST.get("currency")
+
+    cards = {
+        'sber': get_pref_by_name('Sber'),
+        'alfa': get_pref_by_name('Alpha'),
+        'qiwi': get_pref_by_name('Qiwi'),
+    }
+
+    return JsonResponse({'cards': cards})
