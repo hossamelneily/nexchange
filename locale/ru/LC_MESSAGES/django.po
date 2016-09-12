@@ -32,7 +32,7 @@ msgstr "%(value)s имеет неверные символы в адресе"
 #: core/validators.py:34
 #, python-format
 msgid "%(value)s is not a valid bit coin address"
-msgstr "%(value)s не верный биткин адрес"
+msgstr "%(value)s не верный адрес биткоинта"
 
 #: core/views.py:79
 msgid "Orders Main"
@@ -44,7 +44,7 @@ msgstr "Поиск по дате"
 
 #: core/views.py:110 core/views.py:447 core/views.py:514
 msgid "Result"
-msgstr "результат"
+msgstr "Результат"
 
 #: core/views.py:152
 msgid "Add"
@@ -52,7 +52,7 @@ msgstr "Добавить"
 
 #: core/views.py:164
 msgid "Registration completed. Check your phone for SMS confirmation code."
-msgstr "Регистрация завершена. Проверьте ваш телефон для подтверрждения кода"
+msgstr "Регистрация завершена. Подтвердите Ваш телефон, с введя код, полученный в СМС"
 
 #: core/views.py:165
 msgid "Error during registration. <br>Details: {}"
@@ -60,15 +60,15 @@ msgstr "Ошибка во время регистрации. <br>Details: {}"
 
 #: core/views.py:226
 msgid "Profile updated with success"
-msgstr "Профиль успешно обновлен"
+msgstr "Пользователь успешно обновлен"
 
 #: core/views.py:247
 msgid "BTC Exchange code:"
-msgstr "Код для входа в Nexchange:"
+msgstr "Код обмена :"
 
 #: core/views.py:306 core/views.py:375
 msgid "You don't have permission to edit this order"
-msgstr ""
+msgstr "Вы не можете изменить оржер"
 
 #: core/views.py:309 core/views.py:378
 msgid "This order can not be edited because is frozen"
@@ -76,7 +76,7 @@ msgstr "Ордер не может быть редактирован"
 
 #: core/views.py:318
 msgid "Invalid addresses informed."
-msgstr "Неверная информация об адресе"
+msgstr "НЕдействительный адрес"
 
 #: core/views.py:381
 msgid "An order can not be set as paid without a withdraw address"
@@ -98,22 +98,22 @@ msgstr "Ваш номер телефона до сих по не подтвер�
 #: static/js/tests/fixtures/ProfileFixture.html:9
 #: templates/core/user_profile.html:22
 msgid "Verifying phone now..."
-msgstr "Ваш номер телефона еще не подтвержден."
+msgstr "Ваш номер телефона еще не подтвержден..."
 
 #: static/js/tests/fixtures/ProfileFixture.html:17
 #: templates/core/user_profile.html:30
 msgid "Insert SMS verification token here"
-msgstr "внесите SMS-подтверждение здесь"
+msgstr "Введите SMS-подтверждение"
 
 #: static/js/tests/fixtures/ProfileFixture.html:19
 #: templates/core/user_profile.html:32
 msgid "Verify phone now"
-msgstr "Проверьте ваш телефон сейчас"
+msgstr "Проверьте ваш телефон"
 
 #: static/js/tests/fixtures/ProfileFixture.html:26
 #: templates/core/user_profile.html:39
 msgid "Send-me the token again"
-msgstr "Пришлите мне код подтверждения еще раз"
+msgstr "Пришлать код подтверждения еще раз"
 
 #: templates/core/base.html:46
 msgid "Service unavailable. Please try again later."
@@ -122,20 +122,20 @@ msgstr "Сервис не доступен. Пожалуйста, попробу
 #: templates/core/index.html:7 templates/core/user_login.html:8
 #: templates/core/user_profile.html:9 templates/core/user_registration.html:8
 msgid "BTC - Exchange"
-msgstr "биткоин-обмен"
+msgstr "Биткоин-обмен"
 
 #: templates/core/index_order.html:13 templates/core/index_order.html:49
 #: templates/core/partials/steps/step_confirmation.html:12
 msgid "BTC"
-msgstr "биткоин"
+msgstr "Биткоин"
 
 #: templates/core/index_order.html:21
 msgid "New"
-msgstr "новый"
+msgstr "Новый"
 
 #: templates/core/index_order.html:22
 msgid "Exit"
-msgstr "выход"
+msgstr "Выход"
 
 #: templates/core/index_order.html:164
 msgid "Page"
@@ -147,27 +147,27 @@ msgstr "из"
 
 #: templates/core/index_order.html:45
 msgid "Date"
-msgstr "дата"
+msgstr "Дата"
 
 #: templates/core/index_order.html:46
 msgid "Reference"
-msgstr "номер заказа"
+msgstr "Номер заказа"
 
 #: templates/core/index_order.html:47
 msgid "Currency"
-msgstr "валюта"
+msgstr "Валюта"
 
 #: templates/core/index_order.html:48
 msgid "Amount"
-msgstr "сумма"
+msgstr "Сумма"
 
 #: templates/core/index_order.html:50 templates/core/index_order.html:91
 msgid "Paid"
-msgstr "оплаченный"
+msgstr "Оплаченный"
 
 #: templates/core/index_order.html:51
 msgid "Released"
-msgstr "выпущеный"
+msgstr "Выпущеный"
 
 #: templates/core/index_order.html:52
 msgid "Completed"
@@ -219,7 +219,7 @@ msgstr "Подтвердите"
 
 #: templates/core/partials/breadcrumbs.html:17
 msgid "Confirm"
-msgstr "Подтвердите"
+msgstr "Подтвердить"
 
 #: templates/core/partials/breadcrumbs.html:17
 msgid "Order"
@@ -241,11 +241,11 @@ msgstr "Полное имя"
 #: templates/core/partials/steps/step_authentication.html:29
 #: templates/core/partials/menu.html:27
 msgid "Go"
-msgstr "Вперед"
+msgstr "Переключить"
 
 #: templates/core/partials/menu.html:14
 msgid "Home"
-msgstr "Начало"
+msgstr "Главная"
 
 #: templates/core/partials/menu.html:16
 msgid "Orders"
@@ -261,7 +261,7 @@ msgstr "Новый заказ"
 
 #: templates/core/partials/menu.html:17
 msgid "Referrals"
-msgstr "Направления"
+msgstr "Рекомендации"
 
 #: templates/core/partials/menu.html:25
 msgid "Logout"
@@ -282,11 +282,11 @@ msgstr "Зарегистрироваться"
 #: templates/core/partials/modals/payment_type.html:11
 #: core/views.py:589
 msgid "How would you like to pay?"
-msgstr "Каким образом Вы хотите расплатиться?"
+msgstr "Как Вы желаете расплатиться?"
 
 #: templates/core/partials/modals/payment_type.html:13
 msgid "How would you like to get paid?"
-msgstr "Каким образом Вы хотите получить платеж?"
+msgstr "Как Вы желаете получить платеж?"
 
 #: templates/core/partials/modals/payment_type.html:21
 msgid "Close"
@@ -298,15 +298,15 @@ msgstr "Выберите вариант платежа"
 
 #: templates/core/partials/modals/sell.html:16
 msgid "Pick one of your saved accounts"
-msgstr ""
+msgstr "Выберите учетную запись"
 
 #: templates/core/partials/modals/sell.html:25
 msgid "Use this "
-msgstr "Использовать это"
+msgstr "Использовать"
 
 #: templates/core/partials/modals/sell.html:33
 msgid "back"
-msgstr "Назад"
+msgstr "назад"
 
 #: templates/core/partials/payment_options.html:10
 #: templates/core/partials/payment_options.html:14
@@ -320,7 +320,7 @@ msgstr "Сбербанк"
 
 #: templates/core/partials/payment_options.html:32
 msgid "Card 2 card - any bank"
-msgstr "С карты на другую карту - другого банка"
+msgstr "С карты на карту - одного банка"
 
 #: templates/core/partials/payment_options.html:41
 msgid "Cash payment"
@@ -329,7 +329,7 @@ msgstr "Наличный рассчет"
 #: templates/core/partials/payment_options.html:54
 #: templates/core/partials/payment_options.html:58
 msgid "Qiwi wallet"
-msgstr "Киви кошелек"
+msgstr "Qiwi кошелек"
 
 #: templates/core/partials/spa_navigation.html:5
 msgid "Next"
@@ -355,7 +355,7 @@ msgstr "Проверка телефона"
 
 #: templates/core/partials/steps/step_authentication.html:13
 msgid "Enter verification code from SMS"
-msgstr "Подтвердите кодом из СМС"
+msgstr "Введите код из СМС"
 
 #: templates/core/partials/steps/step_authentication.html:21
 msgid "Send SMS"
@@ -392,7 +392,7 @@ msgstr "Оплата"
 
 #: templates/core/partials/steps/step_success.html:7
 msgid "Choose your payment method to finish !"
-msgstr "Вы берите метод оплаты для завершения"
+msgstr "Выберите метод оплаты"
 
 #: templates/core/partials/success_order.html:5
 #: templates/core/partials/success_order_sell.html:5
@@ -458,7 +458,7 @@ msgstr "Регистрация"
 
 #: templates/core/partials/seo_footer.html:8
 msgid "ABOUT"
-msgstr "О"
+msgstr "О Нас"
 
 #: templates/core/partials/seo_footer.html:8
 msgid "About Us"
@@ -483,7 +483,7 @@ msgstr "Ресурсы"
 
 #: templates/core/partials/seo_footer.html:8
 msgid "FAQ"
-msgstr "Вопросы-Ответы"
+msgstr "FAQ"
 
 #: templates/core/partials/seo_footer.html:8
 msgid "Blog"
@@ -507,7 +507,7 @@ msgstr "Социальные сети"
 
 #: templates/core/partials/seo_footer.html:8
 msgid "Legal"
-msgstr "легальность"
+msgstr "Легальность"
 
 #: templates/core/partials/seo_footer.html:8
 msgid "Privacy"
