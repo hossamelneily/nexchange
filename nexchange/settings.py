@@ -93,6 +93,8 @@ INSTALLED_APPS = [
     'referrals'
 ]
 
+CMS_PERMISSION = False
+
 SITE_ID = 1
 
 MIDDLEWARE_CLASSES = [
