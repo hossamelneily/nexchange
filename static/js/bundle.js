@@ -282,7 +282,6 @@
 
         $(document).on('click', '.payment-type-trigger-footer', function () {
             paymentType = $(this).data('type');
-            console.log(paymentType);
             preferenceIdentifier = $(this).data('identifier');
             $(".payment-preference-confirm").text(paymentType);
             $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
@@ -751,7 +750,8 @@ function reloadRoleRelatedElements (menuEndpoint) {
     }
 
     function reloadCardsPerCurrency(currency, cardsModalEndpoint) {
-        $.post(cardsModalEndpoint, {currency: currency}, function (data) {
+        var _locale= $('.topright_selectbox').val();
+        $.post(cardsModalEndpoint, {currency: currency, _locale: _locale }, function (data) {
             $('.paymentSelectionContainer').html($(data));
         });
     }
@@ -785,6 +785,7 @@ function reloadRoleRelatedElements (menuEndpoint) {
 
     function loadPaymenMethodsAccount(paymentMethodsAccountEndpoint, pm) {
         var data = {'payment_method': pm};
+
         $.get(paymentMethodsAccountEndpoint, data, function (data) {
             $(".paymentMethodsAccount").html($(data));
         });

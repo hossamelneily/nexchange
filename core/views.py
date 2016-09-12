@@ -31,6 +31,7 @@ from twilio.exceptions import TwilioException
 from .validators import validate_bc
 
 from .kraken_api import api
+from django.utils import translation
 
 
 kraken = api.API()
@@ -483,11 +484,11 @@ def ajax_order(request):
 
 
 def payment_methods_ajax(request):
+
     template = get_template('core/partials/payment_methods.html')
 
     payment_methods = PaymentMethod.objects.all()
-
-    return HttpResponse(template.render({'payment_methods': payment_methods,
+    return HttpResponse(template.render({'payment_methods': payment_methods
                                          }, request))
 
 
@@ -607,6 +608,8 @@ def cards(request):
         'alfa': get_pref_by_name('Alpha'),
         'qiwi': get_pref_by_name('Qiwi'),
     }
+
+    translation.activate(request.POST.get("_locale"))
     return HttpResponse(template.render({'cards': cards, 'type': 'buy'},
                                         request))
 

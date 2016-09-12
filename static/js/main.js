@@ -281,7 +281,6 @@
 
         $(document).on('click', '.payment-type-trigger-footer', function () {
             paymentType = $(this).data('type');
-            console.log(paymentType);
             preferenceIdentifier = $(this).data('identifier');
             $(".payment-preference-confirm").text(paymentType);
             $('.payment-preference-identifier-confirm').text(preferenceIdentifier);

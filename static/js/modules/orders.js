@@ -236,7 +236,8 @@ function reloadRoleRelatedElements (menuEndpoint) {
     }
 
     function reloadCardsPerCurrency(currency, cardsModalEndpoint) {
-        $.post(cardsModalEndpoint, {currency: currency}, function (data) {
+        var _locale= $('.topright_selectbox').val();
+        $.post(cardsModalEndpoint, {currency: currency, _locale: _locale }, function (data) {
             $('.paymentSelectionContainer').html($(data));
         });
     }
