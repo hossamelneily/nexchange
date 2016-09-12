@@ -4,6 +4,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from core.models import Profile
+from referrals.models import ReferralCode
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
@@ -56,3 +57,9 @@ class LoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.fields['username'].label = 'Phone'
+
+
+class ReferralTokenForm(forms.ModelForm):
+    class Meta:
+        model = ReferralCode
+        fields = ['code']

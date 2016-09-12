@@ -73,8 +73,8 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         if not self.phone:
             self.phone = self.user.username
 
-        referral_code = ReferralCode(user=self.user)
-        referral_code.save()
+        # TODO: move to user class, allow many(?)
+        ReferralCode.objects.get_or_create(user=self.user)
 
         super(Profile, self).save(*args, **kwargs)
 
@@ -107,9 +107,8 @@ class SmsToken(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
 
 
 class PaymentMethodManager(models.Manager):
-
-    def get_by_natural_key(self, bin):
-        return self.get(bin=bin)
+    def get_by_natural_key(self, bin_code):
+        return self.get(bin=bin_code)
 
 
 class PaymentMethod(TimeStampedModel, SoftDeletableModel):

@@ -46,3 +46,4 @@ requests-mock>=1.0.0
 django-filter>=0.14.0
 django-cms==3.3.2
 djangocms-text-ckeditor >= 3.0
+django-debug-toolbar

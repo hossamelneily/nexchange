@@ -12,15 +12,6 @@ dev:
        POSTGRES_DB: nexchange
   steps:
     - script:
-        name: install phantomjs
-        code: |
-          cd /usr/local/share
-          sudo wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2
-          sudo tar xfj phantomjs-1.9.8-linux-x86_64.tar.bz2
-          sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/share/phantomjs
-          sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
-          sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/bin/phantomjs
-    - script:
         name: export django settings module
         code: |
           export DJANGO_SETTINGS_MODULE=nexchange.settings_dev
@@ -48,10 +39,6 @@ dev:
             cd -
           fi
           python -c "import krakenex; print('import krakenex sucessfully executed')"
-    - script:
-        name: Django flush
-        code: |
-          cat <(echo "yes") - | python manage.py flush
     - script:
         name: Django make migrations
         code: |
@@ -245,7 +232,7 @@ build:
           cp -ra $WERCKER_OUTPUT_DIR/mediafiles/* /usr/share/nginx/html/media
           #
           # Create superuser
-          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
+          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@onit.ws','weare0nit')" | python manage.py shell
           #
           # Start Cron Process
           cron

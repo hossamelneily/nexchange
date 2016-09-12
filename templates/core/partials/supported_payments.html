@@ -1,16 +1,16 @@
 {% load static %}
 {% load i18n %}
-{#{% load filters %}#}
 <div class="supported-payments col-lg-12 col-md-12 col-sm-12 col-xs-12 greypanel">
-    <div class="container">
-    {% with "WebMoney Alfa-Bank Sberbank Qiwi-Wallet VTB24 Scrill" as banks_name%}
+    <div>
+    {% with "WebMoney.ru AlfaBank.ru Sberbank.ru Qiwi.ru VTB24.ru Skrill.com" as banks_name %}
         {%  for idx in banks_name.split %}
         <div class="footerpay col-xs-4 col-sm-2">
             {% with 'images/footer-logo'|add:idx|add:'.png' as bank_img %}
-{#                <img src="{% static bank_img %}"  alt=bank_img >#}
-                <div class="payment-type-trigger-footer" data-type={{ idx }} data-identifier="">
+                <div class="payment-type-trigger-footer" data-type={{ idx }}>
                     <div class="col col-xs-12">
-                        <img src="{% static bank_img %}"  alt={{ idx }} class="btn">
+                        <a href="https://www.{{ idx | lower }}" target="_blank">
+                            <img src="{% static bank_img %}" alt={{ idx }} class="btn">
+                        </a>
                     </div>
                 </div>
             {% endwith %}

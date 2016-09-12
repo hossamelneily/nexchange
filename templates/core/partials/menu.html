@@ -63,9 +63,9 @@
                     {{ user.profile.phone_number }}
                 {% endif %}
             </a>
-             (<a href="{% url 'accounts.logout' %}">
+            | <a href="{% url 'accounts.logout' %}">
                 {% trans 'Logout' %}
-            </a>)
+            </a>
         {% else %}
             <li>
               <a href="{% url 'accounts.login' %}">{% trans "Login" %}</a>

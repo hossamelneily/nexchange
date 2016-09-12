@@ -32,11 +32,6 @@ STATIC_URL = '/static/'
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
-# LANGUAGES = (
-#     ('ru', _('Russian')),
-#     ('en', _('English')),
-#
-# )
 
 LANGUAGE_CODE = 'en'
 LANGUAGES = [
@@ -135,10 +130,10 @@ TEMPLATES = [
     },
 ]
 
-CMS_TEMPLATES = (
-    ('cms/cms_default.html', 'Default Template'),
-    ('some_other.html', 'Some Other Template'),
-)
+# CMS_TEMPLATES = (
+#     ('cms/cms_default.html', 'Default Template'),
+#     ('some_other.html', 'Some Other Template'),
+# )
 
 CMS_PLACEHOLDER_CONF = {
     'content': {

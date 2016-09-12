@@ -16,19 +16,16 @@
 			
 			<div class="row">
 				<div class="col-xs-12 col-sm-6 col-md-6">
-								
-					<center>				
-					 <button type="button" class="btn btn-primary btn-lg" onclick="window.location.href='/order/add/'"> {% trans "New" %}</button>
-					 <button type="button" class="btn btn-alert btn-lg" onclick="window.location.href='/'"> {% trans "Exit"%}</button>
-					</center>				
-							
+                    <a href="{% url 'core.order_add' %}">
+                        <button type="button" class="btn btn-primary btn-lg"> {% trans "New" %}</button>
+                    </a>
 				</div>
 
 				<div class="visible-xs"> &nbsp;</div>
 				
 				<div class="col-xs-12 col-sm-6 col-md-6">
 					<form method="post" class="form">
-						{% bootstrap_field form.date show_label=False form_group_class="form-group col-xs-10" %}
+						{% bootstrap_field form.date show_label=False form_group_class="form-group col-xs-10 nopadding" %}
 						<button type="submit" class="btn btn-default"><i class="fa fa-search"></i>&nbsp;</button>
 					    {% csrf_token %}
 				    </form>

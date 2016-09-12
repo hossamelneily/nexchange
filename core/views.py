@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.template.loader import get_template
 
 from core.forms import DateSearchForm, CustomUserCreationForm,\
-    UserForm, UserProfileForm, UpdateUserProfileForm
+    UserForm, UserProfileForm, UpdateUserProfileForm, ReferralTokenForm
 from core.models import Order, Currency, SmsToken, Profile, Transaction,\
     Address, Payment, PaymentMethod, PaymentPreference
 from django.db import transaction
@@ -213,26 +213,38 @@ def user_registration(request):
 class UserUpdateView(View):
 
     def get(self, request):
-        user_form = UserForm(instance=self.request.user)
+        user_form = UserForm(
+            instance=self.request.user)
         profile_form = UpdateUserProfileForm(
             instance=self.request.user.profile)
+        referral_form = ReferralTokenForm(
+            instance=self.request.user.referral_code.get())
 
         ctx = {
             'user_form': user_form,
             'profile_form': profile_form,
+            'referral_form': referral_form
         }
 
         return render(request, 'core/user_profile.html', ctx,)
 
     def post(self, request):
-        user_form = UserForm(request.POST, instance=self.request.user)
-        profile_form = UpdateUserProfileForm(
-            request.POST, instance=self.request.user.profile)
+        user_form = \
+            UserForm(request.POST,
+                     instance=self.request.user)
+        profile_form = \
+            UpdateUserProfileForm(request.POST,
+                                  instance=self.request.user.profile)
+        referral_form = \
+            ReferralTokenForm(request.POST,
+                              instance=self.request.user.referral_code.get())
         success_message = _('Profile updated with success')
 
-        if user_form.is_valid() and profile_form.is_valid():
+        if user_form.is_valid() and \
+                profile_form.is_valid():
             user_form.save()
             profile_form.save()
+            # referral_form.save()
             messages.success(self.request, success_message)
 
             return redirect(reverse('core.user_profile'))
@@ -240,6 +252,7 @@ class UserUpdateView(View):
             ctx = {
                 'user_form': user_form,
                 'profile_form': profile_form,
+                'referral_form': referral_form
             }
 
             return render(request, 'core/user_profile.html', ctx,)
@@ -391,9 +404,11 @@ def payment_confirmation(request, pk):
             return JsonResponse({'status': 'OK',
                                  'frozen': order.frozen,
                                  'paid': order.is_paid}, safe=False)
+
         except ValidationError as e:
             msg = e.messages[0]
             return JsonResponse({'status': 'ERR', 'msg': msg}, safe=False)
+
 
 @csrf_exempt
 def user_by_phone(request):
