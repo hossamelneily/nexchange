@@ -132,10 +132,10 @@ TEMPLATES = [
     },
 ]
 
-# CMS_TEMPLATES = (
-#     ('cms/cms_default.html', 'Default Template'),
-#     ('some_other.html', 'Some Other Template'),
-# )
+CMS_TEMPLATES = (
+    ('cms/cms_default.html', 'Default Template'),
+    ('some_other.html', 'Some Other Template'),
+)
 
 CMS_PLACEHOLDER_CONF = {
     'content': {
