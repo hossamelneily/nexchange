@@ -50,7 +50,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     objects = ProfileManager()
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = PhoneNumberField(blank=False, help_text=_(
+    phone = PhoneNumberField(_('Phone'), blank=False, help_text=_(
         'Enter phone number in international format. eg. +555198786543'))
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, blank=True)
