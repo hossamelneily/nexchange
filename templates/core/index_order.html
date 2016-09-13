@@ -12,12 +12,15 @@
 				<h1>
 					{% trans "BTC" %}<small> {{ action }} </small>
 				</h1>
+                <div class="line-order" >
+                    ----------------------
+                </div>
 			</div>
-			
+
 			<div class="row">
 				<div class="col-xs-12 col-sm-6 col-md-6">
                     <a href="{% url 'core.order_add' %}">
-                        <button type="button" class="btn btn-primary btn-lg"> {% trans "New" %}</button>
+                        <button type="button" class="btn btn-success new-order" > {% trans "New" %}</button>
                     </a>
 				</div>
 
@@ -25,8 +28,8 @@
 				
 				<div class="col-xs-12 col-sm-6 col-md-6">
 					<form method="post" class="form">
-						{% bootstrap_field form.date show_label=False form_group_class="form-group col-xs-10 nopadding" %}
-						<button type="submit" class="btn btn-default"><i class="fa fa-search"></i>&nbsp;</button>
+						{% bootstrap_field form.date show_label=False form_group_class="form-group col-xs-10 nopadding " %}
+						<button type="submit" class="btn btn-default search-order" ><i class="fa fa-search"></i>&nbsp;</button>
 					    {% csrf_token %}
 				    </form>
 			    </div>
@@ -35,11 +38,11 @@
 			</div>
 			
 			<div class="row">
-			<div class="col-xs-12 col-sm-12 col-md-12"> 
+			<div class="col-xs-12 col-sm-12 col-md-12">
 			<div class="table-responsive">
-			  <table class="table table-hover table-condensed">	 
-  				<tr>
-  					<th>{% trans "Date" %}</th>
+			  <table class=" table-hover table-condensed ">
+  				<tr class="table-order">
+  					<th >{% trans "Date" %}</th>
   					<th>{% trans "Reference" %}</th>
   					<th>{% trans "Currency" %}</th>
   					<th>{% trans "Amount" %}</th>
