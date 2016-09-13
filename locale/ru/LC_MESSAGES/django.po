@@ -324,7 +324,7 @@ msgstr "С карты на карту - одного банка"
 
 #: templates/core/partials/payment_options.html:41
 msgid "Cash payment"
-msgstr "Наличный рассчет"
+msgstr "Наличными"
 
 #: templates/core/partials/payment_options.html:54
 #: templates/core/partials/payment_options.html:58
