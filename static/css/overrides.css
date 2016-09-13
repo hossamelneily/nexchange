@@ -36,6 +36,37 @@
 	font-style: normal;
 }
 
+.form-control{
+    border-top-color: greenyellow !important;
+    border-left-color: greenyellow !important;
+    border-bottom-color: greenyellow !important;
+}
+
+.line-order{
+    height: 8px;
+    width:130px;
+    display:block; /* for use on default inline elements like span */
+    overflow: hidden;
+    background-color: #8cc63f
+}
+
+.search-order{
+   border-color: greenyellow !important;
+}
+
+.table-order > th{
+    color:greenyellow;
+}
+
+
+.new-order{
+    background: #8cc63f !important;
+    width: 100px !important;
+    -moz-border-radius: 10px !important;
+    -webkit-border-radius: 10px !important;
+    -khtml-border-radius:10px !important;
+    border-radius: 10px !important;
+}
 
 @-webkit-keyframes spin1 {
     0% { -webkit-transform: rotate(0deg);}
