@@ -37,9 +37,9 @@
 }
 
 .form-control{
-    border-top-color: greenyellow !important;
-    border-left-color: greenyellow !important;
-    border-bottom-color: greenyellow !important;
+    border-color: greenyellow !important;
+    padding-right: 0px;
+    margin-right: 0px;
 }
 
 .line-order{
@@ -50,12 +50,20 @@
     background-color: #8cc63f
 }
 
+
 .search-order{
    border-color: greenyellow !important;
+    /*float: right;*/
+}
+
+.form{
+    /*float: right;*/
 }
 
 .table-order > th{
     color:greenyellow;
+    font-weight: normal;
+    border-bottom: 1px solid black;
 }
 
 
