@@ -52,12 +52,7 @@
 
 
 .search-order{
-   border-color: greenyellow !important;
-    /*float: right;*/
-}
-
-.form{
-    /*float: right;*/
+   border-color: greenyellow;
 }
 
 .table-order > th{
@@ -66,14 +61,35 @@
     border-bottom: 1px solid black;
 }
 
+.headers-mobile {
+    color: greenyellow !important;
+}
+
+.mobile-table > th{
+    font-style: normal;
+}
+
+.header-text{
+    display: inline;
+}
+
+.panel-details:focus  {
+     background-color: rgb(217,149,148);
+}
+
+
+.hide-body{
+
+}
 
 .new-order{
-    background: #8cc63f !important;
-    width: 100px !important;
-    -moz-border-radius: 10px !important;
-    -webkit-border-radius: 10px !important;
-    -khtml-border-radius:10px !important;
-    border-radius: 10px !important;
+    background: #8cc63f;
+    width: 100px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -khtml-border-radius:10px;
+    border-radius: 10px;
+    padding-left: 2px;
 }
 
 @-webkit-keyframes spin1 {
