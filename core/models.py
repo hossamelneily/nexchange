@@ -119,6 +119,7 @@ class PaymentMethod(TimeStampedModel, SoftDeletableModel):
     bin = models.IntegerField(null=True, default=None)
     fee = models.FloatField(null=True)
     is_slow = models.BooleanField(default=False)
+    is_internal = models.BooleanField(default=False)
 
     def natural_key(self):
         return self.bin

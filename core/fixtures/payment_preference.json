@@ -98,5 +98,20 @@
       "created_on":"2016-07-20T17:41:28+00:00",
       "modified_on":"2016-07-20T17:41:28+00:00"
     }
-  } 
+  },
+  {
+    "model": "core.paymentpreference",
+    "pk": 7,
+    "fields": {
+      "user": ["onit"],
+      "payment_method": 11,
+      "method_owner": "Onit",
+      "currency": [
+        ["RUB"]
+      ],
+      "comment": "one comments",
+      "created_on":"2016-07-20T17:41:28+00:00",
+      "modified_on":"2016-07-20T17:41:28+00:00"
+    }
+  }
 ]
