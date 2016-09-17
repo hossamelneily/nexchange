@@ -58,4 +58,18 @@
             {% trans 'Qiwi wallet'%}
         </div>
     </div>
+    {% if type == 'buy' %}
+      <div class="col col-xs-12 col-sm-4 payment-type-trigger"
+         data-type="Robokassa"
+         data-identifier="{{ cards.sber.identifier }}">
+        <div class="col col-xs-12">
+            <img src="{% static 'icons/robokassa.png' %}"
+                 alt="{% trans 'Robokassa'%}"
+                 class="payment-method-icon btn btn-primary">
+        </div>
+        <div class="col col-xs-12 payment-label">
+            {% trans "Robokassa" %}
+        </div>
+    </div>
+    {% endif %}
 </div>
