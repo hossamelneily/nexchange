@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
     DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
 
@@ -42,6 +43,24 @@ class Currency(TimeStampedModel, SoftDeletableModel):
     def __str__(self):
         return self.name
 
+
+class UniqueCodeModel(models.Model):
+    def get_random_code(self, chars, length):
+        return User.objects.make_random_password(
+            length=length,
+            allowed_chars=chars
+        )
+
+    class Meta:
+        abstract = True
+
+
+class IpAwareModel(TimeStampedModel, SoftDeleteMixin):
+    ip = models.CharField(max_length=39,
+                          null=True, default=None)
+
+    class Meta:
+        abstract = True
 
 # TODO: implement ReferralTransaction which
 # inherits from transaction but adds a Refferal

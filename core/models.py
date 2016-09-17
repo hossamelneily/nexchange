@@ -1,5 +1,7 @@
 from django.db import models
-from core.common.models import TimeStampedModel, SoftDeletableModel, Currency
+from datetime import datetime
+from core.common.models import TimeStampedModel, \
+    SoftDeletableModel, Currency, IpAwareModel
 
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
@@ -11,7 +13,8 @@ from .validators import validate_bc
 
 from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW,\
     REFERENCE_LOOKUP_ATTEMPTS, SMS_TOKEN_LENGTH, SMS_TOKEN_VALIDITY,\
-    SMS_TOKEN_CHARS, MAX_EXPIRED_ORDERS_LIMIT
+    SMS_TOKEN_CHARS, MAX_EXPIRED_ORDERS_LIMIT, PHONE_START_SHOW,\
+    PHONE_END_SHOW, PHONE_HIDE_PLACEHOLDER
 
 from django.utils.translation import ugettext_lazy as _
 from datetime import timedelta
@@ -46,7 +49,7 @@ class ProfileManager(models.Manager):
         return self.get(user__username=username)
 
 
-class Profile(TimeStampedModel, SoftDeletableModel):
+class Profile(IpAwareModel):
     objects = ProfileManager()
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -54,7 +57,21 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         'Enter phone number in international format. eg. +555198786543'))
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, blank=True)
+    last_seen = models.DateTimeField(default=None, null=True)
+    disabled = models.BooleanField(default=False)
 
+    @property
+    def partial_phone(self):
+        phone_len = len(self.phone)
+        start = self.phone[:PHONE_START_SHOW - 1]
+        end = self.phone[phone_len - 1 - PHONE_END_SHOW:]
+        rest = \
+            ''.join([PHONE_HIDE_PLACEHOLDER
+                    for x in
+                    range(phone_len - PHONE_START_SHOW - PHONE_END_SHOW)])
+        return "{}{}{}".format(start, rest, end)
+
+    @property
     def is_banned(self):
         return \
             Order.objects.filter(user=self,
@@ -62,8 +79,19 @@ class Profile(TimeStampedModel, SoftDeletableModel):
                                  expired=True).length \
             > MAX_EXPIRED_ORDERS_LIMIT
 
+    def ensure_last_seen(self):
+        self.last_seen = datetime.now()
+
     def natural_key(self):
         return self.user.username
+
+    def get_or_create(self, *args, **kwargs):
+        self.ensure_last_seen()
+        return super(Profile, self).get_or_create(*args, **kwargs)
+
+    def update(self, *args, **kwargs):
+        self.ensure_last_seen()
+        return super(Profile, self).update(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         """Add a SMS token at creation. Used to verify phone number"""
@@ -76,7 +104,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         # TODO: move to user class, allow many(?)
         ReferralCode.objects.get_or_create(user=self.user)
 
-        super(Profile, self).save(*args, **kwargs)
+        return super(Profile, self).save(*args, **kwargs)
 
 User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])
 
@@ -325,3 +353,7 @@ class Transaction(BtcBase):
     # TODO: how to handle cancellation?
     order = models.ForeignKey(Order)
     is_verified = models.BooleanField(default=False)
+
+
+class ReferralTransaction(Transaction):
+    pass
