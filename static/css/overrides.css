@@ -108,10 +108,6 @@
     0% { -ms-transform: rotate(0deg);}
     100% { -ms-transform: rotate(360deg);}
 }
-@-keyframes spin1 {
-    0% { transform: rotate(0deg);}
-    100% { transform: rotate(360deg);}
-}
 
 textarea, input, select { outline: none !important; }
 
@@ -391,14 +387,14 @@ a:focus
 
 .greypanel img{width:100%; padding:10px 5px;}
 
-.footer{background-color:#8dc73f; color:#CCC; font-size:21px; padding:30px 0;}
+.footer{background-color:#8dc73f; color:#CCC; font-size:14px; padding:30px 0;}
 
 .footer_logo{width:100%; max-width:250px;}
 
 .footer a{color:#d1d3d4; width:100%; display:inline-block;}
 .footer a:hover{color:#FFF;}
 
-.footer h4{color:#FFF; font-size:24px; text-transform:uppercase; margin-bottom:20px;}
+.footer h4{color:#FFF; font-size:18px; text-transform:uppercase; margin-bottom:20px;}
 
 .footer_social{width:38px !important; }
 
