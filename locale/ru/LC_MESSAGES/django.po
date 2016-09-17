@@ -517,6 +517,10 @@ msgstr "Конфиденциальность"
 msgid "Security"
 msgstr "Безопасность"
 
+#: templates/core/partials/index_order.html:48
+msgid "details"
+msgstr "подробности"
+
 #~ msgid "Во время регистрации произошла ошибка"
 #~ msgstr "Во время регистрации произошла ошибка"
 

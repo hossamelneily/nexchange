@@ -20,16 +20,17 @@
 			<div class="row">
 				<div class="col-xs-12 col-sm-6 col-md-6">
                     <a href="{% url 'core.order_add' %}">
-                        <button type="button" class="btn btn-success new-order" > {% trans "New" %}</button>
+                        <button type="button" class="btn-success new-order" > {% trans "New" %}</button>
                     </a>
 				</div>
 
 				<div class="visible-xs"> &nbsp;</div>
 				
-				<div class="col-xs-12 col-sm-6 col-md-6">
-					<form method="post" class="form">
-						{% bootstrap_field form.date show_label=False form_group_class="form-group col-xs-10 nopadding " %}
-						<button type="submit" class="btn btn-default search-order" ><i class="fa fa-search"></i>&nbsp;</button>
+				<div class="col-xs-12 col-sm-6 col-md-6" >
+					<form method="post" class="form form-search">
+						<button type="submit" class="btn btn-default search-order pull-right" ><i class="fa fa-search"></i>&nbsp;</button>
+                        {% bootstrap_field form.date show_label=False form_group_class="form-group col-xs-10 nopadding pull-right" %}
+
 					    {% csrf_token %}
 				    </form>
 			    </div>
@@ -38,9 +39,129 @@
 			</div>
 			
 			<div class="row">
-			<div class="col-xs-12 col-sm-12 col-md-12">
-			<div class="table-responsive">
-			  <table class=" table-hover table-condensed ">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
+
+            <div  class="panel panel-default  visible-sm visible-xs">
+              {% for order in orders %}
+                  <div id="{{ order.unique_reference}}" class="headers-mobile panel-heading">{{ order.created_on |date:"D d M Y"}}
+                        <a class="pull-right" data-toggle="collapse" data-parent="{{ order.unique_reference}}" href="#body-{{ order.unique_reference}}">
+                            {% trans "details" %}
+                        </a>
+                  </div>
+
+                  <div id="body-{{ order.unique_reference}}" class="panel-body panel-collapse collaps collapse">
+
+                  <div>
+                      <div class = "headers-mobile header-text">{% trans "Reference" %}</div>
+                      {{ order.unique_reference }}
+                  </div>
+
+                  <div>
+                        <div class = "headers-mobile header-text">{% trans "Currency" %}</div>
+                        {{ order.currency.code }}
+                    </div>
+
+                  <div>
+                        <div class = "headers-mobile header-text">{% trans "Amount" %}</div>
+                        {{ order.amount_cash }}
+                    </div>
+                  <div>
+                        <div class = "headers-mobile header-text">{% trans "BTC" %}</div>
+                        {{ order.amount_btc }}
+                  </div>
+
+
+                      <span id="spin_confirming_{{order.pk}}" style="display:none">
+                        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>&nbsp;
+                           {% trans "Setting as paid..." %}
+                    </span>
+
+                    <div class = "headers-mobile header-text">
+                        {% trans "Paid" %}
+                    </div>
+
+                    <label class="checkbox-inline">
+                        <input type="checkbox"
+                            data-url="{% url 'core.payment_confirmation' order.pk %}"
+                            data-pk="{{order.pk}}"
+                            data-offstyle="danger"
+                            data-onstyle="success"
+                            {% if order.is_paid %}
+                                checked
+                            {% endif %}
+                            {% if order.frozen %}
+                                disabled
+                            {% endif %}
+                            data-toggle="toggle"
+                            data-on="{% trans 'Paid' %}"
+                            data-width="90px"
+                            data-off="{% trans 'Not Paid' %}">
+                    </label>
+
+
+                  <div class = "headers-mobile">
+                    {% trans "Released" %}
+                    {% if order.is_released == 1 %}
+                        <img src="/static/icons/check_16.png" \>
+                    {% else %}
+                        <img src="/static/icons/close_16.png" \>
+                    {% endif %}
+                  </div>
+
+
+                  <div class = "headers-mobile">
+                    {% trans "Completed" %}
+                    {% if order.is_complete == 1 %}
+                        <img src="/static/icons/check_16.png" \>
+                    {% else %}
+                        <img src="/static/icons/close_16.png" \>
+                    {% endif %}
+                  </div>
+
+
+                  <div class = "headers-mobile header-text">
+                    {% trans "Withdraw Address" %}
+                  </div>
+
+                    <div class = "header-text" id="td-frozen-withdraw-{{order.pk}}"
+                        {% if not order.frozen %}
+                            style="display:none"
+                        {% endif %}>
+
+                        <span class="frozen">
+                            {{order.withdraw_address | default_if_none:"Not Defined"}}
+                        </span>
+                    </div>
+
+                    <div class = "header-text" id="td-withdraw-{{order.pk}}"
+                            {% if order.frozen %}
+                                style="display:none"
+                            {% endif %}>
+
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
+
+                        <span class="withdraw_address" id="span-withdraw-{{order.pk}}"
+                            data-toggle="popover"
+                            title="Set Withdraw Address"
+                            data-html="true"
+                            data-container="body"
+                            data-placement="top"
+                            data-pk="{{order.pk}}"
+                            data-url-update="{% url 'core.update_withdraw_address' order.pk %}"
+                            data-url-create="{% url 'core.create_withdraw_address' %}">
+
+                            {{order.withdraw_address | default_if_none:"Not Defined"}}
+                        </span>
+                    </div>
+
+
+
+                  </div>
+              {% endfor %}
+            </div>
+
+			<div class="table-responsive visible-md visible-lg ">
+			  <table class=" table-hover table-condensed col-lg-12">
   				<tr class="table-order">
   					<th >{% trans "Date" %}</th>
   					<th>{% trans "Reference" %}</th>
@@ -88,9 +209,9 @@
 										disabled
 									{% endif %}
 									data-toggle="toggle"  
-									data-on="{% trans 'Paid' %}" 
+									data-on="{% trans 'Paid' %} "
 									data-width="90px"
-									data-off="{% trans 'Not Paid' %}">
+									data-off="{% trans 'Not Paid' %} ">
 							</label>
 						</td>	
 						
@@ -153,6 +274,8 @@
 			</div><!-- end responsive -->
 			</div>
 		    </div>
+
+
 
 		<div class="pagination">
 		    <span class="step-links">
