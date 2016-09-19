@@ -19,7 +19,7 @@ GOOGLE_ANALYTICS_DOMAIN = 'staging.nexchange.ru'
 
 DEBUG = True
 
-INTERNAL_IPS = ('127.0.0.1',)
+INTERNAL_IPS = ('127.0.0.1', '192.168.99.100')
 MIDDLEWARE_CLASSES += [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]

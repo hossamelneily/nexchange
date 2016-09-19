@@ -19,6 +19,7 @@ from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW,\
 from django.utils.translation import ugettext_lazy as _
 from datetime import timedelta
 from django.utils import timezone
+from decimal import Decimal
 
 
 class UniqueFieldMixin(models.Model):
@@ -62,9 +63,10 @@ class Profile(IpAwareModel):
 
     @property
     def partial_phone(self):
-        phone_len = len(self.phone)
-        start = self.phone[:PHONE_START_SHOW - 1]
-        end = self.phone[phone_len - 1 - PHONE_END_SHOW:]
+        phone = str(self.phone)
+        phone_len = len(phone)
+        start = phone[:PHONE_START_SHOW - 1]
+        end = phone[phone_len - 1 - PHONE_END_SHOW:]
         rest = \
             ''.join([PHONE_HIDE_PLACEHOLDER
                     for x in
@@ -199,13 +201,13 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         (BUY, 'BUY'),
     )
 
-    # Todo: inherit from BTC base?
+    # Todo: inherit from BTC base?, move lengths to settings?
     order_type = models.IntegerField(choices=TYPES, default=BUY)
-    amount_cash = models.FloatField()
-    amount_btc = models.FloatField()
+    amount_cash = models.DecimalField(max_digits=10, decimal_places=2)
+    amount_btc = models.DecimalField(max_digits=10, decimal_places=8)
     currency = models.ForeignKey(Currency)
     payment_window = models.IntegerField(default=PAYMENT_WINDOW)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name='orders')
     is_paid = models.BooleanField(default=False)
     is_released = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
@@ -231,7 +233,7 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         super(Order, self).save(*args, **kwargs)
 
     def convert_coin_to_cash(self):
-        self.amount_btc = float(self.amount_btc)
+        self.amount_btc = Decimal(self.amount_btc)
         queryset = Price.objects.filter().order_by('-id')[:2]
         price_sell = [price for price in queryset if price.type == Price.SELL]
         price_buy = [price for price in queryset if price.type == Price.BUY]
@@ -249,14 +251,20 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         # TODO: migrate to using currency through payment_preference
 
         if self.order_type == Order.SELL and self.currency.code == Order.USD:
-            self.amount_cash = self.amount_btc * price_buy[0].price_usd
+            self.amount_cash = Decimal(self.amount_btc) * \
+                price_buy[0].price_usd
+
         elif self.order_type == Order.SELL and self.currency.code == Order.RUB:
-            self.amount_cash = self.amount_btc * price_buy[0].price_rub
+            self.amount_cash = Decimal(self.amount_btc) * \
+                price_buy[0].price_rub
 
         if self.order_type == Order.BUY and self.currency.code == Order.USD:
-            self.amount_cash = self.amount_btc * price_sell[0].price_usd
+            self.amount_cash = Decimal(self.amount_btc) * \
+                price_sell[0].price_usd
+
         elif self.order_type == Order.BUY and self.currency.code == Order.RUB:
-            self.amount_cash = self.amount_btc * price_sell[0].price_rub
+            self.amount_cash = Decimal(self.amount_btc) * \
+                price_sell[0].price_rub
 
     @property
     def payment_deadline(self):
@@ -307,7 +315,7 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
 
 
 class Payment(TimeStampedModel, SoftDeletableModel):
-    amount_cash = models.FloatField()
+    amount_cash = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.ForeignKey(Currency)
     is_redeemed = models.BooleanField(default=False)
     is_complete = models.BooleanField(default=False)

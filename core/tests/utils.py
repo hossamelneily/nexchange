@@ -4,6 +4,7 @@ from django.utils.translation import activate
 
 from core.models import SmsToken, Currency, Price, PaymentMethod,\
     PaymentPreference, Order
+from decimal import Decimal
 
 
 def data_provider(fn_data_provider):
@@ -103,8 +104,8 @@ class OrderBaseTestCase(TestCase):
 
         """Creates an order"""
         data = {
-            'amount_cash': 30674.85,
-            'amount_btc': 1,
+            'amount_cash': Decimal(30674.85),
+            'amount_btc': Decimal(1.00),
             'currency': cls.USD,
             'user': user,
             'admin_comment': 'test Order',

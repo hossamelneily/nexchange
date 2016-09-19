@@ -1,7 +1,8 @@
 import pytz
 
-from django.utils import timezone
 from django.conf import settings
+from datetime import datetime
+from django.utils import timezone
 
 
 class TimezoneMiddleware(object):
@@ -19,8 +20,9 @@ class LastSeenMiddleware(object):
         if hasattr(request, 'user') and \
                 request.user and request.user.is_authenticated():
             profile = request.user.profile
+
             profile.last_visit = \
-                timezone.now()
+                datetime.now()
             profile.last_visit_ip = \
                 request.META['REMOTE_ADDR']
             profile.save()

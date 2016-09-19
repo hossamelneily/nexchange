@@ -1,7 +1,9 @@
 from core.models import models, Currency, User, TimeStampedModel
 from core.common.models import UniqueCodeModel, IpAwareModel
-from nexchange.settings import REFERRAL_CODE_LENGTH, REFERRAL_CODE_CHARS
+from nexchange.settings import REFERRAL_CODE_LENGTH, REFERRAL_CODE_CHARS, \
+    REFERRAL_FEE
 from django.db.models import Sum
+from decimal import Decimal
 
 
 class Program(TimeStampedModel):
@@ -36,18 +38,17 @@ class Referral(IpAwareModel):
     @property
     def orders(self):
         return self.referee. \
-            order_set
+            orders.filter(is_completed=True)
 
     @property
     def confirmed_orders_count(self):
-        return self.orders.\
-            filter(is_completed=True).count()
+        return self.orders.count()
 
     @property
     def turnover(self):
-        return self.referee.\
-            order_set.filter(is_completed=True). \
-            aggregate(Sum('amount_btc'))
+        res = self.\
+            orders.aggregate(Sum('amount_btc'))
+        return res['amount_btc__sum']
 
     @property
     def program(self):
@@ -57,8 +58,9 @@ class Referral(IpAwareModel):
 
     @property
     def revenue(self,):
-        return self.turnover / 100 * \
-            self.program.percent_first_degree
+        # TODO: implement program and change to dynamic
+        return Decimal(self.turnover) / 100 * \
+            REFERRAL_FEE
 
 
 class Balance(TimeStampedModel):

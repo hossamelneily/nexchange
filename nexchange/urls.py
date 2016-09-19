@@ -20,18 +20,20 @@ import core.views
 from core.forms import LoginForm
 from django.conf.urls import include
 from django.conf.urls.i18n import i18n_patterns
-from ticker.urls import api_patterns
+from ticker.urls import ticker_api_patterns
+from referrals.urls import referrals_api_patterns
 from django.conf import settings
 from django.conf.urls.static import static
 import os
 
+api_patterns = ticker_api_patterns + referrals_api_patterns
 
 urlpatterns = i18n_patterns(
     url(r'^admin/', admin.site.urls),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^$', core.views.add_order, name='core.order_add'),
     url(r'^info/$', core.views.main, name='main'),
-    url(r'^order/$', core.views.index_order, name='core.order'),
+    url(r'^orders/$', core.views.index_order, name='core.order'),
     url(r'^order/ajax/$', core.views.ajax_order, name='core.ajax_order'),
     url(r'^order/update_withdraw_address/(?P<pk>[\d]+)/$',
         core.views.update_withdraw_address,

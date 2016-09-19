@@ -100,7 +100,7 @@ def add_order(request):
         template = get_template('core/result_order.html')
         user = request.user
         curr = request.POST.get("currency_from", "RUB")
-        amount_coin = request.POST.get("amount-coin")
+        amount_coin = Decimal(request.POST.get("amount-coin"))
         currency = Currency.objects.filter(code=curr)[0]
         order = Order(amount_btc=amount_coin,
                       currency=currency, user=user)
@@ -440,7 +440,7 @@ def ajax_crumbs(request):
 def ajax_order(request):
     trade_type = int(request.POST.get("trade-type"))
     curr = request.POST.get("currency_from", "RUB")
-    amount_coin = request.POST.get("amount-coin")
+    amount_coin = Decimal(request.POST.get("amount-coin"))
     currency = Currency.objects.filter(code=curr)[0]
     payment_method = request.POST.get("pp_type")
     identifier = request.POST.get("pp_identifier", None)

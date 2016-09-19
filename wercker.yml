@@ -113,7 +113,9 @@ dev:
           echo "* * * * * root /ticker.sh" > /etc/crontab
           cron
     - internal/watch:
-        code: npm run watch-js & newrelic-admin run-program  python manage.py runserver 0.0.0.0:8000
+        code: |
+          echo 'Dev server running'
+           npm run watch-js & newrelic-admin run-program  python manage.py runserver 0.0.0.0:8000
         reload: false
 
 build:

@@ -36,6 +36,12 @@
 	font-style: normal;
 }
 
+.cms-modal{
+    margin-top: -400px !important;
+    height: 800px !important;
+    max-height: 70%;
+}
+
 .form-control{
     border-color: greenyellow !important;
     padding-right: 0px;
