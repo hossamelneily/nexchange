@@ -70,7 +70,7 @@ INSTALLED_APPS = [
     'menus',
     'sekizai',
     'djangocms_admin_style',
-    # 'djangocms_text_ckeditor',
+    'djangocms_text_ckeditor',
     'django.contrib.sites',
     'django.contrib.sitemaps',
     'django.contrib.admin',

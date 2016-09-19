@@ -63,6 +63,7 @@
         {% include "core/analitycs/ga.html" %}
     {% endif %}
     {% render_block "css" %}
+    <meta name="interkassa-verification" content="66cc636a788e738725aa9ec76741045b" />
 </head>
 <body>
     {% cms_toolbar %}
@@ -72,11 +73,23 @@
         </div>
             {% block main %}
             {% endblock %}
-    {% placeholder "Content" %}
+
+    <div class="cms_container" >
+        {% block cms_static %}
+        {% endblock %}
+    </div>
+
+
+
 {#    {% render_model_block request.current_page "changelist" %}{% endrender_model_block %}#}
     </div>
     {% block content %}
     {% endblock content %}
+
+    <div class="cms_container container">
+
+    </div>
+
    {% block footer %}
        {% include 'core/partials/supported_payments.html' %}
    {% endblock %}
@@ -111,4 +124,3 @@
     {% render_block "js" %}
 </body>
 </html>
-
