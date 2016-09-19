@@ -3,10 +3,101 @@
 {% load bootstrap3 %}
 {% load staticfiles %}
 {% load i18n %}
+
+
 {% render_model_block request.current_page "changelist" %}
     <h3>Menu</h3>
     <ul>
         {% show_menu 1 100 0 1 "sidebar_submenu_root.html" %}
     </ul>
 {% endrender_model_block %}
-{% load cms_tags menu_tags sekizai_tags i18n staticfiles %}
+
+{% block cms_static %}
+    <div class="collapse navbar-collapse menupanel">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a href="/about">
+                        {% trans "About us" %}
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="/careers">
+                        {% trans "Careers" %}
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="/press">
+                        {% trans "Press" %}
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="/conference">
+                        {% trans "Conference" %}
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="/legal_Privacy">
+                        {% trans "Legal & Privacy" %}
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="/security">
+                        {% trans "Security" %}
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="/faq">
+                        {% trans "FAQ" %}
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="/blog">
+                        {% trans "Blog" %}
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="/fees">
+                        {% trans "Fees" %}
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="/support">
+                        {% trans "Support" %}
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="/trading_guide">
+                        {% trans "Trading Guide" %}
+                    </a>
+                </li>
+
+
+
+            </ul>
+        </div>
+
+    <div class="cms_header">
+            {% placeholder "Headeer" %}
+    </div>
+
+    <div class="line-order" >
+        -----------------------------------------
+    </div>
+   <div class="cms_written">
+        {% placeholder "written_by" %}
+    </div>
+
+    <div class="cms_body">
+        {% placeholder "Body" %}
+    </div>
+{% endblock %}
