@@ -32,6 +32,8 @@ from .validators import validate_bc
 
 from .kraken_api import api
 from django.utils import translation
+from hashlib import md5
+from decimal import Decimal
 
 
 kraken = api.API()
@@ -474,11 +476,35 @@ def ajax_order(request):
     if trade_type == Order.SELL:
         address = k_generate_address()
 
+    url = ''
+
+    if payment_method == 'Robokassa':
+        mrh_login = settings.ROBOKASSA_LOGIN
+        mrh_pass1 = settings.ROBOKASSA_PASS
+
+        # Уникальный номер заказа в Вашем магазине.
+        # Указываем именно ноль, чтобы ROBOKASSA
+        #  сама вела нумерацию заказов
+        inv_id = str(0)
+        out_summ = str(round(Decimal(order.amount_cash), 2))
+
+        hex_string = ':'.join([mrh_login, out_summ,
+                               inv_id, mrh_pass1])
+        crc = md5(hex_string.encode('utf-8')).hexdigest()
+
+        url = "https://auth.robokassa.ru/Merchant/" \
+              "Index.aspx?isTest={0}&MerchantLogin={1}&" \
+              "OutSum={2}&InvId={3}&SignatureValue={4}" \
+              "&Culture=ru".format(settings.ROBOKASSA_IS_TEST,
+                                   mrh_login, out_summ, inv_id, crc)
+
     return HttpResponse(template.render({'order': order,
                                          'unique_ref': uniq_ref,
                                          'action': my_action,
                                          'pay_until': pay_until,
-                                         'address': address
+                                         'address': address,
+                                         'payment_method': payment_method,
+                                         'url': url,
                                          },
                                         request))
 

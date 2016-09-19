@@ -540,7 +540,7 @@
             updatePrice(getPrice(data[window.ACTION_SELL], currency), $('.rate-sell'));
             rate = data[window.action]['price_' + currency + '_formatted'];
             if (elem.hasClass('amount-coin')) {
-                var cashAmount = rate * val;
+                var cashAmount = (rate * val).toFixed(2);
                 amountCashConfirm = cashAmount;
                 if (isInitial) {
                     $('.amount-cash').attr('placeholder', cashAmount);

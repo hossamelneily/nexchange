@@ -92,6 +92,11 @@ CMS_PERMISSION = False
 
 SITE_ID = 1
 
+ROBOKASSA_LOGIN = 'nexchangeBTC'
+ROBOKASSA_PASS = 'xfVM7MuIS9MUD6cL6CQ3'
+ROBOKASSA_IS_TEST = 1
+
+
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
