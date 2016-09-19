@@ -16,11 +16,11 @@ class Price(TimeStampedModel):
     )
 
     type = models.CharField(max_length=1, choices=BUY_SELL_CHOICES)
-    price_rub = models.DecimalField(max_digits=10, decimal_places=2)
-    price_usd = models.DecimalField(max_digits=10, decimal_places=2)
-    price_eur = models.DecimalField(max_digits=10, decimal_places=2)
-    rate_usd = models.DecimalField(max_digits=10, decimal_places=2)
-    rate_eur = models.DecimalField(max_digits=10, decimal_places=2)
+    price_rub = models.DecimalField(max_digits=12, decimal_places=2)
+    price_usd = models.DecimalField(max_digits=12, decimal_places=2)
+    price_eur = models.DecimalField(max_digits=12, decimal_places=2)
+    rate_usd = models.DecimalField(max_digits=12, decimal_places=2)
+    rate_eur = models.DecimalField(max_digits=12, decimal_places=2)
     better_adds_count = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):

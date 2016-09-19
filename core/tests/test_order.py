@@ -191,6 +191,7 @@ class UpdateWithdrawAddressTestCase(UserBaseTestCase, OrderBaseTestCase):
         }
 
         order = Order(**data)
+        # TODO: patch and uncomment
         # order.full_clean()  # ensure is initially correct
         order.save()
         self.order = order

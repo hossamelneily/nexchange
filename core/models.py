@@ -9,6 +9,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from ticker.models import Price
 from referrals.models import ReferralCode
 from .validators import validate_bc
+from core.utils import money_format
 
 
 from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW,\
@@ -203,8 +204,8 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
 
     # Todo: inherit from BTC base?, move lengths to settings?
     order_type = models.IntegerField(choices=TYPES, default=BUY)
-    amount_cash = models.DecimalField(max_digits=10, decimal_places=2)
-    amount_btc = models.DecimalField(max_digits=10, decimal_places=8)
+    amount_cash = models.DecimalField(max_digits=12, decimal_places=2)
+    amount_btc = models.DecimalField(max_digits=18, decimal_places=8)
     currency = models.ForeignKey(Currency)
     payment_window = models.IntegerField(default=PAYMENT_WINDOW)
     user = models.ForeignKey(User, related_name='orders')
@@ -249,22 +250,21 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
 
         # TODO: Make this logic more generic,
         # TODO: migrate to using currency through payment_preference
+        self.amount_cash = Decimal(self.amount_btc)
 
         if self.order_type == Order.SELL and self.currency.code == Order.USD:
-            self.amount_cash = Decimal(self.amount_btc) * \
-                price_buy[0].price_usd
+            self.amount_cash *= price_buy[0].price_usd
 
         elif self.order_type == Order.SELL and self.currency.code == Order.RUB:
-            self.amount_cash = Decimal(self.amount_btc) * \
-                price_buy[0].price_rub
+            self.amount_cash *= price_buy[0].price_rub
 
         if self.order_type == Order.BUY and self.currency.code == Order.USD:
-            self.amount_cash = Decimal(self.amount_btc) * \
-                price_sell[0].price_usd
+            self.amount_cash *= price_sell[0].price_usd
 
         elif self.order_type == Order.BUY and self.currency.code == Order.RUB:
-            self.amount_cash = Decimal(self.amount_btc) * \
-                price_sell[0].price_rub
+            self.amount_cash *= price_sell[0].price_rub
+
+        self.amount_cash = money_format(self.amount_cash)
 
     @property
     def payment_deadline(self):
@@ -315,7 +315,7 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
 
 
 class Payment(TimeStampedModel, SoftDeletableModel):
-    amount_cash = models.DecimalField(max_digits=10, decimal_places=2)
+    amount_cash = models.DecimalField(max_digits=12, decimal_places=2)
     currency = models.ForeignKey(Currency)
     is_redeemed = models.BooleanField(default=False)
     is_complete = models.BooleanField(default=False)
