@@ -456,10 +456,16 @@ $(document).ready(function() {
                                          parseInt(chartDataRaw[chartDataRaw.length - 1].unix_time)
                                     ) {
                                         //Only update if a ticker 'tick' had occured
-                                        series.addPoint(lastdata[0], true, true);
+                                        var _lastadata = lastdata[0];
+                                        if (_lastadata[1] > _lastadata[2])
+                                        {
+                                            var a= _lastadata[1];
+                                            _lastadata[1] = _lastadata[2];
+                                            _lastadata[2] = a;
+                                        }
+                                        series.addPoint(_lastadata, true, true);
                                         Array.prototype.push.apply(chartDataRaw, resdata);
                                     }
-
                                 });
                         }, 1000 * 30);
                       }
