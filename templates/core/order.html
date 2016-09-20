@@ -27,3 +27,9 @@
     <script src="{% static 'bower_components/intl-tel-input/build/js/intlTelInput.min.js' %}"></script>
     <script src="{% static 'js/bundle.js' %}"></script>
 {% endblock %}
+
+
+{% block footer %}
+       {% include 'core/partials/supported_payments.html' %}
+{% endblock %}
+

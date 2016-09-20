@@ -446,6 +446,7 @@ def ajax_order(request):
     identifier = request.POST.get("pp_identifier", None)
     identifier = identifier.replace(" ", "")
 
+    amount_coin = Decimal(amount_coin)
     template = 'core/partials/modals/order_success_{}.html'.\
         format('buy' if trade_type else 'sell')
     template = get_template(template)

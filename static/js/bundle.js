@@ -387,6 +387,10 @@
 
     window.submit_phone=submit_phone;
 } (window, window.jQuery)); //jshint ignore:line
+
+$(document).ready(function() {
+    $('.supporetd_payment').removeClass('hidden');
+});
 },{"./modules/orders.js":3,"./modules/payment.js":4}],2:[function(require,module,exports){
 !(function(window ,$) {
     "use strict";
