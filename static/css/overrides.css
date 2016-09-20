@@ -50,10 +50,11 @@
 .round-button {
     width: 15px;
     height: 15px;
-    padding: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 2px;
     border-radius: 20px;
-    background-color: #8cc63f;
-    color: #FFF;
+    color: #97CB53 !important;
     border: none;
     cursor: pointer;
     text-align: center;
