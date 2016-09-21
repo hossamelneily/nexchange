@@ -76,6 +76,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 INSTALLED_APPS = [
     'cms',
+    'django_rq',
     'treebeard',
     'menus',
     'sekizai',
@@ -105,7 +106,29 @@ SITE_ID = 1
 ROBOKASSA_LOGIN = 'nexchangeBTC'
 ROBOKASSA_PASS = 'xfVM7MuIS9MUD6cL6CQ3'
 ROBOKASSA_IS_TEST = 1
+ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
+                "isTest={0}&MerchantLogin={1}&" \
+                "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
 
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': 'some-password',
+        'DEFAULT_TIMEOUT': 360,
+    },
+    'high': {
+        'URL': os.getenv('REDISTOGO_URL',
+                         'redis://localhost:6379/0'),
+        'DEFAULT_TIMEOUT': 500,
+    },
+    'low': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+    }
+}
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
@@ -266,8 +289,12 @@ STATICFILES_DIRS = (
 
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 KRAKEN_API_KEY = "E6wsw96A+JsnY33k7SninDdg//JsoZSXcKBYtyrhUYlWyAxIeIIZn3ay"
+
+
 KRAKEN_API_SIGN = "hLg6LkI+kHtlLJs5ypJ0GnInK0go/HM3xMSVIGgCTc" \
                   "aqoqy8FsTl1KVdgFfWCCfu7CMZeCW4qqMbATrzZaFtRQ=="
+
+
 # KRAKEN_API_KEY = os.environ['KRAKEN_API_KEY']
 # KRAKEN_API_SIGN = os.environ['KRAKEN_API_SECRET']
 MAIN_DEPOSIT_ADDRESSES = [

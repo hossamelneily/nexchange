@@ -106,6 +106,12 @@ urlpatterns = i18n_patterns(
         name='core.k_deposit_status'),
     url(r'^referrals', core.views.referrals,
         name='core.referrals'),
+    url(r'^payfailed', core.views.payfailed,
+        name='core.payfailed'),
+    url(r'^paysuccess', core.views.paysuccess,
+        name='core.payfailed'),
+    url(r'^django-rq/', include('django_rq.urls')),
+
     url(r'^', include('cms.urls'))
 )
 

@@ -32,9 +32,9 @@ from .validators import validate_bc
 
 from .kraken_api import api
 from django.utils import translation
-from hashlib import md5
 from decimal import Decimal
 from referrals.models import Referral, ReferralCode
+from core.utils import geturl_robokassa
 
 
 kraken = api.API()
@@ -56,6 +56,7 @@ def index_order(request):
         kwargs = {"user": request.user}
     else:
         kwargs = {"user": 0}
+    kwargs = {"is_failed": 0}
 
     if form.is_valid():
         my_date = form.cleaned_data['date']
@@ -404,7 +405,16 @@ def payment_confirmation(request, pk):
     else:
         try:
             order.is_paid = paid
-            order.save()
+
+            # TODO make test
+            # payment = Payment.objects.filter(amount_cash=order.amount_cash,
+            #                                  user=order.user,
+            #                                  currency=order.currency,
+            #                                  ).latest('id')
+            #
+            # payment.is_success = order.is_paid
+            # payment.save()
+
             return JsonResponse({'status': 'OK',
                                  'frozen': order.frozen,
                                  'paid': order.is_paid}, safe=False)
@@ -481,24 +491,7 @@ def ajax_order(request):
     url = ''
 
     if payment_method == 'Robokassa':
-        mrh_login = settings.ROBOKASSA_LOGIN
-        mrh_pass1 = settings.ROBOKASSA_PASS
-
-        # Уникальный номер заказа в Вашем магазине.
-        # Указываем именно ноль, чтобы ROBOKASSA
-        #  сама вела нумерацию заказов
-        inv_id = str(0)
-        out_summ = str(round(Decimal(order.amount_cash), 2))
-
-        hex_string = ':'.join([mrh_login, out_summ,
-                               inv_id, mrh_pass1])
-        crc = md5(hex_string.encode('utf-8')).hexdigest()
-
-        url = "https://auth.robokassa.ru/Merchant/" \
-              "Index.aspx?isTest={0}&MerchantLogin={1}&" \
-              "OutSum={2}&InvId={3}&SignatureValue={4}" \
-              "&Culture=ru".format(settings.ROBOKASSA_IS_TEST,
-                                   mrh_login, out_summ, inv_id, crc)
+        url = geturl_robokassa(str(round(Decimal(order.amount_cash), 2)))
 
     return HttpResponse(template.render({'order': order,
                                          'unique_ref': uniq_ref,
@@ -691,3 +684,24 @@ def referrals(request):
     return HttpResponse(template.render({'referrals': referrals_,
                                          'referrals_list': referrals_list},
                                         request))
+
+
+@login_required
+def payfailed(request):
+    url = geturl_robokassa(str(request.GET.get("out_summ")))
+    template = get_template('core/partials/steps/step_reply_payment.html')
+    last_order = Order.objects.filter(user=request.user).latest('id')
+    last_order.is_failed = True
+    last_order.save()
+    return HttpResponse(template.render({'url_robokassa': url}, request))
+
+
+@login_required
+def paysuccess(request):
+    summa = request.GET.get("out_summ")
+    last_order = Order.objects.filter(user=request.user).latest('id')
+    currency = Currency.objects.filter(code="RUB")[0]
+    payment = Payment(amount_cash=summa, currency=currency,
+                      user=request.user, order=last_order)
+    payment.save()
+    return redirect(reverse('core.order'))

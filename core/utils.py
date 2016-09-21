@@ -1,4 +1,6 @@
 from decimal import Decimal
+from hashlib import md5
+from django.conf import settings
 
 
 def money_format(value, is_numeric=True, places=2, curr='', sep=',', dp='.',
@@ -28,3 +30,21 @@ def money_format(value, is_numeric=True, places=2, curr='', sep=',', dp='.',
     build(curr)
     build(neg if sign else pos)
     return ''.join(reversed(result))
+
+
+def geturl_robokassa(out_summ):
+    # Уникальный номер заказа в Вашем магазине.
+    # Указываем именно ноль, чтобы ROBOKASSA
+    #  сама вела нумерацию заказов
+    inv_id = str(0)
+
+    hex_string = ':'.join([settings.ROBOKASSA_LOGIN, out_summ,
+                           inv_id, settings.ROBOKASSA_PASS])
+
+    crc = md5(hex_string.encode('utf-8')).hexdigest()
+
+    url = settings.ROBOKASSA_URL.format(
+        settings.ROBOKASSA_IS_TEST, settings.ROBOKASSA_LOGIN,
+        out_summ, inv_id, crc)
+
+    return url

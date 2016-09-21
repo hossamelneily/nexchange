@@ -194,6 +194,7 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     is_paid = models.BooleanField(default=False)
     is_released = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
+    is_failed = models.BooleanField(default=False)
     unique_reference = models.CharField(
         max_length=UNIQUE_REFERENCE_LENGTH, unique=True)
     admin_comment = models.CharField(max_length=200)
@@ -328,6 +329,7 @@ class Payment(TimeStampedModel, SoftDeletableModel):
     currency = models.ForeignKey(Currency)
     is_redeemed = models.BooleanField(default=False)
     is_complete = models.BooleanField(default=False)
+    is_success = models.BooleanField(default=False)
     # Super admin if we are paying for BTC
     user = models.ForeignKey(User)
     # Todo consider one to many for split payments, consider order field on
