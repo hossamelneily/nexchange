@@ -76,6 +76,10 @@ dev:
         code: |
           python manage.py loaddata core/fixtures/withdraw_address.json
     - script:
+        name: Django import affiliate program fixture
+        code: |
+          python manage.py loaddata core/fixtures/affiliate_program.json
+    - script:
         name: Django run ticker update prices command
         code: |
           python manage.py ticker
@@ -113,7 +117,9 @@ dev:
           echo "* * * * * root /ticker.sh" > /etc/crontab
           cron
     - internal/watch:
-        code: npm run watch-js & newrelic-admin run-program  python manage.py runserver 0.0.0.0:8000
+        code: |
+          echo 'Dev server running'
+           npm run watch-js & newrelic-admin run-program  python manage.py runserver 0.0.0.0:8000
         reload: false
 
 build:

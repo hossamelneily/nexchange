@@ -34,6 +34,7 @@ from .kraken_api import api
 from django.utils import translation
 from hashlib import md5
 from decimal import Decimal
+from referrals.models import Referral, ReferralCode
 
 
 kraken = api.API()
@@ -100,7 +101,7 @@ def add_order(request):
         template = get_template('core/result_order.html')
         user = request.user
         curr = request.POST.get("currency_from", "RUB")
-        amount_coin = request.POST.get("amount-coin")
+        amount_coin = Decimal(request.POST.get("amount-coin"))
         currency = Currency.objects.filter(code=curr)[0]
         order = Order(amount_btc=amount_coin,
                       currency=currency, user=user)
@@ -440,7 +441,7 @@ def ajax_crumbs(request):
 def ajax_order(request):
     trade_type = int(request.POST.get("trade-type"))
     curr = request.POST.get("currency_from", "RUB")
-    amount_coin = request.POST.get("amount-coin")
+    amount_coin = Decimal(request.POST.get("amount-coin"))
     currency = Currency.objects.filter(code=curr)[0]
     payment_method = request.POST.get("pp_type")
     identifier = request.POST.get("pp_identifier", None)
@@ -661,3 +662,32 @@ def ajax_cards(request):
     }
 
     return JsonResponse({'cards': cards})
+
+
+@login_required
+def referrals(request):
+    template = get_template('referrals/index_referrals.html')
+    user = request.user
+    referrals_code = ReferralCode.objects.filter(user=user).first()
+    referrals_ = Referral.objects.filter(code=referrals_code)
+    # return JsonResponse({'test': referrals_[0].turnover})
+
+    paginate_by = 10
+    model = Referral
+    kwargs = {"code": referrals_code}
+    referrals_list = model.objects.filter(**kwargs)
+    paginator = Paginator(referrals_list, paginate_by)
+    page = request.GET.get('page')
+
+    try:
+        referrals_list = paginator.page(page)
+
+    except PageNotAnInteger:
+        referrals_list = paginator.page(1)
+
+    except EmptyPage:
+        referrals_list = paginator.page(paginator.num_pages)
+
+    return HttpResponse(template.render({'referrals': referrals_,
+                                         'referrals_list': referrals_list},
+                                        request))

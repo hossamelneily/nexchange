@@ -180,7 +180,7 @@
 			       {% elif order.provisional == 1 %}
 			        <tr class="warning">
 			       {% else %}
-			        <tr >
+			        <tr>
 			       {% endif %}
 			       
 			        	<td>{{ order.created_on |date:"D d M Y"}}</td>
@@ -217,14 +217,14 @@
 						
 						
 		            	{% if order.is_released == 1 %}
-		            	<td><img src="/static/icons/check_16.png" \></td>
+		            	<td><img src="/static/icons/check_16.png"></td>
 		            	{% else %}
-		                <td><img src="/static/icons/close_16.png" \></td>
+		                <td><img src="/static/icons/close_16.png"></td>
 		            	{% endif %}
 		            	{% if order.is_complete == 1 %}
-		            	<td><img src="/static/icons/check_16.png" \></td>
+		            	<td><img src="/static/icons/check_16.png"></td>
 		            	{% else %}
-		                <td><img src="/static/icons/close_16.png" \></td>
+		                <td><img src="/static/icons/close_16.png"></td>
 		            	{% endif %}
 
 							<td id="td-frozen-withdraw-{{order.pk}}"

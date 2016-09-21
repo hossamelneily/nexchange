@@ -3,6 +3,7 @@ import requests
 from ticker.models import Price
 import logging
 from datetime import datetime
+from decimal import Decimal
 
 # This module will be run in a cron every
 # minute via manage.py
@@ -25,8 +26,8 @@ ACTION_BUY = "buy"
 ALLOWED_CURRENCIES = ["RUB"]
 MIN_TRADE_COUNT = 20
 MIN_FEEDBACK_SCORE = 90
-MIN_INTERVAL = 0.02
-DISCOUNT_MULTIPLIER = 0.001
+MIN_INTERVAL = Decimal(0.02)
+DISCOUNT_MULTIPLIER = Decimal(0.001)
 
 # currently not checked
 MINIMAL_AMOUNT = 10000
@@ -61,9 +62,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         spot_data = requests.get(BITFINEX_TICKER).json()
-        sell_spot_price = float(spot_data.get('ask', 0.00))
+        sell_spot_price = Decimal(spot_data.get('ask', 0))
         sell_price = self.get_price(sell_spot_price, ACTION_BUY)
-        buy_spot_price = float(spot_data.get('bid', 0.00))
+        buy_spot_price = Decimal(spot_data.get('bid', 0))
         buy_price = self.get_price(buy_spot_price, ACTION_SELL)
         logging.info("sell price: {}".format(sell_price))
         logging.info("buy price: {}".format(buy_price))
@@ -113,8 +114,8 @@ class Command(BaseCommand):
             better_adds += 1
             # check correct currency, fixate rate
             if add_data['currency'] in ALLOWED_CURRENCIES:
-                add_price_rub = float(add_data['temp_price'])
-                add_price_usd = float(add_data['temp_price_usd'])
+                add_price_rub = Decimal(add_data['temp_price'])
+                add_price_usd = Decimal(add_data['temp_price_usd'])
                 rate = add_price_rub / add_price_usd
             else:
                 continue

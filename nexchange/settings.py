@@ -50,6 +50,16 @@ REFERENCE_LOOKUP_ATTEMPTS = 5
 SMS_TOKEN_LENGTH = 4
 PAYMENT_WINDOW = 60  # minutes
 MAX_EXPIRED_ORDERS_LIMIT = 3
+REFERRAL_FEE = 2
+
+PHONE_START_SHOW = 4
+PHONE_END_SHOW = 4
+PHONE_HIDE_PLACEHOLDER = '*'
+
+REFERRER_GET_PARAMETER = 'ref'
+REFERRAL_SESSION_KEY = REFERRER_GET_PARAMETER
+REFERRAL_TOKEN_CHARS = REFERRAL_CODE_CHARS
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -108,7 +118,9 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'referrals.middleware.ReferralMiddleWare',
     'core.middleware.TimezoneMiddleware',
+    'core.middleware.LastSeenMiddleware',
     'cms.middleware.user.CurrentUserMiddleware',
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.toolbar.ToolbarMiddleware',
@@ -310,10 +322,16 @@ CORS_ORIGIN_WHITELIST = (
     'nexchange.ru'
 )
 
-REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
-}
 
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.DjangoFilterBackend',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}
 # 12 months
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 12
 

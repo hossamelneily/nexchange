@@ -19,10 +19,11 @@
                    class="btn btn-default"
                    data-controls-modal="your_div_id"
                    data-backdrop="static"
-                   data-keyboard="false"
-                >Go to Robokassa</a>
+                   data-keyboard="false">
+                    {% trans 'Go to Robokassa' %}
+                </a>
             {% else %}
-                <a href="/order" class="btn btn-default">Close</a>
+                <a href="{% url 'core.order' %}" class="btn btn-default">{% trans 'Get your bitcoins' %}</a>
             {% endif %}
         </div>
       </div>

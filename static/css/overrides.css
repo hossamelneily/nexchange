@@ -36,6 +36,12 @@
 	font-style: normal;
 }
 
+.cms-modal{
+    margin-top: -400px !important;
+    height: 800px !important;
+    max-height: 70%;
+}
+
 .form-control{
     border-color: greenyellow !important;
     padding-right: 0px;
@@ -561,9 +567,15 @@ a:focus
 
 .top_panel{padding:10px 0;}
 
-.price_box_mid img{margin: 0}
+.price_box_mid {margin: 0; padding: 0;}
 
 .footer{text-align:center;}
+
+.exchange-sign {
+    margin-top: 15px;
+}
+
+.price_box_next_cont { margin: 30px 0; }
 
 }
 
