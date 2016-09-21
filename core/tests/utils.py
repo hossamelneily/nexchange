@@ -54,25 +54,37 @@ class UserBaseTestCase(TestCase):
 class OrderBaseTestCase(TestCase):
     PRICE_BUY_RUB = 36000
     PRICE_BUY_USD = 600
+
     PRICE_SELL_RUB = 30000
     PRICE_SELL_USD = 500
+
+    RATE_EUR = 70.00
 
     @classmethod
     def setUpClass(cls):
         cls.RUB = Currency(code='RUB', name='Rubles')
         cls.RUB.save()
+
         cls.USD = Currency(code='USD', name='US Dollars')
         cls.USD.save()
+
+        cls.EUR = Currency(code='EUR', name='EURO')
+        cls.EUR.save()
+
         cls.ticker_buy = \
             Price(type=Price.BUY,
                   price_rub=OrderBaseTestCase.PRICE_BUY_RUB,
-                  price_usd=OrderBaseTestCase.PRICE_BUY_USD)
+                  price_usd=OrderBaseTestCase.PRICE_BUY_USD,
+                  rate_eur=Decimal(OrderBaseTestCase.RATE_EUR))
+
         cls.ticker_buy.save()
 
         cls.ticker_sell = \
             Price(type=Price.SELL,
                   price_rub=OrderBaseTestCase.PRICE_SELL_RUB,
-                  price_usd=OrderBaseTestCase.PRICE_SELL_USD)
+                  price_usd=OrderBaseTestCase.PRICE_SELL_USD,
+                  rate_eur=Decimal(OrderBaseTestCase.RATE_EUR))
+
         cls.ticker_sell.save()
         super(OrderBaseTestCase, cls).setUpClass()
 

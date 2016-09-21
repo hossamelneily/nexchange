@@ -567,9 +567,15 @@ a:focus
 
 .top_panel{padding:10px 0;}
 
-.price_box_mid img{margin: 0}
+.price_box_mid {margin: 0; padding: 0;}
 
 .footer{text-align:center;}
+
+.exchange-sign {
+    margin-top: 15px;
+}
+
+.price_box_next_cont { margin: 30px 0; }
 
 }
 

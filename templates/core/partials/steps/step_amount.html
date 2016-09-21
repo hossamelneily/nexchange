@@ -17,30 +17,30 @@
     </div>
 
 
-    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="row hidden-xs">
-            <div class="col-sm-5 col-xs-12 price_box price_box_ticker">
+    <div class="col-xs-12">
+        <div class="row">
+            <div class="col-xs-5 price_box price_box_ticker">
                 <span class="rate-buy"></span><br>
                 <span class="currency"></span><br>
                 <a href="#" class="trigger trigger-buy">{% trans "Buy" %}</a>
             </div>
-            <div class="col-sm-2 hidden-xs"></div>
-            <div class="col-sm-5 col-xs-12 price_box price_box_ticker">
+            <div class="col-xs-2"></div>
+            <div class="col-xs-5 price_box price_box_ticker">
                 <span class="rate-sell"></span><br>
                 <span class="currency"></span><br>
                 <a href="#" class="price_box2_a trigger trigger-sell">{% trans "Sell" %}</a></div>
         </div>
         <div class="row">
-            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12 price_box" id="pricebox_rub">
+            <div class="col-xs-5 price_box" id="pricebox_rub">
                 <div class="price_box_selectbox_cont">
                    <input type="text" class="price_box_selectbox_cont_textbox amount amount-cash" placeholder="">
                    {{select_from | safe}}
                 </div>
             </div>
-            <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 price_box_mid">
+            <div class="col-xs-2 price_box_mid">
                 <i class="fa fa-refresh fa-5x exchange-sign" aria-hidden="true"></i>
             </div>
-            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12 price_box" id="pricebox_btc">
+            <div class="col-xs-5 price_box" id="pricebox_btc">
 
                 <div class="price_box_selectbox_cont">
                     <input type="text" class="price_box_selectbox_cont_textbox amount amount-coin" placeholder="0.1">

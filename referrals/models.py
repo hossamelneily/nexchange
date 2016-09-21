@@ -1,9 +1,10 @@
 from core.models import models, Currency, User, TimeStampedModel
-from core.common.models import UniqueCodeModel, IpAwareModel
-from nexchange.settings import REFERRAL_CODE_LENGTH, REFERRAL_CODE_CHARS, \
-    REFERRAL_FEE
+from core.common.models import UniqueFieldMixin
+from core.common.models import IpAwareModel
+from nexchange.settings import REFERRAL_CODE_LENGTH
 from django.db.models import Sum
 from decimal import Decimal
+from django.utils.crypto import get_random_string
 
 
 class Program(TimeStampedModel):
@@ -14,17 +15,22 @@ class Program(TimeStampedModel):
     currency = models.ManyToManyField(Currency)
     max_payout_btc = models.FloatField(default=-1)
     max_users = models.IntegerField(default=-1)
+    max_lifespan = models.IntegerField(default=-1)
+    is_default = models.BooleanField(default=False)
 
 
-class ReferralCode(TimeStampedModel, UniqueCodeModel):
+class ReferralCode(TimeStampedModel, UniqueFieldMixin):
     code = models.CharField(max_length=10, unique=True)
     user = models.ForeignKey(User, related_name='referral_code')
     program = models.ForeignKey(Program, blank=True,
                                 null=True, default=None)
 
     def save(self, *args, **kwargs):
-        self.code = self.get_random_code(REFERRAL_CODE_CHARS,
-                                         REFERRAL_CODE_LENGTH)
+        self.code = self.gen_unique_value(
+            lambda x: get_random_string(x),
+            lambda x: ReferralCode.objects.filter(code=x).count(),
+            REFERRAL_CODE_LENGTH
+        )
 
         super(ReferralCode, self).save(*args, **kwargs)
 
@@ -33,7 +39,13 @@ class Referral(IpAwareModel):
     code = models.ForeignKey(ReferralCode, default=None,
                              null=True)
     referee = models.ForeignKey(User, null=True, default=None,
-                                related_name='referee')
+                                related_name='referral')
+
+    def save(self, *args, **kwargs):
+        if 'program' not in kwargs:
+            kwargs['program'] = Program.objects.first()
+
+        super(Referral, self).save(*args, **kwargs)
 
     @property
     def orders(self):
@@ -60,7 +72,7 @@ class Referral(IpAwareModel):
     def revenue(self,):
         # TODO: implement program and change to dynamic
         return Decimal(self.turnover) / 100 * \
-            REFERRAL_FEE
+            self.program.percent_first_degree
 
 
 class Balance(TimeStampedModel):
