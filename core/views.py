@@ -721,7 +721,7 @@ def paysuccess(request):
     Payment.objects.get_or_create(amount_cash=out_summ,
                                   currency=currency,
                                   user=request.user,
-                                  order=order,
+                                  payment_preference=order.payment_preference,
                                   is_complete=True)
 
     return redirect(reverse('core.order'))
