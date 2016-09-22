@@ -144,7 +144,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'referrals.middleware.ReferralMiddleWare',
     'core.middleware.TimezoneMiddleware',
-    'core.middleware.LastSeenMiddleware',
+    # 'core.middleware.LastSeenMiddleware',
     'cms.middleware.user.CurrentUserMiddleware',
     'cms.middleware.page.CurrentPageMiddleware',
     'cms.middleware.toolbar.ToolbarMiddleware',
