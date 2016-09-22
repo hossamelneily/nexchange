@@ -1,20 +1,26 @@
 {% load i18n %}
 {% load static %}
-<div class="row {{ type }}">
+<div class="row {{ type }} row_type">
+    <div class="payment_title">
+        {% trans 'Bank'%}
+    </div>
     {% if type == 'buy' %}              <!-- TO-DO get this from database ??-->
-    <div class="col col-xs-12 col-sm-4 payment-type-trigger"
-         data-type="Alfa Bank"
-         data-identifier="{{ cards.alfa.identifier }}">
+        <div class="col col-xs-12 col-md-6 payment-type-trigger"
+             data-type="Alfa Bank"
+            data-identifier="{{ cards.alfa.identifier }}">
         <div class="col col-xs-12">
             <img src="{% static 'icons/alfa.png' %}"
                  alt="{% trans 'Alfa-bank'%}"
                  class="payment-method-icon btn btn-primary">
         </div>
-        <div class="col col-xs-12 payment-label">
-            {%trans 'Alfa-bank'%}
+        <div class="col col-xs-12  ">
+            <div class="payment-label">
+                {% trans 'Pay with' %} {%trans 'Alfa-bank'%}
+                <a href="#" class="round-button"> ></a>
+            </div>
         </div>
     </div>                              <!-- TO-DO get this from database ??-->
-    <div class="col col-xs-12 col-sm-4 payment-type-trigger"
+    <div class="col col-xs-12 col-md-6 payment-type-trigger"
          data-type="Sberbank"
          data-identifier="{{ cards.sber.identifier }}">
         <div class="col col-xs-12">
@@ -22,31 +28,50 @@
                  alt="{% trans 'Sberbank'%}"
                  class="payment-method-icon btn btn-primary">
         </div>
-        <div class="col col-xs-12 payment-label">
-            {% trans "Sberbank" %}
+        <div class="col col-xs-12  ">
+            <div class="payment-label">
+                {% trans 'Pay with' %} {%trans 'Sberbank'%}
+                <a href="#" class="round-button"> ></a>
+            </div>
         </div>
+
     </div>
     {% else %}                          <!-- TO-DO get this from database ??-->
-    <div class="col col-xs-12 col-sm-4 payment-type-trigger bank" data-type="c2c">
+    <div class="col col-xs-12 col-sm-4 col-md-6 payment-type-trigger bank" data-type="c2c">
         <div class="col col-xs-12">
             <i class="fa fa-credit-card-alt fa-5 payment-method-icon btn btn-primary">
             </i>
         </div>
-        <div class="col col-xs-12 payment-label">
-            {% trans 'Card 2 card - any bank' %}
+        <div class="col col-xs-12  ">
+            <div class="payment-label">
+                {%trans 'Card 2 card - any bank'%}
+                <a href="#" class="round-button"> ></a>
+            </div>
         </div>
     </div>                              <!-- TO-DO get this from database ??-->
-    <div class="col col-xs-12 col-sm-4 payment-type-trigger" data-type="cash">
+    <div class="col col-xs-12 col-sm-4 col-md-6 payment-type-trigger" data-type="cash">
         <div class="col col-xs-12">
             <i class="fa fa-money fa-5 payment-method-icon btn btn-primary">
             </i>
         </div>
-        <div class="col col-xs-12 payment-label">
-            {% trans 'Cash payment' %}
+
+        <div class="col col-xs-12  ">
+            <div class="payment-label">
+                {%trans 'Cash payment'%}
+                <a href="#" class="round-button"> ></a>
+            </div>
         </div>
     </div>
     {% endif %}                         <!-- TO-DO get this from database ??-->
-    <div class="col col-xs-12 col-sm-4 payment-type-trigger qiwi"
+
+</div>
+<div class="row {{ type }} row_type">
+
+    <div class="payment_title">
+        {% trans 'Wallets' %}
+    </div>
+
+    <div class="col col-xs-12 col-md-6 payment-type-trigger qiwi"
          data-type="Qiwi"
          data-identifier="{{ cards.qiwi.identifier }}">
         <div class="col col-xs-12">
@@ -54,8 +79,30 @@
                  alt="{% trans 'Qiwi wallet'%}"
                  class="payment-method-icon btn btn-primary">
         </div>
-        <div class="col col-xs-12 payment-label">
-            {% trans 'Qiwi wallet'%}
+        <div class="col col-xs-12  ">
+            <div class="payment-label">
+                {% if type == 'buy' %}
+                    {% trans 'Pay with' %}
+                {% endif %}
+                {%trans 'Qiwi wallet'%}
+                <a href="#" class="round-button"> ></a>
+            </div>
         </div>
     </div>
+    {% if type == 'buy' %}
+      <div class="col col-xs-12  col-md-6 payment-type-trigger robokassa" data-type="Robokassa">
+        <div class="col col-xs-12">
+            <img src="{% static 'icons/robokassa.png' %}"
+                 alt="{% trans 'Robokassa'%}"
+                 class="payment-method-icon btn btn-primary">
+        </div>
+
+        <div class="col col-xs-12  ">
+            <div class="payment-label">
+                {% trans 'Pay with' %} {%trans 'Robokassa'%}
+                <a href="#" class="round-button"> ></a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>

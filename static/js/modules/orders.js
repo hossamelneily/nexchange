@@ -26,7 +26,7 @@
             updatePrice(getPrice(data[window.ACTION_SELL], currency), $('.rate-sell'));
             rate = data[window.action]['price_' + currency + '_formatted'];
             if (elem.hasClass('amount-coin')) {
-                var cashAmount = rate * val;
+                var cashAmount = (rate * val).toFixed(2);
                 amountCashConfirm = cashAmount;
                 if (isInitial) {
                     $('.amount-cash').attr('placeholder', cashAmount);
@@ -44,7 +44,8 @@
             $('.btc-amount-confirm').text(amountCoin.val()); // add
             $('.cash-amount-confirm').text(amountCashConfirm); //add
 
-            cb && cb();
+            // cb && cb();
+            if(cb) cb();
         });
     }
 
@@ -136,16 +137,19 @@
     }
 
     function toggleSellModal () {
-        $("#card-form").card({
-            container: '.card-wrapper',
-            width: 200,
-            placeholders: {
-                number: '•••• •••• •••• ••••',
-                name: 'Ivan Ivanov',
-                expiry: '••/••',
-                cvc: '•••'
-            }
-        });
+        try{
+            $("#card-form").card({
+                container: '.card-wrapper',
+                width: 200,
+                placeholders: {
+                    number: '•••• •••• •••• ••••',
+                    name: 'Ivan Ivanov',
+                    expiry: '••/••',
+                    cvc: '•••'
+                }
+            });
+        }
+        catch(e) {}
         $("#UserAccountModal").modal({backdrop: "static"});
     }
 
@@ -232,7 +236,8 @@ function reloadRoleRelatedElements (menuEndpoint) {
     }
 
     function reloadCardsPerCurrency(currency, cardsModalEndpoint) {
-        $.post(cardsModalEndpoint, {currency: currency}, function (data) {
+        var _locale= $('.topright_selectbox').val();
+        $.post(cardsModalEndpoint, {currency: currency, _locale: _locale }, function (data) {
             $('.paymentSelectionContainer').html($(data));
         });
     }

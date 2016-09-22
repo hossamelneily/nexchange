@@ -40,10 +40,6 @@ dev:
           fi
           python -c "import krakenex; print('import krakenex sucessfully executed')"
     - script:
-        name: Django flush
-        code: |
-          cat <(echo "yes") - | python manage.py flush
-    - script:
         name: Django make migrations
         code: |
           python manage.py makemigrations
@@ -79,6 +75,10 @@ dev:
         name: Django import Withdraw address fixture
         code: |
           python manage.py loaddata core/fixtures/withdraw_address.json
+    - script:
+        name: Django import affiliate program fixture
+        code: |
+          python manage.py loaddata core/fixtures/affiliate_program.json
     - script:
         name: Django run ticker update prices command
         code: |
@@ -117,8 +117,10 @@ dev:
           echo "* * * * * root /ticker.sh" > /etc/crontab
           cron
     - internal/watch:
-        code: npm run watch-js & newrelic-admin run-program  python manage.py runserver 0.0.0.0:8000
-        reload: false 
+        code: |
+          echo 'Dev server running'
+           npm run watch-js & newrelic-admin run-program  python manage.py runserver 0.0.0.0:8000
+        reload: false
 
 build:
   services:
@@ -236,7 +238,7 @@ build:
           cp -ra $WERCKER_OUTPUT_DIR/mediafiles/* /usr/share/nginx/html/media
           #
           # Create superuser
-          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
+          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@onit.ws','weare0nit')" | python manage.py shell
           #
           # Start Cron Process
           cron
@@ -274,7 +276,6 @@ build:
           echo "pip version $(pip --version) running"
           echo "installed python packages:"
           echo "$(pip freeze | sort)"
-
     - internal/docker-push:
         username: $DOCKER_HUB_USER
         password: $DOCKER_HUB_PASSWORD
@@ -364,7 +365,21 @@ tests:
         name: Validate New Relic config file
         code: |
           newrelic-admin validate-config ${NEW_RELIC_CONFIG_FILE}
+    - script:
+        name: Install Phantomjs tests frontend
+        code: |
+          #cd /usr/local/share
+          #sudo wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2
+          #sudo tar xfj phantomjs-1.9.8-linux-x86_64.tar.bz2
+          #sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/share/phantomjs
+          #sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
+          #sudo ln -s /usr/local/share/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/bin/phantomjs
 
+    - script:
+        name: Test_selenium
+        code: |
+          cd /pipeline/source
+#          python manage.py test_selenium
 
 static-validation:
   steps:

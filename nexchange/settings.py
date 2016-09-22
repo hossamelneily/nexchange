@@ -32,11 +32,12 @@ STATIC_URL = '/static/'
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
-LANGUAGES = (
-    ('ru', _('Russian')),
-    ('en', _('English')),
 
-)
+LANGUAGE_CODE = 'en'
+LANGUAGES = [
+    ('ru', 'Russian'),
+    ('en', 'English'),
+]
 
 
 # CUSTOM SETTINGS
@@ -49,6 +50,16 @@ REFERENCE_LOOKUP_ATTEMPTS = 5
 SMS_TOKEN_LENGTH = 4
 PAYMENT_WINDOW = 60  # minutes
 MAX_EXPIRED_ORDERS_LIMIT = 3
+REFERRAL_FEE = 2
+
+PHONE_START_SHOW = 4
+PHONE_END_SHOW = 4
+PHONE_HIDE_PLACEHOLDER = '*'
+
+REFERRER_GET_PARAMETER = 'ref'
+REFERRAL_SESSION_KEY = REFERRER_GET_PARAMETER
+REFERRAL_TOKEN_CHARS = REFERRAL_CODE_CHARS
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -64,6 +75,15 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 # Application definition
 
 INSTALLED_APPS = [
+    'cms',
+    'django_rq',
+    'treebeard',
+    'menus',
+    'sekizai',
+    'djangocms_admin_style',
+    'djangocms_text_ckeditor',
+    'django.contrib.sites',
+    'django.contrib.sitemaps',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -79,6 +99,38 @@ INSTALLED_APPS = [
     'referrals'
 ]
 
+CMS_PERMISSION = False
+
+SITE_ID = 1
+
+ROBOKASSA_LOGIN = 'nexchangeBTC'
+ROBOKASSA_PASS1 = 'SBYcBnB8Oq63KK5UB7oC'
+ROBOKASSA_PASS2 = 'vaXizy98NA4rOm8Mty6l'
+ROBOKASSA_IS_TEST = 1
+ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
+                "isTest={0}&MerchantLogin={1}&" \
+                "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': 'some-password',
+        'DEFAULT_TIMEOUT': 360,
+    },
+    'high': {
+        'URL': os.getenv('REDISTOGO_URL',
+                         'redis://localhost:6379/0'),
+        'DEFAULT_TIMEOUT': 500,
+    },
+    'low': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+    }
+}
+
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -90,7 +142,13 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'referrals.middleware.ReferralMiddleWare',
     'core.middleware.TimezoneMiddleware',
+    'core.middleware.LastSeenMiddleware',
+    'cms.middleware.user.CurrentUserMiddleware',
+    'cms.middleware.page.CurrentPageMiddleware',
+    'cms.middleware.toolbar.ToolbarMiddleware',
+    'cms.middleware.language.LanguageCookieMiddleware',
 ]
 
 ROOT_URLCONF = 'nexchange.urls'
@@ -108,11 +166,55 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
                 'core.context_processors.google_analytics',
-
+                'sekizai.context_processors.sekizai',
+                'cms.context_processors.cms_settings',
             ],
         },
     },
 ]
+
+CMS_TEMPLATES = (
+    ('cms/cms_default.html', 'Default Template'),
+    ('some_other.html', 'Some Other Template'),
+)
+
+CMS_PLACEHOLDER_CONF = {
+    'content': {
+        'name': _('Content'),
+        'plugins': ['TextPlugin', 'LinkPlugin'],
+        'default_plugins': [
+            {
+                'plugin_type': 'TextPlugin',
+                'values': {
+                    'body': '<p>Great websites :'
+                            ' %(_tag_child_1)s and %(_tag_child_2)s</p>'
+                },
+                'children': [
+                    {
+                        'plugin_type': 'LinkPlugin',
+                        'values': {
+                            'name': 'django',
+                            'url': 'https://www.djangoproject.com/'
+                        },
+                    },
+                    {
+                        'plugin_type': 'LinkPlugin',
+                        'values': {
+                            'name': 'django-cms',
+                            'url': 'https://www.django-cms.org'
+                        },
+                    },
+                ]
+            },
+        ]
+    }
+}
+
+CKEDITOR_SETTINGS = {
+    'language': '{{ language }}',
+    'toolbar': 'CMS',
+    'skin': 'moono',
+}
 
 WSGI_APPLICATION = 'nexchange.wsgi.application'
 
@@ -161,7 +263,7 @@ AUTH_PROFILE_MODULE = "core.Profile"
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
@@ -188,8 +290,12 @@ STATICFILES_DIRS = (
 
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 KRAKEN_API_KEY = "E6wsw96A+JsnY33k7SninDdg//JsoZSXcKBYtyrhUYlWyAxIeIIZn3ay"
+
+
 KRAKEN_API_SIGN = "hLg6LkI+kHtlLJs5ypJ0GnInK0go/HM3xMSVIGgCTc" \
                   "aqoqy8FsTl1KVdgFfWCCfu7CMZeCW4qqMbATrzZaFtRQ=="
+
+
 # KRAKEN_API_KEY = os.environ['KRAKEN_API_KEY']
 # KRAKEN_API_SIGN = os.environ['KRAKEN_API_SECRET']
 MAIN_DEPOSIT_ADDRESSES = [
@@ -244,10 +350,16 @@ CORS_ORIGIN_WHITELIST = (
     'nexchange.ru'
 )
 
-REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
-}
 
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.DjangoFilterBackend',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}
 # 12 months
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 12
 

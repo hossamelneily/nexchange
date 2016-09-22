@@ -1,5 +1,7 @@
 from django.db import models
-from core.common.models import TimeStampedModel, SoftDeletableModel, Currency
+from datetime import datetime
+from core.common.models import TimeStampedModel, \
+    SoftDeletableModel, Currency, IpAwareModel, UniqueFieldMixin
 
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
@@ -7,37 +9,18 @@ from phonenumber_field.modelfields import PhoneNumberField
 from ticker.models import Price
 from referrals.models import ReferralCode
 from .validators import validate_bc
+from core.utils import money_format
 
 
-from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW,\
-    REFERENCE_LOOKUP_ATTEMPTS, SMS_TOKEN_LENGTH, SMS_TOKEN_VALIDITY,\
-    SMS_TOKEN_CHARS, MAX_EXPIRED_ORDERS_LIMIT
+from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW, \
+    SMS_TOKEN_LENGTH, SMS_TOKEN_VALIDITY,\
+    SMS_TOKEN_CHARS, MAX_EXPIRED_ORDERS_LIMIT, PHONE_START_SHOW,\
+    PHONE_END_SHOW, PHONE_HIDE_PLACEHOLDER
 
 from django.utils.translation import ugettext_lazy as _
 from datetime import timedelta
 from django.utils import timezone
-
-
-class UniqueFieldMixin(models.Model):
-
-    class Meta:
-        abstract = True
-
-    @staticmethod
-    def gen_unique_value(val_gen, set_len_gen, start_len):
-        failed_count = 0
-        max_len = start_len
-        while True:
-            if failed_count >= REFERENCE_LOOKUP_ATTEMPTS:
-                failed_count = 0
-                max_len += 1
-
-            val = val_gen(max_len)
-            cnt_unq = set_len_gen(val)
-            if cnt_unq == 0:
-                return val
-            else:
-                failed_count += 1
+from decimal import Decimal
 
 
 class ProfileManager(models.Manager):
@@ -46,15 +29,32 @@ class ProfileManager(models.Manager):
         return self.get(user__username=username)
 
 
-class Profile(TimeStampedModel, SoftDeletableModel):
+class Profile(IpAwareModel):
     objects = ProfileManager()
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = PhoneNumberField(blank=False, help_text=_(
+    phone = PhoneNumberField(_('Phone'), blank=False, help_text=_(
         'Enter phone number in international format. eg. +555198786543'))
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, blank=True)
+    last_seen = models.DateTimeField(default=None, null=True)
+    disabled = models.BooleanField(default=False)
+    notify_by_phone = models.BooleanField(default=True)
+    notify_by_email = models.BooleanField(default=True)
 
+    @property
+    def partial_phone(self):
+        phone = str(self.phone)
+        phone_len = len(phone)
+        start = phone[:PHONE_START_SHOW - 1]
+        end = phone[phone_len - 1 - PHONE_END_SHOW:]
+        rest = \
+            ''.join([PHONE_HIDE_PLACEHOLDER
+                    for x in
+                    range(phone_len - PHONE_START_SHOW - PHONE_END_SHOW)])
+        return "{}{}{}".format(start, rest, end)
+
+    @property
     def is_banned(self):
         return \
             Order.objects.filter(user=self,
@@ -62,8 +62,19 @@ class Profile(TimeStampedModel, SoftDeletableModel):
                                  expired=True).length \
             > MAX_EXPIRED_ORDERS_LIMIT
 
+    def ensure_last_seen(self):
+        self.last_seen = datetime.now()
+
     def natural_key(self):
         return self.user.username
+
+    def get_or_create(self, *args, **kwargs):
+        self.ensure_last_seen()
+        return super(Profile, self).get_or_create(*args, **kwargs)
+
+    def update(self, *args, **kwargs):
+        self.ensure_last_seen()
+        return super(Profile, self).update(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         """Add a SMS token at creation. Used to verify phone number"""
@@ -73,10 +84,10 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         if not self.phone:
             self.phone = self.user.username
 
-        referral_code = ReferralCode(user=self.user)
-        referral_code.save()
+        # TODO: move to user class, allow many(?)
+        ReferralCode.objects.get_or_create(user=self.user)
 
-        super(Profile, self).save(*args, **kwargs)
+        return super(Profile, self).save(*args, **kwargs)
 
 User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])
 
@@ -107,9 +118,8 @@ class SmsToken(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
 
 
 class PaymentMethodManager(models.Manager):
-
-    def get_by_natural_key(self, bin):
-        return self.get(bin=bin)
+    def get_by_natural_key(self, bin_code):
+        return self.get(bin=bin_code)
 
 
 class PaymentMethod(TimeStampedModel, SoftDeletableModel):
@@ -120,6 +130,7 @@ class PaymentMethod(TimeStampedModel, SoftDeletableModel):
     bin = models.IntegerField(null=True, default=None)
     fee = models.FloatField(null=True)
     is_slow = models.BooleanField(default=False)
+    is_internal = models.BooleanField(default=False)
 
     def natural_key(self):
         return self.bin
@@ -155,12 +166,17 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
             else PaymentMethod.objects.get(name='Cash')
 
     def __str__(self):
-        return "{} - ({})".format(self.identifier, self.payment_method.name)
+        return "{} - {} - ({})".format(self.user.profile.phone or
+                                       self.user.username,
+                                       self.identifier,
+                                       self.payment_method.name)
 
 
 class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     USD = "USD"
     RUB = "RUB"
+    EUR = "EUR"
+
     BUY = 1
     SELL = 0
     TYPES = (
@@ -168,27 +184,29 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         (BUY, 'BUY'),
     )
 
-    # Todo: inherit from BTC base?
+    # Todo: inherit from BTC base?, move lengths to settings?
     order_type = models.IntegerField(choices=TYPES, default=BUY)
-    amount_cash = models.FloatField()
-    amount_btc = models.FloatField()
+    amount_cash = models.DecimalField(max_digits=12, decimal_places=2)
+    amount_btc = models.DecimalField(max_digits=18, decimal_places=8)
     currency = models.ForeignKey(Currency)
     payment_window = models.IntegerField(default=PAYMENT_WINDOW)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name='orders')
     is_paid = models.BooleanField(default=False)
     is_released = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
+    is_failed = models.BooleanField(default=False)
     unique_reference = models.CharField(
         max_length=UNIQUE_REFERENCE_LENGTH, unique=True)
     admin_comment = models.CharField(max_length=200)
     payment_preference = models.ForeignKey(PaymentPreference, default=None,
                                            null=True)
-    # withdraw_address = models.ForeignKey(Address)
 
     class Meta:
         ordering = ['-created_on']
 
     def save(self, *args, **kwargs):
+        old_referral_revenue = None
+
         self.unique_reference = \
             self.gen_unique_value(
                 lambda x: get_random_string(x),
@@ -197,10 +215,25 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
             )
         self.convert_coin_to_cash()
 
+        if 'is_completed' in kwargs and\
+                kwargs['is_completed'] and\
+                not self.is_completed:
+            old_referral_revenue = self.user.referral.get().revenue
+
         super(Order, self).save(*args, **kwargs)
+        if len(self.user.referral.all()):
+            # TODO: Add referralTransaction
+            new_referral_revenue = self.user.referral.get().revenue
+            revenue_from_trade = \
+                new_referral_revenue - old_referral_revenue
+
+            balance, created = \
+                Balance.objects.get(user=self.user, currency=self.currency)
+            balance.balance += revenue_from_trade
+            balance.save()
 
     def convert_coin_to_cash(self):
-        self.amount_btc = float(self.amount_btc)
+        self.amount_btc = Decimal(self.amount_btc)
         queryset = Price.objects.filter().order_by('-id')[:2]
         price_sell = [price for price in queryset if price.type == Price.SELL]
         price_buy = [price for price in queryset if price.type == Price.BUY]
@@ -208,24 +241,40 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         # Below calculation affect real money the client pays
         assert all([len(price_sell),
                     price_sell[0].price_usd,
-                    price_buy[0].price_rub])
+                    price_buy[0].price_rub,
+                    price_buy[0].price_eur])
 
         assert all([len(price_buy),
                     price_buy[0].price_usd,
-                    price_buy[0].price_rub])
+                    price_buy[0].price_rub,
+                    price_buy[0].price_eur])
 
         # TODO: Make this logic more generic,
         # TODO: migrate to using currency through payment_preference
 
-        if self.order_type == Order.SELL and self.currency.code == Order.USD:
-            self.amount_cash = self.amount_btc * price_buy[0].price_usd
-        elif self.order_type == Order.SELL and self.currency.code == Order.RUB:
-            self.amount_cash = self.amount_btc * price_buy[0].price_rub
+        # SELL
+        self.amount_cash = Decimal(self.amount_btc)
 
+        if self.order_type == Order.SELL and self.currency.code == Order.USD:
+            self.amount_cash *= price_buy[0].price_usd
+
+        elif self.order_type == Order.SELL and self.currency.code == Order.RUB:
+            self.amount_cash *= price_buy[0].price_rub
+
+        elif self.order_type == Order.SELL and self.currency.code == Order.EUR:
+            self.amount_cash *= price_buy[0].price_eur
+
+        # BUY
         if self.order_type == Order.BUY and self.currency.code == Order.USD:
-            self.amount_cash = self.amount_btc * price_sell[0].price_usd
+            self.amount_cash *= price_sell[0].price_usd
+
         elif self.order_type == Order.BUY and self.currency.code == Order.RUB:
-            self.amount_cash = self.amount_btc * price_sell[0].price_rub
+            self.amount_cash *= price_sell[0].price_rub
+
+        elif self.order_type == Order.BUY and self.currency.code == Order.EUR:
+            self.amount_cash *= price_sell[0].price_eur
+
+        self.amount_cash = money_format(self.amount_cash)
 
     @property
     def payment_deadline(self):
@@ -276,10 +325,11 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
 
 
 class Payment(TimeStampedModel, SoftDeletableModel):
-    amount_cash = models.FloatField()
+    amount_cash = models.DecimalField(max_digits=12, decimal_places=2)
     currency = models.ForeignKey(Currency)
     is_redeemed = models.BooleanField(default=False)
     is_complete = models.BooleanField(default=False)
+    is_success = models.BooleanField(default=False)
     # Super admin if we are paying for BTC
     user = models.ForeignKey(User)
     # Todo consider one to many for split payments, consider order field on
@@ -322,3 +372,13 @@ class Transaction(BtcBase):
     # TODO: how to handle cancellation?
     order = models.ForeignKey(Order)
     is_verified = models.BooleanField(default=False)
+
+
+class ReferralTransaction(Transaction):
+    pass
+
+
+class Balance(TimeStampedModel):
+    user = models.ForeignKey(User, related_name='user')
+    currency = models.ForeignKey(Currency, related_name='currency')
+    balance = models.DecimalField(max_digits=18, decimal_places=8, default=0)

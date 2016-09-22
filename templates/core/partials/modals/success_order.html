@@ -4,7 +4,9 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">×</button>
+          {% if order.payment_preference.payment_method.name != 'Robokassa' %}
+            <button type="button" class="close" data-dismiss="modal">×</button>
+          {% endif %}
           <h4 class="modal-title">{% trans 'Success!' %}</h4>
         </div>
         <div class="modal-body successOrder">
@@ -12,7 +14,17 @@
             {% endblock %}
         </div>
         <div class="modal-footer">
-          <a href="/order" class="btn btn-default">Close</a>
+            {% if order.payment_preference.payment_method.name == 'Robokassa' %}
+                <a href="{{ url }}"
+                   class="btn btn-default"
+                   data-controls-modal="your_div_id"
+                   data-backdrop="static"
+                   data-keyboard="false">
+                    {% trans 'Go to Robokassa' %}
+                </a>
+            {% else %}
+                <a href="{% url 'core.order' %}" class="btn btn-default">{% trans 'Get your bitcoins' %}</a>
+            {% endif %}
         </div>
       </div>
     </div>

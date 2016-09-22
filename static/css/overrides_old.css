@@ -243,7 +243,6 @@ html body .form-control {
 .supported-payments {
     background: lightgreen;
     padding: 35px 0;
-    height: 150px;
     margin-top: 20px;
 }
 
@@ -317,4 +316,8 @@ body #card-form .pay-row {
 .menuSection {
     text-align: center;
     margin: auto;
+}
+
+.nopadding {
+    padding: 0;
 }

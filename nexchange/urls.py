@@ -17,32 +17,23 @@ from django.conf.urls import url
 from django.contrib import admin
 import django.contrib.auth.views as auth_views
 import core.views
-from core.models import Currency, Profile, Order, SmsToken, PaymentMethod,\
-    Address, PaymentPreference
 from core.forms import LoginForm
 from django.conf.urls import include
 from django.conf.urls.i18n import i18n_patterns
-from ticker.urls import api_patterns
+from ticker.urls import ticker_api_patterns
+from referrals.urls import referrals_api_patterns
 from django.conf import settings
 from django.conf.urls.static import static
 import os
 
-
-# todo: move to admin.py
-admin.site.register(Currency)
-admin.site.register(Profile)
-admin.site.register(Order)
-admin.site.register(SmsToken)
-admin.site.register(PaymentMethod)
-admin.site.register(PaymentPreference)
-admin.site.register(Address)
+api_patterns = ticker_api_patterns + referrals_api_patterns
 
 urlpatterns = i18n_patterns(
     url(r'^admin/', admin.site.urls),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^$', core.views.add_order, name='core.order_add'),
     url(r'^info/$', core.views.main, name='main'),
-    url(r'^order/$', core.views.index_order, name='core.order'),
+    url(r'^orders/$', core.views.index_order, name='core.order'),
     url(r'^order/ajax/$', core.views.ajax_order, name='core.ajax_order'),
     url(r'^order/update_withdraw_address/(?P<pk>[\d]+)/$',
         core.views.update_withdraw_address,
@@ -109,11 +100,30 @@ urlpatterns = i18n_patterns(
         name='core.breadcrumbs'),
     url(r'^api/v1/cards', core.views.cards,
         name='core.cards'),
+    url(r'^api/v1/ajaxcards', core.views.ajax_cards,
+        name='core.ajax_cards'),
     url(r'^kraken/depositStatus/$', core.views.k_deposit_status,
         name='core.k_deposit_status'),
+    url(r'^referrals', core.views.referrals,
+        name='core.referrals'),
+    url(r'^payfailed', core.views.payfailed,
+        name='core.payfailed'),
+    url(r'^pay_try_again', core.views.try_pay_again,
+        name='core.try_pay_again'),
+    url(r'^paysuccess', core.views.paysuccess,
+        name='core.payfailed'),
+    url(r'^django-rq/', include('django_rq.urls')),
+
+    url(r'^', include('cms.urls'))
 )
 
-
-if settings.DEBUG:  # pragma: no cover
+if settings.DEBUG:
+    # pragma: no cover
     urlpatterns += static('/cover', document_root=os.path.join(
         settings.BASE_DIR, 'cover'))
+
+    # Debug toolbar urls
+    import debug_toolbar
+    urlpatterns += [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ]
