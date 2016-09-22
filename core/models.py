@@ -29,7 +29,7 @@ class ProfileManager(models.Manager):
         return self.get(user__username=username)
 
 
-class Profile(TimeStampedModel):
+class Profile(TimeStampedModel, SoftDeletableModel):
     objects = ProfileManager()
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -38,7 +38,6 @@ class Profile(TimeStampedModel):
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, blank=True)
     last_seen = models.DateTimeField(default=None, null=True)
-    disabled = models.BooleanField(default=False)
     notify_by_phone = models.BooleanField(default=True)
     notify_by_email = models.BooleanField(default=True)
     ip = models.CharField(max_length=39,
