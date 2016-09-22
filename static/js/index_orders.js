@@ -120,7 +120,7 @@
                         input_address.val('');
 
                         // get back to select form and submit it
-                        form_create.find(".toggle_widthdraw_address_form:first").trigger("click");
+                        form_create.find(".toggle_withdraw_address_form:first").trigger("click");
                         btnSetAddress.trigger("click");
 
                     } else if(data.status === 'ERR') {
@@ -178,8 +178,6 @@
             $.post( $(this).data('url'), {'paid': $(this).prop('checked')}, function( data ) {
 
                 if (data.status === 'OK') {
-
-
                     if (data.frozen) {
                         // so user wont change any payment confirmation
                         $(toggle).bootstrapToggle('disable');

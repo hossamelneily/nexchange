@@ -1,4 +1,5 @@
 {# Load the tag library #}
+{% load cms_tags menu_tags sekizai_tags %}
 {% load bootstrap3 %}
 {% load staticfiles %}
 {% load i18n %}
@@ -16,8 +17,18 @@
 <html lang="en">
 
 <head>
+    <!-- Yandex.Metrika counter --> <script type="text/javascript"> (function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter39575585 = new Ya.Metrika({ id:39575585, clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true, trackHash:true }); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = "https://mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks"); </script> <noscript><div><img src="https://mc.yandex.ru/watch/39575585" style="position:absolute; left:-9999px;" alt="" /></div></noscript> <!-- /Yandex.Metrika counter -->
+    <script>
+          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+          ga('create', 'UA-84084133-1', 'auto');
+          ga('send', 'pageview');
+    </script>
     <meta charset="utf-8">
-    <title>.:BTC-X:.</title>
+    <title>{% trans 'Nexchange' %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -37,8 +48,9 @@
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/apple-touch-icon-114-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="img/apple-touch-icon-57-precomposed.png">
-    <link rel="shortcut icon" href="img/favicon.png">
+    <link rel="shortcut icon" href="{% static 'images/icon.png'%}">
     <!-- 	-->
+    <link rel="stylesheet" href="{% static 'css/overrides_old.css' %}">
     <link rel="stylesheet" href="{% static 'css/overrides.css' %}">
     <link rel="stylesheet" href="{% static 'css/forms.css' %}">
     <script type="text/javascript">
@@ -46,25 +58,48 @@
         var HTTP_500_MSG = "{% trans 'Service unavailable. Please try again later.' %}";
         var UNKNOW_ERROR = HTTP_500_MSG;
     </script>
+
+    {% if GOOGLE_ANALYTICS_PROPERTY_ID %}
+        {% include "core/analitycs/ga.html" %}
+    {% endif %}
+    {% render_block "css" %}
+    <meta name="interkassa-verification" content="66cc636a788e738725aa9ec76741045b" />
 </head>
 <body>
-   <div class="menuContainer">
-        {% include 'core/partials/menu.html' %}
-    </div>
+    {% cms_toolbar %}
     <div class="container">
+        <div class="menuContainer">
+            {% include 'core/partials/menu.html' %}
+        </div>
+            {% block main %}
+            {% endblock %}
 
-        {% block main %}
+    <div class="cms_container" >
+        {% block cms_static %}
         {% endblock %}
     </div>
 
+
+
+{#    {% render_model_block request.current_page "changelist" %}{% endrender_model_block %}#}
+    </div>
+    {% block content %}
+    {% endblock content %}
+
+    <div class="cms_container container">
+
+    </div>
+
    {% block footer %}
-   {%  endblock %}
+{#       {% include 'core/partials/supported_payments.html' %}#}
+   {% endblock %}
+
     {% include 'core/partials/popular_faq.html' %}
     {% include 'core/partials/seo_footer.html' %}
     {% include 'core/partials/footer.html' %}
 
     <script src="https://code.jquery.com/jquery.min.js"></script>
-    <script   src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"
           integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw="
           crossorigin="anonymous"></script>
     <script src="https://use.fontawesome.com/9a25f329b7.js"></script>
@@ -75,13 +110,17 @@
     <script>
         $( document ).ready(function() {
           Cookies.set("USER_TZ", moment.tz.guess());
+            var userLang= Cookies.get("django_language");
+            if (!userLang)  {
+              userLang = navigator.language || navigator.userLanguage;
+              Cookies.set("django_language", userLang.substring(0,2).toLowerCase());
+            }
         });
     </script>
-    <script src="{% static 'js/bundle.js' %}"></script>
-    <script src="{% static 'js/footer.js' %}"></script>
 
+    <script src="{% static 'js/footer.js' %}"></script>
     {% bootstrap_javascript %}
     {% block extra_js_footer %} {% endblock %}
+    {% render_block "js" %}
 </body>
 </html>
-

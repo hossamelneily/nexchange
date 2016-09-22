@@ -21,17 +21,24 @@
                             {% include 'core/partials/user_address.html' %}
                             <input type="hidden" name="user_address_id" id="user_address_id" value="">
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col col-xs-12">
                             <span class="btn btn-primary">{% trans "Use this "|add:method %}</span>
                         </div>
                     </div>
                 {% endif %}
                 {% include 'core/partials/forms/'|add:form|add:'.html' with legend=legend %}
+                <div class="row">
+                    <div class="col-sm-4 col-sm-offset-4">
+                        <span class="btn btn-primary save save-card">{% trans "Go" %}</span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="modal-footer">
-          <span class="btn btn-warning back back">{% trans 'back' %}</span>
-          <span class="btn btn-default" data-dismiss="modal">Close</span>
+          <span class="btn btn-warning back back">{% trans 'Back' %}</span>
+          <span class="btn btn-default" data-dismiss="modal">{% trans 'Close' %}</span>
         </div>
       </div>
     </div>
