@@ -1,5 +1,4 @@
 from django.db import models
-from datetime import datetime
 from core.common.models import TimeStampedModel, \
     SoftDeletableModel, Currency, UniqueFieldMixin
 
@@ -37,7 +36,9 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         'Enter phone number in international format. eg. +555198786543'))
     first_name = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=20, blank=True)
-    last_seen = models.DateTimeField(default=None, null=True)
+    last_visit_ip = models.CharField(max_length=39,
+                                     default=None, null=True)
+    last_visit_time = models.DateTimeField(default=None, null=True)
     notify_by_phone = models.BooleanField(default=True)
     notify_by_email = models.BooleanField(default=True)
     ip = models.CharField(max_length=39,
@@ -64,19 +65,8 @@ class Profile(TimeStampedModel, SoftDeletableModel):
                                  expired=True).length \
             > MAX_EXPIRED_ORDERS_LIMIT
 
-    def ensure_last_seen(self):
-        self.last_seen = datetime.now()
-
     def natural_key(self):
         return self.user.username
-
-    def get_or_create(self, *args, **kwargs):
-        self.ensure_last_seen()
-        return super(Profile, self).get_or_create(*args, **kwargs)
-
-    def update(self, *args, **kwargs):
-        self.ensure_last_seen()
-        return super(Profile, self).update(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         """Add a SMS token at creation. Used to verify phone number"""

@@ -21,7 +21,7 @@ class LastSeenMiddleware(object):
                 request.user and request.user.is_authenticated():
             profile = request.user.profile
 
-            profile.last_visit = \
+            profile.last_visit_time = \
                 datetime.now()
             profile.last_visit_ip = \
                 request.META['REMOTE_ADDR']

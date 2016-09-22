@@ -42,7 +42,7 @@ dev:
     - script:
         name: Django make migrations
         code: |
-          python manage.py makemigrations
+          cat <(echo "yes") - | python manage.py makemigrations
     - script:
         name: wait...
         code: |
@@ -161,7 +161,7 @@ build:
     - script:
         name: Django migrations
         code: |
-          python manage.py makemigrations
+          cat <(echo "yes") - | python manage.py makemigrations
     - script:
         name: django collect and compile translations
         code: |
@@ -225,6 +225,7 @@ build:
           # Import fixtures
           python /usr/src/app/manage.py loaddata core/fixtures/currency.json
           python /usr/src/app/manage.py loaddata core/fixtures/payment_method.json
+          python /usr/src/app/manage.py loaddata core/fixtures/affiliate_program.json
           echo "To load the 'withdraw_address' fixture, uncomment the next line"
           # python manage.py loaddata core/fixtures/withdraw_address.json
           #

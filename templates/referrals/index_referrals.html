@@ -57,12 +57,12 @@
 
                   <div>
                       <div class = "headers-mobile header-text">{% trans "Last seen" %}</div>
-                      {{ ref.referee.last_seen }}
+                      {{ ref.referee.profle.last_visit }}
                   </div>
 
 
                   <div class = "headers-mobile header-text">{% trans "Id" %}</div>
-                      {{ ref.referee.id }}
+                      {{ ref.referee.profle.id }}
                   </div>
 
               {% endfor %}
@@ -84,7 +84,7 @@
 		            	<td>{{ ref.confirmed_orders_count }}</td>
 		                <td>{{ ref.turnover }}</td>
 		                <td>{{ ref.revenue }}</td>
-                        <td>{{ ref.referee.last_seen }}</td>
+                        <td>{{ ref.referee.profile.last_visit }}</td>
                         <td>{{ ref.referee.id }}</td>
 	        	{% empty %}
 

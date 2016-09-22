@@ -1,10 +1,10 @@
 from core.models import models, Currency, User, TimeStampedModel
 from core.common.models import UniqueFieldMixin
-from core.common.models import IpAwareModel
 from nexchange.settings import REFERRAL_CODE_LENGTH
 from django.db.models import Sum
 from decimal import Decimal
 from django.utils.crypto import get_random_string
+from core.common.models import SoftDeleteMixin
 
 
 class Program(TimeStampedModel):
@@ -35,7 +35,7 @@ class ReferralCode(TimeStampedModel, UniqueFieldMixin):
         super(ReferralCode, self).save(*args, **kwargs)
 
 
-class Referral(IpAwareModel):
+class Referral(TimeStampedModel, SoftDeleteMixin):
     code = models.ForeignKey(ReferralCode, default=None,
                              null=True)
     referee = models.ForeignKey(User, null=True, default=None,
