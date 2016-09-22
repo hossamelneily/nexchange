@@ -68,7 +68,8 @@ class Currency(TimeStampedModel, SoftDeletableModel):
 
 class IpAwareModel(TimeStampedModel, SoftDeleteMixin):
     ip = models.CharField(max_length=39,
-                          null=True, default=None)
+                          null=True,
+                          default=None)
 
     class Meta:
         abstract = True

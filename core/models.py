@@ -1,7 +1,7 @@
 from django.db import models
 from datetime import datetime
 from core.common.models import TimeStampedModel, \
-    SoftDeletableModel, Currency, IpAwareModel, UniqueFieldMixin
+    SoftDeletableModel, Currency, UniqueFieldMixin
 
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
@@ -29,7 +29,7 @@ class ProfileManager(models.Manager):
         return self.get(user__username=username)
 
 
-class Profile(IpAwareModel):
+class Profile(TimeStampedModel):
     objects = ProfileManager()
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -41,6 +41,9 @@ class Profile(IpAwareModel):
     disabled = models.BooleanField(default=False)
     notify_by_phone = models.BooleanField(default=True)
     notify_by_email = models.BooleanField(default=True)
+    ip = models.CharField(max_length=39,
+                          null=True,
+                          default=None)
 
     @property
     def partial_phone(self):
