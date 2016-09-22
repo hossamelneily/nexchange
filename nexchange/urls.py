@@ -108,6 +108,8 @@ urlpatterns = i18n_patterns(
         name='core.referrals'),
     url(r'^payfailed', core.views.payfailed,
         name='core.payfailed'),
+    url(r'^pay_try_again', core.views.try_pay_again,
+        name='core.try_pay_again'),
     url(r'^paysuccess', core.views.paysuccess,
         name='core.payfailed'),
     url(r'^django-rq/', include('django_rq.urls')),

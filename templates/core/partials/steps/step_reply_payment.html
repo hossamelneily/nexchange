@@ -4,9 +4,15 @@
     <div class="row">
         <div class="payfailed">
             <div class="text-payfailed" style="text-align: center">
-                Your payment failed. You can try again or make new payment
+                {% if bad_sugnature == '1'%}
+                    {% trans "Bad signature" %}
+                {% else %}
+                    {% trans 'Your payment failed. You can try again or make new payment' %}
+                {% endif %}
             </div>
-            <a href="{{ url_robokassa }}" class="btn try-again">{% trans "Try again" %} </a>
+            {% if bad_sugnature != '1'%}
+                <a href="{{ url_try_again }}" class="btn try-again">{% trans "Try again" %} </a>
+            {% endif %}
             <a href="/" class="btn try-again">{% trans "New order" %}</a>
         </div>
     </div>

@@ -32,14 +32,14 @@ def money_format(value, is_numeric=True, places=2, curr='', sep=',', dp='.',
     return ''.join(reversed(result))
 
 
-def geturl_robokassa(out_summ):
+def geturl_robokassa(_inv_id, out_summ):
     # Уникальный номер заказа в Вашем магазине.
     # Указываем именно ноль, чтобы ROBOKASSA
     #  сама вела нумерацию заказов
-    inv_id = str(0)
+    inv_id = str(_inv_id)
 
     hex_string = ':'.join([settings.ROBOKASSA_LOGIN, out_summ,
-                           inv_id, settings.ROBOKASSA_PASS])
+                           inv_id, settings.ROBOKASSA_PASS1])
 
     crc = md5(hex_string.encode('utf-8')).hexdigest()
 
@@ -48,3 +48,13 @@ def geturl_robokassa(out_summ):
         out_summ, inv_id, crc)
 
     return url
+
+
+def check_signature_robo(_inv_id, out_summ, crc):
+    hex_string = ':'.join([out_summ,
+                           _inv_id, settings.ROBOKASSA_PASS1])
+
+    my_crc = md5(hex_string.encode('utf-8')).hexdigest()
+    if my_crc == crc:
+        return True
+    return False

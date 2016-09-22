@@ -34,7 +34,7 @@ from .kraken_api import api
 from django.utils import translation
 from decimal import Decimal
 from referrals.models import Referral, ReferralCode
-from core.utils import geturl_robokassa
+from core.utils import geturl_robokassa, check_signature_robo
 
 
 kraken = api.API()
@@ -406,15 +406,6 @@ def payment_confirmation(request, pk):
         try:
             order.is_paid = paid
 
-            # TODO make test
-            # payment = Payment.objects.filter(amount_cash=order.amount_cash,
-            #                                  user=order.user,
-            #                                  currency=order.currency,
-            #                                  ).latest('id')
-            #
-            # payment.is_success = order.is_paid
-            # payment.save()
-
             return JsonResponse({'status': 'OK',
                                  'frozen': order.frozen,
                                  'paid': order.is_paid}, safe=False)
@@ -491,7 +482,8 @@ def ajax_order(request):
     url = ''
 
     if payment_method == 'Robokassa':
-        url = geturl_robokassa(str(round(Decimal(order.amount_cash), 2)))
+        url = geturl_robokassa(order.id,
+                               str(round(Decimal(order.amount_cash), 2)))
 
     return HttpResponse(template.render({'order': order,
                                          'unique_ref': uniq_ref,
@@ -688,20 +680,48 @@ def referrals(request):
 
 @login_required
 def payfailed(request):
-    url = geturl_robokassa(str(request.GET.get("out_summ")))
     template = get_template('core/partials/steps/step_reply_payment.html')
     last_order = Order.objects.filter(user=request.user).latest('id')
+    url = '/pay_try_again'
     last_order.is_failed = True
     last_order.save()
-    return HttpResponse(template.render({'url_robokassa': url}, request))
+    return HttpResponse(template.render({'url_try_again': url}, request))
+
+
+@login_required
+def try_pay_again(request):
+    old_order = Order.objects.filter(user=request.user,
+                                     is_failed=True).latest('id')
+    order = old_order
+    order.id = None
+    order.save()
+    url = geturl_robokassa(order.id, str(order.amount_cash))
+    return redirect(url)
 
 
 @login_required
 def paysuccess(request):
-    summa = request.GET.get("out_summ")
-    last_order = Order.objects.filter(user=request.user).latest('id')
+    out_summ = request.GET.get("OutSum")
+    inv_id = request.GET.get("InvId")
+    crc = request.GET.get("SignatureValue")
+
+    check_res = check_signature_robo(inv_id, out_summ, crc)
+
+    # return JsonResponse({'my':check_res, 'crc':crc})
+
+    if not check_res:
+        template = get_template('core/partials/steps/step_reply_payment.html')
+        return HttpResponse(template.render({'bad_sugnature': '1'}, request))
+
+    order = Order.objects.filter(user=request.user,
+                                 amount_cash=out_summ,
+                                 id=inv_id)[0]
+
     currency = Currency.objects.filter(code="RUB")[0]
-    payment = Payment(amount_cash=summa, currency=currency,
-                      user=request.user, order=last_order)
-    payment.save()
+    Payment.objects.get_or_create(amount_cash=out_summ,
+                                  currency=currency,
+                                  user=request.user,
+                                  order=order,
+                                  is_complete=True)
+
     return redirect(reverse('core.order'))

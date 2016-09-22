@@ -104,7 +104,8 @@ CMS_PERMISSION = False
 SITE_ID = 1
 
 ROBOKASSA_LOGIN = 'nexchangeBTC'
-ROBOKASSA_PASS = 'xfVM7MuIS9MUD6cL6CQ3'
+ROBOKASSA_PASS1 = 'SBYcBnB8Oq63KK5UB7oC'
+ROBOKASSA_PASS2 = 'vaXizy98NA4rOm8Mty6l'
 ROBOKASSA_IS_TEST = 1
 ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
                 "isTest={0}&MerchantLogin={1}&" \
