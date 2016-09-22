@@ -161,7 +161,7 @@ build:
     - script:
         name: Django migrations
         code: |
-          cat <(echo "yes") - | python manage.py makemigrations
+          python manage.py makemigrations
     - script:
         name: django collect and compile translations
         code: |

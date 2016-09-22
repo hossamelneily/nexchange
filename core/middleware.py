@@ -1,7 +1,7 @@
 import pytz
 
 from django.conf import settings
-from datetime import datetime
+# from datetime import datetime
 from django.utils import timezone
 
 
@@ -17,14 +17,4 @@ class TimezoneMiddleware(object):
 
 class LastSeenMiddleware(object):
     def process_response(self, request, response):
-        if hasattr(request, 'user') and \
-                request.user and request.user.is_authenticated():
-            profile = request.user.profile
-
-            profile.last_visit_time = \
-                datetime.now()
-            profile.last_visit_ip = \
-                request.META['REMOTE_ADDR']
-            profile.save()
-            # TODO: use naive time in db?
-        return response
+        pass
