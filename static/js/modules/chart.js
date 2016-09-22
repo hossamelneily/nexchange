@@ -15,9 +15,11 @@
         for (i = 0; i < data.length; i+=2) {
             var sell = data[i],
             buy = data[i + 1];
-            resRub.push([Date.parse(sell.created_on), buy.price_rub_formatted, sell.price_rub_formatted]);
-            resUsd.push([Date.parse(sell.created_on), buy.price_usd_formatted, sell.price_usd_formatted]);
-            resEur.push([Date.parse(sell.created_on), buy.price_eur_formatted, sell.price_eur_formatted]);
+            if(!!sell && !!buy) {
+                resRub.push([Date.parse(sell.created_on), buy.price_rub_formatted, sell.price_rub_formatted]);
+                resUsd.push([Date.parse(sell.created_on), buy.price_usd_formatted, sell.price_usd_formatted]);
+                resEur.push([Date.parse(sell.created_on), buy.price_eur_formatted, sell.price_eur_formatted]);
+            }
         }
         return {
             rub: resRub,
@@ -26,22 +28,29 @@
         };
     }
 
-    function renderChart (currency) {
-         $.get(tickerHistoryUrl, function(resdata) {
+    function renderChart (currency, hours) {
+        var actualUrl = tickerHistoryUrl;
+        if (hours) {
+            actualUrl = actualUrl + '?hours=' + hours;
+        }
+         $.get(actualUrl, function(resdata) {
             chartDataRaw = resdata;
             var data = responseToChart(resdata)[currency];
-          $('#container').highcharts({
+          $('#container-graph').highcharts({
 
                 chart: {
                     type: 'arearange',
                     zoomType: 'x',
-                  backgroundColor: {
-                     linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-                     stops: [
-                        [0, '#e3ffda'],
-                        [1, '#e3ffda']
-                     ]
-                  },
+                    style: {
+                        fontFamily: 'Gotham'
+                    },
+                    backgroundColor: {
+                        linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+                        stops: [
+                            [0, '#F3F3F3'],
+                            [1, '#F3F3F3']
+                        ]
+                    },
                     events : {
                         load : function () {
                             // set up the updating of the chart each second
@@ -53,10 +62,16 @@
                                          parseInt(chartDataRaw[chartDataRaw.length - 1].unix_time)
                                     ) {
                                         //Only update if a ticker 'tick' had occured
-                                        series.addPoint(lastdata[0], true, true);
+                                        var _lastadata = lastdata[0];
+                                        if (_lastadata[1] > _lastadata[2])
+                                        {
+                                            var a= _lastadata[1];
+                                            _lastadata[1] = _lastadata[2];
+                                            _lastadata[2] = a;
+                                        }
+                                        series.addPoint(_lastadata, true, true);
                                         Array.prototype.push.apply(chartDataRaw, resdata);
                                     }
-
                                 });
                         }, 1000 * 30);
                       }
@@ -92,10 +107,10 @@
                 },
 
                 series: [{
-                    name: currency === 'rub' ? 'цена' : 'Price',
+                    name: currency.toLowerCase() === 'rub' ? 'цена' : 'Price',
                     data: data,
-                    color: 'lightgreen',
-                    // TODO: fix this!
+                    color: '#8cc63f',
+                    // TODO: fix this! make dynamic
                     pointInterval: 3600 * 1000
                 }]
             });

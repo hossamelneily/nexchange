@@ -6,7 +6,7 @@
          registerObject = require("./register.js"),
          animationDelay = 3000;
 
-    function updateOrder (elem, isInitial, currency) {
+    function updateOrder (elem, isInitial, currency, cb) {
         var val,
             rate,
             amountCoin = $('.amount-coin'),
@@ -26,7 +26,7 @@
             updatePrice(getPrice(data[window.ACTION_SELL], currency), $('.rate-sell'));
             rate = data[window.action]['price_' + currency + '_formatted'];
             if (elem.hasClass('amount-coin')) {
-                var cashAmount = rate * val;
+                var cashAmount = (rate * val).toFixed(2);
                 amountCashConfirm = cashAmount;
                 if (isInitial) {
                     $('.amount-cash').attr('placeholder', cashAmount);
@@ -43,10 +43,14 @@
             }
             $('.btc-amount-confirm').text(amountCoin.val()); // add
             $('.cash-amount-confirm').text(amountCashConfirm); //add
+
+            // cb && cb();
+            if(cb) cb();
         });
     }
 
     //order.js
+
     function updatePrice (price, elem) {
         var currentPriceText = elem.html().trim(),
             currentPrice,
@@ -100,7 +104,7 @@
         }
 
         $('.currency').html(currency.toUpperCase());
-        chartObject.renderChart(currency);
+        chartObject.renderChart(currency, $("#graph-range").val());
     }
 
     function setPrice(elem, price) {
@@ -128,14 +132,42 @@
             .addClass('btn-default');
     }
 
-    function changeState (action) {
+    function toggleBuyModal () {
+        $("#PayMethModal").modal('toggle');
+    }
+
+    function toggleSellModal () {
+        try{
+            $("#card-form").card({
+                container: '.card-wrapper',
+                width: 200,
+                placeholders: {
+                    number: '•••• •••• •••• ••••',
+                    name: 'Ivan Ivanov',
+                    expiry: '••/••',
+                    cvc: '•••'
+                }
+            });
+        }
+        catch(e) {}
+        $("#UserAccountModal").modal({backdrop: "static"});
+    }
+
+    function changeState (e, action) {
+        if (e) {
+            e.preventDefault();
+        }
         if ( $(this).hasClass('disabled') ) {// jshint ignore:line
             //todo: allow user to buy placeholder value or block 'next'?
             return;
         }
 
         if (!$('.payment-preference-confirm').html().trim()) {
-            $("#PayMethModal").modal('toggle');
+            if (window.action == window.ACTION_BUY){
+                toggleBuyModal();
+            } else {
+                toggleSellModal();
+            }
             return;
         }
 
@@ -150,8 +182,8 @@
 
         var paneClass = '.tab-pane',
             tab = $('.tab-pane.active'),
-            action2 =  $(this).hasClass('next-step') ? 'next' :'prev',// jshint ignore:line
-            nextStateId = tab[action2](paneClass).attr('id'),
+            action = action || $(this).hasClass('next-step') ? 'next' : 'prev',// jshint ignore:line
+            nextStateId = tab[action](paneClass).attr('id'),
             nextState = $('[href="#'+ nextStateId +'"]'),
             nextStateTrigger = $('#' + nextStateId),
             menuPrefix = "menu",
@@ -163,7 +195,7 @@
         if(nextState.hasClass('disabled') &&
             numericId < $(".process-step").length &&
             numericId > 1) {
-            changeState(action);
+            changeState(null, action);
         }
 
 
@@ -186,7 +218,7 @@
         $(window).trigger('resize');
     }
 
-    function reloadRoleRelatedElements (menuEndpoint) {
+function reloadRoleRelatedElements (menuEndpoint) {
         $.get(menuEndpoint, function (menu) {
             $(".menuContainer").html($(menu));
         });
@@ -196,15 +228,16 @@
             .removeClass('disabled')
             .removeClass('disableClick')
             .addClass('btn-default');
-        $(".step4 .btn").addClass('btn-info');
-        // Todo: is this required?
-        $(".step3 .btn")
+
+        $(".step2 .btn")
+            .addClass('btn-info')
             .addClass('disableClick')
             .addClass('disabled');
     }
 
     function reloadCardsPerCurrency(currency, cardsModalEndpoint) {
-        $.post(cardsModalEndpoint, {currency: currency}, function (data) {
+        var _locale= $('.topright_selectbox').val();
+        $.post(cardsModalEndpoint, {currency: currency, _locale: _locale }, function (data) {
             $('.paymentSelectionContainer').html($(data));
         });
     }
@@ -219,6 +252,8 @@
         setButtonDefaultState: setButtonDefaultState,
         changeState: changeState,
         reloadRoleRelatedElements: reloadRoleRelatedElements,
-        reloadCardsPerCurrency: reloadCardsPerCurrency
+        reloadCardsPerCurrency: reloadCardsPerCurrency,
+        toggleBuyModal: toggleBuyModal,
+        toggleSellModal: toggleSellModal
     };
 }(window, window.jQuery)); //jshint ignore:line

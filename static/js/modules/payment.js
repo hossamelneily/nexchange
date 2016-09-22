@@ -10,6 +10,7 @@
 
     function loadPaymenMethodsAccount(paymentMethodsAccountEndpoint, pm) {
         var data = {'payment_method': pm};
+
         $.get(paymentMethodsAccountEndpoint, data, function (data) {
             $(".paymentMethodsAccount").html($(data));
         });

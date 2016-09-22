@@ -18,8 +18,6 @@
 </div>
     {% include 'core/partials/testemonials.html' %}
     {% include 'core/partials/press.html' %}
-    {% include 'core/partials/supported_paymnets.html' %}
-
 {% endblock %}
 {% block extra_js_footer %}
     <script src="https://code.highcharts.com/highcharts.js"></script>
@@ -27,4 +25,11 @@
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script src="{% static 'bower_components/card/dist/jquery.card.js' %}"></script>
     <script src="{% static 'bower_components/intl-tel-input/build/js/intlTelInput.min.js' %}"></script>
+    <script src="{% static 'js/bundle.js' %}"></script>
 {% endblock %}
+
+
+{% block footer %}
+       {% include 'core/partials/supported_payments.html' %}
+{% endblock %}
+
