@@ -94,6 +94,12 @@ dev:
           cd .git/hooks/
           ln -fs ../../.pre-commit.sh pre-commit
           cd -
+    - script:
+        name: Install redis-server
+        code: |
+#          apt-get update
+#          apt-get install -y telnet redis-server
+#          redis-server --version
     - create-file:
         name: Create cron invoked script to run ticker
         filename: /ticker.sh
