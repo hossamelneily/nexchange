@@ -270,6 +270,7 @@
         });
 
         $(document).on('click', '.buy .payment-type-trigger', function () {
+            $('.supporetd_payment').addClass('hidden');
             paymentType = $(this).data('type');
             preferenceIdentifier = $(this).data('identifier');
             $(".payment-preference-confirm").text(paymentType);
@@ -280,6 +281,7 @@
         });
 
         $(document).on('click', '.payment-type-trigger-footer', function () {
+            $('.supporetd_payment').addClass('hidden');
             paymentType = $(this).data('type');
             preferenceIdentifier = $(this).data('identifier');
             $(".payment-preference-confirm").text(paymentType);
@@ -333,6 +335,7 @@
         });
 
         $('.payment-widget .save-card').on('click', function () {
+            $('.supporetd_payment').addClass('hidden');
             // TODO: Add handling for qiwi wallet with .intlTelInput("getNumber")
             if ($(this).hasClass('disabled')) {
                 return false;
