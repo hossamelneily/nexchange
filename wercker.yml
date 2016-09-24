@@ -300,6 +300,13 @@ deploy:
     - script:
       name: Do deploy
       code: |
+        cat $PRIVATEKEY_PATH
+         echo "\n"
+        echo $PEM_FILE_CONTENT_PRIVATE
+        echo "\n"
+        echo $PEM_FILE_CONTENT_PUBLIC
+        echo "\n"
+        echo $PEM_FILE_CONTENT
         SSH_OPTIONS="-o StrictHostKeyChecking=no -i $PRIVATEKEY_PATH"
         SSH_DEST="$SSH_USER@$DEST_HOST_ADDR"
         SUBSTR=${WERCKER_GIT_COMMIT:0:9}
