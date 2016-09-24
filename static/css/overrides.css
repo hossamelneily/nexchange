@@ -508,7 +508,7 @@ a:focus
 
 .price_box_selectbox_cont{display:inline-block; width:100%; border:2px solid #8cc63f;}
 
-.price_box_selectbox_cont_textbox{float:left; text-align: center; width:65%; background-color:transparent; border:solid #8cc63f; font-size:18px; padding:8px 10px;border-width:0 2px 0 0; }
+.price_box_selectbox_cont_textbox{float:left; margin: 0px; text-align: center; width:65%; background-color:transparent; border:solid #8cc63f; font-size:18px; padding:8px 10px;border-width:0 2px 0 0; }
 
 .price_box_selectbox_cont_selectbox{float:left; width:33%; margin:0px 0 0 0; font-size:18px;  -webkit-appearance: none;
     -moz-appearance: none; border:none; padding:8px 10px; font-family: 'Montserrat-Regular', 'Gotham';}

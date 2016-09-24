@@ -10,7 +10,7 @@ services:
             - /nexchange/database:/var/lib/postgresql/data
         restart: always
     app:
-        image: onitsoft/nexchange:${DOCKER_IMAGE_TAG}
+        image: onit/nexchange:${DOCKER_IMAGE_TAG}
         volumes:
             - /nexchange/mediafiles:/usr/share/nginx/html/media
             - /nexchange/staticfiles:/usr/share/nginx/html/static
@@ -27,7 +27,7 @@ services:
             - /nexchange/staticfiles:/usr/share/nginx/html/static
         ports:
             - "80:80"
-            - "443:443"            
+            - "443:443"
         links:
             - app
         restart: always

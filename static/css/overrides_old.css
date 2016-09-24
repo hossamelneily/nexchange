@@ -152,7 +152,7 @@
         padding: 0;
     }
 
-    html body .supported-payments {
+    html body  {
         min-height: 200px;
         padding: 0;
     }

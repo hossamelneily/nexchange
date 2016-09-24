@@ -707,11 +707,9 @@ def paysuccess(request):
 
     check_res = check_signature_robo(inv_id, out_summ, crc)
 
-    # return JsonResponse({'my':check_res, 'crc':crc})
-
     if not check_res:
         template = get_template('core/partials/steps/step_reply_payment.html')
-        return HttpResponse(template.render({'bad_sugnature': '1'}, request))
+        return HttpResponse(template.render({'bad_sugnature': True}, request))
 
     order = Order.objects.filter(user=request.user,
                                  amount_cash=out_summ,

@@ -154,6 +154,7 @@
     }
 
     function changeState (e, action) {
+        $('.supporetd_payment').addClass('hidden');
         if (e) {
             e.preventDefault();
         }
