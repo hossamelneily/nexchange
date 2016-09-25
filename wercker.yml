@@ -315,7 +315,7 @@ deploy:
           /usr/bin/env
           echo "env of env"
           # Login to docker hub (for private images)
-          sudo docker login \
+          docker login \
             -u $DOCKER_HUB_USER \
             -p $DOCKER_HUB_PASSWORD
           # Start new instance
@@ -366,7 +366,6 @@ tests:
         name: Validate New Relic config file
         code: |
           newrelic-admin validate-config ${NEW_RELIC_CONFIG_FILE}
-
 static-validation:
   steps:
     - script:
