@@ -43,7 +43,7 @@
 }
 
 .form-control{
-    border-color: greenyellow !important;
+    border-color: #8dc73f;
     padding-right: 0px;
     margin-right: 0px;
 }
@@ -118,11 +118,11 @@
 
 
 .search-order{
-   border-color: greenyellow;
+   border-color: #8dc73f;
 }
 
 .table-order > th{
-    color:greenyellow;
+    color:#8dc73f;
     font-weight: normal;
     border-bottom: 1px solid black;
 }
@@ -142,7 +142,7 @@
 
 
 .headers-mobile {
-    color: greenyellow !important;
+    color: #8dc73f;
 }
 
 .mobile-table > th{

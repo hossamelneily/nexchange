@@ -54,7 +54,7 @@ dev:
     - script:
         name: Django compile messages
         code: |
-           python manage.py compilemessages
+           # python manage.py compilemessages
     - script:
       name: Django create superuser
       code: |

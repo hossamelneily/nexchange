@@ -4,6 +4,7 @@ from nexchange.core.models import TimeStampedModel, SoftDeletableModel
 from django.contrib.auth.models import User
 from nexchange.nexchange.settings import UNIQUE_REFERENCE_LENGTH
 
+
 class Payment(TimeStampedModel, SoftDeletableModel):
     amount_cash = models.FloatField()
     currency = models.ForeignKey(User)
