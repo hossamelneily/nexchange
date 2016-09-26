@@ -149,7 +149,7 @@ build:
         code: |
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
           mkdir -p ${pip_download_cache}
-          pip install --cache-dir ${pip_download_cache} -r requirements.txt
+          yes w | pip install --cache-dir ${pip_download_cache} -r requirements.txt
           has_krakenex=$(python -c "import importlib; k = importlib.find_loader('krakenex'); print(str(k is not None))")
           if [ "${has_krakenex}" == "False" ]; then
             git clone https://github.com/onitsoft/python3-krakenex.git /usr/src/krakenex
@@ -334,7 +334,7 @@ tests:
         code: |
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
           mkdir -p ${pip_download_cache}
-          pip install --cache-dir ${pip_download_cache} -r requirements.txt
+          yes w | pip install --cache-dir ${pip_download_cache} -r requirements.txt
           has_krakenex=$(python -c "import importlib; k = importlib.find_loader('krakenex'); print(str(k is not None))")
           if [ "${has_krakenex}" == "False" ]; then
             git clone https://github.com/onitsoft/python3-krakenex.git /usr/src/krakenex
