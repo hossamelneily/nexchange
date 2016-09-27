@@ -716,6 +716,7 @@ def paysuccess(request):
                                  id=inv_id)[0]
 
     currency = Currency.objects.filter(code="RUB")[0]
+
     Payment.objects.get_or_create(amount_cash=out_summ,
                                   currency=currency,
                                   user=request.user,

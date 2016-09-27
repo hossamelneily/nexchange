@@ -76,7 +76,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 INSTALLED_APPS = [
     'cms',
-    'django_rq',
+    # 'django_rq',
     'treebeard',
     'menus',
     'sekizai',
@@ -99,7 +99,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'core',
     'ticker',
-    'referrals'
+    'referrals',
+    'payment_released',
 ]
 
 CMS_PERMISSION = False
@@ -114,21 +115,29 @@ ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
                 "isTest={0}&MerchantLogin={1}&" \
                 "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
 
+# redis_address =os.getenv('REDIS_PORT_6379_TCP_ADDR')
+# redis_port =os.getenv('REDIS_PORT_6379_TCP_PORT')
+
+REDIS_ADDR = os.getenv('REDIS_PORT_6379_TCP_ADDR')
+REDIS_PORT = os.getenv('REDIS_PORT_6379_TCP_PORT')
+REDIS_URL = 'redis://{}:{}/1'.format(REDIS_ADDR, REDIS_PORT)
+
+
 RQ_QUEUES = {
     'default': {
-        'HOST': 'localhost',
-        'PORT': 6379,
+        'HOST': REDIS_ADDR,
+        'PORT': REDIS_PORT,
         'DB': 0,
         'PASSWORD': 'some-password',
         'DEFAULT_TIMEOUT': 360,
     },
     'high': {
         'URL': os.getenv('REDISTOGO_URL',
-                         'redis://localhost:6379/0'),
+                         'redis://172.17.0.3:6379/0'),
         'DEFAULT_TIMEOUT': 500,
     },
     'low': {
-        'HOST': 'localhost',
+        'HOST': '172.17.0.3',
         'PORT': 6379,
         'DB': 0,
     }

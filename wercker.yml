@@ -10,6 +10,10 @@ dev:
        POSTGRES_USER: nexchange
        POSTGRES_PASSWORD: nexchange
        POSTGRES_DB: nexchange
+   - name: redis
+     id: redis
+     cmd: redis-server
+
   steps:
     - script:
         name: export django settings module
@@ -94,6 +98,15 @@ dev:
           cd .git/hooks/
           ln -fs ../../.pre-commit.sh pre-commit
           cd -
+    - script:
+        name: Run rqscheduler and rq worker
+        code: |
+          rqscheduler -H ${REDIS_PORT_6379_TCP_ADDR} &
+          rq worker -u ${REDIS_PORT_6379_TCP} &
+    - script:
+        name: Start payment_release command
+        code: |
+            python manage.py payment_release
     - create-file:
         name: Create cron invoked script to run ticker
         filename: /ticker.sh
@@ -166,6 +179,7 @@ build:
         name: django collect and compile translations
         code: |
           # python manage.py compilemessages
+
     - script:
         name: Django collect static
         code: |
@@ -249,7 +263,8 @@ build:
     - script:
         name: set entrypoint as executable
         code: |
-          chmod +x /entrypoint.sh
+          chmod +x /entrypoint.s
+
     - create-file:
         name: Create cron invoked script to run ticker
         filename: /ticker.sh

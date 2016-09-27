@@ -61,11 +61,9 @@ six>=1.10.0
 sqlparse>=0.2.1
 traitlets>=4.2.2
 twilio>=5.4.0
-vine>=1.1.1
-wcwidth>=0.1.7
-django-treebeard>=4.0.1
-psycopg2>=2.6.2
-django-filer
-easy_thumbnails
-django-mptt
-django-polymorphic
+requests-mock>=1.0.0
+django-filter>=0.14.0
+django-cms==3.3.2
+djangocms-text-ckeditor >= 3.0
+django-debug-toolbar
+psycopg2>=2.6.1
