@@ -1,7 +1,4 @@
-
 box: pitervergara/geodjango:nexchange
-ports:
-  - "8000"
 
 dev:
   services:
@@ -20,11 +17,9 @@ dev:
         code: |
           mkdir -p /usr/share/nginx/html/static
           mkdir -p /usr/share/nginx/html/media
-    - npm-install
+    - npm-install    
     - maxon/npm-run:
         script: bower
-    - maxon/npm-run:
-        script: build-js
     - script:
         name: pip install requirements (with cache)
         code: |
@@ -42,19 +37,15 @@ dev:
     - script:
         name: Django make migrations
         code: |
-          cat <(echo "yes") - | python manage.py makemigrations
+          python manage.py makemigrations
     - script:
         name: wait...
         code: |
-          sleep 5
+          sleep 20
     - script:
-        name: Django apply migrations
+        name: Django aply migrations
         code: |
           python manage.py migrate
-    - script:
-        name: Django compile messages
-        code: |
-           # python manage.py compilemessages
     - script:
       name: Django create superuser
       code: |
@@ -76,17 +67,13 @@ dev:
         code: |
           python manage.py loaddata core/fixtures/withdraw_address.json
     - script:
-        name: Django import affiliate program fixture
-        code: |
-          python manage.py loaddata core/fixtures/affiliate_program.json
-    - script:
         name: Django run ticker update prices command
         code: |
-          python manage.py ticker
+          python manage.py ticker          
     - script:
         name: Django collect static
         code: |
-          python manage.py collectstatic --noinput
+          python manage.py collectstatic --noinput          
     - script:
         name: Link pre-commit hook script
         code: |     
@@ -94,33 +81,9 @@ dev:
           cd .git/hooks/
           ln -fs ../../.pre-commit.sh pre-commit
           cd -
-    - create-file:
-        name: Create cron invoked script to run ticker
-        filename: /ticker.sh
-        overwrite: true
-        content: |-
-          #!/bin/bash
-          #
-          export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-          export POSTGIS_ENV_POSTGRES_USER=${POSTGIS_ENV_POSTGRES_USER}
-          export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}
-          export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
-          export POSTGIS_PORT_5432_TCP_ADDR=${POSTGIS_PORT_5432_TCP_ADDR}
-          export POSTGIS_PORT_5432_TCP_PORT=${POSTGIS_PORT_5432_TCP_PORT}
-          #
-          cd ${WERCKER_SOURCE_DIR}
-          /usr/local/bin/python manage.py ticker >> /var/log/cron.log 2>&1
-    - script:
-        name: Add cron job
-        code: |
-          chmod +x /ticker.sh
-          echo "* * * * * root /ticker.sh" > /etc/crontab
-          cron
     - internal/watch:
-        code: |
-          echo 'Dev server running'
-           npm run watch-js & newrelic-admin run-program  python manage.py runserver 0.0.0.0:8000
-        reload: false
+        code: newrelic-admin run-program python manage.py runserver 0.0.0.0:8000
+        reload: false 
 
 build:
   services:
@@ -130,8 +93,10 @@ build:
        POSTGRES_PASSWORD: ${POSTGIS_ENV_POSTGRES_PASSWORD}
        POSTGRES_DB: ${POSTGIS_ENV_POSTGRES_DB}
   steps:
-    - install-packages:
-      packages: netcat
+    - script:
+        name: export django settings
+        code: |
+          export DJANGO_SETTINGS_MODULE=nexchange.settings_prod
     - script:
         name: create static and media root
         code: |
@@ -149,7 +114,7 @@ build:
         code: |
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
           mkdir -p ${pip_download_cache}
-          yes w | pip install --cache-dir ${pip_download_cache} -r requirements.txt
+          pip install --cache-dir ${pip_download_cache} -r requirements.txt
           has_krakenex=$(python -c "import importlib; k = importlib.find_loader('krakenex'); print(str(k is not None))")
           if [ "${has_krakenex}" == "False" ]; then
             git clone https://github.com/onitsoft/python3-krakenex.git /usr/src/krakenex
@@ -163,10 +128,6 @@ build:
         code: |
           python manage.py makemigrations
     - script:
-        name: django collect and compile translations
-        code: |
-          # python manage.py compilemessages
-    - script:
         name: Django collect static
         code: |
           python manage.py collectstatic --noinput
@@ -178,15 +139,24 @@ build:
         cp -r /usr/share/nginx/html/static $WERCKER_OUTPUT_DIR/staticfiles
         cp -r /usr/share/nginx/html/media $WERCKER_OUTPUT_DIR/mediafiles
     - script:
-        name: place docker-compose and nginx.conf files
+        name: place remove-containers.sh script 
         code: |
-          mv "nginx.conf" "$WERCKER_OUTPUT_DIR/nginx.conf"
-          mv "docker-compose.yml" "$WERCKER_OUTPUT_DIR/docker-compose.yml"
+          mv "remove-containers.sh" "$WERCKER_OUTPUT_DIR/remove-containers.sh"        
     - create-file:
         #
         # PEM_FILE_CONTENT - the key to SSH into server (create key par via wercker web interface. remeber to install public key on server)
         # SSH_USER - the user to SSH into server
         # DEST_HOST_ADDR - server where to deploy  
+        #
+        # DATABASE_CONTAINER - DB to container to link to
+        # POSTGIS_ENV_POSTGRES_USER
+        # POSTGIS_ENV_POSTGRES_PASSWORD
+        # POSTGIS_ENV_POSTGRES_DB
+        #
+        # GUNICORN_PORT
+        #
+        # VOLUMES_PARAM - a list o volumes (each preceded by -v to mount in container)
+        # PORTS_PARAM - a list of ports (each preceded by -p to expose)
         #
         # DOCKER_HUB_USER - dockerhub username
         # DOCKER_HUB_PASSWORD - dockerhub password (defined as a protectd var)
@@ -202,30 +172,22 @@ build:
           #   Apply migrations
           #   Starts gunicorn
           # ###
-          export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+          #
+          export DJANGO_SETTINGS_MODULE=nexchange.settings_prod
+          # the following vars should br defined in wercker web interface
           export GUNICORN_PORT=${GUNICORN_PORT}
           export POSTGIS_ENV_POSTGRES_USER=${POSTGIS_ENV_POSTGRES_USER}
           export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}
           export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
-          export POSTGIS_PORT_5432_TCP_ADDR=${POSTGIS_PORT_5432_TCP_ADDR}
-          export POSTGIS_PORT_5432_TCP_PORT=${POSTGIS_PORT_5432_TCP_PORT}
           export NEW_RELIC_CONFIG_FILE=${NEW_RELIC_CONFIG_FILE}
           export NEW_RELIC_ENVIRONMENT=${NEW_RELIC_ENVIRONMENT}
           export NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
-          #
-          while ! nc -z ${POSTGIS_PORT_5432_TCP_ADDR} ${POSTGIS_PORT_5432_TCP_PORT}
-          do
-            >&2 echo "PostgreSQL '(${POSTGIS_PORT_5432_TCP_ADDR}:${POSTGIS_PORT_5432_TCP_PORT})' not ready - waiting..."
-            sleep 1;
-          done
-          echo "PostgreSQL '(${POSTGIS_PORT_5432_TCP_ADDR}:${POSTGIS_PORT_5432_TCP_PORT})' is ready - moving on..."
           #
           # Apply migrations
           python /usr/src/app/manage.py migrate
           # Import fixtures
           python /usr/src/app/manage.py loaddata core/fixtures/currency.json
           python /usr/src/app/manage.py loaddata core/fixtures/payment_method.json
-          python /usr/src/app/manage.py loaddata core/fixtures/affiliate_program.json
           echo "To load the 'withdraw_address' fixture, uncomment the next line"
           # python manage.py loaddata core/fixtures/withdraw_address.json
           #
@@ -233,43 +195,21 @@ build:
           # adapted from http://goo.gl/E7kRfL
           touch /var/log/gunicorn_error.log
           touch /var/log/gunicorn_access.log
-          tail -n 0 -f /var/log/*.log &
+          tail -n 0 -f /var/log/*.log &          
+          #
           # Copy static data to nginx volume
           cp -ra $WERCKER_OUTPUT_DIR/staticfiles/* /usr/share/nginx/html/static
           cp -ra $WERCKER_OUTPUT_DIR/mediafiles/* /usr/share/nginx/html/media
           #
           # Create superuser
-          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@onit.ws','weare0nit')" | python manage.py shell
+          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
           #
-          # Start Cron Process
-          cron
           echo "Gunicorn start"
           exec newrelic-admin run-program gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --log-file=/var/log/gunicorn_error.log --access-logfile=/var/log/gunicorn_access.log nexchange.wsgi:application "$@"
     - script:
         name: set entrypoint as executable
         code: |
           chmod +x /entrypoint.sh
-    - create-file:
-        name: Create cron invoked script to run ticker
-        filename: /ticker.sh
-        overwrite: true
-        content: |-
-          #!/bin/bash
-          #
-          export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-          export POSTGIS_ENV_POSTGRES_USER=${POSTGIS_ENV_POSTGRES_USER}
-          export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}
-          export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
-          export POSTGIS_PORT_5432_TCP_ADDR=${POSTGIS_PORT_5432_TCP_ADDR}
-          export POSTGIS_PORT_5432_TCP_PORT=${POSTGIS_PORT_5432_TCP_PORT}
-          #
-          cd ${WERCKER_SOURCE_DIR}
-          /usr/local/bin/python manage.py ticker >> /var/log/cron.log 2>&1
-    - script:
-        name: Add cron job
-        code: |
-          chmod +x /ticker.sh
-          echo "* * * * * root /ticker.sh" > /etc/crontab
     - script:
         name: echo python information
         code: |
@@ -277,10 +217,11 @@ build:
           echo "pip version $(pip --version) running"
           echo "installed python packages:"
           echo "$(pip freeze | sort)"
+
     - internal/docker-push:
         username: $DOCKER_HUB_USER
         password: $DOCKER_HUB_PASSWORD
-        tag: ${DOCKER_IMAGE_TAG}
+        tag: $WERCKER_GIT_COMMIT
         repository: $DOCKER_HUB_REPO
         registry: https://registry.hub.docker.com
         entrypoint: /entrypoint.sh
@@ -303,24 +244,27 @@ deploy:
         SSH_OPTIONS="-o StrictHostKeyChecking=no -i $PRIVATEKEY_PATH"
         SSH_DEST="$SSH_USER@$DEST_HOST_ADDR"
         SUBSTR=${WERCKER_GIT_COMMIT:0:9}
-        scp ${SSH_OPTIONS} nginx.conf ${SSH_DEST}:/nexchange/etc/nginx/nginx.conf
-        scp ${SSH_OPTIONS} docker-compose.yml ${SSH_DEST}:/nexchange/docker-compose.yml
+        scp ${SSH_OPTIONS} remove-containers.sh ${SSH_DEST}:/tmp/${WERCKER_GIT_COMMIT}.sh
         ssh ${SSH_OPTIONS} ${SSH_DEST} << EOF
-          # export the variables that docker-compose will inject into DB container
-          export POSTGIS_ENV_POSTGRES_USER=${POSTGIS_ENV_POSTGRES_USER}
-          export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}
-          export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
-          export DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
-          echo "Printing current env:"
-          /usr/bin/env
-          echo "env of env"
           # Login to docker hub (for private images)
-          docker login \
+          sudo docker login \
             -u $DOCKER_HUB_USER \
-            -p $DOCKER_HUB_PASSWORD
+            -p $DOCKER_HUB_PASSWORD \
+            --email $DOCKER_HUB_USER_EMAIL
+          # pulls the next image
+          sudo docker pull ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT}
+          # remove current container
+          bash /tmp/${WERCKER_GIT_COMMIT}.sh "nexchange_"
           # Start new instance
-          docker-compose -f /nexchange/docker-compose.yml pull
-          docker-compose -f /nexchange/docker-compose.yml up -d
+          sudo docker run \
+              --name nexchange_${SUBSTR} \
+              --link ${DATABASE_CONTAINER}:postgis \
+              -P \
+              ${PORTS_PARAM} \
+              ${VOLUMES_PARAM} \
+              --detach=true \
+              --restart=always \
+              ${DOCKER_HUB_REPO}:${WERCKER_GIT_COMMIT}
         EOF
 
 tests:
@@ -334,7 +278,7 @@ tests:
         code: |
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
           mkdir -p ${pip_download_cache}
-          yes w | pip install --cache-dir ${pip_download_cache} -r requirements.txt
+          pip install --cache-dir ${pip_download_cache} -r requirements.txt
           has_krakenex=$(python -c "import importlib; k = importlib.find_loader('krakenex'); print(str(k is not None))")
           if [ "${has_krakenex}" == "False" ]; then
             git clone https://github.com/onitsoft/python3-krakenex.git /usr/src/krakenex
@@ -351,6 +295,22 @@ tests:
     - maxon/npm-run:
         script: bower
     - script:
+        name: Django migrations
+        code: |
+          python manage.py makemigrations
+          python manage.py migrate
+    - script:
+      name: Django create superuser
+      code: |
+          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
+    - script:
+        name: Django import fixtures
+        code: |
+          python manage.py loaddata core/fixtures/currency.json
+          python manage.py loaddata core/fixtures/payment_method.json
+          python manage.py loaddata core/fixtures/withdraw_address.json
+          python manage.py ticker  # not a fixture, but same propose...
+    - script:
         name: Backend tests
         code: |
           coverage erase
@@ -360,12 +320,14 @@ tests:
     - script:
         name: Frontend tests
         code: |
-          # export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs
-          # npm run-script test
+          export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs 
+          npm run-script test
     - script:
         name: Validate New Relic config file
         code: |
           newrelic-admin validate-config ${NEW_RELIC_CONFIG_FILE}
+
+
 static-validation:
   steps:
     - script:
