@@ -1,6 +1,22 @@
+.footer_inner{
+    padding: 0;
+}
+
 .btc-amount-confirm, .cash-amount-confirm {
     font-weight: bold;
     font-size: 20px;
+}
+
+body .ui-widget-header {
+    border: 0;
+    background: none;
+    background-color: #8dc73f;
+}
+
+html body .ui-state-default.ui-state-highlight {
+}
+
+html body .ui-state-default{
 }
 
 .post-content-menu {
@@ -146,6 +162,7 @@
     body html footer {
         font-size: 10px;
         margin-top: 1px;
+        max-height: 25%;
     }
 
     html body .amounts .panel {
@@ -321,3 +338,12 @@ body #card-form .pay-row {
 .nopadding {
     padding: 0;
 }
+
+button.close {
+    margin: -5px 5px;
+}
+
+.footer {
+    bottom: 0;
+}
+

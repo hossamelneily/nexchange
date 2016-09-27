@@ -1,32 +1,19 @@
 !(function (window, $) {
     $(window).bind("load", function () {
-        var footerHeight = 0,
-            footerTop = 0,
-            $footer = $("footer");
-
-        positionFooter();
 
         function positionFooter() {
-            footerHeight = $footer.height();
-            footerTop = ($(window).scrollTop() + $(window).height() - footerHeight) + "px";
+            var footerHeight = $('.footer').outerHeight(),
+            bottomFooterHeight = $('.footer_bottom').height(),
+            containerHeight = $('.container').height(),
+            spacerHeight = $(window).height() - containerHeight -
+                footerHeight - bottomFooterHeight;
 
-            if (($(document.body).height() + footerHeight) < $(window).height()) {
-                $footer.css({
-                    position: "absolute"
-                }).animate({
-                    top: footerTop
-                });
-            } else {
-                $footer.css({
-                    position: "static"
-                });
+            if (spacerHeight) {
+                $('.spacer').css('height', spacerHeight);
             }
-
         }
 
-        $(window)
-            .scroll(positionFooter)
-            .resize(positionFooter);
+        $(document).ready(positionFooter);
 
     });
-}(window, window.jQuery)); //jshint ignore:line
+}(window, window.$)); //jshint ignore:line

@@ -504,7 +504,9 @@ a:focus
 
 .price_box a:hover{background-color:#000 !important;}
 
-.price_box2_a{background-color:#ee1d25 !important;}
+body .price_box_ticker .trigger-sell{
+    background-color:#ee1d25;
+}
 
 .price_box_selectbox_cont{display:inline-block; width:100%; border:2px solid #8cc63f;}
 
@@ -524,7 +526,12 @@ a:focus
 
 .greypanel img{width:100%; padding:10px 5px;}
 
-.footer{background-color:#8dc73f; color:#CCC; font-size:14px; padding:30px 0;}
+.footer{
+    background-color:#8dc73f;
+    color:#CCC;
+    font-size:14px;
+    padding:30px 0 50px 0;
+}
 
 .footer_logo{width:100%; max-width:250px;}
 
@@ -537,7 +544,13 @@ a:focus
 
 .footer_socia img{margin:0 2px; display:inline-block;}
 
-.footer_bottom{background-color:#1f2836; color:#FFF; font-size:16px; text-align:center; padding:5px 0;}
+.footer_bottom{
+    background-color:#1f2836;
+    color:#FFF; font-size:16px;
+    text-align:center;
+    padding: 5px 0;
+    bottom: 0;
+}
 
 /*new design end*/
 
@@ -589,7 +602,10 @@ a:focus
 
 .price_box_mid {margin: 0; padding: 0;}
 
-.footer{text-align:center;}
+.footer{
+    text-align:center;
+    position: relative;
+}
 
 .exchange-sign {
     margin-top: 15px;
@@ -599,9 +615,15 @@ a:focus
 
 }
 
-@media screen and (max-width:700px) { }
+@media screen and (max-width:700px) {
+}
 
-@media screen and (max-width:667px) { }
+@media screen and (max-width:667px) {
+       .modal .modal-dialog {
+       margin-top: 0;
+       padding-top: 10px;
+   }
+}
 
 @media screen and (max-width:600px) { }
 
@@ -627,6 +649,19 @@ a:focus
         width: 100%;
         display: block;
     }
+
+    .price_box_ticker a.trigger {
+        font-size: 26px;
+        max-width: 125px;
+    }
+
+       .price_box_ticker span.rate {
+        font-size: 28px;
+    }
+   .price_box_ticker {
+       margin: 25px 0;
+   }
+
 }
     /*
 vertical design

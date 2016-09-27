@@ -63,5 +63,5 @@ traitlets>=4.2.2
 twilio>=5.4.0
 vine>=1.1.1
 wcwidth>=0.1.7
--e git+https://github.com/tabo/django-treebeard.git@2edb72dfef9a732b244056b392f7856691333f63#egg=django-treebeard
+django-treebeard>=4.0.1
 psycopg2>=2.6.2
