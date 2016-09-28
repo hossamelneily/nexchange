@@ -405,7 +405,7 @@ def payment_confirmation(request, pk):
     else:
         try:
             order.is_paid = paid
-
+            order.save()
             return JsonResponse({'status': 'OK',
                                  'frozen': order.frozen,
                                  'paid': order.is_paid}, safe=False)
