@@ -366,6 +366,7 @@ class Transaction(BtcBase):
     # TODO: how to handle cancellation?
     order = models.ForeignKey(Order)
     is_verified = models.BooleanField(default=False)
+    is_completed = models.BooleanField(default=False)
 
 
 class ReferralTransaction(Transaction):

@@ -585,7 +585,15 @@ def k_deposit_status(request):
         'asset': 'XBT',
     }
 
+    # params = {
+    #     'key': '1QfKAhPPPDK5znezLJCo7KpRxJDWWGHiS',
+    #     'asset': 'XBT',
+    #     'amount': '0.00000000000001'
+    # }
+
     k = kraken.query_private('DepositStatus', params)
+    # k = kraken.query_private('Withdraw', params)
+    # return JsonResponse({'result': 'test'})
     if k['error']:
         result = k['error']
     else:
@@ -721,6 +729,6 @@ def paysuccess(request):
                                   currency=currency,
                                   user=request.user,
                                   payment_preference=order.payment_preference,
-                                  is_complete=True)
+                                  is_complete=False)
 
     return redirect(reverse('core.order'))

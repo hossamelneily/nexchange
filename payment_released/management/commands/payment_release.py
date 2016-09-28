@@ -5,9 +5,6 @@ from rq_scheduler import Scheduler
 from datetime import datetime
 # from payment_released.models import ReleasePayment
 # if uncomment then raise
-# AppRegistryNotReady("Apps aren't loaded yet.")  why????
-# from core.models import Order
-
 
 logging.basicConfig(filename='payment_release.log', level=logging.INFO)
 

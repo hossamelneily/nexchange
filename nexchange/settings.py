@@ -14,6 +14,7 @@ import os
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 import dj_database_url
+from datetime import timedelta
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -39,6 +40,7 @@ LANGUAGES = [
     ('en', 'English'),
 ]
 
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
 # CUSTOM SETTINGS
 SMS_TOKEN_VALIDITY = 30
@@ -101,6 +103,7 @@ INSTALLED_APPS = [
     'ticker',
     'referrals',
     'payment_released',
+    'djcelery'
 ]
 
 CMS_PERMISSION = False
@@ -122,6 +125,13 @@ REDIS_ADDR = os.getenv('REDIS_PORT_6379_TCP_ADDR')
 REDIS_PORT = os.getenv('REDIS_PORT_6379_TCP_PORT')
 REDIS_URL = 'redis://{}:{}/1'.format(REDIS_ADDR, REDIS_PORT)
 
+
+CELERYBEAT_SCHEDULE = {
+    'check-orders': {
+        'task': 'nexchange.tasks.payment_release',
+        'schedule': timedelta(seconds=10),
+    },
+}
 
 RQ_QUEUES = {
     'default': {
