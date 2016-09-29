@@ -618,7 +618,7 @@ def cards(request):
 
     cards = {
         'sber': get_pref_by_name('Sber'),
-        'alfa': get_pref_by_name('Alpha'),
+        'alfa': get_pref_by_name('Alfa'),
         'qiwi': get_pref_by_name('Qiwi'),
     }
 
