@@ -3,10 +3,8 @@ from __future__ import absolute_import
 from celery import shared_task
 import logging
 from core.models import Payment, Order, Transaction
-from django.conf import settings
-from twilio.rest import TwilioRestClient
-from twilio.exceptions import TwilioException
 from django.utils.translation import ugettext_lazy as _
+from nexchange.utils import send_sms, withdraw
 
 logging.basicConfig(filename='payment_release.log', level=logging.INFO)
 
@@ -21,25 +19,22 @@ def payment_release():
                                    is_complete=False,
                                    currency=o.currency).first()
         if p is not None:
+            withdraw(o.withdraw_address, o.amount_cash)
             print("release the bitcoins")
+
             print("id={}, unique_reference={}".format(o.id,
                                                       o.unique_reference))
+
             o.is_released = True
             o.save()
 
             # send sms depending on notification settings in profile
-            msg = _("Your order %s:") + ' is released' % o.unique_reference
+            msg = _("Your order %s:") + _(' is released') % o.unique_reference
             phone_to = str(o.user.username)
 
-            try:
-                client = TwilioRestClient(
-                    settings.TWILIO_ACCOUNT_SID,
-                    settings.TWILIO_AUTH_TOKEN)
-                message = client.messages.create(
-                    body=msg, to=phone_to, from_=settings.TWILIO_PHONE_FROM)
-                return message
-            except TwilioException as err:
-                return err
+            sms_result = send_sms(msg, phone_to)
+            print(str(sms_result))
+
             # email
         else:
             print('payment not found ')
