@@ -82,6 +82,9 @@ INSTALLED_APPS = [
     'sekizai',
     'djangocms_admin_style',
     'djangocms_text_ckeditor',
+    'easy_thumbnails',
+    'filer',
+    'mptt',
     'django.contrib.sites',
     'django.contrib.sitemaps',
     'django.contrib.admin',
@@ -328,7 +331,7 @@ GRAPH_HOUR_RANGES = [
     {'val': 24 * 31 * 6, 'name': '6 Months'},
     {'val': 24 * 365, 'name': '1 Year'}
 ]
-DEFAULT_HOUR_RANGE = 1
+DEFAULT_HOUR_RANGE = 6
 
 """
 Configs for sending email for password reset.

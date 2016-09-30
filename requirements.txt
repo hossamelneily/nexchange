@@ -65,3 +65,7 @@ vine>=1.1.1
 wcwidth>=0.1.7
 django-treebeard>=4.0.1
 psycopg2>=2.6.2
+django-filer
+easy_thumbnails
+django-mptt
+django-polymorphic
