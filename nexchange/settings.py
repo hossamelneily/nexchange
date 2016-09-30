@@ -312,10 +312,14 @@ STATICFILES_DIRS = (
 
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 KRAKEN_API_KEY = "E6wsw96A+JsnY33k7SninDdg//JsoZSXcKBYtyrhUYlWyAxIeIIZn3ay"
+# KRAKEN_API_KEY = "0xq0CZSTPm373V/ranC6XQNqC29rt6nlkwe0TpS4GcV2A/wZbGRyjhG6"
 
 
 KRAKEN_API_SIGN = "hLg6LkI+kHtlLJs5ypJ0GnInK0go/HM3xMSVIGgCTc" \
                   "aqoqy8FsTl1KVdgFfWCCfu7CMZeCW4qqMbATrzZaFtRQ=="
+
+# KRAKEN_API_SIGN = "3IPxXgvFZwtQi85oxDUSjwcE2ESrUMCJYT3/
+# VGRDp6uz0wivSXZ3mSj8Vm7hWDO8/MczvRRdi3ZWbGBlc//tXg=="
 
 
 # KRAKEN_API_KEY = os.environ['KRAKEN_API_KEY']

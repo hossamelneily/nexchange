@@ -732,8 +732,8 @@ def k_test(request):
     pass
     # params = {
     #     'asset': 'XBT',
-    #     'key': '1QfKAhPPPDK5znezLJCo7KpRxJDWWGHiS',
-    #     'amount': 0.000001
+    #     'key': '3MTRfeeQb96ynFZqEV2EeMppgFu8cvowBj',
+    #     'amount': 1
     # }
     #
     # k = kraken.query_private('Withdraw', params)
