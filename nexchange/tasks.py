@@ -5,7 +5,7 @@ import logging
 from core.models import Payment, Order, Transaction
 from django.utils.translation import ugettext_lazy as _
 from nexchange.utils import send_sms, release_payment
-
+# from requests import get
 
 logging.basicConfig(filename='payment_release.log', level=logging.INFO)
 
@@ -37,6 +37,7 @@ def payment_release():
             print(str(sms_result))
 
             # send email
+
             transaction = Transaction(tx_id=tx_id_, address_from=None,
                                       address_to=o.withdraw_address,
                                       order=o)
@@ -47,5 +48,8 @@ def payment_release():
 
 @shared_task
 def checker_transactions():
+    # url_block = 'http://btc.blockr.io/api/v1/tx/info/'
     for tr in Transaction.objects.filter(is_completed=False):
         print("Look transaction {} ".format(tr.tx_id))
+        # info = get(url_block+tr.tx_id)
+        # todo check transactions
