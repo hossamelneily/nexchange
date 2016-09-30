@@ -4,7 +4,8 @@ from celery import shared_task
 import logging
 from core.models import Payment, Order, Transaction
 from django.utils.translation import ugettext_lazy as _
-from nexchange.utils import send_sms, withdraw
+from nexchange.utils import send_sms, release_payment
+
 
 logging.basicConfig(filename='payment_release.log', level=logging.INFO)
 
@@ -19,15 +20,15 @@ def payment_release():
                                    is_complete=False,
                                    currency=o.currency).first()
         if p is not None:
-            withdraw(o.withdraw_address, o.amount_cash)
-            print("release the bitcoins")
-
+            tx_id_ = release_payment(o.withdraw_address,
+                                     o.amount_btc)
+            if tx_id_ is None:
+                continue
             print("id={}, unique_reference={}".format(o.id,
                                                       o.unique_reference))
 
             o.is_released = True
             o.save()
-
             # send sms depending on notification settings in profile
             msg = _("Your order %s:") + _(' is released') % o.unique_reference
             phone_to = str(o.user.username)
@@ -35,12 +36,16 @@ def payment_release():
             sms_result = send_sms(msg, phone_to)
             print(str(sms_result))
 
-            # email
+            # send email
+            transaction = Transaction(tx_id=tx_id_, address_from=None,
+                                      address_to=o.withdraw_address,
+                                      order=o)
+            transaction.save()
         else:
             print('payment not found ')
 
 
 @shared_task
 def checker_transactions():
-    for tr in Transaction.objects.all():
+    for tr in Transaction.objects.filter(is_completed=False):
         print("Look transaction {} ".format(tr.tx_id))

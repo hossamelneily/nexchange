@@ -1,9 +1,11 @@
 from twilio.rest import TwilioRestClient
 from django.conf import settings
 from twilio.exceptions import TwilioException
-from core.kraken_api import api
+from uphold import Uphold
 
-kraken_api = api.API()
+
+api = Uphold(settings.UPHOLD_IS_TEST)
+api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
 
 
 def send_sms(msg, phone):
@@ -18,18 +20,12 @@ def send_sms(msg, phone):
         return err
 
 
-def withdraw(key, amount):
-    params = {
-        'asset': 'XBT',
-        'key': key,
-        'amount': amount
-    }
-
-    k = kraken_api.query_private('Withdraw', params)
-
-    if k['error']:
-        result = k['error']
-    else:
-        result = k['result']
-
-    return result
+def release_payment(withdraw, amount, type_='BTC'):
+    try:
+        txn_id = api.prepare_txn(settings.UPHOLD_CARD_ID,
+                                 withdraw, amount, type_)
+        api.execute_txn(settings.UPHOLD_CARD_ID, txn_id)
+        return txn_id
+    except Exception as e:
+        print(str(e))
+        return

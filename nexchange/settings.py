@@ -102,7 +102,7 @@ INSTALLED_APPS = [
     'core',
     'ticker',
     'referrals',
-    'payment_released',
+    # 'payment_released',
     'djcelery'
 ]
 
@@ -309,6 +309,10 @@ STATICFILES_DIRS = (
     STATIC_PATH,
 )
 
+UPHOLD_USER = 'kydim1312@yandex.ru'
+UPHOLD_PASS = '$Kyzin1990'
+UPHOLD_IS_TEST = False
+UPHOLD_CARD_ID = 'adc869d8-xxxx-xxxx-xxxx-72718f0a2be0'
 
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 KRAKEN_API_KEY = "E6wsw96A+JsnY33k7SninDdg//JsoZSXcKBYtyrhUYlWyAxIeIIZn3ay"

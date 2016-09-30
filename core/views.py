@@ -729,18 +729,18 @@ def paysuccess(request):
 
 @login_required
 def k_test(request):
-    pass
-    # params = {
-    #     'asset': 'XBT',
-    #     'key': '3MTRfeeQb96ynFZqEV2EeMppgFu8cvowBj',
-    #     'amount': 1
-    # }
-    #
-    # k = kraken.query_private('Withdraw', params)
-    #
-    # if k['error']:
-    #     result = k['error']
-    # else:
-    #     result = k['result']
-    #
-    # return JsonResponse({'result': result})
+    # pass
+    params = {
+        'asset': 'XBT',
+        'key': 'kydim',
+        'amount': 1,
+    }
+
+    k = kraken.query_private('Withdraw', params)
+
+    if k['error']:
+        result = k['error']
+    else:
+        result = k['result']
+
+    return JsonResponse({'result': result})

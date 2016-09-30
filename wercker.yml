@@ -43,6 +43,15 @@ dev:
             cd -
           fi
           python -c "import krakenex; print('import krakenex sucessfully executed')"
+
+          has_uphold=$(python -c "import importlib; k = importlib.find_loader('uphold'); print(str(k is not None))")
+          if [ "${has_uphold}" == "False" ]; then
+            git clone https://github.com/byrnereese/uphold-sdk-python.git /usr/src/uphold
+            cd /usr/src/uphold
+            python3 setup.py install
+            cd -
+          fi
+          python -c "import uphold; print('import uphold sucessfully executed')"
     - script:
         name: Django make migrations
         code: |
@@ -365,6 +374,7 @@ tests:
             cd -
           fi
           python -c "import krakenex; print('import krakenex sucessfully executed')"
+
     - script:
       name: Install node requirements
       code: |
