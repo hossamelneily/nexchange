@@ -405,7 +405,7 @@ def payment_confirmation(request, pk):
     else:
         try:
             order.is_paid = paid
-
+            order.save()
             return JsonResponse({'status': 'OK',
                                  'frozen': order.frozen,
                                  'paid': order.is_paid}, safe=False)
@@ -618,7 +618,7 @@ def cards(request):
 
     cards = {
         'sber': get_pref_by_name('Sber'),
-        'alfa': get_pref_by_name('Alpha'),
+        'alfa': get_pref_by_name('Alfa'),
         'qiwi': get_pref_by_name('Qiwi'),
     }
 
