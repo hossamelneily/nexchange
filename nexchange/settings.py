@@ -40,6 +40,7 @@ LANGUAGES = [
     ('en', 'English'),
 ]
 
+
 CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
 # CUSTOM SETTINGS
@@ -110,6 +111,7 @@ CMS_PERMISSION = False
 
 SITE_ID = 1
 
+
 ROBOKASSA_LOGIN = 'nexchangeBTC'
 ROBOKASSA_PASS1 = 'SBYcBnB8Oq63KK5UB7oC'
 ROBOKASSA_PASS2 = 'vaXizy98NA4rOm8Mty6l'
@@ -127,9 +129,13 @@ REDIS_URL = 'redis://{}:{}/1'.format(REDIS_ADDR, REDIS_PORT)
 
 
 CELERYBEAT_SCHEDULE = {
-    'check-orders': {
+    'check-payment': {
         'task': 'nexchange.tasks.payment_release',
         'schedule': timedelta(seconds=10),
+    },
+    'check-transactions': {
+        'task': 'nexchange.tasks.checker_transactions',
+        'schedule': timedelta(seconds=20),
     },
 }
 
@@ -311,8 +317,8 @@ STATICFILES_DIRS = (
 
 UPHOLD_USER = 'kydim1312@yandex.ru'
 UPHOLD_PASS = '$Kyzin1990'
-UPHOLD_IS_TEST = False
-UPHOLD_CARD_ID = 'adc869d8-xxxx-xxxx-xxxx-72718f0a2be0'
+UPHOLD_IS_TEST = True
+UPHOLD_CARD_ID = 'a1a88f60-7473-47e4-9b78-987daf198a5d'
 
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 KRAKEN_API_KEY = "E6wsw96A+JsnY33k7SninDdg//JsoZSXcKBYtyrhUYlWyAxIeIIZn3ay"

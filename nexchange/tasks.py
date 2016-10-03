@@ -2,10 +2,10 @@ from __future__ import absolute_import
 
 from celery import shared_task
 import logging
-from core.models import Payment, Order, Transaction
+from core.models import Payment, Order, Transaction, Address
 from django.utils.translation import ugettext_lazy as _
-from nexchange.utils import send_sms, release_payment
-# from requests import get
+from nexchange.utils import send_sms, release_payment, checktransaction
+
 
 logging.basicConfig(filename='payment_release.log', level=logging.INFO)
 
@@ -22,34 +22,52 @@ def payment_release():
         if p is not None:
             tx_id_ = release_payment(o.withdraw_address,
                                      o.amount_btc)
+
             if tx_id_ is None:
                 continue
-            print("id={}, unique_reference={}".format(o.id,
-                                                      o.unique_reference))
 
             o.is_released = True
             o.save()
+
+            p.is_complete = True
+            p.save()
+            # #
             # send sms depending on notification settings in profile
-            msg = _("Your order %s:") + _(' is released') % o.unique_reference
+            msg = _("Your order {}:  is released").format(o.unique_reference)
+
             phone_to = str(o.user.username)
 
             sms_result = send_sms(msg, phone_to)
             print(str(sms_result))
 
             # send email
+            # email = EmailMessage('title', msg, to=[email])
+            # email.send()
 
-            transaction = Transaction(tx_id=tx_id_, address_from=None,
-                                      address_to=o.withdraw_address,
-                                      order=o)
-            transaction.save()
+            print(tx_id_)
+            adr = Address.objects.get(
+                user=o.user, address=o.withdraw_address)
+
+            t = Transaction(tx_id=tx_id_, order=o, address_to=adr)
+            t.save()
+
         else:
             print('payment not found ')
 
 
 @shared_task
 def checker_transactions():
-    # url_block = 'http://btc.blockr.io/api/v1/tx/info/'
     for tr in Transaction.objects.filter(is_completed=False):
         print("Look transaction {} ".format(tr.tx_id))
-        # info = get(url_block+tr.tx_id)
-        # todo check transactions
+        if checktransaction(tr.tx_id):
+            tr.is_completed = True
+            tr.save()
+
+            msg = _("Your order {}:  is released").\
+                format(tr.order.o.unique_reference)
+            phone_to = str(tr.order.user.username)
+
+            sms_result = send_sms(msg, phone_to)
+            print(str(sms_result))
+
+            print("Transaction {} is completed".format(tr.tx_id))

@@ -718,29 +718,10 @@ def paysuccess(request):
 
     currency = Currency.objects.filter(code="RUB")[0]
 
-    Payment.objects.get_or_create(amount_cash=out_summ,
+    Payment.objects.get_or_create(amount_cash=order.amount_cash,
                                   currency=currency,
                                   user=request.user,
                                   payment_preference=order.payment_preference,
                                   is_complete=False)
 
     return redirect(reverse('core.order'))
-
-
-@login_required
-def k_test(request):
-    # pass
-    params = {
-        'asset': 'XBT',
-        'key': 'kydim',
-        'amount': 1,
-    }
-
-    k = kraken.query_private('Withdraw', params)
-
-    if k['error']:
-        result = k['error']
-    else:
-        result = k['result']
-
-    return JsonResponse({'result': result})
