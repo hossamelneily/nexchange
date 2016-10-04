@@ -307,6 +307,11 @@ deploy:
         SUBSTR=${WERCKER_GIT_COMMIT:0:9}
         echo 'knocking port open'
         knock $DEST_HOST_ADDR ${KNOCK_PORT_SEQUENCE}
+        for port in ${KNOCK_PORT_SEQUENCE}; do
+          knock $DEST_HOST_ADDR $port
+          echo $port
+          sleep 0.1
+        done
         echo 'knocking done'
         scp ${SSH_OPTIONS} nginx.conf ${SSH_DEST}:/nexchange/etc/nginx/nginx.conf
         scp ${SSH_OPTIONS} docker-compose.yml ${SSH_DEST}:/nexchange/docker-compose.yml
