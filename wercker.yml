@@ -305,9 +305,9 @@ deploy:
         SSH_OPTIONS="-o StrictHostKeyChecking=no -i $PRIVATEKEY_PATH"
         SSH_DEST="$SSH_USER@$DEST_HOST_ADDR"
         SUBSTR=${WERCKER_GIT_COMMIT:0:9}
-	echo 'knocking port open'
+        echo 'knocking port open'
         knock $DEST_HOST_ADDR ${KNOCK_PORT_SEQUENCE}
-	echo 'knocking done'
+        echo 'knocking done'
         scp ${SSH_OPTIONS} nginx.conf ${SSH_DEST}:/nexchange/etc/nginx/nginx.conf
         scp ${SSH_OPTIONS} docker-compose.yml ${SSH_DEST}:/nexchange/docker-compose.yml
         ssh ${SSH_OPTIONS} ${SSH_DEST} << EOF
