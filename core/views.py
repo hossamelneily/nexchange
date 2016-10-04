@@ -702,26 +702,31 @@ def try_pay_again(request):
 
 @login_required
 def paysuccess(request):
-    out_summ = request.GET.get("OutSum")
-    inv_id = request.GET.get("InvId")
-    crc = request.GET.get("SignatureValue")
+    try:
+        out_summ = request.GET.get("OutSum")
+        inv_id = request.GET.get("InvId")
+        crc = request.GET.get("SignatureValue")
+        check_res = check_signature_robo(inv_id, out_summ, crc)
 
-    check_res = check_signature_robo(inv_id, out_summ, crc)
+        if not check_res:
+            template = \
+                get_template('core/partials/steps/step_reply_payment.html')
+            return HttpResponse(template.render({'bad_sugnature': True},
+                                                request))
 
-    if not check_res:
-        template = get_template('core/partials/steps/step_reply_payment.html')
-        return HttpResponse(template.render({'bad_sugnature': True}, request))
+        order = Order.objects.filter(user=request.user,
+                                     amount_cash=out_summ,
+                                     id=inv_id)[0]
 
-    order = Order.objects.filter(user=request.user,
-                                 amount_cash=out_summ,
-                                 id=inv_id)[0]
+        currency = Currency.objects.filter(code="RUB")[0]
 
-    currency = Currency.objects.filter(code="RUB")[0]
+        Payment.objects.\
+            get_or_create(amount_cash=order.amount_cash,
+                          currency=currency,
+                          user=request.user,
+                          payment_preference=order.payment_preference,
+                          is_complete=False)
 
-    Payment.objects.get_or_create(amount_cash=order.amount_cash,
-                                  currency=currency,
-                                  user=request.user,
-                                  payment_preference=order.payment_preference,
-                                  is_complete=False)
-
-    return redirect(reverse('core.order'))
+        return JsonResponse({'result': 'bad request'})
+    except:
+        return JsonResponse({'result': 'bad request'})

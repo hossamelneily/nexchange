@@ -375,6 +375,14 @@ tests:
           fi
           python -c "import krakenex; print('import krakenex sucessfully executed')"
 
+          has_uphold=$(python -c "import importlib; k = importlib.find_loader('uphold'); print(str(k is not None))")
+          if [ "${has_uphold}" == "False" ]; then
+            git clone https://github.com/byrnereese/uphold-sdk-python.git /usr/src/uphold
+            cd /usr/src/uphold
+            python3 setup.py install
+            cd -
+          fi
+          python -c "import uphold; print('import uphold sucessfully executed')"
     - script:
       name: Install node requirements
       code: |
@@ -387,6 +395,7 @@ tests:
         code: |
           coverage erase
           coverage run --source="." manage.py test -v 3
+          # coverage run --source="." manage.py test core.tests.test_robo.PaymentReleaseTestCase
           coverage report
           coverage html -d cover
     - script:

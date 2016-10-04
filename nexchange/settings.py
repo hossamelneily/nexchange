@@ -131,11 +131,11 @@ REDIS_URL = 'redis://{}:{}/1'.format(REDIS_ADDR, REDIS_PORT)
 CELERYBEAT_SCHEDULE = {
     'check-payment': {
         'task': 'nexchange.tasks.payment_release',
-        'schedule': timedelta(seconds=10),
+        'schedule': timedelta(seconds=90),
     },
     'check-transactions': {
         'task': 'nexchange.tasks.checker_transactions',
-        'schedule': timedelta(seconds=20),
+        'schedule': timedelta(seconds=300),
     },
 }
 

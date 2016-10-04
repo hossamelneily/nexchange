@@ -142,10 +142,13 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
     comment = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
-        self.payment_method = self.guess_payment_method()
+        self.payment_method = self.guess_payment_method(*args)
         super(PaymentPreference, self).save(*args, **kwargs)
 
-    def guess_payment_method(self):
+    def guess_payment_method(self, *args):
+        if len(args) > 0:
+            if args[0] == 'internal':
+                return self.payment_method
         card_bin = self.identifier[:PaymentMethod.BIN_LENGTH]
         payment_method = []
         while all([self.identifier,
