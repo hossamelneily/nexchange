@@ -20,6 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 from datetime import timedelta
 from django.utils import timezone
 from decimal import Decimal
+from django.conf import settings
 
 
 class ProfileManager(models.Manager):
@@ -381,3 +382,22 @@ class Balance(TimeStampedModel):
     user = models.ForeignKey(User, related_name='user')
     currency = models.ForeignKey(Currency, related_name='currency')
     balance = models.DecimalField(max_digits=18, decimal_places=8, default=0)
+
+
+class CmsPage(models.Model):
+    allcms = [a for a in settings.CMSPAGES.values()]
+    allcms = allcms[0] + allcms[1]
+
+    t_footers = [(a[0], a[0]) for a in allcms]
+
+    TYPES = (
+        t_footers
+    )
+
+    name = models.CharField(default=None, max_length=50, choices=TYPES)
+    head = models.TextField(default=None, null=True)
+    written_by = models.TextField(default=None, null=True)
+    body = models.TextField(default=None, null=True)
+    locale = models.CharField(default=settings.LANGUAGES[0],
+                              max_length=2,
+                              null=True, choices=settings.LANGUAGES)

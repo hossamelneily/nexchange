@@ -83,11 +83,6 @@ INSTALLED_APPS = [
     'treebeard',
     'menus',
     'sekizai',
-    'djangocms_admin_style',
-    'djangocms_text_ckeditor',
-    'easy_thumbnails',
-    'filer',
-    'mptt',
     'django.contrib.sites',
     'django.contrib.sitemaps',
     'django.contrib.admin',
@@ -120,8 +115,15 @@ ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
                 "isTest={0}&MerchantLogin={1}&" \
                 "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
 
-# redis_address =os.getenv('REDIS_PORT_6379_TCP_ADDR')
-# redis_port =os.getenv('REDIS_PORT_6379_TCP_PORT')
+CMSPAGES = {
+    'ABOUTUS': [('about_us', _('About Us')), ('careers', _('Careers')),
+                ('press', _('Press')), ('conference', _('Conference')),
+                ('legal_privacy', _('Legal & Privacy')),
+                ('security', _('Security'))],
+    'RESOURCES': [('faq', _('FAQ')), ('blog', _('Blog')),
+                  ('fees', _('Fees')), ('support', _('Support')),
+                  ('trading_guide', _('Trading Guide'))]
+}
 
 REDIS_ADDR = os.getenv('REDIS_PORT_6379_TCP_ADDR')
 REDIS_PORT = os.getenv('REDIS_PORT_6379_TCP_PORT')

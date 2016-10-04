@@ -10,7 +10,7 @@ from django.template.loader import get_template
 from core.forms import DateSearchForm, CustomUserCreationForm,\
     UserForm, UserProfileForm, UpdateUserProfileForm, ReferralTokenForm
 from core.models import Order, Currency, SmsToken, Profile, Transaction,\
-    Address, Payment, PaymentMethod, PaymentPreference
+    Address, Payment, PaymentMethod, PaymentPreference, CmsPage
 from django.db import transaction
 from django.views.generic import View
 from django.utils.decorators import method_decorator
@@ -727,6 +727,34 @@ def paysuccess(request):
                           payment_preference=order.payment_preference,
                           is_complete=False)
 
-        return JsonResponse({'result': 'bad request'})
+        return redirect(reverse('core.order'))
     except:
         return JsonResponse({'result': 'bad request'})
+
+
+def cmspage(request):
+    template = get_template('cms/cms_default.html')
+    type_page = request.GET.get("type")
+
+    head = body = written_by = None
+
+    page = CmsPage.objects.filter(
+        name=type_page,
+        locale=request.LANGUAGE_CODE).first()
+
+    if page is not None:
+        head = page.head
+        body = page.body
+        written_by = page.written_by
+
+    allcms = [sf for sf in settings.CMSPAGES.values()]
+    for a in allcms:
+        cmsmenu = [sf for sf in a if type_page in sf]
+        if len(cmsmenu) > 0:
+            cmsmenu = a
+            break
+    return HttpResponse(template.render({'cmsmenu': cmsmenu,
+                                         'head': head,
+                                         'body': body,
+                                         'written_by': written_by,
+                                         }, request))

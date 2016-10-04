@@ -6,6 +6,20 @@
 	font-style: normal;
 }
 
+.cms_text{
+    clear: both;
+    margin: 30px;
+}
+
+.cms_written{
+    padding-top: 20px;
+}
+
+.cms_body{
+    padding-top: 20px;
+    padding-bottom: 50px;
+}
+
 @font-face {
 	font-family: 'Montserrat-Regular';
 	src: url('../fonts/Montserrat-Regular.eot');
