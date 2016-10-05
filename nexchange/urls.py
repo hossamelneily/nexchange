@@ -115,7 +115,7 @@ urlpatterns = i18n_patterns(
     url(r'^cmspage', core.views.cmspage,
         name='core.cmspage'),
 
-    url(r'^', include('cms.urls'))
+    # url(r'^', include('cms.urls'))
 )
 
 if settings.DEBUG:

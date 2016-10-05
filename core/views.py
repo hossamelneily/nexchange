@@ -484,7 +484,7 @@ def ajax_order(request):
     if payment_method == 'Robokassa':
         url = geturl_robokassa(order.id,
                                str(round(Decimal(order.amount_cash), 2)))
-
+    translation.activate(request.POST.get("_locale"))
     return HttpResponse(template.render({'order': order,
                                          'unique_ref': uniq_ref,
                                          'action': my_action,

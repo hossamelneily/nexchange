@@ -78,13 +78,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 # Application definition
 
 INSTALLED_APPS = [
-    'cms',
-    # 'django_rq',
-    'treebeard',
-    'menus',
-    'sekizai',
     'django.contrib.sites',
-    'django.contrib.sitemaps',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -98,7 +92,6 @@ INSTALLED_APPS = [
     'core',
     'ticker',
     'referrals',
-    # 'payment_released',
     'djcelery'
 ]
 
@@ -141,25 +134,6 @@ CELERYBEAT_SCHEDULE = {
     },
 }
 
-RQ_QUEUES = {
-    'default': {
-        'HOST': REDIS_ADDR,
-        'PORT': REDIS_PORT,
-        'DB': 0,
-        'PASSWORD': 'some-password',
-        'DEFAULT_TIMEOUT': 360,
-    },
-    'high': {
-        'URL': os.getenv('REDISTOGO_URL',
-                         'redis://172.17.0.3:6379/0'),
-        'DEFAULT_TIMEOUT': 500,
-    },
-    'low': {
-        'HOST': '172.17.0.3',
-        'PORT': 6379,
-        'DB': 0,
-    }
-}
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
@@ -174,11 +148,6 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'referrals.middleware.ReferralMiddleWare',
     'core.middleware.TimezoneMiddleware',
-    # 'core.middleware.LastSeenMiddleware',
-    'cms.middleware.user.CurrentUserMiddleware',
-    'cms.middleware.page.CurrentPageMiddleware',
-    'cms.middleware.toolbar.ToolbarMiddleware',
-    'cms.middleware.language.LanguageCookieMiddleware',
 ]
 
 ROOT_URLCONF = 'nexchange.urls'
@@ -196,49 +165,11 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
                 'core.context_processors.google_analytics',
-                'sekizai.context_processors.sekizai',
-                'cms.context_processors.cms_settings',
             ],
         },
     },
 ]
 
-CMS_TEMPLATES = (
-    ('cms/cms_default.html', 'Default Template'),
-    ('some_other.html', 'Some Other Template'),
-)
-
-CMS_PLACEHOLDER_CONF = {
-    'content': {
-        'name': _('Content'),
-        'plugins': ['TextPlugin', 'LinkPlugin'],
-        'default_plugins': [
-            {
-                'plugin_type': 'TextPlugin',
-                'values': {
-                    'body': '<p>Great websites :'
-                            ' %(_tag_child_1)s and %(_tag_child_2)s</p>'
-                },
-                'children': [
-                    {
-                        'plugin_type': 'LinkPlugin',
-                        'values': {
-                            'name': 'django',
-                            'url': 'https://www.djangoproject.com/'
-                        },
-                    },
-                    {
-                        'plugin_type': 'LinkPlugin',
-                        'values': {
-                            'name': 'django-cms',
-                            'url': 'https://www.django-cms.org'
-                        },
-                    },
-                ]
-            },
-        ]
-    }
-}
 
 CKEDITOR_SETTINGS = {
     'language': '{{ language }}',

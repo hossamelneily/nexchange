@@ -1,5 +1,4 @@
 {# Load the tag library #}
-{% load cms_tags menu_tags sekizai_tags %}
 {% load bootstrap3 %}
 {% load staticfiles %}
 {% load i18n %}
@@ -62,28 +61,28 @@
     {% if GOOGLE_ANALYTICS_PROPERTY_ID %}
         {% include "core/analitycs/ga.html" %}
     {% endif %}
-    {% render_block "css" %}
+
     <meta name="interkassa-verification" content="66cc636a788e738725aa9ec76741045b" />
 </head>
 <body>
-    {% cms_toolbar %}
     <div class="container">
         <div class="menuContainer">
             {% include 'core/partials/menu.html' %}
         </div>
         {% block main %}
         {% endblock %}
+    </div>
 
-        <div class="cms_container" >
-            {% block cms_static %}
-            {% endblock %}
-        </div>
-        {# {% render_model_block request.current_page "changelist" %}{% endrender_model_block %} #}
+    {% block content %}
+    {% endblock content %}
 
-        <div class="cms_container">
-           {% block content %}
-           {% endblock content %}
-        </div>
+    <div class="cms_container" >
+        {% block cms_static %}
+        {% endblock %}
+    </div>
+    <div class="cms_container">
+       {% block content %}
+       {% endblock content %}
     </div>
     <div class="spacer"></div>
 
@@ -115,6 +114,6 @@
     <script src="{% static 'js/footer.js' %}"></script>
     {% bootstrap_javascript %}
     {% block extra_js_footer %} {% endblock %}
-    {% render_block "js" %}
+
 </body>
 </html>

@@ -399,7 +399,6 @@ tests:
         code: |
           coverage erase
           coverage run --source="." manage.py test -v 3
-          # coverage run --source="." manage.py test core.tests.test_robo.PaymentReleaseTestCase
           coverage report
           coverage html -d cover
     - script:

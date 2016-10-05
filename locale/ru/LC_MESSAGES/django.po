@@ -58,6 +58,10 @@ msgstr "Регистрация завершена. Подтвердите Ваш
 msgid "Error during registration. <br>Details: {}"
 msgstr "Ошибка во время регистрации. <br>Details: {}"
 
+# templates/core/partials/forms/card.html:1
+msgid "Add a new payout card"
+msgstr "Добавьте новую карту"
+
 #: core/views.py:226
 msgid "Profile updated with success"
 msgstr "Пользователь успешно обновлен"
@@ -261,7 +265,7 @@ msgstr "Новый заказ"
 
 #: templates/core/partials/menu.html:17
 msgid "Referrals"
-msgstr "Рекомендации"
+msgstr "Рефералы"
 
 #: templates/core/partials/menu.html:25
 msgid "Logout"
@@ -312,6 +316,18 @@ msgstr "назад"
 #: templates/core/partials/payment_options.html:14
 msgid "Alfa-bank"
 msgstr "Альфа-банк"
+
+#: templates/core/partials/payment_options.html:14
+msgid "Pay with"
+msgstr "С помощью"
+
+#: templates/core/partials/payment_options.html:1
+msgid "Bank"
+msgstr "Банк"
+
+#: templates/core/partials/payment_options.html:1
+msgid "Wallets"
+msgstr "Кошелек"
 
 #: templates/core/partials/payment_options.html:22
 #: templates/core/partials/payment_options.html:26
@@ -374,9 +390,13 @@ msgstr "Введите Ваш номер телефона"
 msgid "Your Order"
 msgstr "Ваш Заказ"
 
-#: templates/core/partials/steps/step_confirmation.html:16
+#: templates/core/partials/steps/step_confirmation.html:1
 msgid "For"
 msgstr "Для"
+
+#: templates/core/partials/steps/step_confirmation.html:1
+msgid "Cancel"
+msgstr "Отмена"
 
 #: templates/core/partials/steps/step_confirmation.html:23
 msgid "RUB"
@@ -385,6 +405,10 @@ msgstr "РУБ"
 #: templates/core/partials/steps/step_confirmation.html:27
 msgid "Payment Method"
 msgstr "Метод оплаты"
+
+#: templates/core/partials/steps/step_confirmation.html:2
+msgid "for"
+msgstr "за"
 
 #: templates/core/partials/steps/step_success.html:6
 msgid "Payment"
@@ -396,21 +420,53 @@ msgstr "Выберите метод оплаты"
 
 #: templates/core/partials/success_order.html:5
 #: templates/core/partials/success_order_sell.html:5
+#: templates/core/partials/modals/order_success_buy.html:1
 msgid "Order placed successfully"
 msgstr "Платеж выполнен успешно"
 
+#: templates/core/partials/success_order_sell.html:5
+msgid "You choose to get paid by:"
+msgstr "Вы выбрали для получения платежа"
+
+#: templates/core/partials/success_order_sell.html:5
+msgid "We will place the following reference in the comment to our payment:"
+msgstr "Мы размести следующую ссылку в комментарию к платежу"
+
+#: templates/core/partials/success_order_sell.html:5
+msgid "Notice that you must send coins until"
+msgstr "Обратите внимание, что вы должны послать деньги до"
+
+#: templates/core/partials/success_order_sell.html:5
+msgid "Please send bitcoin to the following address"
+msgstr "Пожалуйста отправьте биткоин по следующему адресу"
+
+#: templates/core/partials/success_order_sell.html:5
+msgid "Success"
+msgstr "Успешно"
+
 #: templates/core/partials/success_order.html:8
+#: templates/core/partials/modals/order_success_buy.html:1
 msgid "Please make payment to the following"
 msgstr "Пожалуйста, чтобы выполнить платеж, сделайте следующее"
 
+#: templates/core/partials/success_order.html:1
+msgid "Get your bitcoins"
+msgstr "Получить биткоины"
+
+#: templates/core/partials/success_order.html:1
+msgid "Go to Robokassa"
+msgstr "Перейти в Робокассу"
+
 #: templates/core/partials/success_order.html:17
+#: templates/core/partials/modals/order_success_buy.html:1
 msgid "Please put the following reference in the comment:"
 msgstr "Пожалйуста приложите следующую ссылку к комментарию"
 
 #: templates/core/partials/success_order.html:26
 #: templates/core/partials/success_order_sell.html:16
+#: templates/core/partials/modals/order_success_buy.html:1
 msgid "Notice that you must pay until"
-msgstr "Обратите внимания, что вы не должны платить до"
+msgstr "Обратите внимания, что вы должны заплатить до"
 
 #: templates/core/partials/success_order_sell.html:8
 msgid "Please tranfer to this BTC Address"
@@ -452,6 +508,10 @@ msgstr "Регистрация"
 msgid "ACCOUNT"
 msgstr "Аккаунт"
 
+#: templates/core/partials/seo_footer.html:1
+msgid "Profile"
+msgstr "Профиль"
+
 #: templates/core/partials/seo_footer.html:8
 msgid "SignUp"
 msgstr "Регистрация"
@@ -491,7 +551,7 @@ msgstr "Блог"
 
 #: templates/core/partials/seo_footer.html:8
 msgid "Fees"
-msgstr "Сборы"
+msgstr "Коммиссии"
 
 #: templates/core/partials/seo_footer.html:8
 msgid "Support"
@@ -499,18 +559,14 @@ msgstr "Поддержка"
 
 #: templates/core/partials/seo_footer.html:8
 msgid "Trading Guide"
-msgstr "Торговое руководство"
+msgstr "Инструкция"
 
 #: templates/core/partials/seo_footer.html:8
 msgid "Social"
 msgstr "Социальные сети"
 
 #: templates/core/partials/seo_footer.html:8
-msgid "Legal"
-msgstr "Легальность"
-
-#: templates/core/partials/seo_footer.html:8
-msgid "Privacy"
+msgid "Legal & Privacy"
 msgstr "Конфиденциальность"
 
 #: templates/core/partials/seo_footer.html:8

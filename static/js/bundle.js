@@ -207,10 +207,10 @@
                     "currency_to": $('.currency-to').val(), //crypto
                     "pp_type": paymentType,
                     "pp_identifier": preferenceIdentifier,
-                    "pp_owner": preferenceOwner
+                    "pp_owner": preferenceOwner,
+                    "_locale": $('.topright_selectbox').val()
                 };
-
-
+            
             $.ajax({
                 type: "post",
                 url: placerAjaxOrder,
