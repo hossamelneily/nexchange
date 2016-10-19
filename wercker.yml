@@ -274,7 +274,7 @@ build:
     - script:
         name: set entrypoint as executable
         code: |
-          chmod +x /entrypoint.s
+          chmod +x /entrypoint.sh
 
     - create-file:
         name: Create cron invoked script to run ticker
