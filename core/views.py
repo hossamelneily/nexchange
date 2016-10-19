@@ -10,7 +10,7 @@ from django.template.loader import get_template
 from core.forms import DateSearchForm, CustomUserCreationForm,\
     UserForm, UserProfileForm, UpdateUserProfileForm, ReferralTokenForm
 from core.models import Order, Currency, SmsToken, Profile, Transaction,\
-    Address, Payment, PaymentMethod, PaymentPreference
+    Address, Payment, PaymentMethod, PaymentPreference, CmsPage
 from django.db import transaction
 from django.views.generic import View
 from django.utils.decorators import method_decorator
@@ -35,7 +35,7 @@ from django.utils import translation
 from decimal import Decimal
 from referrals.models import Referral, ReferralCode
 from core.utils import geturl_robokassa, check_signature_robo
-
+from django.http import Http404
 
 kraken = api.API()
 
@@ -484,7 +484,7 @@ def ajax_order(request):
     if payment_method == 'Robokassa':
         url = geturl_robokassa(order.id,
                                str(round(Decimal(order.amount_cash), 2)))
-
+    translation.activate(request.POST.get("_locale"))
     return HttpResponse(template.render({'order': order,
                                          'unique_ref': uniq_ref,
                                          'action': my_action,
@@ -586,6 +586,7 @@ def k_deposit_status(request):
     }
 
     k = kraken.query_private('DepositStatus', params)
+
     if k['error']:
         result = k['error']
     else:
@@ -642,7 +643,7 @@ def ajax_cards(request):
 
     cards = {
         'sber': get_pref_by_name('Sber'),
-        'alfa': get_pref_by_name('Alpha'),
+        'alfa': get_pref_by_name('Alfa'),
         'qiwi': get_pref_by_name('Qiwi'),
     }
 
@@ -701,25 +702,67 @@ def try_pay_again(request):
 
 @login_required
 def paysuccess(request):
-    out_summ = request.GET.get("OutSum")
-    inv_id = request.GET.get("InvId")
-    crc = request.GET.get("SignatureValue")
+    try:
+        out_summ = request.GET.get("OutSum")
+        inv_id = request.GET.get("InvId")
+        crc = request.GET.get("SignatureValue")
+        check_res = check_signature_robo(inv_id, out_summ, crc)
 
-    check_res = check_signature_robo(inv_id, out_summ, crc)
+        if not check_res:
+            template = \
+                get_template('core/partials/steps/step_reply_payment.html')
+            return HttpResponse(template.render({'bad_sugnature': True},
+                                                request))
 
-    if not check_res:
-        template = get_template('core/partials/steps/step_reply_payment.html')
-        return HttpResponse(template.render({'bad_sugnature': True}, request))
+        order = Order.objects.filter(user=request.user,
+                                     amount_cash=out_summ,
+                                     id=inv_id)[0]
 
-    order = Order.objects.filter(user=request.user,
-                                 amount_cash=out_summ,
-                                 id=inv_id)[0]
+        currency = Currency.objects.filter(code="RUB")[0]
 
-    currency = Currency.objects.filter(code="RUB")[0]
-    Payment.objects.get_or_create(amount_cash=out_summ,
-                                  currency=currency,
-                                  user=request.user,
-                                  payment_preference=order.payment_preference,
-                                  is_complete=True)
+        Payment.objects.\
+            get_or_create(amount_cash=order.amount_cash,
+                          currency=currency,
+                          user=request.user,
+                          payment_preference=order.payment_preference,
+                          is_complete=False)
 
-    return redirect(reverse('core.order'))
+        return redirect(reverse('core.order'))
+    except:
+        return JsonResponse({'result': 'bad request'})
+
+
+def cms_page(request, page_name):
+    template = get_template('cms/cms_default.html')
+    page = head = body = written_by = None
+
+    try:
+        page = CmsPage.objects.get(
+            name=page_name,
+            locale=request.LANGUAGE_CODE
+        )
+    except CmsPage.DoesNotExist:
+        if not settings.DEBUG:
+            raise Http404(_("Page not found"))
+
+    if page:
+        head = page.head
+        body = page.body
+        written_by = page.written_by
+
+    cms_menu = []
+    all_cms = [sf for sf in settings.CMSPAGES.values()]
+
+    for a in all_cms:
+        cms_menu = [sf for sf in a if page_name in sf]
+        if len(cms_menu) > 0:
+            cms_menu = a
+            break
+
+    context = {
+        'cmsmenu': cms_menu,
+        'head': head,
+        'body': body,
+        'written_by': written_by, }
+
+    return HttpResponse(template.render(context, request))

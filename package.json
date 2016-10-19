@@ -23,12 +23,12 @@
     "watchify": "latest"
   },
   "scripts": {
-    "lint": "jshint static/js/**",
     "test": "karma start --single-run",
     "bower": "cd static && bower install --allow-root && cd - ",
     "bower-prd": "cd static && bower install --allow-root --production && cd - ",
-    "build-js": "browserify static/js/main.js > static/js/bundle.js",
-    "watch-js": "watchify static/js/main.js -o static/js/bundle.js -v"
+    "lint": "jshint static/js/**",
+    "build-js": "browserify static/js/main.js > static/dist/js/bundle.js",
+    "watch-js": "watchify static/js/main.js -o static/dist/js/bundle.js -v"
   },
   "repository": {
     "type": "git",

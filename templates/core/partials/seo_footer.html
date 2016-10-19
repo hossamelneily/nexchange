@@ -17,25 +17,25 @@
         </div>
         <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
         	<h4>{% trans 'ABOUT' %} </h4>
-            <a href="/about">{% trans 'About Us' %}</a>
-            <a href="/careers">{% trans 'Careers' %}</a>
-            <a href="/press">{% trans 'Press' %}</a>
-            <a href="/conference">{% trans 'Conference' %}</a>
-            <a href="/legal_Privacy">{% trans 'Legal' %} &amp; {% trans 'Privacy' %}</a>
-            <a href="/security">{% trans  'Security' %}</a>
+            <a href="/{{ lang }}/cms/about_us">{% trans 'About Us' %}</a>
+            <a href="/{{ lang }}/cms/careers">{% trans 'Careers' %}</a>
+            <a href="/{{ lang }}/cms/press">{% trans 'Press' %}</a>
+            <a href="/{{ lang }}/cms/conference">{% trans 'Conference' %}</a>
+            <a href="/{{ lang }}/cms/legal_privacy">{% trans 'Legal & Privacy' %}</a>
+            <a href="/{{ lang }}/cms/security">{% trans  'Security' %}</a>
         </div>
         <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
         	<h4>{% trans 'RESOURCES' %} </h4>
-            <a href="/faq">{% trans 'FAQ' %}</a>
-            <a href="/blog">{% trans 'Blog' %}</a>
-            <a href="/fees">{% trans 'Fees' %}</a>
-            <a href="/support">{% trans 'Support' %}</a>
-            <a href="/trading_guide">{% trans 'Trading Guide' %}</a>
+            <a href="/{{ lang }}/cms/faq">{% trans 'FAQ' %}</a>
+            <a href="/{{ lang }}/cms/blog">{% trans 'Blog' %}</a>
+            <a href="/{{ lang }}/cms/fees">{% trans 'Fees' %}</a>
+            <a href="/{{ lang }}/cms/support">{% trans 'Support' %}</a>
+            <a href="/{{ lang }}/cms/trading_guide">{% trans 'Trading Guide' %}</a>
         </div>
     <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
    	  <h4>{% trans 'Social' %}</h4>
-      <a href="/twitter" class="footer_social"><img src="{% static 'images/tw-icon.png' %}" alt="Twitter"></a>
-       <a href="/facebook" class="footer_social"><img src="{% static 'images/fb-icon.png' %}" alt="Facebook"></a>
+      <a href="{{ social.twitter }}" class="footer_social"><img src="{% static 'images/tw-icon.png' %}" alt="Twitter"></a>
+       <a href="{{ social.facebook }}" class="footer_social"><img src="{% static 'images/fb-icon.png' %}" alt="Facebook"></a>
       </div>
   </div>
 </div>

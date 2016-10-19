@@ -20,6 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 from datetime import timedelta
 from django.utils import timezone
 from decimal import Decimal
+from django.conf import settings
 
 
 class ProfileManager(models.Manager):
@@ -142,10 +143,13 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
     comment = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
-        self.payment_method = self.guess_payment_method()
+        self.payment_method = self.guess_payment_method(*args)
         super(PaymentPreference, self).save(*args, **kwargs)
 
-    def guess_payment_method(self):
+    def guess_payment_method(self, *args):
+        if len(args) > 0:
+            if args[0] == 'internal':
+                return self.payment_method
         card_bin = self.identifier[:PaymentMethod.BIN_LENGTH]
         payment_method = []
         while all([self.identifier,
@@ -360,12 +364,14 @@ class Address(BtcBase, SoftDeletableModel):
 class Transaction(BtcBase):
     # null if withdraw from our balance on Kraken
     confirmations = models.IntegerField(default=0)
-    tx_id = models.CharField(max_length=35, default=None, null=True)
-    address_from = models.ForeignKey(Address, related_name='address_from')
+    tx_id = models.CharField(max_length=55, default=None, null=True)
+    address_from = models.ForeignKey(Address, related_name='address_from',
+                                     default=None, null=True)
     address_to = models.ForeignKey(Address, related_name='address_to')
     # TODO: how to handle cancellation?
     order = models.ForeignKey(Order)
     is_verified = models.BooleanField(default=False)
+    is_completed = models.BooleanField(default=False)
 
 
 class ReferralTransaction(Transaction):
@@ -376,3 +382,22 @@ class Balance(TimeStampedModel):
     user = models.ForeignKey(User, related_name='user')
     currency = models.ForeignKey(Currency, related_name='currency')
     balance = models.DecimalField(max_digits=18, decimal_places=8, default=0)
+
+
+class CmsPage(models.Model):
+    allcms = [a for a in settings.CMSPAGES.values()]
+    allcms = allcms[0] + allcms[1]
+
+    t_footers = [(a[0], a[0]) for a in allcms]
+
+    TYPES = (
+        t_footers
+    )
+
+    name = models.CharField(default=None, max_length=50, choices=TYPES)
+    head = models.TextField(default=None, null=True)
+    written_by = models.TextField(default=None, null=True)
+    body = models.TextField(default=None, null=True)
+    locale = models.CharField(default=settings.LANGUAGES[0],
+                              max_length=2,
+                              null=True, choices=settings.LANGUAGES)

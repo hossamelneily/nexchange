@@ -1,5 +1,4 @@
 {# Load the tag library #}
-{% load cms_tags menu_tags sekizai_tags %}
 {% load bootstrap3 %}
 {% load staticfiles %}
 {% load i18n %}
@@ -24,12 +23,12 @@
           m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
           })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-          ga('create', 'UA-84996155-1', 'auto');
+          ga('create', 'UA-84084133-1', 'auto');
           ga('send', 'pageview');
     </script>
     <meta charset="utf-8">
     <title>{% trans 'Nexchange' %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
@@ -62,36 +61,36 @@
     {% if GOOGLE_ANALYTICS_PROPERTY_ID %}
         {% include "core/analitycs/ga.html" %}
     {% endif %}
-    {% render_block "css" %}
+
     <meta name="interkassa-verification" content="66cc636a788e738725aa9ec76741045b" />
 </head>
 <body>
-    {% cms_toolbar %}
     <div class="container">
         <div class="menuContainer">
             {% include 'core/partials/menu.html' %}
         </div>
-        {% block main %}
-        {% endblock %}
-
-        <div class="cms_container" >
-            {% block cms_static %}
+            {% block main %}
             {% endblock %}
-        </div>
-        {# {% render_model_block request.current_page "changelist" %}{% endrender_model_block %} #}
 
-        <div class="cms_container">
-           {% block content %}
-           {% endblock content %}
-        </div>
+    <div class="cms_container" >
+        {% block cms_static %}
+        {% endblock %}
     </div>
-    <div class="spacer"></div>
 
-    {% block footer %}
-    {#{% include 'core/partials/supported_payments.html' %}#}
-    {% endblock %}
+
+    </div>
+    {% block content %}
+    {% endblock content %}
+
+    <div class="cms_container container">
+    </div>
+
+   {% block footer %}
+   {% endblock %}
+
     {% include 'core/partials/popular_faq.html' %}
     {% include 'core/partials/seo_footer.html' %}
+
     <script src="https://code.jquery.com/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"
           integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw="
@@ -115,6 +114,6 @@
     <script src="{% static 'js/footer.js' %}"></script>
     {% bootstrap_javascript %}
     {% block extra_js_footer %} {% endblock %}
-    {% render_block "js" %}
+
 </body>
 </html>

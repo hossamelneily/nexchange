@@ -16,6 +16,7 @@ from .utils import UserBaseTestCase, OrderBaseTestCase
 
 
 class OrderSetAsPaidTestCase(UserBaseTestCase, OrderBaseTestCase):
+
     def setUp(self):
 
         super(OrderSetAsPaidTestCase, self).setUp()

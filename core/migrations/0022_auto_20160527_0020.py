@@ -14,16 +14,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveField(
-            model_name='order',
-            name='wallet',
-        ),
-        migrations.RemoveField(
-            model_name='order',
-            name='withdraw_address',
-        ),
-        migrations.AlterField(
-            model_name='address',
-            name='address',
-            field=models.CharField(max_length=35, validators=[core.validators.validate_bc]),
-        ),
-    ]
+            model_name='order', name='wallet', ), migrations.RemoveField(
+            model_name='order', name='withdraw_address', ), migrations.AlterField(
+                model_name='address', name='address', field=models.CharField(
+                    max_length=35, validators=[
+                        core.validators.validate_bc]), ), ]

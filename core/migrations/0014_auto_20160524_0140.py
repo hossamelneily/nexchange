@@ -17,12 +17,18 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='order',
             name='withdraw_address',
-            field=models.CharField(default='1EoZm6PFqh7FwzwU23t1oPSiCXDuHoZjgf', max_length=34, validators=[core.validators.validate_bc]),
+            field=models.CharField(
+                default='1EoZm6PFqh7FwzwU23t1oPSiCXDuHoZjgf',
+                max_length=34,
+                validators=[
+                    core.validators.validate_bc]),
             preserve_default=False,
         ),
         migrations.AlterField(
             model_name='profile',
             name='phone',
-            field=phonenumber_field.modelfields.PhoneNumberField(help_text='Enter phone number in     internation format. eg. +555198786543', max_length=128),
+            field=phonenumber_field.modelfields.PhoneNumberField(
+                help_text='Enter phone number in     internation format. eg. +555198786543',
+                max_length=128),
         ),
     ]

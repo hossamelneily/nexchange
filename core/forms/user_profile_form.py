@@ -7,6 +7,7 @@ from core.models import Profile
 
 
 class UserProfileForm(forms.ModelForm):
+
     def clean_phone(self):
         """Ensure phone is unique"""
         phone = self.cleaned_data.get('phone')

@@ -16,6 +16,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='order',
             name='withdraw_address',
-            field=models.CharField(max_length=35, validators=[core.validators.validate_bc]),
+            field=models.CharField(
+                max_length=35,
+                validators=[
+                    core.validators.validate_bc]),
         ),
     ]

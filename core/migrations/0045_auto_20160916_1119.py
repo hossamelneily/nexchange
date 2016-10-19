@@ -16,6 +16,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='profile',
             name='phone',
-            field=phonenumber_field.modelfields.PhoneNumberField(help_text='Enter phone number in international format. eg. +555198786543', max_length=128, verbose_name='Phone'),
+            field=phonenumber_field.modelfields.PhoneNumberField(
+                help_text='Enter phone number in international format. eg. +555198786543',
+                max_length=128,
+                verbose_name='Phone'),
         ),
     ]

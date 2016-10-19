@@ -21,41 +21,58 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='program',
             name='max_users',
-            field=models.IntegerField(default=-1),
+            field=models.IntegerField(
+                default=-1),
         ),
         migrations.AddField(
             model_name='referral',
             name='code',
-            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='referrals.ReferralCode'),
+            field=models.ForeignKey(
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='referrals.ReferralCode'),
         ),
         migrations.AddField(
             model_name='referral',
             name='deleted',
-            field=models.BooleanField(default=False),
+            field=models.BooleanField(
+                default=False),
         ),
         migrations.AddField(
             model_name='referral',
             name='ip',
-            field=models.CharField(default=None, max_length=39, null=True),
+            field=models.CharField(
+                default=None,
+                max_length=39,
+                null=True),
         ),
         migrations.AlterField(
             model_name='program',
             name='max_payout_btc',
-            field=models.FloatField(default=-1),
+            field=models.FloatField(
+                default=-1),
         ),
         migrations.AlterField(
             model_name='program',
             name='percent_second_degree',
-            field=models.FloatField(default=0),
+            field=models.FloatField(
+                default=0),
         ),
         migrations.AlterField(
             model_name='program',
             name='percent_third_degree',
-            field=models.FloatField(default=0),
+            field=models.FloatField(
+                default=0),
         ),
         migrations.AlterField(
             model_name='referral',
             name='referee',
-            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='referee', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='referee',
+                to=settings.AUTH_USER_MODEL),
         ),
     ]

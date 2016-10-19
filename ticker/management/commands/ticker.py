@@ -14,7 +14,7 @@ from decimal import Decimal
 BITFINEX_TICKER =\
     "https://api.bitfinex.com/v1/pubticker/btcusd"
 LOCALBTC_URL =\
-    "https://localbitcoins.com/{}-bitcoins-online/" \
+    "https://localbitcoins.net/{}-bitcoins-online/" \
     "ru/russian-federation/banks/.json"
 
 # direction 1

@@ -55,15 +55,19 @@ class CurrencyManager(models.Manager):
 
 class Currency(TimeStampedModel, SoftDeletableModel):
     objects = CurrencyManager()
-
     code = models.CharField(max_length=3)
     name = models.CharField(max_length=10)
+    min_confirmations = models.IntegerField(default=0)
 
     def natural_key(self):
         return self.code
 
     def __str__(self):
         return self.name
+
+
+class CryptoCurrency(Currency):
+    pass
 
 
 class IpAwareModel(TimeStampedModel, SoftDeleteMixin):

@@ -14,8 +14,9 @@ import os
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 import dj_database_url
+from datetime import timedelta
 
-
+DEFAULT_FROM_EMAIL = 'support@nexchange.ru'
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SETTINGS_DIR = os.path.dirname(__file__)
@@ -37,8 +38,11 @@ LANGUAGE_CODE = 'en'
 LANGUAGES = [
     ('ru', 'Russian'),
     ('en', 'English'),
+    ('es', 'Espanol'),
 ]
 
+
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
 # CUSTOM SETTINGS
 SMS_TOKEN_VALIDITY = 30
@@ -51,6 +55,8 @@ SMS_TOKEN_LENGTH = 4
 PAYMENT_WINDOW = 60  # minutes
 MAX_EXPIRED_ORDERS_LIMIT = 3
 REFERRAL_FEE = 2
+
+MIN_REQUIRED_CONFIRMATIONS = 4
 
 PHONE_START_SHOW = 4
 PHONE_END_SHOW = 4
@@ -75,18 +81,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 # Application definition
 
 INSTALLED_APPS = [
-    'cms',
-    'django_rq',
-    'treebeard',
-    'menus',
-    'sekizai',
-    'djangocms_admin_style',
-    'djangocms_text_ckeditor',
-    'easy_thumbnails',
-    'filer',
-    'mptt',
     'django.contrib.sites',
-    'django.contrib.sitemaps',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -99,12 +94,14 @@ INSTALLED_APPS = [
     'corsheaders',
     'core',
     'ticker',
-    'referrals'
+    'referrals',
+    'djcelery'
 ]
 
 CMS_PERMISSION = False
 
 SITE_ID = 1
+
 
 ROBOKASSA_LOGIN = 'nexchangeBTC'
 ROBOKASSA_PASS1 = 'SBYcBnB8Oq63KK5UB7oC'
@@ -114,25 +111,32 @@ ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
                 "isTest={0}&MerchantLogin={1}&" \
                 "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
 
-RQ_QUEUES = {
-    'default': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
-        'PASSWORD': 'some-password',
-        'DEFAULT_TIMEOUT': 360,
-    },
-    'high': {
-        'URL': os.getenv('REDISTOGO_URL',
-                         'redis://localhost:6379/0'),
-        'DEFAULT_TIMEOUT': 500,
-    },
-    'low': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
-    }
+CMSPAGES = {
+    'ABOUTUS': [('about_us', _('About Us')), ('careers', _('Careers')),
+                ('press', _('Press')), ('conference', _('Conference')),
+                ('legal_privacy', _('Legal & Privacy')),
+                ('security', _('Security'))],
+    'RESOURCES': [('faq', _('FAQ')), ('blog', _('Blog')),
+                  ('fees', _('Fees')), ('support', _('Support')),
+                  ('trading_guide', _('Trading Guide'))]
 }
+
+REDIS_ADDR = os.getenv('REDIS_PORT_6379_TCP_ADDR')
+REDIS_PORT = os.getenv('REDIS_PORT_6379_TCP_PORT')
+REDIS_URL = 'redis://{}:{}/1'.format(REDIS_ADDR, REDIS_PORT)
+
+
+CELERYBEAT_SCHEDULE = {
+    'check-payment': {
+        'task': 'nexchange.tasks.payment_release',
+        'schedule': timedelta(seconds=90),
+    },
+    'check-transactions': {
+        'task': 'nexchange.tasks.checker_transactions',
+        'schedule': timedelta(seconds=300),
+    },
+}
+
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
@@ -147,11 +151,6 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'referrals.middleware.ReferralMiddleWare',
     'core.middleware.TimezoneMiddleware',
-    # 'core.middleware.LastSeenMiddleware',
-    'cms.middleware.user.CurrentUserMiddleware',
-    'cms.middleware.page.CurrentPageMiddleware',
-    'cms.middleware.toolbar.ToolbarMiddleware',
-    'cms.middleware.language.LanguageCookieMiddleware',
 ]
 
 ROOT_URLCONF = 'nexchange.urls'
@@ -169,49 +168,12 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
                 'core.context_processors.google_analytics',
-                'sekizai.context_processors.sekizai',
-                'cms.context_processors.cms_settings',
+                'core.context_processors.cms',
             ],
         },
     },
 ]
 
-CMS_TEMPLATES = (
-    ('cms/cms_default.html', 'Default Template'),
-    ('some_other.html', 'Some Other Template'),
-)
-
-CMS_PLACEHOLDER_CONF = {
-    'content': {
-        'name': _('Content'),
-        'plugins': ['TextPlugin', 'LinkPlugin'],
-        'default_plugins': [
-            {
-                'plugin_type': 'TextPlugin',
-                'values': {
-                    'body': '<p>Great websites :'
-                            ' %(_tag_child_1)s and %(_tag_child_2)s</p>'
-                },
-                'children': [
-                    {
-                        'plugin_type': 'LinkPlugin',
-                        'values': {
-                            'name': 'django',
-                            'url': 'https://www.djangoproject.com/'
-                        },
-                    },
-                    {
-                        'plugin_type': 'LinkPlugin',
-                        'values': {
-                            'name': 'django-cms',
-                            'url': 'https://www.django-cms.org'
-                        },
-                    },
-                ]
-            },
-        ]
-    }
-}
 
 CKEDITOR_SETTINGS = {
     'language': '{{ language }}',
@@ -290,13 +252,21 @@ STATICFILES_DIRS = (
     STATIC_PATH,
 )
 
+UPHOLD_USER = 'kydim1312@yandex.ru'
+UPHOLD_PASS = '$Kyzin1990'
+UPHOLD_IS_TEST = True
+UPHOLD_CARD_ID = 'a1a88f60-7473-47e4-9b78-987daf198a5d'
 
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 KRAKEN_API_KEY = "E6wsw96A+JsnY33k7SninDdg//JsoZSXcKBYtyrhUYlWyAxIeIIZn3ay"
+# KRAKEN_API_KEY = "0xq0CZSTPm373V/ranC6XQNqC29rt6nlkwe0TpS4GcV2A/wZbGRyjhG6"
 
 
 KRAKEN_API_SIGN = "hLg6LkI+kHtlLJs5ypJ0GnInK0go/HM3xMSVIGgCTc" \
                   "aqoqy8FsTl1KVdgFfWCCfu7CMZeCW4qqMbATrzZaFtRQ=="
+
+# KRAKEN_API_SIGN = "3IPxXgvFZwtQi85oxDUSjwcE2ESrUMCJYT3/
+# VGRDp6uz0wivSXZ3mSj8Vm7hWDO8/MczvRRdi3ZWbGBlc//tXg=="
 
 
 # KRAKEN_API_KEY = os.environ['KRAKEN_API_KEY']
@@ -344,7 +314,6 @@ if DEBUG:
     EMAIL_HOST_USER = ''
     EMAIL_HOST_PASSWORD = ''
     EMAIL_USE_TLS = False
-    DEFAULT_FROM_EMAIL = 'testing@example.com'
 
 # to test the API with localhost
 CORS_ORIGIN_WHITELIST = (
@@ -369,3 +338,8 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 12
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#secure-proxy-ssl-header
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+SOCIAL = {
+    'twitter': 'https://twitter.com/nexchange.ru',
+    'facebook': 'https://facebook.com/nexchange.ru'
+}

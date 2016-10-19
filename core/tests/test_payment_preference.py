@@ -4,6 +4,7 @@ from core.models import User
 
 
 class TestPaymentPreference(TestCase):
+
     @classmethod
     def setUpClass(cls):
         cls.user, created = \

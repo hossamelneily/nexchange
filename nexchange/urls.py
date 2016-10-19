@@ -111,10 +111,9 @@ urlpatterns = i18n_patterns(
     url(r'^pay_try_again', core.views.try_pay_again,
         name='core.try_pay_again'),
     url(r'^paysuccess', core.views.paysuccess,
-        name='core.payfailed'),
-    url(r'^django-rq/', include('django_rq.urls')),
-
-    url(r'^', include('cms.urls'))
+        name='core.paysuccess'),
+    url(r'^cms/(?P<page_name>.+)/$', core.views.cms_page,
+        name='core.cmspage'),
 )
 
 if settings.DEBUG:

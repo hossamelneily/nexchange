@@ -94,6 +94,7 @@ class ProfileUpdateTestCase(UserBaseTestCase):
 
 
 class ShortRegistrationTestCase(TestCase):
+
     def test_short_registration_success(self):
         pass
 
