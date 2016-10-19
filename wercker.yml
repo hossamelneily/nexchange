@@ -317,7 +317,7 @@ build:
 deploy:
   steps:
     - add-to-known_hosts:
-      hostname: nexchnage.ru
+      hostname: nexchange.ru
     - script:
       name: create pipeline dir
       code: |
