@@ -317,6 +317,10 @@ build:
 deploy:
   box: alpine:latest
   steps:
+    - script:
+      name: create pipeline dir
+      code: |
+        mkdir -p /pipeline
     - install-packages:
       packages: knockd
     - mktemp:
