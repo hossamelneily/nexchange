@@ -16,6 +16,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='referralcode',
             name='program',
-            field=models.ForeignKey(blank=True, default=None, on_delete=django.db.models.deletion.CASCADE, to='referrals.Program'),
+            field=models.ForeignKey(
+                blank=True,
+                default=None,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='referrals.Program'),
         ),
     ]

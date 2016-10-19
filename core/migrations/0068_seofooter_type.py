@@ -13,8 +13,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='seofooter',
-            name='type',
-            field=models.CharField(choices=[('w', 'WITHDRAW'), ('d', 'DEPOSIT')], default=None, max_length=50),
-        ),
-    ]
+            model_name='seofooter', name='type', field=models.CharField(
+                choices=[
+                    ('w', 'WITHDRAW'), ('d', 'DEPOSIT')], default=None, max_length=50), ), ]

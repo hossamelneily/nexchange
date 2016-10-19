@@ -6,6 +6,7 @@ from random import randint
 
 
 class TestReferralModel(TestCase):
+
     def __init__(self, *args, **kwargs):
         self.amount_coin_base = 0.1
         self.amount_coin_multiplier = 10

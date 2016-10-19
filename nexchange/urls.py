@@ -112,10 +112,8 @@ urlpatterns = i18n_patterns(
         name='core.try_pay_again'),
     url(r'^paysuccess', core.views.paysuccess,
         name='core.paysuccess'),
-    url(r'^cmspage', core.views.cmspage,
+    url(r'^cms/(?P<page_name>.+)/$', core.views.cms_page,
         name='core.cmspage'),
-
-    # url(r'^', include('cms.urls'))
 )
 
 if settings.DEBUG:

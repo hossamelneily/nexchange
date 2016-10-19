@@ -16,6 +16,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='address',
             name='address',
-            field=models.CharField(max_length=55, validators=[core.validators.validate_bc]),
+            field=models.CharField(
+                max_length=55,
+                validators=[
+                    core.validators.validate_bc]),
         ),
     ]

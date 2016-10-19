@@ -13,8 +13,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='cmspage',
-            name='locale',
-            field=models.CharField(choices=[('ru', 'Russian'), ('en', 'English'), ('es', 'Espanol')], default=('ru', 'Russian'), max_length=2, null=True),
-        ),
-    ]
+            model_name='cmspage', name='locale', field=models.CharField(
+                choices=[
+                    ('ru', 'Russian'), ('en', 'English'), ('es', 'Espanol')], default=(
+                    'ru', 'Russian'), max_length=2, null=True), ), ]

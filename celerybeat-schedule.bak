@@ -1,4 +1,4 @@
+'entries', (0, 511)
 'utc_enabled', (512, 4)
 '__version__', (1024, 16)
-'entries', (0, 511)
 'tz', (1536, 13)

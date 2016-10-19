@@ -16,7 +16,9 @@
 
 
 import http.client
-import urllib.request, urllib.parse, urllib.error
+import urllib.request
+import urllib.parse
+import urllib.error
 
 
 class Connection(object):
@@ -24,23 +26,22 @@ class Connection(object):
 
     """
 
-
-    def __init__(self, uri = 'api.kraken.com', timeout = 30):
+    def __init__(self, uri='api.kraken.com', timeout=30):
         """ Create an object for reusable connections.
-        
+
         :param uri: URI to connect to.
         :type uri: str
         :param timeout: blocking operations' timeout (in seconds).
         :type timeout: int
         :returns: TODO
         :raises: TODO
-        
+
         """
         self.headers = {
-            'User-Agent': 'krakenex/0.0.6 (+https://github.com/veox/python3-krakenex)'
+            'User-Agent':
+                'krakenex/0.0.6 (+https://github.com/veox/python3-krakenex)'
         }
-        self.conn = http.client.HTTPSConnection(uri, timeout = timeout)
-
+        self.conn = http.client.HTTPSConnection(uri, timeout=timeout)
 
     def close(self):
         """ Close the connection.
@@ -48,10 +49,9 @@ class Connection(object):
         """
         self.conn.close()
 
-
-    def _request(self, url, req = {}, headers = {}):
+    def _request(self, url, req={}, headers={}):
         """ Send POST request to API server.
-        
+
         :param url: fully-qualified URL with all necessary urlencoded
             information
         :type url: str

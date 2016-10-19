@@ -19,11 +19,46 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='seofooter',
             name='locale',
-            field=models.CharField(choices=[('ru', 'Russian'), ('en', 'English')], default=('ru', 'Russian'), max_length=2, null=True),
+            field=models.CharField(
+                choices=[
+                    ('ru',
+                     'Russian'),
+                    ('en',
+                     'English')],
+                default=(
+                    'ru',
+                    'Russian'),
+                max_length=2,
+                null=True),
         ),
         migrations.AlterField(
             model_name='seofooter',
             name='name',
-            field=models.CharField(choices=[('About Us', 'About Us'), ('Careers', 'Careers'), ('Press', 'Press'), ('Conference', 'Conference'), ('Legal & Privacy', 'Legal & Privacy'), ('Security', 'Security'), ('FAQ', 'FAQ'), ('Blog', 'Blog'), ('Fees', 'Fees'), ('Support', 'Support'), ('Trading Guide', 'Trading Guide')], default=None, max_length=50),
+            field=models.CharField(
+                choices=[
+                    ('About Us',
+                     'About Us'),
+                    ('Careers',
+                     'Careers'),
+                    ('Press',
+                     'Press'),
+                    ('Conference',
+                     'Conference'),
+                    ('Legal & Privacy',
+                     'Legal & Privacy'),
+                    ('Security',
+                     'Security'),
+                    ('FAQ',
+                     'FAQ'),
+                    ('Blog',
+                     'Blog'),
+                    ('Fees',
+                     'Fees'),
+                    ('Support',
+                     'Support'),
+                    ('Trading Guide',
+                     'Trading Guide')],
+                default=None,
+                max_length=50),
         ),
     ]

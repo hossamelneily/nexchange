@@ -16,12 +16,18 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='order',
             name='payment_preference',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='core.PaymentPreference'),
+            field=models.ForeignKey(
+                default=None,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='core.PaymentPreference'),
             preserve_default=False,
         ),
         migrations.AlterField(
             model_name='paymentpreference',
             name='payment_method',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='core.PaymentMethod'),
+            field=models.ForeignKey(
+                default=None,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='core.PaymentMethod'),
         ),
     ]

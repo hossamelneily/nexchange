@@ -35,7 +35,7 @@ from django.utils import translation
 from decimal import Decimal
 from referrals.models import Referral, ReferralCode
 from core.utils import geturl_robokassa, check_signature_robo
-
+from django.http import Http404
 
 kraken = api.API()
 
@@ -732,29 +732,37 @@ def paysuccess(request):
         return JsonResponse({'result': 'bad request'})
 
 
-def cmspage(request):
+def cms_page(request, page_name):
     template = get_template('cms/cms_default.html')
-    type_page = request.GET.get("type")
+    page = head = body = written_by = None
 
-    head = body = written_by = None
+    try:
+        page = CmsPage.objects.get(
+            name=page_name,
+            locale=request.LANGUAGE_CODE
+        )
+    except CmsPage.DoesNotExist:
+        if not settings.DEBUG:
+            raise Http404(_("Page not found"))
 
-    page = CmsPage.objects.filter(
-        name=type_page,
-        locale=request.LANGUAGE_CODE).first()
-
-    if page is not None:
+    if page:
         head = page.head
         body = page.body
         written_by = page.written_by
 
-    allcms = [sf for sf in settings.CMSPAGES.values()]
-    for a in allcms:
-        cmsmenu = [sf for sf in a if type_page in sf]
-        if len(cmsmenu) > 0:
-            cmsmenu = a
+    cms_menu = []
+    all_cms = [sf for sf in settings.CMSPAGES.values()]
+
+    for a in all_cms:
+        cms_menu = [sf for sf in a if page_name in sf]
+        if len(cms_menu) > 0:
+            cms_menu = a
             break
-    return HttpResponse(template.render({'cmsmenu': cmsmenu,
-                                         'head': head,
-                                         'body': body,
-                                         'written_by': written_by,
-                                         }, request))
+
+    context = {
+        'cmsmenu': cms_menu,
+        'head': head,
+        'body': body,
+        'written_by': written_by, }
+
+    return HttpResponse(template.render(context, request))

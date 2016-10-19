@@ -16,7 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 import dj_database_url
 from datetime import timedelta
 
-
+DEFAULT_FROM_EMAIL = 'support@nexchange.ru'
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SETTINGS_DIR = os.path.dirname(__file__)
@@ -55,6 +55,8 @@ SMS_TOKEN_LENGTH = 4
 PAYMENT_WINDOW = 60  # minutes
 MAX_EXPIRED_ORDERS_LIMIT = 3
 REFERRAL_FEE = 2
+
+MIN_REQUIRED_CONFIRMATIONS = 4
 
 PHONE_START_SHOW = 4
 PHONE_END_SHOW = 4
@@ -166,6 +168,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
                 'core.context_processors.google_analytics',
+                'core.context_processors.cms',
             ],
         },
     },
@@ -311,7 +314,6 @@ if DEBUG:
     EMAIL_HOST_USER = ''
     EMAIL_HOST_PASSWORD = ''
     EMAIL_USE_TLS = False
-    DEFAULT_FROM_EMAIL = 'testing@example.com'
 
 # to test the API with localhost
 CORS_ORIGIN_WHITELIST = (
@@ -336,3 +338,8 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 12
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#secure-proxy-ssl-header
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+SOCIAL = {
+    'twitter': 'https://twitter.com/nexchange.ru',
+    'facebook': 'https://facebook.com/nexchange.ru'
+}

@@ -18,30 +18,17 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='SmsToken',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_on', models.DateTimeField(auto_now_add=True)),
-                ('modified_on', models.DateTimeField(auto_now=True)),
-                ('deleted', models.BooleanField(default=False)),
-                ('disabled', models.BooleanField(default=False)),
-                ('sms_token', models.CharField(blank=True, max_length=5)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sms_token', to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'abstract': False,
-            },
-            managers=[
-                ('active_objects', django.db.models.manager.Manager()),
-            ],
-        ),
-        migrations.RemoveField(
-            model_name='profile',
-            name='sms_token',
-        ),
-        migrations.AlterField(
-            model_name='profile',
-            name='phone',
-            field=phonenumber_field.modelfields.PhoneNumberField(help_text='Enter phone number in international format. eg. +555198786543', max_length=128),
-        ),
-    ]
+            name='SmsToken', fields=[
+                ('id', models.AutoField(
+                    auto_created=True, primary_key=True, serialize=False, verbose_name='ID')), ('created_on', models.DateTimeField(
+                        auto_now_add=True)), ('modified_on', models.DateTimeField(
+                            auto_now=True)), ('deleted', models.BooleanField(
+                                default=False)), ('disabled', models.BooleanField(
+                                    default=False)), ('sms_token', models.CharField(
+                                        blank=True, max_length=5)), ('user', models.ForeignKey(
+                                            on_delete=django.db.models.deletion.CASCADE, related_name='sms_token', to=settings.AUTH_USER_MODEL)), ], options={
+                'abstract': False, }, managers=[
+                                                ('active_objects', django.db.models.manager.Manager()), ], ), migrations.RemoveField(
+                                                    model_name='profile', name='sms_token', ), migrations.AlterField(
+                                                        model_name='profile', name='phone', field=phonenumber_field.modelfields.PhoneNumberField(
+                                                            help_text='Enter phone number in international format. eg. +555198786543', max_length=128), ), ]

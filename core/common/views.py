@@ -3,6 +3,7 @@ from rest_framework import generics, viewsets
 
 
 class DateFilterViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
+
     def __init__(self, *args, **kwargs):
         self.queryset = None
         super(DateFilterViewSet, self).__init__(*args, **kwargs)

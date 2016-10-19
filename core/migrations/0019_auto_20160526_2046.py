@@ -20,7 +20,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='order',
             name='payment',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='core.Payment'),
+            field=models.ForeignKey(
+                default=None,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='core.Payment'),
             preserve_default=False,
         ),
     ]

@@ -16,6 +16,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='releasepayment',
             name='payment',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.Payment'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to='core.Payment'),
         ),
     ]

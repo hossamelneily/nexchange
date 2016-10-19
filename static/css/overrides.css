@@ -20,6 +20,13 @@
     padding-bottom: 50px;
 }
 
+.step_panel .step_panel_box .btn-info,
+.step_panel .step_panel_box .btn-success,
+.step_panel .step_panel_box a {
+    background: none;
+    color: #8dc73f;
+}
+
 @font-face {
 	font-family: 'Montserrat-Regular';
 	src: url('../fonts/Montserrat-Regular.eot');
@@ -278,6 +285,7 @@ textarea, input, select { outline: none !important; }
 .exchange-sign
 {
     color: #8cc63f;
+    cursor: pointer;
 }
 
 .exchange-sign.loading {
@@ -463,14 +471,14 @@ a:focus
     background: url(../images/select-arrow.png) no-repeat calc(100% - 10px) calc(1em - 1px), 100% 0;
 }
 
-/*.classic2 {*/
-  /*background-image:url(../images/select_img2.png);*/
-  /*background-position:*/
-    /*calc(100% - 10px) calc(1em + -1px),*/
-    /*100% 0;*/
-  /*background-repeat: no-repeat;*/
-/*}*/
 
+.trigger{
+    opacity: 0.65;
+}
+
+.trigger.active-action {
+    opacity: 1;
+}
 
 .topright_panel_submit{width:40px; padding:7px; border-radius:120px; background-color:#8cc63f; color:#FFF; border:none; cursor:pointer; text-align:center; font-size:16px; display:inline-block; vertical-align:middle;}
 
@@ -518,8 +526,11 @@ a:focus
 
 .price_box a:hover{background-color:#000 !important;}
 
-body .price_box_ticker .trigger-sell{
+body .price_box_ticker .trigger-sell, body .price_box_next_cont .sell-go{
     background-color:#ee1d25;
+}
+.exchange-sign.sell {
+    color: #ee1d25;
 }
 
 .price_box_selectbox_cont{display:inline-block; width:100%; border:2px solid #8cc63f;}
@@ -622,7 +633,7 @@ body .price_box_ticker .trigger-sell{
 }
 
 .exchange-sign {
-    margin-top: 15px;
+    margin-top: 5px;
 }
 
 .price_box_next_cont { margin: 30px 0; }
@@ -694,3 +705,18 @@ vertical design
 
 /*end new design responsive*/
 
+.menu1.sell .exchange-sign {
+    color: #ee1d25;
+}
+
+.menu1.sell .buy-go {
+    display: none;
+}
+
+.menu1.sell .sell-go {
+    display: inline-block !important;
+}
+
+.menu1.sell .price_box_selectbox_cont, .menu1.sell .price_box_selectbox_cont_textbox {
+    border-color: #ee1d25;
+}

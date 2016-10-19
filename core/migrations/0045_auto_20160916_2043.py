@@ -17,12 +17,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ReferralTransaction',
             fields=[
-                ('transaction_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='core.Transaction')),
+                ('transaction_ptr',
+                 models.OneToOneField(
+                     auto_created=True,
+                     on_delete=django.db.models.deletion.CASCADE,
+                     parent_link=True,
+                     primary_key=True,
+                     serialize=False,
+                     to='core.Transaction')),
             ],
             options={
                 'abstract': False,
             },
-            bases=('core.transaction',),
+            bases=(
+                'core.transaction',
+            ),
         ),
         migrations.RemoveField(
             model_name='profile',
@@ -31,16 +40,23 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='profile',
             name='ip',
-            field=models.CharField(default=None, max_length=39, null=True),
+            field=models.CharField(
+                default=None,
+                max_length=39,
+                null=True),
         ),
         migrations.AddField(
             model_name='profile',
             name='last_seen',
-            field=models.DateTimeField(default=None),
+            field=models.DateTimeField(
+                default=None),
         ),
         migrations.AlterField(
             model_name='profile',
             name='phone',
-            field=phonenumber_field.modelfields.PhoneNumberField(help_text='Enter phone number in international format. eg. +555198786543', max_length=128, verbose_name='Phone'),
+            field=phonenumber_field.modelfields.PhoneNumberField(
+                help_text='Enter phone number in international format. eg. +555198786543',
+                max_length=128,
+                verbose_name='Phone'),
         ),
     ]

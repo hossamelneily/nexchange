@@ -14,13 +14,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='address',
-            name='address',
-            field=models.CharField(max_length=35, validators=[core.validators.validate_bc]),
-        ),
-        migrations.AlterField(
-            model_name='transaction',
-            name='tx_id',
-            field=models.CharField(default=None, max_length=55, null=True),
-        ),
-    ]
+            model_name='address', name='address', field=models.CharField(
+                max_length=35, validators=[
+                    core.validators.validate_bc]), ), migrations.AlterField(
+            model_name='transaction', name='tx_id', field=models.CharField(
+                default=None, max_length=55, null=True), ), ]

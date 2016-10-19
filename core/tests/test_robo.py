@@ -1,11 +1,12 @@
 from core.models import Payment, PaymentMethod, PaymentPreference,\
     Order, Address, Transaction
 from .utils import UserBaseTestCase, OrderBaseTestCase
-from nexchange.utils import release_payment, checktransaction
+from nexchange.utils import release_payment, check_transaction
 from decimal import Decimal
 
 
 class RoboTestCase(UserBaseTestCase):
+
     def setUp(self):
         super(RoboTestCase, self).setUp()
 
@@ -22,6 +23,7 @@ class RoboTestCase(UserBaseTestCase):
 
 
 class PaymentReleaseTestCase(UserBaseTestCase, OrderBaseTestCase):
+
     def setUp(self):
         super(PaymentReleaseTestCase, self).setUp()
         self.method_data = {
@@ -120,7 +122,7 @@ class PaymentReleaseTestCase(UserBaseTestCase, OrderBaseTestCase):
             self.assertTrue(p.is_complete)
 
     def checker_transactions(self):
-        if checktransaction(self.transaction.tx_id):
+        if check_transaction(self.transaction.tx_id):
             self.transaction.is_completed = True
             self.transaction.save()
         self.assertTrue(self.transaction.is_completed)

@@ -37,7 +37,7 @@
 
     </div>
     {% else %}                          <!-- TO-DO get this from database ??-->
-    <div class="col col-xs-12 col-sm-4 col-md-6 payment-type-trigger bank" data-type="c2c">
+    <div class="col col-xs-12 col-sm-6 payment-type-trigger bank" data-type="c2c">
         <div class="col col-xs-12">
             <i class="fa fa-credit-card-alt fa-5 payment-method-icon btn btn-primary">
             </i>
@@ -49,7 +49,7 @@
             </div>
         </div>
     </div>                              <!-- TO-DO get this from database ??-->
-    <div class="col col-xs-12 col-sm-4 col-md-6 payment-type-trigger" data-type="cash">
+    <div class="col col-xs-12 col-sm-6 payment-type-trigger" data-type="cash">
         <div class="col col-xs-12">
             <i class="fa fa-money fa-5 payment-method-icon btn btn-primary">
             </i>
@@ -90,7 +90,7 @@
         </div>
     </div>
     {% if type == 'buy' %}
-      <div class="col col-xs-12  col-md-6 payment-type-trigger robokassa hidden" data-type="Robokassa">
+      <div class="col col-xs-12  col-md-6 payment-type-trigger robokassa" data-type="Robokassa">
         <div class="col col-xs-12">
             <img src="{% static 'icons/robokassa.png' %}"
                  alt="{% trans 'Robokassa'%}"

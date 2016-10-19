@@ -1,2 +1,2 @@
-from .connection import Connection
-from .api import API
+from .connection import Connection  # noqa
+from .api import API  # noqa
