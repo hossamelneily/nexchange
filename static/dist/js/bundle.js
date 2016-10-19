@@ -1,19 +1,19 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 !(function (window, $) {
-      'use strict';
+      "use strict";
 
        var  currency = 'rub',
         paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
         paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
         cardsEndpoint = '/en/api/v1/cards',
         // Required modules
-        orderObject = require('./modules/orders.js'),
-        paymentObject = require('./modules/payment.js'),
+        orderObject = require("./modules/orders.js"),
+        paymentObject = require("./modules/payment.js"),
         paymentType = '',
         preferenceIdentifier = '',
         preferenceOwner = '';
 
-        $('.trade-type').val('1');
+        $(".trade-type").val("1");
 
         window.ACTION_BUY = 1;
         window.ACTION_SELL = 0;
@@ -25,7 +25,7 @@
 
             var timer = null,
                 delay = 500,
-                phones = $('.phone');
+                phones = $(".phone");
             //if not used idx: remove jshint
             phones.each(function () {
                 if(typeof $(this).intlTelInput === 'function') {
@@ -35,43 +35,41 @@
             });
             orderObject.updateOrder($('.amount-coin'), true, currency);
             // if not used event, isNext remove  jshint
-            $('#graph-range').on('change', function() {
+            $("#graph-range").on('change', function() {
                 orderObject.setCurrency(false, currency);
             });
 
-            $('.exchange-sign').click(function () {
-                var menuElem = $('.menu1');
-
-                window.action = menuElem.hasClass('sell') ?
-                    window.ACTION_BUY : window.ACTION_SELL;
-
-                orderObject.updateOrder($('.amount-coin'), false, currency, function () {
-                        menuElem.toggleClass('sell');
-                });
-            });
 
             $('.trigger').click( function(){
-                $('.trigger').removeClass('active-action');
-                $(this).addClass('active-action');
+                $('.trigger').removeClass('activeAction');
+                $(this).addClass('activeAction');
                 if ($(this).hasClass('trigger-buy')) {
-                    $('.menu1').removeClass('sell');
+                    $('.buy-go').removeClass('hidden');
+                    $('.sell-go').addClass('hidden');
                     window.action = window.ACTION_BUY;
-
+                    $('.next-step')
+                        .removeClass('btn-info')
+                        .removeClass('btn-danger')
+                        .addClass('btn-success');
+                    $('.step4 i').removeClass('fa-money').addClass('fa-btc');
                     paymentObject.loadPaymenMethods(paymentMethodsEndpoint);
-                    orderObject.updateOrder($('.amount-coin'), false, currency, function () {
-                        orderObject.toggleBuyModal();
-                    });
-
+                    orderObject.toggleBuyModal();
                 } else {
-                    $('.menu1').addClass('sell');
+                    $('.buy-go').addClass('hidden');
+                    $('.sell-go').removeClass('hidden');
                     window.action = window.ACTION_SELL;
+                    $('.next-step')
+                        .removeClass('btn-info')
+                        .removeClass('btn-success')
+                        .addClass('btn-danger');
+                    // todo: step4 is dead, remove
+                    $('.step4 i').removeClass('fa-btc').addClass('fa-money');
 
-                    orderObject.updateOrder($('.amount-coin'), false, currency, function () {
-                        orderObject.toggleSellModal();
-                    });
+                    //TODO: export to card module
+                    orderObject.toggleSellModal();
                 }
 
-                $('.trade-type').val(window.action);
+                $(".trade-type").val(window.action);
 
                 orderObject.updateOrder($('.amount-coin'), true, currency);
 
@@ -130,12 +128,12 @@
 
     $(function() {
         // TODO: get api root via DI
-        $('#payment_method_id').val('');
-        $('#user_address_id').val('');
-        $('#new_user_account').val('');
+        $('#payment_method_id').val("");
+        $('#user_address_id').val("");
+        $('#new_user_account').val("");
         // TODO: if no amount coin selected DEFAULT_AMOUNT to confirm
         var confirm = $('.amount-coin').val() ? $('.amount-coin').val() : DEFAULT_AMOUNT;
-        $('.btc-amount-confirm').text(confirm);
+        $(".btc-amount-confirm").text(confirm);
 
         var apiRoot = '/en/api/v1',
             createAccEndpoint = apiRoot + '/phone',
@@ -154,14 +152,14 @@
                 phone: $('.register .phone').val()
             };
             $.ajax({
-                type: 'POST',
+                type: "POST",
                 url: createAccEndpoint,
                 data: regPayload,
                 success: function () {
                     $('.register .step2').removeClass('hidden');
                     $('.verify-acc').removeClass('hidden');
-                    $('.create-acc').addClass('hidden');
-                    $('.create-acc.resend').removeClass('hidden');
+                    $(".create-acc").addClass('hidden');
+                    $(".create-acc.resend").removeClass('hidden');
                 },
                 error: function () {
                     window.alert('Invalid phone number');
@@ -175,7 +173,7 @@
                 phone: $('.register .phone').val()
             };
             $.ajax({
-                type: 'POST',
+                type: "POST",
                 url: validatePhoneEndpoint,
                 data: verifyPayload,
                 success: function (data) {
@@ -183,11 +181,11 @@
                         orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
                         orderObject.changeState(null, 'next');
                     } else {
-                        window.alert('The code you sent was incorrect. Please, try again.');
+                        window.alert("The code you sent was incorrect. Please, try again.");
                     }
                 },
                 error: function () {
-                    window.alert('Something went wrong. Please, try again.');
+                    window.alert("Something went wrong. Please, try again.");
                 }
             });
 
@@ -202,19 +200,19 @@
             preferenceIdentifier = $('.payment-preference-identifier-confirm').text();
             preferenceOwner = $('.payment-preference-owner-confirm').text();
             var verifyPayload = {
-                    'trade-type': $('.trade-type').val(),
-                    'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
-                    'amount-coin': $('.amount-coin').val() || DEFAULT_AMOUNT,
-                    'currency_from': $('.currency-from').val(), //fiat
-                    'currency_to': $('.currency-to').val(), //crypto
-                    'pp_type': paymentType,
-                    'pp_identifier': preferenceIdentifier,
-                    'pp_owner': preferenceOwner,
-                    '_locale': $('.topright_selectbox').val()
+                    "trade-type": $(".trade-type").val(),
+                    "csrfmiddlewaretoken": $("#csrfmiddlewaretoken").val(),
+                    "amount-coin": $('.amount-coin').val() || DEFAULT_AMOUNT,
+                    "currency_from": $('.currency-from').val(), //fiat
+                    "currency_to": $('.currency-to').val(), //crypto
+                    "pp_type": paymentType,
+                    "pp_identifier": preferenceIdentifier,
+                    "pp_owner": preferenceOwner
                 };
-            
+
+
             $.ajax({
-                type: 'post',
+                type: "post",
                 url: placerAjaxOrder,
                 dataType: 'text',
                 data: verifyPayload,
@@ -229,15 +227,15 @@
                     else{
                         // $('.step-confirm').addClass('hidden');
                         //$('#btcAddress').text(data.address);
-                        // $('.successOrder').html($(data));
-                        // $('#orderSuccessModalSell').modal({backdrop: 'static'});
+                        // $(".successOrder").html($(data));
+                        // $("#orderSuccessModalSell").modal({backdrop: "static"});
                     }
-                    $('.successOrder').html($(data));
-                    $('#orderSuccessModal').modal({backdrop: 'static'});
+                    $(".successOrder").html($(data));
+                    $("#orderSuccessModal").modal({backdrop: "static"});
 
                 },
                 error: function () {
-                    window.alert('Something went wrong. Please, try again.');
+                    window.alert("Something went wrong. Please, try again.");
                 }
             });
 
@@ -245,15 +243,15 @@
 
       $('.make-payment').on('click', function () {
             var verifyPayload = {
-                'order_id': $('.trade-type').val(),
-                'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
-                'amount-cash': $('.amount-cash').val(),
-                'currency_from': $('.currency-from').val(),
-                'user_id':$('#user_id').val()
+                "order_id": $(".trade-type").val(),
+                "csrfmiddlewaretoken": $("#csrfmiddlewaretoken").val(),
+                "amount-cash": $('.amount-cash').val(),
+                "currency_from": $('.currency-from').val(),
+                "user_id":$("#user_id").val()
             };
 
             $.ajax({
-                type: 'post',
+                type: "post",
                 url: paymentAjax,
                 dataType: 'text',
                 data: verifyPayload,
@@ -266,7 +264,7 @@
                    // loadPaymenMethods(paymentMethodsEndpoint);
                 },
                 error: function () {
-                    window.alert('Something went wrong. Please, try again.');
+                    window.alert("Something went wrong. Please, try again.");
                 }
             });
 
@@ -276,23 +274,23 @@
             $('.supporetd_payment').addClass('hidden');
             paymentType = $(this).data('type');
             preferenceIdentifier = $(this).data('identifier');
-            $('.payment-preference-confirm').text(paymentType);
+            $(".payment-preference-confirm").text(paymentType);
             $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
-            $('#PayMethModal').modal('toggle');
-            $('.payment-method').val(paymentType);
-            orderObject.changeState(null, 'next');
+            $("#PayMethModal").modal('toggle');
+            $(".payment-method").val(paymentType);
+            orderObject.changeState(null, "next");
         });
 
         $(document).on('click', '.payment-type-trigger-footer', function () {
             $('.supporetd_payment').addClass('hidden');
             paymentType = $(this).data('type');
             preferenceIdentifier = $(this).data('identifier');
-            $('.payment-preference-confirm').text(paymentType);
+            $(".payment-preference-confirm").text(paymentType);
             $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
-            // $('#PayMethModal').modal('toggle');
-            $('.payment-method').val(paymentType);
-            orderObject.changeState(null, 'next');
-            $('.footerpay').addClass('hidden');
+            // $("#PayMethModal").modal('toggle');
+            $(".payment-method").val(paymentType);
+            orderObject.changeState(null, "next");
+            $(".footerpay").addClass('hidden');
             $('.buy-go').removeClass('hidden');
             $('.sell-go').addClass('hidden');
             window.action = window.ACTION_BUY;
@@ -304,21 +302,21 @@
 
         $('.sell .payment-type-trigger').on('click', function () {
             paymentType = $(this).data('type').toLocaleLowerCase();
-            $('.payment-preference-confirm').text(paymentType);
-            $('#UserAccountModal').modal('toggle');
+            $(".payment-preference-confirm").text(paymentType);
+            $("#UserAccountModal").modal('toggle');
             if (paymentType === 'c2c') {
-                $('#CardSellModal').modal('toggle');
+                $("#CardSellModal").modal('toggle');
             } else if(paymentType === 'qiwi') {
-                $('#QiwiSellModal').modal('toggle');
+                $("#QiwiSellModal").modal('toggle');
             }
             else {
-                $('.payment-method').val(paymentType);
+                $(".payment-method").val(paymentType);
             }
         });
 
         $('.sellMethModal .back').click(function () {
             $(this).closest('.modal').modal('toggle');
-            $('#UserAccountModal').modal('toggle');
+            $("#UserAccountModal").modal('toggle');
         });
 
         $('.payment-widget .val').on('keyup, keydown', function() {
@@ -339,7 +337,7 @@
 
         $('.payment-widget .save-card').on('click', function () {
             $('.supporetd_payment').addClass('hidden');
-            // TODO: Add handling for qiwi wallet with .intlTelInput('getNumber')
+            // TODO: Add handling for qiwi wallet with .intlTelInput("getNumber")
             if ($(this).hasClass('disabled')) {
                 return false;
             }
@@ -349,14 +347,14 @@
             preferenceIdentifier = form.find('.val').val();
             preferenceOwner = form.find('.name').val();
 
-            $('.payment-preference-owner').val(preferenceOwner);
-            $('.payment-preference-identifier').val(preferenceIdentifier);
-            $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
+            $(".payment-preference-owner").val(preferenceOwner);
+            $(".payment-preference-identifier").val(preferenceIdentifier);
+            $(".payment-preference-identifier-confirm").text(preferenceIdentifier);
 
             $(this).closest('.modal').modal('hide');
             
             setTimeout(function () {
-                orderObject.changeState(null, 'next');
+                orderObject.changeState(null, "next");
             }, 600);
         });
     });
@@ -372,7 +370,7 @@
                 phone: $('.register .phone').val()
             };
             $.ajax({
-                type: 'POST',
+                type: "POST",
                 url: validatePhoneEndpoint,
                 data: verifyPayload,
                 success: function (data) {
@@ -380,11 +378,11 @@
                         orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
                         orderObject.changeState('next');
                     } else {
-                        window.alert('The code you sent was incorrect. Please, try again.');
+                        window.alert("The code you sent was incorrect. Please, try again.");
                     }
                 },
                 error: function () {
-                    window.alert('Something went wrong. Please, try again.');
+                    window.alert("Something went wrong. Please, try again.");
                 }
             });
 
@@ -453,7 +451,6 @@ $(document).ready(function() {
                     events : {
                         load : function () {
                             // set up the updating of the chart each second
-                            $('.highcharts-credits').remove();
                             var series = this.series[0];
                             setInterval(function () {
                                 $.get(tickerLatestUrl, function (resdata) {

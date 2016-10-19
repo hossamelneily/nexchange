@@ -317,7 +317,7 @@ build:
 deploy:
   steps:
     - add-to-known_hosts:
-      hostname: nexchange.ru
+      hostname: $DEST_HOST_ADDR
     - script:
       name: create pipeline dir
       code: |
@@ -343,9 +343,9 @@ deploy:
           sleep 0.4
         done
         echo 'knocking done'
-        scp ${SSH_OPTIONS} nginx.conf ${SSH_DEST}:/nexchange/etc/nginx/nginx.conf
-        scp ${SSH_OPTIONS} docker-compose.yml ${SSH_DEST}:/nexchange/docker-compose.yml
-        ssh ${SSH_OPTIONS} ${SSH_DEST} << EOF
+        scp ${SSH_OPTIONS} nginx.conf ${SSH_USER}@${SSH_DEST}:/nexchange/etc/nginx/nginx.conf
+        scp ${SSH_OPTIONS} docker-compose.yml ${SSH_USER}@${SSH_DEST}:/nexchange/docker-compose.yml
+        ssh ${SSH_OPTIONS} ${SSH_USER}@w${SSH_DEST} << EOF
           # export the variables that docker-compose will inject into DB container
           export POSTGIS_ENV_POSTGRES_USER=${POSTGIS_ENV_POSTGRES_USER}
           export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}
