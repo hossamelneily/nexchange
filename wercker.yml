@@ -315,7 +315,7 @@ build:
         working-dir: /usr/src/app
 
 deploy:
-  box: pcfseceng/ci-ssh-client
+  box: legoheld/docker-gitlab-ci-ssh
   steps:
     - install-packages:
       packages: knockd
