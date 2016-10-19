@@ -67,10 +67,6 @@ class Currency(TimeStampedModel, SoftDeletableModel):
         return self.name
 
 
-class CryptoCurrency(Currency):
-    pass
-
-
 class IpAwareModel(TimeStampedModel, SoftDeleteMixin):
     ip = models.CharField(max_length=39,
                           null=True,

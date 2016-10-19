@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.RenameField(
             model_name='cryptocurrency',
             old_name='min_confirmation',
-            new_name='min_confirmations',
+                new_name='min_confirmations',
         ),
     ]
