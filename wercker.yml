@@ -315,8 +315,9 @@ build:
         working-dir: /usr/src/app
 
 deploy:
-  box: alpine:latest
   steps:
+    - add-to-known_hosts:
+      hostname: nexchnage.ru
     - script:
       name: create pipeline dir
       code: |
