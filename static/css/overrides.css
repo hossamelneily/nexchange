@@ -471,15 +471,6 @@ a:focus
     background: url(../images/select-arrow.png) no-repeat calc(100% - 10px) calc(1em - 1px), 100% 0;
 }
 
-
-.trigger{
-    opacity: 0.65;
-}
-
-.trigger.active-action {
-    opacity: 1;
-}
-
 .topright_panel_submit{width:40px; padding:7px; border-radius:120px; background-color:#8cc63f; color:#FFF; border:none; cursor:pointer; text-align:center; font-size:16px; display:inline-block; vertical-align:middle;}
 
 .menu_panel{border-bottom:2px solid #000;}
@@ -719,4 +710,20 @@ vertical design
 
 .menu1.sell .price_box_selectbox_cont, .menu1.sell .price_box_selectbox_cont_textbox {
     border-color: #ee1d25;
+}
+
+.menu1.sell .trigger.trigger-sell {
+    opacity: 1;
+}
+
+.menu1.sell .trigger.trigger-buy {
+    opacity: 0.65;
+}
+
+.menu1 .trigger.trigger-sell {
+    opacity: 0.65;
+}
+
+.menu1. .trigger.trigger-buy {
+    opacity: 1;
 }

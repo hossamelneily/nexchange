@@ -440,7 +440,7 @@ def ajax_crumbs(request):
 @login_required
 @csrf_exempt
 def ajax_order(request):
-    trade_type = int(request.POST.get("trade-type"))
+    trade_type = int(request.POST.get("trade-type", Order.BUY))
     curr = request.POST.get("currency_from", "RUB")
     amount_coin = Decimal(request.POST.get("amount-coin"))
     currency = Currency.objects.filter(code=curr)[0]
