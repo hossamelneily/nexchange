@@ -766,3 +766,7 @@ def cms_page(request, page_name):
         'written_by': written_by, }
 
     return HttpResponse(template.render(context, request))
+
+
+def unit_pay(request):
+    return HttpResponse('f699db7d43af85ec7ffa1dec06d16c')
