@@ -100,6 +100,7 @@
     <script src="{% static 'bower_components/moment/moment.js' %}"></script>
     <script src="{% static 'bower_components/moment-timezone/builds/moment-timezone-with-data.min.js' %}"></script>
     <script src="{% static 'bower_components/js-cookie/src/js.cookie.js' %}"></script>
+    {% include 'session_security/all.html' %}
     <script>
         $( document ).ready(function() {
           Cookies.set("USER_TZ", moment.tz.guess());
