@@ -11,11 +11,13 @@
                 {% include 'core/partials/forms/phone.html' with label=enter_your_phone%}
             </div>
             <div class="step2 hidden">
-                <div class="col col-lg-12 register">
-                    <label for="verification_code">
-                        {% trans "Enter verification code from SMS" %}
-                    </label>
-                    <input type="text" name="verification_code" id="verification_code">
+                <div class="row">
+                    <div class="col col-lg-12 register">
+                        <label for="verification_code">
+                            {% trans "Code from SMS" %}
+                        </label>
+                        <input type="text" name="verification_code" id="verification_code">
+                    </div>
                 </div>
             </div>
         </div>
@@ -27,8 +29,7 @@
                 {% trans "Send again"%}
             </span>
             <span class="btn btn-primary verify-acc hidden">
-{#                {% trans "Go"%}#}
-                >
+                {% trans "Go"%}
             </span>
         </div>
     </div>

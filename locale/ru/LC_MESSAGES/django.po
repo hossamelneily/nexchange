@@ -370,7 +370,7 @@ msgid "Phone verification"
 msgstr "Проверка телефона"
 
 #: templates/core/partials/steps/step_authentication.html:13
-msgid "Enter verification code from SMS"
+msgid "Code from SMS"
 msgstr "Введите код из СМС"
 
 #: templates/core/partials/steps/step_authentication.html:21
@@ -383,7 +383,7 @@ msgstr "Прислать код подтверждения еще раз"
 
 #: templates/core/partials/steps/step_authentication.html:10
 msgid "Enter your phone"
-msgstr "Введите Ваш номер телефона"
+msgstr "Ваш номер телефона"
 
 #: templates/core/partials/steps/step_confirmation.html:5
 

@@ -44,8 +44,12 @@ def geturl_robokassa(_inv_id, out_summ):
     crc = md5(hex_string.encode('utf-8')).hexdigest()
 
     url = settings.ROBOKASSA_URL.format(
-        settings.ROBOKASSA_IS_TEST, settings.ROBOKASSA_LOGIN,
-        out_summ, inv_id, crc)
+        settings.ROBOKASSA_IS_TEST,
+        settings.ROBOKASSA_LOGIN,
+        out_summ,
+        inv_id,
+        crc
+    )
 
     return url
 

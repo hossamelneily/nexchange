@@ -11,14 +11,18 @@ class RoboTestCase(UserBaseTestCase):
         super(RoboTestCase, self).setUp()
 
     def test_bad_paysuccess(self):
-        r = self.client.post('/en/paysuccess')
+        r = self.client.post('/en/paysuccess/robokassa')
+        import pprint
+        pprint.pprint(r)
         self.assertEqual(r.json()['result'], 'bad request')
 
     def test_bad_paysuccess_with_param(self):
-        r = self.client.post('/en/paysuccess',
+        r = self.client.post('/en/paysuccess/robokassa',
                              {'OutSum': 1,
                               'InvId': 1,
                               'SignatureValue': 'fsdfdfdsd'})
+        import pprint
+        pprint.pprint(r)
         self.assertEqual(r.json()['result'], 'bad request')
 
 
@@ -33,7 +37,7 @@ class PaymentReleaseTestCase(UserBaseTestCase, OrderBaseTestCase):
 
         amount_cash = Decimal(30000.00)
 
-        self.payment_method = PaymentMethod(name='ROBO', )
+        self.payment_method = PaymentMethod(name='ROBO')
         self.payment_method.save()
 
         self.addr_data = {
@@ -42,6 +46,7 @@ class PaymentReleaseTestCase(UserBaseTestCase, OrderBaseTestCase):
             'address': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
 
         }
+
         self.addr = Address(**self.addr_data)
         self.addr.user = self.user
         self.addr.save()
