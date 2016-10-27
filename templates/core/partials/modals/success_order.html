@@ -23,7 +23,7 @@
                     {% trans 'Go to Robokassa' %}
                 </a>
             {% else %}
-                <a href="{% url 'core.order' %}" class="btn btn-default">{% trans 'Get your bitcoins' %}</a>
+                <a href="{% url 'core.order' %}?oid={{ order.pk }}" class="btn btn-default">{% trans 'Get your bitcoins' %}</a>
             {% endif %}
         </div>
       </div>

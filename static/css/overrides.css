@@ -534,7 +534,7 @@ body .price_box_ticker .trigger-sell, body .price_box_next_cont .sell-go{
 
 .price_box_next_cont{text-align:center;}
 
-.price_box_next{width:250px; color:#FFF; font-size:30px; padding:5px 0; background-color:#8cc63f; border-radius:8px; display:inline-block; text-align:center;}
+.price_box_next{cursor:pointer; width:250px; color:#FFF; font-size:30px; padding:5px 0; background-color:#8cc63f; border-radius:8px; display:inline-block; text-align:center;}
 
 .price_box_next:hover{background-color:#000; color:#FFF;}
 
@@ -669,6 +669,7 @@ body .price_box_ticker .trigger-sell, body .price_box_next_cont .sell-go{
     .price_box_ticker a.trigger {
         font-size: 26px;
         max-width: 125px;
+        
     }
 
        .price_box_ticker span.rate {
@@ -676,6 +677,18 @@ body .price_box_ticker .trigger-sell, body .price_box_next_cont .sell-go{
     }
    .price_box_ticker {
        margin: 25px 0;
+   }
+
+   .menu1 .exchange-sign {
+       margin-top: 20px;
+   }
+
+    body .menu2 label {
+        font-size: 20px;
+       display: block;
+       text-align: left;
+       margin-bottom: 10px;
+        padding: 0 2px;
    }
 
 }
@@ -712,6 +725,10 @@ vertical design
     border-color: #ee1d25;
 }
 
+.menu1 .trigger {
+    cursor: pointer;
+}
+
 .menu1.sell .trigger.trigger-sell {
     opacity: 1;
 }
@@ -726,4 +743,42 @@ vertical design
 
 .menu1. .trigger.trigger-buy {
     opacity: 1;
+}
+
+
+.menu2 h4 {
+    font-size: 30px;
+    margin-bottom: 40px;
+}
+
+.menu2 label {
+    font-size: 25px;
+    margin: 0 30px;
+    width: 230px;
+    text-align: left;
+
+}
+
+.menu2 input {
+    height: 50px;
+    font-size: 20px;
+}
+
+
+span.btn {
+    font-size: 30px;
+    margin-bottom: 20px;
+}
+
+#verification_code {
+    width: 290px;
+}
+
+.menu2 .intl-tel-input ul.country-list {
+    max-width: 290px;
+    margin-left: -24px;
+}
+
+.menu2 .intl-tel-input ul.country-list li.country {
+    display: block;
 }

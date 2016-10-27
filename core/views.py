@@ -27,6 +27,7 @@ from datetime import timedelta
 from django.views.decorators.csrf import csrf_exempt
 
 from twilio.exceptions import TwilioException
+from .adapters import robokassa_adapter, leupay_adapter, unitpay_adapter
 
 from .validators import validate_bc
 
@@ -34,7 +35,7 @@ from .kraken_api import api
 from django.utils import translation
 from decimal import Decimal
 from referrals.models import Referral, ReferralCode
-from core.utils import geturl_robokassa, check_signature_robo
+from core.utils import geturl_robokassa
 from django.http import Http404
 
 kraken = api.API()
@@ -680,8 +681,9 @@ def referrals(request):
 
 
 @login_required
-def payfailed(request):
+def payment_failure(request):
     template = get_template('core/partials/steps/step_reply_payment.html')
+    # TODO: Better logic
     last_order = Order.objects.filter(user=request.user).latest('id')
     url = '/pay_try_again'
     last_order.is_failed = True
@@ -690,7 +692,7 @@ def payfailed(request):
 
 
 @login_required
-def try_pay_again(request):
+def payment_retry(request):
     old_order = Order.objects.filter(user=request.user,
                                      is_failed=True).latest('id')
     order = old_order
@@ -701,24 +703,30 @@ def try_pay_again(request):
 
 
 @login_required
-def paysuccess(request):
+def payment_success(request, provider):
     try:
-        out_summ = request.GET.get("OutSum")
-        inv_id = request.GET.get("InvId")
-        crc = request.GET.get("SignatureValue")
-        check_res = check_signature_robo(inv_id, out_summ, crc)
+        received_order = None
+        if provider == 'robokassa':
+            received_order = robokassa_adapter(request)
+        elif provider == 'unitpay':
+            received_order = unitpay_adapter(request)
+        elif provider == 'leupay':
+            received_order = leupay_adapter(request)
 
-        if not check_res:
+        if not received_order:
+            return Http404(_('Unsupported payment provider'))
+
+        if not received_order.valid:
             template = \
                 get_template('core/partials/steps/step_reply_payment.html')
             return HttpResponse(template.render({'bad_sugnature': True},
                                                 request))
 
         order = Order.objects.filter(user=request.user,
-                                     amount_cash=out_summ,
-                                     id=inv_id)[0]
+                                     amount_cash=received_order['sum'],
+                                     id=received_order['order_id'])[0]
 
-        currency = Currency.objects.filter(code="RUB")[0]
+        currency = order.currency.code
 
         Payment.objects.\
             get_or_create(amount_cash=order.amount_cash,
@@ -728,7 +736,7 @@ def paysuccess(request):
                           is_complete=False)
 
         return redirect(reverse('core.order'))
-    except:
+    except ObjectDoesNotExist:
         return JsonResponse({'result': 'bad request'})
 
 
