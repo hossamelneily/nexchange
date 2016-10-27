@@ -61,11 +61,11 @@ def payment_release():
 
 @shared_task
 def checker_transactions():
-    for tr in Transaction.objects.filter(is_released=True, is_completed=False):
+    for tr in Transaction.objects.filter(is_completed=False):
         order = tr.order
         profile = order.user.profie
         if settings.DEBUG:
-            print("Look transaction {} ".format(tr.tx_id))
+            print("Look-up transaction with pk {} ".format(tr.tx_id))
         if check_transaction(tr.tx_id):
             tr.is_completed = True
             tr.save()
