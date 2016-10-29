@@ -33,6 +33,19 @@
                     $(this).intlTelInput();
                 }
             });
+
+            /* var verifyCallback = function(response) {
+                    alert(response);
+                };
+
+                var onloadCallback = function() {
+                    grecaptcha.render('grecaptcha', {
+                      'sitekey' : '6LfPaAoUAAAAAOmpl6ZwPIk2Zs-30TErK48dPhcS',
+                      'callback' : verifyRecatpchaCallback
+                    });
+                };*/
+
+
             orderObject.updateOrder($('.amount-coin'), true, currency);
             // if not used event, isNext remove  jshint
             $('#graph-range').on('change', function() {
@@ -395,7 +408,11 @@
 
 $(document).ready(function() {
     $('.supporetd_payment').removeClass('hidden');
+
 });
+
+
+   
 },{"./modules/orders.js":3,"./modules/payment.js":4}],2:[function(require,module,exports){
 !(function(window ,$) {
     "use strict";
