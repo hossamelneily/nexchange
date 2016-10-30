@@ -63,3 +63,4 @@ psycopg2>=2.6.1
 rq-scheduler==0.7.0
 urllib3==1.18
 django-session-security
+django-axes

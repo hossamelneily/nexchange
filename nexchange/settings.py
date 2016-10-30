@@ -96,7 +96,8 @@ INSTALLED_APPS = [
     'ticker',
     'referrals',
     'djcelery',
-    'session_security'
+    'session_security',
+    'axes'
 ]
 
 CMS_PERMISSION = False
