@@ -315,7 +315,6 @@ build:
         working-dir: /usr/src/app
 
 deploy:
-  box: pcfseceng/ci-ssh-client
   steps:
     - install-packages:
       packages: knockd
