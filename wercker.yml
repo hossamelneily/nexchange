@@ -316,6 +316,12 @@ build:
 
 deploy:
   steps:
+    - add-to-known_hosts:
+      hostname: $DEST_HOST_ADDR
+    - script:
+      name: create pipeline dir
+      code: |
+        mkdir -p /pipeline
     - install-packages:
       packages: knockd
     - mktemp:
