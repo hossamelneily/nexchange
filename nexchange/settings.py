@@ -199,7 +199,6 @@ DATABASES = {
 
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
@@ -343,3 +342,32 @@ SOCIAL = {
     'twitter': 'https://twitter.com/nexchange.ru',
     'facebook': 'https://facebook.com/nexchange.ru'
 }
+
+BRAINTREE_API = {
+    'SANDBOX': {
+        'vault': True,
+        'merchant_id': 'cx2ybd6krcd8v392',
+        'public_key': 'pr3kwc58g6r2whd8',
+        'private_key': '19e9a4db38b16bbea6034ccbcbed300f',
+        'timeout': 60,
+        'merchant_accounts': {
+            'USD': 'pavlov',
+            'EUR': 'euro',
+            'RUB': 'cx2ybd6krcd8v392'
+        }
+    },
+    'PRODUCTION': {
+        'vault': True,
+        'merchant_id': '2qjrf326433vgjcq',
+        'public_key': 'vxbcfqt7mng73z3q',
+        'private_key': '4ac4bbc0cf8efa7a1073ae31924e03a5',
+        'timeout': 60,
+        'merchant_accounts': {
+            'USD': 'pavlov',
+            'EUR': 'euro',
+            'RUB': 'cx2ybd6krcd8v392'
+        }
+    }
+}
+
+BRAINTREE_API_MODE = 'SANDBOX'
