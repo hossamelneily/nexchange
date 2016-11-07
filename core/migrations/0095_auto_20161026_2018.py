@@ -13,16 +13,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='cryptocurrency',
-            name='currency_ptr',
-        ),
         migrations.AlterField(
             model_name='cmspage',
             name='name',
             field=models.CharField(choices=[('faq', 'faq'), ('blog', 'blog'), ('fees', 'fees'), ('support', 'support'), ('trading_guide', 'trading_guide'), ('about_us', 'about_us'), ('careers', 'careers'), ('press', 'press'), ('conference', 'conference'), ('legal_privacy', 'legal_privacy'), ('security', 'security')], default=None, max_length=50),
-        ),
-        migrations.DeleteModel(
-            name='CryptoCurrency',
         ),
     ]
