@@ -13,10 +13,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='cryptocurrency',
-            name='currency_ptr',
-        ),
         migrations.DeleteModel(
             name='CryptoCurrency',
         ),
