@@ -117,8 +117,7 @@ urlpatterns = i18n_patterns(
         name='core.paysuccess'),
     url(r'^cms/(?P<page_name>.+)/$', core.views.cms_page,
         name='core.cmspage'),
-    url(r'^unitpay-f699.txt', core.views.unit_pay,
-        name='core.unit_pay')
+    url(r'session_security/', include('session_security.urls')),
 )
 
 if settings.DEBUG:

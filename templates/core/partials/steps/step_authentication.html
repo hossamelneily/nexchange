@@ -9,7 +9,10 @@
             <div class="step1">
                 {% trans "Enter your phone" as enter_your_phone %}
                 {% include 'core/partials/forms/phone.html' with label=enter_your_phone%}
+                <center><div id="grecaptcha"></div></center>
+
             </div>
+            </script>
             <div class="step2 hidden">
                 <div class="row">
                     <div class="col col-lg-12 register">
@@ -22,7 +25,7 @@
             </div>
         </div>
         <div class="col col-lg-12 center controls">
-            <span class="btn btn-primary create-acc">
+            <span class="btn btn-primary create-acc hidden">
                 {% trans "Send SMS"%}
             </span>
             <span class="btn btn-danger create-acc resend hidden">
@@ -33,6 +36,7 @@
             </span>
         </div>
     </div>
+
 {% endblock %}
 {% block spa_navigation %}
 {% endblock %}

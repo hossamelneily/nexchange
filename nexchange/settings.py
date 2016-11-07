@@ -95,7 +95,9 @@ INSTALLED_APPS = [
     'core',
     'ticker',
     'referrals',
-    'djcelery'
+    'djcelery',
+    'session_security',
+    'axes'
 ]
 
 CMS_PERMISSION = False
@@ -147,6 +149,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'session_security.middleware.SessionSecurityMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'referrals.middleware.ReferralMiddleWare',
@@ -169,6 +172,7 @@ TEMPLATES = [
                 'django.template.context_processors.i18n',
                 'core.context_processors.google_analytics',
                 'core.context_processors.cms',
+                'django.core.context_processors.request'
             ],
         },
     },
@@ -371,3 +375,14 @@ BRAINTREE_API = {
 }
 
 BRAINTREE_API_MODE = 'SANDBOX'
+# NEW security measures
+
+SESSION_SECURITY_WARN_AFTER = 540
+SESSION_SECURITY_EXPIRE_AFTER = 600
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_SECURITY_PASSIVE_URLS = ["/en/api/v1/price/latest/",
+                                 "/en/api/v1/price/history/",
+                                 "/en/session_security/ping/",
+                                 "https://mc.yandex.ru/webvisor/39575585",
+                                 "https://mc.yandex.ru/watch/39575585"]
+
