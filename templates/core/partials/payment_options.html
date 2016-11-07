@@ -89,7 +89,7 @@
             </div>
         </div>
     </div>
-    {% if type == 'buy' %}
+    {% if type == 'buy TODO_chnge_to_braitree' %}
       <div class="col col-xs-12  col-md-6 payment-type-trigger robokassa" data-type="Robokassa">
         <div class="col col-xs-12">
             <img src="{% static 'icons/robokassa.png' %}"
@@ -105,4 +105,21 @@
         </div>
     </div>
     {% endif %}
+    {% if type == 'buy' %}
+        <div class="col col-xs-12  col-md-6 payment-type-trigger paypal" data-type="PayPal">
+            <div class="col col-xs-12">
+                <img src="{% static 'icons/paypal.jpeg' %}"
+                     alt="{% trans 'PayPal'%}"
+                     class="payment-method-icon btn btn-primary">
+            </div>
+
+            <div class="col col-xs-12  ">
+                <div class="payment-label">
+                    {% trans 'Pay with' %} {%trans 'PayPal'%}
+                    <a href="#" class="round-button"> ></a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
 </div>

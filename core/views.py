@@ -10,7 +10,8 @@ from django.template.loader import get_template
 from core.forms import DateSearchForm, CustomUserCreationForm,\
     UserForm, UserProfileForm, UpdateUserProfileForm, ReferralTokenForm
 from core.models import Order, Currency, SmsToken, Profile, Transaction,\
-    Address, Payment, PaymentMethod, PaymentPreference, CmsPage
+    Address, Payment, PaymentMethod, PaymentPreference, CmsPage, \
+    BraintreePaymentMethod, BraintreePayment
 from django.db import transaction
 from django.views.generic import View
 from django.utils.decorators import method_decorator
@@ -37,6 +38,8 @@ from decimal import Decimal
 from referrals.models import Referral, ReferralCode
 from core.utils import geturl_robokassa
 from django.http import Http404
+from payments import braintreeAPI
+import json
 
 kraken = api.API()
 
@@ -93,6 +96,129 @@ def index_order(request):
                                          'withdraw_addresses': addresses,
                                          },
                                         request))
+
+
+def braintree_order(request):
+    text_error = None
+    user = request.user
+    outjson = {}
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        nonce = data["payment_method_nonce"]
+        amount = float(data["order_amount"])
+        order_id = data["order_id"]
+
+        profile = Profile.objects.get(user=user)
+        if not profile:
+            raise ValueError("Braintree order payment. Can't get user profile")
+
+        order = Order.objects.get(pk=order_id)
+        if not order:
+            raise ValueError("Braintree order payment. Can't get order")
+
+        payment_preference = PaymentPreference.objects.get(
+            payment_method__name__exact='PayPal')
+
+        if not payment_preference:
+            raise ValueError("Can't get payment preference for this order.")
+
+        if profile.sig_key == '' or profile.sig_key is None:
+            profile.sig_key = braintreeAPI.get_usersigkey()
+            profile.save()
+        customer = braintreeAPI.Customer_Find(profile.sig_key)
+        result = ''
+        if not customer:
+            result = braintreeAPI.Customer_Create(user, profile.sig_key)
+            if result.is_success:
+                resultcc = True
+            else:
+                resultcc = False
+        else:
+            resultcc = True
+
+        if resultcc:
+            result = braintreeAPI.PaymentMethod_Create(profile.sig_key, nonce)
+            if result.is_success:
+                token = result.payment_method.token
+                try:
+                    card_type = result.payment_method.card_type
+                    last = result.payment_method.last_4
+                    ident = '%s: xxxx-xxxx-xxxx-%s' % (card_type, last)
+                    uni = result.payment_method.unique_number_identifier
+                    type = 'Card'
+                except Exception as e:
+                    uni = result.payment_method.email
+                    ident = result.payment_method.email
+                    type = 'PayPal'
+
+                paymentmethod = BraintreePaymentMethod(user=user,
+                                                       nonce=nonce,
+                                                       token=token,
+                                                       is_default=True,
+                                                       uni=uni,
+                                                       ident=ident,
+                                                       type=type)
+                paymentmethod.save()
+                result = braintreeAPI.Make_Default(paymentmethod)
+                try:
+                    currency = order.currency
+                    amount = round(amount, 2)
+                    result = braintreeAPI.Send_Payment(paymentmethod,
+                                                       str(amount),
+                                                       currency=currency.code)
+
+                    if result.is_success:
+                        payment = Payment(amount_cash=amount,
+                                          currency=currency,
+                                          user=user,
+                                          order=order)
+                        # payment.is_complete = True
+                        payment.is_success = True
+                        payment.payment_preference = payment_preference
+                        payment.save()
+                        bp = BraintreePayment(payment=payment,
+                                              payment_method=paymentmethod)
+                        bp.save()
+                        order.is_paid = True
+                        order.save()
+                        outjson = {'data': '', 'error': 0,
+                                   'unique_ref': order.unique_reference}
+                    else:
+                        braintreeerror = []
+                        for error in result.errors.deep_errors:
+                            braintreeerror.append({
+                                'attribute': error.attribute,
+                                'code': error.code,
+                                'message': error.message})
+                        outjson = {'data': '', 'error': 1,
+                                   'error_text': result.errors.deep_errors}
+                except Exception as e:
+                    print("Error ", e)
+                    text_error = "Can't use this payment method."
+            else:
+                text_error = ''
+                for error in result.errors.deep_errors:
+                    if error.code == '81724':
+                        err = "Duplicate card exists in the vault."
+                        text_error = text_error + err
+                    elif error.code == '93107':
+                        err = "Cannot use a payment nonce more than once." \
+                              " Refresh form please"
+                        text_error = text_error + err
+                    else:
+                        text_error = "Can't add this" \
+                                     " payment method. {0}".format(error)
+        else:
+            text_error = "Error: can't send customer data."
+    except Exception as e:
+        text_error = 'Error get form data. {0}'.format(e)
+
+    if text_error:
+        outjson['error'] = 1
+        outjson['error_text'] = text_error
+
+    return JsonResponse(outjson, safe=False)
 
 
 def add_order(request):
@@ -217,7 +343,6 @@ def user_registration(request):
 
 @method_decorator(login_required, name='dispatch')
 class UserUpdateView(View):
-
     def get(self, request):
         user_form = UserForm(
             instance=self.request.user)
@@ -481,10 +606,29 @@ def ajax_order(request):
         address = k_generate_address()
 
     url = ''
-
     if payment_method == 'Robokassa':
         url = geturl_robokassa(order.id,
                                str(round(Decimal(order.amount_cash), 2)))
+    elif payment_method == 'PayPal':
+        profile = Profile.objects.get(user=request.user)
+        template = 'core/partials/modals/order_success_braintree.html'
+        template = get_template(template)
+        clienttoken = braintreeAPI.get_client_token(profile.sig_key)
+        translation.activate(request.POST.get("_locale"))
+        amount_cash = str(round(Decimal(order.amount_cash), 2))
+        return HttpResponse(template.render({'order': order,
+                                             'unique_ref': uniq_ref,
+                                             'action': my_action,
+                                             'pay_until': pay_until,
+                                             'address': address,
+                                             'payment_method': payment_method,
+                                             'order_amount': amount_coin,
+                                             'amount_cash': amount_cash,
+                                             'clienttoken': clienttoken,
+                                             'requestuser': request.user
+                                             },
+                                            request))
+
     translation.activate(request.POST.get("_locale"))
     return HttpResponse(template.render({'order': order,
                                          'unique_ref': uniq_ref,

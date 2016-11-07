@@ -45,6 +45,11 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     ip = models.CharField(max_length=39,
                           null=True,
                           default=None)
+    sig_key = models.CharField(max_length=64, blank=True)
+
+    @property
+    def profileuser(self):
+        pass
 
     @property
     def partial_phone(self):
@@ -401,3 +406,41 @@ class CmsPage(models.Model):
     locale = models.CharField(default=settings.LANGUAGES[0],
                               max_length=2,
                               null=True, choices=settings.LANGUAGES)
+
+
+class BraintreePaymentMethod(TimeStampedModel, SoftDeletableModel):
+    user = models.ForeignKey(User, related_name='paymentmethods')
+    ident = models.CharField(_('Identification'), max_length=60,
+                             null=True, blank=True)
+    uni = models.CharField(_('Uni'), max_length=60,
+                           null=True, blank=True)
+    nonce = models.CharField(_('Nonce'), max_length=256,
+                             null=True, blank=True)
+    token = models.CharField(_('Token'), max_length=256,
+                             null=True, blank=True)
+    type = models.CharField(_('Type'), max_length=20,
+                            null=True, blank=True)
+    is_default = models.BooleanField(_('Default'), default=False)
+    is_delete = models.BooleanField(_('Delete'), default=False)
+
+    def __str__(self):
+        return "{0} - ({1})".format(self.user.username, self.ident)
+
+    def save(self, *args, **kwargs):
+        super(BraintreePaymentMethod, self).save(*args, **kwargs)
+
+
+class BraintreePayment(TimeStampedModel, SoftDeletableModel):
+    payment = models.OneToOneField(Payment, on_delete=models.CASCADE)
+    payment_method = models.ForeignKey(BraintreePaymentMethod,
+                                       related_name='orders')
+    nonce = models.CharField(_('Nonce'),
+                             max_length=256,
+                             null=True,
+                             blank=True)
+
+    def __str__(self):
+        return "{0}".format(self.payment_method.ident)
+
+    def save(self, *args, **kwargs):
+        super(BraintreePayment, self).save(*args, **kwargs)

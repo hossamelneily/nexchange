@@ -22,6 +22,8 @@
                    data-keyboard="false">
                     {% trans 'Go to Robokassa' %}
                 </a>
+            {% elif order.payment_preference.payment_method.name == 'PayPal' %}
+                <button id="send-payment-button" class="btn btn-default hidden"> {% trans 'Send payment' %} </button>
             {% else %}
                 <a href="{% url 'core.order' %}?oid={{ order.pk }}" class="btn btn-default">{% trans 'Get your bitcoins' %}</a>
             {% endif %}
@@ -29,5 +31,3 @@
       </div>
     </div>
 </div>
-
-
