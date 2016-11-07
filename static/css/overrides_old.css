@@ -1,3 +1,20 @@
+html {
+  position:relative;
+  min-height: 100%;
+}
+
+html, body{
+  margin:0;
+  padding:0;
+}
+
+.container.main {
+    margin-bottom: 249px;
+}
+
+.footer {
+    min-height: 249px;
+}
 .footer_inner{
     padding: 0;
 }
