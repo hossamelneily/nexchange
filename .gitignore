@@ -19,3 +19,6 @@ helpers.sh
 /core/management/commands/Screenshots/
 src/
 celerybeat*
+npm.bat
+npm.cmd
+node.exe
