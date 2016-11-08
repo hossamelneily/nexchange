@@ -22,4 +22,4 @@ def robokassa_adapter(request):
 
 
 def leupay_adapter(request):
-    pass
+    return {}

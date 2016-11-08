@@ -195,7 +195,7 @@ user = os.getenv('POSTGIS_ENV_POSTGRES_USER', 'postgres')
 password = os.getenv('POSTGIS_ENV_POSTGRES_PASSWORD', '')
 host = os.getenv('POSTGIS_PORT_5432_TCP_ADDR', '')
 port = os.getenv('POSTGIS_PORT_5432_TCP_PORT', '')
-db = os.getenv('POSTGIS_ENV_POSTGRES_DB', 'photobase')
+db = os.getenv('POSTGIS_ENV_POSTGRES_DB', 'nexchange')
 
 DATABASES = {
     'default': dj_database_url.config(default='postgis://{}:{}@{}:{}/{}'
@@ -385,4 +385,3 @@ SESSION_SECURITY_PASSIVE_URLS = ["/en/api/v1/price/latest/",
                                  "/en/session_security/ping/",
                                  "https://mc.yandex.ru/webvisor/39575585",
                                  "https://mc.yandex.ru/watch/39575585"]
-

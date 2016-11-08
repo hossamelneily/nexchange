@@ -113,7 +113,7 @@ urlpatterns = i18n_patterns(
         name='core.payfailed'),
     url(r'^payment_retry', core.views.payment_retry,
         name='core.try_pay_again'),
-    url(r'^payment_success/(?P<page_name>.+)/$', core.views.payment_success,
+    url(r'^payment_success/(?P<provider>.+)/$', core.views.payment_success,
         name='core.paysuccess'),
     url(r'^cms/(?P<page_name>.+)/$', core.views.cms_page,
         name='core.cmspage'),
