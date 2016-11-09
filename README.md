@@ -30,3 +30,11 @@ It will trigger, in order:
 (After you run the tests, you can see a coverage report of the backend tests at http://localhost:8000/cover/index.html)
 
 You can read more about these tests in the *readme_werker.md* on this directory.
+
+
+# Development workflow#
+
+- All features or anything which is not a one liner goes into a branch which results in a PR to `staging`.
+ Which then must be reviewed, and propgated into a pull request.
+- One liners and small patches can go to `staging`, with a PR to release.
+- No commits, nor rebases on release
