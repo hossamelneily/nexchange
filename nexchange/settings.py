@@ -198,9 +198,9 @@ port = os.getenv('POSTGIS_PORT_5432_TCP_PORT', '')
 db = os.getenv('POSTGIS_ENV_POSTGRES_DB', 'nexchange')
 
 DATABASES = {
-    #    'default': dj_database_url.config(default='postgis://{}:{}@{}:{}/{}'
-    #                                     .format(user, password, host, port, db))
-
+       'default':
+       dj_database_url.config(default='postgis://{}:{}@{}:{}/{}'.
+                              format(user, password, host, port, db))
 }
 
 # Password validation
