@@ -8,6 +8,7 @@
         // Required modules
         orderObject = require('./modules/orders.js'),
         paymentObject = require('./modules/payment.js'),
+
         paymentType = '',
         preferenceIdentifier = '',
         preferenceOwner = '';
@@ -31,19 +32,7 @@
                     // with AMD move to https://codepen.io/jackocnr/pen/RNVwPo
                     $(this).intlTelInput();
                 }
-            });
-
-            /* var verifyCallback = function(response) {
-                    alert(response);
-                };
-
-                var onloadCallback = function() {
-                    grecaptcha.render('grecaptcha', {
-                      'sitekey' : '6LfPaAoUAAAAAOmpl6ZwPIk2Zs-30TErK48dPhcS',
-                      'callback' : verifyRecatpchaCallback
-                    });
-                };*/
-
+            });            
 
             orderObject.updateOrder($('.amount-coin'), true, currency);
             // if not used event, isNext remove  jshint
@@ -91,7 +80,7 @@
                   $('.amount-cash, .amount-coin')
                     .removeClass('rate-buy')
                     .removeClass('rate-sell')
-                    .addClass(newCashClass);
+                    .addClass(newCashClass);                
             });
 
             $('.amount').on('keyup', function () {
@@ -161,6 +150,7 @@
         $('.next-step, .prev-step').on('click', orderObject.changeState);
 
         $('.create-acc').on('click', function () {
+            debugger;
             var regPayload = {
                 // TODO: check collision with qiwi wallet
                 phone: $('.register .phone').val()

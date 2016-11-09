@@ -7,12 +7,20 @@
         <h4>{% trans "Phone verification"%}</h4>
         <div class="auth-steps">
             <div class="step1">
-                {% trans "Enter your phone" as enter_your_phone %}
-                {% include 'core/partials/forms/phone.html' with label=enter_your_phone%}
-                <center><div id="grecaptcha"></div></center>
+                {% trans "Enter your phone" as enter_your_phone %}<br>
+                {% include 'core/partials/forms/phone.html' with label=enter_your_phone %}                
 
+              <div class="row">
+              <div class="col col-lg-4 col-md-offset-4">   
+                <hr>
+              </div>
+                <div class="col col-lg-12">   
+                    <strong>{% trans "Confirm you are human" %} </strong> <br>
+                    <center><div id="grecaptcha"></div></center>
+                </div>
+               </div>
             </div>
-            </script>
+            
             <div class="step2 hidden">
                 <div class="row">
                     <div class="col col-lg-12 register">

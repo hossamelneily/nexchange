@@ -4,7 +4,9 @@
       // Required modules
      var chartObject = require("./chart.js"),
          registerObject = require("./register.js"),
+         googleObject = require('./google_recaptcha.js'),
          animationDelay = 3000;
+
 
     function updateOrder (elem, isInitial, currency, cb) {
         var val,
@@ -122,8 +124,9 @@
 
     function setButtonDefaultState (tabId) {
         if (tabId === 'menu2') {
+            googleObject.doRender();                 
             var modifier = window.ACTION_SELL ? 'btn-danger' : 'btn-success';
-            $('.next-step').removeClass('btn-info').addClass(modifier);
+            $('.next-step').removeClass('btn-info').addClass(modifier);                        
         } else {
             $('.next-step').removeClass('btn-success').removeClass('btn-danger').addClass('btn-info');
         }
@@ -153,7 +156,7 @@
         $("#UserAccountModal").modal({backdrop: "static"});
     }
 
-    function changeState (e, action) {
+    function changeState (e, action) {       
         $('.supporetd_payment').addClass('hidden');
         if (e) {
             e.preventDefault();
@@ -168,7 +171,7 @@
                 toggleBuyModal();
             } else {
                 toggleSellModal();
-            }
+            }            
             return;
         }
 
@@ -196,7 +199,7 @@
         if(nextState.hasClass('disabled') &&
             numericId < $(".process-step").length &&
             numericId > 1) {
-            changeState(null, action);
+            changeState(null, action);            
         }
 
 
@@ -215,11 +218,12 @@
                 .removeClass('btn-default')
                 .tab('show');
         }
+        
 
         $(window).trigger('resize');
     }
 
-function reloadRoleRelatedElements (menuEndpoint) {
+    function reloadRoleRelatedElements (menuEndpoint) {
         $.get(menuEndpoint, function (menu) {
             $(".menuContainer").html($(menu));
         });

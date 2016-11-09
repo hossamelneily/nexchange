@@ -9,6 +9,7 @@
         // Required modules
         orderObject = require('./modules/orders.js'),
         paymentObject = require('./modules/payment.js'),
+
         paymentType = '',
         preferenceIdentifier = '',
         preferenceOwner = '';
@@ -32,19 +33,7 @@
                     // with AMD move to https://codepen.io/jackocnr/pen/RNVwPo
                     $(this).intlTelInput();
                 }
-            });
-
-            /* var verifyCallback = function(response) {
-                    alert(response);
-                };
-
-                var onloadCallback = function() {
-                    grecaptcha.render('grecaptcha', {
-                      'sitekey' : '6LfPaAoUAAAAAOmpl6ZwPIk2Zs-30TErK48dPhcS',
-                      'callback' : verifyRecatpchaCallback
-                    });
-                };*/
-
+            });            
 
             orderObject.updateOrder($('.amount-coin'), true, currency);
             // if not used event, isNext remove  jshint
@@ -92,7 +81,7 @@
                   $('.amount-cash, .amount-coin')
                     .removeClass('rate-buy')
                     .removeClass('rate-sell')
-                    .addClass(newCashClass);
+                    .addClass(newCashClass);                
             });
 
             $('.amount').on('keyup', function () {
@@ -162,6 +151,7 @@
         $('.next-step, .prev-step').on('click', orderObject.changeState);
 
         $('.create-acc').on('click', function () {
+            debugger;
             var regPayload = {
                 // TODO: check collision with qiwi wallet
                 phone: $('.register .phone').val()
@@ -413,7 +403,7 @@ $(document).ready(function() {
 
 
    
-},{"./modules/orders.js":3,"./modules/payment.js":4}],2:[function(require,module,exports){
+},{"./modules/orders.js":4,"./modules/payment.js":5}],2:[function(require,module,exports){
 !(function(window ,$) {
     "use strict";
 
@@ -545,13 +535,40 @@ $(document).ready(function() {
 }(window, window.jQuery)); //jshint ignore:line
 
 },{}],3:[function(require,module,exports){
+!(function(window ,$) {
+  "use strict"; 
+
+  var verifyRecatpchaCallback = function(response) {
+
+          //console.log( 'g-recaptcha-response: ' + response );
+            $('.btn-primary.create-acc').removeClass('hidden');
+
+  };
+
+  var doRender = function() {
+          grecaptcha.render( 'grecaptcha', {
+            'sitekey' : '6LfPaAoUAAAAAOmpl6ZwPIk2Zs-30TErK48dPhcS',  // required
+            'theme' : 'light',  // optional
+            'callback': verifyRecatpchaCallback  // optional
+          });
+  };
+
+    module.exports = {
+        verifyRecatpchaCallback:verifyRecatpchaCallback,
+        doRender: doRender,        
+    };
+
+}(window, window.jQuery)); //jshint ignore:line
+},{}],4:[function(require,module,exports){
 !(function(window, $) {
     "use strict";
 
       // Required modules
      var chartObject = require("./chart.js"),
          registerObject = require("./register.js"),
+         googleObject = require('./google_recaptcha.js'),
          animationDelay = 3000;
+
 
     function updateOrder (elem, isInitial, currency, cb) {
         var val,
@@ -669,8 +686,9 @@ $(document).ready(function() {
 
     function setButtonDefaultState (tabId) {
         if (tabId === 'menu2') {
+            googleObject.doRender();                 
             var modifier = window.ACTION_SELL ? 'btn-danger' : 'btn-success';
-            $('.next-step').removeClass('btn-info').addClass(modifier);
+            $('.next-step').removeClass('btn-info').addClass(modifier);                        
         } else {
             $('.next-step').removeClass('btn-success').removeClass('btn-danger').addClass('btn-info');
         }
@@ -700,7 +718,7 @@ $(document).ready(function() {
         $("#UserAccountModal").modal({backdrop: "static"});
     }
 
-    function changeState (e, action) {
+    function changeState (e, action) {       
         $('.supporetd_payment').addClass('hidden');
         if (e) {
             e.preventDefault();
@@ -715,7 +733,7 @@ $(document).ready(function() {
                 toggleBuyModal();
             } else {
                 toggleSellModal();
-            }
+            }            
             return;
         }
 
@@ -743,7 +761,7 @@ $(document).ready(function() {
         if(nextState.hasClass('disabled') &&
             numericId < $(".process-step").length &&
             numericId > 1) {
-            changeState(null, action);
+            changeState(null, action);            
         }
 
 
@@ -762,11 +780,12 @@ $(document).ready(function() {
                 .removeClass('btn-default')
                 .tab('show');
         }
+        
 
         $(window).trigger('resize');
     }
 
-function reloadRoleRelatedElements (menuEndpoint) {
+    function reloadRoleRelatedElements (menuEndpoint) {
         $.get(menuEndpoint, function (menu) {
             $(".menuContainer").html($(menu));
         });
@@ -806,7 +825,7 @@ function reloadRoleRelatedElements (menuEndpoint) {
     };
 }(window, window.jQuery)); //jshint ignore:line
 
-},{"./chart.js":2,"./register.js":5}],4:[function(require,module,exports){
+},{"./chart.js":2,"./google_recaptcha.js":3,"./register.js":6}],5:[function(require,module,exports){
 !(function(window ,$) {
     "use strict";
 
@@ -834,7 +853,7 @@ function reloadRoleRelatedElements (menuEndpoint) {
 
 }(window, window.jQuery)); //jshint ignore:line
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 !(function(window, $) {
     "use strict";
 
