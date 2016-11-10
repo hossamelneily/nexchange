@@ -58,7 +58,7 @@ class Currency(TimeStampedModel, SoftDeletableModel):
     code = models.CharField(max_length=3)
     name = models.CharField(max_length=10)
     min_confirmations = \
-        models.IntegerField(default=0, blank=True, null=True)
+        models.IntegerField(blank=True, null=True)
 
     def natural_key(self):
         return self.code
