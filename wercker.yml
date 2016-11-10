@@ -161,6 +161,7 @@ build:
         name: Django migrations
         code: |
           python manage.py makemigrations
+          yes w | python manage.py makemigrations --merge
     - script:
         name: django collect and compile translations
         code: |
