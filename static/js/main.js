@@ -193,10 +193,11 @@
                 data: verifyPayload,
                 success: function (data) {
                     if (data.status === 'OK') {
+                    	document.getElementById('messages').innerHTML = ''
                         orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
                         orderObject.changeState(null, 'next');
                     } else {
-                        window.alert('The code you sent was incorrect. Please, try again.');
+                        document.getElementById('messages').innerHTML = 'The code you sent was incorrect. Please, try again.'
                     }
                 },
                 error: function () {

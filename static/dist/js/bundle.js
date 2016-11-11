@@ -9,7 +9,6 @@
         // Required modules
         orderObject = require('./modules/orders.js'),
         paymentObject = require('./modules/payment.js'),
-        captcha = require('./modules/captcha.js'),
 
         paymentType = '',
         preferenceIdentifier = '',
@@ -82,7 +81,7 @@
                   $('.amount-cash, .amount-coin')
                     .removeClass('rate-buy')
                     .removeClass('rate-sell')
-                    .addClass(newCashClass);
+                    .addClass(newCashClass);                
             });
 
             $('.amount').on('keyup', function () {
@@ -150,19 +149,8 @@
             DEFAULT_AMOUNT = 1;
 
         $('.next-step, .prev-step').on('click', orderObject.changeState);
-        $('.phone.val').on('keyup', function () {
-            if($(this).val().length) {
-                $('.create-acc')
-                    .not('.resend')
-                    .removeClass('disabled');
-            }
-        });
-        $('.create-acc').on('click', function () {
-            if($(this).hasClass('disabled')) {
-                return;
-            }
-            $('.phone.val').addClass('disabled');
 
+        $('.create-acc').on('click', function () {
             var regPayload = {
                 // TODO: check collision with qiwi wallet
                 phone: $('.register .phone').val()
@@ -178,7 +166,8 @@
                     $('.create-acc.resend').removeClass('hidden');
                 },
                 error: function () {
-                    window.alert('Invalid phone number');
+                	var message = gettext('Invalid phone number');
+                    toastr.error(message);
                 }
             });
         });
@@ -197,11 +186,13 @@
                         orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
                         orderObject.changeState(null, 'next');
                     } else {
-                        window.alert('The code you sent was incorrect. Please, try again.');
+                    	var message = gettext('The code you sent was incorrect. Please, try again.');
+                        toastr.error(message);
                     }
                 },
                 error: function () {
-                    window.alert('Something went wrong. Please, try again.');
+                	var message = gettext('Something went wrong. Please, try again.');
+                    toastr.error(message);
                 }
             });
 
@@ -251,7 +242,8 @@
 
                 },
                 error: function () {
-                    window.alert('Something went wrong. Please, try again.');
+                	var message = gettext('Something went wrong. Please, try again.');
+                    toastr.error(message);
                 }
             });
 
@@ -280,7 +272,8 @@
                    // loadPaymenMethods(paymentMethodsEndpoint);
                 },
                 error: function () {
-                    window.alert('Something went wrong. Please, try again.');
+                	var message = gettext('Something went wrong. Please, try again.');
+                    toastr.error(message);
                 }
             });
 
@@ -394,11 +387,13 @@
                         orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
                         orderObject.changeState('next');
                     } else {
-                        window.alert('The code you sent was incorrect. Please, try again.');
+                	    var message = gettext('The code you sent was incorrect. Please, try again.');
+                        toastr.error(message);
                     }
                 },
                 error: function () {
-                    window.alert('Something went wrong. Please, try again.');
+                	var message = gettext('Something went wrong. Please, try again.');
+                    toastr.error(message);
                 }
             });
 
@@ -414,7 +409,7 @@ $(document).ready(function() {
 
 
    
-},{"./modules/captcha.js":2,"./modules/orders.js":4,"./modules/payment.js":5}],2:[function(require,module,exports){
+},{"./modules/orders.js":4,"./modules/payment.js":5}],2:[function(require,module,exports){
 !(function(window ,$) {
   "use strict";
     var isVerified = false;
