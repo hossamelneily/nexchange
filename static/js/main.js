@@ -148,9 +148,19 @@
             DEFAULT_AMOUNT = 1;
 
         $('.next-step, .prev-step').on('click', orderObject.changeState);
-
+        $('.phone.val').on('keyup', function () {
+            if($(this).val().length > 10) {
+                $('.create-acc')
+                    .not('.resend')
+                    .removeClass('disabled');
+            }
+        });
         $('.create-acc').on('click', function () {
-            debugger;
+            if($(this).hasClass('disabled')) {
+                return;
+            }
+            $('.phone.val').addClass('disabled');
+
             var regPayload = {
                 // TODO: check collision with qiwi wallet
                 phone: $('.register .phone').val()

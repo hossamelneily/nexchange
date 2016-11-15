@@ -95,6 +95,7 @@ INSTALLED_APPS = [
     'core',
     'ticker',
     'referrals',
+    'payments',
     'djcelery',
     'session_security',
     'axes'
@@ -172,7 +173,7 @@ TEMPLATES = [
                 'django.template.context_processors.i18n',
                 'core.context_processors.google_analytics',
                 'core.context_processors.cms',
-                #'django.core.context_processors.request'
+                # 'django.core.context_processors.request'
             ],
         },
     },
@@ -198,9 +199,9 @@ port = os.getenv('POSTGIS_PORT_5432_TCP_PORT', '')
 db = os.getenv('POSTGIS_ENV_POSTGRES_DB', 'nexchange')
 
 DATABASES = {
-       'default':
-       dj_database_url.config(default='postgis://{}:{}@{}:{}/{}'.
-                              format(user, password, host, port, db))
+    'default':
+    dj_database_url.config(default='postgis://{}:{}@{}:{}/{}'.
+                           format(user, password, host, port, db))
 }
 
 # Password validation

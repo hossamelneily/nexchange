@@ -1,10 +1,10 @@
-from core.models import models, Currency, User, TimeStampedModel
-from core.common.models import UniqueFieldMixin
+from django.db import models
+from django.contrib.auth.models import User
 from nexchange.settings import REFERRAL_CODE_LENGTH
-from django.db.models import Sum
 from decimal import Decimal
 from django.utils.crypto import get_random_string
-from core.common.models import SoftDeleteMixin
+from core.common.models import SoftDeleteMixin, UniqueFieldMixin,\
+    TimeStampedModel
 
 
 class Program(TimeStampedModel):
@@ -12,7 +12,7 @@ class Program(TimeStampedModel):
     percent_first_degree = models.FloatField()
     percent_second_degree = models.FloatField(default=0)
     percent_third_degree = models.FloatField(default=0)
-    currency = models.ManyToManyField(Currency)
+    currency = models.ManyToManyField('core.Currency')
     max_payout_btc = models.FloatField(default=-1)
     max_users = models.IntegerField(default=-1)
     max_lifespan = models.IntegerField(default=-1)
@@ -36,7 +36,7 @@ class ReferralCode(TimeStampedModel, UniqueFieldMixin):
 
 
 class Referral(TimeStampedModel, SoftDeleteMixin):
-    code = models.ForeignKey(ReferralCode, default=None,
+    code = models.ForeignKey('ReferralCode', default=None,
                              null=True)
     referee = models.ForeignKey(User, null=True, default=None,
                                 related_name='referral')
@@ -59,7 +59,7 @@ class Referral(TimeStampedModel, SoftDeleteMixin):
     @property
     def turnover(self):
         res = self.\
-            orders.aggregate(Sum('amount_btc'))
+            orders.aggregate(models.Sum('amount_btc'))
         return res['amount_btc__sum']
 
     @property
@@ -73,9 +73,3 @@ class Referral(TimeStampedModel, SoftDeleteMixin):
         # TODO: implement program and change to dynamic
         return Decimal(self.turnover) / 100 * \
             self.program.percent_first_degree
-
-
-class Balance(TimeStampedModel):
-    user = models.ForeignKey(User)
-    currency = models.ForeignKey(Currency)
-    balance = models.FloatField(default=0)

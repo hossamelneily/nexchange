@@ -4,8 +4,11 @@
   var verifyRecatpchaCallback = function(response) {
 
           //console.log( 'g-recaptcha-response: ' + response );
-            $('.btn-primary.create-acc').removeClass('hidden');
-
+      if($('.phone.val').val().length > 10) {
+            $('.create-acc')
+                .not('.resend')
+                .removeClass('disabled');
+      }
   };
 
   var doRender = function() {

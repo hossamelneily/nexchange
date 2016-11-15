@@ -24,7 +24,7 @@ function use_wercker {
         wercker build --direct-mount --pipeline tests
 }
 
-
+autopep8 --in-place --aggressive --aggressive **/**/**py
 if [ -z "${RUNNING_CONTAINER}" ]; then
     echo -e "\e[33mDid not found a running container for the nexchange project. Starting one to execute the pre-commit hook.\e[39m"
     use_wercker

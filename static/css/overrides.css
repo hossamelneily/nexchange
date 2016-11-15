@@ -753,10 +753,9 @@ vertical design
 
 .menu2 label {
     font-size: 25px;
-    margin: 0 30px;
-    width: 230px;
+    margin: 0;
+    width: 290px;
     text-align: left;
-
 }
 
 .menu2 input {
@@ -781,4 +780,9 @@ span.btn {
 
 .menu2 .intl-tel-input ul.country-list li.country {
     display: block;
+}
+
+#grecaptcha {
+    display: inline-block;
+    vertical-align: middle;
 }

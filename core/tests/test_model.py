@@ -2,8 +2,7 @@ from django.test import TestCase
 from django.core.exceptions import ValidationError
 from core.validators import validate_bc
 from django.utils import timezone
-from core.models import Order, UniqueFieldMixin, Currency, PaymentPreference,\
-    PaymentMethod
+from core.models import Order, UniqueFieldMixin, Currency
 from datetime import timedelta
 import time
 from django.conf import settings
@@ -266,40 +265,3 @@ class CurrencyTestCase(OrderBaseTestCase):
 
     def test_print_currency_name(self):
         self.assertEqual(str(self.currency), 'US Dollars')
-
-
-class PaymentMethodTestCase(UserBaseTestCase, OrderBaseTestCase):
-
-    def setUp(self):
-        PaymentMethod.objects.all().delete()
-        self.method_data = {
-            'bin': 426101,
-            'fee': 0.0,
-            'is_slow': 0,
-            'name': 'Alpha Bank Visa'
-        }
-
-        self.payment_method = PaymentMethod(**self.method_data)
-        self.payment_method.save()
-        super(PaymentMethodTestCase, self).setUp()
-
-    def test_find_payment_method_by_natural_key(self):
-        natural_key = self.payment_method.natural_key()
-        payment_method = PaymentMethod.objects.get_by_natural_key(natural_key)
-        self.assertEqual(payment_method, self.payment_method)
-
-    def test_guess_payment_preference(self):
-
-        pref_data = {
-            'user': self.user,
-            'method_owner': 'The owner',
-            'identifier': str(self.payment_method.bin),
-            'comment': 'Just testing'
-        }
-
-        pref = PaymentPreference(**pref_data)
-        pref.save()
-        pref.currency.add(self.USD)
-        pref.save()
-
-        self.assertEqual(self.payment_method, pref.payment_method)

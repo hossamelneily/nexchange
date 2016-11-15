@@ -10,8 +10,8 @@ from decimal import Decimal
 from unittest import skip
 
 
-from core.models import Order, Address, Transaction, PaymentMethod,\
-    PaymentPreference
+from core.models import Order, Address, Transaction
+from payments.models import PaymentMethod, PaymentPreference
 from .utils import UserBaseTestCase, OrderBaseTestCase
 
 
@@ -171,7 +171,6 @@ class UpdateWithdrawAddressTestCase(UserBaseTestCase, OrderBaseTestCase):
 
         pref_data = {
             'user': self.user,
-            'method_owner': 'The owner',
             'identifier': str(payment_method.bin),
             'comment': 'Just testing'
         }

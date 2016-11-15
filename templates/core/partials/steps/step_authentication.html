@@ -8,19 +8,15 @@
         <div class="auth-steps">
             <div class="step1">
                 {% trans "Enter your phone" as enter_your_phone %}<br>
-                {% include 'core/partials/forms/phone.html' with label=enter_your_phone %}                
-
-              <div class="row">
-              <div class="col col-lg-4 col-md-offset-4">   
-                <hr>
-              </div>
-                <div class="col col-lg-12">   
-                    <strong>{% trans "Confirm you are human" %} </strong> <br>
-                    <center><div id="grecaptcha"></div></center>
+                {% include 'core/partials/forms/phone.html' with label=enter_your_phone %}
+                <div class="col col-lg-12 register">
+                    <hr>
+                    <label>
+                        {% trans "Human check" %}
+                    </label>
+                    <div id="grecaptcha"></div>
                 </div>
-               </div>
             </div>
-            
             <div class="step2 hidden">
                 <div class="row">
                     <div class="col col-lg-12 register">
@@ -33,7 +29,7 @@
             </div>
         </div>
         <div class="col col-lg-12 center controls">
-            <span class="btn btn-primary create-acc hidden">
+            <span class="btn btn-primary create-acc disabled">
                 {% trans "Send SMS"%}
             </span>
             <span class="btn btn-danger create-acc resend hidden">

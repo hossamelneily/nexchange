@@ -1,5 +1,5 @@
-from core.models import Payment, PaymentMethod, PaymentPreference,\
-    Order, Address, Transaction
+from payments.models import Payment, PaymentMethod, PaymentPreference
+from core.models import Order, Address, Transaction
 from .utils import UserBaseTestCase, OrderBaseTestCase
 from nexchange.utils import release_payment, check_transaction
 from decimal import Decimal
@@ -7,6 +7,7 @@ from unittest import skip
 
 
 class RoboTestCase(UserBaseTestCase):
+
     def setUp(self):
         super(RoboTestCase, self).setUp()
 
@@ -51,7 +52,6 @@ class PaymentReleaseTestCase(UserBaseTestCase, OrderBaseTestCase):
 
         pref_data = {
             'user': self.user,
-            'method_owner': 'The owner',
             'comment': 'Just testing',
             'payment_method': self.payment_method
         }
@@ -92,7 +92,6 @@ class PaymentReleaseTestCase(UserBaseTestCase, OrderBaseTestCase):
 
     def test_bad_release_payment(self):
         for o in Order.objects.filter(is_paid=True, is_released=False):
-            print("Look order {} ".format(o.unique_reference))
             p = Payment.objects.filter(user=o.user,
                                        amount_cash=o.amount_cash,
                                        payment_preference=o.payment_preference,

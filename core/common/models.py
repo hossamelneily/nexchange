@@ -2,6 +2,7 @@ from django.db import models
 from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
     DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
 from django.conf import settings
+from django.contrib.auth.models import User
 
 SoftDeleteMixin = safedelete_mixin_factory(policy=SOFT_DELETE,
                                            visibility=DELETED_VISIBLE_BY_PK)
@@ -47,6 +48,21 @@ class TimeStampedModel(models.Model):
         abstract = True
 
 
+class IpAwareModel(TimeStampedModel, SoftDeleteMixin):
+    ip = models.CharField(max_length=39,
+                          null=True,
+                          default=None)
+
+    class Meta:
+        abstract = True
+
+
+class Balance(TimeStampedModel):
+    user = models.ForeignKey(User, related_name='user')
+    currency = models.ForeignKey('Currency', related_name='currency')
+    balance = models.DecimalField(max_digits=18, decimal_places=8, default=0)
+
+
 class CurrencyManager(models.Manager):
 
     def get_by_natural_key(self, code):
@@ -65,16 +81,3 @@ class Currency(TimeStampedModel, SoftDeletableModel):
 
     def __str__(self):
         return self.name
-
-
-class IpAwareModel(TimeStampedModel, SoftDeleteMixin):
-    ip = models.CharField(max_length=39,
-                          null=True,
-                          default=None)
-
-    class Meta:
-        abstract = True
-
-# TODO: implement ReferralTransaction which
-# inherits from transaction but adds a Refferal
-# object reference

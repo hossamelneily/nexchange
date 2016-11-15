@@ -3,24 +3,20 @@ from core.common.models import TimeStampedModel, \
     SoftDeletableModel, Currency, UniqueFieldMixin
 
 from django.contrib.auth.models import User
-from django.utils.crypto import get_random_string
 from phonenumber_field.modelfields import PhoneNumberField
 from ticker.models import Price
 from referrals.models import ReferralCode
 from .validators import validate_bc
-from core.utils import money_format
-
-
-from nexchange.settings import UNIQUE_REFERENCE_LENGTH, PAYMENT_WINDOW, \
-    SMS_TOKEN_LENGTH, SMS_TOKEN_VALIDITY,\
-    SMS_TOKEN_CHARS, MAX_EXPIRED_ORDERS_LIMIT, PHONE_START_SHOW,\
-    PHONE_END_SHOW, PHONE_HIDE_PLACEHOLDER
+from django.conf import settings
 
 from django.utils.translation import ugettext_lazy as _
+
+from core.common.models import Balance
+from core.utils import money_format
+from django.utils.crypto import get_random_string
 from datetime import timedelta
 from django.utils import timezone
 from decimal import Decimal
-from django.conf import settings
 
 
 class ProfileManager(models.Manager):
@@ -55,12 +51,13 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     def partial_phone(self):
         phone = str(self.phone)
         phone_len = len(phone)
-        start = phone[:PHONE_START_SHOW - 1]
-        end = phone[phone_len - 1 - PHONE_END_SHOW:]
+        start = phone[:settings.PHONE_START_SHOW - 1]
+        end = phone[phone_len - 1 - settings.PHONE_END_SHOW:]
         rest = \
-            ''.join([PHONE_HIDE_PLACEHOLDER
-                    for x in
-                    range(phone_len - PHONE_START_SHOW - PHONE_END_SHOW)])
+            ''.join([settings.PHONE_HIDE_PLACEHOLDER
+                     for x in
+                     range(phone_len - settings.PHONE_START_SHOW -
+                           settings.PHONE_END_SHOW)])
         return "{}{}{}".format(start, rest, end)
 
     @property
@@ -69,7 +66,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
             Order.objects.filter(user=self,
                                  is_paid=True,
                                  expired=True).length \
-            > MAX_EXPIRED_ORDERS_LIMIT
+            > settings.MAX_EXPIRED_ORDERS_LIMIT
 
     def natural_key(self):
         return self.user.username
@@ -87,25 +84,28 @@ class Profile(TimeStampedModel, SoftDeletableModel):
 
         return super(Profile, self).save(*args, **kwargs)
 
-User.profile = property(lambda u: Profile.objects.get_or_create(user=u)[0])
+
+User.profile = property(lambda u:
+                        Profile.objects.
+                        get_or_create(user=u)[0])
 
 
 class SmsToken(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     sms_token = models.CharField(
-        max_length=SMS_TOKEN_LENGTH, blank=True)
+        max_length=settings.SMS_TOKEN_LENGTH, blank=True)
     user = models.ForeignKey(User, related_name='sms_token')
 
     @staticmethod
     def get_sms_token():
         return User.objects.make_random_password(
-            length=SMS_TOKEN_LENGTH,
-            allowed_chars=SMS_TOKEN_CHARS
+            length=settings.SMS_TOKEN_LENGTH,
+            allowed_chars=settings.SMS_TOKEN_CHARS
         )
 
     @property
     def valid(self):
         return self.created_on > timezone.now() -\
-            timedelta(minutes=SMS_TOKEN_VALIDITY)
+            timedelta(minutes=settings.SMS_TOKEN_VALIDITY)
 
     def save(self, *args, **kwargs):
         self.sms_token = self.get_sms_token()
@@ -115,62 +115,70 @@ class SmsToken(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         return "{} ({})".format(self.sms_token, self.user.profile.phone)
 
 
-class PaymentMethodManager(models.Manager):
-    def get_by_natural_key(self, bin_code):
-        return self.get(bin=bin_code)
+class BtcBase(TimeStampedModel):
+
+    class Meta:
+        abstract = True
+
+    WITHDRAW = 'W'
+    DEPOSIT = 'D'
+    TYPES = (
+        (WITHDRAW, 'WITHDRAW'),
+        (DEPOSIT, 'DEPOSIT'),
+    )
+    type = models.CharField(max_length=1, choices=TYPES)
 
 
-class PaymentMethod(TimeStampedModel, SoftDeletableModel):
-    BIN_LENGTH = 6
-    objects = PaymentMethodManager()
-    name = models.CharField(max_length=100)
-    handler = models.CharField(max_length=100, null=True)
-    bin = models.IntegerField(null=True, default=None)
-    fee = models.FloatField(null=True)
-    is_slow = models.BooleanField(default=False)
-    is_internal = models.BooleanField(default=False)
-
-    def natural_key(self):
-        return self.bin
-
-    def __str__(self):
-        return "{} ({})".format(self.name, self.bin)
-
-
-class PaymentPreference(TimeStampedModel, SoftDeletableModel):
-    # NULL or Admin for out own (buy adds)
+class Address(BtcBase, SoftDeletableModel):
+    WITHDRAW = 'W'
+    DEPOSIT = 'D'
+    TYPES = (
+        (WITHDRAW, 'WITHDRAW'),
+        (DEPOSIT, 'DEPOSIT'),
+    )
+    name = models.CharField(max_length=100, blank=True)
+    address = models.CharField(max_length=35, validators=[validate_bc])
     user = models.ForeignKey(User)
-    payment_method = models.ForeignKey(PaymentMethod, default=None)
-    currency = models.ManyToManyField(Currency)
-    # Optional, sometimes we need this to confirm
-    method_owner = models.CharField(max_length=100)
-    identifier = models.CharField(max_length=100)
-    comment = models.CharField(max_length=255)
+    order = models.ForeignKey('core.Order', null=True, default=None)
 
-    def save(self, *args, **kwargs):
-        self.payment_method = self.guess_payment_method(*args)
-        super(PaymentPreference, self).save(*args, **kwargs)
 
-    def guess_payment_method(self, *args):
-        if len(args) > 0:
-            if args[0] == 'internal':
-                return self.payment_method
-        card_bin = self.identifier[:PaymentMethod.BIN_LENGTH]
-        payment_method = []
-        while all([self.identifier,
-                   not len(payment_method),
-                   len(card_bin) > 0]):
-            payment_method = PaymentMethod.objects.filter(bin=card_bin)
-            card_bin = card_bin[:-1]
+class Transaction(BtcBase):
+    # null if withdraw from our balance on Kraken
+    confirmations = models.IntegerField(default=0)
+    tx_id = models.CharField(max_length=55, default=None, null=True)
+    address_from = models.ForeignKey(
+        'core.Address',
+        related_name='address_from',
+        default=None,
+        null=True)
+    address_to = models.ForeignKey('core.Address', related_name='address_to')
+    # TODO: how to handle cancellation?
+    order = models.ForeignKey('core.Order')
+    is_verified = models.BooleanField(default=False)
+    is_completed = models.BooleanField(default=False)
 
-        return payment_method[0] if len(payment_method) \
-            else PaymentMethod.objects.get(name='Cash')
 
-    def __str__(self):
-        return "{} - {} - ({})".format(self.user.profile.phone or
-                                       self.user.username,
-                                       self.identifier,
-                                       self.payment_method.name)
+class ReferralTransaction(Transaction):
+    pass
+
+
+class CmsPage(models.Model):
+    allcms = [a for a in settings.CMSPAGES.values()]
+    allcms = allcms[0] + allcms[1]
+
+    t_footers = [(a[0], a[0]) for a in allcms]
+
+    TYPES = (
+        t_footers
+    )
+
+    name = models.CharField(default=None, max_length=50, choices=TYPES)
+    head = models.TextField(default=None, null=True)
+    written_by = models.TextField(default=None, null=True)
+    body = models.TextField(default=None, null=True)
+    locale = models.CharField(default=settings.LANGUAGES[0],
+                              max_length=2,
+                              null=True, choices=settings.LANGUAGES)
 
 
 class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
@@ -190,16 +198,17 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     amount_cash = models.DecimalField(max_digits=12, decimal_places=2)
     amount_btc = models.DecimalField(max_digits=18, decimal_places=8)
     currency = models.ForeignKey(Currency)
-    payment_window = models.IntegerField(default=PAYMENT_WINDOW)
+    payment_window = models.IntegerField(default=settings.PAYMENT_WINDOW)
     user = models.ForeignKey(User, related_name='orders')
     is_paid = models.BooleanField(default=False)
     is_released = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
     is_failed = models.BooleanField(default=False)
     unique_reference = models.CharField(
-        max_length=UNIQUE_REFERENCE_LENGTH, unique=True)
+        max_length=settings.UNIQUE_REFERENCE_LENGTH, unique=True)
     admin_comment = models.CharField(max_length=200)
-    payment_preference = models.ForeignKey(PaymentPreference, default=None,
+    payment_preference = models.ForeignKey('payments.PaymentPreference',
+                                           default=None,
                                            null=True)
 
     class Meta:
@@ -212,7 +221,7 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
             self.gen_unique_value(
                 lambda x: get_random_string(x),
                 lambda x: Order.objects.filter(unique_reference=x).count(),
-                UNIQUE_REFERENCE_LENGTH
+                settings.UNIQUE_REFERENCE_LENGTH
             )
         self.convert_coin_to_cash()
 
@@ -323,124 +332,3 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
                                            self.amount_btc,
                                            self.amount_cash,
                                            self.currency)
-
-
-class Payment(TimeStampedModel, SoftDeletableModel):
-    amount_cash = models.DecimalField(max_digits=12, decimal_places=2)
-    currency = models.ForeignKey(Currency)
-    is_redeemed = models.BooleanField(default=False)
-    is_complete = models.BooleanField(default=False)
-    is_success = models.BooleanField(default=False)
-    payment_preference = models.ForeignKey(PaymentPreference, default=None,
-                                           null=True)
-    # Super admin if we are paying for BTC
-    user = models.ForeignKey(User)
-    # Todo consider one to many for split payments, consider order field on
-    # payment
-    order = models.ForeignKey(Order, null=True, default=None)
-
-
-class BtcBase(TimeStampedModel):
-    class Meta:
-        abstract = True
-
-    WITHDRAW = 'W'
-    DEPOSIT = 'D'
-    TYPES = (
-        (WITHDRAW, 'WITHDRAW'),
-        (DEPOSIT, 'DEPOSIT'),
-    )
-    type = models.CharField(max_length=1, choices=TYPES)
-
-
-class Address(BtcBase, SoftDeletableModel):
-    WITHDRAW = 'W'
-    DEPOSIT = 'D'
-    TYPES = (
-        (WITHDRAW, 'WITHDRAW'),
-        (DEPOSIT, 'DEPOSIT'),
-    )
-    name = models.CharField(max_length=100, blank=True)
-    address = models.CharField(max_length=35, validators=[validate_bc])
-    user = models.ForeignKey(User)
-    order = models.ForeignKey(Order, null=True, default=None)
-
-
-class Transaction(BtcBase):
-    # null if withdraw from our balance on Kraken
-    confirmations = models.IntegerField(default=0)
-    tx_id = models.CharField(max_length=55, default=None, null=True)
-    address_from = models.ForeignKey(Address, related_name='address_from',
-                                     default=None, null=True)
-    address_to = models.ForeignKey(Address, related_name='address_to')
-    # TODO: how to handle cancellation?
-    order = models.ForeignKey(Order)
-    is_verified = models.BooleanField(default=False)
-    is_completed = models.BooleanField(default=False)
-
-
-class ReferralTransaction(Transaction):
-    pass
-
-
-class Balance(TimeStampedModel):
-    user = models.ForeignKey(User, related_name='user')
-    currency = models.ForeignKey(Currency, related_name='currency')
-    balance = models.DecimalField(max_digits=18, decimal_places=8, default=0)
-
-
-class CmsPage(models.Model):
-    allcms = [a for a in settings.CMSPAGES.values()]
-    allcms = allcms[0] + allcms[1]
-
-    t_footers = [(a[0], a[0]) for a in allcms]
-
-    TYPES = (
-        t_footers
-    )
-
-    name = models.CharField(default=None, max_length=50, choices=TYPES)
-    head = models.TextField(default=None, null=True)
-    written_by = models.TextField(default=None, null=True)
-    body = models.TextField(default=None, null=True)
-    locale = models.CharField(default=settings.LANGUAGES[0],
-                              max_length=2,
-                              null=True, choices=settings.LANGUAGES)
-
-
-class BraintreePaymentMethod(TimeStampedModel, SoftDeletableModel):
-    user = models.ForeignKey(User, related_name='paymentmethods')
-    ident = models.CharField(_('Identification'), max_length=60,
-                             null=True, blank=True)
-    uni = models.CharField(_('Uni'), max_length=60,
-                           null=True, blank=True)
-    nonce = models.CharField(_('Nonce'), max_length=256,
-                             null=True, blank=True)
-    token = models.CharField(_('Token'), max_length=256,
-                             null=True, blank=True)
-    type = models.CharField(_('Type'), max_length=20,
-                            null=True, blank=True)
-    is_default = models.BooleanField(_('Default'), default=False)
-    is_delete = models.BooleanField(_('Delete'), default=False)
-
-    def __str__(self):
-        return "{0} - ({1})".format(self.user.username, self.ident)
-
-    def save(self, *args, **kwargs):
-        super(BraintreePaymentMethod, self).save(*args, **kwargs)
-
-
-class BraintreePayment(TimeStampedModel, SoftDeletableModel):
-    payment = models.OneToOneField(Payment, on_delete=models.CASCADE)
-    payment_method = models.ForeignKey(BraintreePaymentMethod,
-                                       related_name='orders')
-    nonce = models.CharField(_('Nonce'),
-                             max_length=256,
-                             null=True,
-                             blank=True)
-
-    def __str__(self):
-        return "{0}".format(self.payment_method.ident)
-
-    def save(self, *args, **kwargs):
-        super(BraintreePayment, self).save(*args, **kwargs)

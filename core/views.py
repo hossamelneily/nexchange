@@ -10,8 +10,10 @@ from django.template.loader import get_template
 from core.forms import DateSearchForm, CustomUserCreationForm,\
     UserForm, UserProfileForm, UpdateUserProfileForm, ReferralTokenForm
 from core.models import Order, Currency, SmsToken, Profile, Transaction,\
-    Address, Payment, PaymentMethod, PaymentPreference, CmsPage, \
-    BraintreePaymentMethod, BraintreePayment
+    Address, CmsPage
+
+from payments.models import Payment, PaymentMethod,\
+    PaymentPreference, PaymentCredentials
 from django.db import transaction
 from django.views.generic import View
 from django.utils.decorators import method_decorator
@@ -38,10 +40,10 @@ from decimal import Decimal
 from referrals.models import Referral, ReferralCode
 from core.utils import geturl_robokassa
 from django.http import Http404
-from payments import braintreeAPI
+from payments.api_clients.braintree import BrainTreeAPI
 import json
 
-kraken = api.API()
+braintree_api = BrainTreeAPI()
 
 
 def main(request):
@@ -56,11 +58,11 @@ def index_order(request):
     template = get_template('core/index_order.html')
     paginate_by = 10
     form = form_class(request.POST or None)
+    kwargs = {}
     if request.user.is_authenticated():
         kwargs = {"user": request.user}
-    else:
-        kwargs = {"user": 0}
-    kwargs = {"is_failed": 0}
+
+    kwargs["is_failed"] = 0
 
     if form.is_valid():
         my_date = form.cleaned_data['date']
@@ -101,12 +103,12 @@ def index_order(request):
 def braintree_order(request):
     text_error = None
     user = request.user
-    outjson = {}
+    output_json = {}
 
     try:
         data = json.loads(request.body.decode('utf-8'))
         nonce = data["payment_method_nonce"]
-        amount = float(data["order_amount"])
+        amount = Decimal(data["order_amount"])
         order_id = data["order_id"]
 
         profile = Profile.objects.get(user=user)
@@ -117,56 +119,64 @@ def braintree_order(request):
         if not order:
             raise ValueError("Braintree order payment. Can't get order")
 
-        payment_preference = PaymentPreference.objects.get(
-            payment_method__name__exact='PayPal')
+        method = PaymentMethod.objects.get(
+            name__exact='PayPal'
+        )
 
-        if not payment_preference:
-            raise ValueError("Can't get payment preference for this order.")
+        if not method:
+            raise ValueError("Can't get payment method for this order.")
 
-        if profile.sig_key == '' or profile.sig_key is None:
-            profile.sig_key = braintreeAPI.get_usersigkey()
+        if not profile.sig_key:
+            profile.sig_key = \
+                braintree_api.get_user_sig_key()
             profile.save()
-        customer = braintreeAPI.Customer_Find(profile.sig_key)
-        result = ''
+        customer = braintree_api.find_customer(profile.sig_key)
+        result = {}
         if not customer:
-            result = braintreeAPI.Customer_Create(user, profile.sig_key)
-            if result.is_success:
-                resultcc = True
-            else:
-                resultcc = False
-        else:
-            resultcc = True
+            result = braintree_api.create_customer(user, profile.sig_key)
 
-        if resultcc:
-            result = braintreeAPI.PaymentMethod_Create(profile.sig_key, nonce)
+        if customer or result.get('is_success'):
+            result = braintree_api.create_payment_method(
+                profile.sig_key, nonce)
             if result.is_success:
                 token = result.payment_method.token
                 try:
                     card_type = result.payment_method.card_type
                     last = result.payment_method.last_4
-                    ident = '%s: xxxx-xxxx-xxxx-%s' % (card_type, last)
+                    identifier = 'xxxx-xxxx-xxxx-%s'.format(last)
                     uni = result.payment_method.unique_number_identifier
-                    type = 'Card'
-                except Exception as e:
+                    main_type = 'Card'
+                except:
+                    card_type = None
                     uni = result.payment_method.email
-                    ident = result.payment_method.email
-                    type = 'PayPal'
+                    identifier = result.payment_method.email
+                    main_type = 'PayPal'
 
-                paymentmethod = BraintreePaymentMethod(user=user,
-                                                       nonce=nonce,
-                                                       token=token,
-                                                       is_default=True,
-                                                       uni=uni,
-                                                       ident=ident,
-                                                       type=type)
-                paymentmethod.save()
-                result = braintreeAPI.Make_Default(paymentmethod)
+                pref = PaymentPreference(
+                    user=user,
+                    payment_method=method,
+                    main_type=main_type,
+                    sub_type=card_type,
+                    identifier=identifier
+                )
+                pref.save()
+
+                credentials = PaymentCredentials(
+                    payment_preference=pref,
+                    token=token,
+                    uni=uni,
+                    nonce=nonce,
+                    is_default=True
+
+                )
+                credentials.save()
+
+                braintree_api.make_default(pref)
                 try:
                     currency = order.currency
-                    amount = round(amount, 2)
-                    result = braintreeAPI.Send_Payment(paymentmethod,
-                                                       str(amount),
-                                                       currency=currency.code)
+                    result = braintree_api.send_payment(pref,
+                                                        str(amount),
+                                                        currency=currency.code)
 
                     if result.is_success:
                         payment = Payment(amount_cash=amount,
@@ -175,50 +185,59 @@ def braintree_order(request):
                                           order=order)
                         # payment.is_complete = True
                         payment.is_success = True
-                        payment.payment_preference = payment_preference
+                        payment.payment_preference = pref
                         payment.save()
-                        bp = BraintreePayment(payment=payment,
-                                              payment_method=paymentmethod)
+                        bp = Payment(payment=payment, payment_preference=pref)
                         bp.save()
                         order.is_paid = True
                         order.save()
-                        outjson = {'data': '', 'error': 0,
-                                   'unique_ref': order.unique_reference}
+                        output_json = {
+                            'data': '',
+                            'error': 0,
+                            'unique_ref': order.unique_reference
+                        }
                     else:
-                        braintreeerror = []
+                        braintree_error = []
                         for error in result.errors.deep_errors:
-                            braintreeerror.append({
-                                'attribute': error.attribute,
-                                'code': error.code,
-                                'message': error.message})
-                        outjson = {'data': '', 'error': 1,
-                                   'error_text': result.errors.deep_errors}
+                            braintree_error.append(
+                                {
+                                    'attribute': error.attribute,
+                                    'code': error.code,
+                                    'message': error.message
+                                }
+                            )
+                        output_json = {
+                            'data': '',
+                            'error': 1,
+                            'error_text':
+                                result.errors.deep_errors
+                        }
                 except Exception as e:
-                    print("Error ", e)
                     text_error = "Can't use this payment method."
             else:
                 text_error = ''
                 for error in result.errors.deep_errors:
                     if error.code == '81724':
                         err = "Duplicate card exists in the vault."
-                        text_error = text_error + err
+                        text_error = "{} {}".format(text_error, err)
                     elif error.code == '93107':
                         err = "Cannot use a payment nonce more than once." \
                               " Refresh form please"
-                        text_error = text_error + err
+                        text_error = "{} {}".format(text_error, err)
                     else:
                         text_error = "Can't add this" \
                                      " payment method. {0}".format(error)
         else:
             text_error = "Error: can't send customer data."
     except Exception as e:
+        raise e
         text_error = 'Error get form data. {0}'.format(e)
 
     if text_error:
-        outjson['error'] = 1
-        outjson['error_text'] = text_error
+        output_json['error'] = 1
+        output_json['error_text'] = text_error
 
-    return JsonResponse(outjson, safe=False)
+    return JsonResponse(output_json, safe=False)
 
 
 def add_order(request):
@@ -343,6 +362,7 @@ def user_registration(request):
 
 @method_decorator(login_required, name='dispatch')
 class UserUpdateView(View):
+
     def get(self, request):
         user_form = UserForm(
             instance=self.request.user)
@@ -613,7 +633,7 @@ def ajax_order(request):
         profile = Profile.objects.get(user=request.user)
         template = 'core/partials/modals/order_success_braintree.html'
         template = get_template(template)
-        clienttoken = braintreeAPI.get_client_token(profile.sig_key)
+        clienttoken = braintree_api.get_client_token(profile.sig_key)
         translation.activate(request.POST.get("_locale"))
         amount_cash = str(round(Decimal(order.amount_cash), 2))
         return HttpResponse(template.render({'order': order,
@@ -699,6 +719,7 @@ def payment_ajax(request):
 
 
 def k_generate_address():
+    kraken = api.API()
     params = {
         'method': 'Bitcoin',
         'asset': 'XBT',
@@ -715,6 +736,7 @@ def k_generate_address():
 
 
 def k_trades_history(request):
+    kraken = api.API()
     # Todo use django rest framework
     k = kraken.query_private('TradesHistory')
     if k['error']:
@@ -725,6 +747,7 @@ def k_trades_history(request):
 
 
 def k_deposit_status(request):
+    kraken = api.API()
     params = {
         'method': 'Bitcoin',
         'asset': 'XBT',

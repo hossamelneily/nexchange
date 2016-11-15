@@ -2,8 +2,8 @@ from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.utils.translation import activate
 
-from core.models import SmsToken, Currency, Price, PaymentMethod,\
-    PaymentPreference, Order
+from core.models import SmsToken, Currency, Price, Order
+from payments.models import PaymentMethod, PaymentPreference
 from decimal import Decimal
 
 
@@ -107,7 +107,6 @@ class OrderBaseTestCase(TestCase):
         pref_data = {
             'user': user,
             'currency': cls.USD,
-            'method_owner': 'The owner',
             'identifier': str(payment_method.bin),
             'comment': 'Just testing'
         }
