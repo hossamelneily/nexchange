@@ -9,6 +9,7 @@
         // Required modules
         orderObject = require('./modules/orders.js'),
         paymentObject = require('./modules/payment.js'),
+        captcha = require('./modules/captcha.js'),
 
         paymentType = '',
         preferenceIdentifier = '',
@@ -150,7 +151,7 @@
 
         $('.next-step, .prev-step').on('click', orderObject.changeState);
         $('.phone.val').on('keyup', function () {
-            if($(this).val().length > 10) {
+            if($(this).val().length > 10 && captcha) {
                 $('.create-acc')
                     .not('.resend')
                     .removeClass('disabled');
@@ -413,7 +414,43 @@ $(document).ready(function() {
 
 
    
-},{"./modules/orders.js":4,"./modules/payment.js":5}],2:[function(require,module,exports){
+},{"./modules/captcha.js":2,"./modules/orders.js":4,"./modules/payment.js":5}],2:[function(require,module,exports){
+!(function(window ,$) {
+  "use strict";
+    var isVerified = false;
+
+  var verifyRecatpchaCallback = function(response) {
+
+          //console.log( 'g-recaptcha-response: ' + response );
+      if($('.phone.val').val().length > 10) {
+            $('.create-acc')
+                .not('.resend')
+                .removeClass('disabled');
+      }
+
+      isVerified = true;
+  };
+  
+  var getIsVerefied = function () {
+      return isVerified;
+  };
+
+var doRender = function() {
+      grecaptcha.render( 'grecaptcha', {
+        'sitekey' : '6LfPaAoUAAAAAOmpl6ZwPIk2Zs-30TErK48dPhcS',  // required
+        'theme' : 'light',  // optional
+        'callback': verifyRecatpchaCallback  // optional
+      });
+};
+
+module.exports = {
+    verifyRecatpchaCallback:verifyRecatpchaCallback,
+    doRender: doRender,
+    isVerified: getIsVerefied
+};
+
+}(window, window.jQuery)); //jshint ignore:line
+},{}],3:[function(require,module,exports){
 !(function(window ,$) {
     "use strict";
 
@@ -544,34 +581,6 @@ $(document).ready(function() {
     };
 }(window, window.jQuery)); //jshint ignore:line
 
-},{}],3:[function(require,module,exports){
-!(function(window ,$) {
-  "use strict"; 
-
-  var verifyRecatpchaCallback = function(response) {
-
-          //console.log( 'g-recaptcha-response: ' + response );
-      if($('.phone.val').val().length > 10) {
-            $('.create-acc')
-                .not('.resend')
-                .removeClass('disabled');
-      }
-  };
-
-  var doRender = function() {
-          grecaptcha.render( 'grecaptcha', {
-            'sitekey' : '6LfPaAoUAAAAAOmpl6ZwPIk2Zs-30TErK48dPhcS',  // required
-            'theme' : 'light',  // optional
-            'callback': verifyRecatpchaCallback  // optional
-          });
-  };
-
-    module.exports = {
-        verifyRecatpchaCallback:verifyRecatpchaCallback,
-        doRender: doRender,        
-    };
-
-}(window, window.jQuery)); //jshint ignore:line
 },{}],4:[function(require,module,exports){
 !(function(window, $) {
     "use strict";
@@ -579,7 +588,7 @@ $(document).ready(function() {
       // Required modules
      var chartObject = require("./chart.js"),
          registerObject = require("./register.js"),
-         googleObject = require('./google_recaptcha.js'),
+         googleObject = require('./captcha.js'),
          animationDelay = 3000;
 
 
@@ -838,7 +847,7 @@ $(document).ready(function() {
     };
 }(window, window.jQuery)); //jshint ignore:line
 
-},{"./chart.js":2,"./google_recaptcha.js":3,"./register.js":6}],5:[function(require,module,exports){
+},{"./captcha.js":2,"./chart.js":3,"./register.js":6}],5:[function(require,module,exports){
 !(function(window ,$) {
     "use strict";
 

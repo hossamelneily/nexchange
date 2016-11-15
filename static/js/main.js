@@ -8,6 +8,7 @@
         // Required modules
         orderObject = require('./modules/orders.js'),
         paymentObject = require('./modules/payment.js'),
+        captcha = require('./modules/captcha.js'),
 
         paymentType = '',
         preferenceIdentifier = '',
@@ -149,7 +150,7 @@
 
         $('.next-step, .prev-step').on('click', orderObject.changeState);
         $('.phone.val').on('keyup', function () {
-            if($(this).val().length > 10) {
+            if($(this).val().length > 10 && captcha) {
                 $('.create-acc')
                     .not('.resend')
                     .removeClass('disabled');

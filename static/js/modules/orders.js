@@ -4,7 +4,7 @@
       // Required modules
      var chartObject = require("./chart.js"),
          registerObject = require("./register.js"),
-         googleObject = require('./google_recaptcha.js'),
+         googleObject = require('./captcha.js'),
          animationDelay = 3000;
 
 

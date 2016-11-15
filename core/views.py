@@ -135,7 +135,7 @@ def braintree_order(request):
         if not customer:
             result = braintree_api.create_customer(user, profile.sig_key)
 
-        if customer or result.get('is_success'):
+        if customer or result.is_success:
             result = braintree_api.create_payment_method(
                 profile.sig_key, nonce)
             if result.is_success:
