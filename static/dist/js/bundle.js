@@ -9,6 +9,7 @@
         // Required modules
         orderObject = require('./modules/orders.js'),
         paymentObject = require('./modules/payment.js'),
+        captcha = require('./modules/captcha.js'),
 
         paymentType = '',
         preferenceIdentifier = '',
@@ -81,7 +82,7 @@
                   $('.amount-cash, .amount-coin')
                     .removeClass('rate-buy')
                     .removeClass('rate-sell')
-                    .addClass(newCashClass);                
+                    .addClass(newCashClass);
             });
 
             $('.amount').on('keyup', function () {
@@ -149,8 +150,20 @@
             DEFAULT_AMOUNT = 1;
 
         $('.next-step, .prev-step').on('click', orderObject.changeState);
-
+        $('.phone.val').on('keyup', function () {
+            if($(this).val().length) {
+                $('.create-acc')
+                    .not('.resend')
+                    .removeClass('disabled');
+            }
+        });
         $('.create-acc').on('click', function () {
+            if($(this).hasClass('disabled')) {
+                return;
+            }
+            $('.phone.val').addClass('disabled');
+
+
             var regPayload = {
                 // TODO: check collision with qiwi wallet
                 phone: $('.register .phone').val()
@@ -409,7 +422,7 @@ $(document).ready(function() {
 
 
    
-},{"./modules/orders.js":4,"./modules/payment.js":5}],2:[function(require,module,exports){
+},{"./modules/captcha.js":2,"./modules/orders.js":4,"./modules/payment.js":5}],2:[function(require,module,exports){
 !(function(window ,$) {
   "use strict";
     var isVerified = false;

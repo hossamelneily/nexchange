@@ -26,11 +26,17 @@ from django.conf import settings
 from django.conf.urls.static import static
 import os
 
+
+js_info_dict = {'domain': 'djangojs',
+                'packages': ('nexchange',), }
+
+
 api_patterns = ticker_api_patterns + referrals_api_patterns
 
 urlpatterns = i18n_patterns(
     url(r'^admin/', admin.site.urls),
     url(r'^i18n/', include('django.conf.urls.i18n')),
+    url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),
     url(r'^$', core.views.add_order, name='core.order_add'),
     url(r'^info/$', core.views.main, name='main'),
     url(r'^orders/$', core.views.index_order, name='core.order'),

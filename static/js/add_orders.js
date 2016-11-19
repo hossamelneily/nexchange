@@ -31,7 +31,8 @@ $(function() {
                 $(".create-acc.resend").removeClass('hidden');
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                alert('Invalid phone number');
+                var message = gettext('Invalid phone number');
+                toastr.error(message);
             }
         });
     });
@@ -50,11 +51,13 @@ $(function() {
                     reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
                     changeState('next');
                 } else {
-                    window.alert("The code you sent was incorrect. Please, try again.");
+                	var message = gettext('The code you sent was incorrect. Please, try again.');
+                    toastr.error(message);
                 }
             },
             error: function () {
-                window.alert("Something went wrong. Please, try again.");
+                var message = gettext('Something went wrong. Please, try again.');
+                toastr.error(message);
             }
         });
 
@@ -100,7 +103,8 @@ $(function() {
 
             },
             error: function () {
-                window.alert("Something went wrong. Please, try again.");
+                var message = gettext('Something went wrong. Please, try again.');
+                toastr.error(message);
             }
         });
 
@@ -134,7 +138,8 @@ $(function() {
                 
             },
             error: function () {
-                window.alert("Something went wrong. Please, try again.");
+                var message = gettext('Something went wrong. Please, try again.');
+                toastr.error(message);
             }
         });
 

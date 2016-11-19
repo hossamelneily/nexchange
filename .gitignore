@@ -22,3 +22,6 @@ celerybeat*
 npm.bat
 npm.cmd
 node.exe
+.project
+.pydevproject
+.settings/

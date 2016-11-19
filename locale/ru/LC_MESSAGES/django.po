@@ -3,22 +3,22 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <oleg@onit.ws>, 2016.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-08-22 22:59+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2016-11-18 01:51+0300\n"
+"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
-"%100>=11 && n%100<=14)? 2 : 3);\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && "
+"(n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n"
+"%100<=14)? 2 : 3);\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 1.8.9\n"
 
 #: core/models.py:68
 msgid "Enter phone number in international format. eg. +555198786543"
@@ -94,28 +94,23 @@ msgstr "Русский"
 msgid "English"
 msgstr "Английский"
 
-#: static/js/tests/fixtures/ProfileFixture.html:5
-#: templates/core/user_profile.html:18
+#: static/js/tests/fixtures/ProfileFixture.html:5 templates/core/user_profile.html:18
 msgid "Your phone number is not verified yet."
 msgstr "Ваш номер телефона до сих по не подтвержден"
 
-#: static/js/tests/fixtures/ProfileFixture.html:9
-#: templates/core/user_profile.html:22
+#: static/js/tests/fixtures/ProfileFixture.html:9 templates/core/user_profile.html:22
 msgid "Verifying phone now..."
 msgstr "Ваш номер телефона еще не подтвержден..."
 
-#: static/js/tests/fixtures/ProfileFixture.html:17
-#: templates/core/user_profile.html:30
+#: static/js/tests/fixtures/ProfileFixture.html:17 templates/core/user_profile.html:30
 msgid "Insert SMS verification token here"
 msgstr "Введите SMS-подтверждение"
 
-#: static/js/tests/fixtures/ProfileFixture.html:19
-#: templates/core/user_profile.html:32
+#: static/js/tests/fixtures/ProfileFixture.html:19 templates/core/user_profile.html:32
 msgid "Verify phone now"
 msgstr "Проверьте ваш телефон"
 
-#: static/js/tests/fixtures/ProfileFixture.html:26
-#: templates/core/user_profile.html:39
+#: static/js/tests/fixtures/ProfileFixture.html:26 templates/core/user_profile.html:39
 msgid "Send-me the token again"
 msgstr "Пришлать код подтверждения еще раз"
 
@@ -272,19 +267,15 @@ msgid "Logout"
 msgstr "Выйти"
 
 #: templates/core/partials/menu.html:27 templates/core/user_login.html:8
-#: templates/core/user_login.html:18
-#: templates/core/partials/seo_footer.html:8
+#: templates/core/user_login.html:18 templates/core/partials/seo_footer.html:8
 msgid "Login"
 msgstr "Войти"
 
-
-#: templates/core/partials/menu.html:28
-#: templates/core/user_registration.html:8
+#: templates/core/partials/menu.html:28 templates/core/user_registration.html:8
 msgid "Register"
 msgstr "Зарегистрироваться"
 
-#: templates/core/partials/modals/payment_type.html:11
-#: core/views.py:589
+#: templates/core/partials/modals/payment_type.html:11 core/views.py:589
 msgid "How would you like to pay?"
 msgstr "Как Вы желаете расплатиться?"
 
@@ -386,7 +377,6 @@ msgid "Enter your phone"
 msgstr "Ваш номер телефона"
 
 #: templates/core/partials/steps/step_confirmation.html:5
-
 msgid "Your Order"
 msgstr "Ваш Заказ"
 
@@ -524,7 +514,6 @@ msgstr "О Нас"
 msgid "About Us"
 msgstr "О Нас"
 
-
 #: templates/core/partials/seo_footer.html:8
 msgid "Careers"
 msgstr "Карьера"
@@ -576,6 +565,10 @@ msgstr "Безопасность"
 #: templates/core/partials/index_order.html:48
 msgid "details"
 msgstr "подробности"
+
+#: templates/core/message_template.html:2
+msgid "The code you sent was incorrect. Please, try again."
+msgstr "Введенный код неправильный. Попробуйте еще раз."
 
 #~ msgid "Во время регистрации произошла ошибка"
 #~ msgstr "Во время регистрации произошла ошибка"

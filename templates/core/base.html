@@ -52,6 +52,7 @@
     <link rel="stylesheet" href="{% static 'css/overrides_old.css' %}">
     <link rel="stylesheet" href="{% static 'css/overrides.css' %}">
     <link rel="stylesheet" href="{% static 'css/forms.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css">
     <script type="text/javascript">
         // TODO: which is the best way to translate JS messages?
         var HTTP_500_MSG = "{% trans 'Service unavailable. Please try again later.' %}";
@@ -92,13 +93,14 @@
     {% include 'core/partials/popular_faq.html' %}
     {% include 'core/partials/seo_footer.html' %}
    
-
+    <script type="text/javascript" src="{% url 'django.views.i18n.javascript_catalog' %}"></script>
     <script src="https://code.jquery.com/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"
           integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw="
           crossorigin="anonymous"></script>
     <script src="https://use.fontawesome.com/9a25f329b7.js"></script>
     <script src="{% static 'js/django_jquery_csrf_setup.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{% static 'bower_components/moment/moment.js' %}"></script>
     <script src="{% static 'bower_components/moment-timezone/builds/moment-timezone-with-data.min.js' %}"></script>
     <script src="{% static 'bower_components/js-cookie/src/js.cookie.js' %}"></script>
@@ -112,6 +114,26 @@
               Cookies.set("django_language", userLang.substring(0,2).toLowerCase());
             }
         });
+    </script>
+    <script>
+    // toastr settings
+    toastr.options = {
+        "closeButton": false,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toast-bottom-full-width",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+        }
     </script>
 
     <script src="{% static 'js/footer.js' %}"></script>    
