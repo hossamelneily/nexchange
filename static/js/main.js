@@ -85,6 +85,17 @@
             });
 
             $('.amount').on('keyup', function () {
+                // Protection against non-integers
+                var val = this.value,
+                    lastChar = val.slice(-1),
+                    prevVal = val.substr(0, val.length-1);
+                if(lastChar === '.' && prevVal.indexOf('.') === -1) {
+                    return;
+                } else if(!parseInt(lastChar)) {
+                    // TODO: animate error
+                    $(this).val(prevVal);
+                    return;
+                }
                 var self = this,
                     loaderElem = $('.exchange-sign'),
                     cb = function animationCallback() {
