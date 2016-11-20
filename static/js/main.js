@@ -89,9 +89,11 @@
                 var val = this.value,
                     lastChar = val.slice(-1),
                     prevVal = val.substr(0, val.length-1);
-                if(lastChar === '.' && prevVal.indexOf('.') === -1) {
+                if(!!prevVal && lastChar === '.' &&
+                    prevVal.indexOf('.') === -1) {
                     return;
-                } else if(!parseInt(lastChar)) {
+                    // # TODO: User isNaN
+                } else if(!parseInt(lastChar) && lastChar !== 0) {
                     // TODO: animate error
                     $(this).val(prevVal);
                     return;

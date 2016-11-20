@@ -37,7 +37,6 @@ from .validators import validate_bc
 from .kraken_api import api
 from django.utils import translation
 from decimal import Decimal
-from referrals.models import Referral, ReferralCode
 from core.utils import geturl_robokassa
 from django.http import Http404
 from payments.api_clients.braintree import BrainTreeAPI
@@ -47,8 +46,8 @@ braintree_api = BrainTreeAPI()
 
 
 def main(request):
-    template = get_template('core/index.html')
     _messages = []
+    template = get_template('core/index.html')
     return HttpResponse(template.render({'messages': _messages}, request))
 
 
@@ -796,9 +795,13 @@ def cards(request):
         'alfa': get_pref_by_name('Alfa'),
         'qiwi': get_pref_by_name('Qiwi'),
     }
-
+    local_vars = {
+        'cards': cards,
+        'type': 'buy',
+        'currency': currency.upper(),
+    }
     translation.activate(request.POST.get("_locale"))
-    return HttpResponse(template.render({'cards': cards, 'type': 'buy'},
+    return HttpResponse(template.render(local_vars,
                                         request))
 
 
@@ -822,35 +825,6 @@ def ajax_cards(request):
     }
 
     return JsonResponse({'cards': cards})
-
-
-@login_required
-def referrals(request):
-    template = get_template('referrals/index_referrals.html')
-    user = request.user
-    referrals_code = ReferralCode.objects.filter(user=user).first()
-    referrals_ = Referral.objects.filter(code=referrals_code)
-    # return JsonResponse({'test': referrals_[0].turnover})
-
-    paginate_by = 10
-    model = Referral
-    kwargs = {"code": referrals_code}
-    referrals_list = model.objects.filter(**kwargs)
-    paginator = Paginator(referrals_list, paginate_by)
-    page = request.GET.get('page')
-
-    try:
-        referrals_list = paginator.page(page)
-
-    except PageNotAnInteger:
-        referrals_list = paginator.page(1)
-
-    except EmptyPage:
-        referrals_list = paginator.page(paginator.num_pages)
-
-    return HttpResponse(template.render({'referrals': referrals_,
-                                         'referrals_list': referrals_list},
-                                        request))
 
 
 @login_required

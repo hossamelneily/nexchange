@@ -7,11 +7,9 @@
         <div class="footerpay col-xs-4 col-sm-2">
             {% with 'images/footer-logo'|add:idx|add:'.png' as bank_img %}
                 <div class="payment-type-trigger-footer" data-type={{ idx }}>
-                    <div class="col col-xs-12">
                         <a href="https://www.{{ idx | lower }}" target="_blank">
                             <img src="{% static bank_img %}" alt={{ idx }} class="btn">
                         </a>
-                    </div>
                 </div>
             {% endwith %}
         </div>

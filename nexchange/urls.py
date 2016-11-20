@@ -21,10 +21,11 @@ from core.forms import LoginForm
 from django.conf.urls import include
 from django.conf.urls.i18n import i18n_patterns
 from ticker.urls import ticker_api_patterns
-from referrals.urls import referrals_api_patterns
+from referrals.urls import referrals_api_patterns, referral_urls
 from django.conf import settings
 from django.conf.urls.static import static
 import os
+from django.views.i18n import javascript_catalog
 
 
 js_info_dict = {'domain': 'djangojs',
@@ -36,7 +37,7 @@ api_patterns = ticker_api_patterns + referrals_api_patterns
 urlpatterns = i18n_patterns(
     url(r'^admin/', admin.site.urls),
     url(r'^i18n/', include('django.conf.urls.i18n')),
-    url(r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),
+    url(r'^jsi18n/$', javascript_catalog, js_info_dict),
     url(r'^$', core.views.add_order, name='core.order_add'),
     url(r'^info/$', core.views.main, name='main'),
     url(r'^orders/$', core.views.index_order, name='core.order'),
@@ -113,8 +114,6 @@ urlpatterns = i18n_patterns(
         name='core.ajax_cards'),
     url(r'^kraken/depositStatus/$', core.views.k_deposit_status,
         name='core.k_deposit_status'),
-    url(r'^referrals', core.views.referrals,
-        name='core.referrals'),
     url(r'^payment_failure', core.views.payment_failure,
         name='core.payfailed'),
     url(r'^payment_retry', core.views.payment_retry,
@@ -124,6 +123,7 @@ urlpatterns = i18n_patterns(
     url(r'^cms/(?P<page_name>.+)/$', core.views.cms_page,
         name='core.cmspage'),
     url(r'session_security/', include('session_security.urls')),
+    url(r'referrals', include(referral_urls))
 )
 
 if settings.DEBUG:

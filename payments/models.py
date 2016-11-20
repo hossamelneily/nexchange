@@ -29,6 +29,7 @@ class PaymentMethod(TimeStampedModel, SoftDeletableModel):
 
 class PaymentPreference(TimeStampedModel, SoftDeletableModel):
     # NULL or Admin for out own (buy adds)
+    enabled = models.BooleanField(default=True)
     user = models.ForeignKey(User)
     payment_method = models.ForeignKey('PaymentMethod', default=None)
     currency = models.ManyToManyField('core.Currency')
