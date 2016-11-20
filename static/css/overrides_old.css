@@ -9,7 +9,6 @@ html, body{
 }
 
 .container.main {
-    margin-bottom: 249px;
 }
 
 .footer {
@@ -190,14 +189,12 @@ html body .ui-state-default{
     }
 
     html body .process-step .btn-circle {
-        width: 65px;
-        height: 65px;
-    }
-    html body .process-step .btn-circle .fa-3x{
-        font-size: 2em;
-    }
 
-
+    }
+    .step_panel_box {
+        margin: -10px -2px;
+        padding: 0;
+    }
     body html footer {
         font-size: 10px;
         margin-top: 1px;
