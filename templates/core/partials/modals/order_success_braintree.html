@@ -150,8 +150,8 @@
                                       success: function(res) {
                                           if (res['error'] == 1){
                                               console.log("RES:", res['error_text']);
-                                              error_text = res['error_text'];
-                                              alert(error_text);
+                                              var error_text = res['error_text'];
+                                              toastr.error(error_text);
                                           }
                                           else{
                                               alert('Payment success.');

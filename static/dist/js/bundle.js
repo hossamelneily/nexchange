@@ -840,8 +840,7 @@ module.exports = {
 
         $(".step2 .btn")
             .addClass('btn-info')
-            .addClass('disableClick')
-            .addClass('disabled');
+            .addClass('disableClick');
     }
 
     function reloadCardsPerCurrency(currency, cardsModalEndpoint) {

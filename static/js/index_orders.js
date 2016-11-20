@@ -141,7 +141,7 @@
             });
 
 
-            // Defines wich form will show up when popover opens
+            // Defines which form will show up when popover opens
             if ( options.length > 1 ) {
                 popover.tip().find(".set_withdraw_address:first").toggle();
                 popover.tip().find(".cancel_btn").click(toggle_forms);
@@ -171,8 +171,7 @@
 
                 $(spin).hide();
                 $(container).show();
-
-                window.alert(msg);
+                toastr.error(msg);
             };
 
             $.post( $(this).data('url'), {'paid': $(this).prop('checked')}, function( data ) {

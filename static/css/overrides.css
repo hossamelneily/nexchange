@@ -805,3 +805,30 @@ span.btn {
 #messages {
 	color: red;
 }
+
+html body .modal-content {
+    position: relative;
+    background-color: #fff;
+    border: 1px solid #FFFFFF;
+    border-radius: 0;
+    outline: 0;
+    -webkit-box-shadow: 0;
+    box-shadow: 0;
+}
+
+.supporetd_payment img {
+    max-width: 100%;
+    height: auto;
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+    opacity: 0.4;
+}
+
+.supporetd_payment img:hover {
+    filter: grayscale(0);
+    opacity: 1;
+    -webkit-transition: opacity .3s linear,-webkit-filter .3s linear;
+    transition: opacity .3s linear,-webkit-filter .3s linear;
+    transition: opacity .3s linear,filter .3s linear;
+    transition: opacity .3s linear,filter .3s linear,-webkit-filter .3s linear;
+}
