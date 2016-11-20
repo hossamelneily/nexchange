@@ -3,7 +3,14 @@ from core.models import Currency, Profile, Order, SmsToken,\
     Address, CmsPage, Balance
 from payments.models import PaymentMethod, PaymentPreference,\
     Payment, PaymentCredentials
+from djcelery.models import TaskMeta
 
+
+class TaskMetaAdmin(admin.ModelAdmin):
+    readonly_fields = ('result',)
+
+
+admin.site.register(TaskMeta, TaskMetaAdmin)
 admin.site.register(Currency)
 admin.site.register(Profile)
 admin.site.register(Order)

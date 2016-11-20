@@ -155,7 +155,7 @@
                                           }
                                           else{
                                               alert('Payment success.');
-                                              window.location.replace("{% url 'core.order' %}?oid={{ order.pk }}");
+                                              window.location.replace("{% url 'core.order' %}?id={{ order.unique_reference }}");
                                           }
                                       },
                                       error:  function(res) {

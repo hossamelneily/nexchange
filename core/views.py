@@ -179,7 +179,8 @@ def braintree_order(request):
                                                         currency=currency.code)
 
                     if result.is_success:
-                        payment = Payment(amount_cash=amount,
+                        payment = Payment(payment_preference=pref,
+                                          amount_cash=amount,
                                           currency=currency,
                                           user=user,
                                           order=order)
@@ -187,8 +188,6 @@ def braintree_order(request):
                         payment.is_success = True
                         payment.payment_preference = pref
                         payment.save()
-                        bp = Payment(payment=payment, payment_preference=pref)
-                        bp.save()
                         order.is_paid = True
                         order.save()
                         output_json = {
@@ -213,7 +212,10 @@ def braintree_order(request):
                                 result.errors.deep_errors
                         }
                 except Exception as e:
-                    text_error = "Can't use this payment method."
+                    text_error = "Can't use this payment method. {}".\
+                        format(e)
+                    if settings.DEBUG:
+                        raise e
             else:
                 text_error = ''
                 for error in result.errors.deep_errors:
@@ -230,8 +232,9 @@ def braintree_order(request):
         else:
             text_error = "Error: can't send customer data."
     except Exception as e:
-        raise e
-        text_error = 'Error get form data. {0}'.format(e)
+        text_error = 'Error get form data. {}'.format(e)
+        if settings.DEBUG:
+            raise e
 
     if text_error:
         output_json['error'] = 1
@@ -338,6 +341,9 @@ def user_registration(request):
                     profile.save()
                     res = _send_sms(user)
                     assert res
+                    if settings.DEBUG:
+                        print(res)
+
                     messages.success(request, success_message)
 
                 user = authenticate(
@@ -473,7 +479,7 @@ def update_withdraw_address(request, pk):
     if not order.user == request.user:
         return HttpResponseForbidden(
             _("You don't have permission to edit this order"))
-    elif order.frozen:
+    elif order.payment_status_frozen:
         return HttpResponseForbidden(
             _("This order can not be edited because is frozen"))
 
@@ -542,7 +548,7 @@ def payment_confirmation(request, pk):
     if not order.user == request.user:
         return HttpResponseForbidden(
             _("You don't have permission to edit this order"))
-    elif order.frozen:
+    elif order.payment_status_frozen:
         return HttpResponseForbidden(
             _("This order can not be edited because is frozen"))
     elif paid is True and not order.has_withdraw_address:
@@ -553,7 +559,7 @@ def payment_confirmation(request, pk):
             order.is_paid = paid
             order.save()
             return JsonResponse({'status': 'OK',
-                                 'frozen': order.frozen,
+                                 'frozen': order.payment_status_frozen,
                                  'paid': order.is_paid}, safe=False)
 
         except ValidationError as e:

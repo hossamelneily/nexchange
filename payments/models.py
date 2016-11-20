@@ -75,8 +75,7 @@ class Payment(TimeStampedModel, SoftDeletableModel):
     is_redeemed = models.BooleanField(default=False)
     is_complete = models.BooleanField(default=False)
     is_success = models.BooleanField(default=False)
-    payment_preference = models.ForeignKey('PaymentPreference', default=None,
-                                           null=True)
+    payment_preference = models.ForeignKey('PaymentPreference', null=False)
     # Super admin if we are paying for BTC
     user = models.ForeignKey(User)
     # Todo consider one to many for split payments, consider order field on

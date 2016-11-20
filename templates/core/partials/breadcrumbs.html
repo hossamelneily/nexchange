@@ -4,24 +4,37 @@
     <div class="step_panel">
         <div class="step_panel_box process-step step1">
             <a href="#menu1" data-toggle="tab">
-                <img src="{% static 'images/step_circle.png' %}"
-                     class="step-icon" alt="{% trans "Order" %}">
+                <button type="button"
+                        class="btn btn-default btn-circle disableClick"
+                        data-toggle="tab">
+                    <span class="step-icon-container">
+                        <i class="fa fa-bar-chart step-icon"></i>
+                    </span>
+                </button>
                 <p>{% trans "Order" %}</p>
             </a>
          </div>
 
         <div class="step_panel_box process-step step2">
             <a href="#menu2" data-toggle="tab">
-                <img src="{% static 'images/step_circle2.png' %}"
-                     class="step-icon" alt="{% trans "Authentication" %}">
+                <button type="button"
+                        class="btn btn-default btn-circle btn-register disableClick">
+                <span class="step-icon-container">
+                    <i class="fa fa-mobile step-icon"></i>
+                </span>
+                </button>
                 <p>{% trans "Login" %}</p>
             </a>
         </div>
 
           <div class="step_panel_box process-step step3">
             <a href="#menu3" data-toggle="tab">
-                <img src="{% static 'images/step_circle3.png' %}"
-                     class="step-icon" alt="{% trans 'Confirmation' %}">
+                <button type="button"
+                        class="btn btn-default btn-circle btn-register disableClick">
+                    <span class="step-icon-container">
+                        <i class="fa fa-bitcoin step-icon"></i>
+                    </span>
+                </button>
                 <p>{% trans 'Confirm' %}</p>
             </a>
          </div>

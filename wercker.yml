@@ -34,7 +34,7 @@ dev:
         code: |
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
           mkdir -p ${pip_download_cache}
-          pip install --cache-dir ${pip_download_cache} -r requirements.txt
+          pip install --exists-action w --cache-dir ${pip_download_cache} -r requirements.txt
     - script:
         name: Django make migrations
         code: |
@@ -157,7 +157,7 @@ build:
         code: |
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
           mkdir -p ${pip_download_cache}
-          yes w | pip install --cache-dir ${pip_download_cache} -r requirements.txt
+          pip install --exists-action w --cache-dir ${pip_download_cache} -r requirements.txt
     - script:
         name: Django migrations
         code: |

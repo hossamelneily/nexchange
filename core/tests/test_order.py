@@ -11,7 +11,7 @@ from unittest import skip
 
 
 from core.models import Order, Address, Transaction
-from payments.models import PaymentMethod, PaymentPreference
+from payments.models import PaymentMethod, PaymentPreference, Payment
 from .utils import UserBaseTestCase, OrderBaseTestCase
 
 
@@ -51,6 +51,45 @@ class OrderSetAsPaidTestCase(UserBaseTestCase, OrderBaseTestCase):
             address='17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j')
         address.save()
 
+        # Creates an Transaction for the Order, using the user Address
+        transaction = Transaction(
+            order=self.order, address_to=address, address_from=address)
+        transaction.save()
+
+        # Set Order as Paid
+        response = self.client.post(self.url, {'paid': 'true'})
+        expected = {"frozen": None, "paid": True, "status": "OK"}
+        self.assertJSONEqual(json.dumps(expected), str(
+            response.content, encoding='utf8'),)
+
+    def test_can_set_as_paid_if_has_withdraw_address_internal(self):
+        # Creates an withdraw address fro this user
+        address = Address(
+            user=self.user, type='W',
+            address='17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j')
+        address.save()
+
+        payment_method = PaymentMethod(
+            name='Internal Test',
+            is_internal=True
+        )
+        payment_method.save()
+
+        pref = PaymentPreference(
+            payment_method=payment_method,
+            user=self.order.user,
+            identifier='InternalTestIdentifier'
+        )
+        pref.save()
+
+        payment = Payment(
+            payment_preference=pref,
+            amount_cash=self.order.amount_cash,
+            order=self.order,
+            currency=self.RUB,
+            user=self.order.user
+        )
+        payment.save()
         # Creates an Transaction for the Order, using the user Address
         transaction = Transaction(
             order=self.order, address_to=address, address_from=address)

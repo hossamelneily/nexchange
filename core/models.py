@@ -44,10 +44,6 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     sig_key = models.CharField(max_length=64, blank=True)
 
     @property
-    def profileuser(self):
-        pass
-
-    @property
     def partial_phone(self):
         phone = str(self.phone)
         phone_len = len(phone)
@@ -302,18 +298,29 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
                (not self.is_paid) and not self.is_released
 
     @property
-    def frozen(self):
+    def payment_status_frozen(self):
         """return a boolean indicating if order can be updated
         Order is frozen if it is expired or has been paid
         """
         # TODO: validate this business rule
-        return self.expired or self.is_paid
+        return self.expired or \
+            (self.is_paid and
+             self.payment_set.last() and
+             self.payment_set.last().
+             payment_preference.
+             payment_method.is_internal)
+
+    @property
+    def withdrawal_address_frozen(self):
+        """return bool whether the withdraw address can
+           be changed"""
+        return self.is_released
 
     @property
     def has_withdraw_address(self):
         """return a boolean indicating if order has a withdraw adrress defined
         """
-        # TODO: Validate this buisness rule
+        # TODO: Validate this business rule
         return len(self.transaction_set.all()) > 0
 
     @property

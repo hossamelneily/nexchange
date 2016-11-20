@@ -82,7 +82,7 @@
                   $('.amount-cash, .amount-coin')
                     .removeClass('rate-buy')
                     .removeClass('rate-sell')
-                    .addClass(newCashClass);                
+                    .addClass(newCashClass);
             });
 
             $('.amount').on('keyup', function () {
@@ -151,7 +151,7 @@
 
         $('.next-step, .prev-step').on('click', orderObject.changeState);
         $('.phone.val').on('keyup', function () {
-            if($(this).val().length > 10 && captcha) {
+            if($(this).val().length) {
                 $('.create-acc')
                     .not('.resend')
                     .removeClass('disabled');
@@ -778,7 +778,6 @@ module.exports = {
             numericId = parseInt(nextStateId.replace(menuPrefix, '')),
             currStateId = menuPrefix + (numericId - 1),
             currState =  $('[href="#'+ currStateId +'"]');
-
         //skip disabled state, check if at the end
         if(nextState.hasClass('disabled') &&
             numericId < $(".process-step").length &&
@@ -796,11 +795,13 @@ module.exports = {
             $('.trigger-buy').trigger('click', true);
         } else {
             setButtonDefaultState(nextStateId);
-            currState.addClass('btn-success');
+
+            currState
+                .addClass('completed');
+
             nextState
-                .addClass('btn-info')
-                .removeClass('btn-default')
                 .tab('show');
+            window.scrollTo(0, 0);
         }
         
 

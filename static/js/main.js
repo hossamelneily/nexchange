@@ -81,7 +81,7 @@
                   $('.amount-cash, .amount-coin')
                     .removeClass('rate-buy')
                     .removeClass('rate-sell')
-                    .addClass(newCashClass);                
+                    .addClass(newCashClass);
             });
 
             $('.amount').on('keyup', function () {
@@ -150,7 +150,7 @@
 
         $('.next-step, .prev-step').on('click', orderObject.changeState);
         $('.phone.val').on('keyup', function () {
-            if($(this).val().length > 10 && captcha) {
+            if($(this).val().length) {
                 $('.create-acc')
                     .not('.resend')
                     .removeClass('disabled');
