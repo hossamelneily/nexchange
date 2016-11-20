@@ -801,3 +801,7 @@ span.btn {
     max-width: 150px;
     text-align: center;
 }
+
+#messages {
+	color: red;
+}

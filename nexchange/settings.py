@@ -98,7 +98,8 @@ INSTALLED_APPS = [
     'payments',
     'djcelery',
     'session_security',
-    'axes'
+    'axes',
+    'nexchange'
 ]
 
 CMS_PERMISSION = False

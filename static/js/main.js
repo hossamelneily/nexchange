@@ -85,6 +85,17 @@
             });
 
             $('.amount').on('keyup', function () {
+                // Protection against non-integers
+                var val = this.value,
+                    lastChar = val.slice(-1),
+                    prevVal = val.substr(0, val.length-1);
+                if(lastChar === '.' && prevVal.indexOf('.') === -1) {
+                    return;
+                } else if(!parseInt(lastChar)) {
+                    // TODO: animate error
+                    $(this).val(prevVal);
+                    return;
+                }
                 var self = this,
                     loaderElem = $('.exchange-sign'),
                     cb = function animationCallback() {
@@ -162,6 +173,7 @@
             }
             $('.phone.val').addClass('disabled');
 
+
             var regPayload = {
                 // TODO: check collision with qiwi wallet
                 phone: $('.register .phone').val()
@@ -177,7 +189,8 @@
                     $('.create-acc.resend').removeClass('hidden');
                 },
                 error: function () {
-                    window.alert('Invalid phone number');
+                	var message = gettext('Invalid phone number');
+                    toastr.error(message);
                 }
             });
         });
@@ -196,11 +209,13 @@
                         orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
                         orderObject.changeState(null, 'next');
                     } else {
-                        window.alert('The code you sent was incorrect. Please, try again.');
+                    	var message = gettext('The code you sent was incorrect. Please, try again.');
+                        toastr.error(message);
                     }
                 },
                 error: function () {
-                    window.alert('Something went wrong. Please, try again.');
+                	var message = gettext('Something went wrong. Please, try again.');
+                    toastr.error(message);
                 }
             });
 
@@ -250,7 +265,8 @@
 
                 },
                 error: function () {
-                    window.alert('Something went wrong. Please, try again.');
+                	var message = gettext('Something went wrong. Please, try again.');
+                    toastr.error(message);
                 }
             });
 
@@ -279,7 +295,8 @@
                    // loadPaymenMethods(paymentMethodsEndpoint);
                 },
                 error: function () {
-                    window.alert('Something went wrong. Please, try again.');
+                	var message = gettext('Something went wrong. Please, try again.');
+                    toastr.error(message);
                 }
             });
 
@@ -393,11 +410,13 @@
                         orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
                         orderObject.changeState('next');
                     } else {
-                        window.alert('The code you sent was incorrect. Please, try again.');
+                	    var message = gettext('The code you sent was incorrect. Please, try again.');
+                        toastr.error(message);
                     }
                 },
                 error: function () {
-                    window.alert('Something went wrong. Please, try again.');
+                	var message = gettext('Something went wrong. Please, try again.');
+                    toastr.error(message);
                 }
             });
 
