@@ -74,21 +74,7 @@
     border-bottom: 1px solid;
 }
 
-.round-button {
-    width: 15px;
-    height: 15px;
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 2px;
-    border-radius: 20px;
-    color: #97CB53 !important;
-    border: none;
-    cursor: pointer;
-    text-align: center;
-    font-size: 14px;
-    background-color: #FFFFFF;
-    vertical-align: middle;
-}
+
 
 .modal-dialog{
     padding-top: 100px
@@ -97,13 +83,12 @@
 .glyphicon{
     background-color: transparent;
 }
-
-.round-button:hover {
-    background: #262626;
-}
-
 .modal_head{
     padding-top: 30px;
+}
+
+.modal-body {
+    padding-left: 0;
 }
 
 .row_type{
@@ -122,21 +107,6 @@
 .confirm-order{
     background-color: #F4F4F4;
 }
-
-.payment-label{
-    background-color: #97CB53;
-    color: #FEFEFD;
-    display: inline-block;
-    padding: 4px 12px;
-    margin-bottom: 0;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1.42857143;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-}
-
 
 .search-order{
    border-color: #8dc73f;
@@ -594,11 +564,26 @@ body .price_box_ticker .trigger-sell, body .price_box_next_cont .sell-go{
     }
 }
 
-@media screen and (max-width:1100px) { }
+@media screen and (min-width:999px) {
+    html body .modal.in .modal-dialog {
+        width: 800px;
+    }
+
+}
 
 @media screen and (max-width:999px)
 
 {
+
+.payment-trigger-image span.helper {
+    display: none;
+}
+.payment-trigger-image .payment-method-icon {
+    max-width: 135px;
+}
+div.payment-label {
+    width: 135px;
+}
 
 .navbar{ text-align:center; }
 
@@ -816,19 +801,102 @@ html body .modal-content {
     box-shadow: 0;
 }
 
-.supporetd_payment img {
+.supporetd_payment img, .payment-type-trigger{
     max-width: 100%;
     height: auto;
+    padding: 20px 0;
     -webkit-filter: grayscale(100%);
     filter: grayscale(100%);
     opacity: 0.4;
+    cursor: pointer;
 }
 
-.supporetd_payment img:hover {
+.payment-type-trigger,
+.payment-type-trigger:hover{
+    cursor: pointer;
+}
+
+.supporetd_payment img:hover,
+.payment-type-trigger:hover,
+.payment-type-trigger:hover .round-button  {
     filter: grayscale(0);
     opacity: 1;
     -webkit-transition: opacity .3s linear,-webkit-filter .3s linear;
     transition: opacity .3s linear,-webkit-filter .3s linear;
     transition: opacity .3s linear,filter .3s linear;
     transition: opacity .3s linear,filter .3s linear,-webkit-filter .3s linear;
+}
+.payment-type-trigger:hover .round-button {
+    filter: grayscale(0);
+    opacity: 1;
+   transition: opacity .3s linear,-webkit-filter .3s linear;
+   transition: opacity .3s linear,filter .3s linear;
+   transition: opacity .3s linear,filter .3s linear,-webkit-filter .3s linear;
+}
+
+.round-button {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    filter: grayscale(100%);
+    opacity: 0.2;
+    color: #97CB53 !important;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    font-size: 14px;
+    background-color: #FFFFFF;
+    vertical-align: middle;
+    position: relative;
+    float: right;
+    margin-left: 5px;
+}
+
+.round-button:hover {
+    background: #262626;
+}
+
+
+.round-button a {
+    position: absolute;
+    top: 2px;
+    left: 7px;
+    font-size: 12px;
+}
+
+.payment-label-inner {
+    display: inline-block;
+    text-align: center;
+    margin: auto;
+}
+
+.payment-label{
+    background-color: #97CB53;
+    color: #FEFEFD;
+    display: inline-block;
+    padding: 4px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: 400;
+    width:150px;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.payment-trigger-image {
+    height: 50px;
+}
+
+.payment-trigger-image .helper {
+    height: 100%;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.payment-trigger-image img {
+    vertical-align: middle;
+    max-height: 50px;
+    display: inline-block;
 }

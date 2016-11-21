@@ -1,127 +1,39 @@
 {% load i18n %}
 {% load static %}
+{% if type == 'buy' %}
+
 <div class="row {{ type }} row_type">
     <div class="payment_title">
-        {% trans 'Bank'%}
+        {% trans 'Credit cards' %}
     </div>
-    {% if type == 'buy' %}
-        {% currency == cards.alfa.currency.code %}
-            <div class="col col-xs-12 col-md-6 payment-type-trigger"
-                 data-type="Alfa Bank"
-                data-identifier="{{ cards.alfa.identifier }}">
-                <div class="col col-xs-12">
-                    <img src="{% static 'icons/small/alfabank.png' %}"
-                         alt="{% trans 'Alfa-bank'%}"
-                         class="payment-method-icon">
-                </div>
-                <div class="col col-xs-12  ">
-                    <div class="payment-label">
-                        {% trans 'Pay with' %} {%trans 'Alfa-bank'%}
-                        <a href="#" class="round-button"> ></a>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-    <div class="col col-xs-12 col-md-6 payment-type-trigger"
-         data-type="Sberbank"
-         data-identifier="{{ cards.sber.identifier }}">
-        <div class="col col-xs-12">
-            <img src="{% static 'icons/sber.png' %}"
-                 alt="{% trans 'Sberbank'%}"
-                 class="payment-method-icon btn btn-primary">
-        </div>
-        <div class="col col-xs-12  ">
-            <div class="payment-label">
-                {% trans 'Pay with' %} {%trans 'Sberbank'%}
-                <a href="#" class="round-button"> ></a>
-            </div>
-        </div>
-
-    </div>
-    {% else %}                          
-    <div class="col col-xs-12 col-sm-6 payment-type-trigger bank" data-type="c2c">
-        <div class="col col-xs-12">
-            <i class="fa fa-credit-card-alt fa-5 payment-method-icon btn btn-primary">
-            </i>
-        </div>
-        <div class="col col-xs-12  ">
-            <div class="payment-label">
-                {%trans 'Card 2 card - any bank'%}
-                <a href="#" class="round-button"> ></a>
-            </div>
-        </div>
-    </div>                              
-    <div class="col col-xs-12 col-sm-6 payment-type-trigger" data-type="cash">
-        <div class="col col-xs-12">
-            <i class="fa fa-money fa-5 payment-method-icon btn btn-primary">
-            </i>
-        </div>
-
-        <div class="col col-xs-12  ">
-            <div class="payment-label">
-                {%trans 'Cash payment'%}
-                <a href="#" class="round-button"> ></a>
-            </div>
-        </div>
-    </div>
-    {% endif %}                         
+    {% include 'core/partials/modals/card.html' with card_type='PayPal' label='Visa' icon='icons/small/visa.png' card=cards.paypal %}
+    {% include 'core/partials/modals/card.html' with card_type='PayPal' label='Mastercard' icon='icons/small/mastercard.png' card=cards.paypal %}
 
 </div>
+{% endif %}
+
 <div class="row {{ type }} row_type">
 
     <div class="payment_title">
         {% trans 'Wallets' %}
     </div>
-
-    <div class="col col-xs-12 col-md-6 payment-type-trigger qiwi"
-         data-type="Qiwi"
-         data-identifier="{{ cards.qiwi.identifier }}">
-        <div class="col col-xs-12">
-            <img src="{% static 'icons/qiwi.png' %}"
-                 alt="{% trans 'Qiwi wallet'%}"
-                 class="payment-method-icon btn btn-primary">
-        </div>
-        <div class="col col-xs-12  ">
-            <div class="payment-label">
-                {% if type == 'buy' %}
-                    {% trans 'Pay with' %}
-                {% endif %}
-                {%trans 'Qiwi wallet'%}
-                <a href="#" class="round-button"> ></a>
-            </div>
-        </div>
-    </div>
-    {% if type == 'buy TODO_chnge_to_braitree' %}
-      <div class="col col-xs-12  col-md-6 payment-type-trigger robokassa" data-type="Robokassa">
-        <div class="col col-xs-12">
-            <img src="{% static 'icons/robokassa.png' %}"
-                 alt="{% trans 'Robokassa'%}"
-                 class="payment-method-icon btn btn-primary">
-        </div>
-
-        <div class="col col-xs-12  ">
-            <div class="payment-label">
-                {% trans 'Pay with' %} {%trans 'Robokassa'%}
-                <a href="#" class="round-button"> ></a>
-            </div>
-        </div>
-    </div>
-    {% endif %}
+    {% include 'core/partials/modals/card.html' with card_type='Qiwi Wallet' icon='icons/small/qiwi.png' card=cards.qiwi %}
     {% if type == 'buy' %}
-        <div class="col col-xs-12  col-md-6 payment-type-trigger paypal" data-type="PayPal">
-            <div class="col col-xs-12">
-                <img src="{% static 'icons/paypal.jpeg' %}"
-                     alt="{% trans 'PayPal'%}"
-                     class="payment-method-icon btn btn-primary">
-            </div>
-
-            <div class="col col-xs-12  ">
-                <div class="payment-label">
-                    {% trans 'Pay with' %} {%trans 'PayPal'%}
-                    <a href="#" class="round-button"> ></a>
-                </div>
-            </div>
-        </div>
+            {% include 'core/partials/modals/card.html' with card_type='Robokassa' icon='icons/small/robokass.png' card=cards.robokass %}
     {% endif %}
+    {% include 'core/partials/modals/card.html' with card_type='PayPal' icon='icons/small/paypal.png' card=cards.paypal %}
 
+</div>
+<div class="row {{ type }} row_type">
+    <div class="payment_title">
+        {% trans 'Bank'%}
+    </div>
+    {% if type == 'buy' %}
+        {% include 'core/partials/modals/card.html' with card_type='Alfa-Bank' icon='icons/small/alfabank.png' card=cards.alfa %}
+        {% include 'core/partials/modals/card.html' with card_type='Sberbank' icon='icons/small/sber.png' card=cards.sber %}
+        {% include 'core/partials/modals/card.html' with card_type='Sepa' icon='icons/small/sepa.png' card=cards.alfa %}
+    {% else %}
+        {% include 'core/partials/modals/card.html' with card_type='Card 2 Card' icon='icons/small/c2c.ico' %}
+    {% endif %}
+    {% include 'core/partials/modals/card.html' with card_type='Cash' icon='icons/small/cash.png' card=cards.alfa %}
 </div>
