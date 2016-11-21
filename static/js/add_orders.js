@@ -67,7 +67,7 @@ $(function() {
     $('.place-order').on('click', function () {
         //TODO verify if $(this).hasClass('sell-go') add 
         // the othre type of transaction
-        
+        console.log('her');
         var verifyPayload = {
                 "trade-type": $(".trade-type").val(),
                 "csrfmiddlewaretoken": $("#csrfmiddlewaretoken").val(),
@@ -87,20 +87,17 @@ $(function() {
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',    
             success: function (data) {
                 //console.log(data)
-                //if the transaction is Buy
-                if (window.action == 1){ 
-                    $('.step-confirm').addClass('hidden');
-                    //$('.successOrder').removeClass('hidden');
-                    $(".successOrder").html($(data));
-                    $("#orderSuccessModal").modal({backdrop: "static"});
+                //if the transaction is Buy]
+                var message;
+                if (window.action == window.ACTION_BUY){
+                    message = gettext('Buy order placed successfully');
                 }
                 //if the transaction is Sell
                 else{
-                    $('.step-confirm').addClass('hidden');
-                    $('#btcAddress').text(data.address);
-                    $("#orderSuccessModalSell").modal({backdrop: "static"});
-                }
+                    message = gettext('Sell order placed successfully');
 
+                }
+                toastr.success(message);
             },
             error: function () {
                 var message = gettext('Something went wrong. Please, try again.');
@@ -146,11 +143,12 @@ $(function() {
     });
 
     $('.buy .payment-type-trigger').on('click', function () {
-        var paymentType = $(this).data('type');
+        var paymentTypeDisplay = $(this).data('label'),
+            paymentActual = $(this).data('type');
         $("#PayMethModal").modal('toggle');
         // console.log(paymentType);
-        $(".payment-preference").val(paymentType);
-        $(".payment-preference-confirm").text(paymentType);
+        $(".payment-preference-actual").val(paymentTypeDisplay);
+        $(".payment-preference-confirm").text(paymentActual);
         // console.log($(".payment-preference"))
         // console.log($('.payment-preference').length)
 
@@ -280,7 +278,7 @@ function canProceedtoRegister(objectName){
     var payMeth = $('#payment_method_id').val(),
     userAcc = $('#user_address_id').val(),
     userAccId = $('#new_user_account').val();
-    if (!((objectName === 'menu2' || objectName === 'btn-register') && 
+    if(!((objectName === 'menu2' || objectName === 'btn-register') &&
         payMeth === '' && userAcc === '' && userAccId === '')) {
             return true;
     }

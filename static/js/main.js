@@ -11,6 +11,7 @@
         captcha = require('./modules/captcha.js'),
 
         paymentType = '',
+        actualPaymentType = '',
         preferenceIdentifier = '',
         preferenceOwner = '';
 
@@ -93,7 +94,8 @@
                     prevVal.indexOf('.') === -1) {
                     return;
                     // # TODO: User isNaN
-                } else if(!parseInt(lastChar) && lastChar !== 0) {
+                } else if(!parseInt(lastChar) &&
+                          parseInt(lastChar) !== 0) {
                     // TODO: animate error
                     $(this).val(prevVal);
                     return;
@@ -228,7 +230,7 @@
             //TODO verify if $(this).hasClass('sell-go') add
             // the other type of transaction
             // add security checks
-            paymentType = $('.payment-preference-confirm').text() ;
+            actualPaymentType = $('.payment-preference-actual').text() ;
             preferenceIdentifier = $('.payment-preference-identifier-confirm').text();
             preferenceOwner = $('.payment-preference-owner-confirm').text();
             var verifyPayload = {
@@ -237,7 +239,7 @@
                     'amount-coin': $('.amount-coin').val() || DEFAULT_AMOUNT,
                     'currency_from': $('.currency-from').val(), //fiat
                     'currency_to': $('.currency-to').val(), //crypto
-                    'pp_type': paymentType,
+                    'pp_type': actualPaymentType,
                     'pp_identifier': preferenceIdentifier,
                     'pp_owner': preferenceOwner,
                     '_locale': $('.topright_selectbox').val()
@@ -251,17 +253,16 @@
                 contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 success: function (data) {
                     //if the transaction is Buy
-                    if (window.action == 1){
-                        // $('.step-confirm').addClass('hidden');
-                        //$('.successOrder').removeClass('hidden');
+                      var message;
+                    if (window.action == window.ACTION_BUY){
+                        message = gettext('Buy order placed successfully');
                     }
                     //if the transaction is Sell
                     else{
-                        // $('.step-confirm').addClass('hidden');
-                        //$('#btcAddress').text(data.address);
-                        // $('.successOrder').html($(data));
-                        // $('#orderSuccessModalSell').modal({backdrop: 'static'});
+                        message = gettext('Sell order placed successfully');
+
                     }
+                    toastr.success(message);
                     $('.successOrder').html($(data));
                     $('#orderSuccessModal').modal({backdrop: 'static'});
 
@@ -280,7 +281,6 @@
                 'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
                 'amount-cash': $('.amount-cash').val(),
                 'currency_from': $('.currency-from').val(),
-                'user_id':$('#user_id').val()
             };
 
             $.ajax({
@@ -305,10 +305,12 @@
         });
 
         $(document).on('click', '.buy .payment-type-trigger', function () {
-            $('.supporetd_payment').addClass('hidden');
-            paymentType = $(this).data('type');
+
+            paymentType = $(this).data('label');
+            actualPaymentType = $(this).data('type');
             preferenceIdentifier = $(this).data('identifier');
             $('.payment-preference-confirm').text(paymentType);
+            $('.payment-preference-actual').text(actualPaymentType);
             $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
             $('#PayMethModal').modal('toggle');
             $('.payment-method').val(paymentType);
@@ -342,6 +344,11 @@
                 $('#CardSellModal').modal('toggle');
             } else if(paymentType === 'qiwi') {
                 $('#QiwiSellModal').modal('toggle');
+            }
+            else if(paymentType === 'paypal') {
+                if($('#PaypalSellModal')) {
+                    ('#PaypalSellModal').modal('toggle');
+                }
             }
             else {
                 $('.payment-method').val(paymentType);

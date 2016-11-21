@@ -3,6 +3,7 @@
 {% if card.enabled or type == 'sell' %}
     <div class="col col-xs-6 col-md-3 payment-type-trigger"
          data-type="{{ card_type }}"
+         data-label="{{ label }}"
          data-identifier="{{ card.identifier }}">
         <div class="col col-xs-12 payment-trigger-image">
                 <span class="helper"></span>
