@@ -829,9 +829,9 @@ html body .modal-content {
 .payment-type-trigger:hover .round-button {
     filter: grayscale(0);
     opacity: 1;
-   transition: opacity .3s linear,-webkit-filter .3s linear;
-   transition: opacity .3s linear,filter .3s linear;
-   transition: opacity .3s linear,filter .3s linear,-webkit-filter .3s linear;
+   transition: opacity .7s linear,-webkit-filter .7s linear;
+   transition: opacity .7s linear,filter .7s linear;
+   transition: opacity .7s linear,filter .7s linear,-webkit-filter .7s linear;
 }
 
 .round-button {

@@ -478,7 +478,7 @@ def update_withdraw_address(request, pk):
     if not order.user == request.user:
         return HttpResponseForbidden(
             _("You don't have permission to edit this order"))
-    elif order.payment_status_frozen:
+    elif order.withdrawal_address_frozen:
         return HttpResponseForbidden(
             _("This order can not be edited because is frozen"))
 
