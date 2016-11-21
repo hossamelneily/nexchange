@@ -67,29 +67,28 @@
     
 </head>
 <body>
-    <div class="container main">
-        <div class="menuContainer">
-            {% include 'core/partials/menu.html' %}
-        </div>
-            {% block main %}
+   <div class="wrapper">
+	  <div class="content">
+        <div class="container main">
+            <div class="menuContainer">
+                {% include 'core/partials/menu.html' %}
+            </div>
+                {% block main %}
+                {% endblock %}
+
+        <div class="cms_container" >
+            {% block cms_static %}
             {% endblock %}
+        </div>
+      </div>
+    </div>
+        {% block content %}
+        {% endblock content %}
 
-    <div class="cms_container" >
-        {% block cms_static %}
+
+        {% block footer %}
         {% endblock %}
-    </div>
-
-
-    </div>
-    {% block content %}
-    {% endblock content %}
-
-    <div class="cms_container container">
-    </div>
-
-   {% block footer %}
-   {% endblock %}
-
+ </div>
     {% include 'core/partials/popular_faq.html' %}
     {% include 'core/partials/seo_footer.html' %}
    
