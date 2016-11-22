@@ -21,7 +21,7 @@
     {% if type == 'buy' %}
             {% include 'core/partials/modals/card.html' with card_type='Robokassa' icon='icons/small/robokass.png' card=cards.robokass %}
     {% endif %}
-    {% include 'core/partials/modals/card.html' with card_type='PayPal' icon='icons/small/paypal.png' card=cards.paypal %}
+    {% include 'core/partials/modals/card.html' with card_type='PayPal' label='PayPal' icon='icons/small/paypal.png' card=cards.paypal %}
 
 </div>
 <div class="row {{ type }} row_type">
@@ -29,11 +29,11 @@
         {% trans 'Bank'%}
     </div>
     {% if type == 'buy' %}
-        {% include 'core/partials/modals/card.html' with card_type='Alfa-Bank' icon='icons/small/alfabank.png' card=cards.alfa %}
-        {% include 'core/partials/modals/card.html' with card_type='Sberbank' icon='icons/small/sber.png' card=cards.sber %}
-        {% include 'core/partials/modals/card.html' with card_type='Sepa' icon='icons/small/sepa.png' card=cards.alfa %}
+        {% include 'core/partials/modals/card.html' with card_type='Alfa-Bank' label='Alfa-Bank' icon='icons/small/alfabank.png' card=cards.alfa %}
+        {% include 'core/partials/modals/card.html' with card_type='Sberbank' label='Sberbank' icon='icons/small/sber.png' card=cards.sber %}
+        {% include 'core/partials/modals/card.html' with card_type='Sepa' label='Sepa' icon='icons/small/sepa.png' card=cards.alfa %}
     {% else %}
-        {% include 'core/partials/modals/card.html' with card_type='Card 2 Card' icon='icons/small/c2c.ico' %}
+        {% include 'core/partials/modals/card.html' with card_type='Card 2 Card' label='Card 2 Card' icon='icons/small/c2c.ico' %}
     {% endif %}
-    {% include 'core/partials/modals/card.html' with card_type='Cash' icon='icons/small/cash.png' card=cards.alfa %}
+    {% include 'core/partials/modals/card.html' with card_type='Cash' label='Cash' icon='icons/small/cash.png' card=cards.alfa %}
 </div>

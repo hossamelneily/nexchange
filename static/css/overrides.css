@@ -6,6 +6,10 @@
 	font-style: normal;
 }
 
+.modal-body{
+    padding-left: 0;
+}
+
 .cms_text{
     clear: both;
     margin: 30px;
@@ -18,6 +22,10 @@
 .cms_body{
     padding-top: 20px;
     padding-bottom: 50px;
+}
+
+.fa-bar-chart {
+    margin-left: -2px;
 }
 
 /*.step_panel .step_panel_box .btn-info,*/
@@ -703,7 +711,22 @@ vertical design
 
 
 @media screen and (max-width:480px)  { }
-@media screen and (max-width:400px)  { }
+@media screen and (max-width:400px)  {
+    .process-step .btn-circle {
+        width: 65px;
+        height: 64px;
+    }
+    .step-icon-container {
+        width: 55px;
+        height: 56px;
+    }
+    .fa-bar-chart {
+        margin-left: -5px;
+    }
+    .step_panel_box {
+        padding-top: 0;
+    }
+}
 @media screen and (min-width: 768px)
 {
     .price_box_next_cont { margin: 25px 0; }
