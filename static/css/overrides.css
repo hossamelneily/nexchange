@@ -87,10 +87,6 @@
     padding-top: 30px;
 }
 
-.modal-body {
-    padding-left: 0;
-}
-
 .row_type{
     padding-left: 30px;
     padding-right: 30px;
@@ -531,6 +527,18 @@ body .price_box_ticker .trigger-sell, body .price_box_next_cont .sell-go{
     padding:30px 0 50px 0;
 }
 
+.wrapper {
+  display: table;
+  height: 100%;
+  margin: 0 auto;
+ }
+ 
+.content {
+  display: table-row;
+  height: 100%;
+  
+}
+
 .footer_logo{width:100%; max-width:250px;}
 
 .footer a{color:#d1d3d4; width:100%; display:inline-block;}
@@ -759,8 +767,8 @@ vertical design
 
 
 span.btn {
-    font-size: 30px;
-    margin-bottom: 20px;
+    font-size: 20px;
+    margin: 20px 0;
 }
 
 #verification_code {
@@ -899,4 +907,12 @@ html body .modal-content {
     vertical-align: middle;
     max-height: 50px;
     display: inline-block;
+}
+
+.form-group {
+	margin-bottom: 25px;
+}
+
+.p-list {
+	padding-top: 20px;
 }
