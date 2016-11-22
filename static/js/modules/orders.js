@@ -13,11 +13,11 @@
             rate,
             amountCoin = $('.amount-coin'),
             amountCashConfirm = 0,
-            floor = 100000000;
+                floor = 100000000;
 
         isInitial = isInitial || !elem.val().trim();
         val = isInitial ? elem.attr('placeholder') : elem.val();
-
+        val = parseFloat(val);
         if (!val) {
             return;
         }
@@ -27,16 +27,22 @@
             updatePrice(getPrice(data[window.ACTION_BUY], currency), $('.rate-buy'));
             updatePrice(getPrice(data[window.ACTION_SELL], currency), $('.rate-sell'));
             rate = data[window.action]['price_' + currency + '_formatted'];
+            var btcAmount,
+                cashAmount;
             if (elem.hasClass('amount-coin')) {
-                var cashAmount = (rate * val).toFixed(2);
+                btcAmount = val.toFixed(8);
+                cashAmount = (rate * btcAmount).toFixed(2);
                 amountCashConfirm = cashAmount;
+                 $('.amount-coin').val(btcAmount);
+                $(this).val(btcAmount);
                 if (isInitial) {
                     $('.amount-cash').attr('placeholder', cashAmount);
                 } else {
                     $('.amount-cash').val(cashAmount);
                 }
             } else {
-                var btcAmount = Math.floor(val / rate * floor) / floor;
+                btcAmount = Math.floor(val / rate * floor) / floor;
+                btcAmount = btcAmount.toFixed(8);
                 if (isInitial) {
                     $('.amount-coin').attr('placeholder', btcAmount);
                 } else {

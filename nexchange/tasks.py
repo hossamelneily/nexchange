@@ -2,7 +2,8 @@ from __future__ import absolute_import
 
 from celery import shared_task
 import logging
-from core.models import Payment, Order, Transaction, Address
+from core.models import Order, Transaction, Address
+from payments.models import Payment
 from django.utils.translation import ugettext_lazy as _
 from nexchange.utils import send_sms, send_email,\
     release_payment, check_transaction

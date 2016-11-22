@@ -22,11 +22,6 @@
 <div class="panel panel-success">
     <div class="panel-body">
         <h1>{% trans 'Order placed successfully' %}</h1>
-        <div class="row">
-            <div class="col col xs-12"></div>
-            {% trans 'Please make payment to the following' %}
-            {{ order.payment_preference.payment_method.name }}
-        </div>
         <div class="row hidden">
             <div class="col col-lg-12">
                 <p><strong>{{order.payment_preference.identifier}}</strong></p>
@@ -34,7 +29,9 @@
         </div>
         <div class="row">
             <div class="col col-lg-12">
-                <p><strong>{{order_amount}} for {{ amount_cash }}</strong></p>
+                <h4>
+                    {% trans 'Buying' %} {{order_amount}} {% trans 'BTC' %} for {{ amount_cash }} {% trans order.currency.code %}
+                </h4>
             </div>
         </div>
 
