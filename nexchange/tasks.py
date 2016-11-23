@@ -14,6 +14,7 @@ logging.basicConfig(filename='payment_release.log', level=logging.INFO)
 
 @shared_task
 def payment_release():
+    # TODO: iterate over payments instead, will be much faster
     for o in Order.objects.filter(is_paid=True, is_released=False):
         user = o.user
         profile = user.profile
@@ -36,6 +37,7 @@ def payment_release():
             if tx_id is None:
                 continue
 
+            print('tx id: {}'.format(tx_id))
             o.is_released = True
             o.save()
 
@@ -52,7 +54,7 @@ def payment_release():
                     print(str(sms_result))
 
             # send email
-            if profile.notify_by_phone:
+            if profile.notify_by_email:
                 email = send_email(user.email, 'title', msg)
                 email.send()
 
