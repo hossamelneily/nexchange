@@ -645,12 +645,12 @@ module.exports = {
                 btcAmount = val.toFixed(8);
                 cashAmount = (rate * btcAmount).toFixed(2);
                 amountCashConfirm = cashAmount;
-                 $('.amount-coin').val(btcAmount);
                 $(this).val(btcAmount);
                 if (isInitial) {
                     $('.amount-cash').attr('placeholder', cashAmount);
                 } else {
                     $('.amount-cash').val(cashAmount);
+                    $('.amount-coin').val(btcAmount);
                 }
             } else {
                 btcAmount = Math.floor(val / rate * floor) / floor;

@@ -60,26 +60,13 @@
                     <input type="submit" class="hidden" id="submitbraintreeform">
                 </div>
             </form>
+            <div class="col-lg-12 withdraw_notice">
+                <span>
+                    * {% trans 'After paying you can withdraw your bitcoins immidiately and without any fee' %}
+                </span>
+            </div>
+        </div>
 
-        </div>
-        <div class="row hidden">
-            <div class="col col-lg-12">
-                {% trans 'Please put the following reference in the comment:' %}
-            </div>
-        </div>
-        <div class="row hidden">
-            <div class="col col-lg-12 unique_ref">
-                <p><strong>{{unique_ref}}</strong></p>
-            </div>
-        </div>
-        <div class="col col-lg-12 hidden">
-         {% trans 'Notice that you must pay until' %}
-        </div>
-        {% localtime on %}
-        <div class="col col-lg-12 hidden" id="pay_until_notice">
-            <p><strong>{{pay_until |date:"H:iA (e)"}}</strong></p>
-        </div>
-        {% endlocaltime %}
     </div><!-- /pannel-body -->
 </div><!-- /pannel -->
 
