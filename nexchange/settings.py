@@ -194,7 +194,7 @@ WSGI_APPLICATION = 'nexchange.wsgi.application'
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 # defined by env specific configuration
 user = os.getenv('POSTGIS_ENV_POSTGRES_USER', 'postgres')
-password = os.getenv('POSTGIS_ENV_POSTGRES_PASSWORD', '')
+password = os.getenv('POSTGIS_ENV_POSTGRES_PASSWORD', 'ihar')
 host = os.getenv('POSTGIS_PORT_5432_TCP_ADDR', '')
 port = os.getenv('POSTGIS_PORT_5432_TCP_PORT', '')
 db = os.getenv('POSTGIS_ENV_POSTGRES_DB', 'nexchange')
