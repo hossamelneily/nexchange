@@ -10,11 +10,9 @@
     {% include 'core/partials/modals/card.html' with card_type='PayPal' label='Mastercard' icon='icons/small/mastercard.png' card=cards.paypal %}
 
 </div>
-{% endif %}
+
 
 <div class="row {{ type }} row_type">
-   
-{% comment %}
 
     <div class="payment_title">
         {% trans 'Wallets' %}
@@ -38,11 +36,8 @@
         {% include 'core/partials/modals/card.html' with card_type='Card 2 Card' label='Card 2 Card' icon='icons/small/c2c.ico' %}
     {% endif %}
     {% include 'core/partials/modals/card.html' with card_type='Cash' label='Cash' icon='icons/small/cash.png' card=cards.alfa %}
-    
-{% endcomment %}
-
-    
-        <h3>{% trans 'This section is under development' %}</h3>
-    
-    
+   
 </div>
+{% elif type == 'sell' %}    
+        <h3>{% trans 'This section is under development' %}</h3>
+{% endif %}
