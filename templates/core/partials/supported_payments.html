@@ -2,7 +2,7 @@
 {% load i18n %}
 <div class="supported-payments col-lg-12 col-md-12 col-sm-12 col-xs-12 greypanel">
     <div class="supporetd_payment">
-    {% with "WebMoney.ru AlfaBank.ru Sberbank.ru Qiwi.ru VTB24.ru Skrill.com" as banks_name %}
+    {% with "WebMoney.ru Visa.com Mastercard.com Qiwi.ru PayPal.com Skrill.com" as banks_name %}
         {%  for idx in banks_name.split %}
         <div class="footerpay col-xs-4 col-sm-2">
             {% with 'images/footer-logo'|add:idx|add:'.png' as bank_img %}
