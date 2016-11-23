@@ -6,6 +6,26 @@
 	font-style: normal;
 }
 
+.modal-header {
+    border-bottom: 0;
+}
+
+#UserAccountModal .modal-body,
+#PayMethModal .modal-body{
+    padding-left: 0;
+}
+
+#UserAccountModal .modal-footer,
+#PayMethModal .modal-footer{
+    margin: 0 25px;
+    padding-right: 0;
+    border-color: black;
+}
+
+.modal.fade.in .modal-footer {
+    border: 0;
+}
+
 .cms_text{
     clear: both;
     margin: 30px;
@@ -18,6 +38,10 @@
 .cms_body{
     padding-top: 20px;
     padding-bottom: 50px;
+}
+
+.fa-bar-chart {
+    margin-left: -2px;
 }
 
 /*.step_panel .step_panel_box .btn-info,*/
@@ -85,10 +109,6 @@
 }
 .modal_head{
     padding-top: 30px;
-}
-
-.modal-body {
-    padding-left: 0;
 }
 
 .row_type{
@@ -206,6 +226,9 @@
      background-color: rgb(217,149,148);
 }
 
+.step-confirm.panel {
+    margin-bottom: 0;
+}
 
 .hide-body{
 
@@ -520,7 +543,7 @@ body .price_box_ticker .trigger-sell, body .price_box_next_cont .sell-go{
 
 .price_box_next:hover{background-color:#000; color:#FFF;}
 
-.greypanel{background-color:#f4f5f5; padding:30px 0; margin-top: 20px;}
+.greypanel{background-color:#f4f5f5; padding:30px 0; margin-top: 40px;}
 
 .greypanel img{width:100%; padding:10px 5px;}
 
@@ -529,6 +552,18 @@ body .price_box_ticker .trigger-sell, body .price_box_next_cont .sell-go{
     color:#CCC;
     font-size:14px;
     padding:30px 0 50px 0;
+}
+
+.wrapper {
+  display: table;
+  height: 100%;
+  margin: 0 auto;
+ }
+ 
+.content {
+  display: table-row;
+  height: 100%;
+  
 }
 
 .footer_logo{width:100%; max-width:250px;}
@@ -695,7 +730,22 @@ vertical design
 
 
 @media screen and (max-width:480px)  { }
-@media screen and (max-width:400px)  { }
+@media screen and (max-width:400px)  {
+    .process-step .btn-circle {
+        width: 65px;
+        height: 64px;
+    }
+    .step-icon-container {
+        width: 55px;
+        height: 56px;
+    }
+    .fa-bar-chart {
+        margin-left: -5px;
+    }
+    .step_panel_box {
+        padding-top: 0;
+    }
+}
 @media screen and (min-width: 768px)
 {
     .price_box_next_cont { margin: 25px 0; }
@@ -759,8 +809,8 @@ vertical design
 
 
 span.btn {
-    font-size: 30px;
-    margin-bottom: 20px;
+    font-size: 20px;
+    margin: 20px 0;
 }
 
 #verification_code {
@@ -899,4 +949,61 @@ html body .modal-content {
     vertical-align: middle;
     max-height: 50px;
     display: inline-block;
+}
+
+.form-group {
+	margin-bottom: 25px;
+}
+
+.p-list {
+	padding-top: 20px;
+}
+
+.success-line {
+}
+
+.success-icon-container {
+    background-color: #97CB53;
+    display: block;
+    border-radius: 50%;
+    width: 63px;
+    height: 60px;
+    text-align: center;
+    margin: 20px auto 0 auto;
+}
+.success-icon-container .helper {
+    height: 100%;
+    display: inline-block;
+    vertical-align: middle;
+}
+.success-icon-container .fa {
+    color: #FFFFFF;
+    vertical-align: middle;
+}
+
+.line{
+    display:block;
+    margin: 25px
+}
+.line h2{
+    font-size:30px;
+    text-align:center;
+    border-bottom:1px solid black;
+    position:relative;
+}
+.line h2 span {
+    background-color: white;
+    position: relative;
+    top: 15px;
+    padding: 0 10px;
+}
+
+.successOrder  .panel-success {
+    border: 0;
+}
+
+.withdraw_notice {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: left;
 }

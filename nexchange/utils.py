@@ -4,6 +4,7 @@ from uphold import Uphold
 from requests import get
 from django.core.mail import send_mail
 from django.conf import settings
+import sys, traceback
 
 
 api = Uphold(settings.UPHOLD_IS_TEST)
@@ -40,8 +41,9 @@ def release_payment(withdraw, amount, type_='BTC'):
         api.execute_txn(settings.UPHOLD_CARD_ID, txn_id)
         return txn_id
     except Exception as e:
-        print(str(e))
-        return
+        print('error {}'.format(e))
+        ex_type, ex, tb = sys.exc_info()
+        traceback.print_tb(tb)
 
 
 def check_transaction(txt_id):

@@ -7,9 +7,28 @@
           {% if order.payment_preference.payment_method.name != 'Robokassa' %}
             <button type="button" class="close" data-dismiss="modal">×</button>
           {% endif %}
-          <h4 class="modal-title">{% trans 'Success' %}!</h4>
         </div>
         <div class="modal-body successOrder">
+            <div class="success-container">
+                <div class="row">
+                    <div class="success-line col-xs-12">
+                        <span class="line">
+                            <h2>
+                                <span>{% trans 'Success' %}</span>
+                            </h2>
+                        </span>​
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <span class="success-icon-container">
+                            <span class="helper"></span>
+                            <span class="fa fa-3x fa-check"></span>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
             {% block modal_content %}
             {% endblock %}
         </div>

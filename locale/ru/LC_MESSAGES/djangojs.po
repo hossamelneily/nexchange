@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-18 16:12+0300\n"
-"PO-Revision-Date: 2016-11-18 16:26+0300\n"
+"POT-Creation-Date: 2016-11-23 04:05+0300\n"
+"PO-Revision-Date: 2016-11-23 04:30+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -20,25 +20,35 @@ msgstr ""
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 "X-Generator: Poedit 1.8.9\n"
 
-#: static/dist/js/bundle.js:189 static/js/add_orders.js:34
-#: static/js/main.js:188
+#: static/dist/js/bundle.js:197 static/js/add_orders.js:34
+#: static/js/main.js:196
 msgid "Invalid phone number"
 msgstr "Неверный номер телефона"
 
-#: static/dist/js/bundle.js:209 static/dist/js/bundle.js:410
-#: static/js/add_orders.js:54 static/js/main.js:208 static/js/main.js:409
+#: static/dist/js/bundle.js:217 static/dist/js/bundle.js:423
+#: static/js/add_orders.js:54 static/js/main.js:216 static/js/main.js:422
 #: static/js/profile.js:43
 msgid "The code you sent was incorrect. Please, try again."
 msgstr "Введенный код неправильный. Попробуйте еще раз."
 
-#: static/dist/js/bundle.js:214 static/dist/js/bundle.js:265
-#: static/dist/js/bundle.js:295 static/dist/js/bundle.js:415
-#: static/js/add_orders.js:59 static/js/add_orders.js:106
-#: static/js/add_orders.js:141 static/js/main.js:213 static/js/main.js:264
-#: static/js/main.js:294 static/js/main.js:414 static/js/profile.js:22
+#: static/dist/js/bundle.js:222 static/dist/js/bundle.js:272
+#: static/dist/js/bundle.js:301 static/dist/js/bundle.js:428
+#: static/js/add_orders.js:59 static/js/add_orders.js:103
+#: static/js/add_orders.js:138 static/js/main.js:221 static/js/main.js:271
+#: static/js/main.js:300 static/js/main.js:427 static/js/profile.js:22
 #: static/js/profile.js:51
 msgid "Something went wrong. Please, try again."
 msgstr "Что-то пошло не так. Попробуйте еще раз."
+
+#: static/dist/js/bundle.js:259 static/js/add_orders.js:93
+#: static/js/main.js:258
+msgid "Buy order placed successfully"
+msgstr "Заказ на покупку размещен"
+
+#: static/dist/js/bundle.js:263 static/js/add_orders.js:97
+#: static/js/main.js:262
+msgid "Sell order placed successfully"
+msgstr "Заказ на продажу размещен"
 
 #: static/js/profile.js:15
 msgid ""
