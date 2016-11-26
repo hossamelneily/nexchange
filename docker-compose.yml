@@ -1,9 +1,8 @@
 version: '2'
 services:
-  redis:
-    image: redis:2.8.19
-    hostname: redis
-
+    redis:
+      image: redis:2.8.19
+      hostname: redis
     postgis:
         image: mdillon/postgis
         environment:
