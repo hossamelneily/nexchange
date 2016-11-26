@@ -1,5 +1,9 @@
 version: '2'
 services:
+  redis:
+    image: redis:2.8.19
+    hostname: redis
+
     postgis:
         image: mdillon/postgis
         environment:
@@ -16,6 +20,7 @@ services:
             - /nexchange/staticfiles:/usr/share/nginx/html/static
         links:
             - postgis
+            - redis
         restart: always
     web:
         image: onitsoft/nginx

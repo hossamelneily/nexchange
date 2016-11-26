@@ -125,8 +125,8 @@ CMSPAGES = {
                   ('trading_guide', _('Trading Guide'))]
 }
 
-REDIS_ADDR = os.getenv('REDIS_PORT_6379_TCP_ADDR')
-REDIS_PORT = os.getenv('REDIS_PORT_6379_TCP_PORT')
+REDIS_ADDR = os.getenv('REDIS_PORT_6379_TCP_ADDR', 'redis')
+REDIS_PORT = os.getenv('REDIS_PORT_6379_TCP_PORT', '6379')
 REDIS_URL = 'redis://{}:{}/1'.format(REDIS_ADDR, REDIS_PORT)
 CELERY_BROKER_URL = REDIS_URL
 
