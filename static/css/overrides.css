@@ -1002,3 +1002,8 @@ html body .modal-content {
     font-weight: bold;
     text-align: left;
 }
+
+tr th, tr td {
+    margin: auto;
+    text-align: center;
+}

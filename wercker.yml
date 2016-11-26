@@ -253,6 +253,9 @@ build:
 
           # Start celery stuff
           adduser --disabled-password --gecos '' celery_user
+          touch /var/log/celeryd.log
+          touch /var/log/celery-beat.log
+          chown celery_user /var/log/celery*
           celery worker -A nexchange --uid=celery_user -l info -f /var/log/celeryd.log &
           celery beat -A nexchange -l info -f /var/log/celery-beat.log &
 
