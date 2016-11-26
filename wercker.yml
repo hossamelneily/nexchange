@@ -250,8 +250,8 @@ build:
 
           # Start celery stuff
           adduser --disabled-password --gecos '' celery_user
-          celery worker -A nexchange --uid=celery_user -l info &
-          celery beat -A nexchange -l info &
+          celery worker -A nexchange --uid=celery_user -l info -f /var/log/celeryd.log &
+          celery beat -A nexchange -l info -f /var/log/celery-beat.log &
 
           echo "Gunicorn start"
           exec newrelic-admin run-program gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --log-file=/var/log/gunicorn_error.log --access-logfile=/var/log/gunicorn_access.log nexchange.wsgi:application "$@"
