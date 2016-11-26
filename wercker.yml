@@ -136,6 +136,9 @@ build:
        POSTGRES_USER: ${POSTGIS_ENV_POSTGRES_USER}
        POSTGRES_PASSWORD: ${POSTGIS_ENV_POSTGRES_PASSWORD}
        POSTGRES_DB: ${POSTGIS_ENV_POSTGRES_DB}
+   - name: redis
+     id: redis
+     cmd: redis-server
   steps:
     - install-packages:
       packages: netcat
