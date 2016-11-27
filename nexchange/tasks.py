@@ -79,6 +79,8 @@ def checker_transactions():
         if check_transaction(tr.tx_id):
             tr.is_completed = True
             tr.save()
+            order.is_completed = True
+            order.save()
 
             msg = _("Your order {}:  is released"). \
                 format(tr.order.o.unique_reference)

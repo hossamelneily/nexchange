@@ -49,7 +49,11 @@ def release_payment(withdraw, amount, type_='BTC'):
 def check_transaction(txt_id):
     if not txt_id:
         return False
-    btc_blockr = 'http://btc.blockr.io/api/v1/tx/info/{}'.format(str(txt_id))
+    network = 'btc'
+    if settings.DEBUG:
+        network = 'tbtc'
+    btc_blockr = 'http://{}.blockr.io/api/v1/tx/info/{}'.\
+        format(network, str(txt_id))
     info = get(btc_blockr)
     if info.status_code != 200:
         return False
