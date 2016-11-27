@@ -51,6 +51,7 @@ def main(request):
     return HttpResponse(template.render({'messages': _messages}, request))
 
 
+@login_required()
 def index_order(request):
     form_class = DateSearchForm
     model = Order
