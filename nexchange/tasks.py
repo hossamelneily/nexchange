@@ -6,7 +6,8 @@ from core.models import Order, Transaction, Address
 from payments.models import Payment
 from django.utils.translation import ugettext_lazy as _
 from nexchange.utils import send_sms, send_email,\
-    release_payment, check_transaction_uphold
+    release_payment, check_transaction_uphold, \
+    check_transaction_blockchain
 from django.conf import settings
 
 logging.basicConfig(filename='payment_release.log', level=logging.INFO)
@@ -82,7 +83,8 @@ def checker_transactions():
         profile = order.user.profile
         if settings.DEBUG:
             print("Look-up transaction with txid api {} ".format(tr.tx_id_api))
-        if check_transaction_uphold(tr):
+        if check_transaction_uphold(tr) and \
+                check_transaction_blockchain(tr):
             tr.is_completed = True
             tr.save()
             order.is_completed = True
