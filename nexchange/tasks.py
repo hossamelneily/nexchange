@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-
+from django.db.models import Q
 from celery import shared_task
 import logging
 from core.models import Order, Transaction, Address
@@ -27,8 +27,8 @@ def payment_release():
             print("Look order {} ".format(o.unique_reference))
         p = Payment.objects.filter(user=user,
                                    amount_cash=o.amount_cash,
-                                   payment_preference__payment_method=
-                                   o.payment_preference.payment_method,
+                                   payment_preference__payment_method=o.
+                                   payment_preference.payment_method,
                                    is_redeemed=False,
                                    currency=o.currency).first()
 
@@ -78,17 +78,21 @@ def payment_release():
 
 @shared_task
 def checker_transactions():
-    for tr in Transaction.objects.filter(is_completed=False):
+    for tr in Transaction.objects.\
+            filter(Q(is_completed=False) | Q(is_verefied=False)):
         order = tr.order
         profile = order.user.profile
         if settings.DEBUG:
             print("Look-up transaction with txid api {} ".format(tr.tx_id_api))
-        if check_transaction_uphold(tr) and \
-                check_transaction_blockchain(tr):
+        if check_transaction_uphold(tr):
             tr.is_completed = True
             tr.save()
             order.is_completed = True
             order.save()
+
+        if check_transaction_blockchain(tr):
+            tr.is_verified = True
+            tr.save()
 
             msg = _("Your order {}:  is released"). \
                 format(tr.order.o.unique_reference)

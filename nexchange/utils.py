@@ -4,7 +4,8 @@ from uphold import Uphold
 from requests import get
 from django.core.mail import send_mail
 from django.conf import settings
-import sys, traceback
+import sys
+import traceback
 
 
 api = Uphold(settings.UPHOLD_IS_TEST)
@@ -49,7 +50,7 @@ def release_payment(withdraw, amount, type_='BTC'):
 
 
 def check_transaction_blockchain(tx):
-    if not tx:
+    if not tx or not tx.tx_id:
         return False
     network = 'btc'
     if settings.DEBUG:

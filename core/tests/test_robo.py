@@ -1,7 +1,7 @@
 from payments.models import Payment, PaymentMethod, PaymentPreference
 from core.models import Order, Address, Transaction
 from .utils import UserBaseTestCase, OrderBaseTestCase
-from nexchange.utils import release_payment, check_transaction
+from nexchange.utils import release_payment
 from decimal import Decimal
 from unittest import skip
 
@@ -122,9 +122,3 @@ class PaymentReleaseTestCase(UserBaseTestCase, OrderBaseTestCase):
 
             self.assertTrue(o.is_released)
             self.assertTrue(p.is_complete)
-
-    def checker_transactions(self):
-        if check_transaction(self.transaction.tx_id):
-            self.transaction.is_completed = True
-            self.transaction.save()
-        self.assertTrue(self.transaction.is_completed)
