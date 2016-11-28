@@ -339,7 +339,7 @@ h1 ,h2 ,h3 ,h4 ,h5 ,h6
 
 
 
-.navbar{border:0px solid transparent !important; padding:0 !important; }
+.navbar{border:0 solid transparent !important; padding:0 !important; }
 
 
 .menupanel{text-align:left; float:left;margin:10px 0 0 0; }
@@ -1000,4 +1000,19 @@ html body .modal-content {
 tr th, tr td {
     margin: auto;
     text-align: center;
+}
+
+body #nprogress .bar {
+  background: #97CB53;
+  height: 3px;
+}
+
+body #nprogress .peg {
+    height: 100%;
+    box-shadow: 0 0 10px #97CB53, 0 0 5px #97CB53;
+}
+
+body #nprogress .spinner-icon {
+  border-top-color: #97CB53;
+  border-left-color: #97CB53;
 }

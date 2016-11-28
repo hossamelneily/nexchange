@@ -284,6 +284,10 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         self.amount_cash = money_format(self.amount_cash)
 
     @property
+    def is_buy(self):
+        return self.order_type
+
+    @property
     def payment_deadline(self):
         """returns datetime of payment_deadline (creation + payment_window)"""
         # TODO: Use this for pay until message on 'order success' screen

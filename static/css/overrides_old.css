@@ -342,10 +342,6 @@ body #card-form .pay-row {
     margin: 10px auto;
 }
 
-.successOrder .btn.btn-success {
-    width: 350px;
-}
-
 .successOrder .qrContainer {
     width: 350px;
     margin: auto;
@@ -370,4 +366,3 @@ button.close {
 .footer {
     bottom: 0;
 }
-

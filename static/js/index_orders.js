@@ -4,7 +4,9 @@
     $(document).ready(function() {
 
         function withdraw_address_error(msg) {
-            $(".withdraw_address_err:visible").html(msg);
+            if (msg && msg.length) {
+                toastr.error(msg);
+            }
         }
 
 
@@ -35,7 +37,7 @@
             $(".closepopover").click(close_popover);
 
             // Buttons to toggle between select/add address
-            $(".toggle_widthdraw_address_form").click(toggle_forms);
+            $(".toggle_withdraw_address_form").click(toggle_forms);
 
             // Copy options from the template object
             // (it may have changed duo to new addresses beend added)
@@ -54,7 +56,6 @@
              */
             form_update.submit(function(event) {
                 event.preventDefault();
-                withdraw_address_error(''); // clean up
 
                 var selected = select_addresses.find("option:selected").first();
                 if (selected.val() === "") {
@@ -63,6 +64,7 @@
                 }
 
                 btnSetAddress.button('loading');
+                btnSetAddress.toggleClass('disabled');
 
                 $.post( span.data('url-update'), {'value': selected.val()}, function( data ) {
                     if (data.status === 'OK') {
@@ -73,6 +75,8 @@
                     }
 
                     btnSetAddress.button('reset');
+                    btnSetAddress.toggleClass('disabled');
+
                 }).fail(function(jqXHR){
                     if (jqXHR.status == 403) {
                         withdraw_address_error(jqXHR.responseText);

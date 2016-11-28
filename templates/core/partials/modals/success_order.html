@@ -35,16 +35,16 @@
         <div class="modal-footer">
             {% if order.payment_preference.payment_method.name == 'Robokassa' %}
                 <a href="{{ url }}"
-                   class="btn btn-default"
+                   class="btn btn-success"
                    data-controls-modal="your_div_id"
                    data-backdrop="static"
                    data-keyboard="false">
                     {% trans 'Go to Robokassa' %}
                 </a>
             {% elif order.payment_preference.payment_method.name == 'PayPal' %}
-                <button id="send-payment-button" class="btn btn-default hidden"> {% trans 'Send payment' %} </button>
+                <button id="send-payment-button" class="btn btn-success hidden"> {% trans 'Send payment' %} </button>
             {% else %}
-                <a href="{% url 'core.order' %}?oid={{ order.pk }}" class="btn btn-default">{% trans 'Get your bitcoins' %}</a>
+                <a href="{% url 'core.order' %}?oid={{ order.pk }}" class="btn btn-success">{% trans 'Get your bitcoins' %}</a>
             {% endif %}
         </div>
       </div>

@@ -1,0 +1,25 @@
+{% load i18n %}
+<div class="pagination">
+    <span class="step-links">
+        {% if orders.has_previous %}
+            <a href="?page={{ orders.previous_page_number }}">{% trans "previous" %}</a>
+        {% endif %}
+
+        <span class="current">
+            {% trans "Page" %}
+            {{ orders.number }}
+            {% trans "of" %} {{ orders.paginator.num_pages }}
+        </span>
+
+        {% if orders.has_next %}
+            <a href="?page={{ orders.next_page_number }}">{% trans "next" %}</a>
+        {% endif %}
+    </span>
+</div>
+<div class="orders_toggle">
+    {% if old_orders_visible %}
+        <a href="#" class="hide_old">{% trans "Hide expired and released" %}</a>
+    {% else%}
+        <a href="#" class="show_old">{% trans "Show expired and released" %}</a>
+    {% endif %}
+</div>

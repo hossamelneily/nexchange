@@ -104,7 +104,13 @@
     <script src="{% static 'bower_components/moment/moment.js' %}"></script>
     <script src="{% static 'bower_components/moment-timezone/builds/moment-timezone-with-data.min.js' %}"></script>
     <script src="{% static 'bower_components/js-cookie/src/js.cookie.js' %}"></script>
-    {% include 'session_security/all.html' %}
+    {#        TODO: convert to AMD #}
+    <script src="{% static 'js/index_orders.js' %}"></script>
+    <link href="{% static 'bower_components/bootstrap-toggle/css/bootstrap-toggle.min.css' %}" rel="stylesheet">
+    <script src="{% static 'bower_components/bootstrap-toggle/js/bootstrap-toggle.min.js' %}"></script>
+   <script src="{% static 'bower_components/nprogress/nprogress.js' %}"></script>
+   <link rel="stylesheet" href="{% static 'bower_components/nprogress/nprogress.css' %}">
+   {% include 'session_security/all.html' %}
     <script>
         $( document ).ready(function() {
           Cookies.set("USER_TZ", moment.tz.guess());

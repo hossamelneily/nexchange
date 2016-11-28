@@ -1,8 +1,19 @@
 !(function (window, $) {
       'use strict';
 
-       var  currency = 'rub',
-            minAmount = '0.01',
+
+    $(document).ajaxStart(function () {
+        console.log('Request Initiated');
+        NProgress.start();
+    });
+    $(document).ajaxComplete(function () {
+        console.log('Request Complete');
+        setTimeout(function () {
+                    NProgress.done();
+        }, 500);
+    });
+
+       var  currency,
             paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
             paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
             cardsEndpoint = '/en/api/v1/cards',
@@ -23,6 +34,7 @@
         window.action = window.ACTION_BUY; // 1 - BUY 0 - SELL
 
     $(function () {
+            currency = $('.currency-from').val().toLowerCase();
             orderObject.setCurrency(false, currency);
             orderObject.reloadCardsPerCurrency(currency, cardsEndpoint);
 
@@ -148,6 +160,12 @@
         });
 
     $(function() {
+        // For order index
+        $(function () {
+            $('[data-toggle="popover"]').popover({content: $("#popover-template").html()});
+            $( "#id_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
+         });
+
         // TODO: get api root via DI
         $('#payment_method_id').val('');
         $('#user_address_id').val('');
@@ -227,6 +245,13 @@
 
         });
 
+        $(document).on('shown.bs.modal', '#orderSuccessModal', function () {
+            $(document).one("click", "#send-payment-button" ,function (e) {
+                $(this).button('loading');
+                $(this).toggleClass('disabled');
+                $('#submitbraintreeform').click();
+            });
+        });
 
         $('.place-order').on('click', function () {
             //TODO verify if $(this).hasClass('sell-go') add

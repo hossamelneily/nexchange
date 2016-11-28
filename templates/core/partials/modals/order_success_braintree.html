@@ -72,7 +72,6 @@
 
 <script>
     $(document).ready(function() {
-        console.log('{{ clienttoken }}');
         var clienttoken = '{{ clienttoken  }} ';
         braintree.setup(clienttoken,
                         "dropin",
@@ -126,7 +125,8 @@
                                   $.ajaxSetup({ beforeSend: function(xhr, settings) {
                                       xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}"); }
                                   });
-                                  $.ajax({url:url,
+                                  $.ajax({
+                                      url:url,
                                       async: false,
                                       type:'POST',
                                       data:JSON.stringify(formData),
@@ -138,14 +138,15 @@
                                               toastr.error(error_text);
                                           }
                                           else{
-                                              alert('Payment success.');
                                               window.location.replace("{% url 'core.order' %}?id={{ order.unique_reference }}");
                                           }
                                       },
                                       error:  function(res) {
                                           console.log("RES:", res);
-                                          alert('Error send payment.');
                                       }
+                                  }).done(function(data) {
+                                      $('#send-payment-button').button('reset');
+                                      $('#send-payment-button').toggleClass('disabled');
                                   });
                               }
                               else{
@@ -154,10 +155,6 @@
                               return false;
                           }
                         });
-    });
-
-    $(document).on("click", "#send-payment-button" ,function (e) {
-        $('#submitbraintreeform').click();
     });
 
 </script>

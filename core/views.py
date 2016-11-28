@@ -60,7 +60,7 @@ def index_order(request):
     form = form_class(request.POST or None)
     kwargs = {}
     if request.user.is_authenticated():
-        kwargs = {"user": request.user}
+        kwargs["user"] = request.user
 
     kwargs["is_failed"] = 0
 
@@ -68,14 +68,13 @@ def index_order(request):
         my_date = form.cleaned_data['date']
         if my_date:
             kwargs["created_on__date"] = my_date
-            order_list = model.objects.filter(**kwargs)
-        else:
-            order_list = model.objects.filter(**kwargs)
-    else:
-        order_list = model.objects.filter(**kwargs)
 
+    order_list = model.objects.filter(**kwargs)
+    order_list = [o for o in order_list
+                  if not o.expired and not o.is_completed]
     paginator = Paginator(order_list, paginate_by)
     page = request.GET.get('page')
+
 
     try:
         orders = paginator.page(page)
@@ -271,8 +270,10 @@ def add_order(request):
     else:
         pass
     crypto_pairs = [{'code': 'BTC'}]
+    local_currency = 'RUB' if translation.get_language() == 'ru' else 'EUR'
     currencies = Currency.objects.filter().exclude(code='BTC')
-    currencies = sorted(currencies, key=lambda x: x.code != 'RUB')
+    currencies = sorted(currencies,
+                        key=lambda x: x.code != local_currency)
 
     # TODO: this code is utestable shit, move to template
     select_currency_from = """<select name="currency_from"
