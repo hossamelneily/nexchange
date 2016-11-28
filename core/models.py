@@ -141,7 +141,8 @@ class Address(BtcBase, SoftDeletableModel):
 class Transaction(BtcBase):
     # null if withdraw from our balance on Kraken
     confirmations = models.IntegerField(default=0)
-    tx_id = models.CharField(max_length=55, default=None, null=True)
+    tx_id = models.CharField(max_length=65, default=None, null=True)
+    tx_id_api = models.CharField(max_length=55, default=None, null=True)
     address_from = models.ForeignKey(
         'core.Address',
         related_name='address_from',

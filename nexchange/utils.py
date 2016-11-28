@@ -38,7 +38,9 @@ def release_payment(withdraw, amount, type_='BTC'):
     try:
         txn_id = api.prepare_txn(settings.UPHOLD_CARD_ID,
                                  withdraw, amount, type_)
-        api.execute_txn(settings.UPHOLD_CARD_ID, txn_id)
+        print(txn_id)
+        res = api.execute_txn(settings.UPHOLD_CARD_ID, txn_id)
+        print(res)
         return txn_id
     except Exception as e:
         print('error {}'.format(e))
@@ -46,14 +48,14 @@ def release_payment(withdraw, amount, type_='BTC'):
         traceback.print_tb(tb)
 
 
-def check_transaction(txt_id):
-    if not txt_id:
+def check_transaction_blockchain(tx_id):
+    if not tx_id:
         return False
     network = 'btc'
     if settings.DEBUG:
         network = 'tbtc'
     btc_blockr = 'http://{}.blockr.io/api/v1/tx/info/{}'.\
-        format(network, str(txt_id))
+        format(network, str(tx_id))
     info = get(btc_blockr)
     if info.status_code != 200:
         return False
@@ -62,3 +64,16 @@ def check_transaction(txt_id):
         return True
     else:
         return False
+
+
+def check_transaction_uphold(tx):
+    if not tx:
+        return False
+
+    res = api.get_reserve_transaction(tx.tx_id_api)
+    if not tx.tx_id:
+        tx.tx_id = res.\
+            get('params', {}).\
+            get('txid')
+    print("status: {}".format(res.get('status')))
+    return res.get('status') == 'completed'

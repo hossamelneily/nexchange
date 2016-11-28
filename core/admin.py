@@ -1,6 +1,6 @@
 from django.contrib import admin
 from core.models import Currency, Profile, Order, SmsToken,\
-    Address, CmsPage, Balance
+    Address, CmsPage, Balance, Transaction
 from payments.models import PaymentMethod, PaymentPreference,\
     Payment, PaymentCredentials
 from djcelery.models import TaskMeta
@@ -22,4 +22,5 @@ admin.site.register(Address)
 admin.site.register(CmsPage)
 admin.site.register(PaymentCredentials)
 admin.site.register(Balance)
+admin.site.register(Transaction)
 admin.autodiscover()

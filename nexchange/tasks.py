@@ -6,7 +6,7 @@ from core.models import Order, Transaction, Address
 from payments.models import Payment
 from django.utils.translation import ugettext_lazy as _
 from nexchange.utils import send_sms, send_email,\
-    release_payment, check_transaction
+    release_payment, check_transaction_uphold
 from django.conf import settings
 
 logging.basicConfig(filename='payment_release.log', level=logging.INFO)
@@ -16,6 +16,10 @@ logging.basicConfig(filename='payment_release.log', level=logging.INFO)
 def payment_release():
     # TODO: iterate over payments instead, will be much faster
     for o in Order.objects.filter(is_paid=True, is_released=False):
+        if not o.has_withdraw_address:
+            print("{} has now withdrawal address, moving on".
+                  format(o.unique_reference))
+            continue
         user = o.user
         profile = user.profile
         if settings.DEBUG:
@@ -26,11 +30,11 @@ def payment_release():
                                    o.payment_preference.payment_method,
                                    is_redeemed=False,
                                    currency=o.currency).first()
-        p.is_complete = True
-        p.save()
 
         if p:
             print(o.withdraw_address)
+            p.is_complete = True
+            p.save()
             tx_id = release_payment(o.withdraw_address,
                                     o.amount_btc)
 
@@ -44,9 +48,18 @@ def payment_release():
             p.is_redeemed = True
             p.save()
 
-            # send sms depending on notification settings in profile
+            adr = Address.objects.get(
+                user=o.user, address=o.withdraw_address)
+
+            t = Transaction(tx_id_api=tx_id, order=o, address_to=adr)
+            t.save()
+
             msg = _("Your order {}:  is released").format(o.unique_reference)
-            print(msg)
+
+            if settings.DEBUG:
+                print(msg)
+
+            # send sms depending on notification settings in profile
             if profile.notify_by_phone:
                 phone_to = str(o.user.username)
                 sms_result = send_sms(msg, phone_to)
@@ -58,13 +71,6 @@ def payment_release():
                 email = send_email(user.email, 'title', msg)
                 email.send()
 
-            print(tx_id)
-            adr = Address.objects.get(
-                user=o.user, address=o.withdraw_address)
-
-            t = Transaction(tx_id=tx_id, order=o, address_to=adr)
-            t.save()
-
         elif settings.DEBUG:
             print('payment not found')
 
@@ -73,10 +79,10 @@ def payment_release():
 def checker_transactions():
     for tr in Transaction.objects.filter(is_completed=False):
         order = tr.order
-        profile = order.user.profie
+        profile = order.user.profile
         if settings.DEBUG:
-            print("Look-up transaction with pk {} ".format(tr.tx_id))
-        if check_transaction(tr.tx_id):
+            print("Look-up transaction with txid api {} ".format(tr.tx_id_api))
+        if check_transaction_uphold(tr):
             tr.is_completed = True
             tr.save()
             order.is_completed = True
