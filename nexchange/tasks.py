@@ -79,7 +79,7 @@ def payment_release():
 @shared_task
 def checker_transactions():
     for tr in Transaction.objects.\
-            filter(Q(is_completed=False) | Q(is_verefied=False)):
+            filter(Q(is_completed=False) | Q(is_verified=False)):
         order = tr.order
         profile = order.user.profile
         if settings.DEBUG:
