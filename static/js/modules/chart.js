@@ -66,7 +66,7 @@
                                         var _lastadata = lastdata[0];
                                         if (_lastadata[1] > _lastadata[2])
                                         {
-                                            var a= _lastadata[1];
+                                            var a = _lastadata[1];
                                             _lastadata[1] = _lastadata[2];
                                             _lastadata[2] = a;
                                         }

@@ -5,12 +5,19 @@
      var chartObject = require("./chart.js"),
          registerObject = require("./register.js"),
          googleObject = require('./captcha.js'),
-         animationDelay = 3000;
+         animationDelay = 3000,
+         minOrderCoin = 0.01;
 
+
+    function orderSmallerThanMin (amountCoin) {
+        var val = parseFloat(amountCoin.val());
+        return val < minOrderCoin;
+    }
 
     function updateOrder (elem, isInitial, currency, cb) {
         var val,
             rate,
+            msg,
             amountCoin = $('.amount-coin'),
             amountCashConfirm = 0,
                 floor = 100000000;
@@ -21,6 +28,14 @@
         if (!val) {
             return;
         }
+
+       if(orderSmallerThanMin(amountCoin)) {
+            val = minOrderCoin;
+            elem = amountCoin;
+
+           msg = gettext('Minimal order amount is ') + minOrderCoin + ' BTC';
+           toastr.error(msg);
+       }
 
         $.get(chartObject.tickerLatestUrl, function(data) {
             // TODO: protect against NaN

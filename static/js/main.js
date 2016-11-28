@@ -2,13 +2,14 @@
       'use strict';
 
        var  currency = 'rub',
-        paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
-        paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
-        cardsEndpoint = '/en/api/v1/cards',
-        // Required modules
-        orderObject = require('./modules/orders.js'),
-        paymentObject = require('./modules/payment.js'),
-        captcha = require('./modules/captcha.js'),
+            minAmount = '0.01',
+            paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
+            paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
+            cardsEndpoint = '/en/api/v1/cards',
+            // Required modules
+            orderObject = require('./modules/orders.js'),
+            paymentObject = require('./modules/payment.js'),
+            captcha = require('./modules/captcha.js'),
 
         paymentType = '',
         actualPaymentType = '',
@@ -87,6 +88,7 @@
 
             $('.amount').on('keyup', function () {
                 // Protection against non-integers
+                // TODO: export outside
                 var val = this.value,
                     lastChar = val.slice(-1),
                     prevVal = val.substr(0, val.length-1);

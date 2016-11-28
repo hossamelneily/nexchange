@@ -3,13 +3,14 @@
       'use strict';
 
        var  currency = 'rub',
-        paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
-        paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
-        cardsEndpoint = '/en/api/v1/cards',
-        // Required modules
-        orderObject = require('./modules/orders.js'),
-        paymentObject = require('./modules/payment.js'),
-        captcha = require('./modules/captcha.js'),
+            minAmount = '0.01',
+            paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
+            paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
+            cardsEndpoint = '/en/api/v1/cards',
+            // Required modules
+            orderObject = require('./modules/orders.js'),
+            paymentObject = require('./modules/payment.js'),
+            captcha = require('./modules/captcha.js'),
 
         paymentType = '',
         actualPaymentType = '',
@@ -88,6 +89,7 @@
 
             $('.amount').on('keyup', function () {
                 // Protection against non-integers
+                // TODO: export outside
                 var val = this.value,
                     lastChar = val.slice(-1),
                     prevVal = val.substr(0, val.length-1);
@@ -547,7 +549,7 @@ module.exports = {
                                         var _lastadata = lastdata[0];
                                         if (_lastadata[1] > _lastadata[2])
                                         {
-                                            var a= _lastadata[1];
+                                            var a = _lastadata[1];
                                             _lastadata[1] = _lastadata[2];
                                             _lastadata[2] = a;
                                         }
@@ -617,12 +619,19 @@ module.exports = {
      var chartObject = require("./chart.js"),
          registerObject = require("./register.js"),
          googleObject = require('./captcha.js'),
-         animationDelay = 3000;
+         animationDelay = 3000,
+         minOrderCoin = 0.01;
 
+
+    function orderSmallerThanMin (amountCoin) {
+        var val = parseFloat(amountCoin.val());
+        return val < minOrderCoin;
+    }
 
     function updateOrder (elem, isInitial, currency, cb) {
         var val,
             rate,
+            msg,
             amountCoin = $('.amount-coin'),
             amountCashConfirm = 0,
                 floor = 100000000;
@@ -633,6 +642,14 @@ module.exports = {
         if (!val) {
             return;
         }
+
+       if(orderSmallerThanMin(amountCoin)) {
+            val = minOrderCoin;
+            elem = amountCoin;
+
+           msg = gettext('Minimal order amount is ') + minOrderCoin + ' BTC';
+           toastr.error(msg);
+       }
 
         $.get(chartObject.tickerLatestUrl, function(data) {
             // TODO: protect against NaN
