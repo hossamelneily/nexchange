@@ -293,12 +293,10 @@ class OrderIndexOrderTestCase(UserBaseTestCase, OrderBaseTestCase):
     def setUp(self):
         super(OrderIndexOrderTestCase, self).setUp()
 
-    def test_renders_empty_list_of_orders_for_anonymous(self):
+    def test_redirect_login_for_anonymous(self):
         self.client.logout()
-        with self.assertTemplateUsed('core/index_order.html'):
-            response = self.client.get(reverse('core.order'))
-            self.assertEqual(200, response.status_code)
-            self.assertEqual(0, len(response.context['orders'].object_list))
+        response = self.client.get(reverse('core.order'))
+        self.assertEqual(302, response.status_code)
 
         success = self.client.login(
             username=self.username, password=self.password)
