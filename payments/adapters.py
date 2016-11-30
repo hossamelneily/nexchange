@@ -1,4 +1,4 @@
-from .utils import check_signature_robo
+from payments.utils import check_signature_robo
 
 
 def unitpay_adapter(request):

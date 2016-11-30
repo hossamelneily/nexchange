@@ -14,19 +14,14 @@
         }, 500);
     });
 
-       var  currency,
-            paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
-            paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
-            cardsEndpoint = '/en/api/v1/cards',
-            // Required modules
-            orderObject = require('./modules/orders.js'),
-            paymentObject = require('./modules/payment.js'),
-            captcha = require('./modules/captcha.js'),
-
-        paymentType = '',
-        actualPaymentType = '',
-        preferenceIdentifier = '',
-        preferenceOwner = '';
+       var currency,
+           paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
+           paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
+           cardsEndpoint = '/en/api/v1/cards',
+           // Required modules
+           orderObject = require('./modules/orders.js'),
+           paymentObject = require('./modules/payment.js'),
+           captcha = require('./modules/captcha.js');
 
         $('.trade-type').val('1');
 
@@ -162,10 +157,8 @@
 
     $(function() {
         // For order index
-        $(function () {
-            $('[data-toggle="popover"]').popover({content: $("#popover-template").html()});
-            $( "#id_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
-         });
+        $('[data-toggle="popover"]').popover({content: $("#popover-template").html()});
+        $( "#id_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
 
         // TODO: get api root via DI
         $('#payment_method_id').val('');
@@ -246,96 +239,12 @@
 
         });
 
-        $(document).on('shown.bs.modal', '#orderSuccessModal', function () {
-            $(document).one("click", "#send-payment-button" ,function (e) {
-                $(this).button('loading');
-                $(this).toggleClass('disabled');
-                $('#submitbraintreeform').click();
-            });
-        });
 
-        $('.place-order').on('click', function () {
-            //TODO verify if $(this).hasClass('sell-go') add
-            // the other type of transaction
-            // add security checks
-            actualPaymentType = $('.payment-preference-actual').text() ;
-            preferenceIdentifier = $('.payment-preference-identifier-confirm').text();
-            preferenceOwner = $('.payment-preference-owner-confirm').text();
-            var verifyPayload = {
-                    'trade-type': $('.trade-type').val(),
-                    'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
-                    'amount-coin': $('.amount-coin').val() || DEFAULT_AMOUNT,
-                    'currency_from': $('.currency-from').val(), //fiat
-                    'currency_to': $('.currency-to').val(), //crypto
-                    'pp_type': actualPaymentType,
-                    'pp_identifier': preferenceIdentifier,
-                    'pp_owner': preferenceOwner,
-                    '_locale': $('.topright_selectbox').val()
-                };
-            
-            $.ajax({
-                type: 'post',
-                url: placerAjaxOrder,
-                dataType: 'text',
-                data: verifyPayload,
-                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-                success: function (data) {
-                    //if the transaction is Buy
-                      var message;
-                    if (window.action == window.ACTION_BUY){
-                        message = gettext('Buy order placed successfully');
-                    }
-                    //if the transaction is Sell
-                    else{
-                        message = gettext('Sell order placed successfully');
-
-                    }
-                    toastr.success(message);
-                    $('.successOrder').html($(data));
-                    $('#orderSuccessModal').modal({backdrop: 'static'});
-
-                },
-                error: function () {
-                	var message = gettext('Something went wrong. Please, try again.');
-                    toastr.error(message);
-                }
-            });
-
-        });
-
-      $('.make-payment').on('click', function () {
-            var verifyPayload = {
-                'order_id': $('.trade-type').val(),
-                'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
-                'amount-cash': $('.amount-cash').val(),
-                'currency_from': $('.currency-from').val(),
-            };
-
-            $.ajax({
-                type: 'post',
-                url: paymentAjax,
-                dataType: 'text',
-                data: verifyPayload,
-                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-                success: function (data) {
-                    $('.paymentMethodsHead').addClass('hidden');
-                    $('.paymentMethods').addClass('hidden');
-                    $('.paymentSuccess').removeClass('hidden').html($(data));
-                    $('.next-step').click();
-                   // loadPaymenMethods(paymentMethodsEndpoint);
-                },
-                error: function () {
-                	var message = gettext('Something went wrong. Please, try again.');
-                    toastr.error(message);
-                }
-            });
-
-        });
 
         $(document).on('click', '.buy .payment-type-trigger', function () {
 
-            paymentType = $(this).data('label');
-            actualPaymentType = $(this).data('type');
+            var paymentType = $(this).data('label'),
+            actualPaymentType = $(this).data('type'),
             preferenceIdentifier = $(this).data('identifier');
             $('.payment-preference-confirm').text(paymentType);
             $('.payment-preference-actual').text(actualPaymentType);
@@ -345,27 +254,10 @@
             orderObject.changeState(null, 'next');
         });
 
-        $(document).on('click', '.payment-type-trigger-footer', function () {
-            $('.supporetd_payment').addClass('hidden');
-            paymentType = $(this).data('type');
-            preferenceIdentifier = $(this).data('identifier');
-            $('.payment-preference-confirm').text(paymentType);
-            $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
-            // $('#PayMethModal').modal('toggle');
-            $('.payment-method').val(paymentType);
-            orderObject.changeState(null, 'next');
-            $('.footerpay').addClass('hidden');
-            $('.buy-go').removeClass('hidden');
-            $('.sell-go').addClass('hidden');
-            window.action = window.ACTION_BUY;
-            $('.next-step')
-                .removeClass('btn-info')
-                .removeClass('btn-danger')
-                .addClass('btn-success');
-        });
+        $(document).on('click', '.payment-type-trigger-footer', paymentNegotiation);
 
         $('.sell .payment-type-trigger').on('click', function () {
-            paymentType = $(this).data('type').toLocaleLowerCase();
+            var paymentType = $(this).data('type').toLocaleLowerCase();
             $('.payment-preference-confirm').text(paymentType);
             $('#UserAccountModal').modal('toggle');
             if (paymentType === 'c2c') {
@@ -413,7 +305,7 @@
 
             var form = $(this).closest('.modal-body');
 
-            preferenceIdentifier = form.find('.val').val();
+            var preferenceIdentifier = form.find('.val').val(),
             preferenceOwner = form.find('.name').val();
 
             $('.payment-preference-owner').val(preferenceOwner);
@@ -461,11 +353,6 @@
 
     window.submit_phone=submit_phone;
 } (window, window.jQuery)); //jshint ignore:line
-
-$(document).ready(function() {
-    $('.supporetd_payment').removeClass('hidden');
-
-});
 
 
    
@@ -906,6 +793,55 @@ module.exports = {
         });
     }
 
+    function placeOrder () {
+            //TODO verify if $(this).hasClass('sell-go') add
+            // the other type of transaction
+            // add security checks
+            var actualPaymentType = $('.payment-preference-actual').text(),
+            preferenceIdentifier = $('.payment-preference-identifier-confirm').text(),
+            preferenceOwner = $('.payment-preference-owner-confirm').text();
+
+            var verifyPayload = {
+                    'trade-type': $('.trade-type').val(),
+                    'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
+                    'amount-coin': $('.amount-coin').val() || DEFAULT_AMOUNT,
+                    'currency_from': $('.currency-from').val(), //fiat
+                    'currency_to': $('.currency-to').val(), //crypto
+                    'pp_type': actualPaymentType,
+                    'pp_identifier': preferenceIdentifier,
+                    'pp_owner': preferenceOwner,
+                    '_locale': $('.topright_selectbox').val()
+                };
+
+            $.ajax({
+                type: 'post',
+                url: placerAjaxOrder,
+                dataType: 'text',
+                data: verifyPayload,
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                success: function (data) {
+                    //if the transaction is Buy
+                      var message;
+                    if (window.action == window.ACTION_BUY){
+                        message = gettext('Buy order placed successfully');
+                    }
+                    //if the transaction is Sell
+                    else{
+                        message = gettext('Sell order placed successfully');
+
+                    }
+                    toastr.success(message);
+                    $('.successOrder').html($(data));
+                    $('#orderSuccessModal').modal({backdrop: 'static'});
+
+                },
+                error: function () {
+                	var message = gettext('Something went wrong. Please, try again.');
+                    toastr.error(message);
+                }
+            });
+    }
+
     module.exports = {
         updateOrder: updateOrder,
         updatePrice: updatePrice,
@@ -941,6 +877,27 @@ module.exports = {
         });
         $('.paymentMethodsAccount').removeClass('hidden');
     }
+
+    function paymentNegotiation () {
+
+            $('.supporetd_payment').addClass('hidden');
+            var elem = $(this),
+            paymentType = elem.data('type'),
+            preferenceIdentifier = elem.data('identifier');
+            $('.payment-preference-confirm').text(paymentType);
+            $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
+            // $('#PayMethModal').modal('toggle');
+            $('.payment-method').val(paymentType);
+            orderObject.changeState(null, 'next');
+            $('.footerpay').addClass('hidden');
+            $('.buy-go').removeClass('hidden');
+            $('.sell-go').addClass('hidden');
+            window.action = window.ACTION_BUY;
+            $('.next-step')
+                .removeClass('btn-info')
+                .removeClass('btn-danger')
+                .addClass('btn-success');
+        }
 
     module.exports =
     {

@@ -21,6 +21,7 @@ from core.forms import LoginForm
 from django.conf.urls import include
 from django.conf.urls.i18n import i18n_patterns
 from ticker.urls import ticker_api_patterns
+from payments.urls import payment_urls
 from referrals.urls import referrals_api_patterns, referral_urls
 from django.conf import settings
 from django.conf.urls.static import static
@@ -39,11 +40,7 @@ urlpatterns = i18n_patterns(
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^jsi18n/$', javascript_catalog, js_info_dict),
     url(r'^$', core.views.add_order, name='core.order_add'),
-    url(r'^info/$', core.views.main, name='main'),
     url(r'^orders/$', core.views.index_order, name='core.order'),
-    url(r'^orders/braintree$',
-        core.views.braintree_order,
-        name='core.braintree_order'),
     url(r'^order/ajax/$', core.views.ajax_order, name='core.ajax_order'),
     url(r'^order/update_withdraw_address/(?P<pk>[\d]+)/$',
         core.views.update_withdraw_address,
@@ -56,8 +53,7 @@ urlpatterns = i18n_patterns(
     url(r'^paymentmethods/account/ajax/$',
         core.views.payment_methods_account_ajax,
         name='core.payment_methods_account_ajax'),
-    url(r'^payment/ajax/$', core.views.payment_ajax,
-        name='core.payment_ajax'),
+    url(r'^payments/ajax/$', include(payment_urls)),
     url(r'^user/address/ajax/$', core.views.user_address_ajax,
         name='core.user_address_ajax'),
     url(r'^profile/add$', core.views.user_registration,

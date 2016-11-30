@@ -1,46 +1,38 @@
 # -*- coding: utf-8 -*-
 
-from django.shortcuts import render, redirect
+from datetime import timedelta
+from decimal import Decimal
+
+from django.conf import settings
 from django.contrib import messages
-from django.http import HttpResponse, HttpResponseForbidden
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
+from django.db import transaction
+from django.http import Http404
+from django.http import HttpResponse, HttpResponseForbidden
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
 from django.template.loader import get_template
+from django.utils import translation
+from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import View
+from twilio.exceptions import TwilioException
+from twilio.rest import TwilioRestClient
 
 from core.forms import DateSearchForm, CustomUserCreationForm,\
     UserForm, UserProfileForm, UpdateUserProfileForm, ReferralTokenForm
 from core.models import Order, Currency, SmsToken, Profile, Transaction,\
     Address, CmsPage
-
-from payments.models import Payment, PaymentMethod,\
-    PaymentPreference, PaymentCredentials
-from django.db import transaction
-from django.views.generic import View
-from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login
-from twilio.rest import TwilioRestClient
-from django.conf import settings
-from django.http import JsonResponse
-from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
-
-from django.utils.translation import ugettext_lazy as _
-from datetime import timedelta
-from django.views.decorators.csrf import csrf_exempt
-
-from twilio.exceptions import TwilioException
-from .adapters import robokassa_adapter, leupay_adapter, unitpay_adapter
-
-from .validators import validate_bc
-
-from .kraken_api import api
-from django.utils import translation
-from decimal import Decimal
-from core.utils import geturl_robokassa
-from django.http import Http404
 from payments.api_clients.braintree import BrainTreeAPI
-import json
+from payments.models import PaymentPreference
+from payments.utils import geturl_robokassa
+from .validators import validate_bc
 
 braintree_api = BrainTreeAPI()
 
@@ -75,7 +67,6 @@ def index_order(request):
     paginator = Paginator(order_list, paginate_by)
     page = request.GET.get('page')
 
-
     try:
         orders = paginator.page(page)
 
@@ -97,149 +88,6 @@ def index_order(request):
                                          'withdraw_addresses': addresses,
                                          },
                                         request))
-
-
-def braintree_order(request):
-    text_error = None
-    user = request.user
-    output_json = {}
-
-    try:
-        data = json.loads(request.body.decode('utf-8'))
-        nonce = data["payment_method_nonce"]
-        amount = Decimal(data["order_amount"])
-        order_id = data["order_id"]
-
-        profile = Profile.objects.get(user=user)
-        if not profile:
-            raise ValueError("Braintree order payment. Can't get user profile")
-
-        order = Order.objects.get(pk=order_id)
-        if not order:
-            raise ValueError("Braintree order payment. Can't get order")
-
-        method = PaymentMethod.objects.get(
-            name__exact='PayPal'
-        )
-
-        if not method:
-            raise ValueError("Can't get payment method for this order.")
-
-        if not profile.sig_key:
-            profile.sig_key = \
-                braintree_api.get_user_sig_key()
-            profile.save()
-        customer = braintree_api.find_customer(profile.sig_key)
-        result = {}
-        if not customer:
-            result = braintree_api.create_customer(user, profile.sig_key)
-
-        if customer or result.is_success:
-            result = braintree_api.create_payment_method(
-                profile.sig_key, nonce)
-            if result.is_success:
-                token = result.payment_method.token
-                try:
-                    card_type = result.payment_method.card_type
-                    last = result.payment_method.last_4
-                    identifier = 'xxxx-xxxx-xxxx-%s'.format(last)
-                    uni = result.payment_method.unique_number_identifier
-                    main_type = 'Card'
-                except:
-                    card_type = None
-                    uni = result.payment_method.email
-                    identifier = result.payment_method.email
-                    main_type = 'PayPal'
-
-                pref = PaymentPreference(
-                    user=user,
-                    payment_method=method,
-                    main_type=main_type,
-                    sub_type=card_type,
-                    identifier=identifier
-                )
-                pref.save()
-
-                credentials = PaymentCredentials(
-                    payment_preference=pref,
-                    token=token,
-                    uni=uni,
-                    nonce=nonce,
-                    is_default=True
-
-                )
-                credentials.save()
-
-                braintree_api.make_default(pref)
-                try:
-                    currency = order.currency
-                    result = braintree_api.send_payment(pref,
-                                                        str(amount),
-                                                        currency=currency.code)
-
-                    if result.is_success:
-                        payment = Payment(payment_preference=pref,
-                                          amount_cash=amount,
-                                          currency=currency,
-                                          user=user,
-                                          order=order)
-                        # payment.is_complete = True
-                        payment.is_success = True
-                        payment.payment_preference = pref
-                        payment.save()
-                        order.is_paid = True
-                        order.save()
-                        output_json = {
-                            'data': '',
-                            'error': 0,
-                            'unique_ref': order.unique_reference
-                        }
-                    else:
-                        braintree_error = []
-                        for error in result.errors.deep_errors:
-                            braintree_error.append(
-                                {
-                                    'attribute': error.attribute,
-                                    'code': error.code,
-                                    'message': error.message
-                                }
-                            )
-                        output_json = {
-                            'data': '',
-                            'error': 1,
-                            'error_text':
-                                result.errors.deep_errors
-                        }
-                except Exception as e:
-                    text_error = "Can't use this payment method. {}".\
-                        format(e)
-                    if settings.DEBUG:
-                        raise e
-            else:
-                text_error = ''
-                for error in result.errors.deep_errors:
-                    if error.code == '81724':
-                        err = "Duplicate card exists in the vault."
-                        text_error = "{} {}".format(text_error, err)
-                    elif error.code == '93107':
-                        err = "Cannot use a payment nonce more than once." \
-                              " Refresh form please"
-                        text_error = "{} {}".format(text_error, err)
-                    else:
-                        text_error = "Can't add this" \
-                                     " payment method. {0}".format(error)
-        else:
-            text_error = "Error: can't send customer data."
-    except Exception as e:
-        text_error = 'Error get form data. {}'.format(e)
-        if settings.DEBUG:
-            raise e
-
-    if text_error:
-        output_json['error'] = 1
-        output_json['error_text'] = text_error
-
-    return JsonResponse(output_json, safe=False)
 
 
 def add_order(request):
@@ -630,7 +478,7 @@ def ajax_order(request):
     my_action = _("Result")
     address = ""
     if trade_type == Order.SELL:
-        address = k_generate_address()
+        address = settings.MAIN_DEPOSIT_ADDRESSES.pop()
 
     url = ''
     if payment_method == 'Robokassa':
@@ -668,226 +516,12 @@ def ajax_order(request):
                                         request))
 
 
-def payment_methods_ajax(request):
-
-    template = get_template('core/partials/payment_methods.html')
-
-    payment_methods = PaymentMethod.objects.all()
-    return HttpResponse(template.render({'payment_methods': payment_methods
-                                         }, request))
-
-
-def payment_methods_account_ajax(request):
-    pm = request.GET.get("payment_method", None)
-    template = get_template('core/partials/payment_methods_account.html')
-    account = ''
-    fee = ''
-
-    if pm:
-        payment_method = PaymentMethod.objects.get(pk=pm)
-        account = payment_method.handler
-        fee = payment_method.fee
-
-    # print(payment_methods)
-    return HttpResponse(template.render({'account': account,
-                                         'fee': fee,
-                                         }, request))
-
-
 def user_address_ajax(request):
     user = request.user
     template = get_template('core/partials/user_address.html')
     addresses = Address.objects.filter(user=user, type="D")
     return HttpResponse(template.render({'addresses': addresses},
                                         request))
-
-
-@csrf_exempt
-def payment_ajax(request):
-    template = get_template('core/partials/success_payment.html')
-    curr = request.POST.get("currency_from", "RUB")
-    amount_cash = request.POST.get("amount-cash")
-    order_id = request.POST.get("order_id")
-    currency = Currency.objects.filter(code=curr)[0]
-    user = request.user
-    order = Order.objects.get(pk=order_id)
-
-    payment = Payment(amount_cash=amount_cash, currency=currency,
-                      user=user, order=order)
-    payment.save()
-    uniq_ref = payment.unique_reference
-
-    my_action = _("Result")
-
-    return HttpResponse(template.render({'unique_ref': uniq_ref,
-                                         'action': my_action,
-                                         },
-                                        request))
-
-
-def k_generate_address():
-    kraken = api.API()
-    params = {
-        'method': 'Bitcoin',
-        'asset': 'XBT',
-        'new': True
-    }
-
-    kraken_res = kraken.query_private('DepositAddresses', params)
-
-    if kraken_res['error']:
-        address = settings.MAIN_DEPOSIT_ADDRESSES[0]
-    else:
-        address = kraken_res['result'][0]['address']
-    return address
-
-
-def k_trades_history(request):
-    kraken = api.API()
-    # Todo use django rest framework
-    k = kraken.query_private('TradesHistory')
-    if k['error']:
-        result = k['error']
-    else:
-        result = k['result']
-    return JsonResponse({'result': result})
-
-
-def k_deposit_status(request):
-    kraken = api.API()
-    params = {
-        'method': 'Bitcoin',
-        'asset': 'XBT',
-    }
-
-    k = kraken.query_private('DepositStatus', params)
-
-    if k['error']:
-        result = k['error']
-    else:
-        result = k['result']
-
-    return JsonResponse({'result': result})
-
-
-def user_btc_adress(request):
-    btc_address = request.POST.get('btcAddress')
-    user = request.user
-    validate_bc(str(btc_address))
-    address = Address(address=btc_address, user=user)
-    address.save()
-    return JsonResponse({'status': 'OK'})
-
-
-def cards(request):
-    def get_pref_by_name(name):
-        curr_obj = Currency.objects.get(code=currency.upper())
-        card = \
-            PaymentPreference.\
-            objects.filter(currency__in=[curr_obj],
-                           user__is_staff=True,
-                           payment_method__name__icontains=name)
-        return card[0] if len(card) else 'None'
-
-    template = get_template('core/partials/modals/payment_type.html')
-    currency = request.POST.get("currency")
-
-    cards = {
-        'sber': get_pref_by_name('Sber'),
-        'alfa': get_pref_by_name('Alfa'),
-        'qiwi': get_pref_by_name('Qiwi'),
-        'paypal': get_pref_by_name('PayPal')
-    }
-    local_vars = {
-        'cards': cards,
-        'type': 'buy',
-        'currency': currency.upper(),
-    }
-    translation.activate(request.POST.get("_locale"))
-    return HttpResponse(template.render(local_vars,
-                                        request))
-
-
-@csrf_exempt
-def ajax_cards(request):
-    def get_pref_by_name(name):
-        curr_obj = Currency.objects.get(code=currency.upper())
-        card = \
-            PaymentPreference.\
-            objects.filter(currency__in=[curr_obj],
-                           user__is_staff=True,
-                           payment_method__name__icontains=name)
-        return card[0].identifier if len(card) else 'None'
-
-    currency = request.POST.get("currency")
-
-    cards = {
-        'sber': get_pref_by_name('Sber'),
-        'alfa': get_pref_by_name('Alfa'),
-        'qiwi': get_pref_by_name('Qiwi'),
-    }
-
-    return JsonResponse({'cards': cards})
-
-
-@login_required
-def payment_failure(request):
-    template = get_template('core/partials/steps/step_reply_payment.html')
-    # TODO: Better logic
-    last_order = Order.objects.filter(user=request.user).latest('id')
-    url = '/pay_try_again'
-    last_order.is_failed = True
-    last_order.save()
-    return HttpResponse(template.render({'url_try_again': url}, request))
-
-
-@login_required
-def payment_retry(request):
-    old_order = Order.objects.filter(user=request.user,
-                                     is_failed=True).latest('id')
-    order = old_order
-    order.id = None
-    order.save()
-    url = geturl_robokassa(order.id, str(order.amount_cash))
-    return redirect(url)
-
-
-@login_required
-def payment_success(request, provider):
-    try:
-        received_order = None
-        if provider == 'robokassa':
-            received_order = robokassa_adapter(request)
-        elif provider == 'unitpay':
-            received_order = unitpay_adapter(request)
-        elif provider == 'leupay':
-            received_order = leupay_adapter(request)
-
-        if not received_order:
-            return Http404(_('Unsupported payment provider'))
-
-        if not received_order.valid:
-            template = \
-                get_template('core/partials/steps/step_reply_payment.html')
-            return HttpResponse(template.render({'bad_sugnature': True},
-                                                request))
-
-        order = Order.objects.filter(user=request.user,
-                                     amount_cash=received_order['sum'],
-                                     id=received_order['order_id'])[0]
-
-        currency = order.currency.code
-
-        Payment.objects.\
-            get_or_create(amount_cash=order.amount_cash,
-                          currency=currency,
-                          user=request.user,
-                          payment_preference=order.payment_preference,
-                          is_complete=False)
-
-        return redirect(reverse('core.order'))
-    except ObjectDoesNotExist:
-        return JsonResponse({'result': 'bad request'})
 
 
 def cms_page(request, page_name):

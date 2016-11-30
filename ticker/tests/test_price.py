@@ -1,10 +1,12 @@
-from django.test import TestCase
+from decimal import Decimal
+from unittest.mock import MagicMock
+
 import requests
 import requests_mock
+from django.test import TestCase
+
+from payments.utils import money_format
 from ticker.models import Price
-from unittest.mock import MagicMock
-from decimal import Decimal
-from core.utils import money_format
 
 
 class TestPrice(TestCase):

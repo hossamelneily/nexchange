@@ -1,22 +1,21 @@
-from django.db import models
-from core.common.models import TimeStampedModel, \
-    SoftDeletableModel, Currency, UniqueFieldMixin
+from datetime import timedelta
+from decimal import Decimal
 
-from django.contrib.auth.models import User
-from phonenumber_field.modelfields import PhoneNumberField
-from ticker.models import Price
-from referrals.models import ReferralCode
-from .validators import validate_bc
 from django.conf import settings
-
+from django.contrib.auth.models import User
+from django.db import models
+from django.utils import timezone
+from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _
+from phonenumber_field.modelfields import PhoneNumberField
 
 from core.common.models import Balance
-from core.utils import money_format
-from django.utils.crypto import get_random_string
-from datetime import timedelta
-from django.utils import timezone
-from decimal import Decimal
+from core.common.models import TimeStampedModel, \
+    SoftDeletableModel, Currency, UniqueFieldMixin
+from payments.utils import money_format
+from referrals.models import ReferralCode
+from ticker.models import Price
+from .validators import validate_bc
 
 
 class ProfileManager(models.Manager):

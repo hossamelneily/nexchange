@@ -267,6 +267,55 @@
         });
     }
 
+    function placeOrder () {
+            //TODO verify if $(this).hasClass('sell-go') add
+            // the other type of transaction
+            // add security checks
+            var actualPaymentType = $('.payment-preference-actual').text(),
+            preferenceIdentifier = $('.payment-preference-identifier-confirm').text(),
+            preferenceOwner = $('.payment-preference-owner-confirm').text();
+
+            var verifyPayload = {
+                    'trade-type': $('.trade-type').val(),
+                    'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
+                    'amount-coin': $('.amount-coin').val() || DEFAULT_AMOUNT,
+                    'currency_from': $('.currency-from').val(), //fiat
+                    'currency_to': $('.currency-to').val(), //crypto
+                    'pp_type': actualPaymentType,
+                    'pp_identifier': preferenceIdentifier,
+                    'pp_owner': preferenceOwner,
+                    '_locale': $('.topright_selectbox').val()
+                };
+
+            $.ajax({
+                type: 'post',
+                url: placerAjaxOrder,
+                dataType: 'text',
+                data: verifyPayload,
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                success: function (data) {
+                    //if the transaction is Buy
+                      var message;
+                    if (window.action == window.ACTION_BUY){
+                        message = gettext('Buy order placed successfully');
+                    }
+                    //if the transaction is Sell
+                    else{
+                        message = gettext('Sell order placed successfully');
+
+                    }
+                    toastr.success(message);
+                    $('.successOrder').html($(data));
+                    $('#orderSuccessModal').modal({backdrop: 'static'});
+
+                },
+                error: function () {
+                	var message = gettext('Something went wrong. Please, try again.');
+                    toastr.error(message);
+                }
+            });
+    }
+
     module.exports = {
         updateOrder: updateOrder,
         updatePrice: updatePrice,
