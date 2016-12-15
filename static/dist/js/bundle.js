@@ -14,19 +14,14 @@
         }, 500);
     });
 
-       var  currency,
-            paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
-            paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
-            cardsEndpoint = '/en/api/v1/cards',
-            // Required modules
-            orderObject = require('./modules/orders.js'),
-            paymentObject = require('./modules/payment.js'),
-            captcha = require('./modules/captcha.js'),
-
-        paymentType = '',
-        actualPaymentType = '',
-        preferenceIdentifier = '',
-        preferenceOwner = '';
+       var currency = 'rub',
+           currencyElem,
+           paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
+           cardsEndpoint = '/en/payments/options/',
+           // Required modules
+           orderObject = require('./modules/orders.js'),
+           paymentObject = require('./modules/payment.js'),
+           captcha = require('./modules/captcha.js');
 
         $('.trade-type').val('1');
 
@@ -35,9 +30,12 @@
         window.action = window.ACTION_BUY; // 1 - BUY 0 - SELL
 
     $(function () {
-            currency = $('.currency-from').val().toLowerCase();
+        if (currencyElem && currencyElem.val()){
+                currency = currencyElem.val().toLowerCase();
+        }
+
             orderObject.setCurrency(false, currency);
-            orderObject.reloadCardsPerCurrency(currency, cardsEndpoint);
+            paymentObject.loadPaymentMethods(cardsEndpoint, currency);
 
             var timer = null,
                 delay = 500,
@@ -73,8 +71,6 @@
                 if ($(this).hasClass('trigger-buy')) {
                     $('.menu1').removeClass('sell');
                     window.action = window.ACTION_BUY;
-
-                    paymentObject.loadPaymenMethods(paymentMethodsEndpoint);
                     orderObject.updateOrder($('.amount-coin'), false, currency, function () {
                         orderObject.toggleBuyModal();
                     });
@@ -82,7 +78,6 @@
                 } else {
                     $('.menu1').addClass('sell');
                     window.action = window.ACTION_SELL;
-
                     orderObject.updateOrder($('.amount-coin'), false, currency, function () {
                         orderObject.toggleSellModal();
                     });
@@ -138,23 +133,24 @@
             });
 
              $('.payment-method').on('change', function () {
-                paymentObject.loadPaymenMethodsAccount(paymentMethodsAccountEndpoint);
+                paymentObject.loadPaymentMethodsAccount(paymentMethodsAccountEndpoint);
 
             });
 
             $('.currency-select').on('change', function () {
                 currency = $(this).val().toLowerCase();
                 orderObject.setCurrency($(this), currency);
+                paymentObject.loadPaymentMethods(cardsEndpoint ,currency);
                 //bind all select boxes
                 $('.currency-select').not('.currency-to').val($(this).val());
                 orderObject.updateOrder($('.amount-coin'), false, currency);
-                orderObject.reloadCardsPerCurrency(currency, cardsEndpoint);
+                // orderObject.reloadCardsPerCurrency(currency, cardsEndpoint);
             });
             //using this form because the object is inside a modal screen
             $(document).on('change','.payment-method', function () {
                 var pm = $('.payment-method option:selected').val();
                 $('#payment_method_id').val(pm);
-                paymentObject.loadPaymenMethodsAccount(paymentMethodsAccountEndpoint, pm);
+                paymentObject.loadPaymentMethodsAccount(paymentMethodsAccountEndpoint, pm);
 
             });
 
@@ -162,10 +158,8 @@
 
     $(function() {
         // For order index
-        $(function () {
-            $('[data-toggle="popover"]').popover({content: $("#popover-template").html()});
-            $( "#id_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
-         });
+        $('[data-toggle="popover"]').popover({content: $("#popover-template").html()});
+        $( "#id_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
 
         // TODO: get api root via DI
         $('#payment_method_id').val('');
@@ -176,12 +170,12 @@
         $('.btc-amount-confirm').text(confirm);
 
         var apiRoot = '/en/api/v1',
-            createAccEndpoint = apiRoot + '/phone',
+            createAccEndpoint =  '/en/accounts/authenticate/',
             menuEndpoint = apiRoot + '/menu',
             breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
-            validatePhoneEndpoint = '/en/profile/verifyPhone/',
-            placerAjaxOrder = '/en/order/ajax/',
-            paymentAjax = '/en/payment/ajax/',
+            validatePhoneEndpoint = '/en/accounts/verify_phone/',
+            placerAjaxOrder = '/en/orders/add_order/',
+            paymentAjax = '/en/payments/ajax/',
             DEFAULT_AMOUNT = 1;
 
         $('.next-step, .prev-step').on('click', orderObject.changeState);
@@ -246,22 +240,15 @@
 
         });
 
-        $(document).on('shown.bs.modal', '#orderSuccessModal', function () {
-            $(document).one("click", "#send-payment-button" ,function (e) {
-                $(this).button('loading');
-                $(this).toggleClass('disabled');
-                $('#submitbraintreeform').click();
-            });
-        });
 
         $('.place-order').on('click', function () {
             //TODO verify if $(this).hasClass('sell-go') add
             // the other type of transaction
             // add security checks
-            actualPaymentType = $('.payment-preference-actual').text() ;
-            preferenceIdentifier = $('.payment-preference-identifier-confirm').text();
-            preferenceOwner = $('.payment-preference-owner-confirm').text();
-            var verifyPayload = {
+            var actualPaymentType = $('.payment-preference-actual').text(),
+                preferenceIdentifier = $('.payment-preference-identifier-confirm').text(),
+                preferenceOwner = $('.payment-preference-owner-confirm').text(),
+                verifyPayload = {
                     'trade-type': $('.trade-type').val(),
                     'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
                     'amount-coin': $('.amount-coin').val() || DEFAULT_AMOUNT,
@@ -272,7 +259,7 @@
                     'pp_owner': preferenceOwner,
                     '_locale': $('.topright_selectbox').val()
                 };
-            
+
             $.ajax({
                 type: 'post',
                 url: placerAjaxOrder,
@@ -322,7 +309,6 @@
                     $('.paymentMethods').addClass('hidden');
                     $('.paymentSuccess').removeClass('hidden').html($(data));
                     $('.next-step').click();
-                   // loadPaymenMethods(paymentMethodsEndpoint);
                 },
                 error: function () {
                 	var message = gettext('Something went wrong. Please, try again.');
@@ -334,8 +320,8 @@
 
         $(document).on('click', '.buy .payment-type-trigger', function () {
 
-            paymentType = $(this).data('label');
-            actualPaymentType = $(this).data('type');
+            var paymentType = $(this).data('label'),
+            actualPaymentType = $(this).data('type'),
             preferenceIdentifier = $(this).data('identifier');
             $('.payment-preference-confirm').text(paymentType);
             $('.payment-preference-actual').text(actualPaymentType);
@@ -345,27 +331,10 @@
             orderObject.changeState(null, 'next');
         });
 
-        $(document).on('click', '.payment-type-trigger-footer', function () {
-            $('.supporetd_payment').addClass('hidden');
-            paymentType = $(this).data('type');
-            preferenceIdentifier = $(this).data('identifier');
-            $('.payment-preference-confirm').text(paymentType);
-            $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
-            // $('#PayMethModal').modal('toggle');
-            $('.payment-method').val(paymentType);
-            orderObject.changeState(null, 'next');
-            $('.footerpay').addClass('hidden');
-            $('.buy-go').removeClass('hidden');
-            $('.sell-go').addClass('hidden');
-            window.action = window.ACTION_BUY;
-            $('.next-step')
-                .removeClass('btn-info')
-                .removeClass('btn-danger')
-                .addClass('btn-success');
-        });
+        // $(document).on('click', '.payment-type-trigger-footer', paymentNegotiation);
 
         $('.sell .payment-type-trigger').on('click', function () {
-            paymentType = $(this).data('type').toLocaleLowerCase();
+            var paymentType = $(this).data('type').toLocaleLowerCase();
             $('.payment-preference-confirm').text(paymentType);
             $('#UserAccountModal').modal('toggle');
             if (paymentType === 'c2c') {
@@ -428,7 +397,7 @@
         });
     });
 
-    //for test selenium
+    //for tests selenium
     function submit_phone(){
         var apiRoot = '/en/api/v1',
             menuEndpoint = apiRoot + '/menu',
@@ -461,11 +430,6 @@
 
     window.submit_phone=submit_phone;
 } (window, window.jQuery)); //jshint ignore:line
-
-$(document).ready(function() {
-    $('.supporetd_payment').removeClass('hidden');
-
-});
 
 
    
@@ -543,86 +507,89 @@ module.exports = {
         }
          $.get(actualUrl, function(resdata) {
             chartDataRaw = resdata;
-            var data = responseToChart(resdata)[currency];
-          $('#container-graph').highcharts({
+            var data = responseToChart(resdata)[currency],
+            container = $('#container-graph');
+             if (!container || !container.length) {
+                 return;
+             }
+             container.highcharts({
 
-                chart: {
-                    type: 'arearange',
-                    zoomType: 'x',
-                    style: {
-                        fontFamily: 'Gotham'
-                    },
-                    backgroundColor: {
-                        linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-                        stops: [
-                            [0, '#F3F3F3'],
-                            [1, '#F3F3F3']
-                        ]
-                    },
-                    events : {
-                        load : function () {
-                            // set up the updating of the chart each second
-                            $('.highcharts-credits').remove();
-                            var series = this.series[0];
-                            setInterval(function () {
-                                $.get(tickerLatestUrl, function (resdata) {
-                                    var lastdata = responseToChart(resdata)[currency];
-                                    if ( chartDataRaw.length && parseInt(resdata[0].unix_time) >
+                 chart: {
+                     type: 'arearange',
+                     zoomType: 'x',
+                     style: {
+                         fontFamily: 'Gotham'
+                     },
+                     backgroundColor: {
+                         linearGradient: {x1: 0, y1: 0, x2: 1, y2: 1},
+                         stops: [
+                             [0, '#F3F3F3'],
+                             [1, '#F3F3F3']
+                         ]
+                     },
+                     events: {
+                         load: function () {
+                             // set up the updating of the chart each second
+                             $('.highcharts-credits').remove();
+                             var series = this.series[0];
+                             setInterval(function () {
+                                 $.get(tickerLatestUrl, function (resdata) {
+                                     var lastdata = responseToChart(resdata)[currency];
+                                     if (chartDataRaw.length && parseInt(resdata[0].unix_time) >
                                          parseInt(chartDataRaw[chartDataRaw.length - 1].unix_time)
-                                    ) {
-                                        //Only update if a ticker 'tick' had occured
-                                        var _lastadata = lastdata[0];
-                                        if (_lastadata[1] > _lastadata[2])
-                                        {
-                                            var a = _lastadata[1];
-                                            _lastadata[1] = _lastadata[2];
-                                            _lastadata[2] = a;
-                                        }
-                                        series.addPoint(_lastadata, true, true);
-                                        Array.prototype.push.apply(chartDataRaw, resdata);
-                                    }
-                                });
-                        }, 1000 * 30);
-                      }
-                    }
-                },
+                                     ) {
+                                         //Only update if a ticker 'tick' had occured
+                                         var _lastadata = lastdata[0];
+                                         if (_lastadata[1] > _lastadata[2]) {
+                                             var a = _lastadata[1];
+                                             _lastadata[1] = _lastadata[2];
+                                             _lastadata[2] = a;
+                                         }
+                                         series.addPoint(_lastadata, true, true);
+                                         Array.prototype.push.apply(chartDataRaw, resdata);
+                                     }
+                                 });
+                             }, 1000 * 30);
+                         }
+                     }
+                 },
 
-                title: {
-                    text: 'BTC/' + currency.toUpperCase()
-                },
+                 title: {
+                     text: 'BTC/' + currency.toUpperCase()
+                 },
 
-                xAxis: {
-                    type: 'datetime',
-                    dateTimeLabelFormats: {
-                       day: '%e %b',
-                        hour: '%H %M'
+                 xAxis: {
+                     type: 'datetime',
+                     dateTimeLabelFormats: {
+                         day: '%e %b',
+                         hour: '%H %M'
 
-                    }
-                },
-                yAxis: {
-                    title: {
-                        text: null
-                    }
-                },
+                     }
+                 },
+                 yAxis: {
+                     title: {
+                         text: null
+                     }
+                 },
 
-                tooltip: {
-                    crosshairs: true,
-                    shared: true,
-                    valueSuffix: ' ' + currency.toLocaleUpperCase()
-                },
+                 tooltip: {
+                     crosshairs: true,
+                     shared: true,
+                     valueSuffix: ' ' + currency.toLocaleUpperCase()
+                 },
 
-                legend: {
-                    enabled: false
-                },
+                 legend: {
+                     enabled: false
+                 },
 
-                series: [{
-                    name: currency.toLowerCase() === 'rub' ? 'цена' : 'Price',
-                    data: data,
-                    color: '#8cc63f',
-                    // TODO: fix this! make dynamic
-                    pointInterval: 3600 * 1000
-                }]
-            });
+                 series: [{
+                     name: currency.toLowerCase() === 'rub' ? 'цена' : 'Price',
+                     data: data,
+                     color: '#8cc63f',
+                     // TODO: fix this! make dynamic
+                     pointInterval: 3600 * 1000
+                 }]
+             });
         });
     }
 
@@ -899,11 +866,53 @@ module.exports = {
             .addClass('disableClick');
     }
 
-    function reloadCardsPerCurrency(currency, cardsModalEndpoint) {
-        var _locale= $('.topright_selectbox').val();
-        $.post(cardsModalEndpoint, {currency: currency, _locale: _locale }, function (data) {
-            $('.paymentSelectionContainer').html($(data));
-        });
+    function placeOrder () {
+            //TODO verify if $(this).hasClass('sell-go') add
+            // the other type of transaction
+            // add security checks
+            var actualPaymentType = $('.payment-preference-actual').val(),
+            preferenceIdentifier = $('.payment-preference-identifier-confirm').text(),
+            preferenceOwner = $('.payment-preference-owner-confirm').text();
+
+            var verifyPayload = {
+                    'trade-type': $('.trade-type').val(),
+                    'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
+                    'amount-coin': $('.amount-coin').val() || DEFAULT_AMOUNT,
+                    'currency_from': $('.currency-from').val(), //fiat
+                    'currency_to': $('.currency-to').val(), //crypto
+                    'pp_type': actualPaymentType,
+                    'pp_identifier': preferenceIdentifier,
+                    'pp_owner': preferenceOwner,
+                    '_locale': $('.topright_selectbox').val()
+                };
+
+            $.ajax({
+                type: 'post',
+                url: placerAjaxOrder,
+                dataType: 'text',
+                data: verifyPayload,
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                success: function (data) {
+                    //if the transaction is Buy
+                      var message;
+                    if (window.action == window.ACTION_BUY){
+                        message = gettext('Buy order placed successfully');
+                    }
+                    //if the transaction is Sell
+                    else{
+                        message = gettext('Sell order placed successfully');
+
+                    }
+                    toastr.success(message);
+                    $('.successOrder').html($(data));
+                    $('#orderSuccessModal').modal({backdrop: 'static'});
+
+                },
+                error: function () {
+                	var message = gettext('Something went wrong. Please, try again.');
+                    toastr.error(message);
+                }
+            });
     }
 
     module.exports = {
@@ -916,7 +925,6 @@ module.exports = {
         setButtonDefaultState: setButtonDefaultState,
         changeState: changeState,
         reloadRoleRelatedElements: reloadRoleRelatedElements,
-        reloadCardsPerCurrency: reloadCardsPerCurrency,
         toggleBuyModal: toggleBuyModal,
         toggleSellModal: toggleSellModal
     };
@@ -926,17 +934,25 @@ module.exports = {
 !(function(window ,$) {
     "use strict";
 
-    function loadPaymenMethods(paymentMethodsEndpoint) {
-        $.get(paymentMethodsEndpoint, function (data) {
-            $(".paymentMethods").html($(data));
+    function loadPaymentMethods(cardsEndpoint, currency) {
+        var payload = {
+            '_locale': $('.topright_selectbox').val(),
+            'currency': currency
+        };
+        $.ajax({
+            url: cardsEndpoint,
+            type: 'POST',
+            data: payload,
+            success: function (data) {
+                $(".paymentSelectionContainer").html($(data));
+            }
         });
-        $('.paymentMethods').removeClass('hidden');
     }
 
-    function loadPaymenMethodsAccount(paymentMethodsAccountEndpoint, pm) {
+    function loadPaymentMethodsAccount(paymentMethodsAccountEndpoint, pm) {
         var data = {'payment_method': pm};
 
-        $.get(paymentMethodsAccountEndpoint, data, function (data) {
+        $.post(paymentMethodsAccountEndpoint, data, function (data) {
             $(".paymentMethodsAccount").html($(data));
         });
         $('.paymentMethodsAccount').removeClass('hidden');
@@ -944,8 +960,8 @@ module.exports = {
 
     module.exports =
     {
-        loadPaymenMethods: loadPaymenMethods,
-        loadPaymenMethodsAccount: loadPaymenMethodsAccount
+        loadPaymentMethods: loadPaymentMethods,
+        loadPaymentMethodsAccount: loadPaymentMethodsAccount
     };
 
 }(window, window.jQuery)); //jshint ignore:line

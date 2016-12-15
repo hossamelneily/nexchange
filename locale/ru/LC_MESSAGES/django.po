@@ -60,7 +60,7 @@ msgstr ""
 "Регистрация завершена. Подтвердите Ваш телефон, с введя код, полученный в СМС"
 
 #: core/views.py:323
-msgid "Error during registration. <br>Details: {}"
+msgid "Error during accounts. <br>Details: {}"
 msgstr "Ошибка во время регистрации. <br>Details: {}"
 
 #: core/views.py:397

@@ -1,17 +1,25 @@
 !(function(window ,$) {
     "use strict";
 
-    function loadPaymenMethods(paymentMethodsEndpoint) {
-        $.get(paymentMethodsEndpoint, function (data) {
-            $(".paymentMethods").html($(data));
+    function loadPaymentMethods(cardsEndpoint, currency) {
+        var payload = {
+            '_locale': $('.topright_selectbox').val(),
+            'currency': currency
+        };
+        $.ajax({
+            url: cardsEndpoint,
+            type: 'POST',
+            data: payload,
+            success: function (data) {
+                $(".paymentSelectionContainer").html($(data));
+            }
         });
-        $('.paymentMethods').removeClass('hidden');
     }
 
-    function loadPaymenMethodsAccount(paymentMethodsAccountEndpoint, pm) {
+    function loadPaymentMethodsAccount(paymentMethodsAccountEndpoint, pm) {
         var data = {'payment_method': pm};
 
-        $.get(paymentMethodsAccountEndpoint, data, function (data) {
+        $.post(paymentMethodsAccountEndpoint, data, function (data) {
             $(".paymentMethodsAccount").html($(data));
         });
         $('.paymentMethodsAccount').removeClass('hidden');
@@ -19,8 +27,8 @@
 
     module.exports =
     {
-        loadPaymenMethods: loadPaymenMethods,
-        loadPaymenMethodsAccount: loadPaymenMethodsAccount
+        loadPaymentMethods: loadPaymentMethods,
+        loadPaymentMethodsAccount: loadPaymentMethodsAccount
     };
 
 }(window, window.jQuery)); //jshint ignore:line

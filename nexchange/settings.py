@@ -94,15 +94,17 @@ INSTALLED_APPS = [
     'corsheaders',
     'core',
     'ticker',
+    'accounts',
+    'orders',
     'referrals',
     'payments',
+    'articles',
     'djcelery',
     'session_security',
     'axes',
     'nexchange'
 ]
 
-CMS_PERMISSION = False
 
 SITE_ID = 1
 
@@ -174,19 +176,13 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
                 'core.context_processors.google_analytics',
-                'core.context_processors.cms',
+                'articles.context_processors.cms',
                 # 'django.core.context_processors.request'
             ],
         },
     },
 ]
 
-
-CKEDITOR_SETTINGS = {
-    'language': '{{ language }}',
-    'toolbar': 'CMS',
-    'skin': 'moono',
-}
 
 WSGI_APPLICATION = 'nexchange.wsgi.application'
 
@@ -291,7 +287,7 @@ TWILIO_ACCOUNT_SID = 'AC0bd0fa94c8ca0084f3e512c741965364'
 TWILIO_AUTH_TOKEN = '811a1791827b6088fcaa2d5b43ccf017'
 TWILIO_PHONE_FROM = '+447481341915'
 
-LOGIN_REDIRECT_URL = reverse_lazy('core.order')
+LOGIN_REDIRECT_URL = reverse_lazy('orders.add_order')
 
 GRAPH_HOUR_RANGES = [
     {'val': 1, 'name': '1 Hour'},
@@ -321,7 +317,7 @@ if DEBUG:
     EMAIL_HOST_PASSWORD = ''
     EMAIL_USE_TLS = False
 
-# to test the API with localhost
+# to tests the API with localhost
 CORS_ORIGIN_WHITELIST = (
     'nexchange.dev',
     'nexchange.co.uk',

@@ -1,0 +1,25 @@
+{% load i18n %}
+    <tr>
+        <td>{{ order.created_on |date:"D d M Y"}}</td>
+        <td>{{ order.unique_reference }}</td>
+        <td>{{ order.currency.code }}</td>
+        <td>{{ order.amount_cash }}</td>
+        <td>{{ order.amount_btc }}</td>
+        <td>
+        {% include 'orders/partials/forms/payment_toggle.html' %}
+        </td>
+        {% if order.is_released == 1 %}
+        <td><img src="/static/icons/check_16.png"></td>
+        {% else %}
+        <td><img src="/static/icons/close_16.png"></td>
+        {% endif %}
+        {% if order.is_completed == 1 %}
+        <td><img src="/static/icons/check_16.png"></td>
+        {% else %}
+        <td><img src="/static/icons/close_16.png"></td>
+        {% endif %}
+
+        <td>
+            {% include 'orders/partials/forms/withdraw_address_widget.html' %}
+        </td>
+    </tr>

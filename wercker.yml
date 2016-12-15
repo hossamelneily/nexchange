@@ -1,4 +1,3 @@
-
 box: pitervergara/geodjango:nexchange
 ports:
   - "8000"
@@ -38,7 +37,8 @@ dev:
     - script:
         name: Django make migrations
         code: |
-          cat <(echo "yes") - | python manage.py makemigrations
+          python manage.py makemigrations core
+          python manage.py makemigrations
     - script:
         name: wait...
         code: |
@@ -47,6 +47,7 @@ dev:
         name: Django apply migrations
         code: |
           python manage.py migrate
+
     - script:
         name: Run celery
         code: |
@@ -130,7 +131,8 @@ dev:
     - internal/watch:
         code: |
           echo 'Dev server running'
-           npm run watch-js & newrelic-admin run-program  python manage.py runserver 0.0.0.0:8000
+          newrelic-admin run-program python manage.py runserver 0.0.0.0:8000 &
+          npm run watch-js
         reload: false
 
 build:
@@ -375,23 +377,6 @@ tests:
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
           mkdir -p ${pip_download_cache}
           yes w | pip install --cache-dir ${pip_download_cache} -r requirements.txt
-          has_krakenex=$(python -c "import importlib; k = importlib.find_loader('krakenex'); print(str(k is not None))")
-          if [ "${has_krakenex}" == "False" ]; then
-            git clone https://github.com/onitsoft/python3-krakenex.git /usr/src/krakenex
-            cd /usr/src/krakenex
-            python3 setup.py install
-            cd -
-          fi
-          python -c "import krakenex; print('import krakenex sucessfully executed')"
-
-          has_uphold=$(python -c "import importlib; k = importlib.find_loader('uphold'); print(str(k is not None))")
-          if [ "${has_uphold}" == "False" ]; then
-            git clone https://github.com/byrnereese/uphold-sdk-python.git /usr/src/uphold
-            cd /usr/src/uphold
-            python3 setup.py install
-            cd -
-          fi
-          python -c "import uphold; print('import uphold sucessfully executed')"
     - script:
       name: Install node requirements
       code: |

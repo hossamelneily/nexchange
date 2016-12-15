@@ -1,0 +1,26 @@
+{% load i18n %}
+<span {% if order.paid == 0 %}class="danger"{% endif %}>
+
+    <span id="spin_confirming_{{order.pk}}" style="display:none">
+        <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>&nbsp;
+        {% trans "Setting as paid..." %}
+    </span>
+
+    <label class="checkbox-inline">
+        <input type="checkbox"
+            data-url="{% url 'orders.confirm_payment' order.pk %}"
+            data-pk="{{order.pk}}"
+            data-offstyle="danger"
+            data-onstyle="success"
+            {% if order.is_paid %}
+                checked
+            {% endif %}
+            {% if order.frozen %}
+                disabled
+            {% endif %}
+            data-toggle="toggle"
+            data-on="{% trans 'Paid' %} "
+            data-width="90px"
+            data-off="{% trans 'Not Paid' %} ">
+    </label>
+</span>
