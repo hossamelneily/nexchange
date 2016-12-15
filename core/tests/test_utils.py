@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock
-from .base import data_provider
+from core.tests.base import data_provider
 from django.test import TestCase
 
 

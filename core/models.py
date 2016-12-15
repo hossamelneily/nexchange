@@ -5,6 +5,10 @@ from core.common.models import TimeStampedModel, \
 from .validators import validate_bc
 
 
+class FakeMigration(TimeStampedModel):
+    fake = models.BooleanField(default=False)
+
+
 class BtcBase(TimeStampedModel):
     class Meta:
         abstract = True

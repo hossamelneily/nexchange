@@ -37,7 +37,8 @@ dev:
     - script:
         name: Django make migrations
         code: |
-          cat <(echo "yes") - | python manage.py makemigrations
+          python manage.py makemigrations core
+          python manage.py makemigrations
     - script:
         name: wait...
         code: |
@@ -46,6 +47,7 @@ dev:
         name: Django apply migrations
         code: |
           python manage.py migrate
+
     - script:
         name: Run celery
         code: |

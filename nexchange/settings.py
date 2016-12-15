@@ -98,6 +98,7 @@ INSTALLED_APPS = [
     'orders',
     'referrals',
     'payments',
+    'articles',
     'djcelery',
     'session_security',
     'axes',

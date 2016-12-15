@@ -1,12 +1,20 @@
 from django.core.urlresolvers import reverse
 
-from .base import UserBaseTestCase
+from core.tests.base import UserBaseTestCase
 
 
 class SimpleViewsTestCase(UserBaseTestCase):
 
-    def test_renders_main_view(self):
-        with self.assertTemplateUsed('core/index.html'):
-            response = self.client.get(reverse('main'))
+    def test_renders_main_view_redirect_code(self):
+        response = self.client.get(reverse('main'))
+        self.assertEqual(302, response.status_code)
 
-        self.assertEqual(200, response.status_code)
+    def test_renders_main_view_redirected(self):
+        with self.assertTemplateUsed('orders/order.html'):
+            response = self.client.get(reverse('main'),
+                                       follow=True)
+            last_url, last_status_code = \
+                response.redirect_chain[-1]
+            self.assertEquals(last_url, '/en/orders/buy_bitcoin/')
+            self.assertEquals(last_status_code, 302)
+            self.assertEqual(200, response.status_code)

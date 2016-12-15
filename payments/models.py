@@ -72,7 +72,7 @@ class Payment(TimeStampedModel, SoftDeletableModel):
                              null=True,
                              blank=True)
     amount_cash = models.DecimalField(max_digits=12, decimal_places=2)
-    currency = models.ForeignKey('core.Currency')
+    currency = models.ForeignKey('core.Currency', default=None)
     is_redeemed = models.BooleanField(default=False)
     is_complete = models.BooleanField(default=False)
     is_success = models.BooleanField(default=False)

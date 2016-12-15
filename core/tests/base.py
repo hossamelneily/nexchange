@@ -2,7 +2,8 @@ from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.utils.translation import activate
 
-from core.models import Currency, Price
+from core.models import Currency
+from ticker.models import Price
 from orders.models import Order
 from accounts.models import SmsToken
 from payments.models import PaymentMethod, PaymentPreference
