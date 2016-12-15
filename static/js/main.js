@@ -13,10 +13,10 @@
         }, 500);
     });
 
-       var currency,
-           paymentMethodsEndpoint = '/en/paymentmethods/ajax/',
+       var currency = 'rub',
+           currencyElem,
            paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
-           cardsEndpoint = '/en/api/v1/cards',
+           cardsEndpoint = '/en/payments/options/',
            // Required modules
            orderObject = require('./modules/orders.js'),
            paymentObject = require('./modules/payment.js'),
@@ -29,9 +29,12 @@
         window.action = window.ACTION_BUY; // 1 - BUY 0 - SELL
 
     $(function () {
-            currency = $('.currency-from').val().toLowerCase();
+        if (currencyElem && currencyElem.val()){
+                currency = currencyElem.val().toLowerCase();
+        }
+
             orderObject.setCurrency(false, currency);
-            orderObject.reloadCardsPerCurrency(currency, cardsEndpoint);
+            paymentObject.loadPaymentMethods(cardsEndpoint, currency);
 
             var timer = null,
                 delay = 500,
@@ -67,8 +70,6 @@
                 if ($(this).hasClass('trigger-buy')) {
                     $('.menu1').removeClass('sell');
                     window.action = window.ACTION_BUY;
-
-                    paymentObject.loadPaymenMethods(paymentMethodsEndpoint);
                     orderObject.updateOrder($('.amount-coin'), false, currency, function () {
                         orderObject.toggleBuyModal();
                     });
@@ -76,7 +77,6 @@
                 } else {
                     $('.menu1').addClass('sell');
                     window.action = window.ACTION_SELL;
-
                     orderObject.updateOrder($('.amount-coin'), false, currency, function () {
                         orderObject.toggleSellModal();
                     });
@@ -132,23 +132,24 @@
             });
 
              $('.payment-method').on('change', function () {
-                paymentObject.loadPaymenMethodsAccount(paymentMethodsAccountEndpoint);
+                paymentObject.loadPaymentMethodsAccount(paymentMethodsAccountEndpoint);
 
             });
 
             $('.currency-select').on('change', function () {
                 currency = $(this).val().toLowerCase();
                 orderObject.setCurrency($(this), currency);
+                paymentObject.loadPaymentMethods(cardsEndpoint ,currency);
                 //bind all select boxes
                 $('.currency-select').not('.currency-to').val($(this).val());
                 orderObject.updateOrder($('.amount-coin'), false, currency);
-                orderObject.reloadCardsPerCurrency(currency, cardsEndpoint);
+                // orderObject.reloadCardsPerCurrency(currency, cardsEndpoint);
             });
             //using this form because the object is inside a modal screen
             $(document).on('change','.payment-method', function () {
                 var pm = $('.payment-method option:selected').val();
                 $('#payment_method_id').val(pm);
-                paymentObject.loadPaymenMethodsAccount(paymentMethodsAccountEndpoint, pm);
+                paymentObject.loadPaymentMethodsAccount(paymentMethodsAccountEndpoint, pm);
 
             });
 
@@ -172,7 +173,7 @@
             menuEndpoint = apiRoot + '/menu',
             breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
             validatePhoneEndpoint = '/en/profile/verifyPhone/',
-            placerAjaxOrder = '/en/order/ajax/',
+            placerAjaxOrder = '/en/orders/add_order/',
             paymentAjax = '/en/payment/ajax/',
             DEFAULT_AMOUNT = 1;
 
@@ -239,6 +240,82 @@
         });
 
 
+        $('.place-order').on('click', function () {
+            //TODO verify if $(this).hasClass('sell-go') add
+            // the other type of transaction
+            // add security checks
+            var actualPaymentType = $('.payment-preference-actual').text(),
+                preferenceIdentifier = $('.payment-preference-identifier-confirm').text(),
+                preferenceOwner = $('.payment-preference-owner-confirm').text(),
+                verifyPayload = {
+                    'trade-type': $('.trade-type').val(),
+                    'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
+                    'amount-coin': $('.amount-coin').val() || DEFAULT_AMOUNT,
+                    'currency_from': $('.currency-from').val(), //fiat
+                    'currency_to': $('.currency-to').val(), //crypto
+                    'pp_type': actualPaymentType,
+                    'pp_identifier': preferenceIdentifier,
+                    'pp_owner': preferenceOwner,
+                    '_locale': $('.topright_selectbox').val()
+                };
+
+            $.ajax({
+                type: 'post',
+                url: placerAjaxOrder,
+                dataType: 'text',
+                data: verifyPayload,
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                success: function (data) {
+                    //if the transaction is Buy
+                      var message;
+                    if (window.action == window.ACTION_BUY){
+                        message = gettext('Buy order placed successfully');
+                    }
+                    //if the transaction is Sell
+                    else{
+                        message = gettext('Sell order placed successfully');
+
+                    }
+                    toastr.success(message);
+                    $('.successOrder').html($(data));
+                    $('#orderSuccessModal').modal({backdrop: 'static'});
+
+                },
+                error: function () {
+                	var message = gettext('Something went wrong. Please, try again.');
+                    toastr.error(message);
+                }
+            });
+
+        });
+
+      $('.make-payment').on('click', function () {
+            var verifyPayload = {
+                'order_id': $('.trade-type').val(),
+                'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
+                'amount-cash': $('.amount-cash').val(),
+                'currency_from': $('.currency-from').val(),
+            };
+
+            $.ajax({
+                type: 'post',
+                url: paymentAjax,
+                dataType: 'text',
+                data: verifyPayload,
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                success: function (data) {
+                    $('.paymentMethodsHead').addClass('hidden');
+                    $('.paymentMethods').addClass('hidden');
+                    $('.paymentSuccess').removeClass('hidden').html($(data));
+                    $('.next-step').click();
+                },
+                error: function () {
+                	var message = gettext('Something went wrong. Please, try again.');
+                    toastr.error(message);
+                }
+            });
+
+        });
 
         $(document).on('click', '.buy .payment-type-trigger', function () {
 
@@ -253,7 +330,7 @@
             orderObject.changeState(null, 'next');
         });
 
-        $(document).on('click', '.payment-type-trigger-footer', paymentNegotiation);
+        // $(document).on('click', '.payment-type-trigger-footer', paymentNegotiation);
 
         $('.sell .payment-type-trigger').on('click', function () {
             var paymentType = $(this).data('type').toLocaleLowerCase();
@@ -304,7 +381,7 @@
 
             var form = $(this).closest('.modal-body');
 
-            var preferenceIdentifier = form.find('.val').val(),
+            preferenceIdentifier = form.find('.val').val();
             preferenceOwner = form.find('.name').val();
 
             $('.payment-preference-owner').val(preferenceOwner);
@@ -319,7 +396,7 @@
         });
     });
 
-    //for test selenium
+    //for tests selenium
     function submit_phone(){
         var apiRoot = '/en/api/v1',
             menuEndpoint = apiRoot + '/menu',

@@ -82,7 +82,7 @@ class Payment(TimeStampedModel, SoftDeletableModel):
     user = models.ForeignKey(User)
     # Todo consider one to many for split payments, consider order field on
     # payment
-    order = models.ForeignKey('core.Order', null=True, default=None)
+    order = models.ForeignKey('orders.Order', null=True, default=None)
     reference = models.CharField(max_length=255,
                                  null=True, default=None)
 

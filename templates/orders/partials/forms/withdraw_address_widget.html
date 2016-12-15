@@ -1,0 +1,28 @@
+{% load i18n %}
+<span id="td-frozen-withdraw-{{order.pk}}"
+    {% if not order.frozen %}
+        style="display:none"
+    {% endif %}>
+
+    <span class="frozen">
+        {{order.withdraw_address | default_if_none:"Not Defined"}}
+    </span>
+</span>
+<span id="td-withdraw-{{order.pk}}"
+        {% if order.frozen %}
+            style="display:none"
+        {% endif %}>
+
+        <i class="fa fa-pencil" aria-hidden="true"></i>
+        <span class="withdraw_address" id="span-withdraw-{{order.pk}}"
+            data-toggle="popover"
+            title="{% trans 'Set Withdraw Address' %}"
+            data-html="true"
+            data-container="body"
+            data-placement="top"
+            data-pk="{{order.pk}}"
+            data-url-update="{% url 'orders.update_withdraw_address' order.pk %}"
+            data-url-create="{% url 'accounts.create_withdraw_address' %}">
+            {{order.withdraw_address | default_if_none:"Not Defined"}}
+        </span>
+</span>

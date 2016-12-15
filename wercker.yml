@@ -129,7 +129,8 @@ dev:
     - internal/watch:
         code: |
           echo 'Dev server running'
-           npm run watch-js & newrelic-admin run-program  python manage.py runserver 0.0.0.0:8000
+          newrelic-admin run-program python manage.py runserver 0.0.0.0:8000 &
+          npm run watch-js
         reload: false
 
 build:

@@ -30,7 +30,7 @@ describe("Profile function", function() {
         });
 
         it("should execute the callback function on success", function () {
-            // can't figure how to test this...  
+            // can't figure how to tests this...
         });
     });
 

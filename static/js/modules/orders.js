@@ -260,18 +260,11 @@
             .addClass('disableClick');
     }
 
-    function reloadCardsPerCurrency(currency, cardsModalEndpoint) {
-        var _locale= $('.topright_selectbox').val();
-        $.post(cardsModalEndpoint, {currency: currency, _locale: _locale }, function (data) {
-            $('.paymentSelectionContainer').html($(data));
-        });
-    }
-
     function placeOrder () {
             //TODO verify if $(this).hasClass('sell-go') add
             // the other type of transaction
             // add security checks
-            var actualPaymentType = $('.payment-preference-actual').text(),
+            var actualPaymentType = $('.payment-preference-actual').val(),
             preferenceIdentifier = $('.payment-preference-identifier-confirm').text(),
             preferenceOwner = $('.payment-preference-owner-confirm').text();
 
@@ -326,7 +319,6 @@
         setButtonDefaultState: setButtonDefaultState,
         changeState: changeState,
         reloadRoleRelatedElements: reloadRoleRelatedElements,
-        reloadCardsPerCurrency: reloadCardsPerCurrency,
         toggleBuyModal: toggleBuyModal,
         toggleSellModal: toggleSellModal
     };

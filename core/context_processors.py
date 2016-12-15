@@ -17,11 +17,3 @@ def google_analytics(request):
             'GOOGLE_ANALYTICS_DOMAIN': ga_domain,
         }
     return {}
-
-
-def cms(request):
-    c = {
-        'lang': request.LANGUAGE_CODE,
-        'social': settings.SOCIAL
-    }
-    return c

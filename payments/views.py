@@ -1,17 +1,17 @@
+# -*- coding: utf-8 -*-
+
 from payments.models import Payment
-from core.models import Currency, Order
+from core.models import Currency
+from orders.models import Order
 from payments.models import PaymentPreference
 from payments.adapters import robokassa_adapter, \
     leupay_adapter, unitpay_adapter
 from payments.utils import geturl_robokassa
-# -*- coding: utf-8 -*-
-
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.http import Http404
-from django.http import HttpResponse
-from django.http import JsonResponse
+from django.http import Http404,\
+    HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
@@ -21,7 +21,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 @login_required
 def payment_failure(request):
-    template = get_template('core/partials/steps/step_reply_payment.html')
+    template = get_template('orders/partials/steps/step_retry_payment.html')
     # TODO: Better logic
     last_order = Order.objects.filter(user=request.user).latest('id')
     url = '/pay_try_again'
@@ -57,7 +57,7 @@ def payment_success(request, provider):
 
         if not received_order.valid:
             template = \
-                get_template('core/partials/steps/step_reply_payment.html')
+                get_template('orders/partials/steps/step_retry_payment.html')
             return HttpResponse(template.render({'bad_sugnature': True},
                                                 request))
 
@@ -74,14 +74,19 @@ def payment_success(request, provider):
                           payment_preference=order.payment_preference,
                           is_complete=False)
 
-        return redirect(reverse('core.order'))
+        return redirect(reverse('orders.orders_list'))
     except ObjectDoesNotExist:
         return JsonResponse({'result': 'bad request'})
 
 
+def payment_info(request, provider):
+    assert provider
+    pass
+
+
 def payment_type(request):
-    def get_pref_by_name(name):
-        curr_obj = Currency.objects.get(code=currency.upper())
+    def get_pref_by_name(name, _currency):
+        curr_obj = Currency.objects.get(code=_currency.upper())
         card = \
             PaymentPreference.\
             objects.filter(currency__in=[curr_obj],
@@ -89,28 +94,30 @@ def payment_type(request):
                            payment_method__name__icontains=name)
         return card[0] if len(card) else 'None'
 
-    template = get_template('core/partials/modals/payment_type.html')
-    currency = request.POST.get("currency")
+    template = get_template('payments/partials/modals/payment_type.html')
+    currency = request.POST.get('currency')
 
     cards = {
-        'sber': get_pref_by_name('Sber'),
-        'alfa': get_pref_by_name('Alfa'),
-        'qiwi': get_pref_by_name('Qiwi'),
+        'sber': get_pref_by_name('Sber', currency),
+        'alfa': get_pref_by_name('Alfa', currency),
+        'qiwi': get_pref_by_name('Qiwi', currency),
+        'paypal': get_pref_by_name('PayPal', currency),
+
     }
     local_vars = {
         'cards': cards,
         'type': 'buy',
         'currency': currency.upper(),
     }
-    translation.activate(request.POST.get("_locale"))
+    translation.activate(request.POST.get('_locale'))
     return HttpResponse(template.render(local_vars,
                                         request))
 
 
 @csrf_exempt
 def payment_type_json(request):
-    def get_pref_by_name(name):
-        curr_obj = Currency.objects.get(code=currency.upper())
+    def get_pref_by_name(name, _currency):
+        curr_obj = Currency.objects.get(code=_currency.upper())
         card = \
             PaymentPreference.\
             objects.filter(currency__in=[curr_obj],
@@ -118,12 +125,14 @@ def payment_type_json(request):
                            payment_method__name__icontains=name)
         return card[0].identifier if len(card) else 'None'
 
-    currency = request.POST.get("currency")
+    currency = request.POST.get('currency')
 
     cards = {
-        'sber': get_pref_by_name('Sber'),
-        'alfa': get_pref_by_name('Alfa'),
-        'qiwi': get_pref_by_name('Qiwi'),
+        'sber': get_pref_by_name('Sber', currency),
+        'alfa': get_pref_by_name('Alfa', currency),
+        'qiwi': get_pref_by_name('Qiwi', currency),
+        'paypal': get_pref_by_name('PayPal', currency),
+
     }
 
     return JsonResponse({'cards': cards})

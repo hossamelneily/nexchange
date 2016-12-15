@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from referrals.models import Referral, Program
-from core.models import Profile
+from accounts.models import Profile
 from django.contrib.auth.models import User
 
 

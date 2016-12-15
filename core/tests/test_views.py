@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
 
-from .utils import UserBaseTestCase
+from .base import UserBaseTestCase
 
 
 class SimpleViewsTestCase(UserBaseTestCase):
