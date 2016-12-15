@@ -169,12 +169,12 @@
         $('.btc-amount-confirm').text(confirm);
 
         var apiRoot = '/en/api/v1',
-            createAccEndpoint = apiRoot + '/phone',
+            createAccEndpoint =  '/en/accounts/authenticate/',
             menuEndpoint = apiRoot + '/menu',
             breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
-            validatePhoneEndpoint = '/en/profile/verifyPhone/',
+            validatePhoneEndpoint = '/en/accounts/verify_phone/',
             placerAjaxOrder = '/en/orders/add_order/',
-            paymentAjax = '/en/payment/ajax/',
+            paymentAjax = '/en/payments/ajax/',
             DEFAULT_AMOUNT = 1;
 
         $('.next-step, .prev-step').on('click', orderObject.changeState);

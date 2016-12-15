@@ -20,39 +20,61 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='payment',
             name='currency',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='core.Currency'),
+            field=models.ForeignKey(
+                default=None,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='core.Currency'),
         ),
         migrations.AddField(
             model_name='payment',
             name='order',
-            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='orders.Order'),
+            field=models.ForeignKey(
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='orders.Order'),
         ),
         migrations.AddField(
             model_name='payment',
             name='reference',
-            field=models.CharField(default=None, max_length=255, null=True),
+            field=models.CharField(
+                default=None,
+                max_length=255,
+                null=True),
         ),
         migrations.AddField(
             model_name='payment',
             name='user',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(
+                default=None,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='paymentcredentials',
             name='payment_preference',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='payments.PaymentPreference'),
+            field=models.ForeignKey(
+                default=None,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='payments.PaymentPreference'),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='paymentpreference',
             name='payment_method',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='payments.PaymentMethod'),
+            field=models.ForeignKey(
+                default=None,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='payments.PaymentMethod'),
         ),
         migrations.AddField(
             model_name='paymentpreference',
             name='user',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL),
             preserve_default=False,
         ),
     ]

@@ -7,18 +7,18 @@ account_urls = [
     url(r'^register$', views.user_registration,
         name='accounts.register'),
 
-    url(r'^authenticate$', views.user_by_phone,
+    url(r'^authenticate/$', views.user_by_phone,
         name='accounts.user_by_phone'),
 
-    url(r'^resend_sms$', views.resend_sms,
+    url(r'^resend_sms/$', views.resend_sms,
         name='accounts.resend_sms'),
 
-    url(r'^verify_phone$',
+    url(r'^verify_phone/$',
         views.verify_phone, name='core.verify_phone'),
     url(r'^profile$', views.UserUpdateView.as_view(),
         name='accounts.user_profile'),
 
-    url(r'^create_withdraw_address$',
+    url(r'^create_withdraw_address/$',
         views.create_withdraw_address,
         name='accounts.create_withdraw_address'),
 
