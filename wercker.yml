@@ -388,7 +388,7 @@ tests:
         name: Backend tests
         code: |
           coverage erase
-          coverage run --source="." manage.py test --pattern="**/tests/**/**.py"
+          coverage run --source="." manage.py test -v=3 --pattern="test_*.py"
           coverage report
           coverage html -d cover
     - script:
