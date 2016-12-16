@@ -2,10 +2,16 @@
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.utils.translation import get_language
 
 
 def main(request):
-    url = reverse('orders.add_order')
+    local_currency = 'RUB' if get_language() == 'ru' else 'EUR'
+    params = {
+        'currency': local_currency,
+    }
+    url = reverse('orders.add_order', kwargs=params)
+
     return HttpResponseRedirect(url)
 
 

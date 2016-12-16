@@ -17,7 +17,7 @@ logging.basicConfig(filename='payment_release.log', level=logging.INFO)
 def payment_release():
     # TODO: iterate over payments instead, will be much faster
     for o in Order.objects.filter(is_paid=True, is_released=False):
-        if not o.has_withdraw_address:
+        if not o.withdraw_address:
             print("{} has now withdrawal address, moving on".
                   format(o.unique_reference))
             continue

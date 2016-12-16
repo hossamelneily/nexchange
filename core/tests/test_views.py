@@ -15,6 +15,6 @@ class SimpleViewsTestCase(UserBaseTestCase):
                                        follow=True)
             last_url, last_status_code = \
                 response.redirect_chain[-1]
-            self.assertEquals(last_url, '/en/orders/buy_bitcoin/')
+            self.assertEquals(last_url, '/en/orders/buy_bitcoin/EUR/')
             self.assertEquals(last_status_code, 302)
             self.assertEqual(200, response.status_code)

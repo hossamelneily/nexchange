@@ -1,5 +1,6 @@
 from payments.models import Payment, PaymentMethod, PaymentPreference
-from core.models import Order, Address, Transaction
+from core.models import Address, Transaction
+from orders.models import Order
 from core.tests.base import UserBaseTestCase, OrderBaseTestCase
 from nexchange.utils import release_payment
 from decimal import Decimal

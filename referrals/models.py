@@ -36,10 +36,11 @@ class ReferralCode(TimeStampedModel, UniqueFieldMixin):
 
 
 class Referral(TimeStampedModel, SoftDeleteMixin):
+    # TODO: ensure that one user is not referred by many Users.
     code = models.ForeignKey('ReferralCode', default=None,
                              null=True)
     referee = models.ForeignKey(User, null=True, default=None,
-                                related_name='referral')
+                                related_name='referrals_set')
 
     def save(self, *args, **kwargs):
         if 'program' not in kwargs:

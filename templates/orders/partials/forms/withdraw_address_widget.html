@@ -5,7 +5,7 @@
     {% endif %}>
 
     <span class="frozen">
-        {{order.withdraw_address | default_if_none:"Not Defined"}}
+        {{order.withdraw_address.address | default_if_none:"Not Defined"}}
     </span>
 </span>
 <span id="td-withdraw-{{order.pk}}"
@@ -23,6 +23,6 @@
             data-pk="{{order.pk}}"
             data-url-update="{% url 'orders.update_withdraw_address' order.pk %}"
             data-url-create="{% url 'accounts.create_withdraw_address' %}">
-            {{order.withdraw_address | default_if_none:"Not Defined"}}
+            {{order.withdraw_address.address | default_if_none:"Not Defined"}}
         </span>
 </span>
