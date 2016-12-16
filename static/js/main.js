@@ -13,7 +13,7 @@
         }, 500);
     });
 
-       var currency = 'rub',
+       var currency,
            currencyElem,
            paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
            cardsEndpoint = '/en/payments/options/',
