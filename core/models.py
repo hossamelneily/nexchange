@@ -33,7 +33,6 @@ class Address(BtcBase, SoftDeletableModel):
     name = models.CharField(max_length=100, blank=True)
     address = models.CharField(max_length=35, validators=[validate_bc])
     user = models.ForeignKey(User)
-    order = models.ForeignKey('orders.Order', null=True, default=None)
 
 
 class Transaction(BtcBase):

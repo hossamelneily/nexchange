@@ -388,14 +388,14 @@ tests:
         name: Backend tests
         code: |
           coverage erase
-          coverage run --source="." manage.py test -v 3
+          coverage run --source="." manage.py test -v=3 --pattern="test_*.py"
           coverage report
           coverage html -d cover
     - script:
         name: Frontend tests
         code: |
-          # export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs
-          # npm run-script test
+           export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs
+           npm run-script test
     - script:
         name: Validate New Relic config file
         code: |

@@ -12,15 +12,18 @@
                     NProgress.done();
         }, 500);
     });
-
-       var currency = 'rub',
+       var url = window.location.href,
+           urlFragments = url.split('/'),
+           currencyPos = urlFragments.length - 2,
+           currency = urlFragments[currencyPos],
            currencyElem,
            paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
            cardsEndpoint = '/en/payments/options/',
            // Required modules
            orderObject = require('./modules/orders.js'),
            paymentObject = require('./modules/payment.js'),
-           captcha = require('./modules/captcha.js');
+           captcha = require('./modules/captcha.js'),
+           $currencySelect;
 
         $('.trade-type').val('1');
 
@@ -33,127 +36,127 @@
                 currency = currencyElem.val().toLowerCase();
         }
 
-            orderObject.setCurrency(false, currency);
-            paymentObject.loadPaymentMethods(cardsEndpoint, currency);
+        $currencySelect = $('.currency-select');
+        orderObject.setCurrency(false, currency);
+        paymentObject.loadPaymentMethods(cardsEndpoint, currency);
+        var timer = null,
+            delay = 500,
+            phones = $('.phone');
+        //if not used idx: remove jshint
+        phones.each(function () {
+            if(typeof $(this).intlTelInput === 'function') {
+                // with AMD move to https://codepen.io/jackocnr/pen/RNVwPo
+                $(this).intlTelInput();
+            }
+        });
 
-            var timer = null,
-                delay = 500,
-                phones = $('.phone');
-            //if not used idx: remove jshint
-            phones.each(function () {
-                if(typeof $(this).intlTelInput === 'function') {
-                    // with AMD move to https://codepen.io/jackocnr/pen/RNVwPo
-                    $(this).intlTelInput();
-                }
-            });            
+        orderObject.updateOrder($('.amount-coin'), true, currency);
+        // if not used event, isNext remove  jshint
+        $('#graph-range').on('change', function() {
+            orderObject.setCurrency(false, currency);
+        });
+
+        $('.exchange-sign').click(function () {
+            var menuElem = $('.menu1');
+
+            window.action = menuElem.hasClass('sell') ?
+                window.ACTION_BUY : window.ACTION_SELL;
+
+            orderObject.updateOrder($('.amount-coin'), false, currency, function () {
+                    menuElem.toggleClass('sell');
+            });
+        });
+
+        $('.trigger').click( function(){
+            $('.trigger').removeClass('active-action');
+            $(this).addClass('active-action');
+            if ($(this).hasClass('trigger-buy')) {
+                $('.menu1').removeClass('sell');
+                window.action = window.ACTION_BUY;
+                orderObject.updateOrder($('.amount-coin'), false, currency, function () {
+                    orderObject.toggleBuyModal();
+                });
+
+            } else {
+                $('.menu1').addClass('sell');
+                window.action = window.ACTION_SELL;
+                orderObject.updateOrder($('.amount-coin'), false, currency, function () {
+                    orderObject.toggleSellModal();
+                });
+            }
+
+            $('.trade-type').val(window.action);
 
             orderObject.updateOrder($('.amount-coin'), true, currency);
-            // if not used event, isNext remove  jshint
-            $('#graph-range').on('change', function() {
-                orderObject.setCurrency(false, currency);
-            });
 
-            $('.exchange-sign').click(function () {
-                var menuElem = $('.menu1');
+            var newCashClass = window.action === window.ACTION_BUY ? 'rate-buy' : 'rate-sell';
+              $('.amount-cash, .amount-coin')
+                .removeClass('rate-buy')
+                .removeClass('rate-sell')
+                .addClass(newCashClass);
+        });
 
-                window.action = menuElem.hasClass('sell') ?
-                    window.ACTION_BUY : window.ACTION_SELL;
-
-                orderObject.updateOrder($('.amount-coin'), false, currency, function () {
-                        menuElem.toggleClass('sell');
-                });
-            });
-
-            $('.trigger').click( function(){
-                $('.trigger').removeClass('active-action');
-                $(this).addClass('active-action');
-                if ($(this).hasClass('trigger-buy')) {
-                    $('.menu1').removeClass('sell');
-                    window.action = window.ACTION_BUY;
-                    orderObject.updateOrder($('.amount-coin'), false, currency, function () {
-                        orderObject.toggleBuyModal();
+        $('.amount').on('keyup', function () {
+            // Protection against non-integers
+            // TODO: export outside
+            var val = this.value,
+                lastChar = val.slice(-1),
+                prevVal = val.substr(0, val.length-1);
+            if(!!prevVal && lastChar === '.' &&
+                prevVal.indexOf('.') === -1) {
+                return;
+                // # TODO: User isNaN
+            } else if(!parseInt(lastChar) &&
+                      parseInt(lastChar) !== 0) {
+                // TODO: animate error
+                $(this).val(prevVal);
+                return;
+            }
+            var self = this,
+                loaderElem = $('.exchange-sign'),
+                cb = function animationCallback() {
+                    loaderElem.one('animationiteration webkitAnimationIteration', function() {
+                        loaderElem.removeClass('loading');
                     });
 
-                } else {
-                    $('.menu1').addClass('sell');
-                    window.action = window.ACTION_SELL;
-                    orderObject.updateOrder($('.amount-coin'), false, currency, function () {
-                        orderObject.toggleSellModal();
-                    });
-                }
+                    setTimeout(function () {
+                        loaderElem.removeClass('loading');
+                    }, 2000);// max animation duration
+                };
 
-                $('.trade-type').val(window.action);
+            loaderElem.addClass('loading');
+            if (timer) {
+                clearTimeout(timer);
+                timer = null;
+            }
+            timer = setTimeout(function () {
+                orderObject.updateOrder($(self), false, currency, cb);
+            }, delay);
+        });
 
-                orderObject.updateOrder($('.amount-coin'), true, currency);
-
-                var newCashClass = window.action === window.ACTION_BUY ? 'rate-buy' : 'rate-sell';
-                  $('.amount-cash, .amount-coin')
-                    .removeClass('rate-buy')
-                    .removeClass('rate-sell')
-                    .addClass(newCashClass);
-            });
-
-            $('.amount').on('keyup', function () {
-                // Protection against non-integers
-                // TODO: export outside
-                var val = this.value,
-                    lastChar = val.slice(-1),
-                    prevVal = val.substr(0, val.length-1);
-                if(!!prevVal && lastChar === '.' &&
-                    prevVal.indexOf('.') === -1) {
-                    return;
-                    // # TODO: User isNaN
-                } else if(!parseInt(lastChar) &&
-                          parseInt(lastChar) !== 0) {
-                    // TODO: animate error
-                    $(this).val(prevVal);
-                    return;
-                }
-                var self = this,
-                    loaderElem = $('.exchange-sign'),
-                    cb = function animationCallback() {
-                        loaderElem.one('animationiteration webkitAnimationIteration', function() {
-                            loaderElem.removeClass('loading');
-                        });
-                        
-                        setTimeout(function () {
-                            loaderElem.removeClass('loading');
-                        }, 2000);// max animation duration
-                    };
-                
-                loaderElem.addClass('loading');
-                if (timer) {
-                    clearTimeout(timer);
-                    timer = null;
-                }
-                timer = setTimeout(function () {
-                    orderObject.updateOrder($(self), false, currency, cb);
-                }, delay);
-            });
-
-             $('.payment-method').on('change', function () {
-                paymentObject.loadPaymentMethodsAccount(paymentMethodsAccountEndpoint);
-
-            });
-
-            $('.currency-select').on('change', function () {
-                currency = $(this).val().toLowerCase();
-                orderObject.setCurrency($(this), currency);
-                paymentObject.loadPaymentMethods(cardsEndpoint ,currency);
-                //bind all select boxes
-                $('.currency-select').not('.currency-to').val($(this).val());
-                orderObject.updateOrder($('.amount-coin'), false, currency);
-                // orderObject.reloadCardsPerCurrency(currency, cardsEndpoint);
-            });
-            //using this form because the object is inside a modal screen
-            $(document).on('change','.payment-method', function () {
-                var pm = $('.payment-method option:selected').val();
-                $('#payment_method_id').val(pm);
-                paymentObject.loadPaymentMethodsAccount(paymentMethodsAccountEndpoint, pm);
-
-            });
+         $('.payment-method').on('change', function () {
+            paymentObject.loadPaymentMethodsAccount(paymentMethodsAccountEndpoint);
 
         });
+
+        $currencySelect.on('change', function () {
+            currency = $(this).val().toLowerCase();
+            orderObject.setCurrency($(this), currency);
+            paymentObject.loadPaymentMethods(cardsEndpoint ,currency);
+            //bind all select boxes
+            $currencySelect.not('.currency-to').val($(this).val());
+            orderObject.updateOrder($('.amount-coin'), false, currency);
+            // orderObject.reloadCardsPerCurrency(currency, cardsEndpoint);
+        });
+        //using this form because the object is inside a modal screen
+        $(document).on('change','.payment-method', function () {
+            var pm = $('.payment-method option:selected').val();
+            $('#payment_method_id').val(pm);
+            paymentObject.loadPaymentMethodsAccount(paymentMethodsAccountEndpoint, pm);
+
+        });
+
+    });
 
     $(function() {
         // For order index

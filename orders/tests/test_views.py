@@ -10,7 +10,7 @@ from decimal import Decimal
 from unittest import skip
 
 
-from core.models import Address, Transaction
+from core.models import Address
 from orders.models import Order
 from payments.models import PaymentMethod, PaymentPreference, Payment
 from core.tests.base import UserBaseTestCase, OrderBaseTestCase
@@ -34,7 +34,7 @@ class OrderSetAsPaidTestCase(UserBaseTestCase, OrderBaseTestCase):
         self.order = Order(**self.data)
         self.order.save()
 
-        self.url = reverse('core.payment_confirmation',
+        self.url = reverse('orders.confirm_payment',
                            kwargs={'pk': self.order.pk})
 
     def test_cannot_set_as_paid_if_has_no_withdraw_address(self):
@@ -52,16 +52,20 @@ class OrderSetAsPaidTestCase(UserBaseTestCase, OrderBaseTestCase):
             address='17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j')
         address.save()
 
-        # Creates an Transaction for the Order, using the user Address
-        transaction = Transaction(
-            order=self.order, address_to=address, address_from=address)
-        transaction.save()
+        self.order.withdraw_address = address
+        self.order.save()
 
         # Set Order as Paid
         response = self.client.post(self.url, {'paid': 'true'})
-        expected = {"frozen": None, "paid": True, "status": "OK"}
-        self.assertJSONEqual(json.dumps(expected), str(
-            response.content, encoding='utf8'),)
+        expected_dict = {
+            "frozen": None,
+            "paid": True,
+            "status": "OK"
+        }
+        expected = json.dumps(expected_dict)
+        actual = str(response.content, encoding='utf8')
+        self.assertJSONEqual(expected,
+                             actual,)
 
     def test_can_set_as_paid_if_has_withdraw_address_internal(self):
         # Creates an withdraw address fro this user
@@ -69,6 +73,9 @@ class OrderSetAsPaidTestCase(UserBaseTestCase, OrderBaseTestCase):
             user=self.user, type='W',
             address='17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j')
         address.save()
+
+        self.order.withdraw_address = address
+        self.order.save()
 
         payment_method = PaymentMethod(
             name='Internal Test',
@@ -91,23 +98,25 @@ class OrderSetAsPaidTestCase(UserBaseTestCase, OrderBaseTestCase):
             user=self.order.user
         )
         payment.save()
-        # Creates an Transaction for the Order, using the user Address
-        transaction = Transaction(
-            order=self.order, address_to=address, address_from=address)
-        transaction.save()
 
         # Set Order as Paid
         response = self.client.post(self.url, {'paid': 'true'})
-        expected = {"frozen": True, "paid": True, "status": "OK"}
-        self.assertJSONEqual(json.dumps(expected), str(
-            response.content, encoding='utf8'),)
+        expected_dict = {"frozen": True, "paid": True, "status": "OK"}
+        expected = json.dumps(expected_dict)
+        actual = str(
+            response.content, encoding='utf8')
+        self.assertJSONEqual(expected,
+                             actual,)
 
 
 class OrderPayUntilTestCase(OrderBaseTestCase, UserBaseTestCase):
 
     def test_pay_until_message_is_in_context_and_is_rendered(self):
+        params = {
+            'currency': 'EUR'
+        }
         response = self.client.post(
-            reverse('orders.order_add'),
+            reverse('orders.add_order', kwargs=params),
             {
                 'amount-cash': '31000',
                 'currency_from': 'RUB',
@@ -130,11 +139,14 @@ class OrderPayUntilTestCase(OrderBaseTestCase, UserBaseTestCase):
         self.assertContains(response, 'id="pay_until_notice"')
 
     def test_pay_until_message_is_in_correct_time_zone(self):
+        params = {
+            'currency': 'EUR'
+        }
         user_tz = 'Asia/Vladivostok'
         self.client.cookies.update(SimpleCookie(
             {'USER_TZ': user_tz}))
         response = self.client.post(
-            reverse('orders.add_order'),
+            reverse('orders.add_order', kwargs=params),
             {
                 'amount-cash': '31000',
                 'currency_from': 'RUB',
@@ -164,15 +176,19 @@ class OrderPayUntilTestCase(OrderBaseTestCase, UserBaseTestCase):
 
     def test_pay_until_message_uses_settingsTZ_for_invalid_time_zones(self):
         user_tz = 'SOMETHING/FOOLISH'
-
+        params = {
+            'currency': 'EUR'
+        }
         self.client.cookies.update(SimpleCookie(
             {'user_tz': user_tz}))
-        response = self.client.post(reverse('orders.add_order'), {
-            'amount-cash': '31000',
-            'currency_from': 'RUB',
-            'amount-coin': '1',
-            'currency_to': 'BTC'}
-        )
+        response = \
+            self.client.post(
+                reverse('orders.add_order', kwargs=params), {
+                    'amount-cash': '31000',
+                    'currency_from': 'RUB',
+                    'amount-coin': '1',
+                    'currency_to': 'BTC'}
+            )
 
         order = Order.objects.last()
         pay_until = order.created_on + timedelta(minutes=order.payment_window)
@@ -237,7 +253,7 @@ class UpdateWithdrawAddressTestCase(UserBaseTestCase, OrderBaseTestCase):
         self.order = order
 
         pk = self.order.pk
-        self.url = reverse('core.update_withdraw_address', kwargs={'pk': pk})
+        self.url = reverse('orders.update_withdraw_address', kwargs={'pk': pk})
 
         self.addr_data = {
             'type': 'W',
@@ -262,31 +278,32 @@ class UpdateWithdrawAddressTestCase(UserBaseTestCase, OrderBaseTestCase):
 
         client = self.client
         client.login(username=username, password=password)
-
         response = client.post(self.url, {
             'pk': self.order.pk,
             'value': self.addr.pk})
 
         self.assertEqual(403, response.status_code)
-
-        self.client.login(username=self.user.username, password='password')
+        self.client.logout()
 
     def test_sucess_to_update_withdraw_adrress(self):
-
+        self.client.login(username=self.user.username, password='password')
         response = self.client.post(self.url, {
             'pk': self.order.pk,
-            'value': self.addr.pk, })
+            'value': self.addr.pk,
+        })
 
-        self.assertJSONEqual('{"status": "OK"}', str(
-            response.content, encoding='utf8'),)
-
-        self.assertEqual(self.order.withdraw_address, self.addr.address)
+        expected = '{"status": "OK"}'
+        actual = str(response.content, encoding='utf8')
+        self.assertJSONEqual(expected,
+                             actual,)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.withdraw_address, self.addr)
 
     def test_throw_error_for_invalid_withdraw_adrress(self):
         response = self.client.post(
             self.url, {'pk': self.order.pk, 'value': 50})
 
-        self.assertEqual(b'Invalid addresses informed.', response.content)
+        self.assertEqual(b'Invalid address provided', response.content)
 
 
 class OrderIndexOrderTestCase(UserBaseTestCase, OrderBaseTestCase):
@@ -296,7 +313,7 @@ class OrderIndexOrderTestCase(UserBaseTestCase, OrderBaseTestCase):
 
     def test_redirect_login_for_anonymous(self):
         self.client.logout()
-        response = self.client.get(reverse('core.order'))
+        response = self.client.get(reverse('orders.orders_list'))
         self.assertEqual(302, response.status_code)
 
         success = self.client.login(
@@ -306,14 +323,14 @@ class OrderIndexOrderTestCase(UserBaseTestCase, OrderBaseTestCase):
     def test_renders_empty_list_of_user_orders(self):
         Order.objects.filter(user=self.user).delete()
         with self.assertTemplateUsed('orders/orders_list.html'):
-            response = self.client.get(reverse('core.order'))
+            response = self.client.get(reverse('orders.orders_list'))
             self.assertEqual(200, response.status_code)
             self.assertEqual(0, len(response.context['orders'].object_list))
 
     @skip("causes failures, needs to be migrated")
     def test_renders_non_empty_list_of_user_orders(self):
         with self.assertTemplateUsed('orders/orders_list.html'):
-            response = self.client.get(reverse('core.order'))
+            response = self.client.get(reverse('orders.add_order'))
             self.assertEqual(200, response.status_code)
             self.assertEqual(1, len(response.context['orders'].object_list))
 
@@ -322,16 +339,22 @@ class OrderIndexOrderTestCase(UserBaseTestCase, OrderBaseTestCase):
     @skip("causes failures, needs to be migrated")
     def test_filters_list_of_user_orders(self):
         date = timezone.now().strftime("%Y-%m-%d")
-        response = self.client.post(reverse('core.order'), {'date': date})
+        response = self.client.post(
+            reverse('orders.add_order'), {
+                'date': date})
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context['orders'].object_list))
 
         date = (timezone.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-        response = self.client.post(reverse('core.order'), {'date': date})
+        response = self.client.post(
+            reverse('orders.add_order'), {
+                'date': date})
         self.assertEqual(200, response.status_code)
         self.assertEqual(0, len(response.context['orders'].object_list))
 
-        response = self.client.post(reverse('core.order'), {'date': None})
+        response = self.client.post(
+            reverse('orders.add_order'), {
+                'date': None})
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context['orders'].object_list))
 

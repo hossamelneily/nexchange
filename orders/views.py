@@ -11,12 +11,13 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import timedelta
 from decimal import Decimal
-from django.utils.translation import activate, get_language,\
+from django.utils.translation import activate,\
     ugettext_lazy as _
 from payments.api_clients.braintree import BrainTreeAPI
 from django.views.decorators.csrf import csrf_exempt
 from payments.utils import geturl_robokassa
 from django.core.exceptions import ValidationError
+from core.views import main
 
 
 braintree_api = BrainTreeAPI()
@@ -69,19 +70,19 @@ def orders_list(request):
                                         request))
 
 
-def add_order(request):
+def add_order(request, currency=None):
     template = get_template('orders/order.html')
-
+    if not currency:
+        return main(request)
     if request.method == 'POST':
         # Not in use order is added via ajax
         template = \
             get_template('orders/partials/result_order.html')
         user = request.user
-        curr = request.POST.get('currency_from', 'RUB')
         amount_coin = Decimal(request.POST.get('amount-coin'))
-        currency = Currency.objects.filter(code=curr)[0]
+        _currency = Currency.objects.filter(code=currency)[0]
         order = Order(amount_btc=amount_coin,
-                      currency=currency, user=user)
+                      currency=_currency, user=user)
         order.save()
         uniq_ref = order.unique_reference
         pay_until = order.created_on + timedelta(minutes=order.payment_window)
@@ -97,10 +98,9 @@ def add_order(request):
     else:
         pass
     crypto_pairs = [{'code': 'BTC'}]
-    local_currency = 'RUB' if get_language() == 'ru' else 'EUR'
     currencies = Currency.objects.filter().exclude(code='BTC')
     currencies = sorted(currencies,
-                        key=lambda x: x.code != local_currency)
+                        key=lambda x: x.code != currency)
 
     # TODO: this code is utestable shit, move to template
     select_currency_from = '''<select name='currency_from'
@@ -235,7 +235,9 @@ def update_withdraw_address(request, pk):
         try:
             a = Address.objects.get(
                 user=request.user, pk=address_id)
-            assert a
+            a.save()
+            order.withdraw_address = a
+            order.save()
         except ObjectDoesNotExist:
             return HttpResponseForbidden(
                 _('Invalid address provided'))
@@ -258,7 +260,7 @@ def payment_confirmation(request, pk):
     elif order.payment_status_frozen:
         return HttpResponseForbidden(
             _('This order can not be edited because is frozen'))
-    elif paid is True and not order.has_withdraw_address:
+    elif paid is True and not order.withdraw_address:
         return HttpResponseForbidden(
             _('An order can not be set as paid without a withdraw address'))
     else:

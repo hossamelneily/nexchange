@@ -41,6 +41,10 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     payment_preference = models.ForeignKey('payments.PaymentPreference',
                                            default=None,
                                            null=True)
+    withdraw_address = models.ForeignKey('core.Address',
+                                         null=True,
+                                         related_name='order_set',
+                                         default=None)
 
     class Meta:
         ordering = ['-created_on']
@@ -58,7 +62,7 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
                 kwargs['is_completed'] and\
                 not self.is_completed:
             self.old_referral_revenue = \
-                self.user.referral.get().revenue
+                self.user.referral_set.get().revenue
 
         super(Order, self).save(*args, **kwargs)
 
@@ -143,22 +147,6 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         """return bool whether the withdraw address can
            be changed"""
         return self.is_released
-
-    @property
-    def has_withdraw_address(self):
-        """return a boolean indicating if order has a withdraw adrress defined
-        """
-        # TODO: Validate this business rule
-        return len(self.address_set.all()) > 0
-
-    @property
-    def withdraw_address(self):
-        addr = None
-
-        if self.has_withdraw_address:
-            addr = self.transaction_set.first().address_to.address
-
-        return addr
 
     def __str__(self):
         return "{} {} {} BTC {} {}".format(self.user.username or

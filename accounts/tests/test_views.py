@@ -1,8 +1,8 @@
 from django.test import TestCase
-from core.models import SmsToken, Profile
+from accounts.models import SmsToken, Profile
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
-from .utils import UserBaseTestCase
+from core.tests.base import UserBaseTestCase
 
 
 class RegistrationTestCase(TestCase):
@@ -27,7 +27,7 @@ class RegistrationTestCase(TestCase):
         user = User.objects.last()
         self.assertEqual(self.data['phone'], user.profile.phone)
 
-    def test_cannot_register_existant_phone(self):
+    def test_cannot_register_existent_phone(self):
 
         # Creates first with the phone
         self.client.post(
