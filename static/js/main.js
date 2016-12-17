@@ -9,13 +9,13 @@
     $(document).ajaxComplete(function () {
         console.log('Request Complete');
         setTimeout(function () {
-                    NProgress.done();
+            NProgress.done();
         }, 500);
     });
        var url = window.location.href,
            urlFragments = url.split('/'),
            currencyPos = urlFragments.length - 2,
-           currency = urlFragments[currencyPos],
+           currency = urlFragments[currencyPos].toLowerCase(),
            currencyElem,
            paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
            cardsEndpoint = '/en/payments/options/',
