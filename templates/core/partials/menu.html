@@ -37,11 +37,11 @@
         <div class="collapse navbar-collapse menupanel">
             <ul class="nav navbar-nav">
                 <li class="{% if request.resolver_match.url_name == 'orders.add_order' %} active {% endif %}">
-                    <a href="/">
+                    <a href="{% url 'orders.add_order' %}">
                         {% trans "Home" %}
                     </a>
                 </li>
-                <li class="{% if request.resolver_match.url_name == 'referrals.main' %} active {% endif %}">
+                <li class="{% if request.resolver_match.url_name == 'orders.orders_list' %} active {% endif %}">
                     <a href="{% url 'orders.orders_list' %}">
                         {% trans "My Orders" %}
                     </a>

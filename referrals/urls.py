@@ -8,5 +8,5 @@ router.register(r'referrals', ReferralViewSet, base_name='referrals')
 referrals_api_patterns = router.urls
 
 referral_urls = [
-    url(r'', referrals)
+    url(r'', referrals, name='referrals.main')
 ]

@@ -20,3 +20,6 @@ class CmsPage(models.Model):
                               max_length=2,
                               null=True,
                               choices=settings.LANGUAGES)
+
+    def __str__(self):
+        return "{} - {}".format(self.name, self.locale)
