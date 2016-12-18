@@ -8,8 +8,8 @@
     <div class="collapse navbar-collapse menupanel">
         <ul class="nav navbar-nav">
             {% for c in cmsmenu %}
-                <li class="active">
-                    <a href="/cms/{{ c.0 }}">
+                <li class="{% if  c.0 in request.get_full_path %}active{% endif %}">
+                    <a href="/articles/{{ c.0 }}">
                         {{ c.1 }}
                     </a>
                 </li>
@@ -18,18 +18,21 @@
     </div>
 
     <div class="cms_text">
-        <div class="cms_header">
-            {{ head | safe }}
-        </div>
-        <div class="line-order" >
-            -----------------------------------------
-        </div>
-       <div class="cms_written">
-            {{ written_by| safe }}
-        </div>
+        {% block cms_text %}
+            <div class="cms_header">
+                {{ head | safe }}
+                <div class="line-order" >
+                </div>
+            </div>
 
-        <div class="cms_body">
-            {{ body | safe }}
-        </div>
+           <div class="cms_written">
+                {{ written_by| safe }}
+            </div>
+
+            <div class="cms_body">
+                {{ body | safe }}
+            </div>
+        {% endblock %}
+
     </div>
 {% endblock %}

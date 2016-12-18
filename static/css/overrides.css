@@ -113,7 +113,7 @@
 
 .line-order{
     height: 8px;
-    width:130px;
+    width:100%;
     display:block; /* for use on default inline elements like span */
     overflow: hidden;
     background-color: #8cc63f
@@ -364,7 +364,15 @@ h1 ,h2 ,h3 ,h4 ,h5 ,h6
 	border-bottom:4px solid #FFF;
 }
 
-.menupanel ul li a:hover, a.active{ color:#27383f; border-bottom:4px solid #8cc63f;}
+.menupanel ul li a:hover,
+.menupanel ul li.active a {
+    color:#27383f;
+    border-bottom:4px solid #8cc63f;
+
+}
+.menupanel {
+    margin-bottom: 10px;
+}
 
 
 .submenu-colorblack li a{color:#0b427c !important;}
@@ -1030,4 +1038,8 @@ body #nprogress .spinner-icon {
 .center_block{
     display: table;
     margin: 0 auto;
+}
+.cms_header{
+    display: inline-block;
+    font-size: 32px;
 }
