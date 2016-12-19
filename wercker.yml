@@ -93,7 +93,7 @@ dev:
     - script:
         name: Django run ticker update prices command
         code: |
-#          python manage.py ticker
+          python manage.py ticker
     - script:
         name: Django collect static
         code: |
