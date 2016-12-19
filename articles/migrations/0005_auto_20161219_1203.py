@@ -17,57 +17,130 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='OgResource',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('deleted', models.BooleanField(default=False)),
-                ('disabled', models.BooleanField(default=False)),
-                ('created_on', models.DateTimeField(auto_now_add=True)),
-                ('modified_on', models.DateTimeField(auto_now=True)),
-                ('name', models.CharField(choices=[('faq', 'faq'), ('blog', 'blog'), ('fees', 'fees'), ('support', 'support'), ('trading_guide', 'trading_guide'), ('about_us', 'about_us'), ('careers', 'careers'), ('press', 'press'), ('conference', 'conference'), ('legal_privacy', 'legal_privacy'), ('security', 'security')], default=None, max_length=50)),
-                ('locale', models.CharField(choices=[('ru', 'Russian'), ('en', 'English'), ('es', 'Espanol')], default=('ru', 'Russian'), max_length=2, null=True)),
-                ('resource_url', models.CharField(max_length=255)),
-                ('image', models.CharField(max_length=255)),
-                ('title', models.CharField(max_length=255)),
-                ('site_name', models.CharField(max_length=255)),
-                ('body', models.CharField(max_length=500)),
+                ('id',
+                 models.AutoField(
+                     auto_created=True,
+                     primary_key=True,
+                     serialize=False,
+                     verbose_name='ID')),
+                ('deleted',
+                 models.BooleanField(
+                     default=False)),
+                ('disabled',
+                 models.BooleanField(
+                     default=False)),
+                ('created_on',
+                 models.DateTimeField(
+                     auto_now_add=True)),
+                ('modified_on',
+                 models.DateTimeField(
+                     auto_now=True)),
+                ('name',
+                 models.CharField(
+                     choices=[
+                         ('faq',
+                          'faq'),
+                         ('blog',
+                          'blog'),
+                         ('fees',
+                          'fees'),
+                         ('support',
+                          'support'),
+                         ('trading_guide',
+                          'trading_guide'),
+                         ('about_us',
+                          'about_us'),
+                         ('careers',
+                          'careers'),
+                         ('press',
+                          'press'),
+                         ('conference',
+                          'conference'),
+                         ('legal_privacy',
+                          'legal_privacy'),
+                         ('security',
+                          'security')],
+                     default=None,
+                     max_length=50)),
+                ('locale',
+                 models.CharField(
+                     choices=[
+                         ('ru',
+                          'Russian'),
+                         ('en',
+                          'English'),
+                         ('es',
+                          'Espanol')],
+                     default=(
+                         'ru',
+                         'Russian'),
+                     max_length=2,
+                     null=True)),
+                ('resource_url',
+                 models.CharField(
+                     max_length=255)),
+                ('image',
+                 models.CharField(
+                     max_length=255)),
+                ('title',
+                 models.CharField(
+                     max_length=255)),
+                ('site_name',
+                 models.CharField(
+                     max_length=255)),
+                ('body',
+                 models.CharField(
+                     max_length=500)),
             ],
             options={
                 'abstract': False,
             },
             managers=[
-                ('active_objects', django.db.models.manager.Manager()),
+                ('active_objects',
+                 django.db.models.manager.Manager()),
             ],
         ),
         migrations.AlterModelManagers(
             name='cmspage',
             managers=[
-                ('active_objects', django.db.models.manager.Manager()),
+                ('active_objects',
+                 django.db.models.manager.Manager()),
             ],
         ),
         migrations.AddField(
             model_name='cmspage',
             name='created_on',
-            field=models.DateTimeField(auto_now_add=True, default=None),
+            field=models.DateTimeField(
+                auto_now_add=True,
+                default=None),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='cmspage',
             name='deleted',
-            field=models.BooleanField(default=False),
+            field=models.BooleanField(
+                default=False),
         ),
         migrations.AddField(
             model_name='cmspage',
             name='disabled',
-            field=models.BooleanField(default=False),
+            field=models.BooleanField(
+                default=False),
         ),
         migrations.AddField(
             model_name='cmspage',
             name='modified_on',
-            field=models.DateTimeField(auto_now=True, default=None),
+            field=models.DateTimeField(
+                auto_now=True,
+                default=None),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='ogresource',
             name='page',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='articles.CmsPage'),
+            field=models.ForeignKey(
+                default=None,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='articles.CmsPage'),
         ),
     ]

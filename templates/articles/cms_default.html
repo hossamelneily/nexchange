@@ -20,19 +20,48 @@
     <div class="cms_text">
         {% block cms_text %}
             <div class="cms_header">
-                {{ head | safe }}
+                {{ page.head | safe }}
                 <div class="line-order" >
                 </div>
             </div>
 
            <div class="cms_written">
-                {% trans "Written by: " %} {{ written_by| safe | default: _('Nexchange Team') }}
+                {% trans "Written by: " %} {{ page.written_by | safe | default:_('Nexchange Team') }}
             </div>
 
             <div class="cms_body">
-                {{ body | safe }}
+                {{ paage.body | safe }}
             </div>
         {% endblock %}
 
+        {% block cms_additional %}
+            {% for og in page.resources_sets.all %}
+            <a href="{{ og.resource_url }}">
+                <div class="row">
+                    <div class="og-resource">
+                        <div class="col-sm-3 preview"
+                             style="background-image: url('{{ og.image }}');
+                                     min-width: 200px;
+                                     min-height: 200px;">
+                        </div>
+                        <div class="col-sm-9 content-container">
+                            <div class="col-lg-12">
+                                {{ og.title | escape}}
+                            </div>
+                            <div class="col-sm-12">
+                                <small>{{ og.short_domain | escape }}</small>
+                            </div>
+                            <div class="col-sm-12 og-content">
+                                {{ og.description | escape }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        {% endblock %}
+
+        {% block cms_relevant_links %}
+        {% endblock %}
     </div>
 {% endblock %}
