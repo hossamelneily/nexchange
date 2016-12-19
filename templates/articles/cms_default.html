@@ -26,7 +26,7 @@
             </div>
 
            <div class="cms_written">
-                {{ written_by| safe }}
+                {% trans "Written by: " %} {{ written_by| safe | default: _('Nexchange Team') }}
             </div>
 
             <div class="cms_body">
