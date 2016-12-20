@@ -28,6 +28,9 @@
            <div class="cms_written">
                 {% trans "Written by: " %} {{ page.written_by | safe | default:_('Nexchange Team') }}
             </div>
+           <div class="cms_last_updated">
+                {% trans "Lasst modified: " %} {{ page.modified_on |date:'D, d M, Y'|safe }}
+            </div>
 
             <div class="cms_body">
                 {{ page.body | safe }}
@@ -36,7 +39,7 @@
 
         {% block cms_additional %}
             {% for og in page.resources_sets.all %}
-            <a href="{{ og.resource_url }}">
+            <a href="{{ og.resource_url }}" target="_blank">
                 <div class="row">
                     <div class="og-resource">
                         <div class="col-sm-3 preview"
