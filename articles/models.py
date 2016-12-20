@@ -24,7 +24,7 @@ class CmsBase(TimeStampedModel, SoftDeletableModel):
                               choices=settings.LANGUAGES)
 
 
-class CmsPage(models.Model):
+class CmsPage(CmsBase):
     head = models.TextField(default=None, null=True)
     written_by = models.TextField(default=None, null=True)
     body = models.TextField(default=None, null=True)
