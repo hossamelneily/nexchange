@@ -1105,3 +1105,58 @@ body #nprogress .spinner-icon {
     vertical-align: middle;
     margin-top: 25px;
 }
+
+.form-support {
+	width: 50%;
+	display: table-cell;
+
+}
+
+.info-support {
+	width: 50%;
+	display: table-cell;
+	padding-left: 300px;
+	padding-top: 140px;
+
+}
+
+.support-wrapper {
+	display: table;
+	table-layout: fixed;
+	width: 100%;
+}
+
+.info-address {
+	padding-bottom: 70px;
+}
+
+.info-address p {
+	font-size: 16px;
+	font-weight: 500;
+}
+
+.support-arddress {
+	color: #8dc73f;
+	font-size: 18px;
+	font-weight: 700;
+}
+
+@media only screen and (min-device-width : 320px) and (max-device-width : 568px) {
+	.info-support {
+		padding-left: 10px;
+	}
+
+}
+
+@media only screen and (min-device-width : 560px) and (max-device-width : 1170px) {
+	.info-support {
+		padding-left: 70px;
+	}
+
+}
+
+.answer {
+	text-align: center;
+	padding-top: 50px;
+	font-size: 18px;
+}
