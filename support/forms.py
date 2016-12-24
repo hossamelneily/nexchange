@@ -20,10 +20,9 @@ class SupportForm(forms.ModelForm):
 
         try:
             profile = Profile.objects.get(user__username=self.request.user)
-            self.fields['telephone'].widget.attrs['placeholder'] = \
-                profile.phone
+            self.fields['telephone'].initial = profile.phone
             user = User.objects.get(username=self.request.user)
-            self.fields['email'].widget.attrs['placeholder'] = user.email
+            self.fields['email'].initial = user.email
         except ObjectDoesNotExist:
             pass
 
