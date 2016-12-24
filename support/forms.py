@@ -1,7 +1,10 @@
 from django import forms
 from .models import Support
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import User
 from orders.models import Order
+from accounts.models import Profile
 
 
 class SupportForm(forms.ModelForm):
@@ -14,6 +17,15 @@ class SupportForm(forms.ModelForm):
         self.fields['order'].empty_label = _('--- Please choise order ---')
         self.fields['order'].help_text = \
             _('Choise a order related with question')
+
+        try:
+            profile = Profile.objects.get(user__username=self.request.user)
+            self.fields['telephone'].widget.attrs['placeholder'] = \
+                profile.phone
+            user = User.objects.get(username=self.request.user)
+            self.fields['email'].widget.attrs['placeholder'] = user.email
+        except ObjectDoesNotExist:
+            pass
 
     class Meta:
         model = Support

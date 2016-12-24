@@ -9,9 +9,15 @@
         <ul class="nav navbar-nav">
             {% for c in cmsmenu %}
                 <li class="{% if  c.0 in request.get_full_path %}active{% endif %}">
-                    <a href="/articles/{{ c.0 }}">
-                        {{ c.1 }}
-                    </a>
+                	{% if c.1 == "Support" %}
+                	    <a href="/{{ c.0 }}">
+                	    	{{ c.1 }}
+                	    </a>
+                	{% else %}
+                        <a href="/articles/{{ c.0 }}">
+                            {{ c.1 }}
+                        </a>
+                    {% endif %}
                 </li>
             {% endfor %}
         </ul>
