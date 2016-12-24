@@ -24,6 +24,7 @@ from referrals.urls import referrals_api_patterns, referral_urls
 from orders.urls import order_urls
 from accounts.urls import account_urls
 from articles.urls import article_urls
+from support.urls import support_urls
 from django.conf import settings
 from django.conf.urls.static import static
 import os
@@ -48,6 +49,7 @@ urlpatterns = i18n_patterns(
     url(r'^payments/', include(payment_urls)),
     url(r'^referrals/', include(referral_urls)),
     url(r'^articles/', include(article_urls)),
+    url(r'^support/', include(support_urls)),
 
     url(r'^api/v1/', include(api_patterns)),
     url(r'^api/v1/menu', core.views.ajax_menu, name='core.menu'),

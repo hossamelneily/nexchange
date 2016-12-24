@@ -60,8 +60,8 @@ def check_transaction_blockchain(tx):
     info = get(btc_blockr)
     if info.status_code != 200:
         return False
-    count_confs = int(info.json()['data']['confirmations'])
-    if count_confs > settings.MIN_REQUIRED_CONFIRMATIONS:
+    num_confirmations = int(info.json()['data']['confirmations'])
+    if num_confirmations > settings.MIN_REQUIRED_CONFIRMATIONS:
         return True
     else:
         return False

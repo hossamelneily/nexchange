@@ -56,6 +56,7 @@ def payment_release():
             t = Transaction(tx_id_api=tx_id, order=o, address_to=adr)
             t.save()
 
+            title = _("Nexchange: Order released")
             msg = _("Your order {}:  is released").format(o.unique_reference)
 
             if settings.DEBUG:
@@ -70,7 +71,7 @@ def payment_release():
 
             # send email
             if profile.notify_by_email:
-                email = send_email(user.email, 'title', msg)
+                email = send_email(user.email, title, msg)
                 email.send()
 
         elif settings.DEBUG:
@@ -95,6 +96,7 @@ def checker_transactions():
             tr.is_verified = True
             tr.save()
 
+            title = _("Nexchange: Order released")
             msg = _("Your order {}:  is released"). \
                 format(tr.order.o.unique_reference)
 
@@ -106,7 +108,8 @@ def checker_transactions():
                     print(str(sms_result))
 
             if profile.notify_by_email:
-                pass
+                email = send_email(tr.order.user.email, title, msg)
+                email.send()
 
             if settings.DEBUG:
                 print("Transaction {} is completed".format(tr.tx_id))

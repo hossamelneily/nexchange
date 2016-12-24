@@ -1,0 +1,50 @@
+{% extends "core/base.html" %}
+{% load bootstrap3 %}
+{% load i18n %}
+
+{% block main %}
+<div class="row support-wrapper">
+    <div class="col-xs-5 form-support">
+        <div class="page-header">
+            <h2>
+                {% trans "Send Message" %}
+            </h2>
+        </div>
+        <form method="post" class="form">{% csrf_token %}
+            {% if user.is_authenticated %}
+                {% bootstrap_field form.order %}
+            {% endif %}
+                {% bootstrap_field form.telephone %}
+                {% bootstrap_field form.name %}
+                {% bootstrap_field form.email %}
+                {% bootstrap_field form.subject %}
+                {% bootstrap_field form.message %}    
+             <input type="submit" name="submit" class="btn btn-success btn-lg" id="submit" value="{% trans 'Send'%}">
+        </form>
+    </div>
+
+    <div class="col-xs-5 info-support">
+    	<div class="info-address">
+	        <p class="support-arddress">Email</p>
+	        <p>abc@website.com</p>
+	    </div>
+	    <div class="info-address">
+	        <p class="support-arddress">Phone</p>
+	        <p>+000 000 00 00</p>
+	    </div>
+	    <div class="info-address">
+	        <p class="support-arddress">ICQ</p>
+	        <p>000 000 00 00</p>
+	    </div>
+	    <div class="info-address">
+	        <p class="support-arddress">Telegram</p>
+	        <p>000 000 00 00</p>
+	    </div>
+	    <div class="info-address">
+	        <p class="support-arddress">Whatsapp</p>
+	        <p>+000 000 00 00</p>
+	    </div>	
+    </div>
+
+</div>
+{% endblock %}

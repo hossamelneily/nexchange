@@ -102,7 +102,8 @@ INSTALLED_APPS = [
     'djcelery',
     'session_security',
     'axes',
-    'nexchange'
+    'nexchange',
+    'support'
 ]
 
 
