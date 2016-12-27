@@ -1,5 +1,6 @@
 from django import forms
 from .models import Support
+from django.utils.translation import ugettext_lazy as _
 from orders.models import Order
 
 
@@ -10,7 +11,9 @@ class SupportForm(forms.ModelForm):
         super(SupportForm, self).__init__(*args, **kwargs)
         self.fields['order'].queryset = \
             Order.objects.filter(user__username=self.request.user)
-        self.fields['order'].empty_label = "--- Please choise value ---"
+        self.fields['order'].empty_label = _('--- Please choise order ---')
+        self.fields['order'].help_text = \
+            _('Choise a order related with question')
 
     class Meta:
         model = Support

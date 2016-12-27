@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-22 18:35+0300\n"
-"PO-Revision-Date: 2016-11-23 04:28+0300\n"
+"POT-Creation-Date: 2016-12-24 07:57+0300\n"
+"PO-Revision-Date: 2016-12-24 08:08+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -195,6 +195,34 @@ msgstr "Проверьте ваш телефон"
 #: templates/accounts/user_profile.html:39
 msgid "Send-me the token again"
 msgstr "Пришлать код подтверждения еще раз"
+
+#: support/forms.py:14
+msgid "--- Please choise order ---"
+msgstr "--- Выберете, пожалуйста, заказ ---"
+
+#: support/forms.py:15
+msgid "Choise a order related with question"
+msgstr "Выберете заказ, относящийся к вопросу"
+
+#: support/models.py:11
+msgid "Name*"
+msgstr "Имя*"
+
+#: support/models.py:12
+msgid "Email*"
+msgstr "Email*"
+
+#: support/models.py:13
+msgid "Telephone"
+msgstr "Телефон"
+
+#: support/models.py:15
+msgid "Subject"
+msgstr "Заголовок"
+
+#: support/models.py:16
+msgid "Message*"
+msgstr "Сообщение*"
 
 #: templates/accounts/password_reset_complete.html:9
 msgid "Your password has been reset."
@@ -696,16 +724,16 @@ msgid "No referrals found"
 msgstr "Не найдено ни одной записи"
 
 #: templates/support/support.html:10
-#, fuzzy
-#| msgid "Send again"
 msgid "Send Message"
-msgstr "Прислать код еще раз"
+msgstr "Отправить сообщение"
 
 #: templates/support/support.html:22
-#, fuzzy
-#| msgid "Send SMS"
 msgid "Send"
-msgstr "Отправить СМС"
+msgstr "Отправить"
+
+#: templates/support/thanks.html:8
+msgid "Thanks, soon we will answer you"
+msgstr "Спасибо, в ближайшее время мы Вам ответим"
 
 #~ msgid "Not Defined"
 #~ msgstr "Не определено"
