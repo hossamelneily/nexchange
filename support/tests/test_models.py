@@ -16,8 +16,7 @@ class SupportTestModelUser(UserBaseTestCase, OrderBaseTestCase):
             'amount_btc': Decimal(1.00),
             'currency': currency,
             'user': self.user,
-            'admin_comment': 'tests Order',
-            'unique_reference': '12345'
+            'admin_comment': 'tests Order'
         }
 
         self.order = Order(**self.data)
