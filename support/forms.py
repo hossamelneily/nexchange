@@ -10,15 +10,14 @@ from .models import Support
 
 
 class SupportForm(forms.ModelForm):
-
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
         super(SupportForm, self).__init__(*args, **kwargs)
         self.fields['order'].queryset = \
             Order.objects.filter(user__username=self.request.user)
-        self.fields['order'].empty_label = _('--- Please choise order ---')
+        self.fields['order'].empty_label = _('--- Please select an order (if applicable) ---')
         self.fields['order'].help_text = \
-            _('Choise a order related with question')
+            _('Choose an order which is related to your request')
 
         try:
             profile = Profile.objects.get(user__username=self.request.user)

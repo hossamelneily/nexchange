@@ -39,3 +39,23 @@ class SupportFormTest(TestCase):
                                     self.post_data,
                                     follow=True)
         self.assertEqual(response.status_code, 200)
+
+    def test_redirect_at_success(self):
+        response = self.client.post('/support/',
+                                    self.post_data,
+                                    follow=True)
+        last_url, last_status_code = \
+            response.redirect_chain[-1]
+        self.assertEquals(last_url, '/en/support/')
+        self.assertEquals(last_status_code, 302)
+
+    def test_redirect_at_failure(self):
+        del self.post_data['email']
+        response = self.client.post('/support/',
+                                    {},
+                                    follow=True)
+        last_url, last_status_code = \
+            response.redirect_chain[-1]
+        self.assertEquals(last_url, '/en/support/')
+        self.assertEquals(last_status_code, 302)
+        self.assertEquals(response.status_code, 200)

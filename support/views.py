@@ -28,12 +28,12 @@ class SupportView(FormView):
         return context
 
     def form_valid(self, form):
-        object = form.save(commit=False)
+        obj = form.save(commit=False)
         try:
-            object.user = self.request.user
+            obj.user = self.request.user
         except ValueError:
-            object.user = None
-        object.save()
+            obj.user = None
+            obj.save()
         return super(SupportView, self).form_valid(form)
 
 
