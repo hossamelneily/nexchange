@@ -385,3 +385,6 @@ SESSION_SECURITY_PASSIVE_URLS = ["/en/api/v1/price/latest/",
                                  "/en/session_security/ping/",
                                  "https://mc.yandex.ru/webvisor/39575585",
                                  "https://mc.yandex.ru/watch/39575585"]
+
+AXES_LOGIN_FAILURE_LIMIT = 5
+

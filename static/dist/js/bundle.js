@@ -938,6 +938,9 @@ module.exports = {
     "use strict";
 
     function loadPaymentMethods(cardsEndpoint, currency) {
+        if (!currency || currency.length > 3) {
+            return;
+        }
         var payload = {
             '_locale': $('.topright_selectbox').val(),
             'currency': currency
