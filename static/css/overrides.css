@@ -1107,18 +1107,10 @@ body #nprogress .spinner-icon {
     margin-top: 25px;
 }
 
-.form-support {
-	width: 50%;
-	display: table-cell;
-
-}
-
 .info-support {
 	width: 50%;
-	display: table-cell;
 	padding-left: 300px;
 	padding-top: 140px;
-
 }
 
 .support-wrapper {
