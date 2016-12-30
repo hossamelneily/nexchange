@@ -1,4 +1,5 @@
 from rest_framework.routers import SimpleRouter
+
 from ticker.views import LastPricesViewSet, PriceHistoryViewSet
 
 router = SimpleRouter()

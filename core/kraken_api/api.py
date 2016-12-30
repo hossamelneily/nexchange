@@ -15,18 +15,16 @@
 # <http://www.gnu.org/licenses/gpl-3.0.txt>.
 
 
-import json
-import urllib.request
-import urllib.parse
-import urllib.error
-
-# private query nonce
-import time
-
+import base64
 # private query signing
 import hashlib
 import hmac
-import base64
+import json
+# private query nonce
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
 
 from nexchange.settings import KRAKEN_API_KEY, KRAKEN_API_SIGN
 

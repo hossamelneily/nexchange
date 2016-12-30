@@ -1,7 +1,8 @@
-from support.models import Support
-from orders.models import Order
-from core.tests.base import UserBaseTestCase, OrderBaseTestCase
 from decimal import Decimal
+
+from core.tests.base import OrderBaseTestCase, UserBaseTestCase
+from orders.models import Order
+from support.models import Support
 
 
 class SupportTestModelUser(UserBaseTestCase, OrderBaseTestCase):

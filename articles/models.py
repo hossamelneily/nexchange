@@ -1,8 +1,9 @@
-from django.db import models
-from core.common.models import TimeStampedModel, SoftDeletableModel
-from django.conf import settings
 import requests
+from django.conf import settings
+from django.db import models
+
 from bs4 import BeautifulSoup
+from core.common.models import SoftDeletableModel, TimeStampedModel
 
 
 class CmsBase(TimeStampedModel, SoftDeletableModel):

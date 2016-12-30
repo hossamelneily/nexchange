@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import ReferralCode, Referral, Program
+
+from .models import Program, Referral, ReferralCode
 
 admin.site.register(ReferralCode)
 admin.site.register(Referral)

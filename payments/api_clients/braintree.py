@@ -1,7 +1,8 @@
-from django.conf import settings
-import braintree
 import uuid
+
+import braintree
 import OpenSSL
+from django.conf import settings
 
 
 class BrainTreeAPI:

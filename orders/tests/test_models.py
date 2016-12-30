@@ -1,12 +1,13 @@
-from django.utils import timezone
-from orders.models import Order
-from payments.models import PaymentPreference, Payment, PaymentMethod
-from datetime import timedelta
 import time
-from django.conf import settings
-from core.tests.base import UserBaseTestCase, \
-    OrderBaseTestCase, data_provider
+from datetime import timedelta
 from unittest import skip
+
+from django.conf import settings
+from django.utils import timezone
+
+from core.tests.base import OrderBaseTestCase, UserBaseTestCase, data_provider
+from orders.models import Order
+from payments.models import Payment, PaymentMethod, PaymentPreference
 
 
 class OrderValidatePaymentTestCase(UserBaseTestCase, OrderBaseTestCase):

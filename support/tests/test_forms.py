@@ -1,9 +1,11 @@
+from decimal import Decimal
+
 from django.test import TestCase
+from django.test.client import RequestFactory
+
+from core.tests.base import OrderBaseTestCase, UserBaseTestCase
 from orders.models import Order
 from support.forms import SupportForm
-from core.tests.base import UserBaseTestCase, OrderBaseTestCase
-from decimal import Decimal
-from django.test.client import RequestFactory
 
 
 class SupportTestForm(TestCase):

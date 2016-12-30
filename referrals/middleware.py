@@ -1,5 +1,6 @@
 from django.conf import settings
-from referrals.models import ReferralCode, Referral
+
+from referrals.models import Referral, ReferralCode
 
 
 class ReferralMiddleWare(object):

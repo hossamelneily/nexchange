@@ -1,10 +1,12 @@
-from django.db import models
-from django.contrib.auth.models import User
-from nexchange.settings import REFERRAL_CODE_LENGTH
 from decimal import Decimal
+
+from django.contrib.auth.models import User
+from django.db import models
 from django.utils.crypto import get_random_string
-from core.common.models import SoftDeleteMixin, UniqueFieldMixin,\
-    TimeStampedModel
+
+from core.common.models import (SoftDeleteMixin, TimeStampedModel,
+                                UniqueFieldMixin)
+from nexchange.settings import REFERRAL_CODE_LENGTH
 
 
 class Program(TimeStampedModel):

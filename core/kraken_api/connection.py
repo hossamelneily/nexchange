@@ -16,9 +16,9 @@
 
 
 import http.client
-import urllib.request
-import urllib.parse
 import urllib.error
+import urllib.parse
+import urllib.request
 
 
 class Connection(object):

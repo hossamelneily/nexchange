@@ -1,15 +1,17 @@
-from django.conf import settings
-from django.db import models
-from core.common.models import TimeStampedModel, \
-    SoftDeletableModel, UniqueFieldMixin
-from core.models import Currency
-from django.contrib.auth.models import User
-from ticker.models import Price
-from decimal import Decimal
-from django.utils.crypto import get_random_string
-from payments.utils import money_format
 from datetime import timedelta
+from decimal import Decimal
+
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.db import models
 from django.utils import timezone
+from django.utils.crypto import get_random_string
+
+from core.common.models import (SoftDeletableModel, TimeStampedModel,
+                                UniqueFieldMixin)
+from core.models import Currency
+from payments.utils import money_format
+from ticker.models import Price
 
 
 class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):

@@ -1,19 +1,19 @@
-from django.utils import timezone
-from django.core.urlresolvers import reverse
-from django.conf import settings
-from django.contrib.auth.models import User
-from http.cookies import SimpleCookie
-from datetime import timedelta
-import pytz
 import json
+from datetime import timedelta
 from decimal import Decimal
+from http.cookies import SimpleCookie
 from unittest import skip
 
+import pytz
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.utils import timezone
 
 from core.models import Address
+from core.tests.base import OrderBaseTestCase, UserBaseTestCase
 from orders.models import Order
-from payments.models import PaymentMethod, PaymentPreference, Payment
-from core.tests.base import UserBaseTestCase, OrderBaseTestCase
+from payments.models import Payment, PaymentMethod, PaymentPreference
 
 
 class OrderSetAsPaidTestCase(UserBaseTestCase, OrderBaseTestCase):

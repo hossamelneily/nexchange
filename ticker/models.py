@@ -1,8 +1,10 @@
+from decimal import Decimal
+
+import requests
 from django.db import models
 from django.utils.dateformat import format
+
 from core.common.models import TimeStampedModel
-import requests
-from decimal import Decimal
 
 
 class Price(TimeStampedModel):

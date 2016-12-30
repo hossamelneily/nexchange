@@ -13,23 +13,23 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
-from django.contrib import admin
-import core.views
-from django.conf.urls import include
-from django.conf.urls.i18n import i18n_patterns
-from ticker.urls import ticker_api_patterns
-from payments.urls import payment_urls
-from referrals.urls import referrals_api_patterns, referral_urls
-from orders.urls import order_urls
-from accounts.urls import account_urls
-from articles.urls import article_urls
-from support.urls import support_urls
-from django.conf import settings
-from django.conf.urls.static import static
 import os
+
+from django.conf import settings
+from django.conf.urls import include, url
+from django.conf.urls.i18n import i18n_patterns
+from django.conf.urls.static import static
+from django.contrib import admin
 from django.views.i18n import javascript_catalog
 
+import core.views
+from accounts.urls import account_urls
+from articles.urls import article_urls
+from orders.urls import order_urls
+from payments.urls import payment_urls
+from referrals.urls import referral_urls, referrals_api_patterns
+from support.urls import support_urls
+from ticker.urls import ticker_api_patterns
 
 js_info_dict = {
     'domain': 'djangojs',

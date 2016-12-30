@@ -1,24 +1,24 @@
-from django.conf import settings
-from orders.models import Order
-from core.models import Currency, Address
-from accounts.models import Profile
-from payments.models import PaymentPreference
-from django.http import HttpResponse, JsonResponse, HttpResponseForbidden
-from core.common.forms import DateSearchForm
-from django.template.loader import get_template
-from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.core.exceptions import ObjectDoesNotExist
 from datetime import timedelta
 from decimal import Decimal
-from django.utils.translation import activate,\
-    ugettext_lazy as _
-from payments.api_clients.braintree import BrainTreeAPI
-from django.views.decorators.csrf import csrf_exempt
-from payments.utils import geturl_robokassa
-from django.core.exceptions import ValidationError
-from core.views import main
 
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.template.loader import get_template
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import activate
+from django.views.decorators.csrf import csrf_exempt
+
+from accounts.models import Profile
+from core.common.forms import DateSearchForm
+from core.models import Address, Currency
+from core.views import main
+from orders.models import Order
+from payments.api_clients.braintree import BrainTreeAPI
+from payments.models import PaymentPreference
+from payments.utils import geturl_robokassa
 
 braintree_api = BrainTreeAPI()
 

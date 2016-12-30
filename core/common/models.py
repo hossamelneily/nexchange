@@ -1,7 +1,7 @@
-from django.db import models
-from safedelete import safedelete_mixin_factory, SOFT_DELETE, \
-    DELETED_VISIBLE_BY_PK, safedelete_manager_factory, DELETED_INVISIBLE
 from django.conf import settings
+from django.db import models
+from safedelete import (DELETED_INVISIBLE, DELETED_VISIBLE_BY_PK, SOFT_DELETE,
+                        safedelete_manager_factory, safedelete_mixin_factory)
 
 SoftDeleteMixin = safedelete_mixin_factory(policy=SOFT_DELETE,
                                            visibility=DELETED_VISIBLE_BY_PK)

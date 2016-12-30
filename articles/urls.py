@@ -1,4 +1,5 @@
 from django.conf.urls import url
+
 from articles import views
 
 article_urls = [

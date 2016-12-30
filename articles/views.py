@@ -1,8 +1,9 @@
-from django.template.loader import get_template
-from articles.models import CmsPage
-from django.http.response import Http404, HttpResponse
 from django.conf import settings
+from django.http.response import Http404, HttpResponse
+from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
+
+from articles.models import CmsPage
 
 
 def cms_page(request, page_name):

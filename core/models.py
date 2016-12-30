@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
-from core.common.models import TimeStampedModel, \
-    SoftDeletableModel
+
+from core.common.models import SoftDeletableModel, TimeStampedModel
+
 from .validators import validate_bc
 
 

@@ -11,10 +11,11 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+from datetime import timedelta
+
+import dj_database_url
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
-import dj_database_url
-from datetime import timedelta
 
 DEFAULT_FROM_EMAIL = 'support@nexchange.ru'
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -387,4 +388,3 @@ SESSION_SECURITY_PASSIVE_URLS = ["/en/api/v1/price/latest/",
                                  "https://mc.yandex.ru/watch/39575585"]
 
 AXES_LOGIN_FAILURE_LIMIT = 5
-

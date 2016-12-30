@@ -1,12 +1,14 @@
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.http import HttpResponse
+from django.template.loader import get_template
+
 from core.common.views import DateFilterViewSet
-from .serializers import ReferralSerializer
+from referrals.models import ReferralCode
+
 from .models import Referral
 from .permissions import IsLoggedIn
-from django.contrib.auth.decorators import login_required
-from referrals.models import ReferralCode
-from django.template.loader import get_template
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import HttpResponse
+from .serializers import ReferralSerializer
 
 
 class ReferralViewSet(DateFilterViewSet):

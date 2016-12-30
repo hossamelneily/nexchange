@@ -1,5 +1,6 @@
 from decimal import Decimal
 from hashlib import md5
+
 from django.conf import settings
 
 

@@ -1,8 +1,9 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
-from ticker.serializers import PriceSerializer
-from ticker.models import Price
+
 from core.common.views import DateFilterViewSet
+from ticker.models import Price
+from ticker.serializers import PriceSerializer
 
 
 class LastPricesViewSet(viewsets.ViewSet):

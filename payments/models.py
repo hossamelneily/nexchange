@@ -1,8 +1,8 @@
-from django.db import models
-
-from core.common.models import TimeStampedModel, SoftDeletableModel
 from django.contrib.auth.models import User
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
+
+from core.common.models import SoftDeletableModel, TimeStampedModel
 
 
 class PaymentMethodManager(models.Manager):

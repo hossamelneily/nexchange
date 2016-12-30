@@ -1,28 +1,27 @@
-from django.shortcuts import render, redirect
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from accounts.forms import CustomUserCreationForm, UserProfileForm,\
-    UpdateUserProfileForm, UserForm
-from referrals.forms import ReferralTokenForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import redirect, render
+from django.template.loader import get_template
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import View
 from twilio.exceptions import TwilioException
 from twilio.rest import TwilioRestClient
-from django.views.generic import View
-from accounts.models import SmsToken
-from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ValidationError
-from django.http import HttpResponse
-from django.http import JsonResponse
-from django.template.loader import get_template
+
+from accounts.forms import (CustomUserCreationForm, UpdateUserProfileForm,
+                            UserForm, UserProfileForm)
+from accounts.models import Profile, SmsToken
 from core.models import Address
-from accounts.models import Profile
-from django.contrib.auth.models import User
 from core.validators import validate_bc
-from django.core.urlresolvers import reverse
-from django.views.decorators.csrf import csrf_exempt
+from referrals.forms import ReferralTokenForm
 
 
 def user_registration(request):

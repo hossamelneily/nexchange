@@ -1,4 +1,5 @@
 from django.conf.urls import url
+
 from support.views import SupportView, ThanksView
 
 support_urls = [
