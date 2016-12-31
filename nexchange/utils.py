@@ -6,6 +6,7 @@ from django.core.mail import send_mail
 from requests import get
 from twilio.exceptions import TwilioException
 from twilio.rest import TwilioRestClient
+
 from uphold import Uphold
 
 api = Uphold(settings.UPHOLD_IS_TEST)

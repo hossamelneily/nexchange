@@ -120,13 +120,20 @@ ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
                 "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
 
 CMSPAGES = {
-    'ABOUTUS': [('about_us', _('About Us')), ('careers', _('Careers')),
-                ('press', _('Press')), ('conference', _('Conference')),
-                ('legal_privacy', _('Legal & Privacy')),
-                ('security', _('Security'))],
-    'RESOURCES': [('faq', _('FAQ')), ('blog', _('Blog')),
-                  ('fees', _('Fees')), ('support', _('Support')),
-                  ('trading_guide', _('Trading Guide'))]
+    'ABOUTUS': [
+        ('about_us', _('About Us')),
+        ('careers', _('Careers')),
+        ('press', _('Press')),
+        ('conference', _('Conference')),
+        ('legal_privacy', _('Legal & Privacy')),
+        ('security', _('Security'))],
+    'RESOURCES': [
+        ('faq', _('FAQ')),
+        # ('blog', _('Blog')),
+        ('fees', _('Fees')),
+        ('support', _('Support')),
+        # ('trading_guide', _('Trading Guide'))
+    ]
 }
 
 REDIS_ADDR = 'redis'
@@ -344,8 +351,8 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 12
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 SOCIAL = {
-    'twitter': 'https://twitter.com/nexchange.ru',
-    'facebook': 'https://facebook.com/nexchange.ru'
+    'twitter': 'https://twitter.com/nexchangeBTC',
+    'facebook': 'https://facebook.com/nexchangeBTC'
 }
 
 BRAINTREE_API = {

@@ -1,8 +1,8 @@
 import requests
+from bs4 import BeautifulSoup
 from django.conf import settings
 from django.db import models
 
-from bs4 import BeautifulSoup
 from core.common.models import SoftDeletableModel, TimeStampedModel
 
 

@@ -1,4 +1,5 @@
 from django import template
+from django.utils.translation import ugettext_lazy as _
 
 register = template.Library()
 
@@ -11,9 +12,9 @@ def ord_date(date):
             return s
 
     def add_suffix(d):
-        suffix = 'th' if 4 <= d % 100 <= 20\
-            else {1: 'st', 2: 'nd', 3: 'rd'}\
-            .get(d % 10, 'th')
+        suffix = _('th') if 4 <= d % 100 <= 20\
+            else {1: _('st'), 2: _('nd'), 3: _('rd')}\
+            .get(d % 10, _('th'))
         return '{}{}'.format(d, suffix)
 
     output = []
@@ -22,7 +23,7 @@ def ord_date(date):
         val = convert_int(frag)
         if isinstance(val, int) and 1 < val < 32:
             val = add_suffix(val)
-        output.append(val)
+        output.append(str(val))
 
     return ' '.join(output)
 

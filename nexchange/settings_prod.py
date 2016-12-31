@@ -1,6 +1,6 @@
-from nexchange.settings import *  # noqa: E401
 import dj_database_url
 
+from nexchange.settings import *  # noqa: E401
 
 DEBUG = True
 
