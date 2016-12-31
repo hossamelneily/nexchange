@@ -1105,3 +1105,60 @@ body #nprogress .spinner-icon {
     vertical-align: middle;
     margin-top: 25px;
 }
+
+.info-support {
+	width: 50%;
+	padding-left: 300px;
+	padding-top: 140px;
+}
+
+.support-wrapper {
+	display: table;
+	table-layout: fixed;
+	width: 100%;
+}
+
+.info-address {
+    margin: 10px 0 30px 0;
+}
+
+.support-arddress {
+	color: #8dc73f;
+	font-size: 18px;
+	font-weight: 700;
+}
+
+p.support-link a{
+    color:#000;
+}
+
+@media only screen and (min-device-width : 320px) and (max-device-width : 568px) {
+	.info-support {
+		padding-left: 10px;
+	}
+
+}
+
+@media only screen and (min-device-width : 560px) and (max-device-width : 1170px) {
+	.info-support {
+		padding-left: 70px;
+	}
+
+}
+
+.answer {
+	text-align: center;
+	padding-top: 50px;
+	padding-bottom: 100px;
+	font-size: 18px;
+}
+
+.answer-support {
+	width: 47.5%;
+}
+
+.answer-support-middle {
+	width: 5%;
+	font-size: 25px;
+	margin-bottom: 10px;
+}

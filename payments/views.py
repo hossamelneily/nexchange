@@ -1,22 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from payments.models import Payment
-from core.models import Currency
-from orders.models import Order
-from payments.models import PaymentPreference
-from payments.adapters import robokassa_adapter, \
-    leupay_adapter, unitpay_adapter
-from payments.utils import geturl_robokassa
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.http import Http404,\
-    HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.template.loader import get_template
-from django.utils.translation import ugettext_lazy as _
 from django.utils import translation
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
+
+from core.models import Currency
+from orders.models import Order
+from payments.adapters import (leupay_adapter, robokassa_adapter,
+                               unitpay_adapter)
+from payments.models import Payment, PaymentPreference
+from payments.utils import geturl_robokassa
 
 
 @login_required

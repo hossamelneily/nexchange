@@ -69,3 +69,4 @@ django-axes
 bs4
 -e git+https://github.com/veox/python3-krakenex.git#egg=krakenx
 -e git+https://github.com/byrnereese/uphold-sdk-python.git#egg=uphold
+isort

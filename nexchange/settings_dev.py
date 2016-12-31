@@ -1,5 +1,4 @@
-
-from .settings import *
+from nexchange.settings import *
 
 #
 # GA for staging
@@ -43,13 +42,14 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.redirects.RedirectsPanel',
 ]
 
-DEBUG_TOOLBAR_CONFIG = {
-    'INTERCEPT_REDIRECTS': False,
-}
 
 def show_toolbar(request):
     return True
-    
+
+
 DEBUG_TOOLBAR_CONFIG = {
-    "SHOW_TOOLBAR_CALLBACK" : show_toolbar,
+    'SHOW_TOOLBAR_CALLBACK': show_toolbar,
 }
+
+# Lockout only for 1 mins on dev
+AXES_COOLOFF_TIME = timedelta(minutes=1)

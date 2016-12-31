@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
-from core.validators import validate_bc
 from django.test import TestCase
+
+from core.validators import validate_bc
 
 
 class ValidateBCTestCase(TestCase):

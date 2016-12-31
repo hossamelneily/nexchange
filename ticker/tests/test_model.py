@@ -1,7 +1,9 @@
-from django.utils.dateformat import format
-from django.test import TestCase
-from ticker.models import Price
 from decimal import Decimal
+
+from django.test import TestCase
+from django.utils.dateformat import format
+
+from ticker.models import Price
 
 
 class PriceTestCase(TestCase):

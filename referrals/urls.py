@@ -1,7 +1,7 @@
-from rest_framework.routers import SimpleRouter
-from referrals.views import ReferralViewSet
 from django.conf.urls import url
-from referrals.views import referrals
+from rest_framework.routers import SimpleRouter
+
+from referrals.views import ReferralViewSet, referrals
 
 router = SimpleRouter()
 router.register(r'referrals', ReferralViewSet, base_name='referrals')

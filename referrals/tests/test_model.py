@@ -1,8 +1,10 @@
-from django.test import TestCase
-from django.contrib.auth.models import User
-from core.models import Order
-from referrals.models import Referral, Code
 from random import randint
+
+from django.contrib.auth.models import User
+from django.test import TestCase
+
+from core.models import Order
+from referrals.models import Code, Referral
 
 
 class TestReferralModel(TestCase):

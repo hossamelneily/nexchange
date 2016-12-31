@@ -1,6 +1,7 @@
-from django.conf.urls import url
-from accounts import views
 import django.contrib.auth.views as auth_views
+from django.conf.urls import url
+
+from accounts import views
 from accounts.forms import LoginForm
 
 account_urls = [

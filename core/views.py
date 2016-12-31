@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.utils.translation import get_language
 
 

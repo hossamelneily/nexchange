@@ -1,9 +1,10 @@
+from unittest.mock import Mock
+
+from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
-from django.conf import settings
 
 from core.middleware import TimezoneMiddleware
-from unittest.mock import Mock
 
 
 class TimezoneMiddlewareTestCase(TestCase):

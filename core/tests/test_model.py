@@ -1,6 +1,7 @@
 from django.test import TestCase
-from core.models import Currency
+
 from core.common.models import UniqueFieldMixin
+from core.models import Currency
 from core.tests.base import OrderBaseTestCase
 
 

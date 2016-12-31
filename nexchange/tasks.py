@@ -1,15 +1,18 @@
 from __future__ import absolute_import
-from django.db.models import Q
-from celery import shared_task
+
 import logging
-from core.models import Transaction, Address
+
+from celery import shared_task
+from django.conf import settings
+from django.db.models import Q
+from django.utils.translation import ugettext_lazy as _
+
+from core.models import Address, Transaction
+from nexchange.utils import (check_transaction_blockchain,
+                             check_transaction_uphold, release_payment,
+                             send_email, send_sms)
 from orders.models import Order
 from payments.models import Payment
-from django.utils.translation import ugettext_lazy as _
-from nexchange.utils import send_sms, send_email,\
-    release_payment, check_transaction_uphold, \
-    check_transaction_blockchain
-from django.conf import settings
 
 logging.basicConfig(filename='payment_release.log', level=logging.INFO)
 

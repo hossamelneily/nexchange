@@ -1,12 +1,13 @@
-from twilio.rest import TwilioRestClient
-from twilio.exceptions import TwilioException
-from uphold import Uphold
-from requests import get
-from django.core.mail import send_mail
-from django.conf import settings
 import sys
 import traceback
 
+from django.conf import settings
+from django.core.mail import send_mail
+from requests import get
+from twilio.exceptions import TwilioException
+from twilio.rest import TwilioRestClient
+
+from uphold import Uphold
 
 api = Uphold(settings.UPHOLD_IS_TEST)
 api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)

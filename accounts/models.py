@@ -1,12 +1,14 @@
-from django.db import models
-from django.conf import settings
 from datetime import timedelta
+
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
-from django.contrib.auth.models import User
-from core.common.models import SoftDeletableModel, TimeStampedModel, \
-    UniqueFieldMixin
+
+from core.common.models import (SoftDeletableModel, TimeStampedModel,
+                                UniqueFieldMixin)
 from orders.models import Order
 from referrals.models import ReferralCode
 

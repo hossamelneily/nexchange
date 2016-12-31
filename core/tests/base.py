@@ -1,13 +1,14 @@
-from django.test import TestCase, Client
+from decimal import Decimal
+
 from django.contrib.auth.models import User
+from django.test import Client, TestCase
 from django.utils.translation import activate
 
-from core.models import Currency
-from ticker.models import Price
-from orders.models import Order
 from accounts.models import SmsToken
+from core.models import Currency
+from orders.models import Order
 from payments.models import PaymentMethod, PaymentPreference
-from decimal import Decimal
+from ticker.models import Price
 
 
 def data_provider(fn_data_provider):

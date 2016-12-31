@@ -1,9 +1,11 @@
-from django.core.management.base import BaseCommand
-import requests
-from ticker.models import Price
 import logging
 from datetime import datetime
 from decimal import Decimal
+
+import requests
+from django.core.management.base import BaseCommand
+
+from ticker.models import Price
 
 # This module will be run in a cron every
 # minute via manage.py

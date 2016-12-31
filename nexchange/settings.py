@@ -11,10 +11,11 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+from datetime import timedelta
+
+import dj_database_url
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
-import dj_database_url
-from datetime import timedelta
 
 DEFAULT_FROM_EMAIL = 'support@nexchange.ru'
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -102,7 +103,8 @@ INSTALLED_APPS = [
     'djcelery',
     'session_security',
     'axes',
-    'nexchange'
+    'nexchange',
+    'support'
 ]
 
 
@@ -118,13 +120,20 @@ ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
                 "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
 
 CMSPAGES = {
-    'ABOUTUS': [('about_us', _('About Us')), ('careers', _('Careers')),
-                ('press', _('Press')), ('conference', _('Conference')),
-                ('legal_privacy', _('Legal & Privacy')),
-                ('security', _('Security'))],
-    'RESOURCES': [('faq', _('FAQ')), ('blog', _('Blog')),
-                  ('fees', _('Fees')), ('support', _('Support')),
-                  ('trading_guide', _('Trading Guide'))]
+    'ABOUTUS': [
+        ('about_us', _('About Us')),
+        ('careers', _('Careers')),
+        ('press', _('Press')),
+        ('conference', _('Conference')),
+        ('legal_privacy', _('Legal & Privacy')),
+        ('security', _('Security'))],
+    'RESOURCES': [
+        ('faq', _('FAQ')),
+        # ('blog', _('Blog')),
+        ('fees', _('Fees')),
+        ('support', _('Support')),
+        # ('trading_guide', _('Trading Guide'))
+    ]
 }
 
 REDIS_ADDR = 'redis'
@@ -342,8 +351,8 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 12
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 SOCIAL = {
-    'twitter': 'https://twitter.com/nexchange.ru',
-    'facebook': 'https://facebook.com/nexchange.ru'
+    'twitter': 'https://twitter.com/nexchangeBTC',
+    'facebook': 'https://facebook.com/nexchangeBTC'
 }
 
 BRAINTREE_API = {
@@ -384,3 +393,5 @@ SESSION_SECURITY_PASSIVE_URLS = ["/en/api/v1/price/latest/",
                                  "/en/session_security/ping/",
                                  "https://mc.yandex.ru/webvisor/39575585",
                                  "https://mc.yandex.ru/watch/39575585"]
+
+AXES_LOGIN_FAILURE_LIMIT = 5

@@ -2,20 +2,10 @@
 {% load bootstrap3 %}
 {% load staticfiles %}
 {% load i18n %}
-
+{% load dateutils %}
 
 {% block cms_static %}
-    <div class="collapse navbar-collapse menupanel">
-        <ul class="nav navbar-nav">
-            {% for c in cmsmenu %}
-                <li class="{% if  c.0 in request.get_full_path %}active{% endif %}">
-                    <a href="/articles/{{ c.0 }}">
-                        {{ c.1 }}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
+    {% include "articles/partials/cms_header.html" %}
 
     <div class="cms_text">
         {% block cms_text %}
@@ -29,7 +19,7 @@
                 {% trans "Written by: " %} {{ page.written_by | safe | default:_('Nexchange Team') }}
             </div>
            <div class="cms_last_updated">
-                {% trans "Lasst modified: " %} {{ page.modified_on |date:'D, d M, Y'|safe }}
+                {% trans "Lasst modified: " %} {{ page.modified_on |date:'D, d M, Y'|ord_date|safe }}
             </div>
 
             <div class="cms_body">

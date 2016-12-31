@@ -1,13 +1,15 @@
 from __future__ import absolute_import
-from nexchange import settings
+
 import os
 
 from celery import Celery
+from django.conf import settings  # noqa
+
+from nexchange import settings
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'nexchange.settings')
 
-from django.conf import settings  # noqa
 
 app = Celery('nexchange',
              broker=settings.REDIS_URL,

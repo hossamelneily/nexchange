@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from accounts.models import Profile
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.contrib.auth.forms import AuthenticationForm
+
+from accounts.models import Profile
 
 
 class CustomUserCreationForm(UserCreationForm):

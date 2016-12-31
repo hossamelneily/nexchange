@@ -1,6 +1,6 @@
-from .settings import *
 import dj_database_url
 
+from nexchange.settings import *  # noqa: E401
 
 DEBUG = True
 
@@ -12,3 +12,5 @@ DATABASES = {
                                       .format(user, password, host, port, db))
 
 }
+
+AXES_COOLOFF_TIME = timedelta(minutes=15)
