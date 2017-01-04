@@ -10,9 +10,9 @@ from django.utils.translation import ugettext_lazy as _
 from core.models import Address, Transaction
 from nexchange.utils import (check_transaction_blockchain,
                              check_transaction_uphold, release_payment,
-                             send_email, send_sms)
+                             send_email, send_sms, CreateUpholdCard)
 from orders.models import Order
-from payments.models import Payment
+from payments.models import Payment, UserCards
 
 logging.basicConfig(filename='payment_release.log', level=logging.INFO)
 
@@ -116,3 +116,14 @@ def checker_transactions():
 
             if settings.DEBUG:
                 print("Transaction {} is completed".format(tr.tx_id))
+                
+@shared_task
+def renew_cards_reserve():
+    api = CreateUpholdCard(settings.CARDS_RESERVE_COUNT)
+    api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
+    btc_count = UserCards.objects.filter(user=None, currency='BTC').count()
+    while btc_count <= settings.CARDS_RESERVE_COUNT:
+        new_card = api.new_btc_card()
+        card = UserCards(card_id=new_card['id'], currency=new_card['currency'])
+        card.save()
+        btc_count = UserCards.objects.filter(user=None, currency='BTC').count()
