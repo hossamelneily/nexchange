@@ -80,13 +80,14 @@ def check_transaction_uphold(tx):
     print("status: {}".format(res.get('status')))
     return res.get('status') == 'completed'
 
+
 class CreateUpholdCard(Uphold):
 
     def new_btc_card(self):
         """
         Create a new card Bitcoin
         """
-        
+
         fields = {
             'label': 'User card',
             'currency': 'BTC',
@@ -97,7 +98,7 @@ class CreateUpholdCard(Uphold):
         """
         Create a new card Litecoin
         """
-        
+
         fields = {
             'label': 'User card',
             'currency': 'LTC',
@@ -108,7 +109,7 @@ class CreateUpholdCard(Uphold):
         """
         Create a new card Ethereum
         """
-        
+
         fields = {
             'label': 'User card',
             'currency': 'ETH',

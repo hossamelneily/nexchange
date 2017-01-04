@@ -102,7 +102,8 @@ class PaymentCredentials(TimeStampedModel, SoftDeletableModel):
         pref = self.paymentpreference_set.get()
         return "{0} - ({1})".format(pref.user.username,
                                     pref.identifier)
-        
+
+
 class UserCards(models.Model):
     TYPES = (
         ('BTC', 'BTC'),
@@ -113,7 +114,7 @@ class UserCards(models.Model):
     currency = models.CharField('Currency', choices=TYPES, max_length=3)
     user = models.ForeignKey(User, null=True, blank=True, default=None)
     created = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
         return self.card_id
 

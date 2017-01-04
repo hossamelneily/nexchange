@@ -8,9 +8,9 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from core.models import Address, Transaction
-from nexchange.utils import (check_transaction_blockchain,
+from nexchange.utils import (CreateUpholdCard, check_transaction_blockchain,
                              check_transaction_uphold, release_payment,
-                             send_email, send_sms, CreateUpholdCard)
+                             send_email, send_sms)
 from orders.models import Order
 from payments.models import Payment, UserCards
 
@@ -116,7 +116,8 @@ def checker_transactions():
 
             if settings.DEBUG:
                 print("Transaction {} is completed".format(tr.tx_id))
-                
+
+  
 @shared_task
 def renew_cards_reserve():
     api = CreateUpholdCard(settings.CARDS_RESERVE_COUNT)
