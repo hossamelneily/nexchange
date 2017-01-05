@@ -112,8 +112,9 @@
    <link rel="stylesheet" href="{% static 'bower_components/nprogress/nprogress.css' %}">
    {% include 'session_security/all.html' %}
     <script>
+        window.countryCode = '{{COUNTRY_CODE}}';
         $( document ).ready(function() {
-          Cookies.set("USER_TZ", moment.tz.guess());
+            Cookies.set("USER_TZ", moment.tz.guess());
             var userLang= Cookies.get("django_language");
             if (!userLang)  {
               userLang = navigator.language || navigator.userLanguage;
