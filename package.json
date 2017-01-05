@@ -5,10 +5,10 @@
   "main": "index.js",
   "dependencies": {
     "bower": "~1.7.9",
-    "toastr": "^2.1.2"
+    "toastr": "^2.1.2",
+    "browserify": "latest"
   },
   "devDependencies": {
-    "browserify": "latest",
     "htmllint-cli": "0.0.5",
     "jasmine": "^2.4.1",
     "jasmine-core": "^2.4.1",
