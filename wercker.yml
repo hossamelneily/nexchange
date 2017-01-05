@@ -81,7 +81,7 @@ dev:
     - script:
         name: Django import Payment CmsPage fixture
         code: |
-          python manage.py loaddata payments/fixtures/cmspages.json
+          python manage.py loaddata articles/fixtures/cmspages.json
     - script:
         name: Django import Withdraw address fixture
         code: |
@@ -100,8 +100,8 @@ dev:
           python manage.py collectstatic --noinput
     - script:
         name: Link pre-commit hook script
-        code: |     
-          chmod +x .pre-commit.sh 
+        code: |
+          chmod +x .pre-commit.sh
           cd .git/hooks/
           ln -fs ../../.pre-commit.sh pre-commit
           cd -
@@ -175,7 +175,10 @@ build:
         name: django collect and compile translations
         code: |
           # python manage.py compilemessages
-
+    - script:
+        name: Build js
+        code: |
+          npm run build-js
     - script:
         name: Django collect static
         code: |
