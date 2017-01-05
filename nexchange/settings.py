@@ -185,6 +185,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
                 'core.context_processors.google_analytics',
+                'core.context_processors.country_code',
                 'articles.context_processors.cms',
                 # 'django.core.context_processors.request'
             ],
