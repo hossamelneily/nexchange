@@ -1,5 +1,4 @@
 from django.conf import settings
-
 from pytz import country_timezones
 
 
@@ -25,7 +24,7 @@ def country_code(request):
         country_code = timezone_country()[request.COOKIES['USER_TZ']]
         return {'COUNTRY_CODE': country_code}
     except KeyError:
-        return {'COUNTRY_CODE': 'asdfasdf'}
+        return {'COUNTRY_CODE': 'US'}
 
 def timezone_country():
     timezone_country = {}

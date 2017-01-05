@@ -1,5 +1,6 @@
-from django.test import TestCase
 from unittest.mock import Mock
+
+from django.test import TestCase
 
 from core.context_processors import country_code, timezone_country
 
@@ -9,10 +10,6 @@ class TestContextCountryCode(TestCase):
     def setUp(self):
         self.request = Mock()
         self.request.COOKIES = {}
-
-    def test_true(self):
-        """ This Should Be True"""
-        self.assertTrue(True)
 
     def test_timezone_country(self):
         """Check if timezone_country dict is correct"""
