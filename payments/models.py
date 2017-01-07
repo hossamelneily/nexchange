@@ -1,8 +1,13 @@
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 
 from core.common.models import SoftDeletableModel, TimeStampedModel
+from core.models import Address
 
 
 class PaymentMethodManager(models.Manager):
@@ -111,6 +116,7 @@ class UserCards(models.Model):
         ('ETH', 'ETH'),
     )
     card_id = models.CharField('Card_id', max_length=36)
+    address_id = models.CharField('Address_id', max_length=34)
     currency = models.CharField('Currency', choices=TYPES, max_length=3)
     user = models.ForeignKey(User, null=True, blank=True, default=None)
     created = models.DateTimeField(auto_now_add=True)
@@ -122,3 +128,17 @@ class UserCards(models.Model):
         verbose_name = "Card"
         verbose_name_plural = "Cards"
         ordering = ['-created']
+
+
+@receiver(post_save, sender = User)
+def update_usercard(instance, **kwargs):
+    valuta = ['BTC', 'LTC']
+    for i in valuta:
+        try:
+            card = UserCards.objects.filter(currency=i, user=None).order_by('id').first()
+            card.user = instance
+            address = Address(address=card.address_id, user=card.user)
+            address.save()
+            card.save()
+        except (ObjectDoesNotExist, AttributeError):
+            pass

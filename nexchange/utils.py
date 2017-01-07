@@ -83,35 +83,24 @@ def check_transaction_uphold(tx):
 
 class CreateUpholdCard(Uphold):
 
-    def new_btc_card(self):
+    def new_card(self, currency):
         """
-        Create a new card Bitcoin
+        Create a new card
         """
 
         fields = {
             'label': 'User card',
-            'currency': 'BTC',
+            'currency': currency,
         }
         return self._post('/me/cards/', fields)
     
-    def new_ltc_card(self):
-        """
-        Create a new card Litecoin
-        """
-
-        fields = {
-            'label': 'User card',
-            'currency': 'LTC',
-        }
-        return self._post('/me/cards/', fields)
     
-    def new_eth_card(self):
+    def add_address(self, card, network):
         """
-        Create a new card Ethereum
+        Add to card address
         """
-
+        
         fields = {
-            'label': 'User card',
-            'currency': 'ETH',
+            'network': network,
         }
-        return self._post('/me/cards/', fields)
+        return self._post('/me/cards/{}/addresses'.format(card), fields)
