@@ -3,7 +3,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 
 from core.common.models import SoftDeletableModel, TimeStampedModel
@@ -130,12 +129,13 @@ class UserCards(models.Model):
         ordering = ['-created']
 
 
-@receiver(post_save, sender = User)
+@receiver(post_save, sender=User)
 def update_usercard(instance, **kwargs):
     valuta = ['BTC', 'LTC', 'ETH']
     for i in valuta:
         try:
-            card = UserCards.objects.filter(currency=i, user=None).order_by('id').first()
+            card = UserCards.objects.filter(currency=i, 
+                                            user=None).order_by('id').first()
             card.user = instance
             address = Address(address=card.address_id, user=card.user)
             address.save()

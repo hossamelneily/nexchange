@@ -29,13 +29,13 @@
                     <div class="input-group"> 
                         <input type="text" aria-label={% trans "Insert SMS verification token here" %} placeholder={% trans "Insert SMS verification token here" %} class="form-control" id="verification_code"> 
                         <div class="input-group-btn"> 
-                            <button data-url="{% url 'accounts.verify_phone' %}" class="btn btn-default" type="button" id="verify_phone_now">{% trans "Verify phone now" %}</button>
+                            <button data-url="#" class="btn btn-default" type="button" id="verify_phone_now">{% trans "Verify phone now" %}</button>
                         </div> 
                     </div> 
                 </div>
 
                 <div class="col-md-4">
-                    <a href="#" class="btn btn-success btn-sm pull-right" id="resend_sms_button" data-url="{% url 'core.resend_sms' %}">
+                    <a href="#" class="btn btn-success btn-sm pull-right" id="resend_sms_button" data-url="#">
                         <i class="fa fa-repeat" aria-hidden="true"></i>&nbsp;{% trans "Send-me the token again" %}
                     </a>
                 </div>
@@ -44,7 +44,7 @@
     {% else %}
         <label class="control-label" for="phone">{% trans "Phone"%}</label>
         <div class="input-group"> 
-            <input type="text" aria-describedby="basic-addon2" value="{{request.user.profile.phone}}" disabled="disabled" class="form-control disabled">
+            <input type="text" aria-describedby="basic-addon2" value="#" disabled="disabled" class="form-control disabled">
             <span id="basic-addon2" class="input-group-addon">
                 <i class="fa fa-check-square-o" aria-hidden="true"></i>
                 {% trans "Your phone has been verified." %}
