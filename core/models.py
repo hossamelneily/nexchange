@@ -32,7 +32,7 @@ class Address(BtcBase, SoftDeletableModel):
         (DEPOSIT, 'DEPOSIT'),
     )
     name = models.CharField(max_length=100, blank=True)
-    address = models.CharField(max_length=35, validators=[validate_bc])
+    address = models.CharField(max_length=42, validators=[validate_bc])
     user = models.ForeignKey(User)
 
 

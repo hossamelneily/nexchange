@@ -116,7 +116,7 @@ class UserCards(models.Model):
         ('ETH', 'ETH'),
     )
     card_id = models.CharField('Card_id', max_length=36)
-    address_id = models.CharField('Address_id', max_length=34)
+    address_id = models.CharField('Address_id', max_length=42)
     currency = models.CharField('Currency', choices=TYPES, max_length=3)
     user = models.ForeignKey(User, null=True, blank=True, default=None)
     created = models.DateTimeField(auto_now_add=True)
@@ -132,7 +132,7 @@ class UserCards(models.Model):
 
 @receiver(post_save, sender = User)
 def update_usercard(instance, **kwargs):
-    valuta = ['BTC', 'LTC']
+    valuta = ['BTC', 'LTC', 'ETH']
     for i in valuta:
         try:
             card = UserCards.objects.filter(currency=i, user=None).order_by('id').first()

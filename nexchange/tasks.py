@@ -122,7 +122,7 @@ def checker_transactions():
 def renew_cards_reserve():
     api = CreateUpholdCard(settings.CARDS_RESERVE_COUNT)
     api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
-    valuta = {'BTC': 'bitcoin', 'LTC': 'litecoin'}
+    valuta = {'BTC': 'bitcoin', 'LTC': 'litecoin', 'ETH': 'ethereum'}
     for key, value in valuta.items():
         count = UserCards.objects.filter(user=None, currency=key).count()
         while count <= settings.CARDS_RESERVE_COUNT:
