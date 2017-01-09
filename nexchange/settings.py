@@ -43,7 +43,7 @@ LANGUAGES = [
 ]
 
 
-CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+# CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 
 # CUSTOM SETTINGS
 SMS_TOKEN_VALIDITY = 30
@@ -100,7 +100,6 @@ INSTALLED_APPS = [
     'referrals',
     'payments',
     'articles',
-    'djcelery',
     'session_security',
     'axes',
     'nexchange',
@@ -396,3 +395,4 @@ SESSION_SECURITY_PASSIVE_URLS = ["/en/api/v1/price/latest/",
                                  "https://mc.yandex.ru/watch/39575585"]
 
 AXES_LOGIN_FAILURE_LIMIT = 5
+AXES_USERNAME_FORM_FIELD = 'username'

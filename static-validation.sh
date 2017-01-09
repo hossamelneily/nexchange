@@ -12,7 +12,7 @@ OPTIONS="--ignore=F405  --exclude=*/migrations/*"
 
 if [ -n "$FILES_PY" ] || [ -n "$FILES_CACHED_PY" ] ; then
     echo "======================="
-    echo "======= CHECKING FILES: $FILES_PY $FILES_CACHED_PY"
+    echo "======= CHECKING FILES: \n $FILES_PY $FILES_CACHED_PY"
     echo "======================="
     isort -rc . && flake8 $OPTIONS $FILES_PY $FILES_CACHED_PY
 else
@@ -23,7 +23,7 @@ fi
 
 if [ -n "$FILES_JS" ] || [ -n "$FILES_CACHED_JS" ] ; then
     echo "======================="
-    echo "======= CHECKING FILES: $FILES_JS $FILES_CACHED_JS"
+    echo "======= CHECKING FILES: \n $FILES_JS $FILES_CACHED_JS"
     echo "======================="
     npm run lint
 else

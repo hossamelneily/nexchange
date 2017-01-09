@@ -1,4 +1,5 @@
 import django.contrib.auth.views as auth_views
+from axes.decorators import watch_login
 from django.conf.urls import url
 
 from accounts import views
@@ -8,14 +9,14 @@ account_urls = [
     url(r'^register$', views.user_registration,
         name='accounts.register'),
 
-    url(r'^authenticate/$', views.user_by_phone,
+    url(r'^authenticate/$', watch_login(views.user_by_phone),
         name='accounts.user_by_phone'),
 
     url(r'^resend_sms/$', views.resend_sms,
         name='accounts.resend_sms'),
 
     url(r'^verify_phone/$',
-        views.verify_phone, name='core.verify_phone'),
+        views.verify_phone, name='accounts.verify_phone'),
     url(r'^profile$', views.UserUpdateView.as_view(),
         name='accounts.user_profile'),
 
