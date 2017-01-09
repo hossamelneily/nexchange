@@ -1,3 +1,4 @@
+import json
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
@@ -7,7 +8,6 @@ from django.test import TestCase
 from accounts.models import Profile, SmsToken
 from core.tests.base import UserBaseTestCase
 from core.tests.utils import passive_authentication_helper
-import json
 
 
 class RegistrationTestCase(TestCase):

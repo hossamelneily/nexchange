@@ -1,3 +1,4 @@
+import json
 import re
 
 from django.conf import settings
@@ -7,8 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import HttpResponse, JsonResponse, \
-    HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import get_template
 from django.utils.decorators import method_decorator
@@ -18,8 +18,8 @@ from django.views.generic import View
 from phonenumber_field.validators import validate_international_phonenumber
 from twilio.exceptions import TwilioException
 from twilio.rest import TwilioRestClient
-import json
 
+from accounts.decoratos import not_logged_in_required
 from accounts.forms import (CustomUserCreationForm, UpdateUserProfileForm,
                             UserForm, UserProfileForm)
 from accounts.models import NexchangeUser as User
@@ -27,7 +27,6 @@ from accounts.models import Profile, SmsToken
 from core.models import Address
 from core.validators import validate_bc
 from referrals.forms import ReferralTokenForm
-from accounts.decoratos import not_logged_in_required
 
 
 def user_registration(request):

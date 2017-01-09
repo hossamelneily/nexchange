@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.test import Client, TestCase
 from django.utils.translation import activate
 
@@ -9,7 +10,6 @@ from core.models import Currency
 from orders.models import Order
 from payments.models import PaymentMethod, PaymentPreference
 from ticker.models import Price
-from django.core.urlresolvers import reverse
 
 
 class UserBaseTestCase(TestCase):

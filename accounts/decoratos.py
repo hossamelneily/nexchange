@@ -1,7 +1,8 @@
+import json
 from functools import wraps
+
 from django.http.response import HttpResponse
 from django.utils.translation import gettext_lazy as _
-import json
 
 
 def not_logged_in_required(view_fn):
