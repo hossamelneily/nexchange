@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.test import Client, TestCase
 from django.utils.translation import activate
 
@@ -11,26 +12,10 @@ from payments.models import PaymentMethod, PaymentPreference
 from ticker.models import Price
 
 
-def data_provider(fn_data_provider):
-    """
-    Data provider decorator
-    allows another callable to provide the data for the tests
-    """
-    def test_decorator(fn):
-        def repl(self):
-            for i in fn_data_provider():
-                try:
-                    fn(self, *i)
-                except AssertionError as e:
-                    print("Assertion error caught with data set ", i)
-                    raise e
-        return repl
-    return test_decorator
-
-
 class UserBaseTestCase(TestCase):
 
     def setUp(self):
+        self.logout_url = reverse('accounts.logout')
         self.username = '+555190909898'
         self.password = '123Mudar'
         self.data = \

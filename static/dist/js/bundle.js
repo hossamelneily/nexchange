@@ -48,7 +48,14 @@
             if(typeof $(this).intlTelInput === 'function') {
                 // with AMD move to https://codepen.io/jackocnr/pen/RNVwPo
                 $(this).intlTelInput();
+                $(this).intlTelInput("setCountry", window.countryCode);
             }
+        });
+
+        phones.on('keyup', function() {
+            var val = $(this).val();
+            val = val.split(' ').join('');
+            $(this).val(val);
         });
 
         orderObject.updateOrder($('.amount-coin'), true, currency);
@@ -226,17 +233,13 @@
                 type: 'POST',
                 url: validatePhoneEndpoint,
                 data: verifyPayload,
-                success: function (data) {
-                    if (data.status === 'OK') {
-                        orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
-                        orderObject.changeState(null, 'next');
-                    } else {
-                    	var message = gettext('The code you sent was incorrect. Please, try again.');
-                        toastr.error(message);
-                    }
+                success: function () {
+                    orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
+                    orderObject.changeState(null, 'next');
                 },
-                error: function () {
-                	var message = gettext('Something went wrong. Please, try again.');
+                error: function (data) {
+                	var defaultMsg = gettext('Something went wrong. Please, try again.'),
+                        message = data.message || defaultMsg;
                     toastr.error(message);
                 }
             });
@@ -383,10 +386,9 @@
                 return false;
             }
 
-            var form = $(this).closest('.modal-body');
-
-            preferenceIdentifier = form.find('.val').val();
-            preferenceOwner = form.find('.name').val();
+            var form = $(this).closest('.modal-body'),
+                preferenceIdentifier = form.find('.val').val(),
+                preferenceOwner = form.find('.name').val();
 
             $('.payment-preference-owner').val(preferenceOwner);
             $('.payment-preference-identifier').val(preferenceIdentifier);
@@ -435,7 +437,7 @@
 } (window, window.jQuery)); //jshint ignore:line
 
 
-   
+
 },{"./modules/captcha.js":2,"./modules/orders.js":4,"./modules/payment.js":5}],2:[function(require,module,exports){
 !(function(window ,$) {
   "use strict";

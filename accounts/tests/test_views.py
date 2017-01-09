@@ -1,9 +1,13 @@
+import json
+from unittest.mock import patch
+
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from accounts.models import Profile, SmsToken
 from core.tests.base import UserBaseTestCase
+from core.tests.utils import passive_authentication_helper
 
 
 class RegistrationTestCase(TestCase):
@@ -48,7 +52,6 @@ class RegistrationTestCase(TestCase):
 
 
 class ProfileUpdateTestCase(UserBaseTestCase):
-
     def test_can_update_profile(self):
         response = self.client.post(
             reverse('accounts.user_profile'), self.data)
@@ -57,11 +60,13 @@ class ProfileUpdateTestCase(UserBaseTestCase):
 
         # saved the User instance data
         user = User.objects.get(email=self.data['email'])
-        self.assertEqual(user.profile.first_name, self.data[
-                         'first_name'])  # saved the profile too
+        self.assertEqual(
+            user.profile.first_name,
+            self.data['first_name']
+        )  # saved the profile too
         self.assertEqual(user.profile.last_name, self.data['last_name'])
 
-    def test_phone_verification_with_success(self):
+    def test_phone_verification_with_success(self, phone=None):
         user = self.user
         # Ensure profile is disabled
         profile = user.profile
@@ -71,41 +76,168 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         sms_token = SmsToken.objects.filter(user=user).latest('id')
         token = sms_token.sms_token
 
-        response = self.client.post(
-            reverse('core.verify_phone'), {'token': token})
+        response = passive_authentication_helper(
+            self.client,
+            self.user,
+            token,
+            self.user.username,
+            True
+        )
 
         # Ensure the token was correctly received
         self.assertEqual(200, response.status_code)
-        self.assertJSONEqual(
-            '{"status": "OK"}',
-            str(response.content, encoding='utf8'))
+        response = json.loads(
+            str(response.content, encoding='utf8')
+        )
+        self.assertEquals('OK', response['status'])
 
         # Ensure profile was enabled
         self.assertFalse(user.profile.disabled)
 
-    def test_phone_verification_fails_with_wrong_token(self):
+    def test_phone_verification_fails_with_wrong_token(self, phone=None):
         # incorrect token
         token = "{}XX".format(SmsToken.get_sms_token())
 
-        response = self.client.post(
-            reverse('core.verify_phone'), {'token': token})
+        response = passive_authentication_helper(
+            self.client,
+            self.user,
+            token,
+            self.user.username,
+            True
+        )
         # Ensure the token was correctly received
-        self.assertEqual(200, response.status_code)
-        self.assertJSONEqual('{"status": "NO_MATCH"}',
-                             str(response.content, encoding='utf8'),)
+        self.assertEqual(400, response.status_code)
+        response = json.loads(
+            str(response.content, encoding='utf8')
+        )
+        self.assertEquals('Error', response['status'])
 
+    def test_phone_verification_with_success_logged_out(self):
+        user = self.user
+        # Ensure profile is disabled
+        profile = user.profile
+        profile.disabled = True
+        profile.save()
+        self.assertTrue(user.profile.disabled)
+        sms_token = SmsToken.objects.filter(user=user).latest('id')
+        token = sms_token.sms_token
 
-class ShortRegistrationTestCase(TestCase):
+        response = passive_authentication_helper(
+            self.client,
+            self.user,
+            token,
+            self.user.username,
+            False
+        )
 
-    def test_short_registration_success(self):
-        pass
+        # Ensure the token was correctly received
+        self.assertEqual(201, response.status_code)
+        response = json.loads(
+            str(response.content, encoding='utf8')
+        )
+        self.assertEquals('OK', response['status'])
 
-    def test_short_registration_failure(self):
-        pass
+        # Ensure profile was enabled
+        self.assertFalse(user.profile.disabled)
+
+    def test_phone_verification_with_failure_logged_out_without_phone(self):
+        user = self.user
+        # Ensure profile is disabled
+        profile = user.profile
+        profile.disabled = True
+        profile.save()
+        self.assertTrue(user.profile.disabled)
+        sms_token = SmsToken.objects.filter(user=user).latest('id')
+        token = sms_token.sms_token
+
+        response = passive_authentication_helper(
+            self.client,
+            self.user,
+            token,
+            None,
+            False
+        )
+
+        # Ensure the token was correctly received
+        self.assertEqual(400, response.status_code)
+
+        # Ensure profile was not enabled
+        self.assertTrue(user.profile.disabled)
+
+    def test_phone_verification_fails_with_wrong_token_logged_out_without_phone(self):
+        user = self.user
+        # Ensure profile is disabled
+        profile = user.profile
+        profile.disabled = True
+        profile.save()
+        self.assertTrue(user.profile.disabled)
+        sms_token = SmsToken.objects.filter(user=user).latest('id')
+        token = '{}xx'.format(sms_token.sms_token)
+
+        response = passive_authentication_helper(
+            self.client,
+            self.user,
+            token,
+            None,
+            False
+        )
+
+        # Ensure the token was correctly received
+        self.assertEqual(400, response.status_code)
+
+        # Ensure profile was not enabled
+        self.assertTrue(user.profile.disabled)
+
+    def test_phone_verification_fails_with_wrong_token_logged_out_with_phone(self):
+        user = self.user
+        # Ensure profile is disabled
+        profile = user.profile
+        profile.disabled = True
+        profile.save()
+        self.assertTrue(user.profile.disabled)
+        sms_token = SmsToken.objects.filter(user=user).latest('id')
+        token = '{}xx'.format(sms_token.sms_token)
+
+        response = passive_authentication_helper(
+            self.client,
+            self.user,
+            token,
+            self.username,
+            False
+        )
+
+        # Ensure the token was correctly received
+        self.assertEqual(400, response.status_code)
+
+        # Ensure profile was not enabled
+        self.assertTrue(user.profile.disabled)
+
+    def test_phone_verification_success_with_spaces_in_token(self):
+        user = self.user
+        # Ensure profile is disabled
+        profile = user.profile
+        profile.disabled = True
+        profile.save()
+        self.assertTrue(user.profile.disabled)
+        sms_token = SmsToken.objects.filter(user=user).latest('id')
+        token = ' {} '.format(sms_token.sms_token)
+
+        response = passive_authentication_helper(
+            self.client,
+            self.user,
+            token,
+            self.user.username,
+            False
+        )
+
+        # Ensure the token was correctly received
+        self.assertEqual(201, response.status_code)
+
+        # Assert that profile was activated
+        self.assertFalse(self.user.profile.disabled)
 
 
 class ProfileFindTestCase(UserBaseTestCase):
-
     def setUp(self):
         super(ProfileFindTestCase, self).setUp()
 
@@ -157,3 +289,105 @@ class LogoutTestCase(UserBaseTestCase):
 
         # teardown
         self.client.login(username=self.user.username, password='password')
+
+
+class PassiveAuthenticationTestCase(UserBaseTestCase):
+
+    def __init__(self, *args, **kwargs):
+        self.token = None
+        self.user = None
+        super(PassiveAuthenticationTestCase,
+              self).__init__(*args, **kwargs)
+
+    def tearDown(self):
+        if self.user:
+            self.user.delete()
+        if self.token:
+            self.token.delete()
+
+    def test_already_logged_in(self):
+        uname = '+79259737305'
+        url = reverse('accounts.user_by_phone')
+        payload = {
+            'phone': uname,
+        }
+
+        res = self.client.post(url, data=payload)
+        self.assertEquals(res.status_code, 403)
+
+    @patch('accounts.views._send_sms')
+    def test_sms_sent_success(self, send_sms):
+        url = reverse('accounts.user_by_phone')
+        uname = '+79259737305'
+        payload = {
+            'phone': uname,
+        }
+        self.client.get(self.logout_url)
+        res = self.client.post(url, data=payload)
+
+        self.assertEquals(res.status_code, 200)
+        users = User.objects.filter(username=uname)
+
+        self.assertEquals(len(users), 1)
+        self.user = users[0]
+
+        sms_token = SmsToken.objects.\
+            filter(user=self.user).last()
+        self.assertTrue(sms_token)
+
+        send_sms.assert_called_once_with(self.user, sms_token)
+
+    @patch('accounts.views._send_sms')
+    def test_sms_sent_replace_phone_spaces(self, send_sms):
+        self.client.logout()
+        url = reverse('accounts.user_by_phone')
+        uname = '+49 162 829 04 63'
+        expected_uname = '+491628290463'
+        payload = {
+            'phone': uname,
+        }
+        res = self.client.post(url, data=payload)
+        user = User.objects.last()
+        self.assertEquals(res.status_code, 200)
+
+        self.token = SmsToken.objects.\
+            filter(user=user).last()
+
+        # test cleanupm
+        self.assertEqual(expected_uname,
+                         user.username)
+
+        send_sms.assert_called_once_with(user,
+                                         self.token)
+
+    def test_sms_sent_invalid_phone(self):
+        self.client.logout()
+        url = reverse('accounts.user_by_phone')
+        uname = '+7 92 59 73 73zaza'
+        payload = {
+            'phone': uname,
+        }
+        res = self.client.post(url, data=payload)
+
+        self.assertEquals(res.status_code, 400)
+
+        self.user = User.objects.last()
+        self.token = SmsToken.objects.last()
+
+    def test_fail_login(self):
+        pass
+
+    def test_success_login(self):
+        pass
+
+    def test_block_after_x_attempts(self):
+        pass
+
+
+class ShortRegistrationTestCase(TestCase):
+
+    def test_short_registration_success(self):
+        pass
+
+    def test_short_registration_failure(self):
+        pass
