@@ -100,10 +100,11 @@ INSTALLED_APPS = [
     'referrals',
     'payments',
     'articles',
+    'verification',
     'session_security',
     'axes',
     'nexchange',
-    'support'
+    'support',
 ]
 
 
