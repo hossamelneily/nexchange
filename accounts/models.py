@@ -102,7 +102,7 @@ class SmsToken(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     @property
     def valid(self):
         return self.created_on > timezone.now() -\
-            timedelta(minutes=settings.SMS_TOKEN_VALIDITY)
+            settings.SMS_TOKEN_VALIDITY
 
     def save(self, *args, **kwargs):
         self.sms_token = self.get_sms_token()

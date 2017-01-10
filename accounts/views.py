@@ -1,6 +1,7 @@
 import json
 import re
 
+from axes.decorators import watch_login
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
@@ -8,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import get_template
 from django.utils.decorators import method_decorator
@@ -145,6 +146,7 @@ def _send_sms(user, token=None):
         return err
 
 
+@watch_login
 def resend_sms(request):
     phone = request.POST.get('phone')
     if request.user.is_anonymous() and phone:
@@ -155,6 +157,7 @@ def resend_sms(request):
     return JsonResponse({'message_sid': message.sid}, safe=False)
 
 
+@watch_login
 def verify_phone(request):
     def render_response(msg, code):
         _context = {
@@ -190,7 +193,13 @@ def verify_phone(request):
     else:
         user = request.user
     sms_token = SmsToken.objects.filter(user=user).latest('id')
-    if sent_token == sms_token.sms_token and sms_token.valid:
+    if sent_token == sms_token.sms_token:
+        if not sms_token.valid:
+            return render_response(
+                'Your token has expired, '
+                'Please request a new token',
+                410
+            )
         profile = user.profile
         profile.disabled = False
         profile.save()
@@ -216,6 +225,7 @@ def verify_phone(request):
 
 @csrf_exempt
 @not_logged_in_required
+@watch_login
 def user_by_phone(request):
     phone = request.POST.get('phone')
     phone = re.sub(' +', '', phone)

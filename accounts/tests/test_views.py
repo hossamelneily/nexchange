@@ -1,9 +1,12 @@
 import json
+from datetime import datetime
 from unittest.mock import patch
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from freezegun import freeze_time
 
 from accounts.models import Profile, SmsToken
 from core.tests.base import UserBaseTestCase
@@ -292,7 +295,6 @@ class LogoutTestCase(UserBaseTestCase):
 
 
 class PassiveAuthenticationTestCase(UserBaseTestCase):
-
     def __init__(self, *args, **kwargs):
         self.token = None
         self.user = None
@@ -360,6 +362,72 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         send_sms.assert_called_once_with(user,
                                          self.token)
 
+    @patch('accounts.views._send_sms')
+    def test_sms_not_sent_after_limit_is_exceeded(self, send_sms):
+        self.client.logout()
+        url = reverse('accounts.user_by_phone')
+        uname = '+491628290463'
+        payload = {
+            'phone': uname,
+        }
+        user = User.objects.last()
+        i = 1
+        for i in range(1, settings.AXES_LOGIN_FAILURE_LIMIT):
+            res = self.client.post(url, data=payload)
+            user = User.objects.last()
+            self.assertEquals(res.status_code, 200)
+
+            self.token = SmsToken.objects.\
+                filter(user=user).last()
+            self.assertEquals(send_sms.call_count, i)
+
+        res = self.client.post(url, data=payload)
+        newest_user = User.objects.last()
+        self.assertEqual(user, newest_user)
+        self.assertEquals(res.status_code, 403)
+        self.assertEquals(send_sms.call_count, i+1)
+
+    @patch('accounts.views._send_sms')
+    def test_sms_sent_after_limit_is_exceeded_and_time_passed(self, send_sms):
+        self.client.logout()
+        url = reverse('accounts.user_by_phone')
+        uname = '+491628290463'
+        payload = {
+            'phone': uname,
+        }
+        user = User.objects.last()
+        i = 1
+        for i in range(1, settings.AXES_LOGIN_FAILURE_LIMIT):
+            res = self.client.post(url, data=payload)
+            user = User.objects.last()
+            self.assertEquals(res.status_code, 200)
+
+            self.token = SmsToken.objects. \
+                filter(user=user).last()
+
+        res = self.client.post(url, data=payload)
+        newest_user = User.objects.last()
+        self.assertEquals(send_sms.call_count, i+1)
+        self.assertEqual(user, newest_user)
+        self.assertEquals(res.status_code, 403)
+
+        unlock_time = datetime.now() +\
+                      settings.AXES_COOLOFF_TIME
+
+        with freeze_time(unlock_time, tick=True):
+            res = self.client.post(url, data=payload)
+            user = User.objects.last()
+            self.assertEquals(res.status_code, 200)
+
+            self.token = SmsToken.objects. \
+                filter(user=user).last()
+
+            # test cleanupm
+            self.assertEqual(uname,
+                             user.username)
+
+            self.assertEquals(send_sms.call_count, i+2)
+
     def test_sms_sent_invalid_phone(self):
         self.client.logout()
         url = reverse('accounts.user_by_phone')
@@ -374,20 +442,90 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         self.user = User.objects.last()
         self.token = SmsToken.objects.last()
 
-    def test_fail_login(self):
-        pass
-
-    def test_success_login(self):
-        pass
-
     def test_block_after_x_attempts(self):
-        pass
+        user = self.user
+        # Ensure profile is disabled
+        profile = user.profile
+        profile.disabled = True
+        profile.save()
+        self.assertTrue(user.profile.disabled)
+        sms_token = SmsToken.objects.filter(user=user).latest('id')
+        token = '{}xx'.format(sms_token.sms_token)
 
+        for i in range(1, settings.AXES_LOGIN_FAILURE_LIMIT):
+            response = passive_authentication_helper(
+                self.client,
+                self.user,
+                token,
+                self.username,
+                False
+            )
 
-class ShortRegistrationTestCase(TestCase):
+        response = passive_authentication_helper(
+            self.client,
+            self.user,
+            token,
+            self.username,
+            False
+        )
 
-    def test_short_registration_success(self):
-        pass
+        self.assertEqual(403, response.status_code)
 
-    def test_short_registration_failure(self):
-        pass
+    def test_unblock_after_lockout_passed(self):
+        user = self.user
+        # Ensure profile is disabled
+        profile = user.profile
+        profile.disabled = True
+        profile.save()
+        self.assertTrue(user.profile.disabled)
+        sms_token = SmsToken.objects.filter(user=user).latest('id')
+        token = '{}xx'.format(sms_token.sms_token)
+
+        for i in range(0, settings.AXES_LOGIN_FAILURE_LIMIT):
+            response = passive_authentication_helper(
+                self.client,
+                self.user,
+                token,
+                self.username,
+                False
+            )
+
+        unlock_time = datetime.now() + \
+                      settings.AXES_COOLOFF_TIME
+
+        with freeze_time(unlock_time, tick=True):
+            sms_token = SmsToken(user=user)
+            sms_token.save()
+            token = '{}'.format(sms_token.sms_token)
+
+            response = passive_authentication_helper(
+                self.client,
+                self.user,
+                token,
+                self.username,
+                False
+            )
+
+            self.assertEqual(201, response.status_code)
+
+    def test_correct_token_after_expiry_failure(self):
+        user = self.user
+        # Ensure profile is disabled
+        profile = user.profile
+        profile.disabled = True
+        profile.save()
+        self.assertTrue(user.profile.disabled)
+        sms_token = SmsToken.objects.filter(user=user).latest('id')
+        token = '{}'.format(sms_token.sms_token)
+
+        expiry_time = datetime.now() + settings.SMS_TOKEN_VALIDITY
+        with freeze_time(expiry_time):
+            response = passive_authentication_helper(
+                self.client,
+                self.user,
+                token,
+                self.username,
+                False
+            )
+
+            self.assertEqual(410, response.status_code)

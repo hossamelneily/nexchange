@@ -35,4 +35,3 @@ def timezone_country():
        for timezone in timezones:
            timezone_country[timezone] = country_code
     return timezone_country
-
