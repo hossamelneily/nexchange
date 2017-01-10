@@ -1,5 +1,4 @@
 from django.contrib import admin
-from djcelery.models import TaskMeta
 
 
 class TaskMetaAdmin(admin.ModelAdmin):
@@ -7,4 +6,3 @@ class TaskMetaAdmin(admin.ModelAdmin):
 
 
 admin.autodiscover()
-admin.site.register(TaskMeta, TaskMetaAdmin)

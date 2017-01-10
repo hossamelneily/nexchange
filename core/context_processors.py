@@ -1,4 +1,5 @@
 from django.conf import settings
+from pytz import country_timezones
 
 
 def google_analytics(request):
@@ -17,3 +18,20 @@ def google_analytics(request):
             'GOOGLE_ANALYTICS_DOMAIN': ga_domain,
         }
     return {}
+
+
+def country_code(request):
+    try:
+        country_code = timezone_country()[request.COOKIES['USER_TZ']]
+        return {'COUNTRY_CODE': country_code}
+    except KeyError:
+        return {'COUNTRY_CODE': 'US'}
+
+
+def timezone_country():
+    timezone_country = {}
+    for country_code in country_timezones:
+       timezones = country_timezones[country_code]
+       for timezone in timezones:
+           timezone_country[timezone] = country_code
+    return timezone_country

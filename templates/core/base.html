@@ -93,7 +93,7 @@
     {% include 'core/partials/popular_faq.html' %}
     {% include 'core/partials/seo_footer.html' %}
    
-    <script type="text/javascript" src="{% url 'django.views.i18n.javascript_catalog' %}"></script>
+    <script type="text/javascript" src="{% url 'nexchange.javascript_catalog' %}"></script>
     <script src="https://code.jquery.com/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"
           integrity="sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw="
@@ -112,8 +112,9 @@
    <link rel="stylesheet" href="{% static 'bower_components/nprogress/nprogress.css' %}">
    {% include 'session_security/all.html' %}
     <script>
+        window.countryCode = '{{COUNTRY_CODE}}';
         $( document ).ready(function() {
-          Cookies.set("USER_TZ", moment.tz.guess());
+            Cookies.set("USER_TZ", moment.tz.guess());
             var userLang= Cookies.get("django_language");
             if (!userLang)  {
               userLang = navigator.language || navigator.userLanguage;

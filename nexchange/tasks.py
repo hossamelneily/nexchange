@@ -18,9 +18,11 @@ logging.basicConfig(filename='payment_release.log', level=logging.INFO)
 
 
 @shared_task
-def payment_release():
+def buy_order_release():
     # TODO: iterate over payments instead, will be much faster
-    for o in Order.objects.filter(is_paid=True, is_released=False):
+    for o in Order.objects.filter(is_paid=True,
+                                  is_released=False,
+                                  type=Order.BUY):
         if not o.withdraw_address:
             print("{} has now withdrawal address, moving on".
                   format(o.unique_reference))
