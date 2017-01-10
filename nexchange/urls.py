@@ -30,6 +30,7 @@ from payments.urls import payment_urls
 from referrals.urls import referral_urls, referrals_api_patterns
 from support.urls import support_urls
 from ticker.urls import ticker_api_patterns
+from verification.urls import verification_urls
 
 js_info_dict = {
     'domain': 'djangojs',
@@ -50,6 +51,7 @@ urlpatterns = i18n_patterns(
     url(r'^referrals/', include(referral_urls)),
     url(r'^articles/', include(article_urls)),
     url(r'^support/', include(support_urls)),
+    url(r'^verification/', include(verification_urls)),
 
     url(r'^api/v1/', include(api_patterns)),
     url(r'^api/v1/menu', core.views.ajax_menu, name='core.menu'),

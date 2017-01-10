@@ -51,6 +51,11 @@
                         {% trans "Referrals" %}
                     </a>
                 </li>
+                <li class="{% if request.resolver_match.url_name == 'verification.upload' %} active {% endif %}">
+                    <a href="{% url 'verification.upload'%}">
+                        {% trans "Verification" %}
+                    </a>
+                </li>
             </ul>
         </div>
     </nav>

@@ -101,10 +101,11 @@ INSTALLED_APPS = [
     'payments',
     'articles',
     'djcelery',
+    'verification',
     'session_security',
     'axes',
     'nexchange',
-    'support'
+    'support',
 ]
 
 
