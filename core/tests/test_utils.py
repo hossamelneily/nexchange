@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 from django.test import TestCase
 
-from core.tests.base import data_provider
+from core.tests.utils import data_provider
 
 
 class DataProviderDecoratorTestCase(TestCase):

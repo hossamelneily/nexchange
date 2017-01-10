@@ -1,8 +1,5 @@
 #!/bin/sh
 
-FILES_CACHED_PY=$(git diff --cached --name-only --diff-filter=ACM | grep -e '\.py$')
-FILES_CACHED_JS=$(git diff --cached --name-only --diff-filter=ACM | grep -e '\.js$')
-
 # If we only check for '--cached', when one does 'git commit -a' static validation will be skipped...
 FILES_PY=$(git diff --name-only --diff-filter=ACM | grep -e '\.py$')
 FILES_JS=$(git diff --name-only --diff-filter=ACM | grep -e '\.js$')
@@ -18,16 +15,5 @@ if [ -n "$FILES_PY" ] || [ -n "$FILES_CACHED_PY" ] ; then
 else
     echo "======================="
     echo "======= No .py FILES TO COMMIT. SKIPPING FLASK8"
-    echo "======================="
-fi
-
-if [ -n "$FILES_JS" ] || [ -n "$FILES_CACHED_JS" ] ; then
-    echo "======================="
-    echo "======= CHECKING FILES: \n $FILES_JS $FILES_CACHED_JS"
-    echo "======================="
-    npm run lint
-else
-    echo "======================="
-    echo "======= No .js FILES TO COMMIT. SKIPPING JSHINT. "
     echo "======================="
 fi

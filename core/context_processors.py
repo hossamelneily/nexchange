@@ -19,12 +19,14 @@ def google_analytics(request):
         }
     return {}
 
+
 def country_code(request):
     try:
         country_code = timezone_country()[request.COOKIES['USER_TZ']]
         return {'COUNTRY_CODE': country_code}
     except KeyError:
         return {'COUNTRY_CODE': 'US'}
+
 
 def timezone_country():
     timezone_country = {}

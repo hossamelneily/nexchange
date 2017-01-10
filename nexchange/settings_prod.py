@@ -12,5 +12,3 @@ DATABASES = {
                                       .format(user, password, host, port, db))
 
 }
-
-AXES_COOLOFF_TIME = timedelta(minutes=15)

@@ -15,7 +15,8 @@ account_urls = [
         name='accounts.resend_sms'),
 
     url(r'^verify_phone/$',
-        views.verify_phone, name='core.verify_phone'),
+        views.verify_phone,
+        name='accounts.verify_phone'),
     url(r'^profile$', views.UserUpdateView.as_view(),
         name='accounts.user_profile'),
 
