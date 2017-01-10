@@ -1,6 +1,7 @@
+from django.db.utils import IntegrityError
+
 from core.tests.base import UserBaseTestCase
 from verification.models import Verification
-from django.db.utils import IntegrityError
 
 
 class VerificationTestCase(UserBaseTestCase):
