@@ -22,7 +22,6 @@ def passive_authentication_helper(client,
                                   token,
                                   phone,
                                   is_logged_in):
-
     if not is_logged_in and user.is_authenticated():
         client.logout()
     # incorrect token

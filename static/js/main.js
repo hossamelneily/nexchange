@@ -41,7 +41,8 @@
         paymentObject.loadPaymentMethods(cardsEndpoint, currency);
         var timer = null,
             delay = 500,
-            phones = $('.phone');
+            phones = $('.phone'),
+            verification_code = $('#verification_code');
         //if not used idx: remove jshint
         phones.each(function () {
             if(typeof $(this).intlTelInput === 'function') {
@@ -50,12 +51,14 @@
                 $(this).intlTelInput("setCountry", window.countryCode);
             }
         });
-
-        phones.on('keyup', function() {
+         var stripSpaces = function stripSpaces() {
             var val = $(this).val();
             val = val.split(' ').join('');
             $(this).val(val);
-        });
+        };
+        phones.on('keyup', stripSpaces);
+        verification_code.on('keyup', stripSpaces);
+
 
         orderObject.updateOrder($('.amount-coin'), true, currency);
         // if not used event, isNext remove  jshint
@@ -166,6 +169,29 @@
     });
 
     $(function() {
+        function lockoutResponse (data) {
+            console.log(data);
+            var formattedTime = data
+                    .responseJSON
+                    .cooloff_time
+                    .replace("PT","")
+                    .replace("H",":")
+                    .replace("M","")
+                    .replace("S",""),
+                errorMsg = gettext('You were locked out, please try again in '),
+                completeMsg = errorMsg +
+                    formattedTime + ' ' +
+                    gettext('minutes');
+            toastr.error(completeMsg);
+        }
+
+        function failureResponse (data, defaultMsg) {
+            var _defaultMsg = gettext(defaultMsg),
+                message = data.message || _defaultMsg;
+            toastr.error(message);
+
+        }
+
         // For order index
         $('[data-toggle="popover"]').popover({content: $("#popover-template").html()});
         $( "#id_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
@@ -208,17 +234,24 @@
             };
             $.ajax({
                 type: 'POST',
+                dataType: 'json',
                 url: createAccEndpoint,
                 data: regPayload,
-                success: function () {
-                    $('.register .step2').removeClass('hidden');
-                    $('.verify-acc').removeClass('hidden');
-                    $('.create-acc').addClass('hidden');
-                    $('.create-acc.resend').removeClass('hidden');
-                },
-                error: function () {
-                	var message = gettext('Invalid phone number');
-                    toastr.error(message);
+                statusCode: {
+                    200: function (data) {
+                        $('.register .step2').removeClass('hidden');
+                        $('.verify-acc').removeClass('hidden');
+                        $('.create-acc').addClass('hidden');
+                        $('.create-acc.resend').removeClass('hidden');
+                    },
+                    400: function (data) {
+                        return failureResponse(
+                            data,
+                            'Invalid phone number'
+                        );
+                    },
+                    403: lockoutResponse
+
                 }
             });
         });
@@ -230,16 +263,21 @@
             };
             $.ajax({
                 type: 'POST',
+                dataType: 'json',
                 url: validatePhoneEndpoint,
                 data: verifyPayload,
-                success: function () {
-                    orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
-                    orderObject.changeState(null, 'next');
-                },
-                error: function (data) {
-                	var defaultMsg = gettext('Something went wrong. Please, try again.'),
-                        message = data.message || defaultMsg;
-                    toastr.error(message);
+                statusCode: {
+                    201: function(data) {
+                        orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
+                        orderObject.changeState(null, 'next');
+                    },
+                    400: function (data) {
+                        failureResponse(
+                            data,
+                            'Incorrect code'
+                        );
+                    },
+                    403: lockoutResponse
                 }
             });
 

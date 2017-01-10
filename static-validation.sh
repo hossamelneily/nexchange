@@ -15,10 +15,9 @@ if [ -n "$FILES_PY" ] || [ -n "$FILES_CACHED_PY" ] ; then
     echo "======= CHECKING FILES: \n $FILES_PY $FILES_CACHED_PY"
     echo "======================="
     flake8 $OPTIONS $FILES_PY $FILES_CACHED_PY
-    isort -rc
 else
     echo "======================="
-    echo "======= No .py FILES TO COMMIT. SKIPPING FLASK8 and ISORT "
+    echo "======= No .py FILES TO COMMIT. SKIPPING FLASK8"
     echo "======================="
 fi
 
