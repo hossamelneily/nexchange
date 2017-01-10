@@ -1,20 +1,21 @@
-from django.shortcuts import render
-from verification.models import Verification
-from django.views.generic import CreateView
-from verification.forms import VerificationUploadForm
-from django.http import (
-    HttpResponseRedirect, HttpResponse, HttpResponseForbidden
-)
-
-from django.core.urlresolvers import reverse_lazy
-from django.conf import settings
+import mimetypes
 import os
 from wsgiref.util import FileWrapper
-import mimetypes
-from django.utils.encoding import smart_str
+
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
+from django.http import (HttpResponse, HttpResponseForbidden,
+                         HttpResponseRedirect)
+from django.shortcuts import render
+from django.utils.encoding import smart_str
+from django.utils.translation import ugettext_lazy as _
+from django.views.generic import CreateView
+
+from verification.forms import VerificationUploadForm
+from verification.models import Verification
+
 from .common import LoginRestrictedView
 
 

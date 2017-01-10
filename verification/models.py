@@ -1,6 +1,7 @@
-from django.db import models
-from core.common.models import SoftDeletableModel, TimeStampedModel
 from django.contrib.auth.models import User
+from django.db import models
+
+from core.common.models import SoftDeletableModel, TimeStampedModel
 
 
 class Verification(TimeStampedModel, SoftDeletableModel):
