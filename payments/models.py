@@ -1,12 +1,14 @@
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 
 from core.common.models import SoftDeletableModel, TimeStampedModel
 from core.models import Address
+
+from nexchange.utils import CreateUpholdCard
 
 
 class PaymentMethodManager(models.Manager):
@@ -131,14 +133,26 @@ class UserCards(models.Model):
 
 @receiver(post_save, sender=User)
 def update_usercard(instance, **kwargs):
-    valuta = ['BTC', 'LTC', 'ETH']
-    for i in valuta:
-        try:
-            card = UserCards.objects.filter(currency=i, 
+    valuta = {'BTC': 'bitcoin', 'LTC': 'litecoin', 'ETH': 'ethereum'}
+    for key, value in valuta.items():
+        if UserCards.objects.filter(currency=key, user=None).exists():
+            card = UserCards.objects.filter(currency=key,
                                             user=None).order_by('id').first()
             card.user = instance
             address = Address(address=card.address_id, user=card.user)
             address.save()
             card.save()
-        except (ObjectDoesNotExist, AttributeError):
+        elif UserCards.objects.filter(currency=key, user=instance).exists():
             pass
+        else:
+            api = CreateUpholdCard(settings.CARDS_RESERVE_COUNT)
+            api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
+            new_card = api.new_card(key)
+            address = api.add_address(new_card['id'], value)
+            card = UserCards(card_id=new_card['id'],
+                            currency=new_card['currency'],
+                            address_id=address['id'],
+                            user=instance)
+            address = Address(address=card.address_id, user=instance)
+            address.save()
+            card.save()

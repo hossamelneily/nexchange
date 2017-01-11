@@ -128,7 +128,8 @@ def renew_cards_reserve():
         while count <= settings.CARDS_RESERVE_COUNT:
             new_card = api.new_card(key)
             address = api.add_address(new_card['id'], value)
-            card = UserCards(card_id=new_card['id'], currency=new_card['currency'],
+            card = UserCards(card_id=new_card['id'],
+                             currency=new_card['currency'],
                              address_id=address['id'])
             card.save()
             count = UserCards.objects.filter(user=None, currency=key).count()
