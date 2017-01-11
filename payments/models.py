@@ -1,13 +1,12 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
 
 from core.common.models import SoftDeletableModel, TimeStampedModel
 from core.models import Address
-
 from nexchange.utils import CreateUpholdCard
 
 
@@ -150,9 +149,9 @@ def update_usercard(instance, **kwargs):
             new_card = api.new_card(key)
             address = api.add_address(new_card['id'], value)
             card = UserCards(card_id=new_card['id'],
-                            currency=new_card['currency'],
-                            address_id=address['id'],
-                            user=instance)
+                             currency=new_card['currency'],
+                             address_id=address['id'],
+                             user=instance)
             address = Address(address=card.address_id, user=instance)
             address.save()
             card.save()
