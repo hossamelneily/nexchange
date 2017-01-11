@@ -230,7 +230,8 @@
 
             var regPayload = {
                 // TODO: check collision with qiwi wallet
-                phone: $('.register .phone').val()
+                phone: $('.register .phone').val(),
+                g_recaptcha_response: grecaptcha.getResponse(),
             };
             $.ajax({
                 type: 'POST',

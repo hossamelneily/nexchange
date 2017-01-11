@@ -20,6 +20,16 @@ def google_analytics(request):
     return {}
 
 
+def recaptcha(request):
+    """ Adds recaptcha sitekey to context.
+    https://developers.google.com/recaptcha/docs/display
+    """
+    sitekey = getattr(settings, 'RECAPTCHA_SITEKEY', False)
+    if sitekey:
+        return {'RECAPTCHA_SITEKEY': sitekey}
+    return {}
+
+
 def country_code(request):
     try:
         country_code = timezone_country()[request.COOKIES['USER_TZ']]
@@ -31,7 +41,7 @@ def country_code(request):
 def timezone_country():
     timezone_country = {}
     for country_code in country_timezones:
-       timezones = country_timezones[country_code]
-       for timezone in timezones:
-           timezone_country[timezone] = country_code
+        timezones = country_timezones[country_code]
+        for timezone in timezones:
+            timezone_country[timezone] = country_code
     return timezone_country

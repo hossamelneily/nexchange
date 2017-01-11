@@ -323,6 +323,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         uname = '+79259737305'
         payload = {
             'phone': uname,
+            'g_recaptcha_response': True
         }
         self.client.get(self.logout_url)
         res = self.client.post(url, data=payload)
@@ -340,6 +341,20 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         send_sms.assert_called_once_with(self.user, sms_token)
 
     @patch('accounts.views._send_sms')
+    def test_sms_sent_no_recaptcha_forbidden(self, send_sms):
+        url = reverse('accounts.user_by_phone')
+        uname = '+79259737305'
+        payload = {
+            'phone': uname,
+            'g_recaptcha_response': False
+        }
+        self.client.get(self.logout_url)
+        # request with no verify parameter
+        res = self.client.post(url, data=payload)
+
+        self.assertEquals(res.status_code, 403)
+
+    @patch('accounts.views._send_sms')
     def test_sms_sent_replace_phone_spaces(self, send_sms):
         self.client.logout()
         url = reverse('accounts.user_by_phone')
@@ -347,6 +362,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         expected_uname = '+491628290463'
         payload = {
             'phone': uname,
+            'g_recaptcha_response': True
         }
         res = self.client.post(url, data=payload)
         user = User.objects.last()
@@ -369,6 +385,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         uname = '+491628290463'
         payload = {
             'phone': uname,
+            'g_recaptcha_response': True
         }
         user = User.objects.last()
         i = 1
@@ -394,6 +411,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         uname = '+491628290463'
         payload = {
             'phone': uname,
+            'g_recaptcha_response': True
         }
         user = User.objects.last()
         i = 1
@@ -434,6 +452,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         uname = '+7 92 59 73 73zaza'
         payload = {
             'phone': uname,
+            'g_recaptcha_response': True
         }
         res = self.client.post(url, data=payload)
 
