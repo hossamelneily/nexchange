@@ -36,25 +36,27 @@ def _get_client_ip(request):
     return ip
 
 
+def get_google_response(request, captcha_rs):
+    url = "https://www.google.com/recaptcha/api/siteverify"
+    params = {
+        'secret': settings.RECAPTCHA_SECRET_KEY,
+        'response': captcha_rs,
+        'remoteip': _get_client_ip(request)
+    }
+    verify_rs = requests.post(url, data=params, verify=True)
+    verify_rs = verify_rs.json()
+    success = verify_rs.get("success", False)
+    return success
+
+
 def recaptcha_required(view_fn):
     @wraps(view_fn)
     def wrapper(request, *args, **kwds):
         if request.method == 'POST':
             data = request.POST
             captcha_rs = data.get('g_recaptcha_response')
-            verify = True
-            if (captcha_rs == 'True') and settings.RECAPTCHA_ALLOW_DUMMY_TOKEN:
-                verify = False
-            url = "https://www.google.com/recaptcha/api/siteverify"
-            params = {
-                'secret': settings.RECAPTCHA_SECRET_KEY,
-                'response': captcha_rs,
-                'remoteip': _get_client_ip(request)
-            }
-            verify_rs = requests.post(url, data=params, verify=True)
-            verify_rs = verify_rs.json()
-            success = verify_rs.get("success", False)
-            if not success and verify:
+            success = get_google_response(request, captcha_rs)
+            if not success:
                 return HttpResponseForbidden(_('Invalid reCAPTCHA!'))
         return view_fn(request, *args, **kwds)
     return wrapper

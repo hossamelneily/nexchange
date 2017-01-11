@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -301,6 +301,13 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         super(PassiveAuthenticationTestCase,
               self).__init__(*args, **kwargs)
 
+    def setUp(self):
+        super(PassiveAuthenticationTestCase, self).setUp()
+        patcher = patch('accounts.decoratos.get_google_response',
+                        return_value=True)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def tearDown(self):
         if self.user:
             self.user.delete()
@@ -323,7 +330,6 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         uname = '+79259737305'
         payload = {
             'phone': uname,
-            'g_recaptcha_response': True
         }
         self.client.get(self.logout_url)
         res = self.client.post(url, data=payload)
@@ -340,16 +346,17 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
         send_sms.assert_called_once_with(self.user, sms_token)
 
+    @patch('accounts.decoratos.get_google_response')
     @patch('accounts.views._send_sms')
-    def test_sms_sent_no_recaptcha_forbidden(self, send_sms):
+    def test_sms_sent_no_recaptcha_forbidden(self, send_sms, get_google):
+        # request with no verify parameter
+        get_google.return_value = False
         url = reverse('accounts.user_by_phone')
         uname = '+79259737305'
         payload = {
             'phone': uname,
-            'g_recaptcha_response': False
         }
         self.client.get(self.logout_url)
-        # request with no verify parameter
         res = self.client.post(url, data=payload)
 
         self.assertEquals(res.status_code, 403)
@@ -362,7 +369,6 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         expected_uname = '+491628290463'
         payload = {
             'phone': uname,
-            'g_recaptcha_response': True
         }
         res = self.client.post(url, data=payload)
         user = User.objects.last()
@@ -385,7 +391,6 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         uname = '+491628290463'
         payload = {
             'phone': uname,
-            'g_recaptcha_response': True
         }
         user = User.objects.last()
         i = 1
@@ -411,7 +416,6 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         uname = '+491628290463'
         payload = {
             'phone': uname,
-            'g_recaptcha_response': True
         }
         user = User.objects.last()
         i = 1
@@ -452,7 +456,6 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         uname = '+7 92 59 73 73zaza'
         payload = {
             'phone': uname,
-            'g_recaptcha_response': True
         }
         res = self.client.post(url, data=payload)
 
