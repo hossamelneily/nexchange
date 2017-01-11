@@ -5,7 +5,8 @@ from unittest import skip
 from django.conf import settings
 from django.utils import timezone
 
-from core.tests.base import OrderBaseTestCase, UserBaseTestCase, data_provider
+from core.tests.base import OrderBaseTestCase, UserBaseTestCase
+from core.tests.utils import data_provider
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
 

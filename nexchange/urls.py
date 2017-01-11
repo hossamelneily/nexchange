@@ -33,7 +33,12 @@ from ticker.urls import ticker_api_patterns
 
 js_info_dict = {
     'domain': 'djangojs',
-    'packages': ('nexchange',),
+    'packages': (
+        'nexchange',
+        'core',
+        'orders',
+        'payments'
+    ),
 }
 
 
@@ -42,7 +47,8 @@ api_patterns = ticker_api_patterns + referrals_api_patterns
 urlpatterns = i18n_patterns(
     url(r'^admin/', admin.site.urls),
     url(r'^i18n/', include('django.conf.urls.i18n')),
-    url(r'^jsi18n/$', javascript_catalog, js_info_dict),
+    url(r'^jsi18n/$', javascript_catalog, js_info_dict,
+        name='nexchange.javascript_catalog'),
     url(r'^$', core.views.main, name='main'),
     url(r'^orders/', include(order_urls)),
     url(r'^accounts/', include(account_urls)),

@@ -1,8 +1,11 @@
+import json
+import re
+
+from axes.decorators import watch_login
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -13,11 +16,14 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
+from phonenumber_field.validators import validate_international_phonenumber
 from twilio.exceptions import TwilioException
 from twilio.rest import TwilioRestClient
 
+from accounts.decoratos import not_logged_in_required
 from accounts.forms import (CustomUserCreationForm, UpdateUserProfileForm,
                             UserForm, UserProfileForm)
+from accounts.models import NexchangeUser as User
 from accounts.models import Profile, SmsToken
 from core.models import Address
 from core.validators import validate_bc
@@ -87,7 +93,7 @@ class UserUpdateView(View):
         context = {
             'user_form': user_form,
             'profile_form': profile_form,
-            'referral_form': referral_form
+            'referral_form': referral_form,
         }
 
         return render(request, 'accounts/user_profile.html', context)
@@ -140,6 +146,7 @@ def _send_sms(user, token=None):
         return err
 
 
+@watch_login
 def resend_sms(request):
     phone = request.POST.get('phone')
     if request.user.is_anonymous() and phone:
@@ -150,34 +157,91 @@ def resend_sms(request):
     return JsonResponse({'message_sid': message.sid}, safe=False)
 
 
+@watch_login
 def verify_phone(request):
+    def render_response(msg, code):
+        _context = {
+            'status': 'Error' if code > 201 else 'OK',
+            'message':
+                str(_(msg))
+        }
+        return HttpResponse(
+            json.dumps(_context),
+            status=code,
+            content_type='application/json'
+        )
+
     sent_token = request.POST.get('token')
+    sent_token = re.sub(' +', '', sent_token)
     phone = request.POST.get('phone')
+    phone = re.sub(' +', '', phone)
     anonymous = request.user.is_anonymous()
     if anonymous and phone:
-        user = User.objects.get(username=phone)
+        try:
+            user = User.objects.get(username=phone)
+        except User.DoesNotExist:
+            return render_response(
+                'Please make sure you phone is correct',
+                400
+            )
+
+    elif not phone:
+        return render_response(
+            'Please enter your phone number',
+            400
+        )
     else:
         user = request.user
     sms_token = SmsToken.objects.filter(user=user).latest('id')
-    if sent_token == sms_token.sms_token and sms_token.valid:
+    if sent_token == sms_token.sms_token:
+        if not sms_token.valid:
+            return render_response(
+                'Your token has expired, '
+                'Please request a new token',
+                410
+            )
         profile = user.profile
         profile.disabled = False
         profile.save()
-        status = 'OK'
         sms_token.delete()
         if anonymous:
             user.backend = 'django.contrib.auth.backends.ModelBackend'
             login(request, user)
 
-    else:
-        status = 'NO_MATCH'
+        # Fool attacker into thinking that the number is
+        # not registered with 201
+        return render_response(
+            'Successfully logged in' if anonymous
+            else 'Phone verified successfully',
+            201 if anonymous else 200
+        )
 
-    return JsonResponse({'status': status}, safe=False)
+    else:
+        return render_response(
+            'You have entered an incorrect code',
+            400
+        )
 
 
 @csrf_exempt
+@not_logged_in_required
+@watch_login
 def user_by_phone(request):
     phone = request.POST.get('phone')
+    phone = re.sub(' +', '', phone)
+    try:
+        validate_international_phonenumber(phone)
+    except ValidationError as e:
+        context = {
+            'status': 'error',
+            'msg': str(e.message)
+        }
+        return HttpResponse(
+            json.dumps(context),
+            status=400,
+            content_type='application/json'
+        )
+
     user, created = User.objects.get_or_create(username=phone)
     Profile.objects.get_or_create(user=user)
     token = SmsToken(user=user)
@@ -189,7 +253,7 @@ def user_by_phone(request):
         return JsonResponse({'status': 'ok'})
 
 
-@login_required()
+@login_required
 def user_address_ajax(request):
     user = request.user
     template = get_template('core/partials/user_address.html')
@@ -198,12 +262,11 @@ def user_address_ajax(request):
                                         request))
 
 
-@login_required()
+@login_required
 def create_withdraw_address(request):
     error_message = 'Error creating address: %s'
 
     address = request.POST.get('value')
-
     addr = Address()
     addr.type = Address.WITHDRAW
     addr.user = request.user

@@ -52,4 +52,5 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 
 # Lockout only for 1 mins on dev
-AXES_COOLOFF_TIME = timedelta(minutes=1)
+AXES_LOGIN_FAILURE_LIMIT = 2
+AXES_COOLOFF_TIME = timedelta(minutes=5)

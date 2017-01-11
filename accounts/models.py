@@ -6,11 +6,19 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
+from phonenumber_field.validators import validate_international_phonenumber
 
 from core.common.models import (SoftDeletableModel, TimeStampedModel,
                                 UniqueFieldMixin)
 from orders.models import Order
 from referrals.models import ReferralCode
+
+
+class NexchangeUser(User):
+    username_validator = validate_international_phonenumber
+
+    class Meta:
+        proxy = True
 
 
 class ProfileManager(models.Manager):
@@ -94,7 +102,7 @@ class SmsToken(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     @property
     def valid(self):
         return self.created_on > timezone.now() -\
-            timedelta(minutes=settings.SMS_TOKEN_VALIDITY)
+            settings.SMS_TOKEN_VALIDITY
 
     def save(self, *args, **kwargs):
         self.sms_token = self.get_sms_token()
