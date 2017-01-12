@@ -20,7 +20,7 @@
 
 var doRender = function() {
       grecaptcha.render( 'grecaptcha', {
-        'sitekey' : '6LfPaAoUAAAAAOmpl6ZwPIk2Zs-30TErK48dPhcS',  // required
+        'sitekey' : window.recaptchaSitekey,  // required
         'theme' : 'light',  // optional
         'callback': verifyRecatpchaCallback  // optional
       });

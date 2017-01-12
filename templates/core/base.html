@@ -113,6 +113,7 @@
    {% include 'session_security/all.html' %}
     <script>
         window.countryCode = '{{COUNTRY_CODE}}';
+        window.recaptchaSitekey = '{{ RECAPTCHA_SITEKEY }}'
         $( document ).ready(function() {
             Cookies.set("USER_TZ", moment.tz.guess());
             var userLang= Cookies.get("django_language");

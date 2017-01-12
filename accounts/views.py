@@ -20,7 +20,7 @@ from phonenumber_field.validators import validate_international_phonenumber
 from twilio.exceptions import TwilioException
 from twilio.rest import TwilioRestClient
 
-from accounts.decoratos import not_logged_in_required
+from accounts.decoratos import not_logged_in_required, recaptcha_required
 from accounts.forms import (CustomUserCreationForm, UpdateUserProfileForm,
                             UserForm, UserProfileForm)
 from accounts.models import NexchangeUser as User
@@ -223,6 +223,7 @@ def verify_phone(request):
         )
 
 
+@recaptcha_required
 @csrf_exempt
 @not_logged_in_required
 @watch_login

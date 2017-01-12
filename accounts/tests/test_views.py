@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -301,6 +301,13 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         super(PassiveAuthenticationTestCase,
               self).__init__(*args, **kwargs)
 
+    def setUp(self):
+        super(PassiveAuthenticationTestCase, self).setUp()
+        patcher = patch('accounts.decoratos.get_google_response',
+                        return_value=True)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def tearDown(self):
         if self.user:
             self.user.delete()
@@ -338,6 +345,21 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         self.assertTrue(sms_token)
 
         send_sms.assert_called_once_with(self.user, sms_token)
+
+    @patch('accounts.decoratos.get_google_response')
+    @patch('accounts.views._send_sms')
+    def test_sms_sent_no_recaptcha_forbidden(self, send_sms, get_google):
+        # request with no verify parameter
+        get_google.return_value = False
+        url = reverse('accounts.user_by_phone')
+        uname = '+79259737305'
+        payload = {
+            'phone': uname,
+        }
+        self.client.get(self.logout_url)
+        res = self.client.post(url, data=payload)
+
+        self.assertEquals(res.status_code, 403)
 
     @patch('accounts.views._send_sms')
     def test_sms_sent_replace_phone_spaces(self, send_sms):
