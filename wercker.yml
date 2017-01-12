@@ -1,10 +1,12 @@
 box: pitervergara/geodjango:nexchange
-ports:
-  - "8000"
+  ports:
+    - "8000"
 
 dev:
   services:
    - id: mdillon/postgis
+     ports:
+       - "5432"
      env:
        POSTGRES_USER: nexchange
        POSTGRES_PASSWORD: nexchange
