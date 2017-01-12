@@ -79,3 +79,28 @@ def check_transaction_uphold(tx):
             get('txid')
     print("status: {}".format(res.get('status')))
     return res.get('status') == 'completed'
+
+
+class CreateUpholdCard(Uphold):
+
+    def new_card(self, currency):
+        """
+        Create a new card
+        """
+
+        fields = {
+            'label': 'User card',
+            'currency': currency,
+        }
+        return self._post('/me/cards/', fields)
+    
+    
+    def add_address(self, card, network):
+        """
+        Add to card address
+        """
+        
+        fields = {
+            'network': network,
+        }
+        return self._post('/me/cards/{}/addresses'.format(card), fields)
