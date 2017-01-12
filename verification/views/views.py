@@ -26,7 +26,6 @@ class Upload(LoginRestrictedView, CreateView):
     success_url = reverse_lazy('verification.upload')
 
     def form_valid(self, form):
-        instance = form.instance
         instance = form.save(commit=False)
         instance.user = self.request.user
         instance.save()
