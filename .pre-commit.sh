@@ -10,18 +10,21 @@ function use_running_container {
 
     echo "${coverage_cmd}"
 
-    static_validation_cmd="cd /pipeline/source && ./static-validation.sh"
+    static_validation_cmd_py="cd /pipeline/source && ./static-validation-py.sh"
+    static_validation_cmd_js="cd /pipeline/source && ./static-validation-js.sh"
     backend_tests="cd /pipeline/source && export DJANGO_SETTINGS_MODULE=nexchange.settings_test && ${coverage_cmd}"
     frontend_tests="cd /pipeline/source && PHANTOMJS_BIN=node_modules/.bin/phantomjs  npm run-script test"
 
-    docker exec -t ${RUNNING_CONTAINER} bash -c "${static_validation_cmd}" &&
-        docker exec -t ${RUNNING_CONTAINER} bash -c "${backend_tests}" &&
-            docker exec -t ${RUNNING_CONTAINER} bash -c "${frontend_tests}"
+    docker exec -t ${RUNNING_CONTAINER} bash -c "${static_validation_cmd_py}" &&
+        docker exec -t ${RUNNING_CONTAINER} bash -c "${static_validation_cmd_js}" &&
+            docker exec -t ${RUNNING_CONTAINER} bash -c "${backend_tests}" &&
+                docker exec -t ${RUNNING_CONTAINER} bash -c "${frontend_tests}"
 }
 
 function use_wercker {
-    wercker build --direct-mount --pipeline static-validation &&
-        wercker build --direct-mount --pipeline tests
+    wercker build --direct-mount --pipeline static-validation-py &&
+        wercker build --direct-mount --pipeline static-validation-js &&
+            wercker build --direct-mount --pipeline tests
 }
 
 autopep8 --in-place --aggressive --aggressive **/**/**py
