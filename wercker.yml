@@ -1,6 +1,6 @@
 box: pitervergara/geodjango:nexchange
-  ports:
-    - "8000"
+ports:
+  - "8000"
 
 dev:
   services:
