@@ -149,7 +149,7 @@ def ajax_order(request):
     currency = Currency.objects.filter(code=curr)[0]
     payment_method = request.POST.get('pp_type')
     identifier = request.POST.get('pp_identifier', None)
-    identifier = identifier.replace(' ', '')
+    identifier = identifier.replace('', '')
     amount_coin = Decimal(amount_coin)
     template = 'orders/partials/modals/order_success_{}.html'.\
         format('buy' if trade_type else 'sell')
@@ -195,12 +195,16 @@ def ajax_order(request):
         'payment_method': payment_method,
         'order_amount': amount_coin,
         'amount_cash': amount_cash,
+        'okpay_wallet': settings.OKPAY_WALLET
 
     }
     if payment_method == 'Robokassa':
         url = geturl_robokassa(order.id,
                                str(round(Decimal(order.amount_cash), 2)))
         context.update({'url': url})
+
+    elif payment_method == 'okpay':
+        context.update({'okpay_wallet': settings.OKPAY_WALLET})
 
     res = template.render(context, request)
     return HttpResponse(res)

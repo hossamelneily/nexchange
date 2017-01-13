@@ -119,6 +119,11 @@ ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
                 "isTest={0}&MerchantLogin={1}&" \
                 "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
 
+# demo wallet id OK702746927
+OKPAY_WALLET = 'OK702746927'
+OKPAY_URL = 'https://www.okpay.com/en/account/login.html?verification={}&' \
+             'reference={}&return_url={}'
+
 CMSPAGES = {
     'ABOUTUS': [
         ('about_us', _('About Us')),

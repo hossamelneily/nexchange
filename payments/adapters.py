@@ -20,6 +20,9 @@ def robokassa_adapter(request):
 
     return output
 
+def okpay_adapter(request):
+    pass
+
 
 def leupay_adapter(request):
     return {}

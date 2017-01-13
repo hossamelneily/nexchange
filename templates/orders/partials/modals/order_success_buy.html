@@ -6,44 +6,84 @@
 <div class="panel panel-success">
     <div class="panel-body">
         <h1>{% trans 'Order placed successfully' %}</h1>
-        <div class="row">
-            <div class="col col xs-12"></div>
-            {% trans 'Please make payment to the following' %}
-            {{ order.payment_preference.payment_method.name }}
-        </div>
-        <div class="row">
-            <div class="col col-xs-12">
-                <p><strong>{{order.payment_preference.identifier}}</strong></p>
+            <div class="row">
+                <div class="col col xs-12"></div>
+                {% trans 'Please make payment to the following' %}
+                {{ order.payment_preference.payment_method.name }}
             </div>
-        </div>
-        <div class="row">
-            <div class="col col-xs-12">
-                {% trans 'Please put the following reference in the comment:' %}
+
+
+
+            <div class="row">
+                <div class="col col-xs-12">
+                    <p><strong>{{order.payment_preference.identifier}}</strong></p>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col col-xs-12 unique_ref">
-                <p><strong>{{unique_ref}}</strong></p>
+            <div class="row">
+                <div class="col col-xs-12">
+                    {% trans 'Please put the following reference in the comment:' %}
+                </div>
             </div>
-        </div>
-
-        <div class="col col-xs-12">
-         {% trans 'Notice that you must pay until' %}
-        </div>
-        {% localtime on %}
-        <div class="col col-xs-12" id="pay_until_notice">
-            <p><strong>{{pay_until |date:"H:iA (e)"}}</strong></p>
-        </div>
-
-        <div class="col-xs-12">
-            <input type="checkbox" id="default_order_trigger">
-            {% blocktrans %}
-                Credit my withdraw address automatically with any further funds
-                sent by you to our account automatically
-            {% endblocktrans %}
-        </div>
-
-        {% endlocaltime %}
+            <div class="row">
+                <div class="col col-xs-12 unique_ref">
+                    <p><strong>{{unique_ref}}</strong></p>
+                </div>
+            </div>
+            {% if order.payment_preference.payment_method.name == 'Okpay' %}
+            <div class="row">
+                <div class="col col-xs-10 col-xs-offset-1 success-line">
+                    <h4>{% trans 'OR' %}</h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col col-xs-12">
+                    {% trans 'proceed to automatic-checkout' %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col col-xs-12">
+                    <form method="post" action="https://checkout.okpay.com/">
+                       <input type="hidden" name="ok_receiver" value="{{ okpay_wallet }}"/>
+                       <input type="hidden" name="ok_item_1_name" value="{{ unique_ref }}"/>
+                       <input type="hidden" name="ok_item_1_price" value="{{ amount_cash}}"/>
+                       <input type="hidden" name="ok_currency" value="{{ order.currency.name}}"/>
+                       <input type="hidden" name="ok_fees" value="1"/>
+                       <input type="image" class="payment-icon"
+                              name="submit" alt="OKPAY Payment"
+                              src="/static/icons/small/okpay_green.png"/>
+                        <label for="submit">
+                            *  {% trans 'All exchange transactions are executed automatically by a computer regardless of the payment method' %}
+                        </label>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            <div class="row">
+                <div class="col col-xs-12">
+                    {% trans 'Notice that you must pay until' %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col col-xs-12">
+                 {% trans 'Notice that you must pay until' %}
+                </div>
+            </div>
+            {% localtime on %}
+            <div class="row">
+                <div class="col col-xs-12" id="pay_until_notice">
+                    <p><strong>{{pay_until |date:"H:iA (e)"}}</strong></p>
+                </div>
+            </div>
+            {% endlocaltime %}
+          <div class="row">
+              <div class="col-xs-12">
+                    <input type="checkbox" id="default_order_trigger">
+                    {% blocktrans %}
+                        Credit my withdraw address automatically with any further funds
+                        sent by you to our account automatically
+                    {% endblocktrans %}
+              </div>
+          </div>
     </div><!-- /pannel-body -->
 </div><!-- /pannel -->
 <input type="hidden" name="order_id" value="{{order_id}}" class="order_id" >

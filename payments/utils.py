@@ -55,6 +55,14 @@ def geturl_robokassa(_inv_id, out_summ):
     return url
 
 
+def geturl_okpay_verification(partner_wallet_id, reference, return_url):
+    """ https://dev.okpay.com/en/guides/client-verification.html
+        $2
+    """
+    url = settings.OKPAY_URL.format(partner_wallet_id, reference, return_url)
+    return url
+
+
 def check_signature_robo(_inv_id, out_summ, crc):
     hex_string = ':'.join([out_summ,
                            _inv_id, settings.ROBOKASSA_PASS1])
