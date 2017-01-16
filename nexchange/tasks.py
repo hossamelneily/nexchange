@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from core.models import Address, Transaction
 from nexchange.utils import (CreateUpholdCard, check_transaction_blockchain,
                              check_transaction_uphold, release_payment,
-                             send_email, send_sms)
+                             send_email, send_sms, OkPayAPI)
 from orders.models import Order
 from payments.models import Payment, UserCards
 
@@ -135,3 +135,12 @@ def renew_cards_reserve():
                              address_id=address['id'])
             card.save()
             count = UserCards.objects.filter(user=None, currency=key).count()
+
+@shared_task
+def check_okpay_payments():
+    api = OkPayAPI(
+        api_password=settings.OKPAY_API_KEY,
+        wallet_id=settings.OKPAY_WALLET
+    )
+    # need to parse history and confirm payments for the orders
+    history = api.get_transaction_history()

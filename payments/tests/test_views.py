@@ -1,3 +1,4 @@
+
 from decimal import Decimal
 from unittest import skip
 
@@ -6,6 +7,8 @@ from core.tests.base import OrderBaseTestCase, UserBaseTestCase
 from nexchange.utils import release_payment
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
+from nexchange.tasks import check_okpay_payments
+from unittest.mock import patch, MagicMock
 
 
 class RoboTestCase(UserBaseTestCase):
@@ -124,3 +127,45 @@ class PaymentReleaseTestCase(UserBaseTestCase, OrderBaseTestCase):
 
             self.assertTrue(o.is_released)
             self.assertTrue(p.is_complete)
+
+
+# tests for okpay IPN
+# class OkpayTestCase(UserBaseTestCase):
+#
+#     def setUp(self):
+#         self.okpay_checkout_msg = (
+#             'ok_charset=utf-8&ok_receiver=OK702746927&ok_receiver_id=666146284&'
+#             'ok_receiver_wallet=OK702746927&ok_txn_id=1959454&ok_txn_kind=payme'
+#             'nt_link&ok_txn_payment_type=instant&ok_txt_payment_method=OKB&ok_'
+#             'txn_gross=19.95&ok_txn_amount=19.95&ok_txn_net=19.95&ok_txn_fee='
+#             '0.00&ok_txn_currency=EUR&ok_txn_datetime=2013-06-01 04:18:32&'
+#             'ok_txn_status=completed&ok_invoice=9&ok_payer_status=unverified&'
+#             'ok_payer_id=654347086&ok_payer_reputation=0&ok_payer_first_name='
+#             'John&ok_payer_last_name=Doe&ok_payer_email=client@domain.com&'
+#             'ok_items_count=1&ok_item_1_name=OKPAY Poster&ok_item_1_type='
+#             'digital&ok_item_1_quantity=1&ok_item_1_gross=19.95&'
+#             'ok_item_1_price=19.95'
+#         )
+#         self.success_url = reverse('payments.success',
+#                                    kwargs={'provider': 'okpay'})
+#
+#     def test_okpay_success(self):
+#         r = self.client.post(self.success_url + self.okpay_checkout_msg)
+#         self.assertEqual(200, r.status_code)
+
+class OkpayTestCase(UserBaseTestCase):
+
+    def setUp(self):
+        super(OkpayTestCase, self).setUp()
+        # need to create transaction history mock
+        class HistoryInfo:
+            pass
+        transaction_history = HistoryInfo()
+        transaction_history.transaction = MagicMock(return_value='smth smth')
+        patcher = patch('nexchange.utils.OkPayAPI.get_transaction_history',
+                        return_value=transaction_history)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_true(self):
+        check_okpay_payments()

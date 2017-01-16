@@ -120,7 +120,9 @@ ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
                 "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
 
 # demo wallet id OK702746927
-OKPAY_WALLET = 'OK702746927'
+#OKPAY_WALLET = 'OK702746927'
+OKPAY_WALLET = 'OK217536082'
+OKPAY_API_KEY = 'Qm7a5H6Kcn3BMk4q9GEb8g2S7'
 OKPAY_URL = 'https://www.okpay.com/en/account/login.html?verification={}&' \
              'reference={}&return_url={}'
 
