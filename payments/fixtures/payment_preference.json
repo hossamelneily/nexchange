@@ -118,7 +118,7 @@
   },
   {
     "model": "payments.paymentpreference",
-    "pk": 8,
+    "pk": 9,
     "fields": {
       "user": ["onit"],
       "identifier": "skrill@nexchange.co.uk",
