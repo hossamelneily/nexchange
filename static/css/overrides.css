@@ -734,13 +734,19 @@ vertical design
 
 @media screen and (max-width:480px)  { }
 @media screen and (max-width:400px)  {
+    input {
+        border: 1px solid #e3e3e3;
+    }
     .process-step .btn-circle {
-        width: 65px;
-        height: 64px;
+        width: 66px;
+        height: 66px;
     }
     .step-icon-container {
         width: 55px;
         height: 56px;
+    }
+    .step-icon-container i {
+        margin-top: -2px;
     }
     .fa-bar-chart {
         margin-left: -5px;
@@ -819,7 +825,7 @@ vertical design
     margin-left: -24px;
 }
 
-.menu2 .intl-tel-input ul.country-list li.country {
+ul.country-list li.country {
     display: block;
 }
 
@@ -1161,4 +1167,34 @@ p.support-link a{
 	width: 5%;
 	font-size: 25px;
 	margin-bottom: 10px;
+}
+
+.sellMethModal input {
+    display: block;
+    height: 50px;
+    width: 100%;
+    margin: auto 0 15px auto;
+    padding: 15px;
+}
+
+.iban-group {
+    position: relative;
+}
+
+.iban-group .iban-flag{
+    position: absolute;
+    top: 40%;
+    left: 10px;
+}
+
+.iban-group .iban.val {
+    padding: 0 40px;
+}
+
+.sell-img {
+    margin: 10px 0;
+}
+.modal-body .phone.val, .modal-body .intl-tel-input {
+    width: 100%;
+    margin-bottom: 5px;
 }

@@ -8,7 +8,6 @@
     </div>
     {% include 'payments/partials/modals/card.html' with card_type='PayPal' label='Visa' icon='icons/small/visa.png' card=cards.paypal %}
     {% include 'payments/partials/modals/card.html' with card_type='PayPal' label='Mastercard' icon='icons/small/mastercard.png' card=cards.paypal %}
-
 </div>
 {% endif %}
 
@@ -22,6 +21,7 @@
             {% include 'payments/partials/modals/card.html' with card_type='Robokassa' icon='icons/small/robokass.png' card=cards.robokass %}
     {% endif %}
     {% include 'payments/partials/modals/card.html' with card_type='PayPal' label='PayPal' icon='icons/small/paypal.png' card=cards.paypal %}
+    {% include 'payments/partials/modals/card.html' with card_type='Skrill' label='Skrill' icon='icons/small/skrill.png' card=cards.skrill %}
 
 </div>
 <div class="row {{ type }} row_type">
@@ -31,9 +31,13 @@
     {% if type == 'buy' %}
         {% include 'payments/partials/modals/card.html' with card_type='Alfa Bank' label='Alfa-Bank' icon='icons/small/alfabank.png' card=cards.alfa %}
         {% include 'payments/partials/modals/card.html' with card_type='Sberbank' label='Sberbank' icon='icons/small/sber.png' card=cards.sber %}
-        {% include 'payments/partials/modals/card.html' with card_type='Sepa' label='Sepa' icon='icons/small/sepa.png' card=cards.alfa %}
+        {% include 'payments/partials/modals/card.html' with card_type='Sepa' label='Sepa' icon='icons/small/sepa.png'  card=cards.alfa %}
+        {% include 'payments/partials/modals/card.html' with card_type='Swift' label='Swift' icon='icons/small/swift.png' card=cards.alfa %}
     {% else %}
         {% include 'payments/partials/modals/card.html' with card_type='c2c' label='Card 2 Card' icon='icons/small/c2c.ico' %}
+        {% include 'payments/partials/modals/card.html' with card_type='Sepa' label='Sepa' icon='icons/small/sepa.png' %}
+        {% include 'payments/partials/modals/card.html' with card_type='Swift' label='Swift' icon='icons/small/swift.png'%}
     {% endif %}
-    {% include 'payments/partials/modals/card.html' with card_type='Cash' label='Cash' icon='icons/small/cash.png' card=cards.alfa %}
+{# ALFA BANK cash deposit #}
+{#    {% include 'payments/partials/modals/card.html' with card_type='Cash' label='Cash' icon='icons/small/cash.png' card=cards.alfa %}#}
 </div>

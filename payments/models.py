@@ -42,10 +42,12 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
     identifier = models.CharField(max_length=100)
     comment = models.CharField(max_length=255, default=None,
                                blank=True, null=True)
-    sub_type = models.CharField(max_length=100, null=True,
-                                blank=True, default=None)
-    main_type = models.CharField(max_length=100, null=True,
-                                 blank=True, default=None)
+    name = models.CharField(max_length=100, null=True,
+                            blank=True, default=None)
+    beneficiary = models.CharField(max_length=100, null=True,
+                                   blank=True, default=None)
+    bic = models.CharField(max_length=100, null=True,
+                           blank=True, default=None)
 
     def save(self, *args, **kwargs):
         if not hasattr(self, 'payment_method'):

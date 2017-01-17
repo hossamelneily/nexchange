@@ -7,17 +7,17 @@
     <div class="panel-body">
         <h1>{% trans 'Order placed successfully' %}</h1>
         <div class="row">
-            <div class="col col-lg-12">
+            <div class="col col-xs-12">
                 {% trans 'Please send bitcoin to the following address' %}
             </div>
         </div>
         <div class="row">
-            <div class="col col-lg-12">
+            <div class="col col-xs-12">
                 <div class="qrContainer btn btn-success">
                     <img src="//blockr.io/api/v1/address/Qr/{{ address }}" alt="{{ address }}">
                 </div>
             </div>
-           <div class="col col-lg-12">
+           <div class="col col-xs-12">
                 <span class="btn btn-success" title="{% trans 'Copy' %}">
                     <i class="fa fa-copy"></i>
                     <strong>{{address}}</strong>
@@ -25,7 +25,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col col-lg-12">
+            <div class="col col-xs-12">
                 {% trans 'Please send bitcoin to the following address' %}
             </div>
         </div>
@@ -35,26 +35,32 @@
             {{ order.payment_preference.payment_method.name }}
         </div>
         <div class="row">
-            <div class="col col-lg-12">
+            <div class="col col-xs-12">
                 <p><strong>{{order.payment_preference.identifier}}</strong></p>
             </div>
         </div>
         <div class="row">
-            <div class="col col-lg-12">
+            <div class="col col-xs-12">
                 {% trans 'We will place the following reference in the comment to our payment:' %}
             </div>
         </div>
         <div class="row">
-            <div class="col col-lg-12 unique_ref">
+            <div class="col col-xs-12 unique_ref">
                 <p><strong>{{unique_ref}}</strong></p>
             </div>
         </div>
-        <div class="col col-lg-12">
+        <div class="col col-xs-12">
          {% trans 'Notice that you must send coins until' %}
         </div>
         {% localtime on %}
-        <div class="col col-lg-12" id="pay_until_notice">
+        <div class="col col-xs-12" id="pay_until_notice">
             <p><strong>{{pay_until |date:"H:iA (e)"}}</strong></p>
+        </div>
+        <div class="col-xs-12">
+        {% blocktrans %}
+             Convert coins credited to this address automatically to my
+             {{ order.payment_preference.payment_method.name }} in the future
+        {% endblocktrans %}
         </div>
         {% endlocaltime %}
     </div><!-- /pannel-body -->
