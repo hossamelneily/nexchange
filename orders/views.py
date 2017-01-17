@@ -10,17 +10,12 @@ from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import activate
 from django.views.decorators.csrf import csrf_exempt
-
-from accounts.models import Profile
 from core.common.forms import DateSearchForm
 from core.models import Address, Currency
 from core.views import main
 from orders.models import Order
-from payments.api_clients.braintree import BrainTreeAPI
 from payments.models import PaymentPreference
 from payments.utils import geturl_robokassa
-
-braintree_api = BrainTreeAPI()
 
 
 @login_required
@@ -206,13 +201,6 @@ def ajax_order(request):
         url = geturl_robokassa(order.id,
                                str(round(Decimal(order.amount_cash), 2)))
         context.update({'url': url})
-
-    elif payment_method == 'PayPal':
-        profile = Profile.objects.get(user=request.user)
-        template = 'orders/partials/modals/order_success_braintree.html'
-        template = get_template(template)
-        clienttoken = braintree_api.get_client_token(profile.sig_key)
-        context.update({'client_token': clienttoken})
 
     res = template.render(context, request)
     return HttpResponse(res)
