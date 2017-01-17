@@ -355,34 +355,6 @@ SOCIAL = {
     'facebook': 'https://facebook.com/nexchangeBTC'
 }
 
-BRAINTREE_API = {
-    'SANDBOX': {
-        'vault': True,
-        'merchant_id': 'cx2ybd6krcd8v392',
-        'public_key': 'pr3kwc58g6r2whd8',
-        'private_key': '19e9a4db38b16bbea6034ccbcbed300f',
-        'timeout': 60,
-        'merchant_accounts': {
-            'USD': 'pavlov',
-            'EUR': 'euro',
-            'RUB': 'cx2ybd6krcd8v392'
-        }
-    },
-    'PRODUCTION': {
-        'vault': True,
-        'merchant_id': '2qjrf326433vgjcq',
-        'public_key': 'vxbcfqt7mng73z3q',
-        'private_key': '4ac4bbc0cf8efa7a1073ae31924e03a5',
-        'timeout': 60,
-        'merchant_accounts': {
-            'USD': 'pavlov',
-            'EUR': 'euro',
-            'RUB': 'cx2ybd6krcd8v392'
-        }
-    }
-}
-
-BRAINTREE_API_MODE = 'SANDBOX'
 # NEW security measures
 
 SESSION_SECURITY_WARN_AFTER = 540
@@ -394,6 +366,6 @@ SESSION_SECURITY_PASSIVE_URLS = ["/en/api/v1/price/latest/",
                                  "https://mc.yandex.ru/webvisor/39575585",
                                  "https://mc.yandex.ru/watch/39575585"]
 
-AXES_LOGIN_FAILURE_LIMIT = 5
+AXES_LOGIN_FAILURE_LIMIT = 6
 AXES_USERNAME_FORM_FIELD = 'username'
 AXES_COOLOFF_TIME = timedelta(minutes=30)

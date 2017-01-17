@@ -25,4 +25,4 @@ node.exe
 .project
 .pydevproject
 .settings/
-bundle.js
+*bundle.js

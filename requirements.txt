@@ -18,7 +18,7 @@ django-filter>=0.14.0
 django-formtools>=1.0
 django-guardian>=1.4.6
 django-phonenumber-field>=1.1.0
-django-safedelete>=0.3.3
+django-safedelete==0.3.3
 django-sekizai>=0.10.0
 django-softdelete>=0.4
 djangorestframework>=3.4.4
@@ -61,7 +61,6 @@ django-filter>=0.14.0
 psycopg2>=2.6.1
 rq-scheduler==0.7.0
 urllib3==1.18
-braintree>=3.30.0
 pyopenssl
 django-session-security
 django-axes
