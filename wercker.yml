@@ -5,6 +5,8 @@ ports:
 dev:
   services:
    - id: mdillon/postgis
+     ports:
+       - "5432"
      env:
        POSTGRES_USER: nexchange
        POSTGRES_PASSWORD: nexchange
@@ -199,7 +201,7 @@ build:
         #
         # PEM_FILE_CONTENT - the key to SSH into server (create key par via wercker web interface. remeber to install public key on server)
         # SSH_USER - the user to SSH into server
-        # DEST_HOST_ADDR - server where to deploy  
+        # DEST_HOST_ADDR - server where to deploy
         #
         # DOCKER_HUB_USER - dockerhub username
         # DOCKER_HUB_PASSWORD - dockerhub password (defined as a protectd var)
@@ -334,7 +336,7 @@ deploy:
     - create-file:
         name: write key
         filename: $PRIVATEKEY_PATH
-        content: $PEM_FILE_CONTENT_PRIVATE  
+        content: $PEM_FILE_CONTENT_PRIVATE
         overwrite: true
     - script:
       name: Do deploy
@@ -403,9 +405,16 @@ tests:
         name: Validate New Relic config file
         code: |
           newrelic-admin validate-config ${NEW_RELIC_CONFIG_FILE}
-static-validation:
+static-validation-js:
   steps:
     - script:
-        name: Run static-validation.sh
+        name: Run static-validation-js.sh
         code: |
-          bash static-validation.sh
+          bash static-validation-js.sh
+
+static-validation-py:
+  steps:
+    - script:
+        name: Run static-validation-py.sh
+        code: |
+          bash static-validation-py.sh
