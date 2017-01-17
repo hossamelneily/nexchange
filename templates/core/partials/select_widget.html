@@ -1,0 +1,13 @@
+{%  load i18n %}
+{% load tz %}
+
+<div class="input-group">
+  <div class="input-group-btn">     
+  	<select name="{{ name }}" class="select-widget name">
+		{% for val in vals %}
+			<option value ="{{val.id}}">{{val}}</option>
+		{% endfor%}
+	</select>
+
+  </div><!-- /btn-group -->
+</div><!-- /input-group -->

@@ -1,0 +1,21 @@
+{% load i18n %}
+<form action="">
+    <div class="row">
+        <div class="col col-lg-10 col-sm-offset-1 text-left">
+            <label for="phone">{% trans 'Account Holder' %} </label>
+                <input type="text" name="iban_holder"
+                       class="iban val" placeholder="{% trans 'John Smith' %}"
+                       {% if user.is_authenticated %}value="{{ user.first_name }} {{ user.last_name }}"{% endif %}>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col col-lg-10 col-sm-offset-1 text-left">
+            <label for="phone">{% trans 'IBAN' %}</label>
+                <div class="iban-group">
+                    <div class="iban-flag iti-flag {{ COUNTRY_CODE }}"></div>
+                    <input type="text" name="iban" class="iban val"
+                       value="{{ COUNTRY_CODE }}">
+                </div>
+        </div>
+    </div>
+</form>

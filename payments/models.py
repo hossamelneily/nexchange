@@ -134,8 +134,8 @@ class UserCards(models.Model):
 
 @receiver(post_save, sender=User)
 def update_usercard(instance, **kwargs):
-    valuta = {'BTC': 'bitcoin', 'LTC': 'litecoin', 'ETH': 'ethereum'}
-    for key, value in valuta.items():
+    currency = {'BTC': 'bitcoin', 'LTC': 'litecoin', 'ETH': 'ethereum'}
+    for key, value in currency.items():
         if UserCards.objects.filter(currency=key, user=None).exists():
             card = UserCards.objects.filter(currency=key,
                                             user=None).order_by('id').first()

@@ -230,7 +230,8 @@
 
             var regPayload = {
                 // TODO: check collision with qiwi wallet
-                phone: $('.register .phone').val()
+                phone: $('.register .phone').val(),
+                g_recaptcha_response: grecaptcha.getResponse(),
             };
             $.ajax({
                 type: 'POST',
@@ -485,7 +486,7 @@
 
 var doRender = function() {
       grecaptcha.render( 'grecaptcha', {
-        'sitekey' : '6LfPaAoUAAAAAOmpl6ZwPIk2Zs-30TErK48dPhcS',  // required
+        'sitekey' : window.recaptchaSitekey,  // required
         'theme' : 'light',  // optional
         'callback': verifyRecatpchaCallback  // optional
       });
@@ -498,6 +499,7 @@ module.exports = {
 };
 
 }(window, window.jQuery)); //jshint ignore:line
+
 },{}],3:[function(require,module,exports){
 !(function(window ,$) {
     "use strict";
