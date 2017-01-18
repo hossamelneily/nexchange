@@ -257,7 +257,7 @@ def user_by_phone(request):
 @login_required
 def user_address_ajax(request):
     user = request.user
-    template = get_template('core/partials/user_address.html')
+    template = get_template('core/partials/select_widget.html')
     addresses = Address.objects.filter(user=user, type="D")
     return HttpResponse(template.render({'addresses': addresses},
                                         request))

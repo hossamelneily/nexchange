@@ -19,7 +19,7 @@ dev:
     - script:
         name: export django settings module
         code: |
-          export DJANGO_SETTINGS_MODULE=nexchange.settings_dev
+          export DJANGO_SETTING S_MODULE=nexchange.settings_dev
     - script:
         name: create static and media root
         code: |
@@ -67,7 +67,7 @@ dev:
     - script:
       name: Django create superuser
       code: |
-          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
+          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@onit.ws','weare0nit')" | python manage.py shell
     - script:
         name: Django import Currency fixture
         code: |
@@ -393,7 +393,7 @@ tests:
         name: Backend tests
         code: |
           coverage erase
-          coverage run --source="." manage.py test -v=3 --pattern="test_*.py"
+          coverage run --source="." --omit="src/**" manage.py test -v=3 --pattern="test_*.py"
           coverage report
           coverage html -d cover
     - script:

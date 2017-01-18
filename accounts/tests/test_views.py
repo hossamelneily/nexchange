@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -55,6 +55,7 @@ class RegistrationTestCase(TestCase):
 
 
 class ProfileUpdateTestCase(UserBaseTestCase):
+
     def test_can_update_profile(self):
         response = self.client.post(
             reverse('accounts.user_profile'), self.data)
@@ -167,7 +168,8 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         # Ensure profile was not enabled
         self.assertTrue(user.profile.disabled)
 
-    def test_phone_verification_fails_with_wrong_token_logged_out_without_phone(self):
+    def test_phone_verification_fails_with_wrong_token_logged_out_no_phone(
+            self):
         user = self.user
         # Ensure profile is disabled
         profile = user.profile
@@ -191,7 +193,8 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         # Ensure profile was not enabled
         self.assertTrue(user.profile.disabled)
 
-    def test_phone_verification_fails_with_wrong_token_logged_out_with_phone(self):
+    def test_phone_verification_fails_with_wrong_token_logged_out_with_phone(
+            self):
         user = self.user
         # Ensure profile is disabled
         profile = user.profile
@@ -241,6 +244,7 @@ class ProfileUpdateTestCase(UserBaseTestCase):
 
 
 class ProfileFindTestCase(UserBaseTestCase):
+
     def setUp(self):
         super(ProfileFindTestCase, self).setUp()
 
@@ -295,6 +299,7 @@ class LogoutTestCase(UserBaseTestCase):
 
 
 class PassiveAuthenticationTestCase(UserBaseTestCase):
+
     def __init__(self, *args, **kwargs):
         self.token = None
         self.user = None
@@ -407,7 +412,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         newest_user = User.objects.last()
         self.assertEqual(user, newest_user)
         self.assertEquals(res.status_code, 403)
-        self.assertEquals(send_sms.call_count, i+1)
+        self.assertEquals(send_sms.call_count, i + 1)
 
     @patch('accounts.views._send_sms')
     def test_sms_sent_after_limit_is_exceeded_and_time_passed(self, send_sms):
@@ -429,12 +434,12 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
         res = self.client.post(url, data=payload)
         newest_user = User.objects.last()
-        self.assertEquals(send_sms.call_count, i+1)
+        self.assertEquals(send_sms.call_count, i + 1)
         self.assertEqual(user, newest_user)
         self.assertEquals(res.status_code, 403)
 
         unlock_time = datetime.now() +\
-                      settings.AXES_COOLOFF_TIME
+            settings.AXES_COOLOFF_TIME
 
         with freeze_time(unlock_time, tick=True):
             res = self.client.post(url, data=payload)
@@ -448,7 +453,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             self.assertEqual(uname,
                              user.username)
 
-            self.assertEquals(send_sms.call_count, i+2)
+            self.assertEquals(send_sms.call_count, i + 2)
 
     def test_sms_sent_invalid_phone(self):
         self.client.logout()
@@ -513,7 +518,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             )
 
         unlock_time = datetime.now() + \
-                      settings.AXES_COOLOFF_TIME
+            settings.AXES_COOLOFF_TIME
 
         with freeze_time(unlock_time, tick=True):
             sms_token = SmsToken(user=user)

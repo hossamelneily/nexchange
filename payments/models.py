@@ -42,10 +42,17 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
     identifier = models.CharField(max_length=100)
     comment = models.CharField(max_length=255, default=None,
                                blank=True, null=True)
-    sub_type = models.CharField(max_length=100, null=True,
-                                blank=True, default=None)
-    main_type = models.CharField(max_length=100, null=True,
-                                 blank=True, default=None)
+    name = models.CharField(max_length=100, null=True,
+                            blank=True, default=None)
+    beneficiary = models.CharField(max_length=100, null=True,
+                                   blank=True, default=None)
+    bic = models.CharField(max_length=100, null=True,
+                           blank=True, default=None)
+    physical_address_bank = models.CharField(max_length=255, null=True,
+                                             blank=True, default=None)
+    # If exists, overrides the address save in the profile of the owner
+    physical_address_owner = models.CharField(max_length=255, null=True,
+                                              blank=True, default=None)
 
     def save(self, *args, **kwargs):
         if not hasattr(self, 'payment_method'):
@@ -65,10 +72,8 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
             else PaymentMethod.objects.get(name='Cash')
 
     def __str__(self):
-        return "{} - {} - ({})".format(self.user.profile.phone or
-                                       self.user.username,
-                                       self.identifier,
-                                       self.payment_method.name)
+        return "{} {}".format(self.payment_method.name,
+                              self.identifier)
 
 
 class Payment(TimeStampedModel, SoftDeletableModel):
@@ -132,8 +137,8 @@ class UserCards(models.Model):
 
 @receiver(post_save, sender=User)
 def update_usercard(instance, **kwargs):
-    valuta = {'BTC': 'bitcoin', 'LTC': 'litecoin', 'ETH': 'ethereum'}
-    for key, value in valuta.items():
+    currency = {'BTC': 'bitcoin', 'LTC': 'litecoin', 'ETH': 'ethereum'}
+    for key, value in currency.items():
         if UserCards.objects.filter(currency=key, user=None).exists():
             card = UserCards.objects.filter(currency=key,
                                             user=None).order_by('id').first()

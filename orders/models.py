@@ -47,6 +47,7 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
                                          null=True,
                                          related_name='order_set',
                                          default=None)
+    is_default_rule = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-created_on']

@@ -101,6 +101,7 @@ def payment_type(request):
         'alfa': get_pref_by_name('Alfa', currency),
         'qiwi': get_pref_by_name('Qiwi', currency),
         'paypal': get_pref_by_name('PayPal', currency),
+        'skrill': get_pref_by_name('Skrill', currency),
 
     }
     local_vars = {

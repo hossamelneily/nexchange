@@ -3,9 +3,9 @@
 
 <div class="input-group">
   <div class="input-group-btn">     
-  	<select name="user-address" class="user-address">   
-		{% for add in addresses %}
-			<option value ="{{add.id}}">{{add.address}}</option>
+  	<select name="{{ name }}" class="select-widget name">
+		{% for val in vals %}
+			<option value ="{{val.id}}">{{val}}</option>
 		{% endfor%}
 	</select>
 

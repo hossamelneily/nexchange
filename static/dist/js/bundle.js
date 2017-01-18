@@ -171,7 +171,6 @@
 
     $(function() {
         function lockoutResponse (data) {
-            console.log(data);
             var formattedTime = data
                     .responseJSON
                     .cooloff_time
@@ -231,7 +230,8 @@
 
             var regPayload = {
                 // TODO: check collision with qiwi wallet
-                phone: $('.register .phone').val()
+                phone: $('.register .phone').val(),
+                g_recaptcha_response: grecaptcha.getResponse(),
             };
             $.ajax({
                 type: 'POST',
@@ -363,7 +363,6 @@
         });
 
         $(document).on('click', '.buy .payment-type-trigger', function () {
-
             var paymentType = $(this).data('label'),
             actualPaymentType = $(this).data('type'),
             preferenceIdentifier = $(this).data('identifier');
@@ -374,26 +373,14 @@
             $('.payment-method').val(paymentType);
             orderObject.changeState(null, 'next');
         });
-
         // $(document).on('click', '.payment-type-trigger-footer', paymentNegotiation);
 
         $('.sell .payment-type-trigger').on('click', function () {
-            var paymentType = $(this).data('type').toLocaleLowerCase();
-            $('.payment-preference-confirm').text(paymentType);
-            $('#UserAccountModal').modal('toggle');
-            if (paymentType === 'c2c') {
-                $('#CardSellModal').modal('toggle');
-            } else if(paymentType === 'qiwi') {
-                $('#QiwiSellModal').modal('toggle');
-            }
-            else if(paymentType === 'paypal') {
-                if($('#PaypalSellModal')) {
-                    ('#PaypalSellModal').modal('toggle');
-                }
-            }
-            else {
-                $('.payment-method').val(paymentType);
-            }
+            var paymentType = $(this).data('type').toLocaleLowerCase(),
+                modalId = paymentType + 'SellModal',
+                modal = $('#' + modalId);
+            $(this).closest('.modal').modal('hide');
+            modal.modal('show');
         });
 
         $('.sellMethModal .back').click(function () {
@@ -499,7 +486,7 @@
 
 var doRender = function() {
       grecaptcha.render( 'grecaptcha', {
-        'sitekey' : '6LfPaAoUAAAAAOmpl6ZwPIk2Zs-30TErK48dPhcS',  // required
+        'sitekey' : window.recaptchaSitekey,  // required
         'theme' : 'light',  // optional
         'callback': verifyRecatpchaCallback  // optional
       });
@@ -512,6 +499,7 @@ module.exports = {
 };
 
 }(window, window.jQuery)); //jshint ignore:line
+
 },{}],3:[function(require,module,exports){
 !(function(window ,$) {
     "use strict";

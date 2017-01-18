@@ -82,7 +82,6 @@ def check_transaction_uphold(tx):
 
 
 class CreateUpholdCard(Uphold):
-
     def new_card(self, currency):
         """
         Create a new card
@@ -93,8 +92,7 @@ class CreateUpholdCard(Uphold):
             'currency': currency,
         }
         return self._post('/me/cards/', fields)
-    
-    
+
     def add_address(self, card, network):
         """
         Add to card address

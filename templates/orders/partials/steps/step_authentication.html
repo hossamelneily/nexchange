@@ -8,18 +8,30 @@
         <div class="auth-steps">
             <div class="step1">
                 {% trans "Enter your phone" as enter_your_phone %}<br>
-                {% include 'accounts/partials/forms/../../../payments/partials/forms/phone.html' with label=enter_your_phone %}
-                <div class="col col-lg-12 register">
-                    <hr>
-                    <label>
-                        {% trans "Human check" %}
-                    </label>
-                    <div id="grecaptcha"></div>
+                <div class="row">
+                    <div class="col-xs-10 col-xs-offset-1 register">
+                        <label for="verification_code">
+                            {% trans "Mobile number" %}
+                        </label>
+                        <input type="text" name="phone" class="phone val"
+                        value="{% if user.is_authenticated  %}{{ user.profile.phone }}
+                        {% else %}+7{% endif %}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-10 col-xs-offset-1 register">
+                        <hr>
+                        <label>
+                            {% trans "Human check" %}
+                        </label>
+                        <div id="grecaptcha"></div>
+                    </div>
                 </div>
             </div>
+
             <div class="step2 hidden">
                 <div class="row">
-                    <div class="col col-lg-12 register">
+                    <div class="col-xs-10 col-xs-offset-1 register">
                         <label for="verification_code">
                             {% trans "Code from SMS" %}
                         </label>
@@ -28,7 +40,7 @@
                 </div>
             </div>
         </div>
-        <div class="col col-lg-12 center controls">
+        <div class="col-xs-10 col-xs-offset-1 center controls">
             <span class="btn btn-primary create-acc disabled">
                 {% trans "Send SMS"%}
             </span>
