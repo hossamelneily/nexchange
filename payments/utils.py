@@ -1,6 +1,6 @@
 from decimal import Decimal
 from hashlib import md5
-import binascii
+import base64
 from hashlib import sha256
 
 from django.conf import settings
@@ -75,7 +75,7 @@ def check_signature_robo(_inv_id, out_summ, crc):
     return False
 
 
-def get_payeer_sign(m_orderid, m_amount, m_curr, order_type, amount_btc,
+def get_payeer_sign(m_orderid, m_amount, m_curr, m_desc,
                     m_shop=settings.PAYEER_MERCHANT_ID,
                     m_key=settings.PAYEER_SECRET_KEY):
     """get_payeer_sign
@@ -83,16 +83,17 @@ def get_payeer_sign(m_orderid, m_amount, m_curr, order_type, amount_btc,
     :param m_orderid: order.unique_reference
     :param m_amount: order.amount_cash
     :param m_curr: order.currency.code
-    :param order_type: order.order_type
-    :param amount_btc: order.amount_btc
+    :param m_desc: encoded base64 order description
     """
-    description = '{} {}BTC'.format(order_type, amount_btc)
-    m_desc = binascii.b2a_base64(description.encode('utf8'))[:-1]
-
     list_of_value_for_sign = map(
-        str, [m_shop, m_orderid, m_amount, m_curr, m_desc, m_key]
+        str, [m_shop, m_orderid, "%.2f" % m_amount, m_curr, m_desc, m_key]
     )
     result_string = ":".join(list_of_value_for_sign)
     sign_hash = sha256(result_string.encode('utf8'))
     sign = sign_hash.hexdigest().upper()
     return sign
+
+
+def get_payeer_desc(description):
+    desc = base64.b64encode(description.encode('utf8')).decode('utf8')
+    return desc

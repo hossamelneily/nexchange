@@ -105,7 +105,7 @@ def payment_type(request):
         'paypal': get_pref_by_name('PayPal', currency),
         'skrill': get_pref_by_name('Skrill', currency),
         'okpay': get_pref_by_name('Okpay', currency),
-
+        'payeer': get_pref_by_name('Payeer', currency),
     }
     local_vars = {
         'cards': cards,
