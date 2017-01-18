@@ -13,6 +13,7 @@ from nexchange.utils import (CreateUpholdCard, check_transaction_blockchain,
                              send_email, send_sms, OkPayAPI)
 from orders.models import Order
 from payments.models import Payment, UserCards
+from decimal import Decimal
 
 logging.basicConfig(filename='payment_release.log', level=logging.INFO)
 
@@ -136,11 +137,32 @@ def renew_cards_reserve():
             card.save()
             count = UserCards.objects.filter(user=None, currency=key).count()
 
+
 @shared_task
 def check_okpay_payments():
     api = OkPayAPI(
         api_password=settings.OKPAY_API_KEY,
         wallet_id=settings.OKPAY_WALLET
     )
-    # need to parse history and confirm payments for the orders
-    history = api.get_transaction_history()
+    transactions = api.get_transaction_history()['Transactions']
+    for trans in transactions:
+        if trans['Status'] != 'Completed':
+            continue
+        if trans['Receiver']['WalletID'] != settings.OKPAY_WALLET:
+            continue
+        o_list = Order.objects.filter(
+            amount_cash=float(trans['Net']),
+            unique_reference=trans['Comment'],
+        )
+        if len(o_list) == 1:
+            o = o_list[0]
+            if o.currency.code != trans['Currency']:
+                continue
+            Payment.objects.get_or_create(
+                amount_cash=Decimal(trans['Net']),
+                user=o.user,
+                order=o,
+                reference=o.unique_reference,
+                payment_preference=o.payment_preference,
+                currency=o.currency
+            )
