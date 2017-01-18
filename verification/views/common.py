@@ -4,6 +4,7 @@ from django.views.generic import View
 
 
 class LoginRestrictedView(View):
+
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super(LoginRestrictedView, self).dispatch(

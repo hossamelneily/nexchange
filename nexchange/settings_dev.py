@@ -58,3 +58,4 @@ DEBUG_TOOLBAR_CONFIG = {
 # Lockout only for 1 mins on dev
 AXES_LOGIN_FAILURE_LIMIT = 3
 AXES_COOLOFF_TIME = timedelta(minutes=5)
+CELERY_ALWAYS_EAGER = True

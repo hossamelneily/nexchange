@@ -48,6 +48,11 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
                                    blank=True, default=None)
     bic = models.CharField(max_length=100, null=True,
                            blank=True, default=None)
+    physical_address_bank = models.CharField(max_length=255, null=True,
+                                             blank=True, default=None)
+    # If exists, overrides the address save in the profile of the owner
+    physical_address_owner = models.CharField(max_length=255, null=True,
+                                              blank=True, default=None)
 
     def save(self, *args, **kwargs):
         if not hasattr(self, 'payment_method'):
@@ -67,10 +72,8 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
             else PaymentMethod.objects.get(name='Cash')
 
     def __str__(self):
-        return "{} - {} - ({})".format(self.user.profile.phone or
-                                       self.user.username,
-                                       self.identifier,
-                                       self.payment_method.name)
+        return "{} {}".format(self.payment_method.name,
+                              self.identifier)
 
 
 class Payment(TimeStampedModel, SoftDeletableModel):

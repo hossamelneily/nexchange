@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
@@ -32,8 +30,15 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = PhoneNumberField(_('Phone'), blank=False, help_text=_(
         'Enter phone number in international format. eg. +44020786543'))
-    first_name = models.CharField(max_length=20, blank=True)
-    last_name = models.CharField(max_length=20, blank=True)
+    first_name = models.CharField(max_length=20, blank=True,
+                                  null=True)
+    last_name = models.CharField(max_length=20, blank=True,
+                                 null=True)
+    legal_name = models.CharField(max_length=20, blank=True,
+                                  null=True)
+    is_company = models.BooleanField(default=False)
+    address = models.CharField(max_length=255, default=None,
+                               null=True, blank=True)
     last_visit_ip = models.CharField(max_length=39,
                                      default=None, null=True)
     last_visit_time = models.DateTimeField(default=None, null=True)

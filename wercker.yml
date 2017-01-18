@@ -67,7 +67,7 @@ dev:
     - script:
       name: Django create superuser
       code: |
-          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@init.ws','weare0nit')" | python manage.py shell
+          echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@onit.ws','weare0nit')" | python manage.py shell
     - script:
         name: Django import Currency fixture
         code: |
