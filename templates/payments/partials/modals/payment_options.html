@@ -17,6 +17,7 @@
         {% trans 'Wallets' %}
     </div>
     {% include 'payments/partials/modals/card.html' with card_type='qiwi' label='Qiwi Wallet' icon='icons/small/qiwi.png' card=cards.qiwi %}
+    {% include 'payments/partials/modals/card.html' with card_type='okpay' label='OK Pay' icon='icons/small/okpay.png' card=cards.okpay %}
     {% if type == 'buy' %}
             {% include 'payments/partials/modals/card.html' with card_type='Robokassa' icon='icons/small/robokass.png' card=cards.robokass %}
     {% endif %}

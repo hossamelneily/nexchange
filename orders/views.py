@@ -195,12 +195,16 @@ def ajax_order(request):
         'payment_method': payment_method,
         'order_amount': amount_coin,
         'amount_cash': amount_cash,
+        'okpay_wallet': settings.OKPAY_WALLET
 
     }
     if payment_method == 'Robokassa':
         url = geturl_robokassa(order.id,
                                str(round(Decimal(order.amount_cash), 2)))
         context.update({'url': url})
+
+    elif payment_method == 'okpay':
+        context.update({'okpay_wallet': settings.OKPAY_WALLET})
 
     res = template.render(context, request)
     return HttpResponse(res)
