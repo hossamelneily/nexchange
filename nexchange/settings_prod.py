@@ -2,7 +2,7 @@ import dj_database_url
 
 from nexchange.settings import *
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['nexchange.co.uk', 'nexchange.ru',
                  'www.nexchange.co.uk', 'www.nexchange.ru']
@@ -10,6 +10,7 @@ ALLOWED_HOSTS = ['nexchange.co.uk', 'nexchange.ru',
 DATABASES = {
     'default': dj_database_url.config(default='postgis://{}:{}@{}:{}/{}'
                                       .format(user, password, host, port, db))
+
 }
 
 # SECRET KEY
@@ -26,9 +27,9 @@ RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY')
 OKPAY_WALLET = os.getenv('OKPAY_WALLET')
 OKPAY_API_KEY = os.getenv('OKPAY_API_KEY')
 
-# PAYEER
-PAYEER_WALLET = os.getenv('PAYEER_WALLET')
-PAYEER_API_KEY = os.getenv('PAYEER_API_KEY')
+# OKPAY
+PAYEER_WALLET = os.getenv('OKPAY_WALLET')
+OKPAY_API_KEY = os.getenv('OKPAY_API_KEY')
 
 
 # UPHOLD
@@ -38,7 +39,7 @@ UPHOLD_PASS = os.getenv('UPHOLD_PASS')
 
 # Kraken
 KRAKEN_API_KEY = os.getenv('KRAKEN_API_KEY')
-KRAKEN_API_SECRET = os.getenv('KRAKEN_API_SECRET')
+KRAKEN_API_SIGN = os.getenv('KRAKEN_API_SECRET')
 
 
 # ROBOKASSA

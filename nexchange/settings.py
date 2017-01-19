@@ -105,9 +105,6 @@ ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
                 "isTest={0}&MerchantLogin={1}&" \
                 "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
 
-OKPAY_URL = 'https://www.okpay.com/en/account/login.html?verification={}&' \
-             'reference={}&return_url={}'
-
 CMSPAGES = {
     'ABOUTUS': [
         ('about_us', _('About Us')),
@@ -131,22 +128,14 @@ REDIS_URL = 'redis://{}:{}/1'.format(REDIS_ADDR, REDIS_PORT)
 CELERY_BROKER_URL = REDIS_URL
 
 
-CELERY_BEAT_SCHEDULE = {
-    'buy_order_release': {
-        'task': 'nexchange.tasks.buy_order_release',
-        'schedule': timedelta(seconds=60),
+CELERYBEAT_SCHEDULE = {
+    'check-payment': {
+        'task': 'nexchange.tasks.payment_release',
+        'schedule': timedelta(seconds=90),
     },
-    'renew_cards_reserve': {
-        'task': 'nexchange.tasks.renew_cards_reserve',
-        'schedule': timedelta(seconds=60),
-    },
-    'check_okpay_payments': {
-        'task': 'nexchange.tasks.check_okpay_payments',
-        'schedule': timedelta(seconds=60),
-    },
-    'checker_transactions': {
+    'check-transactions': {
         'task': 'nexchange.tasks.checker_transactions',
-        'schedule': timedelta(seconds=60),
+        'schedule': timedelta(seconds=300),
     },
 }
 
@@ -232,7 +221,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_PROFILE_MODULE = 'core.Profile'
+AUTH_PROFILE_MODULE = "core.Profile"
 
 
 # Internationalization
