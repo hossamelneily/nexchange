@@ -152,7 +152,7 @@ def renew_cards_reserve():
     currency = {'BTC': 'bitcoin', 'LTC': 'litecoin', 'ETH': 'ethereum'}
     for key, value in currency.items():
         count = UserCards.objects.filter(user=None, currency=key).count()
-        while count <= settings.CARDS_RESERVE_COUNT:
+        while count < settings.CARDS_RESERVE_COUNT:
             new_card = api.new_card(key)
             address = api.add_address(new_card['id'], value)
             card = UserCards(card_id=new_card['id'],
