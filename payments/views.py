@@ -17,6 +17,7 @@ from payments.adapters import (leupay_adapter, robokassa_adapter,
                                unitpay_adapter, okpay_adapter)
 from payments.models import Payment, PaymentPreference
 from payments.utils import geturl_robokassa, get_payeer_sign
+from decimal import Decimal
 
 
 @login_required
@@ -165,6 +166,22 @@ def payeer_status(request):
         if (request.POST.get('m_sign') == sign and
                 request.POST.get('m_status') == 'success'):
             retval = request.POST['m_orderid'] + '|success'
+
+            o_list = Order.objects.filter(
+                amount_cash=Decimal(request.POST['m_amount']),
+                unique_reference=request.POST['m_orderid'],
+                currency__code=request.POST['m_curr']
+            )
+            if len(o_list) == 1:
+                o = o_list[0]
+                Payment.objects.get_or_create(
+                    amount_cash=Decimal(request.POST['m_amount']),
+                    user=o.user,
+                    order=o,
+                    reference=o.unique_reference,
+                    payment_preference=o.payment_preference,
+                    currency=o.currency
+                )
         else:
             retval = request.POST['m_orderid'] + '|error'
     except KeyError:

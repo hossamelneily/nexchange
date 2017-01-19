@@ -1,8 +1,9 @@
 
 from decimal import Decimal
 from unittest import skip
+from unittest.mock import patch
 from django.core.urlresolvers import reverse
-from django.test import Client, TestCase
+from django.test import Client
 
 from core.models import Address, Transaction
 from core.tests.base import OrderBaseTestCase, UserBaseTestCase
@@ -12,16 +13,17 @@ from payments.models import Payment, PaymentMethod, PaymentPreference
 from payments.utils import get_payeer_sign, get_payeer_desc
 
 
-class PayeerTestCase(TestCase):
+class PayeerTestCase(UserBaseTestCase, OrderBaseTestCase):
 
-    def _create_input_params(self, status='success', delete=None):
+    def _create_input_params(self, status='success', delete=None,
+                             order_id='12345'):
         input_list = [
             '123456',
             '2609',
             '21.12.2012 21:12',
             '21.12.2012 21:12',
             '287402376',
-            '12345',
+            order_id,
             '100.00',
             'EUR',
             get_payeer_desc('BUY 0.1BTC'),
@@ -45,9 +47,19 @@ class PayeerTestCase(TestCase):
             del self.input_params[delete]
 
     def setUp(self):
+        super(PayeerTestCase, self).setUp()
         self.status_url = reverse('payments.payeer.status')
         self.client = Client()
+        self.payment_method = PaymentMethod(name='Payeer')
+        self.payment_method.save()
         self._create_input_params()
+        pref_data = {
+            'user': self.user,
+            'comment': 'Just testing',
+            'payment_method': self.payment_method
+        }
+        self.pref = PaymentPreference(**pref_data)
+        self.pref.save()
 
     def test_payeer_status_success(self):
         response = self.client.post(self.status_url, self.input_params)
@@ -68,6 +80,39 @@ class PayeerTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         content = response.content.decode('utf8')
         self.assertEqual('error', content)
+
+    @patch('orders.models.Order.convert_coin_to_cash')
+    def test_payeer_payment_after_success(self, convert_coin):
+        convert_coin.return_value = None
+        order_data = {
+            'amount_cash': Decimal(self.input_params['m_amount']),
+            'amount_btc': Decimal(0.1),
+            'currency': self.EUR,
+            'user': self.user,
+            'admin_comment': 'tests Order',
+            'unique_reference': self.input_params['m_orderid'],
+            'payment_preference': self.pref,
+        }
+        order = Order(**order_data)
+        order.save()
+        self._create_input_params(order_id=order.unique_reference)
+        self.client.post(self.status_url, self.input_params)
+        p = Payment.objects.filter(
+            amount_cash=order.amount_cash,
+            currency=order.currency,
+            order=order,
+            reference=order.unique_reference
+        )
+        self.assertEqual(1, len(p))
+        # apply second time - should not create another payment
+        self.client.post(self.status_url, self.input_params)
+        p = Payment.objects.filter(
+            amount_cash=order.amount_cash,
+            currency=order.currency,
+            order=order,
+            reference=order.unique_reference
+        )
+        self.assertEqual(1, len(p))
 
 
 class RoboTestCase(UserBaseTestCase):
