@@ -229,6 +229,38 @@ build:
           export NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY}
           export REDIS_PORT_6379_TCP_ADDR=${REDIS_PORT_6379_TCP_ADDR}
           export REDIS_PORT_6379_TCP_PORT=${REDIS_PORT_6379_TCP_PORT}
+          # SECURITY SETTINGS
+          # DJ SECRET
+          export SECRET_KEY=${SECRET_KEY}
+          # GA
+          export GOOGLE_ANALYTICS_PROPERTY_ID=${GOOGLE_ANALYTICS_PROPERTY_ID}
+          export GOOGLE_ANALYTICS_DOMAIN=${GOOGLE_ANALYTICS_DOMAIN}
+          # CAPTCHA
+          export RECAPTCHA_SITEKEY=${RECAPTCHA_SITEKEY}
+          export RECAPTCHA_SECRET_KEY=${RECAPTCHA_SECRET_KEY}
+
+          # OKPAY
+          export OKPAY_WALLET=${OKPAY_WALLET}
+          export OKPAY_API_KEY=${OKPAY_API_KEY}
+
+          # UPHOLD
+          export UPHOLD_USER=${UPHOLD_USER}
+          export UPHOLD_PASS=${UPHOLD_PASS}
+
+          # Kraken
+          export KRAKEN_API_KEY=${KRAKEN_API_KEY}
+          export KRAKEN_API_SIGN=${KRAKEN_API_SIGN}
+
+          # ROBOKASSA
+          export ROBOKASSA_IS_TEST=${ROBOKASSA_IS_TEST}
+          export ROBOKASSA_LOGIN=${ROBOKASSA_LOGIN}
+          export ROBOKASSA_PASS1=${ROBOKASSA_PASS1}
+          export ROBOKASSA_PASS2=${ROBOKASSA_PASS2}
+
+          # Twilio
+          export TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+          export TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+
           #
           while ! nc -z ${POSTGIS_PORT_5432_TCP_ADDR} ${POSTGIS_PORT_5432_TCP_PORT}
           do
