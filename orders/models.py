@@ -53,12 +53,13 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         ordering = ['-created_on']
 
     def save(self, *args, **kwargs):
-        self.unique_reference = \
-            self.gen_unique_value(
-                lambda x: get_random_string(x),
-                lambda x: Order.objects.filter(unique_reference=x).count(),
-                settings.UNIQUE_REFERENCE_LENGTH
-            )
+        if not self.unique_reference:
+            self.unique_reference = \
+                self.gen_unique_value(
+                    lambda x: get_random_string(x),
+                    lambda x: Order.objects.filter(unique_reference=x).count(),
+                    settings.UNIQUE_REFERENCE_LENGTH
+                )
         self.convert_coin_to_cash()
 
         if 'is_completed' in kwargs and\

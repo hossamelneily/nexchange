@@ -21,5 +21,13 @@ def robokassa_adapter(request):
     return output
 
 
+def okpay_adapter(request):
+    output = {
+        'sum': request.GET.get('ok_item_1_gross'),
+        'order_id': [request.GET.get('ok_item_1_name')]
+    }
+    return output
+
+
 def leupay_adapter(request):
     return {}

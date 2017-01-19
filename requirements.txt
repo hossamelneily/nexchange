@@ -69,3 +69,4 @@ bs4
 -e git+https://github.com/byrnereese/uphold-sdk-python.git#egg=uphold
 isort
 freezegun>=0.3.8
+suds-jurko>=0.6

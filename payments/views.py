@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from core.models import Currency
 from orders.models import Order
 from payments.adapters import (leupay_adapter, robokassa_adapter,
-                               unitpay_adapter)
+                               unitpay_adapter, okpay_adapter)
 from payments.models import Payment, PaymentPreference
 from payments.utils import geturl_robokassa
 
@@ -50,6 +50,8 @@ def payment_success(request, provider):
             received_order = unitpay_adapter(request)
         elif provider == 'leupay':
             received_order = leupay_adapter(request)
+        elif provider == 'okpay':
+            received_order = okpay_adapter(request)
 
         if not received_order:
             return Http404(_('Unsupported payment provider'))
@@ -102,6 +104,7 @@ def payment_type(request):
         'qiwi': get_pref_by_name('Qiwi', currency),
         'paypal': get_pref_by_name('PayPal', currency),
         'skrill': get_pref_by_name('Skrill', currency),
+        'okpay': get_pref_by_name('Okpay', currency),
 
     }
     local_vars = {
@@ -132,6 +135,7 @@ def payment_type_json(request):
         'alfa': get_pref_by_name('Alfa', currency),
         'qiwi': get_pref_by_name('Qiwi', currency),
         'paypal': get_pref_by_name('PayPal', currency),
+        'okpay': get_pref_by_name('Okpay', currency),
 
     }
 

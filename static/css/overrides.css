@@ -119,6 +119,13 @@
     background-color: #8cc63f
 }
 
+.auto-exchange {
+    margin: 20px 0;
+}
+
+.success-line.mid {
+    margin-bottom: 10px;
+}
 .confirm-order{
     background-color: #F4F4F4;
 }
@@ -855,7 +862,8 @@ html body .modal-content {
 }
 
 .supporetd_payment img, .payment-type-trigger,
-.og-resource {
+.og-resource,
+input.payment-icon {
     max-width: 100%;
     height: auto;
     padding: 20px 0;
@@ -863,17 +871,20 @@ html body .modal-content {
     filter: grayscale(100%);
     opacity: 0.4;
     cursor: pointer;
+
 }
 
 .payment-type-trigger,
-.payment-type-trigger:hover{
+.payment-type-trigger:hover,
+input.payment-icon {
     cursor: pointer;
 }
 
 .supporetd_payment img:hover,
 .payment-type-trigger:hover,
 .payment-type-trigger:hover .round-button,
-.og-resource:hover {
+.og-resource:hover,
+input.payment-icon:hover{
     color: #8cc63f;
     /*#71a131*/
     filter: grayscale(0);
@@ -967,9 +978,6 @@ html body .modal-content {
 	padding-top: 20px;
 }
 
-.success-line {
-}
-
 .success-icon-container {
     background-color: #97CB53;
     display: block;
@@ -993,13 +1001,17 @@ html body .modal-content {
     display:block;
     margin: 25px
 }
-.line h2{
+.line.green .header {
+    border-color: #8BC53F;
+    border-width: 4px;
+}
+.line .header{
     font-size:30px;
     text-align:center;
     border-bottom:1px solid black;
     position:relative;
 }
-.line h2 span {
+.line .header span {
     background-color: white;
     position: relative;
     top: 15px;

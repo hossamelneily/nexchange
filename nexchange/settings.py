@@ -105,6 +105,13 @@ ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
                 "isTest={0}&MerchantLogin={1}&" \
                 "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
 
+# demo wallet id OK702746927
+#OKPAY_WALLET = 'OK702746927'
+OKPAY_WALLET = 'OK217536082'
+OKPAY_API_KEY = 'Qm7a5H6Kcn3BMk4q9GEb8g2S7'
+OKPAY_URL = 'https://www.okpay.com/en/account/login.html?verification={}&' \
+             'reference={}&return_url={}'
+
 CMSPAGES = {
     'ABOUTUS': [
         ('about_us', _('About Us')),
@@ -129,13 +136,21 @@ CELERY_BROKER_URL = REDIS_URL
 
 
 CELERY_BEAT_SCHEDULE = {
-    'check-payment': {
-        'task': 'nexchange.tasks.payment_release',
-        'schedule': timedelta(seconds=90),
+    'buy_order_release': {
+        'task': 'nexchange.tasks.buy_order_release',
+        'schedule': timedelta(seconds=60),
     },
-    'check-transactions': {
+    'renew_cards_reserve': {
+        'task': 'nexchange.tasks.renew_cards_reserve',
+        'schedule': timedelta(seconds=60),
+    },
+    'check_okpay_payments': {
+        'task': 'nexchange.tasks.check_okpay_payments',
+        'schedule': timedelta(seconds=60),
+    },
+    'checker_transactions': {
         'task': 'nexchange.tasks.checker_transactions',
-        'schedule': timedelta(seconds=300),
+        'schedule': timedelta(seconds=60),
     },
 }
 
