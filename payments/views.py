@@ -3,7 +3,8 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import (Http404, HttpResponse, JsonResponse,
+                         HttpResponseForbidden)
 from django.shortcuts import redirect
 from django.template.loader import get_template
 from django.utils import translation
@@ -145,6 +146,8 @@ def payment_type_json(request):
 
 
 def payeer_status(request):
+    if request.META['REMOTE_ADDR'] not in settings.PAYEER_IPS:
+        return HttpResponseForbidden(_('IP address is not allowed.'))
     if not request.method == 'POST':
         return Http404(_('Resource not found'))
     retval = 'error'

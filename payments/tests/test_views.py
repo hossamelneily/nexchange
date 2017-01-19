@@ -49,7 +49,7 @@ class PayeerTestCase(UserBaseTestCase, OrderBaseTestCase):
     def setUp(self):
         super(PayeerTestCase, self).setUp()
         self.status_url = reverse('payments.payeer.status')
-        self.client = Client()
+        self.client = Client(REMOTE_ADDR='185.71.65.92')
         self.payment_method = PaymentMethod(name='Payeer')
         self.payment_method.save()
         self._create_input_params()
@@ -113,6 +113,11 @@ class PayeerTestCase(UserBaseTestCase, OrderBaseTestCase):
             reference=order.unique_reference
         )
         self.assertEqual(1, len(p))
+
+    def test_payeer_forbidden_ip_request(self):
+        client = Client(REMOTE_ADDR='127.0.0.1')
+        response = client.post(self.status_url, self.input_params)
+        self.assertEqual(response.status_code, 403)
 
 
 class RoboTestCase(UserBaseTestCase):
