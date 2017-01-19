@@ -85,6 +85,30 @@ def buy_order_release():
 
 
 @shared_task
+def sell_order_release():
+    # TODO:
+    # This the task to release FUNDS for clients that
+    # SELL BTC or other coins to US
+    # 1. Auto release funds when coins are credited
+    # 2. Move funds from user card to our card
+    # 3. Notify admin if auto payment is not available
+    # for the payment preference that the user has selected.
+    pass
+
+
+@shared_task
+def exchange_order_release():
+    # TODO:
+    # This the task to release COINS for clients that
+    # EXCHANGE crypto-currencies, I.E. ETH to BTC
+    # 1. Auto release funds when coins are credited
+    # 2. Move funds from user card to our card
+    # 3. Notify admin if auto payment is not available
+    # for the payment preference that the user has selected.
+    pass
+
+
+@shared_task
 def checker_transactions():
     for tr in Transaction.objects.\
             filter(Q(is_completed=False) | Q(is_verified=False)):
