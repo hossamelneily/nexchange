@@ -12,16 +12,14 @@
                 {{ order.payment_preference.payment_method.name }}
             </div>
 
-
-
             <div class="row">
-                <div class="col col-xs-12">
+                <div class="col col-xs-12 our_acc">
                     <p><strong>{{order.payment_preference.identifier}}</strong></p>
                 </div>
             </div>
             <div class="row">
                 <div class="col col-xs-12">
-                    {% trans 'Please put the following reference in the comment:' %}
+                    {% trans 'Please put the following reference in the comment' %}
                 </div>
             </div>
             <div class="row">
@@ -31,8 +29,14 @@
             </div>
             {% if order.payment_preference.payment_method.name == 'Okpay' %}
             <div class="row">
-                <div class="col col-xs-10 col-xs-offset-1 success-line">
-                    <h4>{% trans 'OR' %}</h4>
+                <div class="col col-xs-10 col-xs-offset-1 success-line mid">
+                    <span class="line green">
+                        <h4 class="header">
+                            <span>
+                                {% trans 'OR' %}
+                            </span>
+                        </h4>
+                    </span>
                 </div>
             </div>
             <div class="row">
@@ -51,39 +55,41 @@
                        <input type="image" class="payment-icon"
                               name="submit" alt="OKPAY Payment"
                               src="/static/icons/small/okpay_green.png"/>
-                        <label for="submit">
-                            *  {% trans 'All exchange transactions are executed automatically by a computer regardless of the payment method' %}
-                        </label>
                     </form>
                 </div>
             </div>
             {% endif %}
-            <div class="row">
-                <div class="col col-xs-12">
-                    {% trans 'Notice that you must pay until' %}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col col-xs-12">
-                 {% trans 'Notice that you must pay until' %}
-                </div>
-            </div>
-            {% localtime on %}
-            <div class="row">
-                <div class="col col-xs-12" id="pay_until_notice">
-                    <p><strong>{{pay_until |date:"H:iA (e)"}}</strong></p>
-                </div>
-            </div>
-            {% endlocaltime %}
-          <div class="row">
-              <div class="col-xs-12">
+          {% block options %}
+          <div class="row text-left">
+              <div class="col-xs-12 auto-exchange">
                     <input type="checkbox" id="default_order_trigger">
                     {% blocktrans %}
-                        Credit my withdraw address automatically with any further funds
-                        sent by you to our account automatically
+                        Credit my withdraw address automatically with any funds
+                        sent by you to our {{ order.payment_preference.payment_method.name }}
                     {% endblocktrans %}
               </div>
           </div>
+          {% endblock %}
+
+          {% block terms %}
+              <div class="exchange-terms">
+                  <div class="row text-left">
+                    <div class="col col-xs-12 text-let">
+                       <label>
+                           * {% trans 'Please notice that you must pay until ' %}
+                           {% localtime on %}
+                               <strong>{{pay_until |date:"H:iA (e)"}}</strong>
+                           {% endlocaltime %}
+                       </label>
+                    </div>
+                    <div class="col col-xs-12 text-left">
+                        <label>
+                            * {% trans 'All exchange transactions are executed automatically by a computer regardless of the payment method' %}
+                        </label>
+                    </div>
+                </div>
+              </div>
+          {% endblock %}
     </div><!-- /pannel-body -->
 </div><!-- /pannel -->
 <input type="hidden" name="order_id" value="{{order_id}}" class="order_id" >

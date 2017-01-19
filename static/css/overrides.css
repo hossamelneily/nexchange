@@ -119,6 +119,13 @@
     background-color: #8cc63f
 }
 
+.auto-exchange {
+    margin: 20px 0;
+}
+
+.success-line.mid {
+    margin-bottom: 10px;
+}
 .confirm-order{
     background-color: #F4F4F4;
 }
@@ -971,9 +978,6 @@ input.payment-icon:hover{
 	padding-top: 20px;
 }
 
-.success-line {
-}
-
 .success-icon-container {
     background-color: #97CB53;
     display: block;
@@ -997,13 +1001,17 @@ input.payment-icon:hover{
     display:block;
     margin: 25px
 }
-.line h2{
+.line.green .header {
+    border-color: #8BC53F;
+    border-width: 4px;
+}
+.line .header{
     font-size:30px;
     text-align:center;
     border-bottom:1px solid black;
     position:relative;
 }
-.line h2 span {
+.line .header span {
     background-color: white;
     position: relative;
     top: 15px;
