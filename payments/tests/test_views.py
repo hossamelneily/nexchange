@@ -1,12 +1,73 @@
 
 from decimal import Decimal
 from unittest import skip
+from django.core.urlresolvers import reverse
+from django.test import Client, TestCase
 
 from core.models import Address, Transaction
 from core.tests.base import OrderBaseTestCase, UserBaseTestCase
 from nexchange.utils import release_payment
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
+from payments.utils import get_payeer_sign, get_payeer_desc
+
+
+class PayeerTestCase(TestCase):
+
+    def _create_input_params(self, status='success', delete=None):
+        input_list = [
+            '123456',
+            '2609',
+            '21.12.2012 21:12',
+            '21.12.2012 21:12',
+            '287402376',
+            '12345',
+            '100.00',
+            'EUR',
+            get_payeer_desc('BUY 0.1BTC'),
+            status,
+            '12345'
+        ]
+        self.input_params = {
+            'm_operation_id': input_list[0],
+            'm_operation_ps': input_list[1],
+            'm_operation_date': input_list[2],
+            'm_operation_pay_date': input_list[3],
+            'm_shop': input_list[4],
+            'm_orderid': input_list[5],
+            'm_amount': input_list[6],
+            'm_curr': input_list[7],
+            'm_desc': input_list[8],
+            'm_status': input_list[9],
+            'm_sign': get_payeer_sign(ar_hash=(i for i in input_list))
+        }
+        if delete is not None:
+            del self.input_params[delete]
+
+    def setUp(self):
+        self.status_url = reverse('payments.payeer.status')
+        self.client = Client()
+        self._create_input_params()
+
+    def test_payeer_status_success(self):
+        response = self.client.post(self.status_url, self.input_params)
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode('utf8')
+        self.assertIn('|success', content)
+
+    def test_payeer_status_error(self):
+        self._create_input_params(status='error')
+        response = self.client.post(self.status_url, self.input_params)
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode('utf8')
+        self.assertIn('|error', content)
+
+    def test_payeer_status_missing_param_error(self):
+        self._create_input_params(status='error', delete='m_operation_id')
+        response = self.client.post(self.status_url, self.input_params)
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode('utf8')
+        self.assertEqual('error', content)
 
 
 class RoboTestCase(UserBaseTestCase):

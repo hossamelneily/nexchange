@@ -9,13 +9,14 @@ from django.template.loader import get_template
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 
 from core.models import Currency
 from orders.models import Order
 from payments.adapters import (leupay_adapter, robokassa_adapter,
                                unitpay_adapter, okpay_adapter)
 from payments.models import Payment, PaymentPreference
-from payments.utils import geturl_robokassa
+from payments.utils import geturl_robokassa, get_payeer_sign
 
 
 @login_required
@@ -140,3 +141,32 @@ def payment_type_json(request):
     }
 
     return JsonResponse({'cards': cards})
+
+
+def payeer_status(request):
+    if not request.method == 'POST':
+        return Http404(_('Resource not found'))
+    retval = 'error'
+    try:
+        ar_hash = (
+            request.POST['m_operation_id'],
+            request.POST['m_operation_ps'],
+            request.POST['m_operation_date'],
+            request.POST['m_operation_pay_date'],
+            request.POST['m_shop'],
+            request.POST['m_orderid'],
+            request.POST['m_amount'],
+            request.POST['m_curr'],
+            request.POST['m_desc'],
+            request.POST['m_status'],
+            settings.PAYEER_SECRET_KEY
+        )
+        sign = get_payeer_sign(ar_hash=ar_hash)
+        if (request.POST.get('m_sign') == sign and
+                request.POST.get('m_status') == 'success'):
+            retval = request.POST['m_orderid'] + '|success'
+        else:
+            retval = request.POST['m_orderid'] + '|error'
+    except KeyError:
+        pass
+    return HttpResponse(retval)
