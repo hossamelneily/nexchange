@@ -67,15 +67,6 @@ REFERRER_GET_PARAMETER = 'ref'
 REFERRAL_SESSION_KEY = REFERRER_GET_PARAMETER
 REFERRAL_TOKEN_CHARS = REFERRAL_CODE_CHARS
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'vyq9ufbalb_a19d#=27pvv_17*h2j%gykvp7*xe%=yit0#vhkb'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
@@ -110,21 +101,9 @@ INSTALLED_APPS = [
 
 SITE_ID = 1
 
-
-ROBOKASSA_LOGIN = 'nexchangeBTC'
-ROBOKASSA_PASS1 = 'SBYcBnB8Oq63KK5UB7oC'
-ROBOKASSA_PASS2 = 'vaXizy98NA4rOm8Mty6l'
-ROBOKASSA_IS_TEST = 1
 ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
                 "isTest={0}&MerchantLogin={1}&" \
                 "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
-
-# demo wallet id OK702746927
-#OKPAY_WALLET = 'OK702746927'
-OKPAY_WALLET = 'OK217536082'
-OKPAY_API_KEY = 'Qm7a5H6Kcn3BMk4q9GEb8g2S7'
-OKPAY_URL = 'https://www.okpay.com/en/account/login.html?verification={}&' \
-             'reference={}&return_url={}'
 
 CMSPAGES = {
     'ABOUTUS': [
@@ -272,38 +251,12 @@ STATICFILES_DIRS = (
     STATIC_PATH,
 )
 
-UPHOLD_USER = 'kydim1312@yandex.ru'
-UPHOLD_PASS = '$Kyzin1990'
+
 UPHOLD_IS_TEST = True
 UPHOLD_CARD_ID = 'a1a88f60-7473-47e4-9b78-987daf198a5d'
-CARDS_RESERVE_COUNT = 2
+CARDS_RESERVE_COUNT = 6
 
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
-KRAKEN_API_KEY = "E6wsw96A+JsnY33k7SninDdg//JsoZSXcKBYtyrhUYlWyAxIeIIZn3ay"
-# KRAKEN_API_KEY = "0xq0CZSTPm373V/ranC6XQNqC29rt6nlkwe0TpS4GcV2A/wZbGRyjhG6"
-
-
-KRAKEN_API_SIGN = "hLg6LkI+kHtlLJs5ypJ0GnInK0go/HM3xMSVIGgCTc" \
-                  "aqoqy8FsTl1KVdgFfWCCfu7CMZeCW4qqMbATrzZaFtRQ=="
-
-# KRAKEN_API_SIGN = "3IPxXgvFZwtQi85oxDUSjwcE2ESrUMCJYT3/
-# VGRDp6uz0wivSXZ3mSj8Vm7hWDO8/MczvRRdi3ZWbGBlc//tXg=="
-
-
-# KRAKEN_API_KEY = os.environ['KRAKEN_API_KEY']
-# KRAKEN_API_SIGN = os.environ['KRAKEN_API_SECRET']
-MAIN_DEPOSIT_ADDRESSES = [
-    '38veBMhDeudaZs7zmDUy68cYJZupaHVBvR',
-    '36Av3jUjCfRGQ7p9BTTfN7HEf5N3qqK18Q',
-    '3KSZsqhHosSW9AAXedmUZ7s6W97xpj5ETX',
-    '3AmU2SdVvucgX1eu4JR1sWWERmnWDXS3Dy',
-    '3MTRfeeQb96ynFZqEV2EeMppgFu8cvowBj'
-]
-
-# Your Account SID from www.twilio.com/console
-TWILIO_ACCOUNT_SID = 'AC0bd0fa94c8ca0084f3e512c741965364'
-# Auth Token from www.twilio.com/console
-TWILIO_AUTH_TOKEN = '811a1791827b6088fcaa2d5b43ccf017'
 TWILIO_PHONE_FROM = '+447481341915'
 
 LOGIN_REDIRECT_URL = reverse_lazy('orders.add_order')
@@ -323,18 +276,6 @@ GRAPH_HOUR_RANGES = [
     {'val': 24 * 365, 'name': '1 Year'}
 ]
 DEFAULT_HOUR_RANGE = 6
-
-"""
-Configs for sending email for password reset.
-Run 'python -m smtpd -n -c DebuggingServer localhost:1025'
-to see a dump of email that would be sent
-"""
-if DEBUG:
-    EMAIL_HOST = 'localhost'
-    EMAIL_PORT = 1025
-    EMAIL_HOST_USER = ''
-    EMAIL_HOST_PASSWORD = ''
-    EMAIL_USE_TLS = False
 
 # to tests the API with localhost
 CORS_ORIGIN_WHITELIST = (
@@ -361,8 +302,8 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 12
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 SOCIAL = {
-    'twitter': 'https://twitter.com/nexchangeBTC',
-    'facebook': 'https://facebook.com/nexchangeBTC'
+    'twitter': 'https://twitter.com/cryptoNexchange',
+    'facebook': 'https://facebook.com/cryptoNexchange'
 }
 
 # NEW security measures
@@ -379,3 +320,5 @@ SESSION_SECURITY_PASSIVE_URLS = ["/en/api/v1/price/latest/",
 AXES_LOGIN_FAILURE_LIMIT = 6
 AXES_USERNAME_FORM_FIELD = 'username'
 AXES_COOLOFF_TIME = timedelta(minutes=30)
+
+

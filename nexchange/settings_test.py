@@ -11,3 +11,5 @@ DATABASES = {
 }
 
 DEBUG = True
+
+SECRET_KEY = 'zsl4+4%(%=0@f*tkf0f2u%dt&v&h_-g5mw*o25i$480=3qcb2k'
