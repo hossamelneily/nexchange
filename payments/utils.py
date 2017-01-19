@@ -75,20 +75,8 @@ def check_signature_robo(_inv_id, out_summ, crc):
     return False
 
 
-def get_payeer_sign(m_orderid, m_amount, m_curr, m_desc,
-                    m_shop=settings.PAYEER_MERCHANT_ID,
-                    m_key=settings.PAYEER_SECRET_KEY):
-    """get_payeer_sign
-
-    :param m_orderid: order.unique_reference
-    :param m_amount: order.amount_cash
-    :param m_curr: order.currency.code
-    :param m_desc: encoded base64 order description
-    """
-    list_of_value_for_sign = map(
-        str, [m_shop, m_orderid, "%.2f" % m_amount, m_curr, m_desc, m_key]
-    )
-    result_string = ":".join(list_of_value_for_sign)
+def get_payeer_sign(ar_hash=()):
+    result_string = ":".join(ar_hash)
     sign_hash = sha256(result_string.encode('utf8'))
     sign = sign_hash.hexdigest().upper()
     return sign

@@ -206,10 +206,15 @@ def ajax_order(request):
         description = '{} {}BTC'.format(order.get_order_type_display(),
                                         order.amount_btc)
         desc = get_payeer_desc(description)
-        payeer_sign = get_payeer_sign(
-            order.unique_reference, order.amount_cash, order.currency.code,
-            desc
+        ar_hash = (
+            settings.PAYEER_MERCHANT_ID,
+            order.unique_reference,
+            '%.2f' % order.amount_cash,
+            order.currency.code,
+            desc,
+            settings.PAYEER_SECRET_KEY,
         )
+        payeer_sign = get_payeer_sign(ar_hash=ar_hash)
         context.update({
             'payeer_sign': payeer_sign,
             'payeer_shop': settings.PAYEER_MERCHANT_ID,
