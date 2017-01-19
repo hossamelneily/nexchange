@@ -4,7 +4,7 @@ RUNNING_CONTAINER=$(docker ps -q --filter "ancestor=pitervergara/geodjango:nexch
 
 function use_running_container {
     coverage_cmd="coverage erase"
-    coverage_cmd="${coverage_cmd} && coverage run --source='.' manage.py test -v 3 --pattern='test_*.py'"
+    coverage_cmd="${coverage_cmd} && coverage run --source='.' --omit='src/' manage.py test -v 3 --pattern='test_*.py'"
     coverage_cmd="${coverage_cmd} && coverage report "
     coverage_cmd="${coverage_cmd} && coverage html -d cover"
 
