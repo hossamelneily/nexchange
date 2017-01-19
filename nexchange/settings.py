@@ -149,7 +149,7 @@ REDIS_URL = 'redis://{}:{}/1'.format(REDIS_ADDR, REDIS_PORT)
 CELERY_BROKER_URL = REDIS_URL
 
 
-CELERYBEAT_SCHEDULE = {
+CELERY_BEAT_SCHEDULE = {
     'check-payment': {
         'task': 'nexchange.tasks.payment_release',
         'schedule': timedelta(seconds=90),
