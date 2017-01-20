@@ -110,7 +110,7 @@ ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
                 "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
 
 OKPAY_URL = 'https://www.okpay.com/en/account/login.html?verification={}&' \
-             'reference={}&return_url={}'
+            'reference={}&return_url={}'
 
 CMSPAGES = {
     'ABOUTUS': [
