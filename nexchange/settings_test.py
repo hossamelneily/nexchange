@@ -52,8 +52,8 @@ UPHOLD_PASS = os.getenv('UPHOLD_PASS',
 # Kraken
 KRAKEN_API_KEY = os.getenv('KRAKEN_API_KEY',
                            settings_dev.KRAKEN_API_KEY)
-KRAKEN_API_SIGN = os.getenv('KRAKEN_API_SIGN',
-                            settings_dev.KRAKEN_API_SIGN)
+KRAKEN_API_SECRET = os.getenv('KRAKEN_API_SECRET',
+                            settings_dev.KRAKEN_API_SECRET)
 
 
 # ROBOKASSA

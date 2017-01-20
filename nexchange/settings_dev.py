@@ -73,7 +73,7 @@ ROBOKASSA_PASS2 = 'vaXizy98NA4rOm8Mty6l'
 
 # Kraken TEST
 KRAKEN_API_KEY = ''
-KRAKEN_API_SIGN = ''
+KRAKEN_API_SECRET = ''
 
 
 # Twilio TEST

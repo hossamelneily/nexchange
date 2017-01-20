@@ -256,7 +256,7 @@ build:
 
           # Kraken
           export KRAKEN_API_KEY=${KRAKEN_API_KEY}
-          export KRAKEN_API_SIGN=${KRAKEN_API_SIGN}
+          export KRAKEN_API_SECRET=${KRAKEN_API_SECRET}
 
           # ROBOKASSA
           export ROBOKASSA_IS_TEST=${ROBOKASSA_IS_TEST}
@@ -337,7 +337,7 @@ build:
           export POSTGIS_PORT_5432_TCP_PORT=${POSTGIS_PORT_5432_TCP_PORT}
           #
           cd ${WERCKER_SOURCE_DIR}
-          /usr/local/bin/python manage.py ticker >> /var/log/cron.log 2>&1
+          /usr/local/bin/python manage.py ticker --settings=nexchange.settings_prod >> /var/log/cron.log 2>&1
     - script:
         name: Add cron job
         code: |
