@@ -67,7 +67,11 @@ REFERRER_GET_PARAMETER = 'ref'
 REFERRAL_SESSION_KEY = REFERRER_GET_PARAMETER
 REFERRAL_TOKEN_CHARS = REFERRAL_CODE_CHARS
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'nexchange.dev'
+]
 
 
 # Application definition
@@ -173,7 +177,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
-                'core.context_processors.google_analytics',
+                'core.context_processors.analytics',
                 'core.context_processors.country_code',
                 'core.context_processors.recaptcha',
                 'articles.context_processors.cms',
@@ -323,4 +327,4 @@ AXES_LOGIN_FAILURE_LIMIT = 6
 AXES_USERNAME_FORM_FIELD = 'username'
 AXES_COOLOFF_TIME = timedelta(minutes=30)
 
-
+YANDEX_METRICA_ID = '42232459'

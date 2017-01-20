@@ -1,8 +1,7 @@
 import dj_database_url
-
 from nexchange.settings import *
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG', False)
 
 ALLOWED_HOSTS = ['nexchange.co.uk', 'nexchange.ru',
                  'www.nexchange.co.uk', 'www.nexchange.ru']
@@ -15,8 +14,12 @@ DATABASES = {
 # SECRET KEY
 SECRET_KEY = os.getenv('SECRET_KEY')
 
+# GA
 GOOGLE_ANALYTICS_PROPERTY_ID = os.getenv('GOOGLE_ANALYTICS_PROPERTY_ID')
 GOOGLE_ANALYTICS_DOMAIN = os.getenv('GOOGLE_ANALYTICS_DOMAIN')
+
+# YANDEX
+YANDEX_METRICA_ID = '42222484'
 
 # ReCaptcha
 RECAPTCHA_SITEKEY = os.getenv('RECAPTCHA_SITEKEY')

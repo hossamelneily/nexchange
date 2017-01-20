@@ -232,9 +232,14 @@ build:
           # SECURITY SETTINGS
           # DJ SECRET
           export SECRET_KEY=${SECRET_KEY}
+
+          # YANDEX
+          export YANDEX_METRICA_ID=${YANDEX_METRICA_ID}
+
           # GA
           export GOOGLE_ANALYTICS_PROPERTY_ID=${GOOGLE_ANALYTICS_PROPERTY_ID}
           export GOOGLE_ANALYTICS_DOMAIN=${GOOGLE_ANALYTICS_DOMAIN}
+
           # CAPTCHA
           export RECAPTCHA_SITEKEY=${RECAPTCHA_SITEKEY}
           export RECAPTCHA_SECRET_KEY=${RECAPTCHA_SECRET_KEY}

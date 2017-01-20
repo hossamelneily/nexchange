@@ -2,32 +2,29 @@ from django.conf import settings
 from pytz import country_timezones
 
 
-def google_analytics(request):
+def analytics(request):
     """
     Use the variables returned in this function to
     render your Google Analytics tracking code template.
     """
-    ga_prop_id = getattr(settings, 'GOOGLE_ANALYTICS_PROPERTY_ID', False)
-    ga_domain = getattr(settings, 'GOOGLE_ANALYTICS_DOMAIN', False)
-    # production
-    # if not settings.DEBUG and ga_prop_id and ga_domain:
-    # dev
-    if ga_prop_id and ga_domain:
-        return {
-            'GOOGLE_ANALYTICS_PROPERTY_ID': ga_prop_id,
-            'GOOGLE_ANALYTICS_DOMAIN': ga_domain,
-        }
-    return {}
+    return {
+        'GOOGLE_ANALYTICS_PROPERTY_ID':
+            getattr(settings, 'GOOGLE_ANALYTICS_PROPERTY_ID'),
+        'GOOGLE_ANALYTICS_DOMAIN':
+            getattr(settings, 'GOOGLE_ANALYTICS_DOMAIN'),
+        'YANDEX_METRICA_ID':
+            getattr(settings, 'YANDEX_METRICA_ID')
+    }
 
 
 def recaptcha(request):
     """ Adds recaptcha sitekey to context.
     https://developers.google.com/recaptcha/docs/display
     """
-    sitekey = getattr(settings, 'RECAPTCHA_SITEKEY', False)
-    if sitekey:
-        return {'RECAPTCHA_SITEKEY': sitekey}
-    return {}
+    return {
+        'RECAPTCHA_SITEKEY':
+            getattr(settings, 'RECAPTCHA_SITEKEY')
+    }
 
 
 def country_code(request):
