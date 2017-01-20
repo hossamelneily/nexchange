@@ -52,6 +52,10 @@
     {% if GOOGLE_ANALYTICS_PROPERTY_ID %}
         {% include "core/analitycs/ga.html" %}
     {% endif %}
+    {% if YANDEX_METRICA_ID %}
+        {% include "core/analitycs/metrica.html" %}
+    {% endif %}
+
 
 </head>
 <body>

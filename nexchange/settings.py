@@ -67,7 +67,11 @@ REFERRER_GET_PARAMETER = 'ref'
 REFERRAL_SESSION_KEY = REFERRER_GET_PARAMETER
 REFERRAL_TOKEN_CHARS = REFERRAL_CODE_CHARS
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'nexchange.dev'
+]
 
 
 # Application definition
@@ -106,7 +110,7 @@ ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
                 "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
 
 OKPAY_URL = 'https://www.okpay.com/en/account/login.html?verification={}&' \
-             'reference={}&return_url={}'
+            'reference={}&return_url={}'
 
 CMSPAGES = {
     'ABOUTUS': [
@@ -262,7 +266,6 @@ STATICFILES_DIRS = (
     STATIC_PATH,
 )
 
-
 UPHOLD_IS_TEST = True
 UPHOLD_CARD_ID = 'a1a88f60-7473-47e4-9b78-987daf198a5d'
 CARDS_RESERVE_COUNT = 6
@@ -331,5 +334,3 @@ SESSION_SECURITY_PASSIVE_URLS = ["/en/api/v1/price/latest/",
 AXES_LOGIN_FAILURE_LIMIT = 6
 AXES_USERNAME_FORM_FIELD = 'username'
 AXES_COOLOFF_TIME = timedelta(minutes=30)
-
-

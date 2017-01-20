@@ -2,22 +2,26 @@ from django.conf import settings
 from pytz import country_timezones
 
 
-def analytics(request):
+def google_analytics(request):
     """
     Use the variables returned in this function to
     render your Google Analytics tracking code template.
     """
-    domain = request.META['HTTP_HOST']
+    if 'HTTP_HOST' in request.META:
+        host = request.META['HTTP_HOST'].split(':')[0]
+    else:
+        host = 'localhost'
+
     ga_ru = getattr(settings, 'GOOGLE_ANALYTICS_PROPERTY_ID_RU')
-    ga_uk = getattr(settings, 'GOOGLE_ANALYTICS_PROPERTY_UK')
+    ga_uk = getattr(settings, 'GOOGLE_ANALYTICS_PROPERTY_ID_UK')
     ym_ru = getattr(settings, 'YANDEX_METRICA_ID_RU')
     ym_uk = getattr(settings, 'YANDEX_METRICA_ID_UK')
 
     return {
         'GOOGLE_ANALYTICS_PROPERTY_ID':
-            ga_ru if domain.endWith('ru') else ga_uk,
+            ga_ru if host.endswith('ru') else ga_uk,
         'YANDEX_METRICA_ID':
-            ym_ru if domain.endWith('ru') else ym_uk,
+            ym_ru if host.endswith('ru') else ym_uk,
     }
 
 
