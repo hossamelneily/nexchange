@@ -13,6 +13,8 @@ from suds import WebFault
 import datetime
 from hashlib import sha256
 import xml.etree.ElementTree as ET
+import requests
+import json
 
 api = Uphold(settings.UPHOLD_IS_TEST)
 api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
@@ -109,7 +111,7 @@ class CreateUpholdCard(Uphold):
         return self._post('/me/cards/{}/addresses'.format(card), fields)
 
 
-class OkPayAPI():
+class OkPayAPI(object):
 
     def __init__(self, api_password=None, wallet_id=None):
         ''' Set up your API Access Information
@@ -255,3 +257,55 @@ class OkPayAPI():
         except WebFault as e:
             response = {'success': 0, 'error': e}
         return response
+
+
+class PayeerAPIClient(object):
+    """ Documentation: http://docs.payeercom.apiary.io/# """
+
+    def __init__(self, account='12345', apiId='12345', apiPass='12345',
+                 url='https://payeer.com/ajax/api/api.php'):
+        self.account = account
+        self.apiId = apiId
+        self.apiPass = apiPass
+        self.url = url
+
+    def authorization_check(self):
+        payload = {
+            'account': self.account,
+            'apiId': self.apiId,
+            'apiPass': self.apiPass
+        }
+        response = requests.post(self.url, payload)
+        return response
+
+    def balance_check(self):
+        payload = {
+            'account': self.account,
+            'apiId': self.apiId,
+            'apiPass': self.apiPass,
+            'action': 'balance'
+        }
+        response = requests.post(self.url, payload)
+        return response
+
+    def history_of_transactions(self, sort='desc', count=10, to_dt=None,
+                                trans_type='incoming'):
+        if to_dt is None:
+            to_dt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        payload = {
+            'account': self.account,
+            'apiId': self.apiId,
+            'apiPass': self.apiPass,
+            'action': 'history',
+            'sort': sort,
+            'count': count,
+            'to': to_dt,
+            'type': trans_type
+        }
+        response = requests.post(self.url, payload)
+        content = json.loads(response.content.decode('utf-8'))
+        try:
+            res = content['history']
+        except KeyError:
+            res = content['errors']
+        return res

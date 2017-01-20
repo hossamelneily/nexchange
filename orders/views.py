@@ -15,7 +15,7 @@ from core.models import Address, Currency
 from core.views import main
 from orders.models import Order
 from payments.models import PaymentPreference
-from payments.utils import geturl_robokassa
+from payments.utils import geturl_robokassa, get_payeer_sign, get_payeer_desc
 
 
 @login_required
@@ -202,6 +202,24 @@ def ajax_order(request):
         url = geturl_robokassa(order.id,
                                str(round(Decimal(order.amount_cash), 2)))
         context.update({'url': url})
+    elif payment_method == 'payeer':
+        description = '{} {}BTC'.format(order.get_order_type_display(),
+                                        order.amount_btc)
+        desc = get_payeer_desc(description)
+        ar_hash = (
+            settings.PAYEER_WALLET,
+            order.unique_reference,
+            '%.2f' % order.amount_cash,
+            order.currency.code,
+            desc,
+            settings.PAYEER_IPN_KEY,
+        )
+        payeer_sign = get_payeer_sign(ar_hash=ar_hash)
+        context.update({
+            'payeer_sign': payeer_sign,
+            'payeer_shop': settings.PAYEER_WALLET,
+            'payeer_desc': desc
+        })
 
     elif payment_method == 'okpay':
         context.update({'okpay_wallet': settings.OKPAY_WALLET})

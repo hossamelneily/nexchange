@@ -1,5 +1,7 @@
 from decimal import Decimal
 from hashlib import md5
+import base64
+from hashlib import sha256
 
 from django.conf import settings
 
@@ -71,3 +73,15 @@ def check_signature_robo(_inv_id, out_summ, crc):
     if my_crc == crc:
         return True
     return False
+
+
+def get_payeer_sign(ar_hash=()):
+    result_string = ":".join(ar_hash)
+    sign_hash = sha256(result_string.encode('utf8'))
+    sign = sign_hash.hexdigest().upper()
+    return sign
+
+
+def get_payeer_desc(description):
+    desc = base64.b64encode(description.encode('utf8')).decode('utf8')
+    return desc

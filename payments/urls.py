@@ -14,4 +14,6 @@ payment_urls = [
     url(r'^options/$',
         views.payment_type,
         name='payments.options'),
+    url(r'^payeer/status$', views.payeer_status,
+        name='payments.payeer.status'),
 ]

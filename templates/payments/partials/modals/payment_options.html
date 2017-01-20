@@ -19,7 +19,8 @@
     {% include 'payments/partials/modals/card.html' with card_type='qiwi' label='Qiwi Wallet' icon='icons/small/qiwi.png' card=cards.qiwi %}
     {% include 'payments/partials/modals/card.html' with card_type='okpay' label='OK Pay' icon='icons/small/okpay.png' card=cards.okpay %}
     {% if type == 'buy' %}
-            {% include 'payments/partials/modals/card.html' with card_type='Robokassa' icon='icons/small/robokass.png' card=cards.robokass %}
+        {% include 'payments/partials/modals/card.html' with card_type='payeer' label='Payeer Wallet' icon='icons/small/payeer.png' card=cards.payeer %}
+        {% include 'payments/partials/modals/card.html' with card_type='Robokassa' icon='icons/small/robokass.png' card=cards.robokass %}
     {% endif %}
     {% include 'payments/partials/modals/card.html' with card_type='PayPal' label='PayPal' icon='icons/small/paypal.png' card=cards.paypal %}
     {% include 'payments/partials/modals/card.html' with card_type='Skrill' label='Skrill' icon='icons/small/skrill.png' card=cards.skrill %}

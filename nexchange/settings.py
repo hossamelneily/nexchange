@@ -109,8 +109,11 @@ ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
                 "isTest={0}&MerchantLogin={1}&" \
                 "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
 
-OKPAY_URL = 'https://www.okpay.com/en/account/login.html?verification={}&' \
-            'reference={}&return_url={}'
+OKPAY_URL = 'https://www.okpay.com/en/account/login.html?verification={1}&' \
+            'reference={2}&return_url={3}'
+
+PAYEER_API_URL = 'https://payeer.com/ajax/api/api.php'
+PAYEER_IPS = ['185.71.65.92', '185.71.65.189', '149.202.17.210']
 
 CMSPAGES = {
     'ABOUTUS': [
@@ -146,6 +149,10 @@ CELERY_BEAT_SCHEDULE = {
     },
     'check_okpay_payments': {
         'task': 'nexchange.tasks.check_okpay_payments',
+        'schedule': timedelta(seconds=60),
+    },
+    'check_payeer_payments': {
+        'task': 'nexchange.tasks.check_payeer_payments',
         'schedule': timedelta(seconds=60),
     },
     'checker_transactions': {
