@@ -7,13 +7,17 @@ def analytics(request):
     Use the variables returned in this function to
     render your Google Analytics tracking code template.
     """
+    domain = request.META['HTTP_HOST']
+    ga_ru = getattr(settings, 'GOOGLE_ANALYTICS_PROPERTY_ID_RU')
+    ga_uk = getattr(settings, 'GOOGLE_ANALYTICS_PROPERTY_UK')
+    ym_ru = getattr(settings, 'YANDEX_METRICA_ID_RU')
+    ym_uk = getattr(settings, 'YANDEX_METRICA_ID_UK')
+
     return {
         'GOOGLE_ANALYTICS_PROPERTY_ID':
-            getattr(settings, 'GOOGLE_ANALYTICS_PROPERTY_ID'),
-        'GOOGLE_ANALYTICS_DOMAIN':
-            getattr(settings, 'GOOGLE_ANALYTICS_DOMAIN'),
+            ga_ru if domain.endWith('ru') else ga_uk,
         'YANDEX_METRICA_ID':
-            getattr(settings, 'YANDEX_METRICA_ID')
+            ym_ru if domain.endWith('ru') else ym_uk,
     }
 
 
