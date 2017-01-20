@@ -18,11 +18,11 @@ DEBUG = True
 SECRET_KEY = os.getenv('SECRET_KEY', settings_dev.SECRET_KEY)
 
 GOOGLE_ANALYTICS_PROPERTY_ID_RU = os.getenv('GOOGLE_ANALYTICS_PROPERTY_ID_RU',
-                                         settings_dev.
-                                         GOOGLE_ANALYTICS_PROPERTY_ID_RU)
+                                            settings_dev.
+                                            GOOGLE_ANALYTICS_PROPERTY_ID_RU)
 GOOGLE_ANALYTICS_PROPERTY_ID_UK = os.getenv('GOOGLE_ANALYTICS_PROPERTY_ID_UK',
-                                         settings_dev.
-                                         GOOGLE_ANALYTICS_PROPERTY_ID_UK)
+                                            settings_dev.
+                                            GOOGLE_ANALYTICS_PROPERTY_ID_UK)
 # YANDEX
 YANDEX_METRICA_ID_RU = os.getenv('YANDEX_METRICA_ID_RU',
                                  settings_dev.YANDEX_METRICA_ID_RU)
@@ -40,7 +40,17 @@ OKPAY_WALLET = os.getenv('OKPAY_WALLET',
                          settings_dev.OKPAY_WALLET)
 OKPAY_API_KEY = os.getenv('OKPAY_API_KEY',
                           settings_dev.OKPAY_API_KEY)
-
+# PAYEER
+PAYEER_WALLET = os.getenv('PAYEER_WALLET',
+                          settings_dev.PAYEER_WALLET)
+PAYEER_IPN_KEY = os.getenv('PAYEER_IPN_KEY',
+                           settings_dev.PAYEER_IPN_KEY)
+PAYEER_ACCOUNT = os.getenv('PAYEER_ACCOUNT',
+                           settings_dev.PAYEER_ACCOUNT)
+PAYEER_API_ID = os.getenv('PAYEER_API_ID',
+                          settings_dev.PAYEER_API_ID)
+PAYEER_API_KEY = os.getenv('PAYEER_API_KEY',
+                           settings_dev.PAYEER_API_KEY)
 
 # UPHOLD
 UPHOLD_USER = os.getenv('UPHOLD_USER',

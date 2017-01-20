@@ -163,7 +163,7 @@ def payeer_status(request):
             request.POST['m_curr'],
             request.POST['m_desc'],
             request.POST['m_status'],
-            settings.PAYEER_SECRET_KEY
+            settings.PAYEER_IPN_KEY
         )
         sign = get_payeer_sign(ar_hash=ar_hash)
         if (request.POST.get('m_sign') == sign and

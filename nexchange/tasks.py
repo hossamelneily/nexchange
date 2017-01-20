@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from core.models import Address, Transaction
 from nexchange.utils import (CreateUpholdCard, check_transaction_blockchain,
                              check_transaction_uphold, release_payment,
-                             send_email, send_sms, OkPayAPI)
+                             send_email, send_sms, OkPayAPI, PayeerAPIClient)
 from orders.models import Order
 from payments.models import Payment, UserCards
 from decimal import Decimal
@@ -177,6 +177,7 @@ def check_okpay_payments():
         o_list = Order.objects.filter(
             amount_cash=float(trans['Net']),
             unique_reference=trans['Comment'],
+            currency__code=trans['Currency']
         )
         if len(o_list) == 1:
             o = o_list[0]
@@ -184,6 +185,40 @@ def check_okpay_payments():
                 continue
             Payment.objects.get_or_create(
                 amount_cash=Decimal(trans['Net']),
+                user=o.user,
+                order=o,
+                reference=o.unique_reference,
+                payment_preference=o.payment_preference,
+                currency=o.currency
+            )
+
+
+@shared_task
+def check_payeer_payments():
+    api = PayeerAPIClient(
+        account=settings.PAYEER_ACCOUNT,
+        apiId=settings.PAYEER_API_ID,
+        apiPass=settings.PAYEER_API_KEY,
+        url=settings.PAYEER_API_URL
+    )
+    transactions = api.history_of_transactions()
+    for trans in transactions:
+        if trans['status'] != 'success':
+            continue
+        if trans['to'] != settings.PAYEER_ACCOUNT:
+            continue
+        o_list = Order.objects.filter(
+            (
+                Q(unique_reference=trans['comment']) |
+                Q(unique_reference=trans['shopOrderId'])
+            ),
+            amount_cash=float(trans['creditedAmount']),
+            currency__code=trans['creditedCurrency']
+        )
+        if len(o_list) == 1:
+            o = o_list[0]
+            Payment.objects.get_or_create(
+                amount_cash=Decimal(trans['creditedAmount']),
                 user=o.user,
                 order=o,
                 reference=o.unique_reference,
