@@ -185,7 +185,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
-                'core.context_processors.analytics',
+                'core.context_processors.google_analytics',
                 'core.context_processors.country_code',
                 'core.context_processors.recaptcha',
                 'articles.context_processors.cms',
