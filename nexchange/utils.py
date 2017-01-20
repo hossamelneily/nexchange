@@ -14,6 +14,7 @@ import datetime
 from hashlib import sha256
 import xml.etree.ElementTree as ET
 import requests
+import json
 
 api = Uphold(settings.UPHOLD_IS_TEST)
 api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
@@ -259,6 +260,7 @@ class OkPayAPI(object):
 
 
 class PayeerAPIClient(object):
+    """ Documentation: http://docs.payeercom.apiary.io/# """
 
     def __init__(self, account='12345', apiId='12345', apiPass='12345',
                  url='https://payeer.com/ajax/api/api.php'):
@@ -276,8 +278,17 @@ class PayeerAPIClient(object):
         response = requests.post(self.url, payload)
         return response
 
-    def history_of_transactions(self, sort='desc', count=10,
-                                from_dt='2016-03-02 15:35:17', to_dt=None,
+    def balance_check(self):
+        payload = {
+            'account': self.account,
+            'apiId': self.apiId,
+            'apiPass': self.apiPass,
+            'action': 'balance'
+        }
+        response = requests.post(self.url, payload)
+        return response
+
+    def history_of_transactions(self, sort='desc', count=10, to_dt=None,
                                 trans_type='incoming'):
         if to_dt is None:
             to_dt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -288,9 +299,13 @@ class PayeerAPIClient(object):
             'action': 'history',
             'sort': sort,
             'count': count,
-            'from': from_dt,
             'to': to_dt,
             'type': trans_type
         }
         response = requests.post(self.url, payload)
-        return response
+        content = json.loads(response.content.decode('utf-8'))
+        try:
+            res = content['history']
+        except KeyError:
+            res = content['errors']
+        return res
