@@ -13,6 +13,7 @@ from nexchange.utils import (CreateUpholdCard, check_transaction_blockchain,
                              send_email, send_sms, OkPayAPI)
 from orders.models import Order
 from payments.models import Payment, UserCards
+from decimal import Decimal
 
 logging.basicConfig(filename='payment_release.log', level=logging.INFO)
 
@@ -84,6 +85,30 @@ def buy_order_release():
 
 
 @shared_task
+def sell_order_release():
+    # TODO:
+    # This the task to release FUNDS for clients that
+    # SELL BTC or other coins to US
+    # 1. Auto release funds when coins are credited
+    # 2. Move funds from user card to our card
+    # 3. Notify admin if auto payment is not available
+    # for the payment preference that the user has selected.
+    pass
+
+
+@shared_task
+def exchange_order_release():
+    # TODO:
+    # This the task to release COINS for clients that
+    # EXCHANGE crypto-currencies, I.E. ETH to BTC
+    # 1. Auto release funds when coins are credited
+    # 2. Move funds from user card to our card
+    # 3. Notify admin if auto payment is not available
+    # for the payment preference that the user has selected.
+    pass
+
+
+@shared_task
 def checker_transactions():
     for tr in Transaction.objects.\
             filter(Q(is_completed=False) | Q(is_verified=False)):
@@ -127,7 +152,7 @@ def renew_cards_reserve():
     currency = {'BTC': 'bitcoin', 'LTC': 'litecoin', 'ETH': 'ethereum'}
     for key, value in currency.items():
         count = UserCards.objects.filter(user=None, currency=key).count()
-        while count <= settings.CARDS_RESERVE_COUNT:
+        while count < settings.CARDS_RESERVE_COUNT:
             new_card = api.new_card(key)
             address = api.add_address(new_card['id'], value)
             card = UserCards(card_id=new_card['id'],
@@ -136,11 +161,32 @@ def renew_cards_reserve():
             card.save()
             count = UserCards.objects.filter(user=None, currency=key).count()
 
+
 @shared_task
 def check_okpay_payments():
     api = OkPayAPI(
         api_password=settings.OKPAY_API_KEY,
         wallet_id=settings.OKPAY_WALLET
     )
-    # need to parse history and confirm payments for the orders
-    history = api.get_transaction_history()
+    transactions = api.get_transaction_history()['Transactions']
+    for trans in transactions:
+        if trans['Status'] != 'Completed':
+            continue
+        if trans['Receiver']['WalletID'] != settings.OKPAY_WALLET:
+            continue
+        o_list = Order.objects.filter(
+            amount_cash=float(trans['Net']),
+            unique_reference=trans['Comment'],
+        )
+        if len(o_list) == 1:
+            o = o_list[0]
+            if o.currency.code != trans['Currency']:
+                continue
+            Payment.objects.get_or_create(
+                amount_cash=Decimal(trans['Net']),
+                user=o.user,
+                order=o,
+                reference=o.unique_reference,
+                payment_preference=o.payment_preference,
+                currency=o.currency
+            )

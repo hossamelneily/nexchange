@@ -1,0 +1,43 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+   <s:Body>
+      <Transaction_HistoryResponse xmlns="https://api.okpay.com">
+         <Transaction_HistoryResult xmlns:a="http://schemas.datacontract.org/2004/07/OkPayAPI" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+            <a:PageCount>10</a:PageCount>
+            <a:PageNumber>1</a:PageNumber>
+            <a:PageSize>10</a:PageSize>
+            <a:TotalCount>46</a:TotalCount>
+            <a:Transactions>
+               <a:TransactionInfo>
+                  <a:Amount>85.86</a:Amount>
+                  <a:Comment>12345</a:Comment>
+                  <a:Currency>EUR</a:Currency>
+                  <a:Date>2016-10-30 00:14:50</a:Date>
+                  <a:Fees>-0.0100</a:Fees>
+                  <a:ID>5755062</a:ID>
+                  <a:Invoice/>
+                  <a:Net>85.85</a:Net>
+                  <a:OperationName>Send Money</a:OperationName>
+                  <a:Receiver>
+                     <a:AccountID>803070022</a:AccountID>
+                     <a:Country_ISO>KZ</a:Country_ISO>
+                     <a:Email>support@crypto-trade.net</a:Email>
+                     <a:Name>Crypto-Trade</a:Name>
+                     <a:VerificationStatus>Verified</a:VerificationStatus>
+                     <a:WalletID>OK702746927</a:WalletID>
+                  </a:Receiver>
+                  <a:Sender>
+                     <a:AccountID>901218740</a:AccountID>
+                     <a:Country_ISO>US</a:Country_ISO>
+                     <a:Email>dobbscoin@gmail.com</a:Email>
+                     <a:Name>Bob Dobbs</a:Name>
+                     <a:VerificationStatus>Unverified</a:VerificationStatus>
+                     <a:WalletID>OK487565544</a:WalletID>
+                  </a:Sender>
+                  <a:Status>Completed</a:Status>
+               </a:TransactionInfo>
+            </a:Transactions>
+         </Transaction_HistoryResult>
+      </Transaction_HistoryResponse>
+   </s:Body>
+</s:Envelope>
+

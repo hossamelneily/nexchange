@@ -135,14 +135,22 @@ REDIS_URL = 'redis://{}:{}/1'.format(REDIS_ADDR, REDIS_PORT)
 CELERY_BROKER_URL = REDIS_URL
 
 
-CELERYBEAT_SCHEDULE = {
-    'check-payment': {
-        'task': 'nexchange.tasks.payment_release',
-        'schedule': timedelta(seconds=90),
+CELERY_BEAT_SCHEDULE = {
+    'buy_order_release': {
+        'task': 'nexchange.tasks.buy_order_release',
+        'schedule': timedelta(seconds=60),
     },
-    'check-transactions': {
+    'renew_cards_reserve': {
+        'task': 'nexchange.tasks.renew_cards_reserve',
+        'schedule': timedelta(seconds=60),
+    },
+    'check_okpay_payments': {
+        'task': 'nexchange.tasks.check_okpay_payments',
+        'schedule': timedelta(seconds=60),
+    },
+    'checker_transactions': {
         'task': 'nexchange.tasks.checker_transactions',
-        'schedule': timedelta(seconds=300),
+        'schedule': timedelta(seconds=60),
     },
 }
 

@@ -26,17 +26,15 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from nexchange.settings import KRAKEN_API_KEY, KRAKEN_API_SIGN
-
 from .connection import Connection
 
 
-class API(object):
+class API:
     """Kraken.com cryptocurrency Exchange API.
 
     """
 
-    def __init__(self, key='', secret='', conn=None):
+    def __init__(self, key, secret, conn=None):
         """Create an object with authentication information.
 
         :param key: key required to make queries to the API
@@ -47,8 +45,8 @@ class API(object):
         :type conn: krakenex.Connection
 
         """
-        self.key = KRAKEN_API_KEY
-        self.secret = KRAKEN_API_SIGN
+        self.key = key
+        self.secret = secret
         self.uri = 'https://api.kraken.com'
         self.apiversion = '0'
         self.conn = conn
