@@ -231,7 +231,7 @@ build:
           export REDIS_PORT_6379_TCP_PORT=${REDIS_PORT_6379_TCP_PORT}
           # SECURITY SETTINGS
           # DJ SECRET
-          export SECRET_KEY='${SECRET_KEY}'
+          export SECRET_KEY=${SECRET_KEY}
           # GA
           export GOOGLE_ANALYTICS_PROPERTY_ID=${GOOGLE_ANALYTICS_PROPERTY_ID}
           export GOOGLE_ANALYTICS_DOMAIN=${GOOGLE_ANALYTICS_DOMAIN}

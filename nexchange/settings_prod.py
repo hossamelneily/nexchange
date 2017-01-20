@@ -1,23 +1,25 @@
 import dj_database_url
-
 from nexchange.settings import *
 
-DEBUG = False
-
+DEBUG = os.getenv('DEBUG', False)
 ALLOWED_HOSTS = ['nexchange.co.uk', 'nexchange.ru',
                  'www.nexchange.co.uk', 'www.nexchange.ru']
 
 DATABASES = {
     'default': dj_database_url.config(default='postgis://{}:{}@{}:{}/{}'
                                       .format(user, password, host, port, db))
-
 }
 
 # SECRET KEY
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-GOOGLE_ANALYTICS_PROPERTY_ID = os.getenv('GOOGLE_ANALYTICS_PROPERTY_ID')
-GOOGLE_ANALYTICS_DOMAIN = os.getenv('GOOGLE_ANALYTICS_DOMAIN')
+# GA
+GOOGLE_ANALYTICS_PROPERTY_ID_RU = os.getenv('GOOGLE_ANALYTICS_PROPERTY_ID_RU')
+GOOGLE_ANALYTICS_PROPERTY_ID_UK = os.getenv('GOOGLE_ANALYTICS_PROPERTY_ID_UK')
+
+# YANDEX
+YANDEX_METRICA_ID_RU = os.getenv('YANDEX_METRICA_ID_RU')
+YANDEX_METRICA_ID_UK = os.getenv('YANDEX_METRICA_ID_UK')
 
 # ReCaptcha
 RECAPTCHA_SITEKEY = os.getenv('RECAPTCHA_SITEKEY')
@@ -27,9 +29,9 @@ RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY')
 OKPAY_WALLET = os.getenv('OKPAY_WALLET')
 OKPAY_API_KEY = os.getenv('OKPAY_API_KEY')
 
-# OKPAY
-PAYEER_WALLET = os.getenv('OKPAY_WALLET')
-OKPAY_API_KEY = os.getenv('OKPAY_API_KEY')
+# PAYEER
+PAYEER_WALLET = os.getenv('PAYEER_WALLET')
+PAYEER_API_KEY = os.getenv('PAYEER_API_KEY')
 
 
 # UPHOLD
@@ -39,7 +41,7 @@ UPHOLD_PASS = os.getenv('UPHOLD_PASS')
 
 # Kraken
 KRAKEN_API_KEY = os.getenv('KRAKEN_API_KEY')
-KRAKEN_API_SIGN = os.getenv('KRAKEN_API_SECRET')
+KRAKEN_API_SECRET = os.getenv('KRAKEN_API_SECRET')
 
 
 # ROBOKASSA

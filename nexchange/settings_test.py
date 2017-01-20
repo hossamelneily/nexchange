@@ -17,11 +17,17 @@ DEBUG = True
 # Allow dual run: CI server and local
 SECRET_KEY = os.getenv('SECRET_KEY', settings_dev.SECRET_KEY)
 
-GOOGLE_ANALYTICS_PROPERTY_ID = os.getenv('GOOGLE_ANALYTICS_PROPERTY_ID',
+GOOGLE_ANALYTICS_PROPERTY_ID_RU = os.getenv('GOOGLE_ANALYTICS_PROPERTY_ID_RU',
                                          settings_dev.
-                                         GOOGLE_ANALYTICS_PROPERTY_ID)
-GOOGLE_ANALYTICS_DOMAIN = os.getenv('GOOGLE_ANALYTICS_DOMAIN',
-                                    settings_dev.GOOGLE_ANALYTICS_DOMAIN)
+                                         GOOGLE_ANALYTICS_PROPERTY_ID_RU)
+GOOGLE_ANALYTICS_PROPERTY_ID_UK = os.getenv('GOOGLE_ANALYTICS_PROPERTY_ID_UK',
+                                         settings_dev.
+                                         GOOGLE_ANALYTICS_PROPERTY_ID_UK)
+# YANDEX
+YANDEX_METRICA_ID_RU = os.getenv('YANDEX_METRICA_ID_RU',
+                                 settings_dev.YANDEX_METRICA_ID_RU)
+YANDEX_METRICA_ID_UK = os.getenv('YANDEX_METRICA_ID_UK',
+                                 settings_dev.YANDEX_METRICA_ID_UK)
 
 # ReCaptcha
 RECAPTCHA_SITEKEY = os.getenv('RECAPTCHA_SITEKEY',
