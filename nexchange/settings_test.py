@@ -1,5 +1,5 @@
 from .settings import *
-
+from nexchange import settings_dev
 # When testing, use sqlite3 so the database is loaded in memory
 # this will make tests run faster
 
@@ -12,45 +12,63 @@ DATABASES = {
 
 DEBUG = True
 
-<<<<<<< HEAD
-SECRET_KEY = 'zsl4+4%(%=0@f*tkf0f2u%dt&v&h_-g5mw*o25i$480=3qcb2k'
-=======
-# Lockout only for 1 mins on dev
-AXES_LOGIN_FAILURE_LIMIT = 3
-AXES_COOLOFF_TIME = timedelta(minutes=5)
-CELERY_ALWAYS_EAGER = True
 
-# SECRET KEY TEST
-SECRET_KEY = 'zsl4+4%(%=0@f*tkf0f2u%dt&v&h_-g5mw*o25i$480=3qcb2k'
+# SECRET KEY
+# Allow dual run: CI server and local
+SECRET_KEY = os.getenv('SECRET_KEY', settings_dev.SECRET_KEY)
 
-# GA for staging and test
-GOOGLE_ANALYTICS_PROPERTY_ID = 'UA-83213781-1'
-GOOGLE_ANALYTICS_DOMAIN = 'staging.nexchange.ru'
+GOOGLE_ANALYTICS_PROPERTY_ID_RU = os.getenv('GOOGLE_ANALYTICS_PROPERTY_ID_RU',
+                                         settings_dev.
+                                         GOOGLE_ANALYTICS_PROPERTY_ID_RU)
+GOOGLE_ANALYTICS_PROPERTY_ID_UK = os.getenv('GOOGLE_ANALYTICS_PROPERTY_ID_UK',
+                                         settings_dev.
+                                         GOOGLE_ANALYTICS_PROPERTY_ID_UK)
+# YANDEX
+YANDEX_METRICA_ID_RU = os.getenv('YANDEX_METRICA_ID_RU',
+                                 settings_dev.YANDEX_METRICA_ID_RU)
+YANDEX_METRICA_ID_UK = os.getenv('YANDEX_METRICA_ID_UK',
+                                 settings_dev.YANDEX_METRICA_ID_UK)
 
-# ReCaptcha TEST
-RECAPTCHA_SITEKEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
-RECAPTCHA_SECRET_KEY = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
+# ReCaptcha
+RECAPTCHA_SITEKEY = os.getenv('RECAPTCHA_SITEKEY',
+                              settings_dev.RECAPTCHA_SITEKEY)
+RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY',
+                                 settings_dev.RECAPTCHA_SECRET_KEY)
 
-# OKPAY TEST
-OKPAY_WALLET = 'OK378628543'
-OKPAY_API_KEY = 't6N7XcGz25Lmp9W8Krg4J3QeZ'
-
-# UPHOLD TEST
-UPHOLD_USER = 'kydim1312@yandex.ru'
-UPHOLD_PASS = '$Kyzin1990'
-
-# ROBOKASSA TEST
-ROBOKASSA_IS_TEST = 1
-ROBOKASSA_LOGIN = 'nexchangeBTC'
-ROBOKASSA_PASS1 = 'SBYcBnB8Oq63KK5UB7oC'
-ROBOKASSA_PASS2 = 'vaXizy98NA4rOm8Mty6l'
-
-# Kraken TEST
-KRAKEN_API_KEY = ''
-KRAKEN_API_SIGN = ''
+# OKPAY
+OKPAY_WALLET = os.getenv('OKPAY_WALLET',
+                         settings_dev.OKPAY_WALLET)
+OKPAY_API_KEY = os.getenv('OKPAY_API_KEY',
+                          settings_dev.OKPAY_API_KEY)
 
 
-# Twilio TEST
-TWILIO_ACCOUNT_SID = 'ACde6c35bc29e81275dee6b9e565377900'
-TWILIO_AUTH_TOKEN = 'ce656e45dd35918a0e9e76b7a4cd1ec8'
->>>>>>> detele krakenx
+# UPHOLD
+UPHOLD_USER = os.getenv('UPHOLD_USER',
+                        settings_dev.UPHOLD_USER)
+UPHOLD_PASS = os.getenv('UPHOLD_PASS',
+                        settings_dev.UPHOLD_PASS)
+
+
+# Kraken
+KRAKEN_API_KEY = os.getenv('KRAKEN_API_KEY',
+                           settings_dev.KRAKEN_API_KEY)
+KRAKEN_API_SIGN = os.getenv('KRAKEN_API_SIGN',
+                            settings_dev.KRAKEN_API_SIGN)
+
+
+# ROBOKASSA
+ROBOKASSA_IS_TEST = os.getenv('ROBOKASSA_IS_TEST',
+                              settings_dev.ROBOKASSA_IS_TEST)
+ROBOKASSA_LOGIN = os.getenv('ROBOKASSA_LOGIN',
+                            settings_dev.ROBOKASSA_LOGIN)
+ROBOKASSA_PASS1 = os.getenv('ROBOKASSA_PASS1',
+                            settings_dev.ROBOKASSA_PASS1)
+ROBOKASSA_PASS2 = os.getenv('ROBOKASSA_PASS2',
+                            settings_dev.ROBOKASSA_PASS2)
+
+
+# Twilio
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID',
+                               settings_dev.TWILIO_ACCOUNT_SID)
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN',
+                              settings_dev.TWILIO_AUTH_TOKEN)
