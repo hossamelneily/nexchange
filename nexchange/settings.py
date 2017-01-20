@@ -105,6 +105,9 @@ ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
                 "isTest={0}&MerchantLogin={1}&" \
                 "OutSum={2}&InvId={3}&SignatureValue={4}&Culture=ru"
 
+OKPAY_URL = 'https://www.okpay.com/en/account/login.html?verification={}&' \
+             'reference={}&return_url={}'
+
 CMSPAGES = {
     'ABOUTUS': [
         ('about_us', _('About Us')),
@@ -221,7 +224,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_PROFILE_MODULE = "core.Profile"
+AUTH_PROFILE_MODULE = 'core.Profile'
 
 
 # Internationalization
@@ -250,7 +253,6 @@ MEDIA_URL = '/media/'
 STATICFILES_DIRS = (
     STATIC_PATH,
 )
-
 
 UPHOLD_IS_TEST = True
 UPHOLD_CARD_ID = 'a1a88f60-7473-47e4-9b78-987daf198a5d'
