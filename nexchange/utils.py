@@ -12,6 +12,7 @@ from suds.client import Client
 from suds import WebFault
 import datetime
 from hashlib import sha256
+import xml.etree.ElementTree as ET
 
 api = Uphold(settings.UPHOLD_IS_TEST)
 api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
@@ -129,14 +130,20 @@ class OkPayAPI():
         concatenated = concatenated.encode('utf-8')
         self.security_token = sha256(concatenated).hexdigest()
         # Create proxy client
-        self.client = Client('https://api.okpay.com/OkPayAPI?singleWsdl')
+        self.client = Client(
+            url='https://api.okpay.com/OkPayAPI?singleWsdl',
+            retxml=True
+        )
 
     def get_date_time(self):
         ''' Get the server time in UTC.
             Params: None
             Returns: String value - Date (YYYY-MM-DD HH:mm:SS)
                     2010-12-31 10:33:44 '''
-        return self.client.service.Get_Date_Time()
+        response = self.client.service.Get_Date_Time()
+        root = ET.fromstring(response)
+        now = root[0][0][0].text
+        return now
 
     def get_balance(self, currency=None):
         ''' Get the balance of all currency wallets or of a single currency.
@@ -144,16 +151,17 @@ class OkPayAPI():
                         https://www.okpay.com/en/developers/currency-codes.html
                         if no currency is passed then all wallet balances are
                         returned.
-            Returns: dictionary in the form {'balance': {'CUR': '0.0', ...}} '''
+            Returns: dictionary in the form {'balance': {'CUR': '0.0', ...}}
+        '''
         try:
             if currency is None:
                 response = self.client.service.Wallet_Get_Currency_Balance(
-                            self.wallet_id, self.security_token,
-                            currency)
+                    self.wallet_id, self.security_token,
+                    currency)
                 balance = {response.Currency: response.Amount}
             else:
                 response = self.client.service.Wallet_Get_Balance(
-                        self.wallet_id, self.security_token)
+                    self.wallet_id, self.security_token)
                 balance = {
                     item.Currency: item.Amount for item in response.Balance
                 }
@@ -163,27 +171,64 @@ class OkPayAPI():
 
         return response
 
+    def _get_transaction_history(self, from_date, till_date, page_size,
+                                 page_number):
+        """
+        https://dev.okpay.com/en/manual/interfaces/functions/general
+        /transaction-history.html
+        """
+        response = self.client.service.Transaction_History(
+            self.wallet_id,
+            self.security_token,
+            from_date,
+            till_date,
+            page_size,
+            page_number)
+        return response
+
+    def _parse_user_data(self, user):
+        res = {}
+        for i in user:
+            res.update({i.tag.split('}')[1]: i.text})
+        return res
+
+    def _parse_transactions(self, transactions):
+        res = []
+        if transactions is None:
+            return res
+        for trans in transactions:
+            attributes = {}
+            for el in trans:
+                attributes.update({el.tag.split('}')[1]: el.text})
+                if el.tag.split('}')[1] == 'Receiver':
+                    attributes.update({'Receiver': self._parse_user_data(el)})
+                elif el.tag.split('}')[1] == 'Sender':
+                    attributes.update({'Sender': self._parse_user_data(el)})
+            res.append(attributes)
+        return res
+
     def get_transaction_history(self, page_size=50, page_number=1):
-        """
-        https://dev.okpay.com/en/manual/interfaces/functions/general/transaction-history.html
-        """
-        from_date = ('2011-05-16 10:22:33')
+        from_date = '2011-05-16 10:22:33'
         till_date = self.get_date_time()
         try:
-            response = self.client.service.Transaction_History(
-                self.wallet_id,
-                self.security_token,
-                from_date,
-                till_date,
-                page_size,
-                page_number)
+            service_resp = self._get_transaction_history(
+                from_date, till_date, page_size, page_number
+            )
+            root = ET.fromstring(service_resp)[0][0][0]
+            res = {}
+            for el in root:
+                if el.tag.split('}')[1] == 'Transactions':
+                    res.update({'Transactions': self._parse_transactions(el)})
+                else:
+                    res.update({el.tag.split('}')[1]: el.text})
         except WebFault as e:
-            response = {'success': 0, 'error': e}
-        return response
+            res = {'success': 0, 'error': e}
+        return res
 
     def get_transaction(self, transaction_id=None, invoice=None):
         """
-        https://dev.okpay.com/en/manual/interfaces/functions/general/transaction-get.html
+        https://dev.okpay.com/en/manual/interfaces/functions/general
+        /transaction-get.html
         """
         try:
             response = self.client.service.Transaction_Get(
@@ -198,7 +243,8 @@ class OkPayAPI():
 
     def account_check(self, account):
         """
-        https://dev.okpay.com/en/manual/interfaces/functions/general/account-check.html
+        https://dev.okpay.com/en/manual/interfaces/functions/general
+        /account-check.html
         """
         try:
             response = self.client.service.Account_Check(

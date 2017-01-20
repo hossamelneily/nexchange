@@ -149,7 +149,7 @@ def ajax_order(request):
     currency = Currency.objects.filter(code=curr)[0]
     payment_method = request.POST.get('pp_type')
     identifier = request.POST.get('pp_identifier', None)
-    identifier = identifier.replace('', '')
+    identifier = identifier.replace(' ', '')
     amount_coin = Decimal(amount_coin)
     template = 'orders/partials/modals/order_success_{}.html'.\
         format('buy' if trade_type else 'sell')
