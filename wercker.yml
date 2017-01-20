@@ -335,6 +335,7 @@ build:
           export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
           export POSTGIS_PORT_5432_TCP_ADDR=${POSTGIS_PORT_5432_TCP_ADDR}
           export POSTGIS_PORT_5432_TCP_PORT=${POSTGIS_PORT_5432_TCP_PORT}
+          export SECRET_KEY='${SECRET_KEY}'
           #
           cd ${WERCKER_SOURCE_DIR}
           /usr/local/bin/python manage.py ticker --settings=nexchange.settings_prod >> /var/log/cron.log 2>&1
