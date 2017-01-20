@@ -36,6 +36,34 @@
                   <a:Status>Completed</a:Status>
                </a:TransactionInfo>
                <a:TransactionInfo>
+                  <a:Amount>85.86</a:Amount>
+                  <a:Comment>12345</a:Comment>
+                  <a:Currency>EUR</a:Currency>
+                  <a:Date>2016-10-30 00:14:50</a:Date>
+                  <a:Fees>-0.0100</a:Fees>
+                  <a:ID>5755062</a:ID>
+                  <a:Invoice/>
+                  <a:Net>85.85</a:Net>
+                  <a:OperationName>Send Money</a:OperationName>
+                  <a:Receiver>
+                     <a:AccountID>803070022</a:AccountID>
+                     <a:Country_ISO>KZ</a:Country_ISO>
+                     <a:Email>support@crypto-trade.net</a:Email>
+                     <a:Name>Crypto-Trade</a:Name>
+                     <a:VerificationStatus>Verified</a:VerificationStatus>
+                     <a:WalletID>OK702746927</a:WalletID>
+                  </a:Receiver>
+                  <a:Sender>
+                     <a:AccountID>901218740</a:AccountID>
+                     <a:Country_ISO>US</a:Country_ISO>
+                     <a:Email>dobbscoin@gmail.com</a:Email>
+                     <a:Name>Bob Dobbs</a:Name>
+                     <a:VerificationStatus>Unverified</a:VerificationStatus>
+                     <a:WalletID>OK487565544</a:WalletID>
+                  </a:Sender>
+                  <a:Status>Completed</a:Status>
+               </a:TransactionInfo>
+               <a:TransactionInfo>
                   <a:Amount>-1.0000</a:Amount>
                   <a:Comment/>
                   <a:Currency>USD</a:Currency>
