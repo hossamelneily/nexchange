@@ -249,6 +249,12 @@ build:
           export RECAPTCHA_SITEKEY=${RECAPTCHA_SITEKEY}
           export RECAPTCHA_SECRET_KEY=${RECAPTCHA_SECRET_KEY}
 
+          # PAYEER
+          export PAYEER_IPN_KEY=${PAYEER_IPN_KEY}
+          export PAYEER_WALLET=${PAYEER_WALLET}
+          export PAYEER_ACCOUNT=${PAYEER_ACCOUNT}
+          export PAYEER_API_IDPAYEER_API_KEY=${PAYEER_API_IDPAYEER_API_KEY}
+
           # OKPAY
           export OKPAY_WALLET=${OKPAY_WALLET}
           export OKPAY_API_KEY=${OKPAY_API_KEY}
