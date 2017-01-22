@@ -147,6 +147,12 @@ def checker_transactions():
 
 @shared_task
 def renew_cards_reserve():
+    if settings.DEBUG:
+        print(
+            settings.CARDS_RESERVE_COUNT,
+            settings.UPHOLD_USER,
+            settings.UPHOLD_PASS
+        )
     api = CreateUpholdCard(settings.CARDS_RESERVE_COUNT)
     api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
     currency = {'BTC': 'bitcoin', 'LTC': 'litecoin', 'ETH': 'ethereum'}
@@ -203,6 +209,13 @@ def check_payeer_payments():
         apiPass=settings.PAYEER_API_KEY,
         url=settings.PAYEER_API_URL
     )
+    if settings.DEBUG:
+        print(
+            settings.PAYEER_ACCOUNT,
+            settings.PAYEER_API_ID,
+            settings.PAYEER_API_KEY,
+            settings.PAYEER_API_URL
+        )
     transactions = api.history_of_transactions()
     for trans in transactions:
         if settings.DEBUG:
