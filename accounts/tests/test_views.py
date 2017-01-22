@@ -364,7 +364,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         self.client.get(self.logout_url)
         res = self.client.post(url, data=payload)
 
-        self.assertEquals(res.status_code, 403)
+        self.assertEquals(res.status_code, 428)
 
     @patch('accounts.views._send_sms')
     def test_sms_sent_replace_phone_spaces(self, send_sms):
