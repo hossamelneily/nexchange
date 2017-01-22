@@ -6,7 +6,7 @@
          registerObject = require("./register.js"),
          googleObject = require('./captcha.js'),
          animationDelay = 3000,
-         minOrderCoin = 0.01;
+         minOrderCoin = 0.0001;
 
 
     function orderSmallerThanMin (amountCoin) {
@@ -56,6 +56,7 @@
                     $('.amount-coin').val(btcAmount);
                 }
             } else {
+                amountCashConfirm = val;
                 btcAmount = Math.floor(val / rate * floor) / floor;
                 btcAmount = btcAmount.toFixed(8);
                 if (isInitial) {

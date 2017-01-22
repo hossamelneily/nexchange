@@ -250,7 +250,8 @@ build:
           export PAYEER_IPN_KEY=${PAYEER_IPN_KEY}
           export PAYEER_WALLET=${PAYEER_WALLET}
           export PAYEER_ACCOUNT=${PAYEER_ACCOUNT}
-          export PAYEER_API_IDPAYEER_API_KEY=${PAYEER_API_IDPAYEER_API_KEY}
+          export PAYEER_API_ID=${PAYEER_API_ID}
+          export PAYEER_API_KEY=${PAYEER_API_KEY}
 
           # OKPAY
           export OKPAY_WALLET=${OKPAY_WALLET}
@@ -259,6 +260,7 @@ build:
           # UPHOLD
           export UPHOLD_USER=${UPHOLD_USER}
           export UPHOLD_PASS=${UPHOLD_PASS}
+          export UPHOLD_IS_TEST=${UPHOLD_IS_TEST}
 
           # Kraken
           export KRAKEN_API_KEY=${KRAKEN_API_KEY}
