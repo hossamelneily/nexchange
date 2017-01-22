@@ -154,6 +154,8 @@ def renew_cards_reserve():
         count = UserCards.objects.filter(user=None, currency=key).count()
         while count < settings.CARDS_RESERVE_COUNT:
             new_card = api.new_card(key)
+            if settings.DEBUG:
+                print(new_card, key)
             address = api.add_address(new_card['id'], value)
             card = UserCards(card_id=new_card['id'],
                              currency=new_card['currency'],
@@ -203,6 +205,8 @@ def check_payeer_payments():
     )
     transactions = api.history_of_transactions()
     for trans in transactions:
+        if settings.DEBUG:
+            print(trans)
         if trans['status'] != 'success':
             continue
         if trans['to'] != settings.PAYEER_ACCOUNT:
