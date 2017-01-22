@@ -178,7 +178,7 @@ def check_okpay_payments():
     )
     transactions = api.get_transaction_history()['Transactions']
     if settings.DEBUG:
-        transactions
+        print(transactions)
     for trans in transactions:
         if trans['Status'] != 'Completed':
             continue
