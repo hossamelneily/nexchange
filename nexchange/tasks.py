@@ -177,6 +177,8 @@ def check_okpay_payments():
         wallet_id=settings.OKPAY_WALLET
     )
     transactions = api.get_transaction_history()['Transactions']
+    if settings.DEBUG:
+        transactions
     for trans in transactions:
         if trans['Status'] != 'Completed':
             continue
@@ -217,6 +219,8 @@ def check_payeer_payments():
             settings.PAYEER_API_URL
         )
     transactions = api.history_of_transactions()
+    if settings.DEBUG:
+        print(transactions)
     for trans in transactions:
         if settings.DEBUG:
             print(trans)
