@@ -24,10 +24,19 @@ def robokassa_adapter(request):
 def okpay_adapter(request):
     output = {
         'sum': request.GET.get('ok_item_1_gross'),
-        'order_id': [request.GET.get('ok_item_1_name')]
+        'order_id': [request.GET.get('ok_item_1_name')],
+        'valid': True,
     }
     return output
 
 
+def payeer_adapter(request):
+    return {
+        'valid': True,
+    }
+
+
 def leupay_adapter(request):
-    return {}
+    return {
+        'valid': True,
+    }

@@ -15,7 +15,8 @@ from django.conf import settings
 from core.models import Currency
 from orders.models import Order
 from payments.adapters import (leupay_adapter, robokassa_adapter,
-                               unitpay_adapter, okpay_adapter)
+                               unitpay_adapter, okpay_adapter,
+                               payeer_adapter)
 from payments.models import Payment, PaymentPreference
 from payments.utils import geturl_robokassa, get_payeer_sign
 from decimal import Decimal
@@ -55,19 +56,20 @@ def payment_success(request, provider):
             received_order = leupay_adapter(request)
         elif provider == 'okpay':
             received_order = okpay_adapter(request)
+        elif provider == 'payeer':
+            received_order = payeer_adapter(request)
 
         if not received_order:
             return Http404(_('Unsupported payment provider'))
 
-        if not received_order.valid:
+        if not received_order.get('valid'):
             template = \
                 get_template('orders/partials/steps/step_retry_payment.html')
             return HttpResponse(template.render({'bad_sugnature': True},
                                                 request))
 
-        order = Order.objects.filter(user=request.user,
-                                     amount_cash=received_order['sum'],
-                                     id=received_order['order_id'])[0]
+        # TODO: change to get from adapter
+        order = Order.objects.filter(user=request.user).last()
 
         currency = order.currency.code
 
@@ -77,8 +79,10 @@ def payment_success(request, provider):
                           user=request.user,
                           payment_preference=order.payment_preference,
                           is_complete=False)
+        redirect_url = "{}?oid={}".\
+            format(reverse('orders.orders_list'), order.id)
 
-        return redirect(reverse('orders.orders_list'))
+        return redirect(redirect_url)
     except ObjectDoesNotExist:
         return JsonResponse({'result': 'bad request'})
 
