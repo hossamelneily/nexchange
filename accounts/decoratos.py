@@ -57,6 +57,16 @@ def recaptcha_required(view_fn):
             captcha_rs = data.get('g_recaptcha_response')
             success = get_google_response(request, captcha_rs)
             if not success:
-                return HttpResponseForbidden(_('Invalid reCAPTCHA!'))
+                context = {
+                    'status': 'error',
+                    'message': str(_('Invalid reCAPTCHA!'))
+                }
+                return HttpResponse(
+                    json.dumps(context),
+                    # Precondition required
+                    status=428,
+                    content_type='application/json'
+                )
+
         return view_fn(request, *args, **kwds)
     return wrapper

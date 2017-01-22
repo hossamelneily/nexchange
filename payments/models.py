@@ -149,7 +149,7 @@ def update_usercard(instance, **kwargs):
         elif UserCards.objects.filter(currency=key, user=instance).exists():
             pass
         else:
-            api = CreateUpholdCard(settings.CARDS_RESERVE_COUNT)
+            api = CreateUpholdCard(settings.UPHOLD_IS_TEST)
             api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
             new_card = api.new_card(key)
             address = api.add_address(new_card['id'], value)

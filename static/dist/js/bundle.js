@@ -187,7 +187,7 @@
 
         function failureResponse (data, defaultMsg) {
             var _defaultMsg = gettext(defaultMsg),
-                message = data.message || _defaultMsg;
+                message = data.responseJSON.message || _defaultMsg;
             toastr.error(message);
 
         }
@@ -251,8 +251,13 @@
                             'Invalid phone number'
                         );
                     },
-                    403: lockoutResponse
-
+                    403: lockoutResponse,
+                    428: function (data) {
+                        return failureResponse(
+                            data,
+                            'Invalid phone number'
+                        );
+                    }
                 }
             });
         });
@@ -643,7 +648,7 @@ module.exports = {
          registerObject = require("./register.js"),
          googleObject = require('./captcha.js'),
          animationDelay = 3000,
-         minOrderCoin = 0.01;
+         minOrderCoin = 0.0001;
 
 
     function orderSmallerThanMin (amountCoin) {
@@ -693,6 +698,7 @@ module.exports = {
                     $('.amount-coin').val(btcAmount);
                 }
             } else {
+                amountCashConfirm = val;
                 btcAmount = Math.floor(val / rate * floor) / floor;
                 btcAmount = btcAmount.toFixed(8);
                 if (isInitial) {

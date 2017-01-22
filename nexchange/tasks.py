@@ -153,7 +153,7 @@ def renew_cards_reserve():
             settings.UPHOLD_USER,
             settings.UPHOLD_PASS
         )
-    api = CreateUpholdCard(settings.CARDS_RESERVE_COUNT)
+    api = CreateUpholdCard(settings.UPHOLD_IS_TEST)
     api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
     currency = {'BTC': 'bitcoin', 'LTC': 'litecoin', 'ETH': 'ethereum'}
     for key, value in currency.items():

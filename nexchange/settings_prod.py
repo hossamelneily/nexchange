@@ -42,6 +42,7 @@ PAYEER_API_KEY = os.getenv('PAYEER_API_KEY')
 # UPHOLD
 UPHOLD_USER = os.getenv('UPHOLD_USER')
 UPHOLD_PASS = os.getenv('UPHOLD_PASS')
+UPHOLD_IS_TEST = bool(os.getenv('UPHOLD_IS_TEST'))
 
 
 # Kraken
