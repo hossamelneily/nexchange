@@ -185,8 +185,11 @@ def check_okpay_payments():
         if trans['Receiver']['WalletID'] != settings.OKPAY_WALLET:
             continue
         o_list = Order.objects.filter(
-            amount_cash=float(trans['Net']),
-            unique_reference=trans['Comment'],
+            (
+                Q(unique_reference=trans['Comment']) |
+                Q(unique_reference=trans['Invoice'])
+            ),
+            amount_cash=Decimal(trans['Net']),
             currency__code=trans['Currency']
         )
         if len(o_list) == 1:
