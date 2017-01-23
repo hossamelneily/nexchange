@@ -63,7 +63,7 @@ UPHOLD_PASS = os.getenv('UPHOLD_PASS',
 KRAKEN_API_KEY = os.getenv('KRAKEN_API_KEY',
                            settings_dev.KRAKEN_API_KEY)
 KRAKEN_API_SECRET = os.getenv('KRAKEN_API_SECRET',
-                            settings_dev.KRAKEN_API_SECRET)
+                              settings_dev.KRAKEN_API_SECRET)
 
 
 # ROBOKASSA
@@ -82,3 +82,9 @@ TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID',
                                settings_dev.TWILIO_ACCOUNT_SID)
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN',
                               settings_dev.TWILIO_AUTH_TOKEN)
+
+# Smtp
+EMAIL_HOST = os.getenv('EMAIL_HOST', settings_dev.EMAIL_HOST)
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', settings_dev.EMAIL_HOST_USER)
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD',
+                                settings_dev.EMAIL_HOST_PASSWORD)
