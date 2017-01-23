@@ -279,6 +279,11 @@ build:
           export TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
           export TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
 
+          # Smtp
+          export EMAIL_HOST=${EMAIL_HOST}
+          export EMAIL_HOST_USER=${EMAIL_HOST_USER}
+          export EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+
           #
           while ! nc -z ${POSTGIS_PORT_5432_TCP_ADDR} ${POSTGIS_PORT_5432_TCP_PORT}
           do
