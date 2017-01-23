@@ -341,3 +341,7 @@ SESSION_SECURITY_PASSIVE_URLS = ["/en/api/v1/price/latest/",
 AXES_LOGIN_FAILURE_LIMIT = 6
 AXES_USERNAME_FORM_FIELD = 'username'
 AXES_COOLOFF_TIME = timedelta(minutes=30)
+
+# Smtp
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
