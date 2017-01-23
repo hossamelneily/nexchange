@@ -26,7 +26,7 @@ account_urls = [
 
     url(r'^login', auth_views.login,
         {'template_name': 'accounts/user_login.html',
-            'authentication_form': LoginForm},
+         'authentication_form': LoginForm},
         name='accounts.login'),
     url(r'^logout$', auth_views.logout,
         {'next_page': '/'},
@@ -34,7 +34,8 @@ account_urls = [
     # asking for passwd reset
     url(r'^password/reset/$', auth_views.password_reset,
         {'post_reset_redirect': '/accounts/password/reset/done/',
-         'template_name': 'accounts/password_reset.html'},
+         'template_name': 'accounts/password_reset.html',
+         'email_template_name': 'accounts/password_reset_email.html'},
         name="accounts.password_reset"),
     # passwd reset e-mail sent
     url(r'^password/reset/done/$',
@@ -44,8 +45,10 @@ account_urls = [
     url(r'^password/reset/(?P<uidb64>[0-9A-Za-z_-]+)/\
         (?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         auth_views.password_reset_confirm, {
-            'post_reset_redirect': '/accounts/password/done/'},
+            'post_reset_redirect': '/accounts/password/done/',
+            'template_name': 'accounts/password_reset_confirm.html'},
         name='accounts.password_reset_confirm'),
     # after saved the new passwd
-    url(r'^password/done/$', auth_views.password_reset_complete),
+    url(r'^password/done/$', auth_views.password_reset_complete,
+        {'template_name': 'accounts/password_reset_complete.html'}),
 ]
