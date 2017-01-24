@@ -227,6 +227,7 @@ def check_payeer_payments():
     for trans in transactions:
         if settings.DEBUG:
             print(trans)
+        trans = transactions[trans]
         if trans['status'] != 'success':
             continue
         if trans['to'] != settings.PAYEER_ACCOUNT:
