@@ -62,7 +62,6 @@ class OrderBaseTestCase(TestCase):
         cls.USD.save()
 
         cls.EUR = Currency.objects.get(code='EUR')
-        cls.EUR.save()
 
         cls.ticker_buy = \
             Price(type=Price.BUY,
