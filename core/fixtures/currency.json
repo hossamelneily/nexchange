@@ -125,12 +125,113 @@
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }
-  },  {
+  },
+  {
     "model": "core.currency",
     "pk": 13,
     "fields": {
       "code": "BGN",
       "name": "BGN",
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 14,
+    "fields": {
+      "code": "CZK",
+      "name": "CZK",
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 15,
+    "fields": {
+      "code": "AUD",
+      "name": "AUD",
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 16,
+    "fields": {
+      "code": "CAD",
+      "name": "CAD",
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 17,
+    "fields": {
+      "code": "NOK",
+      "name": "NOK",
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 18,
+    "fields": {
+      "code": "SEK",
+      "name": "SEK",
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+    {
+    "model": "core.currency",
+    "pk": 19,
+    "fields": {
+      "code": "DKK",
+      "name": "DKK",
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 20,
+    "fields": {
+      "code": "HUF",
+      "name": "HUF",
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 21,
+    "fields": {
+      "code": "TRY",
+      "name": "TRY",
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 22,
+    "fields": {
+      "code": "ZAR",
+      "name": "ZAR",
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 23,
+    "fields": {
+      "code": "NZD",
+      "name": "NZD",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }

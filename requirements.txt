@@ -58,7 +58,7 @@ traitlets>=4.2.2
 twilio>=5.4.0
 requests-mock>=1.0.0
 django-filter>=0.14.0
-#psycopg2>=2.6.1
+psycopg2>=2.6.1
 rq-scheduler==0.7.0
 urllib3==1.18
 pyopenssl

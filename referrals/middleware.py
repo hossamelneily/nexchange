@@ -4,6 +4,7 @@ from referrals.models import Referral, ReferralCode
 
 
 class ReferralMiddleWare(object):
+
     def process_request(self, request):
         str_code = \
             request.GET.get(settings.REFERRER_GET_PARAMETER, '').strip()
@@ -16,7 +17,7 @@ class ReferralMiddleWare(object):
             try:
                 code = ReferralCode.objects.get(code=str_code)
             except ReferralCode.DoesNotExist:
-                    pass
+                pass
 
             if code is not None and \
                     hasattr(request, 'user') and \

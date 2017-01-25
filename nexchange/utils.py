@@ -89,6 +89,7 @@ def check_transaction_uphold(tx):
 
 
 class CreateUpholdCard(Uphold):
+
     def new_card(self, currency):
         """
         Create a new card
@@ -309,3 +310,19 @@ class PayeerAPIClient(object):
         except KeyError:
             res = content['errors']
         return res
+
+
+def validate_payment_matches_order(order, payment, logger):
+    details_match =\
+        order.currency == payment.currency and\
+        order.amount_cash == payment.amount_cash and\
+        order.unique_reference == payment.reference
+
+    user_matches = not payment.user or payment.user == order.user
+
+    if not user_matches:
+        logger.error('order: {} payment: {} NO USER MATCH', order, payment)
+    if not details_match:
+        logger.error('order: {} payment: {} NO DETAILS MATCH', order, payment)
+
+    return user_matches and details_match

@@ -7,6 +7,7 @@ from .validators import validate_bc
 
 
 class BtcBase(TimeStampedModel):
+
     class Meta:
         abstract = True
 
@@ -53,6 +54,7 @@ class Transaction(BtcBase):
 
 
 class CurrencyManager(models.Manager):
+
     def get_by_natural_key(self, code):
         return self.get(code=code)
 

@@ -29,4 +29,4 @@ class CurrencyTestCase(OrderBaseTestCase):
         self.assertEqual(currency, self.currency)
 
     def test_print_currency_name(self):
-        self.assertEqual(str(self.currency), 'US Dollars')
+        self.assertEqual(str(self.currency), 'USD')

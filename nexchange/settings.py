@@ -53,7 +53,7 @@ REFERRAL_CODE_CHARS = 'ABCDEFGIKJKLMNOPRSTXYZ1234567890'
 UNIQUE_REFERENCE_LENGTH = 5
 REFERENCE_LOOKUP_ATTEMPTS = 5
 SMS_TOKEN_LENGTH = 4
-PAYMENT_WINDOW = 60  # minutes
+PAYMENT_WINDOW = 60
 MAX_EXPIRED_ORDERS_LIMIT = 3
 REFERRAL_FEE = 2
 
@@ -140,23 +140,25 @@ CELERY_BROKER_URL = REDIS_URL
 
 CELERY_BEAT_SCHEDULE = {
     'buy_order_release': {
-        'task': 'nexchange.tasks.buy_order_release',
+        'task': 'orders.tasks.schedule.order_release.buy_order_release',
         'schedule': timedelta(seconds=60),
     },
     'renew_cards_reserve': {
-        'task': 'nexchange.tasks.renew_cards_reserve',
+        'task': 'accounts.tasks.schedule.'
+                'generate_wallets.renew_cards_reserve',
         'schedule': timedelta(seconds=60),
     },
     'check_okpay_payments': {
-        'task': 'nexchange.tasks.check_okpay_payments',
+        'task': 'payments.tasks.schedule.import_payments.ok_pay',
         'schedule': timedelta(seconds=60),
     },
     'check_payeer_payments': {
-        'task': 'nexchange.tasks.check_payeer_payments',
+        'task': 'payments.tasks.schedule.import_payments.payeer',
         'schedule': timedelta(seconds=60),
     },
     'checker_transactions': {
-        'task': 'nexchange.tasks.checker_transactions',
+        'task': 'accounts.tasks.schedule.'
+                'monitor_wallets.update_pending_transactions',
         'schedule': timedelta(seconds=60),
     },
 }
