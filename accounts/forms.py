@@ -24,6 +24,7 @@ class UserForm(forms.ModelForm):
 
 
 class UserProfileForm(forms.ModelForm):
+
     def clean_phone(self):
         """Ensure phone is unique"""
         phone = self.cleaned_data.get('phone')
@@ -42,6 +43,7 @@ class UserProfileForm(forms.ModelForm):
 
 
 class UpdateUserProfileForm(forms.ModelForm):
+
     class Meta:
         model = Profile
         fields = ['first_name', 'last_name']

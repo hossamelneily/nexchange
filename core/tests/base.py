@@ -41,6 +41,9 @@ class UserBaseTestCase(TestCase):
 
 
 class OrderBaseTestCase(TestCase):
+    fixtures = [
+        'currency.json'
+    ]
     PRICE_BUY_RUB = 36000
     PRICE_BUY_USD = 600
 
@@ -51,13 +54,14 @@ class OrderBaseTestCase(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.RUB = Currency(code='RUB', name='Rubles')
+        super(OrderBaseTestCase, cls).setUpClass()
+        cls.RUB = Currency.objects.get(code='RUB')
         cls.RUB.save()
 
-        cls.USD = Currency(code='USD', name='US Dollars')
+        cls.USD = Currency.objects.get(code='USD')
         cls.USD.save()
 
-        cls.EUR = Currency(code='EUR', name='EURO')
+        cls.EUR = Currency.objects.get(code='EUR')
         cls.EUR.save()
 
         cls.ticker_buy = \
@@ -75,7 +79,6 @@ class OrderBaseTestCase(TestCase):
                   rate_eur=Decimal(OrderBaseTestCase.RATE_EUR))
 
         cls.ticker_sell.save()
-        super(OrderBaseTestCase, cls).setUpClass()
 
     @classmethod
     def create_order(cls, user):

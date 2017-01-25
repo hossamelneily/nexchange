@@ -53,7 +53,7 @@ REFERRAL_CODE_CHARS = 'ABCDEFGIKJKLMNOPRSTXYZ1234567890'
 UNIQUE_REFERENCE_LENGTH = 5
 REFERENCE_LOOKUP_ATTEMPTS = 5
 SMS_TOKEN_LENGTH = 4
-PAYMENT_WINDOW = 60  # minutes
+PAYMENT_WINDOW = 60
 MAX_EXPIRED_ORDERS_LIMIT = 3
 REFERRAL_FEE = 2
 
@@ -148,11 +148,11 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(seconds=60),
     },
     'check_okpay_payments': {
-        'task': 'nexchange.tasks.check_okpay_payments',
+        'task': 'nexchange.tasks.OkPayPaymentChecker',
         'schedule': timedelta(seconds=60),
     },
     'check_payeer_payments': {
-        'task': 'nexchange.tasks.check_payeer_payments',
+        'task': 'nexchange.tasks.PayeerPaymentChecker',
         'schedule': timedelta(seconds=60),
     },
     'checker_transactions': {

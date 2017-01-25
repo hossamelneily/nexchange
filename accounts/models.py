@@ -20,6 +20,7 @@ class NexchangeUser(User):
 
 
 class ProfileManager(models.Manager):
+
     def get_by_natural_key(self, username):
         return self.get(user__username=username)
 
@@ -47,6 +48,8 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     ip = models.CharField(max_length=39,
                           null=True,
                           default=None)
+    lang = models.CharField(choices=settings.LANGUAGES,
+                            max_length=100, null=True)
     sig_key = models.CharField(max_length=64, blank=True)
 
     @property

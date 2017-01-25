@@ -6,6 +6,7 @@ from referrals.models import Program, Referral
 
 
 class ProgramSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Program
         fields = ('name', 'percent_first_degree',

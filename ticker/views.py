@@ -7,6 +7,7 @@ from ticker.serializers import PriceSerializer
 
 
 class LastPricesViewSet(viewsets.ViewSet):
+
     def list(self, request):
         queryset = Price.objects.filter().order_by('-id')[:2]
         serializer = PriceSerializer(queryset, many=True)

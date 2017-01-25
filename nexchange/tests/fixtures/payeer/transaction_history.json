@@ -6,8 +6,8 @@
         "count": 10,
         "sort": "desc"
     },
-    "history": [
-        {
+    "history": {
+        "123456": {
             "id": "123456",
             "type": "transfer",
             "status": "success",
@@ -18,7 +18,7 @@
             "shopId": "123",
             "comment": "12345"
         }
-    ],
+    },
     "errors": [],
     "auth_error": "0"
 }

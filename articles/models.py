@@ -7,6 +7,7 @@ from core.common.models import SoftDeletableModel, TimeStampedModel
 
 
 class CmsBase(TimeStampedModel, SoftDeletableModel):
+
     class Meta:
         abstract = True
 
