@@ -88,6 +88,68 @@ class WalletAPITestCase(UserBaseTestCase, OrderBaseTestCase):
 
     @patch('nexchange.utils.PayeerAPIClient.history_of_transactions')
     @patch('orders.models.Order.convert_coin_to_cash')
+    def test_import_payeer__invalid_wallet(self, convert_to_cash, trans_hist):
+        convert_to_cash.return_value = None
+        sender = 'zaza'
+        # TODO: get fixutre
+        trans_hist.return_value = {
+            '1': {
+                'id': '1',
+                'type': 'transfer',
+                'status': 'success',
+                'creditedCurrency': self.EUR.code,
+                'creditedAmount': str(self.order_data['amount_cash']),
+                'to': 'tata',
+                'shopOrderId': self.order_data['unique_reference'],
+                'comment': self.order_data['unique_reference'],
+                'from': sender
+            }
+        }
+        order = Order(**self.order_data)
+        order.save()
+        import_payeer_payments = PayeerPaymentChecker()
+        import_payeer_payments.run()
+        p = Payment.objects.filter(
+            amount_cash=order.amount_cash,
+            currency=order.currency,
+            reference=order.unique_reference
+        )
+        self.assertEqual(0, len(p))
+        # assert payment pref is created correctly
+
+    @patch('nexchange.utils.PayeerAPIClient.history_of_transactions')
+    @patch('orders.models.Order.convert_coin_to_cash')
+    def test_import_payeer_invalid_status(self, convert_to_cash, trans_hist):
+        convert_to_cash.return_value = None
+        sender = 'zaza'
+        # TODO: get fixutre
+        trans_hist.return_value = {
+            '1': {
+                'id': '1',
+                'type': 'transfer',
+                'status': 'None',
+                'creditedCurrency': self.EUR.code,
+                'creditedAmount': str(self.order_data['amount_cash']),
+                'to': 'tata',
+                'shopOrderId': self.order_data['unique_reference'],
+                'comment': self.order_data['unique_reference'],
+                'from': sender
+            }
+        }
+        order = Order(**self.order_data)
+        order.save()
+        import_payeer_payments = PayeerPaymentChecker()
+        import_payeer_payments.run()
+        p = Payment.objects.filter(
+            amount_cash=order.amount_cash,
+            currency=order.currency,
+            reference=order.unique_reference
+        )
+        self.assertEqual(0, len(p))
+        # assert payment pref is created correctly
+
+    @patch('nexchange.utils.PayeerAPIClient.history_of_transactions')
+    @patch('orders.models.Order.convert_coin_to_cash')
     def test_confirm_order_payment_with_payeer_celery(self, convert_to_cash,
                                                       trans_hist):
         convert_to_cash.return_value = None

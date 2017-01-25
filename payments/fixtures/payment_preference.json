@@ -551,6 +551,7 @@
     "fields": {
       "user": ["onit"],
       "identifier": "weare@onit.ws",
+      "secondary_identifier": "OK217536082",
       "payment_method": 18,
       "currency": [
         ["JPY"],
@@ -584,6 +585,7 @@
     "fields": {
       "user": ["onit"],
       "identifier": "weare@onit.ws",
+      "secondary_identifier": "P39962269",
       "payment_method": 19,
       "currency": [
         ["EUR"],

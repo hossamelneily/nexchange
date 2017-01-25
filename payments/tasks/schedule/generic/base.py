@@ -5,6 +5,7 @@ from django.db.models import Q
 from payments.models import Payment, PaymentPreference, PaymentMethod
 from core.models import Currency
 from django.core.exceptions import MultipleObjectsReturned
+from django.conf import settings
 
 
 class BasePaymentChecker(BaseTask):
@@ -16,11 +17,38 @@ class BasePaymentChecker(BaseTask):
         self.api = None
         self.payment_preference = None
 
+        # TODO: consider using ABC
+        self.abstract_methods = [
+            'transactions_iterator',
+            'get_transactions',
+            'validate_beneficiary',
+            'validate_success'
+        ]
+
         self.required_data_keys = [
             'currency',
             'amount_cash',
             'unique_ref',
             'payment_system_id'
+        ]
+
+        self.essential_data_keys = [
+            'beneficiary',
+            'is_success'
+        ]
+
+        self.transaction_data_keys = [
+            'identifier',
+            'secondary_identifier',
+            'currency',
+            'amount_cash',
+            'unique_ref',
+            'payment_system_id'
+        ]
+
+        self.transaction_optional_keys = [
+            'comment',
+            'is_verified'
         ]
 
         self.payment_method = PaymentMethod.objects.get(
@@ -30,6 +58,14 @@ class BasePaymentChecker(BaseTask):
             user__is_staff=True,
             payment_method=self.payment_method
         )
+
+        self.allowed_beneficiary = set(self.payment_preference.identifier)
+        if self.payment_preference.secondary_identifier:
+            self.allowed_beneficiary.add(
+                self.payment_preference
+                    .secondary_identifier
+            )
+
         super(BasePaymentChecker, self).__init__(*args, **kwargs)
 
     def transactions_iterator(self):
@@ -38,22 +74,105 @@ class BasePaymentChecker(BaseTask):
     def get_transactions(self):
         raise NotImplementedError
 
+    def validate_beneficiary(self):
+        try:
+            to = self.data['beneficiary']
+            assert to
+        except (KeyError, AssertionError) as e:
+            self.logger.error('no receiver wallet was given data: {} {}'
+                              .format(__name__, self.data), e)
+            return False
+        except TypeError:
+            self.logger.error('{} {} no data was given'
+                              .format(__name__, self.data))
+            return False
+
+        return to in self.allowed_beneficiary
+
+    def validate_success(self):
+        try:
+            success = self.data['is_success']
+            assert success
+            return success
+        except AssertionError:
+            self.logger.info('tried importing a provisional transaction, '
+                             'pass data {}'.format(self.data))
+            return False
+        except KeyError:
+            self.logger.error('{} no success status was given data: {}'
+                              .format(__name__, self.data))
+            return False
+        except TypeError:
+            self.logger.error('{} {} no data was given'
+                              .format(__name__, self.data))
+            return False
+
     def parse_data(self, trans):
-        missing_keys =\
+        missing_required_keys =\
             [req_key for req_key in self.required_data_keys
                 if req_key not in self.data]
-        if missing_keys:
-            logging.error("Payment serilization: {} missing keys: {}"
-                          .format(self.data, missing_keys))
-            raise ValueError("Invalid serialisation!")
+        missing_essential_keys =\
+            [req_key for req_key in self.essential_data_keys
+                if req_key not in self.data]
 
-    def validate_transaction(self, trans):
-        success = self.validate_success(trans)
-        valid_beneficiary = self.validate_beneficiary(trans)
+        missing_required_values =\
+            [(req_key, self.data[req_key],)
+             for req_key in self.required_data_keys
+                if req_key not in
+             missing_required_keys and not self.data[req_key]]
+        missing_essential_values =\
+            [(req_key, self.data[req_key],)
+             for req_key in self.essential_data_keys
+                if req_key not in
+             missing_essential_keys and not self.data[req_key]]
+
+        missing_optional_keys = \
+            [req_key for req_key in self.transaction_optional_keys
+             if req_key not in self.data]
+        missing_optional_values = \
+            [(req_key, self.data[req_key],) for
+             req_key in self.transaction_optional_keys
+             if req_key not in
+             missing_optional_keys and not self.data[req_key]]
+
+        if missing_required_keys or missing_essential_keys:
+            debug_msg = 'Payment serialization: {} missing keys essential:' \
+                        ' {} missing keys required {} '\
+                .format(self.data, missing_required_keys,
+                        missing_essential_keys)
+            turn_on_debug = 'for more info turn on debug'
+            logging.error(debug_msg)
+            e_message = 'ProgrammingError: Invalid serialisation!, ' \
+                        'required or essential keys are missing.' \
+                        'CHECK YOUR `parse_data` method {}' \
+                .format(debug_msg if settings.DEBUG else turn_on_debug)
+            raise ValueError(e_message)
+
+        if any([missing_required_keys,
+                missing_essential_keys,
+                missing_essential_values,
+                missing_essential_values]):
+            logging.error('Payment serialization: {} missing keys: '
+                          'required: {} essential: {}.'
+                          ' missing values: required: {} essential: {}'
+                          .format(self.data,
+                                  missing_required_keys,
+                                  missing_essential_keys,
+                                  missing_required_values,
+                                  missing_essential_values))
+
+        if missing_optional_keys or missing_optional_values:
+            self.logger.info('missing optional keys: {} values: {}'
+                             .format(missing_optional_keys,
+                                     missing_optional_values))
+
+    def validate_transaction(self):
+        success = self.validate_success()
+        valid_beneficiary = self.validate_beneficiary()
         if not success:
-            self.error("Payment {} is not success".format({}))
+            self.logger.error('Payment {} is not success'.format({}))
         if not valid_beneficiary:
-            self.erro("Payment {} is not to our wallet".format({}))
+            self.logger.error('Payment {} is not to our wallet'.format({}))
 
         return success and valid_beneficiary
 
@@ -134,26 +253,23 @@ class BasePaymentChecker(BaseTask):
                 self.currency_cache[self.data['currency']] = db_curr
             except Currency.DoesNotExist:
                 db_curr = None
-                self.logger.error("payment {} currency DoesNotExist"
+                self.logger.error('payment {} currency DoesNotExist'
                                   .format(self.data))
         return db_curr
-
-    def validate_beneficiary(self, trans):
-        raise NotImplementedError
-
-    def validate_success(self, trans):
-        raise NotImplementedError
 
     def run(self):
         self.get_transactions()
 
         for trans in self.transactions_iterator():
-            if not self.validate_success(trans):
-                continue
-
             try:
                 self.parse_data(trans)
-            except ValueError:
+            except ValueError as e:
+                continue
+
+            except KeyError:
+                continue
+
+            if not self.validate_transaction():
                 continue
 
             pref = self.create_payment_preference()

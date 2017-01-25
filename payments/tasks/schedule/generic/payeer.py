@@ -7,11 +7,11 @@ import re
 
 
 class PayeerPaymentChecker(BasePaymentChecker):
-
     def __init__(self, *args, **kwargs):
         self.name = 'payeer'
         super(PayeerPaymentChecker, self).__init__(*args, **kwargs)
-
+        # Just in case fixtures are inaccurate
+        self.allowed_beneficiary.add(settings.PAYEER_ACCOUNT)
         self.api = PayeerAPIClient(
             account=settings.PAYEER_ACCOUNT,
             apiId=settings.PAYEER_API_ID,
@@ -25,20 +25,6 @@ class PayeerPaymentChecker(BasePaymentChecker):
     def transactions_iterator(self):
         for tid in self.transactions:
             yield self.transactions[tid]
-
-    def validate_beneficiary(self, trans):
-        try:
-            to = trans['to']
-        except KeyError:
-            self.logger.error('transaction {} beneficiary was not in response'
-                              .format(trans))
-            return False
-
-        return to in [settings.PAYEER_ACCOUNT,
-                      self.payment_preference.identifier]
-
-    def validate_success(self, trans):
-        return trans['status'] == 'success'
 
     def parse_data(self, trans, res=None):
         try:
@@ -67,13 +53,26 @@ class PayeerPaymentChecker(BasePaymentChecker):
                 self.logger(msg)
                 raise ValueError(msg)
 
-        self.data = {
-            'identifier': email if email else wallet,
-            'secondary_identifier': wallet if email else None,
-            'currency': trans['creditedCurrency'],
-            'amount_cash': Decimal(trans['creditedAmount']),
-            'unique_ref': trans['shopOrderId'],
-            'payment_system_id': trans['id'],
-            'comment': trans['comment']
-        }
+        try:
+            self.data = {
+                # essential
+                'identifier': email if email else wallet,
+                'secondary_identifier': wallet if email else None,
+                'currency': trans['creditedCurrency'],
+                'amount_cash': Decimal(trans['creditedAmount']),
+                'unique_ref': trans['shopOrderId'],
+                'payment_system_id': trans['id'],
+                # essential for checking a transaction
+                'is_success': trans['status'] == 'success',
+                'beneficiary': trans['to'],
+                # optional
+                'comment': trans['comment'],
+
+            }
+        except KeyError as e:
+            self.logger.error("Transaction {} key is missing {}"
+                              .format(trans, e))
+        except ValueError as e:
+            self.logger.error("Transaction {} is not valid for serialization"
+                              .format(trans, e))
         super(PayeerPaymentChecker, self).parse_data(trans)
