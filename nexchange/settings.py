@@ -140,23 +140,25 @@ CELERY_BROKER_URL = REDIS_URL
 
 CELERY_BEAT_SCHEDULE = {
     'buy_order_release': {
-        'task': 'nexchange.tasks.buy_order_release',
+        'task': 'orders.tasks.schedule.order_release.buy_order_release',
         'schedule': timedelta(seconds=60),
     },
     'renew_cards_reserve': {
-        'task': 'nexchange.tasks.renew_cards_reserve',
+        'task': 'accounts.tasks.schedule.'
+                'generate_wallets.renew_cards_reserve',
         'schedule': timedelta(seconds=60),
     },
     'check_okpay_payments': {
-        'task': 'nexchange.tasks.OkPayPaymentChecker',
+        'task': 'payments.tasks.schedule.import_payments.ok_pay',
         'schedule': timedelta(seconds=60),
     },
     'check_payeer_payments': {
-        'task': 'nexchange.tasks.PayeerPaymentChecker',
+        'task': 'payments.tasks.schedule.import_payments.payeer',
         'schedule': timedelta(seconds=60),
     },
     'checker_transactions': {
-        'task': 'nexchange.tasks.checker_transactions',
+        'task': 'accounts.tasks.schedule.'
+                'monitor_wallets.update_pending_transactions',
         'schedule': timedelta(seconds=60),
     },
 }

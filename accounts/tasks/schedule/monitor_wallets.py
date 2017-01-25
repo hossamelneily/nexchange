@@ -11,7 +11,7 @@ import logging
 
 
 @shared_task
-def update_transaction_confirmations():
+def update_pending_transactions():
     for tr in Transaction.objects.\
             filter(Q(is_completed=False) | Q(is_verified=False)):
         order = tr.order
