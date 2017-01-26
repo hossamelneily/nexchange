@@ -3,6 +3,10 @@ services:
     redis:
       image: redis:2.8.19
       hostname: redis
+      logging:
+          driver: gelf
+          options:
+            gelf-address: udp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
     postgis:
         image: mdillon/postgis
         environment:
@@ -13,6 +17,10 @@ services:
             - /nexchange/database:/var/lib/postgresql/data
             - /var/log/nexchange_postgis:/var/log
         restart: always
+        logging:
+            driver: gelf
+            options:
+              gelf-address: udp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
     app:
         image: onitsoft/nexchange:${DOCKER_IMAGE_TAG}
         volumes:
@@ -24,6 +32,10 @@ services:
             - postgis
             - redis
         restart: always
+        logging:
+            driver: gelf
+            options:
+              gelf-address: udp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
     web:
         image: onitsoft/nginx
         volumes:
@@ -39,3 +51,7 @@ services:
         links:
             - app
         restart: always
+        logging:
+            driver: gelf
+            options:
+              gelf-address: udp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
