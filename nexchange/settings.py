@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+import sys
 from datetime import timedelta
 
 import dj_database_url
@@ -30,6 +31,11 @@ TEMPLATE_PATH_APP = os.path.join(TEMPLATE_PATH, 'app')
 
 STATIC_PATH = os.path.join(PROJECT_PATH, 'static')
 STATIC_URL = '/static/'
+
+ADMINS = [
+    ('Oleg', 'oleg@onit.ws'),
+    ('Sarunas', 'sarunas.azna@gmail.com')
+]
 
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
@@ -344,6 +350,23 @@ AXES_LOGIN_FAILURE_LIMIT = 6
 AXES_USERNAME_FORM_FIELD = 'username'
 AXES_COOLOFF_TIME = timedelta(minutes=30)
 
-# Smtp
+# SMTP
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+
+# Redirect all logs to STDOUT where they will be picked `gelf` driver
+# of docker compose
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+        }
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO'
+    }
+}
