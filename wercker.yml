@@ -458,7 +458,7 @@ tests:
            export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs
            npm run-script test
     - tcnksm/goveralls:
-     token: $COVERALLS_TOKEN
+        token: $COVERALLS_TOKEN
     - script:
         name: Validate New Relic config file
         code: |
