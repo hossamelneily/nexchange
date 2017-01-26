@@ -11,12 +11,15 @@ services:
            POSTGRES_DB: ${POSTGIS_ENV_POSTGRES_DB}
         volumes:
             - /nexchange/database:/var/lib/postgresql/data
+            - /var/log/nexchange_postgis:/var/log
         restart: always
     app:
         image: onitsoft/nexchange:${DOCKER_IMAGE_TAG}
         volumes:
             - /nexchange/mediafiles:/usr/share/nginx/html/media
             - /nexchange/staticfiles:/usr/share/nginx/html/static
+            - /var/log/nexchange_app:/var/log
+
         links:
             - postgis
             - redis
@@ -29,6 +32,7 @@ services:
             - /nexchange/etc/nginx/nginx.conf:/etc/nginx/nginx.conf
             - /nexchange/mediafiles:/usr/share/nginx/html/media
             - /nexchange/staticfiles:/usr/share/nginx/html/static
+            - /var/log/nexchange_nginx:/var/log
         ports:
             - "80:80"
             - "443:443"

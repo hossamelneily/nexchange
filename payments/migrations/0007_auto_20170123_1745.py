@@ -25,6 +25,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='paymentpreference',
             name='secondary_identifier',
-            field=models.CharField(default=None, max_length=100),
+            field=models.CharField(default=None, null=True, blank=True, max_length=100),
         ),
     ]

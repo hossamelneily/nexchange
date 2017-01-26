@@ -40,7 +40,8 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
     identifier = models.CharField(max_length=100)
     secondary_identifier = models.CharField(max_length=100,
                                             default=None,
-                                            null=True, blank=True)
+                                            null=True,
+                                            blank=True)
     comment = models.CharField(max_length=255, default=None,
                                blank=True, null=True)
     name = models.CharField(max_length=100, null=True,
