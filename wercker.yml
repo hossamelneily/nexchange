@@ -303,9 +303,13 @@ build:
           # python manage.py loaddata core/fixtures/withdraw_address.json
           #
           # Prepare log files and start outputting logs to stdout
+          # this way they will maintained locally as well as shipped to kibana
+          # via gelf
           # adapted from http://goo.gl/E7kRfL
           touch /var/log/gunicorn_error.log
           touch /var/log/gunicorn_access.log
+          touch /var/log/celeryd.log
+          touch /var/log/celery-beat.log
           tail -n 0 -f /var/log/*.log &
           # Copy static data to nginx volume
           cp -ra $WERCKER_OUTPUT_DIR/staticfiles/* /usr/share/nginx/html/static
@@ -319,8 +323,6 @@ build:
 
           # Start celery stuff
           adduser --disabled-password --gecos '' celery_user
-          touch /var/log/celeryd.log
-          touch /var/log/celery-beat.log
           chown celery_user /var/log/celery*
           celery worker -A nexchange --uid=celery_user -l info -f /var/log/celeryd.log &
           celery beat -A nexchange -l info -f /var/log/celery-beat.log &
