@@ -307,10 +307,14 @@ build:
           # this way they will maintained locally as well as shipped to kibana
           # via gelf
           # adapted from http://goo.gl/E7kRfL
+          # make sure logs are in place for tailing
+          touch /var/log/cron
           touch /var/log/gunicorn_error.log
           touch /var/log/gunicorn_access.log
           touch /var/log/celeryd.log
           touch /var/log/celery-beat.log
+          # TODO: log files should be disabled and replaced by /dev/stdout
+          # at some point in favor of speed...
           tail -n 0 -f /var/log/*.log &
           # Copy static data to nginx volume
           cp -ra $WERCKER_OUTPUT_DIR/staticfiles/* /usr/share/nginx/html/static
@@ -358,11 +362,23 @@ build:
           #
           cd ${WERCKER_SOURCE_DIR}
           /usr/local/bin/python manage.py ticker --settings=nexchange.settings_prod >> /var/log/cron.log 2>&1
+    - create-file:
+        name: Create cron invoked script to dump celery events
+        filename: /celery_dump_events.sh
+        overwrite: true
+        content: |-
+          #!/bin/bash
+          cd ${WERCKER_SOURCE_DIR}
+          celery -A nexchange events --dump
     - script:
-        name: Add cron job
+        name: Add cron jobs
         code: |
           chmod +x /ticker.sh
+          chmod +x /celery_dump_events.sh
           echo "* * * * * root /ticker.sh" > /etc/crontab
+          # monitor celery events and dispatch to ELK stack every 5 minutes
+          echo "*/5 * * * * root /celery_dump_events.sh" >> /etc/crontab
+          cron
     - script:
         name: echo python information
         code: |
