@@ -65,3 +65,11 @@ TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
 EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = True
+
+# statics
+
+STATIC_ROOT = '/usr/share/nginx/html/static'
+MEDIA_ROOT = '/usr/share/nginx/html/media'
+MEDIA_URL = '/media/'
