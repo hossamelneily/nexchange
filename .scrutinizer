@@ -1,4 +1,4 @@
 build:
     tests:
         override:
-            - DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh
+            - ./run-tests.sh
