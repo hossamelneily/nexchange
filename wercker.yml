@@ -123,7 +123,7 @@ dev:
           export POSTGIS_PORT_5432_TCP_PORT=${POSTGIS_PORT_5432_TCP_PORT}
           #
           cd ${WERCKER_SOURCE_DIR}
-          /usr/local/bin/python manage.py ticker >> /var/log/cron.log 2>&1
+          /usr/local/bin/python manage.py ticker >> /dev/stdout 2>&1
     - script:
         name: Add cron job
         code: |
@@ -302,20 +302,6 @@ build:
           python /usr/src/app/manage.py loaddata core/fixtures/affiliate_program.json
           echo "To load the 'withdraw_address' fixture, uncomment the next line"
           # python manage.py loaddata core/fixtures/withdraw_address.json
-          #
-          # Prepare log files and start outputting logs to stdout
-          # this way they will maintained locally as well as shipped to kibana
-          # via gelf
-          # adapted from http://goo.gl/E7kRfL
-          # make sure logs are in place for tailing
-          touch /var/log/cron
-          touch /var/log/gunicorn_error.log
-          touch /var/log/gunicorn_access.log
-          touch /var/log/celeryd.log
-          touch /var/log/celery-beat.log
-          # TODO: log files should be disabled and replaced by /dev/stdout
-          # at some point in favor of speed...
-          tail -n 0 -f /var/log/*.log &
           # Copy static data to nginx volume
           cp -ra $WERCKER_OUTPUT_DIR/staticfiles/* /usr/share/nginx/html/static
           cp -ra $WERCKER_OUTPUT_DIR/mediafiles/* /usr/share/nginx/html/media
@@ -328,12 +314,12 @@ build:
 
           # Start celery stuff
           adduser --disabled-password --gecos '' celery_user
-          chown celery_user /var/log/celery*
-          celery worker -A nexchange --uid=celery_user -l info -f /var/log/celeryd.log &
-          celery beat -A nexchange -l info -f /var/log/celery-beat.log &
+
+          celery worker -A nexchange --uid=celery_user -l info -f /dev/stdout &
+          celery beat -A nexchange -l info -f /dev/stdout &
 
           echo "Gunicorn start"
-          exec newrelic-admin run-program gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --log-file=/var/log/gunicorn_error.log --access-logfile=/var/log/gunicorn_access.log nexchange.wsgi:application "$@"
+          exec newrelic-admin run-program gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --log-file=/dev/stdout --access-logfile=/dev/stdout nexchange.wsgi:application "$@"
 
           # Remove entrypoint in production to protect data
           echo "from django.conf import settings; import os; int_debug = 1 if settings.DEBUG else 0; os.environ['PYDEBUG']=int_debug" | python manage.py shell
@@ -361,7 +347,7 @@ build:
           export SECRET_KEY='${SECRET_KEY}'
           #
           cd ${WERCKER_SOURCE_DIR}
-          /usr/local/bin/python manage.py ticker --settings=nexchange.settings_prod >> /var/log/cron.log 2>&1
+          /usr/local/bin/python manage.py ticker --settings=nexchange.settings_prod >> /dev/stdout 2>&1
     - create-file:
         name: Create cron invoked script to dump celery events
         filename: /celery_dump_events.sh
@@ -369,6 +355,7 @@ build:
         content: |-
           #!/bin/bash
           cd ${WERCKER_SOURCE_DIR}
+          # --dump flag already dumps to /dev/stdout
           celery -A nexchange events --dump
     - script:
         name: Add cron jobs
@@ -433,6 +420,14 @@ deploy:
           export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}
           export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
           export DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
+          export LOGSTASH_HOST=${LOGSTASH_HOST}
+          export LOGSTASH_PORT=${LOGSTASH_PORT}
+          if [ -z "$DEBUG" ]; then
+              echo "DOCKER-COMPOSE CONFIG: \n"
+              docker-compose config
+              echo "OUR ENV: \n"
+              printenv
+          fi
           echo "Printing current env:"
           /usr/bin/env
           echo "env of env"
@@ -444,7 +439,6 @@ deploy:
           docker-compose -f /nexchange/docker-compose.yml pull
           docker-compose -f /nexchange/docker-compose.yml up -d
         EOF
-
 tests:
   steps:
     - script:
