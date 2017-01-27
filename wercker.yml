@@ -420,7 +420,7 @@ deploy:
           export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}
           export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
           export DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
-          export LOGSTASH_HOST=${LOGSTASH_HOST}
+          export LOGSTASH_ADDRESS=${LOGSTASH_ADDRESS}
           export LOGSTASH_PORT=${LOGSTASH_PORT}
           if [ -z "$DEBUG" ]; then
               echo "DOCKER-COMPOSE CONFIG: \n"
