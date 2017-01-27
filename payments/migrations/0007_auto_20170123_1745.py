@@ -15,16 +15,26 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='payment',
             name='comment',
-            field=models.CharField(default=None, max_length=255, null=True),
+            field=models.CharField(
+                default=None,
+                max_length=255,
+                null=True),
         ),
         migrations.AddField(
             model_name='payment',
             name='payment_system_id',
-            field=models.CharField(default=None, max_length=255, null=True),
+            field=models.CharField(
+                default=None,
+                max_length=255,
+                null=True),
         ),
         migrations.AddField(
             model_name='paymentpreference',
             name='secondary_identifier',
-            field=models.CharField(default=None, null=True, blank=True, max_length=100),
+            field=models.CharField(
+                default=None,
+                null=True,
+                blank=True,
+                max_length=100),
         ),
     ]
