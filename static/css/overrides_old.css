@@ -276,11 +276,12 @@ html body .ui-state-default{
 }
 
 html body .btn {
-    border-radius: 0;
+    border-radius: 2px;
 }
 
 html body .form-control {
-    border-radius: 0;
+    height: 50px;
+    border-radius: 2px;
 }
 
 .supported-payments {
