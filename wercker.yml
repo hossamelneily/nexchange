@@ -315,11 +315,11 @@ build:
           # Start celery stuff
           adduser --disabled-password --gecos '' celery_user
 
-          celery worker -A nexchange --uid=celery_user -l info -f /dev/stdout &
-          celery beat -A nexchange -l info -f /dev/stdout &
+          celery worker -A nexchange --uid=celery_user -l info &
+          celery beat -A nexchange -l info &
 
           echo "Gunicorn start"
-          exec newrelic-admin run-program gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --log-file=/dev/stdout --access-logfile=/dev/stdout nexchange.wsgi:application "$@"
+          exec newrelic-admin run-program gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --access-logfile=- nexchange.wsgi:application "$@"
 
           # Remove entrypoint in production to protect data
           echo "from django.conf import settings; import os; int_debug = 1 if settings.DEBUG else 0; os.environ['PYDEBUG']=int_debug" | python manage.py shell
