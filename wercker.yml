@@ -284,7 +284,7 @@ build:
           export EMAIL_HOST=${EMAIL_HOST}
           export EMAIL_HOST_USER=${EMAIL_HOST_USER}
           export EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
-
+          export EMAIL_PORT=${EMAIL_PORT}
           #
           while ! nc -z ${POSTGIS_PORT_5432_TCP_ADDR} ${POSTGIS_PORT_5432_TCP_PORT}
           do
