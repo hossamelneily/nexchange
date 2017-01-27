@@ -429,10 +429,6 @@ deploy:
 tests:
   steps:
     - script:
-        name: export django settings
-        code: |
-          export DJANGO_SETTINGS_MODULE=nexchange.settings_test
-    - script:
         name: Install python requirements
         code: |
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
@@ -448,10 +444,7 @@ tests:
     - script:
         name: Backend tests
         code: |
-          coverage erase
-          coverage run --source="." --omit="src/**" manage.py test -v=3 --pattern="test_*.py"
-          coverage report
-          coverage html -d cover
+          DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh
     - script:
         name: Frontend tests
         code: |
