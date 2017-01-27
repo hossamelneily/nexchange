@@ -355,6 +355,7 @@ build:
         content: |-
           #!/bin/bash
           cd ${WERCKER_SOURCE_DIR}
+          # --dump flag already dumps to /dev/stdout
           celery -A nexchange events --dump
     - script:
         name: Add cron jobs
