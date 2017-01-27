@@ -10,7 +10,7 @@ coverage html -d cover
 
 touch /root/test 2> /dev/null
 
-if [ TEST_STATUS_CODE -eq 0 ]
+if [ ${TEST_STATUS_CODE} -eq 0 ]
 then
    echo "TESTS PASSED"
    exit 0
