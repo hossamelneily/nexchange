@@ -18,7 +18,11 @@ import dj_database_url
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
-DEFAULT_FROM_EMAIL = 'support@nexchange.ru'
+
+# SECRET KEY TEST
+SECRET_KEY = 'zsl4+4%(%=0@f*tkf0f2u%dt&v&h_-g5mw*o25i$480=3qcb2k'
+
+DEFAULT_FROM_EMAIL = 'support@nexchange.co.uk'
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SETTINGS_DIR = os.path.dirname(__file__)
@@ -224,10 +228,12 @@ port = os.getenv('POSTGIS_PORT_5432_TCP_PORT', '')
 db = os.getenv('POSTGIS_ENV_POSTGRES_DB', 'nexchange')
 
 DATABASES = {
-    'default':
-    dj_database_url.config(default='postgis://{}:{}@{}:{}/{}'.
-                           format(user, password, host, port, db))
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'db.sqlite3',
+    }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
