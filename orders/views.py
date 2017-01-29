@@ -16,6 +16,7 @@ from core.views import main
 from orders.models import Order
 from payments.models import PaymentPreference
 from payments.utils import geturl_robokassa, get_payeer_sign, get_payeer_desc
+from nexchange.utils import send_email
 
 
 @login_required
@@ -89,11 +90,13 @@ def add_order(request, currency=None):
             'pay_until': pay_until,
         }
         return HttpResponse(
-            template.render(context, request))
+            template.render(context, request)
+        )
     else:
         pass
     crypto_pairs = [{'code': 'BTC'}]
-    currencies = Currency.objects.filter().exclude(code='BTC')
+    # Monkey patch to remove all except EUR USD RUB
+    currencies = Currency.objects.filter(is_crypto=False)[:3]
     currencies = sorted(currencies,
                         key=lambda x: x.code != currency)
 
@@ -224,6 +227,12 @@ def ajax_order(request):
     elif payment_method == 'okpay':
         context.update({'okpay_wallet': settings.OKPAY_WALLET})
 
+    try:
+        send_email('oleg@onit.ws', 'NEW ORDER',
+                   "{} {}".format(order, payment_pref))
+    except:
+        pass
+
     res = template.render(context, request)
     return HttpResponse(res)
 
@@ -277,6 +286,8 @@ def payment_confirmation(request, pk):
         try:
             order.is_paid = paid
             order.save()
+            send_email('oleg@onit.ws', '{} SET AS PAID',
+                       "{}".format(order))
             return JsonResponse({'status': 'OK',
                                  'frozen': order.payment_status_frozen,
                                  'paid': order.is_paid}, safe=False)
@@ -284,3 +295,5 @@ def payment_confirmation(request, pk):
         except ValidationError as e:
             msg = e.messages[0]
             return JsonResponse({'status': 'ERR', 'msg': msg}, safe=False)
+        except:
+            pass

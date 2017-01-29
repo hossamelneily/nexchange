@@ -5,13 +5,13 @@ from unittest import skip
 from django.conf import settings
 from django.utils import timezone
 
-from core.tests.base import OrderBaseTestCase, UserBaseTestCase
+from core.tests.base import OrderBaseTestCase
 from core.tests.utils import data_provider
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
 
 
-class OrderValidatePaymentTestCase(UserBaseTestCase, OrderBaseTestCase):
+class OrderValidatePaymentTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(OrderValidatePaymentTestCase, self).setUp()
@@ -152,7 +152,7 @@ class OrderValidatePaymentTestCase(UserBaseTestCase, OrderBaseTestCase):
         self.assertFalse(order.payment_status_frozen)
 
 
-class OrderPriceGenerationTest(OrderBaseTestCase, UserBaseTestCase):
+class OrderPriceGenerationTest(OrderBaseTestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -220,7 +220,7 @@ class OrderPriceGenerationTest(OrderBaseTestCase, UserBaseTestCase):
         self.assertEqual(self.order.amount_cash, expected)
 
 
-class OrderUniqueReferenceTestsCase(UserBaseTestCase, OrderBaseTestCase):
+class OrderUniqueReferenceTestsCase(OrderBaseTestCase):
 
     def setUp(self):
         super(OrderUniqueReferenceTestsCase, self).setUp()

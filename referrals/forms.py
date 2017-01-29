@@ -6,7 +6,6 @@ from referrals.models import ReferralCode
 
 
 class ReferralTokenForm(forms.ModelForm):
-
     class Meta:
         model = ReferralCode
         fields = ['code']

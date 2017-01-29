@@ -14,7 +14,6 @@ import os
 import sys
 from datetime import timedelta
 
-import dj_database_url
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -150,24 +149,24 @@ CELERY_BROKER_URL = REDIS_URL
 
 CELERY_BEAT_SCHEDULE = {
     'buy_order_release': {
-        'task': 'orders.tasks.schedule.order_release.buy_order_release',
+        'task': 'orders.tasks.order_release.buy_order_release',
         'schedule': timedelta(seconds=60),
     },
     'renew_cards_reserve': {
-        'task': 'accounts.tasks.schedule.'
+        'task': 'accounts.tasks.'
                 'generate_wallets.renew_cards_reserve',
         'schedule': timedelta(seconds=60),
     },
     'check_okpay_payments': {
-        'task': 'payments.tasks.schedule.import_payments.ok_pay',
+        'task': 'payments.tasks.import_payments.ok_pay',
         'schedule': timedelta(seconds=60),
     },
     'check_payeer_payments': {
-        'task': 'payments.tasks.schedule.import_payments.payeer',
+        'task': 'payments.tasks.import_payments.payeer',
         'schedule': timedelta(seconds=60),
     },
     'checker_transactions': {
-        'task': 'accounts.tasks.schedule.'
+        'task': 'accounts.tasks.'
                 'monitor_wallets.update_pending_transactions',
         'schedule': timedelta(seconds=60),
     },
@@ -363,10 +362,19 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
             'stream': sys.stdout,
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
         }
     },
     'root': {
         'handlers': ['console'],
         'level': 'INFO'
-    }
+    },
+    'django.request': {
+        'handlers': ['mail_admins'],
+        'level': 'ERROR',
+        'propagate': True,
+    },
 }

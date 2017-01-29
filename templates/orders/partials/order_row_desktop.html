@@ -19,7 +19,9 @@
         <td><img src="/static/icons/close_16.png"></td>
         {% endif %}
 
+        {%  if order.is_buy %}
         <td>
             {% include 'orders/partials/forms/withdraw_address_widget.html' %}
         </td>
+        {% endif %}
     </tr>

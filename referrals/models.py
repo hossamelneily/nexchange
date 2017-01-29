@@ -11,9 +11,12 @@ from nexchange.settings import REFERRAL_CODE_LENGTH
 
 class Program(TimeStampedModel):
     name = models.CharField(max_length=255)
-    percent_first_degree = models.FloatField()
-    percent_second_degree = models.FloatField(default=0)
-    percent_third_degree = models.FloatField(default=0)
+    percent_first_degree = models.DecimalField(max_digits=18,
+                                               decimal_places=8)
+    percent_second_degree = models.DecimalField(max_digits=18,
+                                                decimal_places=8, default=0)
+    percent_third_degree = models.DecimalField(max_digits=18,
+                                               decimal_places=8, default=0)
     currency = models.ManyToManyField('core.Currency')
     max_payout_btc = models.FloatField(default=-1)
     max_users = models.IntegerField(default=-1)
@@ -44,12 +47,6 @@ class Referral(TimeStampedModel, SoftDeleteMixin):
     referee = models.ForeignKey(User, null=True, default=None,
                                 related_name='referrals_set')
 
-    def save(self, *args, **kwargs):
-        if 'program' not in kwargs:
-            kwargs['program'] = Program.objects.first()
-
-        super(Referral, self).save(*args, **kwargs)
-
     @property
     def orders(self):
         return self.referee. \
@@ -63,16 +60,15 @@ class Referral(TimeStampedModel, SoftDeleteMixin):
     def turnover(self):
         res = self.\
             orders.aggregate(models.Sum('amount_btc'))
-        return res['amount_btc__sum']
+        return round(res['amount_btc__sum'], 8)
 
     @property
     def program(self):
-        return self.referrer.user. \
-            referral_code.get(). \
-            program
+        return self.code.program
 
     @property
     def revenue(self,):
         # TODO: implement program and change to dynamic
-        return Decimal(self.turnover) / 100 * \
-            self.program.percent_first_degree
+        res = Decimal(self.turnover) * \
+            Decimal(self.program.percent_first_degree)
+        return round(res, 8)

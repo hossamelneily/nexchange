@@ -6,23 +6,39 @@ from django.test import Client, TestCase
 from django.utils.translation import activate
 
 from accounts.models import SmsToken
-from core.models import Currency
+from core.models import Currency, Address
 from orders.models import Order
 from payments.models import PaymentMethod, PaymentPreference
 from ticker.models import Price
+import mock
 
 
 class UserBaseTestCase(TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        User.objects.get_or_create(
+            username='onit',
+            email='weare@onit.ws',
+        )
+        super(UserBaseTestCase, cls).setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        u = User.objects.get(username='onit')
+        # soft delete hack
+        u.delete()
+        super(UserBaseTestCase, cls).tearDownClass()
+
     def setUp(self):
         self.logout_url = reverse('accounts.logout')
-        self.username = '+555190909898'
+        self.username = '+491628290463'
         self.password = '123Mudar'
         self.data = \
             {
                 'first_name': 'John',
                 'last_name': 'Doe',
-                'email': 'johndoe@domain.com',
+                'email': 'john@onit.ws',
             }
 
         activate('en')
@@ -37,12 +53,14 @@ class UserBaseTestCase(TestCase):
         success = self.client.login(username=self.username,
                                     password=self.password)
         assert success
-        super(UserBaseTestCase, self).setUpClass()
+        super(UserBaseTestCase, self).setUp()
 
 
-class OrderBaseTestCase(TestCase):
+class OrderBaseTestCase(UserBaseTestCase):
     fixtures = [
-        'currency.json'
+        'currency.json',
+        'payment_method.json',
+        'payment_preference.json'
     ]
     PRICE_BUY_RUB = 36000
     PRICE_BUY_USD = 600
@@ -55,6 +73,11 @@ class OrderBaseTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
         super(OrderBaseTestCase, cls).setUpClass()
+
+        price_api_mock = mock.Mock()
+        price_api_mock.return_value = None
+        mock.patch.object(Price, 'get_eur_rate', price_api_mock)
+
         cls.RUB = Currency.objects.get(code='RUB')
         cls.RUB.save()
 
@@ -97,22 +120,28 @@ class OrderBaseTestCase(TestCase):
 
         pref_data = {
             'user': user,
-            'currency': cls.USD,
             'identifier': str(payment_method.bin),
             'comment': 'Just testing'
         }
         pref = PaymentPreference(**pref_data)
         pref.save()
+        pref.currency.add(cls.USD)
+
+        address = Address(
+            address='17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+            user=user
+        )
+        address.save()
 
         """Creates an order"""
         data = {
-            'amount_cash': Decimal(30674.85),
+            'amount_cash': Decimal(306.85),
             'amount_btc': Decimal(1.00),
             'currency': cls.USD,
             'user': user,
             'admin_comment': 'tests Order',
             'unique_reference': '12345',
-            'withdraw_address': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+            'withdraw_address': address,
             'payment_preference': pref
         }
 

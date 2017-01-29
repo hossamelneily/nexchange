@@ -13,7 +13,7 @@ from payments.models import Payment, PaymentMethod, PaymentPreference
 from payments.utils import get_payeer_sign, get_payeer_desc
 
 
-class PayeerTestCase(UserBaseTestCase, OrderBaseTestCase):
+class PayeerTestCase(OrderBaseTestCase):
 
     def _create_input_params(self, status='success', delete=None,
                              order_id='12345'):
@@ -139,7 +139,7 @@ class RoboTestCase(UserBaseTestCase):
         self.assertEqual(r.json()['result'], 'bad request')
 
 
-class PaymentReleaseTestCase(UserBaseTestCase, OrderBaseTestCase):
+class PaymentReleaseTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(PaymentReleaseTestCase, self).setUp()

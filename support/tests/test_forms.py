@@ -67,7 +67,7 @@ class SupportTestForm(TestCase):
         self.assertFalse(form.is_valid())
 
 
-class SupportTestModelUserOrder(UserBaseTestCase, OrderBaseTestCase):
+class SupportTestModelUserOrder(OrderBaseTestCase):
     """Test is user is authenticated and order is created"""
 
     def setUp(self):

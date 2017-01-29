@@ -46,7 +46,8 @@ class UpdateUserProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ['first_name', 'last_name']
+        fields = ['first_name', 'last_name',
+                  'notify_by_email', 'notify_by_phone']
 
 
 class LoginForm(AuthenticationForm):

@@ -105,8 +105,9 @@
     "pk": 8,
     "fields": {
       "user": ["onit"],
-      "identifier": "weare@onit.ws",
+      "identifier": "paypal@nexchange.co.uk",
       "payment_method": 12,
+      "comment": "Please note that you must send the payment as a personal payment",
       "currency": [
         ["EUR"],
         ["USD"],
@@ -127,7 +128,7 @@
     "pk": 9,
     "fields": {
       "user": ["onit"],
-      "identifier": "weare@onit.ws",
+      "identifier": "payments@nexchange.co.uk",
       "payment_method": 13,
       "currency": [
         ["EUR"],

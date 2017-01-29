@@ -1,17 +1,17 @@
-
 from decimal import Decimal
-
-from core.tests.base import OrderBaseTestCase, UserBaseTestCase
-from orders.models import Order
-from payments.models import Payment, PaymentPreference
-from payments.tasks.schedule.generic.ok_pay import OkPayPaymentChecker
-from payments.tasks.schedule.generic.payeer import PayeerPaymentChecker
 from unittest.mock import patch
+
 from django.conf import settings
 from django.contrib.auth.models import User
+from payments.tasks.generic.payeer import PayeerPaymentChecker
+
+from core.tests.base import OrderBaseTestCase
+from orders.models import Order
+from payments.models import Payment, PaymentPreference
+from payments.tasks.generic.ok_pay import OkPayPaymentChecker
 
 
-class WalletAPITestCase(UserBaseTestCase, OrderBaseTestCase):
+class WalletAPITestCase(OrderBaseTestCase):
     fixtures = [
         'currency.json',
         'payment_method.json',
@@ -20,11 +20,11 @@ class WalletAPITestCase(UserBaseTestCase, OrderBaseTestCase):
 
     @classmethod
     def setUpClass(cls):
-        User.objects.create_superuser(
-            'onit',
-            'weare@onit.ws',
-            'qwerty123'
+        u, created = User.objects.get_or_create(
+            username='onit'
         )
+        u.is_staff = True
+        u.save()
         super(WalletAPITestCase, cls).setUpClass()
 
     def setUp(self):
