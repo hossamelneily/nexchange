@@ -23,6 +23,7 @@ class WalletAPITestCase(OrderBaseTestCase):
         u, created = User.objects.get_or_create(
             username='onit'
         )
+        # ensure staff status, required for tests
         u.is_staff = True
         u.save()
         super(WalletAPITestCase, cls).setUpClass()
