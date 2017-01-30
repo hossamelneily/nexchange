@@ -58,7 +58,7 @@ def release_payment(withdraw, amount, type_='BTC'):
         traceback.print_tb(tb)
 
 
-def check_address_blockchain(address, confirmed=True):
+def check_address_blockchain(address, confirmations=3):
     def _set_network(_address):
         if not address or not address.address:
             return False
@@ -70,22 +70,17 @@ def check_address_blockchain(address, confirmed=True):
             _network = 't{}'.format(currency)
         return _network
 
-    def _set_url(_network, wallet_address):
-        btc_blockr = 'http://{}.blockr.io/api/v1/address/txs/{}'. \
-            format(_network, wallet_address)
+    def _set_url(_network, wallet_address, _confirmations):
+        btc_blockr = (
+            'http://{}.blockr.io/api/v1/address/txs/{}?confirmations='
+            '{}').format(_network, wallet_address, _confirmations)
         return btc_blockr
     network = _set_network(address)
-    url = _set_url(network, str(address.address))
+    url = _set_url(network, str(address.address), confirmations)
     info = get(url)
     if info.status_code != 200:
         return False
-    transactions = info.json()['data']['txs']
-    if confirmed:
-        for trans in transactions:
-            if trans['confirmations'] > settings.MIN_REQUIRED_CONFIRMATIONS:
-                continue
-            else:
-                transactions.remove(trans)
+    transactions = info.json()['data']
     return transactions
 
 

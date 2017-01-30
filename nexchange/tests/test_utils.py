@@ -2,7 +2,7 @@ from unittest import TestCase
 from nexchange.utils import PayeerAPIClient, check_address_blockchain
 import requests_mock
 from core.models import Address
-from core.tests.base import UserBaseTestCase, OrderBaseTestCase
+from core.tests.base import OrderBaseTestCase
 
 
 class PayeerAPIClientTestCase(TestCase):
@@ -30,7 +30,7 @@ class PayeerAPIClientTestCase(TestCase):
         self.assertIn('comment', res[key])
 
 
-class BlockchainTestCase(UserBaseTestCase, OrderBaseTestCase):
+class BlockchainTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(BlockchainTestCase, self).setUp()
@@ -51,4 +51,4 @@ class BlockchainTestCase(UserBaseTestCase, OrderBaseTestCase):
         with open(cont_path) as f:
             m.get(self.url, text=f.read().replace('\n', ''))
         res = check_address_blockchain(self.address)
-        self.assertEqual(2, len(res))
+        self.assertEqual(2, len(res['txs']))
