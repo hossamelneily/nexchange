@@ -6,7 +6,7 @@ from payments.models import UserCards
 import logging
 
 
-@shared_task
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def renew_cards_reserve():
     if settings.DEBUG:
         logging.info(
