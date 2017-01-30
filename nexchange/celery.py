@@ -21,6 +21,35 @@ app.config_from_object('django.conf:settings',
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS, 'task_summary')
 
+@app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    from orders.tasks.order_release import buy_order_release
+    from accounts.tasks.generate_wallets import renew_cards_reserve
+    from payments.tasks.generic.payeer import PayeerPaymentChecker
+    from payments.tasks.generic.ok_pay import OkPayPaymentChecker
+
+    okpay_import = OkPayPaymentChecker()
+    payeer_imprt = PayeerPaymentChecker()
+
+    sender.add_periodic_task(120.0, renew_cards_reserve.s(),
+                             name='Renew cards reserve',
+                             expires=10)
+
+    sender.add_periodic_task(120.0, renew_cards_reserve.s(),
+                             name='Renew cards reserve',
+                             expires=10)
+
+    sender.add_periodic_task(60.0, okpay_import.s(),
+                             name='OkPay import',
+                             expires=30)
+
+    sender.add_periodic_task(60.0, payeer_imprt.s(),
+                             name='Payeer import',
+                             expires=30)
+
+    sender.add_periodic_task(60.0, buy_order_release.s(),
+                             name='Order release')
+
 
 @app.task(bind=True)
 def debug_task(self):

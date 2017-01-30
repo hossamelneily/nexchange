@@ -147,30 +147,30 @@ REDIS_URL = 'redis://{}:{}/1'.format(REDIS_ADDR, REDIS_PORT)
 CELERY_BROKER_URL = REDIS_URL
 
 
-CELERY_BEAT_SCHEDULE = {
-    'buy_order_release': {
-        'task': 'orders.tasks.order_release.buy_order_release',
-        'schedule': timedelta(seconds=60),
-    },
-    'renew_cards_reserve': {
-        'task': 'accounts.tasks.'
-                'generate_wallets.renew_cards_reserve',
-        'schedule': timedelta(seconds=60),
-    },
-    'check_okpay_payments': {
-        'task': 'payments.tasks.import_payments.run_okpay',
-        'schedule': timedelta(seconds=60),
-    },
-    'check_payeer_payments': {
-        'task': 'payments.tasks.import_payments.run_payeer',
-        'schedule': timedelta(seconds=60),
-    },
-    'checker_transactions': {
-        'task': 'accounts.tasks.'
-                'monitor_wallets.update_pending_transactions',
-        'schedule': timedelta(seconds=60),
-    },
-}
+# CELERY_BEAT_SCHEDULE = {
+#     'buy_order_release': {
+#         'task': 'orders.tasks.order_release.buy_order_release',
+#         'schedule': timedelta(seconds=60),
+#     },
+#     'renew_cards_reserve': {
+#         'task': 'accounts.tasks.'
+#                 'generate_wallets.renew_cards_reserve',
+#         'schedule': timedelta(seconds=60),
+#     },
+#     'check_okpay_payments': {
+#         'task': 'payments.tasks.import_payments.run_okpay',
+#         'schedule': timedelta(seconds=60),
+#     },
+#     'check_payeer_payments': {
+#         'task': 'payments.tasks.import_payments.run_payeer',
+#         'schedule': timedelta(seconds=60),
+#     },
+#     'checker_transactions': {
+#         'task': 'accounts.tasks.'
+#                 'monitor_wallets.update_pending_transactions',
+#         'schedule': timedelta(seconds=60),
+#     },
+# }
 
 
 MIDDLEWARE_CLASSES = [

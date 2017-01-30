@@ -129,7 +129,7 @@ dev:
     - internal/watch:
         code: |
           echo 'Dev server running'
-          tail -n 0 -f /var/log/*.log &
+          tail -n 50 -f /var/log/*.log &
           newrelic-admin run-program python manage.py runserver 0.0.0.0:8000 &
           npm run watch-js
         reload: false
