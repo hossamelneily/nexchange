@@ -1217,3 +1217,7 @@ p.support-link a{
 .payment-type-trigger img.qiwi {
     width: 100px;
 }
+
+.btn.search-order {
+    height: 50px;
+}

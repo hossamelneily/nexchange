@@ -1,6 +1,6 @@
 import sys
 import traceback
-
+import logging
 from django.conf import settings
 from django.core.mail import send_mail
 from requests import get
@@ -20,7 +20,7 @@ api = Uphold(settings.UPHOLD_IS_TEST)
 api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
 
 
-def send_email(to, msg=None, subject='BTC'):
+def send_email(to, subject='Nexchange', msg=None):
     send_mail(
         subject,
         msg,
@@ -337,3 +337,18 @@ def validate_payment_matches_order(order, payment, verbose_match, logger):
                     format(order, payment))
 
     return user_matches and details_match and ref_matches
+
+
+def get_nexchange_logger(name):
+    logger = logging.getLogger(
+        name
+    )
+
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s'
+                                  ' - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    return logger

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ObjectDoesNotExist
+
 from django.core.urlresolvers import reverse
 from django.http import (Http404, HttpResponse, JsonResponse,
-                         HttpResponseForbidden)
+                         HttpResponseForbidden, HttpResponseRedirect)
 from django.shortcuts import redirect
 from django.template.loader import get_template
 from django.utils import translation
@@ -12,14 +12,16 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 
+from nexchange.utils import get_nexchange_logger
 from core.models import Currency
 from orders.models import Order
 from payments.adapters import (leupay_adapter, robokassa_adapter,
                                unitpay_adapter, okpay_adapter,
                                payeer_adapter)
 from payments.models import Payment, PaymentPreference
-from payments.utils import geturl_robokassa, get_payeer_sign
+from payments.utils import get_payeer_sign
 from decimal import Decimal
+
 
 
 @login_required
@@ -40,51 +42,111 @@ def payment_retry(request):
     order = old_order
     order.id = None
     order.save()
-    url = geturl_robokassa(order.id, str(order.amount_cash))
+    url = '/'  # root
+    # geturl_robokassa(order.id, str(order.amount_cash))
     return redirect(url)
 
 
-@login_required
+def respond_retry(request):
+    template = \
+        get_template('orders/partials/steps/step_retry_payment.html')
+    return HttpResponse(template.render({'bad_sugnature': True},
+                                        request))
+
+
 def payment_success(request, provider):
-    try:
-        received_order = None
-        if provider == 'robokassa':
-            received_order = robokassa_adapter(request)
-        elif provider == 'unitpay':
-            received_order = unitpay_adapter(request)
-        elif provider == 'leupay':
-            received_order = leupay_adapter(request)
-        elif provider == 'okpay':
-            received_order = okpay_adapter(request)
-        elif provider == 'payeer':
-            received_order = payeer_adapter(request)
+    logger = get_nexchange_logger(__name__)
 
-        if not received_order:
-            return Http404(_('Unsupported payment provider'))
+    # TODO: this can be a decorator or middleware
+    def flip_extension(host, resource, protocol='https',
+                       query='redirect'):
+        # solution with payeer working only for .co.uk
+        site_name = host.split('.')[:1]
+        full_host = '{}{}{}?{}=1'.format(
+            site_name,
+            '.co.uk' if host.endswith('.ru') else '.ru',
+            resource,
+            query
+        )
+        return '{}://{}'.format(protocol, full_host)
 
-        if not received_order.get('valid'):
-            template = \
-                get_template('orders/partials/steps/step_retry_payment.html')
-            return HttpResponse(template.render({'bad_sugnature': True},
-                                                request))
+    if not request.user.is_authenticated():
+        if 'redirect' not in request.GET:
+            redirect_url = flip_extension(
+                request.get_host(),
+                request.path
+            )
+            logger.info('User is not authenticated '
+                        'redirecting to {}'
+                        .format(redirect_url))
+            return HttpResponseRedirect(redirect_url)
+        else:
+            logger.info('User is still not authenticated '
+                        'after redirect to {} request: {}'
+                        .format(request.META['HTTP_HOST'],
+                                request.__dict__))
+    received_order = None
+    if provider == 'robokassa':
+        received_order = robokassa_adapter(request)
+    elif provider == 'unitpay':
+        received_order = unitpay_adapter(request)
+    elif provider == 'leupay':
+        received_order = leupay_adapter(request)
+    elif provider == 'okpay':
+        received_order = okpay_adapter(request)
+    elif provider == 'payeer':
+        received_order = payeer_adapter(request)
+    supporterd = ['okpay', 'payeer']
 
-        # TODO: change to get from adapter
-        order = Order.objects.filter(user=request.user).last()
+    if provider not in supporterd:
+        logger.error('Success view provider '
+                     '{} not supported!'.format(provider))
 
-        currency = order.currency.code
+    logger.info('User at {} success view.'
+                'request: {} user: {}'
+                .format(provider,
+                        request.__dict__,
+                        request.user.__dict__))
 
-        Payment.objects.\
-            get_or_create(amount_cash=order.amount_cash,
-                          currency=currency,
-                          user=request.user,
-                          payment_preference=order.payment_preference,
-                          is_complete=False)
-        redirect_url = "{}?oid={}".\
-            format(reverse('orders.orders_list'), order.id)
+    if not received_order:
+        logger.error('Success view without a provider request: '
+                     '{} not found!'.format(request.__dict__))
+        return Http404(_('Unsupported payment provider'))
 
-        return redirect(redirect_url)
-    except ObjectDoesNotExist:
-        return JsonResponse({'result': 'bad request'})
+    lookup = {'user': request.user}
+    if received_order.get('order_id'):
+        lookup['unique_reference'] = \
+            received_order['order_id']
+    order = Order.objects.filter(**lookup).last()
+
+    if not order:
+        logger.error('Success view provider request '
+                     '{} not found!'.format(request.__dict__))
+        return respond_retry(request)
+
+    if not received_order.get('valid'):
+        logger.error('Success view invalid payment request '
+                     '{} not found!'.format(request.__dict__))
+        return respond_retry(request)
+
+    # This is only a provisional
+    # flag which the user can set himself
+    # does not affect business logic, only visual
+    order.is_paid = True
+    order.save()
+    # TODO: check signature
+    # TODO: check api async for payment (optimization)
+
+    redirect_url = "{}?oid={}".\
+        format(reverse('orders.orders_list'), order.id)
+    logger.info('User at {} success view.'
+                'request: {} user: {} redirected'
+                'to order {}'
+                .format(provider,
+                        request.__dict__,
+                        request.user.__dict__,
+                        order.id))
+    return redirect(redirect_url)
 
 
 def payment_info(request, provider):
