@@ -31,6 +31,7 @@ class Address(BtcBase, SoftDeletableModel):
     name = models.CharField(max_length=100, blank=True)
     address = models.CharField(max_length=42, validators=[validate_bc])
     user = models.ForeignKey(User)
+    currency = models.ForeignKey('core.Currency', blank=True, null=True)
 
     def __str__(self):
         return '{} {}'.format(self.address, self.name)

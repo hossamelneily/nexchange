@@ -3,9 +3,10 @@ from django.conf import settings
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
-from core.models import Transaction
+from core.models import Transaction, Address
+from orders.models import Order
 from nexchange.utils import check_transaction_blockchain, \
-    check_transaction_uphold, send_email, send_sms
+    check_transaction_uphold, send_email, send_sms, check_address_blockchain
 import logging
 
 
@@ -43,3 +44,21 @@ def update_pending_transactions():
 
             if settings.DEBUG:
                 logging.info('Transaction {} is completed'.format(tr.tx_id))
+
+
+@shared_task
+def import_transactions_deposit_btc():
+    address = Address.objects.filter(type=Address.DEPOSIT)
+    for add in address:
+        transactions = check_address_blockchain(add, confirmed=True)
+        for trans in transactions:
+            orders = Orders.objects.fiter(
+                ordert_type=Order.SELL
+            )
+            if orders:
+                Transaction.objects.get_or_create(
+                    tx_id=trans['tx'],
+                    address_to=add,
+                    order=order[0]
+                )
+
