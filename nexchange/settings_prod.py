@@ -73,3 +73,33 @@ EMAIL_USE_TLS = True
 STATIC_ROOT = '/usr/share/nginx/html/static'
 MEDIA_ROOT = '/usr/share/nginx/html/media'
 MEDIA_URL = '/media/'
+
+AXES_LOGIN_FAILURE_LIMIT = 10
+AXES_USERNAME_FORM_FIELD = 'username'
+AXES_COOLOFF_TIME = timedelta(minutes=5)
+
+
+# just add admin emailing
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+        },
+        'mail_admins': {
+            'level': 'WARNING',
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'DEBUG',
+            'propagate': True,
+            'include_html': True,
+        },
+    }
+}
+

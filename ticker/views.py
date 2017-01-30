@@ -1,4 +1,3 @@
-from rest_framework import viewsets
 from rest_framework.response import Response
 
 from core.common.views import DateFilterViewSet
@@ -9,7 +8,8 @@ from rest_framework_extensions.mixins import (
 )
 
 
-class LastPricesViewSet(viewsets.ReadOnlyModelViewSet):
+class LastPricesViewSet(ReadOnlyCacheResponseAndETAGMixin,
+                        DateFilterViewSet):
     def list(self, request):
         queryset = Price.objects.filter().order_by('-id')[:2]
         serializer = PriceSerializer(queryset, many=True)
