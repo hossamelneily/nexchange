@@ -15,6 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='order',
             name='moderator_flag',
-            field=models.IntegerField(default=None),
+            field=models.IntegerField(default=None,
+                                      null=True, blank=True),
         ),
     ]
