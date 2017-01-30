@@ -30,3 +30,9 @@ def passive_authentication_helper(client,
                                            'phone': phone})
 
     return response
+
+
+def get_ok_pay_mock():
+    with open('nexchange/tests/fixtures/'
+              'okpay/transaction_history.xml') as f:
+        return str.encode(f.read().replace('\n', ''))

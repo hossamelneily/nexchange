@@ -1,4 +1,5 @@
 from core.tests.base import OrderBaseTestCase
+from accounts.models import Profile
 from payments.models import Payment, PaymentPreference
 from orders.task_summary import buy_order_release
 from django.contrib.auth.models import User
@@ -10,6 +11,7 @@ from copy import deepcopy
 from django.db import transaction
 
 
+# TODO: Those tests can be heavily optimised in length by data providers
 class ReleaseOderTestCase(OrderBaseTestCase):
 
     def setUp(self):
@@ -327,13 +329,107 @@ class ReleaseOderTestCase(OrderBaseTestCase):
 
         buy_order_release.apply()
 
-        p = Payment.objects.get(pk=self.good_payment.pk)
+        self.good_payment.refresh_from_db()
+
+        # for easiness
+        p = self.good_payment
         self.assertEqual(p.payment_preference.user,
                          self.order.user)
         self.assertEqual(p.user, self.order.user)
 
-    def test_send_notification(self):
-        pass
+    @patch('orders.tasks.order_release.release_payment')
+    @patch('orders.tasks.order_release.send_sms')
+    @patch('orders.tasks.order_release.send_email')
+    def test_send_notification_email(
+            self, send_email, send_sms, release_payment):
+        release_payment.return_value = 'A555B'
+        self.good_payment = Payment(**self.good_payment_data)
+        self.good_payment.save()
+
+        # Hack, since profile is a fucking property
+        profile_pk = self.good_payment.user.profile.pk
+        profile = Profile.objects.get(pk=profile_pk)
+        profile.notify_by_phone = False
+        profile.notify_by_email = True
+        profile.save()
+        buy_order_release.apply()
+        self.good_payment.refresh_from_db()
+
+        self.assertEqual(1, send_email.call_count)
+        self.assertEqual(0, send_sms.call_count)
+
+    @patch('orders.tasks.order_release.release_payment')
+    @patch('orders.tasks.order_release.send_sms')
+    @patch('orders.tasks.order_release.send_email')
+    def test_send_notification_phone(
+            self, send_email, send_sms, release_payment):
+        release_payment.return_value = 'A555B'
+        self.good_payment = Payment(**self.good_payment_data)
+        self.good_payment.save()
+
+        # Hack, since profile is a fucking property
+        profile_pk = self.good_payment.user.profile.pk
+        profile = Profile.objects.get(pk=profile_pk)
+        profile.notify_by_phone = True
+        profile.notify_by_email = False
+        profile.save()
+
+        buy_order_release.apply()
+        self.good_payment.refresh_from_db()
+
+        self.assertEqual(0, send_email.call_count)
+        self.assertEqual(1, send_sms.call_count)
+
+    @patch('orders.tasks.order_release.release_payment')
+    @patch('orders.tasks.order_release.send_sms')
+    @patch('orders.tasks.order_release.send_email')
+    def test_send_notification_both(
+            self,
+            send_email,
+            send_sms,
+            release_payment):
+        release_payment.return_value = 'A555B'
+        self.good_payment = Payment(**self.good_payment_data)
+        self.good_payment.save()
+
+        # Hack, since profile is a fucking property
+        profile_pk = self.good_payment.user.profile.pk
+        profile = Profile.objects.get(pk=profile_pk)
+        profile.notify_by_phone = True
+        profile.notify_by_email = True
+        profile.save()
+        self.good_payment.user.profile.save()
+
+        buy_order_release.apply()
+        self.good_payment.refresh_from_db()
+
+        self.assertEqual(1, send_email.call_count)
+        self.assertEqual(1, send_sms.call_count)
+
+    @patch('orders.tasks.order_release.release_payment')
+    @patch('orders.tasks.order_release.send_sms')
+    @patch('orders.tasks.order_release.send_email')
+    def test_send_notification_none(
+            self,
+            send_email,
+            send_sms,
+            release_payment):
+        release_payment.return_value = 'A555B'
+        self.good_payment = Payment(**self.good_payment_data)
+        self.good_payment.save()
+
+        # Hack, since profile is a fucking property
+        profile_pk = self.good_payment.user.profile.pk
+        profile = Profile.objects.get(pk=profile_pk)
+        profile.notify_by_phone = False
+        profile.notify_by_email = False
+        profile.save()
+
+        buy_order_release.apply()
+        self.good_payment.refresh_from_db()
+
+        self.assertEqual(0, send_email.call_count)
+        self.assertEqual(0, send_sms.call_count)
 
     # TODO: move to utils tests (validate_payment)
     def test_release_fail_payment_other_user(self):

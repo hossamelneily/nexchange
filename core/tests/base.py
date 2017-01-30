@@ -10,6 +10,7 @@ from core.models import Currency, Address
 from orders.models import Order
 from payments.models import PaymentMethod, PaymentPreference
 from ticker.models import Price
+from copy import deepcopy
 import mock
 
 
@@ -150,3 +151,58 @@ class OrderBaseTestCase(UserBaseTestCase):
         order.save()
 
         return order
+
+
+class WalletBaseTestCase(OrderBaseTestCase):
+    fixtures = [
+        'currency.json',
+        'payment_method.json',
+        'payment_preference.json',
+    ]
+
+    @classmethod
+    def setUpClass(cls):
+        u, created = User.objects.get_or_create(
+            username='onit',
+            email='weare@onit.ws'
+        )
+        # ensure staff status, required for tests
+        u.is_staff = True
+        u.save()
+        super(WalletBaseTestCase, cls).setUpClass()
+
+    def setUp(self):
+        super(WalletBaseTestCase, self).setUp()
+        # look at:
+        # nexchange/tests/fixtures/transaction_history.xml self.order_data
+        # matches first transaction from the XML file
+        okpay_pref = PaymentPreference.objects.get(
+            user__is_staff=True,
+            payment_method__name__icontains='okpay'
+        )
+
+        payeer_pref = PaymentPreference.objects.get(
+            user__is_staff=True,
+            payment_method__name__icontains='payeer'
+        )
+
+        self.okpay_order_data = {
+            'amount_cash': 85.85,
+            'amount_btc': Decimal(0.01),
+            'currency': self.EUR,
+            'user': self.user,
+            'admin_comment': 'tests Order',
+            'unique_reference': '12345',
+            'payment_preference': okpay_pref,
+        }
+        self.payeer_order_data = deepcopy(self.okpay_order_data)
+        self.payeer_order_data['payment_preference'] = payeer_pref
+
+        self.okpay_order_data_address = deepcopy(self.okpay_order_data)
+        addr = Address(address='A555B', user=self.user)
+        addr.save()
+        self.okpay_order_data_address['withdraw_address'] = addr
+
+        self.payeer_order_data_address = deepcopy(
+            self.okpay_order_data_address)
+        self.payeer_order_data_address['payment_preference'] = payeer_pref

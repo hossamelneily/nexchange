@@ -27,6 +27,19 @@ def buy_order_release():
         try:
             o = Order.objects.get(is_released=False,
                                   unique_reference=p.reference)
+            if o.payment_preference.payment_method !=\
+                    p.payment_preference.payment_method:
+                # MHM... Odd
+                o.moderator_flag = p.pk
+                o.save()
+                p.moderator_flag = o.pk
+                p.save()
+                logger.error('Payment: {} Order: {} match exists'
+                             'but payment methods do not correspond '
+                             'Flagged for moderation - IGNORING'
+                             .format(o, p))
+                continue
+
             if not p.user or not p.payment_preference.user:
                 user = o.user
                 profile = user.profile

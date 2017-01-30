@@ -266,7 +266,10 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
         self.addr.save()
 
         # The 'other' address for the Transaction
-        user, created = User.objects.get_or_create(username='onit')
+        user, created = User.objects.get_or_create(
+            username='onit',
+            email='weare@onit.ws',
+        )
         addr2 = Address(**self.addr_data)
         addr2.user = user
         addr2.save()

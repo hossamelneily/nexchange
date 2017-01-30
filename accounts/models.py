@@ -93,6 +93,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         return super(Profile, self).save(*args, **kwargs)
 
 
+# TODO: refactor this Profile is not writable via user
 User.profile = property(lambda u:
                         Profile.objects.
                         get_or_create(user=u)[0])

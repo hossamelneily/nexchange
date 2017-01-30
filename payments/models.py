@@ -88,6 +88,9 @@ class Payment(TimeStampedModel, SoftDeletableModel):
     is_redeemed = models.BooleanField(default=False)
     is_complete = models.BooleanField(default=False)
     is_success = models.BooleanField(default=False)
+    # flagged for moderation
+    moderator_flag = models.IntegerField(default=None,
+                                         null=True, blank=True)
     payment_preference = models.ForeignKey('PaymentPreference',
                                            null=False, default=None)
     # Super admin if we are paying for BTC
