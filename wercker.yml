@@ -91,7 +91,7 @@ dev:
     - script:
         name: Django import referral program fixture
         code: |
-          python manage.py loaddata core/referrals/program.json
+          python manage.py loaddata referrals/fixtures/program.json
     - script:
         name: Django run ticker update prices command
         code: |
@@ -295,7 +295,7 @@ build:
           python /usr/src/app/manage.py loaddata core/fixtures/currency.json
           python /usr/src/app/manage.py loaddata payments/fixtures/payment_method.json
           python /usr/src/app/manage.py loaddata payments/fixtures/payment_preference.json
-          python /usr/src/app/manage.py loaddata core/referrals/program.json
+          python /usr/src/app/manage.py loaddata referrals/fixtures/program.json
           echo "To load the 'withdraw_address' fixture, uncomment the next line"
           # python manage.py loaddata core/fixtures/withdraw_address.json
           # Copy static data to nginx volume
