@@ -1,12 +1,10 @@
 from __future__ import absolute_import
-from celery import shared_task
 from django.conf import settings
 from nexchange.utils import CreateUpholdCard
 from payments.models import UserCards
 import logging
 
 
-@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def renew_cards_reserve():
     if settings.DEBUG:
         logging.info(

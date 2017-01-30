@@ -149,11 +149,11 @@ CELERY_BROKER_URL = REDIS_URL
 
 CELERY_BEAT_SCHEDULE = {
     'buy_order_release': {
-        'task': 'orders.task_summary.buy_order_release',
+        'task': 'orders.task_summary.buy_order_release_invoke',
         'schedule': timedelta(seconds=60),
     },
     'renew_cards_reserve': {
-        'task': 'accounts.task_summary.update_pending_transactions',
+        'task': 'accounts.task_summary.update_pending_transactions_invoke',
         'schedule': timedelta(seconds=60),
     },
     'check_okpay_payments': {
@@ -166,7 +166,7 @@ CELERY_BEAT_SCHEDULE = {
 
     },
     'checker_transactions': {
-        'task': 'accounts.task_summary.renew_cards_reserve',
+        'task': 'accounts.task_summary.renew_cards_reserve_invoke',
         'schedule': timedelta(seconds=60),
     },
 }
