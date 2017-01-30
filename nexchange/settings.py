@@ -158,11 +158,11 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(seconds=60),
     },
     'check_okpay_payments': {
-        'task': 'payments.tasks.import_payments.ok_pay',
+        'task': 'payments.tasks.import_payments.run_okpay',
         'schedule': timedelta(seconds=60),
     },
     'check_payeer_payments': {
-        'task': 'payments.tasks.import_payments.payeer',
+        'task': 'payments.tasks.import_payments.run_payeer',
         'schedule': timedelta(seconds=60),
     },
     'checker_transactions': {
