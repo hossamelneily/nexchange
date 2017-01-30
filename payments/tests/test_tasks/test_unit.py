@@ -1,9 +1,9 @@
 from unittest import TestCase
-from payments.tasks.schedule.generic.base import BasePaymentChecker  # noqa
 from unittest.mock import patch
+
+from payments.tasks.generic.base import BasePaymentChecker  # noqa
+
 from core.tests.utils import data_provider
-from payments.tasks.schedule.generic.ok_pay import OkPayPaymentChecker  # noqa
-from payments.tasks.schedule.generic.payeer import PayeerAPIClient  # noqa
 
 
 class BasePaymentCheckerTestCase(TestCase):

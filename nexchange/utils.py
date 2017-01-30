@@ -26,7 +26,7 @@ def send_email(to, msg=None, subject='BTC'):
         msg,
         'noreply@nexchange.ru',
         [to],
-        fail_silently=False,
+        fail_silently=not settings.DEBUG,
     )
 
 
@@ -312,17 +312,28 @@ class PayeerAPIClient(object):
         return res
 
 
-def validate_payment_matches_order(order, payment, logger):
+def validate_payment_matches_order(order, payment, verbose_match, logger):
     details_match =\
         order.currency == payment.currency and\
-        order.amount_cash == payment.amount_cash and\
-        order.unique_reference == payment.reference
+        order.amount_cash == payment.amount_cash
+
+    ref_matches = order.unique_reference == payment.reference or \
+        (verbose_match and not payment.reference)
 
     user_matches = not payment.user or payment.user == order.user
 
     if not user_matches:
-        logger.error('order: {} payment: {} NO USER MATCH', order, payment)
+        logger.error('order: {} payment: {} NO USER MATCH'.
+                     format(order, payment))
     if not details_match:
-        logger.error('order: {} payment: {} NO DETAILS MATCH', order, payment)
+        logger.error('order: {} payment: {} NO DETAILS MATCH'.
+                     format(order, payment))
+    if not ref_matches:
+        logger.error('order: {} payment: {} NO REFERENCE MATCH'.
+                     format(order, payment))
+    elif verbose_match:
+        logger.info('order: {} payment: {} NO REFERENCE MATCH,'
+                    'RELEASE BY VERBOSE_MATCH (cross reference)'.
+                    format(order, payment))
 
-    return user_matches and details_match
+    return user_matches and details_match and ref_matches

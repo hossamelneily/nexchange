@@ -37,6 +37,9 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     is_released = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
     is_failed = models.BooleanField(default=False)
+    # Flagged for moderation
+    moderator_flag = models.IntegerField(default=None,
+                                         null=True, blank=True)
     unique_reference = models.CharField(
         max_length=settings.UNIQUE_REFERENCE_LENGTH, unique=True)
     admin_comment = models.CharField(max_length=200)

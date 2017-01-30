@@ -1,0 +1,1 @@
+from .tasks.order_release import buy_order_release # noqa

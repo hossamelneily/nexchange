@@ -539,7 +539,7 @@ body .price_box_ticker .trigger-sell, body .price_box_next_cont .sell-go{
     color: #ee1d25;
 }
 
-.price_box_selectbox_cont{display:inline-block; width:100%; border:2px solid #8cc63f;}
+.price_box_selectbox_cont{display:inline-block; width:100%; border:2px solid #8cc63f; border-radius: 4px;}
 
 .price_box_selectbox_cont_textbox{float:left; margin: 0px; text-align: center; width:65%; background-color:transparent; border:solid #8cc63f; font-size:18px; padding:8px 10px;border-width:0 2px 0 0; }
 

@@ -11,12 +11,12 @@ from django.core.urlresolvers import reverse
 from django.utils import timezone
 
 from core.models import Address
-from core.tests.base import OrderBaseTestCase, UserBaseTestCase
+from core.tests.base import OrderBaseTestCase
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
 
 
-class OrderSetAsPaidTestCase(UserBaseTestCase, OrderBaseTestCase):
+class OrderSetAsPaidTestCase(OrderBaseTestCase):
 
     def setUp(self):
 
@@ -109,7 +109,7 @@ class OrderSetAsPaidTestCase(UserBaseTestCase, OrderBaseTestCase):
                              actual,)
 
 
-class OrderPayUntilTestCase(OrderBaseTestCase, UserBaseTestCase):
+class OrderPayUntilTestCase(OrderBaseTestCase):
 
     def test_pay_until_message_is_in_context_and_is_rendered(self):
         params = {
@@ -209,7 +209,7 @@ class OrderPayUntilTestCase(OrderBaseTestCase, UserBaseTestCase):
                             .strftime("%H:%M%p (%Z)"))
 
 
-class UpdateWithdrawAddressTestCase(UserBaseTestCase, OrderBaseTestCase):
+class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(UpdateWithdrawAddressTestCase, self).setUp()
@@ -266,7 +266,10 @@ class UpdateWithdrawAddressTestCase(UserBaseTestCase, OrderBaseTestCase):
         self.addr.save()
 
         # The 'other' address for the Transaction
-        user = User.objects.create_user(username='onit')
+        user, created = User.objects.get_or_create(
+            username='onit',
+            email='weare@onit.ws',
+        )
         addr2 = Address(**self.addr_data)
         addr2.user = user
         addr2.save()
@@ -306,7 +309,7 @@ class UpdateWithdrawAddressTestCase(UserBaseTestCase, OrderBaseTestCase):
         self.assertEqual(b'Invalid address provided', response.content)
 
 
-class OrderIndexOrderTestCase(UserBaseTestCase, OrderBaseTestCase):
+class OrderIndexOrderTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(OrderIndexOrderTestCase, self).setUp()

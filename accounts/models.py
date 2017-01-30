@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import get_language, ugettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 from phonenumber_field.validators import validate_international_phonenumber
 
@@ -49,7 +49,8 @@ class Profile(TimeStampedModel, SoftDeletableModel):
                           null=True,
                           default=None)
     lang = models.CharField(choices=settings.LANGUAGES,
-                            max_length=100, null=True)
+                            max_length=100,
+                            default='en')
     sig_key = models.CharField(max_length=64, blank=True)
 
     @property
@@ -84,12 +85,15 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         if not self.phone:
             self.phone = self.user.username
 
+        self.lang = get_language()
+
         # TODO: move to user class, allow many(?)
         ReferralCode.objects.get_or_create(user=self.user)
 
         return super(Profile, self).save(*args, **kwargs)
 
 
+# TODO: refactor this Profile is not writable via user
 User.profile = property(lambda u:
                         Profile.objects.
                         get_or_create(user=u)[0])

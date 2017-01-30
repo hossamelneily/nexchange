@@ -1,11 +1,11 @@
 from decimal import Decimal
 
-from core.tests.base import OrderBaseTestCase, UserBaseTestCase
+from core.tests.base import OrderBaseTestCase
 from orders.models import Order
 from support.models import Support
 
 
-class SupportTestModelUser(UserBaseTestCase, OrderBaseTestCase):
+class SupportTestModelUser(OrderBaseTestCase):
 
     def setUp(self):
 

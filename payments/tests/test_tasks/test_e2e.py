@@ -1,62 +1,25 @@
+from unittest.mock import patch
 
-from decimal import Decimal
+from django.conf import settings
+from payments.tasks.generic.payeer import PayeerPaymentChecker
 
-from core.tests.base import OrderBaseTestCase, UserBaseTestCase
+from core.tests.base import WalletBaseTestCase
 from orders.models import Order
 from payments.models import Payment, PaymentPreference
-from payments.tasks.schedule.generic.ok_pay import OkPayPaymentChecker
-from payments.tasks.schedule.generic.payeer import PayeerPaymentChecker
-from unittest.mock import patch
-from django.conf import settings
-from django.contrib.auth.models import User
+from payments.tasks.generic.ok_pay import OkPayPaymentChecker
+from core.tests.utils import get_ok_pay_mock
 
 
-class WalletAPITestCase(UserBaseTestCase, OrderBaseTestCase):
-    fixtures = [
-        'currency.json',
-        'payment_method.json',
-        'payment_preference.json',
-    ]
-
-    @classmethod
-    def setUpClass(cls):
-        User.objects.create_superuser(
-            'onit',
-            'weare@onit.ws',
-            'qwerty123'
-        )
-        super(WalletAPITestCase, cls).setUpClass()
-
-    def setUp(self):
-        super(WalletAPITestCase, self).setUp()
-        # look at:
-        # nexchange/tests/fixtures/transaction_history.xml self.order_data
-        # matches first transaction from the XML file
-        pref = PaymentPreference.objects.get(
-            user__is_staff=True,
-            payment_method__name__icontains='okpay'
-        )
-        self.order_data = {
-            'amount_cash': 85.85,
-            'amount_btc': Decimal(0.01),
-            'currency': self.EUR,
-            'user': self.user,
-            'admin_comment': 'tests Order',
-            'unique_reference': '12345',
-            'payment_preference': pref,
-        }
-
+class WalletAPITestCase(WalletBaseTestCase):
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.utils.OkPayAPI.get_date_time')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
     def test_confirm_order_payment_with_okpay_celery(self, history, datetime,
                                                      convert_to_cash):
-        with open('nexchange/tests/fixtures/'
-                  'okpay/transaction_history.xml') as f:
-            history.return_value = str.encode(f.read().replace('\n', ''))
+        history.return_value = get_ok_pay_mock()
         datetime.return_value = '2017-01-11-10:00'
         convert_to_cash.return_value = None
-        order = Order(**self.order_data)
+        order = Order(**self.okpay_order_data)
         order.save()
         import_okpay_payments = OkPayPaymentChecker()
         import_okpay_payments.run()
@@ -98,14 +61,14 @@ class WalletAPITestCase(UserBaseTestCase, OrderBaseTestCase):
                 'type': 'transfer',
                 'status': 'success',
                 'creditedCurrency': self.EUR.code,
-                'creditedAmount': str(self.order_data['amount_cash']),
+                'creditedAmount': str(self.payeer_order_data['amount_cash']),
                 'to': 'tata',
-                'shopOrderId': self.order_data['unique_reference'],
-                'comment': self.order_data['unique_reference'],
+                'shopOrderId': self.payeer_order_data['unique_reference'],
+                'comment': self.payeer_order_data['unique_reference'],
                 'from': sender
             }
         }
-        order = Order(**self.order_data)
+        order = Order(**self.payeer_order_data)
         order.save()
         import_payeer_payments = PayeerPaymentChecker()
         import_payeer_payments.run()
@@ -129,14 +92,14 @@ class WalletAPITestCase(UserBaseTestCase, OrderBaseTestCase):
                 'type': 'transfer',
                 'status': 'None',
                 'creditedCurrency': self.EUR.code,
-                'creditedAmount': str(self.order_data['amount_cash']),
+                'creditedAmount': str(self.payeer_order_data['amount_cash']),
                 'to': 'tata',
-                'shopOrderId': self.order_data['unique_reference'],
-                'comment': self.order_data['unique_reference'],
+                'shopOrderId': self.payeer_order_data['unique_reference'],
+                'comment': self.payeer_order_data['unique_reference'],
                 'from': sender
             }
         }
-        order = Order(**self.order_data)
+        order = Order(**self.payeer_order_data)
         order.save()
         import_payeer_payments = PayeerPaymentChecker()
         import_payeer_payments.run()
@@ -161,14 +124,14 @@ class WalletAPITestCase(UserBaseTestCase, OrderBaseTestCase):
                 'type': 'transfer',
                 'status': 'success',
                 'creditedCurrency': self.EUR.code,
-                'creditedAmount': str(self.order_data['amount_cash']),
+                'creditedAmount': str(self.payeer_order_data['amount_cash']),
                 'to': settings.PAYEER_ACCOUNT,
-                'shopOrderId': self.order_data['unique_reference'],
-                'comment': self.order_data['unique_reference'],
+                'shopOrderId': self.payeer_order_data['unique_reference'],
+                'comment': self.payeer_order_data['unique_reference'],
                 'from': sender
             }
         }
-        order = Order(**self.order_data)
+        order = Order(**self.payeer_order_data)
         order.save()
         import_payeer_payments = PayeerPaymentChecker()
         import_payeer_payments.run()

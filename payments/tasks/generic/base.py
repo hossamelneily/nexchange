@@ -194,6 +194,7 @@ class BasePaymentChecker(BaseTask):
 
         if not existing_payment:
             payment = Payment.objects.create(
+                is_success=self.data['is_success'],
                 payment_system_id=self.data['payment_system_id'],
                 reference=self.data['unique_ref'],
                 amount_cash=self.data['amount_cash'],

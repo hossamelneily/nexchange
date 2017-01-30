@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
         "name": "Default",
-        "percent_first_degree": 2,
+        "percent_first_degree": 0.02,
         "currency": [1, 2, 3, 4],
         "max_payout_btc": 1,
         "max_lifespan": 31536000,
