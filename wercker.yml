@@ -93,6 +93,22 @@ dev:
         code: |
           python manage.py loaddata referrals/fixtures/program.json
     - script:
+        name: Django import referral program fixture
+        code: |
+          python manage.py loaddata referrals/fixtures/program.json
+    - script:
+        name: Django import Ticker fixtures
+        code: |
+          if [ ${LOCAL_CMS} -eq 1 ]
+            python manage.py loaddata articles/fixtures/articles.json
+          fi
+    - script:
+        name: Django import Ticker fixtures
+        code: |
+          if [ ${LOCAL_TICKER} -eq 1 ]
+            python manage.py loaddata ticker/fixtures/ticker.json
+          fi
+    - script:
         name: Django run ticker update prices command
         code: |
           python manage.py ticker
@@ -298,6 +314,16 @@ build:
           python /usr/src/app/manage.py loaddata referrals/fixtures/program.json
           echo "To load the 'withdraw_address' fixture, uncomment the next line"
           # python manage.py loaddata core/fixtures/withdraw_address.json
+
+          if [ ${CMS_FROM_FIXTURE} -eq 1 ]
+            python manage.py loaddata articles/fixtures/articles.json
+          fi
+
+          if [ ${TICKER_FROM_FIXTURE} -eq 1 ]
+            python manage.py loaddata ticker/fixtures/ticker.json
+          fi
+
+
           # Copy static data to nginx volume
           cp -ra $WERCKER_OUTPUT_DIR/staticfiles/* /usr/share/nginx/html/static
           cp -ra $WERCKER_OUTPUT_DIR/mediafiles/* /usr/share/nginx/html/media
