@@ -1,1 +1,1 @@
-from .tasks.import_payments import ok_pay, payeer # noqa
+from .tasks.import_payments import run_okpay, run_payer # noqa
