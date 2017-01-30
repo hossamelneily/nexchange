@@ -154,6 +154,10 @@ def sell_order_release():
     # This the task to release FUNDS for clients that
     # SELL BTC or other coins to US
     # 1. Auto release funds when coins are credited
+    orders = Order.objects.filter(is_paid=True, is_completed=False)
+    for order in orders:
+        order.is_released = True
+        order.save()
     # 2. Move funds from user card to our card
     # 3. Notify admin if auto payment is not available
     # for the payment preference that the user has selected.

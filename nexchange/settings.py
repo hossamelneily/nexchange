@@ -152,6 +152,11 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'orders.task_summary.buy_order_release_invoke',
         'schedule': timedelta(seconds=60),
     },
+    'sell_order_release': {
+        'task': 'orders.task_summary.sell_order_release',
+        'schedule': timedelta(seconds=60),
+        'expires': 30,
+    },
     'renew_cards_reserve': {
         'task': 'accounts.task_summary.update_pending_transactions_invoke',
         'schedule': timedelta(seconds=60),
