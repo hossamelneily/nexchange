@@ -960,7 +960,7 @@ input.payment-icon:hover{
 
 .payment-trigger-image .helper {
     height: 100%;
-    display: inline-block;
+    display: inline-block !important;
     vertical-align: middle;
 }
 
@@ -1209,4 +1209,11 @@ p.support-link a{
 .modal-body .phone.val, .modal-body .intl-tel-input {
     width: 100%;
     margin-bottom: 5px;
+}
+
+.payment-type-trigger img.paypal,
+.payment-type-trigger img.visa,
+.payment-type-trigger img.sepa,
+.payment-type-trigger img.qiwi {
+    width: 100px;
 }
