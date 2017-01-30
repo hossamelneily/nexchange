@@ -66,6 +66,10 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         self.bad_payment_sender_data['user'] = self.bad_user
         self.bad_payment_sender = None
 
+        self.bad_payment_no_sender_data = deepcopy(self.good_payment_data)
+        self.bad_payment_no_sender_data['user'] = None
+        self.bad_payment_no_sender = None
+
         self.bad_payment_currency_data = deepcopy(self.good_payment_data)
         self.bad_payment_currency_data['currency'] = self.EUR
         self.bad_payment_currency = None
@@ -96,6 +100,9 @@ class ReleaseOderTestCase(OrderBaseTestCase):
 
             if self.exact_payment:
                 self.exact_payment.delete()
+
+            if self.bad_payment_no_sender:
+                self.bad_payment_no_sender.delete()
 
     @patch('orders.tasks.order_release.release_payment')
     @patch('orders.tasks.order_release.send_sms')
@@ -129,6 +136,34 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         self.assertTrue(self.order.is_released)
         self.assertTrue(self.good_payment.is_redeemed)
         self.assertTrue(self.good_payment.is_complete)
+        self.assertEqual(1, release_payment.call_count)
+
+    # REGRESSION!
+    @patch('orders.tasks.order_release.release_payment')
+    @patch('orders.tasks.order_release.send_sms')
+    @patch('orders.tasks.order_release.send_email')
+    def test_release_success_after_bad_payment_anonymous(
+            self, send_email, send_sms, release_payment):
+        release_payment.return_value = 'A555B'
+        # The presence of this guy was causing a regression
+        # in order_release.py:75 before 698f1059+1
+        self.bad_payment_no_sender = \
+            Payment(**self.bad_payment_no_sender_data)
+        self.bad_payment_no_sender.save()
+
+        self.good_payment = Payment(**self.good_payment_data)
+        self.good_payment.save()
+        buy_order_release_invoke.apply()
+        # reload from db
+        self.order.refresh_from_db()
+        self.good_payment.refresh_from_db()
+        self.bad_payment_no_sender.refresh_from_db()
+        # test
+        self.assertTrue(self.order.is_released)
+        self.assertTrue(self.good_payment.is_redeemed)
+        self.assertTrue(self.good_payment.is_complete)
+        self.assertFalse(self.bad_payment_no_sender.is_redeemed)
+        self.assertFalse(self.bad_payment_no_sender.is_complete)
         self.assertEqual(1, release_payment.call_count)
 
     @patch('orders.tasks.order_release.release_payment')
