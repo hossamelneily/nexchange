@@ -156,6 +156,11 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'accounts.task_summary.update_pending_transactions_invoke',
         'schedule': timedelta(seconds=60),
     },
+    'import_btc_deposit_transactions': {
+        'task': 'accounts.task_summary.import_transaction_deposit_btc',
+        'schedule': timedelta(seconds=60),
+        'expires': 60,
+    },
     'check_okpay_payments': {
         'task': 'payments.task_summary.run_okpay',
         'schedule': timedelta(seconds=60),
