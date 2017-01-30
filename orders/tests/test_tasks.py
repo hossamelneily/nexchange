@@ -1,7 +1,7 @@
 from core.tests.base import OrderBaseTestCase
 from accounts.models import Profile
 from payments.models import Payment, PaymentPreference
-from orders.task_summary import buy_order_release
+from orders.task_summary import buy_order_release_invoke
 from django.contrib.auth.models import User
 from orders.models import Order
 from core.models import Address
@@ -106,7 +106,7 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         self.exact_payment.save()
 
         release_payment.return_value = 'A555B'
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
         self.exact_payment.refresh_from_db()
         self.order.refresh_from_db()
         self.assertTrue(self.order.is_released)
@@ -121,7 +121,7 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         release_payment.return_value = 'A555B'
         self.good_payment = Payment(**self.good_payment_data)
         self.good_payment.save()
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
         # reload from db
         self.order.refresh_from_db()
         self.good_payment.refresh_from_db()
@@ -138,7 +138,7 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         release_payment.return_value = 'A555B'
         self.good_payment = Payment(**self.good_payment_data)
         self.good_payment.save()
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
         # reload from db
         self.order.refresh_from_db()
         self.good_payment.refresh_from_db()
@@ -148,7 +148,7 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         self.assertTrue(self.good_payment.is_complete)
         self.assertEqual(1, release_payment.call_count)
 
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
         # test only once
         self.assertTrue(self.order.is_released)
         self.assertTrue(self.good_payment.is_redeemed)
@@ -162,7 +162,7 @@ class ReleaseOderTestCase(OrderBaseTestCase):
     def test_release_fail_no_payment(
             self, send_email, send_sms, release_payment):
         release_payment.return_value = 'A555B'
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
         # reload from db
         self.order = Order.objects.get(pk=self.order.pk)
 
@@ -181,7 +181,7 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         self.bad_payment_failure.save()
 
         # apply task
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
 
         # reload from db
         self.order = Order.objects.get(pk=self.order.pk)
@@ -204,7 +204,7 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         self.bad_payment_sender.save()
 
         # apply task
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
 
         # reload from db
         self.order = Order.objects.get(pk=self.order.pk)
@@ -227,7 +227,7 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         self.bad_payment_amount.save()
 
         # apply task
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
 
         # reload from db
         self.order.refresh_from_db()
@@ -251,7 +251,7 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         self.bad_payment_currency.save()
 
         # apply task
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
 
         # reload from db
         self.order.refresh_from_db()
@@ -308,7 +308,7 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         self.good_payment.save()
 
         # apply task
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
 
         # reload good one from db
         self.order.refresh_from_db()
@@ -327,7 +327,7 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         self.good_payment = Payment(**self.good_payment_data)
         self.good_payment.save()
 
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
 
         self.good_payment.refresh_from_db()
 
@@ -352,7 +352,7 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         profile.notify_by_phone = False
         profile.notify_by_email = True
         profile.save()
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
         self.good_payment.refresh_from_db()
 
         self.assertEqual(1, send_email.call_count)
@@ -374,7 +374,7 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         profile.notify_by_email = False
         profile.save()
 
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
         self.good_payment.refresh_from_db()
 
         self.assertEqual(0, send_email.call_count)
@@ -400,7 +400,7 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         profile.save()
         self.good_payment.user.profile.save()
 
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
         self.good_payment.refresh_from_db()
 
         self.assertEqual(1, send_email.call_count)
@@ -425,7 +425,7 @@ class ReleaseOderTestCase(OrderBaseTestCase):
         profile.notify_by_email = False
         profile.save()
 
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
         self.good_payment.refresh_from_db()
 
         self.assertEqual(0, send_email.call_count)

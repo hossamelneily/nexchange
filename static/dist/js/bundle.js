@@ -4,11 +4,9 @@
 
 
     $(document).ajaxStart(function () {
-        console.log('Request Initiated');
         NProgress.start();
     });
     $(document).ajaxComplete(function () {
-        console.log('Request Complete');
         setTimeout(function () {
             NProgress.done();
         }, 500);
@@ -201,7 +199,8 @@
         $('#user_address_id').val('');
         $('#new_user_account').val('');
         // TODO: if no amount coin selected DEFAULT_AMOUNT to confirm
-        var confirm = $('.amount-coin').val() ? $('.amount-coin').val() : DEFAULT_AMOUNT;
+        var amountCoin = $('.amount-coin'),
+            confirm = amountCoin.val() ? amountCoin.val() : DEFAULT_AMOUNT;
         $('.btc-amount-confirm').text(confirm);
 
         var apiRoot = '/en/api/v1',
@@ -647,9 +646,9 @@ module.exports = {
      var chartObject = require("./chart.js"),
          registerObject = require("./register.js"),
          googleObject = require('./captcha.js'),
+         currency = null,
          animationDelay = 3000,
          minOrderCoin = 0.0001;
-
 
     function orderSmallerThanMin (amountCoin) {
         var val = parseFloat(amountCoin.val());
@@ -710,7 +709,6 @@ module.exports = {
             $('.btc-amount-confirm').text(amountCoin.val()); // add
             $('.cash-amount-confirm').text(amountCashConfirm); //add
 
-            // cb && cb();
             if(cb) cb();
         });
     }
@@ -768,9 +766,10 @@ module.exports = {
             $('.currency_to').val(elem.data('crypto'));
 
         }
-
-        $('.currency').html(currency.toUpperCase());
-        chartObject.renderChart(currency, $("#graph-range").val());
+        if (!!currency) {
+            $('.currency').html(currency.toUpperCase());
+            chartObject.renderChart(currency, $("#graph-range").val());
+        }
     }
 
     function setPrice(elem, price) {

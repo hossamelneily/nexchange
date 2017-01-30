@@ -3,11 +3,9 @@
 
 
     $(document).ajaxStart(function () {
-        console.log('Request Initiated');
         NProgress.start();
     });
     $(document).ajaxComplete(function () {
-        console.log('Request Complete');
         setTimeout(function () {
             NProgress.done();
         }, 500);
@@ -200,7 +198,8 @@
         $('#user_address_id').val('');
         $('#new_user_account').val('');
         // TODO: if no amount coin selected DEFAULT_AMOUNT to confirm
-        var confirm = $('.amount-coin').val() ? $('.amount-coin').val() : DEFAULT_AMOUNT;
+        var amountCoin = $('.amount-coin'),
+            confirm = amountCoin.val() ? amountCoin.val() : DEFAULT_AMOUNT;
         $('.btc-amount-confirm').text(confirm);
 
         var apiRoot = '/en/api/v1',

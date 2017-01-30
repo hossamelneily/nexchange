@@ -5,7 +5,7 @@ from payments.models import Payment
 from unittest.mock import patch
 from payments.tasks.generic.ok_pay import OkPayPaymentChecker
 from payments.tasks.generic.payeer import PayeerPaymentChecker
-from orders.tasks.order_release import buy_order_release
+from orders.task_summary import buy_order_release_invoke
 from django.conf import settings
 
 
@@ -36,7 +36,7 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
             reference=order.unique_reference
         )
 
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
         p.refresh_from_db()
         order.refresh_from_db()
         self.assertEqual(False, p.is_complete)
@@ -68,7 +68,7 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
             reference=order.unique_reference
         )
 
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
         p.refresh_from_db()
         order.refresh_from_db()
         self.assertEqual(True, p.is_complete)
@@ -125,7 +125,7 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
             reference=order.unique_reference
         )
 
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
 
         p.refresh_from_db()
         order.refresh_from_db()
@@ -170,7 +170,7 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
             reference=order.unique_reference
         )
 
-        buy_order_release.apply()
+        buy_order_release_invoke.apply()
 
         p.refresh_from_db()
         order.refresh_from_db()

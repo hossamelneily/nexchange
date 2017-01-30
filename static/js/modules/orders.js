@@ -5,9 +5,9 @@
      var chartObject = require("./chart.js"),
          registerObject = require("./register.js"),
          googleObject = require('./captcha.js'),
+         currency = null,
          animationDelay = 3000,
          minOrderCoin = 0.0001;
-
 
     function orderSmallerThanMin (amountCoin) {
         var val = parseFloat(amountCoin.val());
@@ -68,7 +68,6 @@
             $('.btc-amount-confirm').text(amountCoin.val()); // add
             $('.cash-amount-confirm').text(amountCashConfirm); //add
 
-            // cb && cb();
             if(cb) cb();
         });
     }
@@ -126,9 +125,10 @@
             $('.currency_to').val(elem.data('crypto'));
 
         }
-
-        $('.currency').html(currency.toUpperCase());
-        chartObject.renderChart(currency, $("#graph-range").val());
+        if (!!currency) {
+            $('.currency').html(currency.toUpperCase());
+            chartObject.renderChart(currency, $("#graph-range").val());
+        }
     }
 
     function setPrice(elem, price) {
