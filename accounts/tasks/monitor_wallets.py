@@ -10,7 +10,7 @@ from nexchange.utils import check_transaction_blockchain, \
 import logging
 
 
-@shared_task
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def update_pending_transactions():
     for tr in Transaction.objects.\
             filter(Q(is_completed=False) | Q(is_verified=False)):

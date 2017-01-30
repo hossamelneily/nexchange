@@ -8,11 +8,12 @@ from django.utils.translation import activate
 from celery import shared_task
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 import logging
 import sys
 
 
-@shared_task
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def buy_order_release():
     logger = logging.getLogger(__name__)
     ch = logging.StreamHandler(sys.stdout)
@@ -149,7 +150,7 @@ def buy_order_release():
                 send_email(user.email, title, msg)
 
 
-@shared_task
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def sell_order_release():
     # TODO:
     # This the task to release FUNDS for clients that
@@ -161,7 +162,7 @@ def sell_order_release():
     pass
 
 
-@shared_task
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def exchange_order_release():
     # TODO:
     # This the task to release COINS for clients that

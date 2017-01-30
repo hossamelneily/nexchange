@@ -151,31 +151,27 @@ CELERY_BEAT_SCHEDULE = {
     'buy_order_release': {
         'task': 'orders.task_summary.buy_order_release',
         'schedule': timedelta(seconds=60),
-        'expires': 30,
     },
     'renew_cards_reserve': {
         'task': 'accounts.task_summary.update_pending_transactions',
         'schedule': timedelta(seconds=60),
-        'expires': 30,
     },
     'check_okpay_payments': {
         'task': 'payments.task_summary.run_okpay',
         'schedule': timedelta(seconds=60),
-        'expires': 30,
     },
     'check_payeer_payments': {
         'task': 'payments.task_summary.run_payeer',
         'schedule': timedelta(seconds=60),
-        'expires': 30,
 
     },
     'checker_transactions': {
         'task': 'accounts.task_summary.renew_cards_reserve',
         'schedule': timedelta(seconds=60),
-        'expires': 30,
     },
 }
 
+TASKS_TIME_LIMIT = 30
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
@@ -372,13 +368,11 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler'
         }
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO'
-    },
-    'django.request': {
-        'handlers': ['mail_admins'],
-        'level': 'ERROR',
-        'propagate': True,
-    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    }
 }
