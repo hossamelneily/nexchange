@@ -3,8 +3,8 @@ from core.tests.base import WalletBaseTestCase
 from orders.models import Order
 from payments.models import Payment
 from unittest.mock import patch
-from payments.tasks.import_payments import OkPayPaymentChecker, \
-    PayeerPaymentChecker
+from payments.tasks.generic.ok_pay import OkPayPaymentChecker
+from payments.tasks.generic.payeer import PayeerPaymentChecker
 from orders.tasks.order_release import buy_order_release
 from django.conf import settings
 
