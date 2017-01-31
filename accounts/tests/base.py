@@ -35,7 +35,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
     def _read_fixture(self):
         cont_path = 'nexchange/tests/fixtures/blockr/address_transactions.json'
         with open(cont_path) as f:
-            self.blockr_response = f.read().replace('\n', '')
+            self.blockr_response = f.read().replace('\n', '').replace(' ', '')
             self.wallet_address = json.loads(self.blockr_response)['data'][
                 'address'
             ]

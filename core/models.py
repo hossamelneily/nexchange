@@ -49,7 +49,7 @@ class Transaction(BtcBase):
     address_to = models.ForeignKey('core.Address',
                                    related_name='address_to')
     # TODO: how to handle cancellation?
-    order = models.ForeignKey('orders.Order')
+    order = models.ForeignKey('orders.Order', related_name='transactions')
     is_verified = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
 

@@ -3,10 +3,16 @@ from core.tests.base import WalletBaseTestCase
 from orders.models import Order
 from payments.models import Payment
 from unittest.mock import patch
+import requests_mock
 from payments.tasks.generic.ok_pay import OkPayPaymentChecker
 from payments.tasks.generic.payeer import PayeerPaymentChecker
+from accounts.tests.base import TransactionImportBaseTestCase
+from accounts.task_summary import import_transaction_deposit_btc_invoke
+from orders.task_summary import sell_order_release_invoke
 from orders.task_summary import buy_order_release_invoke
 from django.conf import settings
+import json
+from decimal import Decimal
 
 
 class OKPayEndToEndTestCase(WalletBaseTestCase):
@@ -190,3 +196,108 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
 
     def test_failure_release_invalid_user(self):
         pass
+
+
+class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
+
+    def setUp(self):
+        self.confirmation_list = [settings.MIN_REQUIRED_CONFIRMATIONS,
+                                  settings.MIN_REQUIRED_CONFIRMATIONS - 1]
+        super(SellOrderReleaseTaskTestCase, self).setUp()
+        self.import_txs_task = import_transaction_deposit_btc_invoke
+        self.release_task = sell_order_release_invoke
+
+    def _create_second_order(self):
+        self.order_2 = Order(
+            order_type=Order.SELL,
+            amount_btc=Decimal(str(self.amounts[self.status_bad_list_index])),
+            currency=self.EUR,
+            user=self.user,
+            is_completed=False,
+            is_paid=False
+        )
+        self.order_2.save()
+        self.unique_ref_2 = self.order_2.unique_reference
+
+    def _read_fixture(self):
+        cont_path = 'nexchange/tests/fixtures/blockr/address_transactions.json'
+        with open(cont_path) as f:
+            response = f.read().replace('\n', '').replace(' ', '')
+            loads = json.loads(response)
+            # change confirmation numbers
+            for i, txs in enumerate(loads['data']['txs']):
+                confirmations = txs['confirmations']
+                response = response.replace(
+                    str(confirmations),
+                    str(self.confirmation_list[i])
+                )
+
+            self.wallet_address = json.loads(response)['data'][
+                'address'
+            ]
+            self.blockr_response = response
+            txs = json.loads(self.blockr_response)['data']['txs']
+            self.amounts = [tx['amount'] for tx in txs]
+            self.tx_ids = [tx['tx'] for tx in txs]
+        self.status_ok_list_index = 0
+        self.status_bad_list_index = 1
+
+    @requests_mock.mock()
+    @patch('orders.models.Order.send_money')
+    def test_release_sell_order_confirmations(self, m, send_money):
+        m.get(self.url, text=self.blockr_response)
+        send_money.return_value = True
+        self.import_txs_task.apply()
+        self.release_task.apply()
+        order = Order.objects.get(unique_reference=self.unique_ref)
+        self.assertTrue(order.is_released)
+
+    @requests_mock.mock()
+    @patch('orders.models.Order.send_money')
+    def test_do_not_release_sell_order_not_enough_confirmations(self, m,
+                                                                send_money):
+        self.confirmation_list[0] = settings.MIN_REQUIRED_CONFIRMATIONS - 1
+        self._read_fixture()
+        m.get(self.url, text=self.blockr_response)
+        send_money.return_value = True
+        self.import_txs_task.apply()
+        self.release_task.apply()
+        order = Order.objects.get(unique_reference=self.unique_ref)
+        self.assertFalse(order.is_released)
+
+    @requests_mock.mock()
+    @patch('orders.models.Order.send_money')
+    def test_sell_order_release_1_yes_1_no_due_to_confirmations(self, m,
+                                                                send_money):
+        self.confirmation_list = [settings.MIN_REQUIRED_CONFIRMATIONS,
+                                  settings.MIN_REQUIRED_CONFIRMATIONS - 1]
+        self._read_fixture()
+        self._create_second_order()
+        m.get(self.url, text=self.blockr_response)
+        send_money.return_value = True
+        self.import_txs_task.apply()
+        self.release_task.apply()
+        order = Order.objects.get(unique_reference=self.unique_ref)
+        order_2 = Order.objects.get(unique_reference=self.unique_ref_2)
+        self.assertTrue(order.is_released)
+        self.assertFalse(order_2.is_released)
+
+    @requests_mock.mock()
+    @patch('orders.models.Order.send_money')
+    def test_do_not_release_sell_order_with_task_not_send_money(self, m,
+                                                                send_money):
+        m.get(self.url, text=self.blockr_response)
+        send_money.return_value = False
+        self.import_txs_task.apply()
+        self.release_task.apply()
+        order = Order.objects.get(unique_reference=self.unique_ref)
+        self.assertFalse(order.is_released)
+
+    @requests_mock.mock()
+    @patch('orders.models.Order.send_money')
+    def test_notify_admin_if_not_send_money(self, m, send_money):
+        m.get(self.url, text=self.blockr_response)
+        send_money.return_value = False
+        self.import_txs_task.apply()
+        with self.assertRaises(NotImplementedError):
+            self.release_task()

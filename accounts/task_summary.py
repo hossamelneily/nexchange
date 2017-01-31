@@ -1,7 +1,7 @@
 # flake8: noqa
 from accounts.tasks.generate_wallets import renew_cards_reserve
 from accounts.tasks.monitor_wallets import update_pending_transactions
-from .tasks.monitor_wallets import import_transaction_deposit_btc
+from accounts.tasks.monitor_wallets import import_transaction_deposit_btc
 from django.conf import settings
 from celery import shared_task
 

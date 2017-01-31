@@ -71,7 +71,8 @@ class BlockchainTransactionImporter:
                 transaction = Transaction.objects.create(
                     tx_id=self.data['tx_id'],
                     address_to=self.address,
-                    order=orders[0]
+                    order=orders[0],
+                    confirmations=int(self.data['confirmations'])
                 )
                 transaction.save()
                 self.logger.info('...new transaction created {}'
@@ -88,6 +89,10 @@ class BlockchainTransactionImporter:
                 self.logger.info(
                     '...Transaction is not created: more then 1 order {} found'
                     ' for transaction {}'.format(orders, self.data))
+        else:
+            self.logger.info('Transaction with ID {} already exists'.format(
+                self.data['tx_id'])
+            )
 
     def import_income_transactions(self):
         self.get_transactions()
