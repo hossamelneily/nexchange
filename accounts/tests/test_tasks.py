@@ -1,14 +1,14 @@
 from accounts.tests.base import TransactionImportBaseTestCase
 from core.models import Address
 import requests_mock
-from accounts.tasks.monitor_wallets import import_transaction_deposit_btc
+from accounts.task_summary import import_transaction_deposit_btc_invoke
 
 
 class TransactionImportTaskTestCase(TransactionImportBaseTestCase):
 
     def setUp(self):
         super(TransactionImportTaskTestCase, self).setUp()
-        self.run_method = import_transaction_deposit_btc.apply
+        self.run_method = import_transaction_deposit_btc_invoke.apply
 
     @requests_mock.mock()
     def test_create_transactions_with_task(self, m):

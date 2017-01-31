@@ -153,7 +153,7 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(seconds=60),
     },
     'sell_order_release': {
-        'task': 'orders.task_summary.sell_order_release',
+        'task': 'orders.task_summary.sell_order_release_invoke',
         'schedule': timedelta(seconds=60),
         'expires': 30,
     },
@@ -162,7 +162,7 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(seconds=60),
     },
     'import_btc_deposit_transactions': {
-        'task': 'accounts.task_summary.import_transaction_deposit_btc',
+        'task': 'accounts.task_summary.import_transaction_deposit_btc_invoke',
         'schedule': timedelta(seconds=60),
         'expires': 60,
     },

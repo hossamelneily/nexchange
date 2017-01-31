@@ -2,11 +2,15 @@ from core.tests.base import OrderBaseTestCase
 from accounts.models import Profile
 from payments.models import Payment, PaymentPreference
 from orders.task_summary import buy_order_release_invoke
+from accounts.tests.base import TransactionImportBaseTestCase
+from accounts.task_summary import import_transaction_deposit_btc_invoke
+from orders.task_summary import sell_order_release_invoke
 from django.contrib.auth.models import User
 from orders.models import Order
 from core.models import Address
 from decimal import Decimal
 from unittest.mock import patch
+import requests_mock
 from copy import deepcopy
 from django.db import transaction
 
@@ -472,3 +476,41 @@ class ReleaseOderTestCase(OrderBaseTestCase):
 
     def test_release_fail_other_currency(self):
         pass
+
+
+class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
+
+    def setUp(self):
+        super(SellOrderReleaseTaskTestCase, self).setUp()
+        self.import_txs_task = import_transaction_deposit_btc_invoke
+        self.release_task = sell_order_release_invoke
+
+    @requests_mock.mock()
+    @patch('orders.models.Order.send_money')
+    def test_release_sell_order_with_task(self, m, send_money):
+        m.get(self.url, text=self.blockr_response)
+        send_money.return_value = True
+        self.import_txs_task.apply()
+        self.release_task()
+        order = Order.objects.get(unique_reference=self.unique_ref)
+        self.assertTrue(order.is_released)
+
+    @requests_mock.mock()
+    @patch('orders.models.Order.send_money')
+    def test_do_not_release_sell_order_with_task_not_send_money(self, m,
+                                                                send_money):
+        m.get(self.url, text=self.blockr_response)
+        send_money.return_value = False
+        self.import_txs_task.apply()
+        self.release_task.apply()
+        order = Order.objects.get(unique_reference=self.unique_ref)
+        self.assertFalse(order.is_released)
+
+    @requests_mock.mock()
+    @patch('orders.models.Order.send_money')
+    def test_notify_admin_if_not_send_money(self, m, send_money):
+        m.get(self.url, text=self.blockr_response)
+        send_money.return_value = False
+        self.import_txs_task.apply()
+        with self.assertRaises(NotImplementedError):
+            self.release_task()

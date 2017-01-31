@@ -21,7 +21,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.url = 'http://btc.blockr.io/api/v1/address/txs/{}'.format(
             self.wallet_address
         )
-        order = Order(
+        self.order = Order(
             order_type=Order.SELL,
             amount_btc=Decimal(str(self.amounts[self.status_ok_list_index])),
             currency=self.EUR,
@@ -29,8 +29,8 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             is_completed=False,
             is_paid=False
         )
-        order.save()
-        self.unique_ref = order.unique_reference
+        self.order.save()
+        self.unique_ref = self.order.unique_reference
 
     def _read_fixture(self):
         cont_path = 'nexchange/tests/fixtures/blockr/address_transactions.json'

@@ -150,18 +150,20 @@ def buy_order_release():
 
 
 def sell_order_release():
-    # TODO:
-    # This the task to release FUNDS for clients that
-    # SELL BTC or other coins to US
-    # 1. Auto release funds when coins are credited
-    orders = Order.objects.filter(is_paid=True, is_completed=False)
+    logger = get_nexchange_logger(__name__)
+    orders = Order.objects.filter(is_paid=True, is_completed=False,
+                                  order_type=Order.SELL, is_released=False)
     for order in orders:
-        order.is_released = True
-        order.save()
-    # 2. Move funds from user card to our card
-    # 3. Notify admin if auto payment is not available
-    # for the payment preference that the user has selected.
-    pass
+        status = order.send_money()
+        if status:
+            # TODO: move this to send money
+            order.is_released = True
+            order.save()
+            logger.info('Order {} is released'.format(order))
+        else:
+            raise NotImplementedError(
+                'Order {} cannot be paid automatically.'.format(order)
+            )
 
 
 def exchange_order_release():

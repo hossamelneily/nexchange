@@ -46,7 +46,6 @@ def update_pending_transactions():
                 logging.info('Transaction {} is completed'.format(tr.tx_id))
 
 
-@shared_task
 def import_transaction_deposit_btc():
     address = Address.objects.filter(
         Q(currency__code='BTC') | Q(currency=None),
