@@ -221,7 +221,7 @@
     "locale": "en",
     "head": "Our fees",
     "written_by": "Nexchange Support Team",
-    "body": "We charge a nominal fee of 3% for any exchange operation that is conducted on an on-the-spot basis, <br> in order to protect ourselves against exposure to the volatility of the markets, cover our expenses, and ensure the profitability of our operation.<br>\r\nThe afforementioned fee does not include any additional fees collected by payment providers or your bank.\r\n<br>\r\n<br>\r\nOn the <a href=\"https://advanced.nexchange.co.uk\" target=\"_blank\">market-based exchange</a> which we are running, there are no fees as of now, since it still in Beta phases."
+    "body": "We charge a nominal fee of 3% for any exchange operation that is conducted on an on-the-spot basis and involves fiat currency (regular money, for example USD to Bitcoin), and 1% for crypto-to-crypto exchange (For example, Ethereum to Bitcoin), <br> in order to protect ourselves against exposure to the volatility of the markets, cover our expenses, and ensure the profitability of our operation.<br>\r\nThe afforementioned fee does not include any additional fees collected by payment providers or your bank.\r\n<br>\r\n<br>\r\nOn the <a href=\"https://advanced.nexchange.co.uk\" target=\"_blank\">market-based exchange</a> which we are running, there are no fees as of now, since it still in Beta phases."
   }
 },
 {
