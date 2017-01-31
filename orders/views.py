@@ -287,7 +287,7 @@ def payment_confirmation(request, pk):
             order.is_paid = paid
             order.save()
             send_email('oleg@onit.ws', '{} SET AS PAID',
-                       "{}".format(order))
+                       "User: {} Order: {}".format(order.user, order))
             return JsonResponse({'status': 'OK',
                                  'frozen': order.payment_status_frozen,
                                  'paid': order.is_paid}, safe=False)

@@ -15,6 +15,7 @@ from hashlib import sha256
 import xml.etree.ElementTree as ET
 import requests
 import json
+from django.utils.log import AdminEmailHandler
 
 api = Uphold(settings.UPHOLD_IS_TEST)
 api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
@@ -43,6 +44,11 @@ def send_sms(msg, phone):
         return err
 
 
+def print_traceback():
+    ex_type, ex, tb = sys.exc_info()
+    traceback.print_tb(tb)
+
+
 def release_payment(withdraw, amount, type_='BTC'):
     # TODO: take from user cards
     try:
@@ -54,8 +60,7 @@ def release_payment(withdraw, amount, type_='BTC'):
         return txn_id
     except Exception as e:
         print('error {}'.format(e))
-        ex_type, ex, tb = sys.exc_info()
-        traceback.print_tb(tb)
+        print_traceback()
 
 
 def check_transaction_blockchain(tx):
@@ -340,16 +345,27 @@ def validate_payment_matches_order(order, payment, verbose_match, logger):
     return user_matches and details_match and ref_matches
 
 
-def get_nexchange_logger(name):
+def get_nexchange_logger(name, with_console=True, with_email=False):
+    formatter_str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logger = logging.getLogger(
         name
     )
+    formatter = logging.Formatter(formatter_str)
+    handlers = []
+    if with_console:
+        console_ch = logging.StreamHandler(sys.stdout)
+        handlers.append(console_ch)
+    if with_email:
+        email_ch = AdminEmailHandler()
+        handlers.append(email_ch)
 
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s'
-                                  ' - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    for handler in handlers:
+        handler.setLevel(logging.DEBUG)
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
+    if not handlers:
+        print('WARNING: logger with no handlers')
+        print_traceback()
 
     return logger

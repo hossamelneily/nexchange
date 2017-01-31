@@ -11,7 +11,7 @@ import logging
 
 
 def buy_order_release():
-    logger = get_nexchange_logger(__name__)
+    logger = get_nexchange_logger(__name__, True, True)
 
     for p in Payment.objects.filter(is_success=True,
                                     is_redeemed=False):
