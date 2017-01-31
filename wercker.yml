@@ -95,13 +95,15 @@ dev:
     - script:
         name: Django import Ticker fixtures
         code: |
-          if [ ! -z LOCAL_CMS] && [ ${LOCAL_CMS} -eq 1 ] then
+          if [ ! -z LOCAL_CMS] && [ ${LOCAL_CMS} -eq 1 ]
+          then
             python manage.py loaddata articles/fixtures/articles.json
           fi
     - script:
         name: Django import Ticker fixtures
         code: |
-          if [ ! -z LOCAL_TICKER] && [ ${LOCAL_TICKER} -eq 1 ] then
+          if [ ! -z LOCAL_TICKER] && [ ${LOCAL_TICKER} -eq 1 ]
+          then
             python manage.py loaddata ticker/fixtures/ticker.json
           fi
     - script:

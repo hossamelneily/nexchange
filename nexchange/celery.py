@@ -11,6 +11,11 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE',
 
 app = Celery('nexchange')
 
+
+app.conf.update(
+    ADMINS=settings.ADMINS,
+    CELERY_SEND_TASK_ERROR_EMAILS=True
+)
 # Using a string here means the worker don't have to serialize
 # the configuration object to child processes.
 # - namespace='CELERY' means all celery-related configuration keys

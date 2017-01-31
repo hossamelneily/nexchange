@@ -8,6 +8,8 @@ class BaseTask(Task):
     def __init__(self, *args, **kwargs):
         # Logging
         self.logger = get_nexchange_logger(
-            self.__class__.__name__
+            self.__class__.__name__,
+            True,
+            True
         )
         super(BaseTask, self).__init__(*args, **kwargs)
