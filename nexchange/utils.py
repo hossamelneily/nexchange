@@ -357,9 +357,9 @@ def get_nexchange_logger(name, with_console=True, with_email=False):
     if with_console:
         console_ch = logging.StreamHandler(sys.stdout)
         handlers.append((console_ch, 'DEBUG',))
-    if with_email:
+    if with_email and not settings.DEBUG:
         email_ch = AdminEmailHandler()
-        # handlers.append((email_ch, 'ERROR',))
+        handlers.append((email_ch, 'ERROR',))
 
     for handler, level in handlers:
         level_code = getattr(logging, level, logging.DEBUG)
