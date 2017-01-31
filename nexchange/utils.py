@@ -350,6 +350,7 @@ def get_nexchange_logger(name, with_console=True, with_email=False):
     logger = logging.getLogger(
         name
     )
+    logger.level = logging.DEBUG
     formatter = logging.Formatter(formatter_str)
     handlers = []
     if with_console:
