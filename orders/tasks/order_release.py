@@ -3,23 +3,16 @@ from core.models import Address, Transaction
 from payments.models import Payment
 from orders.models import Order
 from nexchange.utils import validate_payment_matches_order, \
-    release_payment, send_email, send_sms
+    release_payment, send_email, send_sms, get_nexchange_logger
 from django.utils.translation import activate
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
 import logging
-import sys
 
 
 def buy_order_release():
-    logger = logging.getLogger(__name__)
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    logger = get_nexchange_logger(__name__)
+
     for p in Payment.objects.filter(is_success=True,
                                     is_redeemed=False):
         verbose_match = False
@@ -79,6 +72,14 @@ def buy_order_release():
                     user = o.user
                     profile = user.profile
                     verbose_match = True
+                else:
+                    logger.error('could not associate payment {}'
+                                 ' with an order. owner user of wallet '
+                                 '{} not found. '
+                                 'SmartMatching disabled.'.format(p, pm))
+                    p.moderator_flag = True
+                    p.save()
+                    continue
             except Order.DoesNotExist:
                 logger.error('order for payment {} not found'
                              ' through ID or SmartMatching'.format(p))
