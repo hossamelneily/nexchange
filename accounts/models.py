@@ -52,6 +52,8 @@ class Profile(TimeStampedModel, SoftDeletableModel):
                             max_length=100,
                             default='en')
     sig_key = models.CharField(max_length=64, blank=True)
+    duplicate_of = models.ForeignKey('Profile', blank=True,
+                                     null=True, default=None)
 
     @property
     def partial_phone(self):
