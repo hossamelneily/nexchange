@@ -19,6 +19,7 @@ from django.utils.log import AdminEmailHandler
 
 api = Uphold(settings.UPHOLD_IS_TEST)
 api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
+logging.basicConfig(level=logging.DEBUG)
 
 
 def send_email(to, subject='Nexchange', msg=None):
