@@ -99,13 +99,13 @@ dev:
     - script:
         name: Django import Ticker fixtures
         code: |
-          if [ ${LOCAL_CMS} -eq 1 ] then
+          if [! -z LOCAL_CMS] && [ ${LOCAL_CMS} -eq 1 ] then
             python manage.py loaddata articles/fixtures/articles.json
           fi
     - script:
         name: Django import Ticker fixtures
         code: |
-          if [ ${LOCAL_TICKER} -eq 1 ] then
+          if [! -z LOCAL_TICKER] &&[ ${LOCAL_TICKER} -eq 1 ] then
             python manage.py loaddata ticker/fixtures/ticker.json
           fi
     - script:
@@ -315,11 +315,11 @@ build:
           echo "To load the 'withdraw_address' fixture, uncomment the next line"
           # python manage.py loaddata core/fixtures/withdraw_address.json
 
-          if [ ${CMS_FROM_FIXTURE} -eq 1 ] then
+          if [! -z $CMS_FROM_FIXTURE] && [ ${CMS_FROM_FIXTURE} -eq 1 ] then
             python manage.py loaddata articles/fixtures/articles.json
           fi
 
-          if [ ${TICKER_FROM_FIXTURE} -eq 1 ] then
+          if [! -z $CMS_FROM_FIXTURE] && [ ${TICKER_FROM_FIXTURE} -eq 1 ] then
             python manage.py loaddata ticker/fixtures/ticker.json
           fi
 
