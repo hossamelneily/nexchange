@@ -2,7 +2,6 @@ import dj_database_url
 from nexchange.settings import *
 
 DEBUG = bool(os.getenv('DEBUG', False))
-UPHOLD_IS_TEST = bool(os.getenv('UPHOLD_IS_TEST', False))
 CELERY_ALWAYS_EAGER = bool(os.getenv('CELERY_ALWAYS_EAGER', False))
 ALLOWED_HOSTS = ['nexchange.co.uk', 'nexchange.ru',
                  'www.nexchange.co.uk', 'www.nexchange.ru']
@@ -42,8 +41,8 @@ PAYEER_API_KEY = os.getenv('PAYEER_API_KEY')
 # UPHOLD
 UPHOLD_USER = os.getenv('UPHOLD_USER')
 UPHOLD_PASS = os.getenv('UPHOLD_PASS')
-UPHOLD_IS_TEST = bool(os.getenv('UPHOLD_IS_TEST'))
-
+UPHOLD_CARD_ID_BTC = os.getenv('UPHOLD_CARD_ID_BTC')
+UPHOLD_IS_TEST = bool(os.getenv('UPHOLD_IS_TEST', False))
 
 # Kraken
 KRAKEN_API_KEY = os.getenv('KRAKEN_API_KEY')

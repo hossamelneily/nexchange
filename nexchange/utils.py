@@ -44,11 +44,12 @@ def send_sms(msg, phone):
 
 
 def release_payment(withdraw, amount, type_='BTC'):
+    # TODO: take from user cards
     try:
-        txn_id = api.prepare_txn(settings.UPHOLD_CARD_ID,
+        txn_id = api.prepare_txn(settings.UPHOLD_CARD_ID_BTC,
                                  withdraw, amount, type_)
         print(txn_id)
-        res = api.execute_txn(settings.UPHOLD_CARD_ID, txn_id)
+        res = api.execute_txn(settings.UPHOLD_CARD_ID_BTC, txn_id)
         print(res)
         return txn_id
     except Exception as e:
