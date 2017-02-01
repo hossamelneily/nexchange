@@ -21,7 +21,12 @@ class RegistrationTestCase(TestCase):
             'password1': '123Mudar',
             'password2': '123Mudar',
         }
+        self.user = None
         super(RegistrationTestCase, self).setUp()
+
+    def tearDown(self):
+        if self.user:
+            self.user.delete()
 
     def test_can_register(self):
         response = self.client.post(
@@ -350,6 +355,89 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         self.assertTrue(sms_token)
 
         send_sms.assert_called_once_with(self.user, sms_token)
+
+    @patch('accounts.views._send_sms')
+    def test_user_create_once(self, send_sms):
+        url = reverse('accounts.user_by_phone')
+        uname = '+79259737305'
+        payload = {
+            'phone': uname,
+        }
+        # create once
+        self.client.get(self.logout_url)
+        res = self.client.post(url, data=payload)
+        self.assertEquals(res.status_code, 200)
+
+        # attempt to create twice
+        self.client.get(self.logout_url)
+        res = self.client.post(url, data=payload)
+        self.assertEquals(res.status_code, 200)
+
+        users = User.objects.filter(username=uname)
+
+        self.assertEquals(len(users), 1)
+        self.user = users[0]
+
+        sms_token = SmsToken.objects.\
+            filter(user=self.user).last()
+        self.assertTrue(sms_token)
+
+        self.assertEqual(2, send_sms.call_count)
+
+
+    @patch('accounts.views._send_sms')
+    def test_sms_adds_plus(self, send_sms):
+        url = reverse('accounts.user_by_phone')
+        uname = '79259737305'
+        payload = {
+            'phone': uname,
+        }
+        self.client.get(self.logout_url)
+        res = self.client.post(url, data=payload)
+
+        self.assertEquals(res.status_code, 200)
+        users = User.objects.filter(username=uname)
+        self.assertEquals(len(users), 0)
+
+        formatted_uname = '+{}'.format(uname)
+        users = User.objects.filter(username=formatted_uname)
+        self.assertEquals(len(users), 1)
+        self.user = users[0]
+
+        sms_token = SmsToken.objects.\
+            filter(user=self.user).last()
+        self.assertTrue(sms_token)
+        self.assertEqual(formatted_uname,
+                         self.user.username)
+        self.assertEqual(formatted_uname,
+                         self.user.profile.phone)
+
+
+        self.assertEqual(1, send_sms.call_count)
+
+    @patch('accounts.views._send_sms')
+    def test_sms_truncates_str(self, send_sms):
+        url = reverse('accounts.user_by_phone')
+        good_uname = '79259737305'
+        bad_uname = 'abc{}abc'.format(good_uname)
+        payload = {
+            'phone': bad_uname,
+        }
+        self.client.get(self.logout_url)
+        res = self.client.post(url, data=payload)
+
+        self.assertEquals(res.status_code, 200)
+        good_uname_plus = '+{}'.format(good_uname)
+        users = User.objects.filter(username=good_uname_plus)
+
+        self.assertEquals(len(users), 1)
+        self.user = users[0]
+
+        sms_token = SmsToken.objects. \
+            filter(user=self.user).last()
+        self.assertTrue(sms_token)
+        send_sms.assert_called_once_with(self.user, sms_token)
+        self.assertEqual(1, send_sms.call_count)
 
     @patch('accounts.decoratos.get_google_response')
     @patch('accounts.views._send_sms')

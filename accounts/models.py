@@ -86,8 +86,12 @@ class Profile(TimeStampedModel, SoftDeletableModel):
             token.save()
         if not self.phone:
             self.phone = self.user.username
-
-        self.lang = get_language()
+        else:
+            self.user.username = self.phone
+            self.user.save()
+        lang = get_language()
+        if lang and self.lang != lang:
+            self.lang = lang
 
         # TODO: move to user class, allow many(?)
         ReferralCode.objects.get_or_create(user=self.user)

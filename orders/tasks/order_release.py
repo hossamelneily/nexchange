@@ -41,7 +41,8 @@ def buy_order_release():
                     p.save()
                     p.payment_preference.save()
             elif p.user != o.user:
-                logger.error('payment {} user {} users don\'t match'
+                logger.error('payment {} user {} users don\'t match '
+                             'is it a new user with old preference?'
                              .format(p, o))
                 continue
 

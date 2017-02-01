@@ -14,6 +14,7 @@ from django.shortcuts import redirect, render
 from django.template.loader import get_template
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
+from nexchange.utils import Del
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from phonenumber_field.validators import validate_international_phonenumber
@@ -33,7 +34,8 @@ from referrals.forms import ReferralTokenForm
 def user_registration(request):
     template = 'accounts/user_registration.html'
     success_message = _(
-        'Registration completed. Check your phone for SMS confirmation code.')
+        'Registration completed. Check your phone '
+        'for SMS confirmation code.')
     error_message = _('Error during accounts. <br>Details: {}')
 
     if request.method == 'POST':
@@ -132,7 +134,7 @@ def _send_sms(user, token=None):
     if token is None:
         token = SmsToken.objects.filter(user=user).latest('id')
 
-    msg = _("BTC Exchange code:") + ' %s' % token.sms_token
+    msg = _('Nexchange confirmation code: ') + '%s' % token.sms_token
     phone_to = str(user.username)
 
     try:
@@ -228,8 +230,9 @@ def verify_phone(request):
 @not_logged_in_required
 @watch_login
 def user_by_phone(request):
+    keep_numbers = Del()
     phone = request.POST.get('phone')
-    phone = re.sub(' +', '', phone)
+    phone = '+{}'.format(phone.translate(keep_numbers))
     try:
         validate_international_phonenumber(phone)
     except ValidationError as e:
@@ -244,9 +247,10 @@ def user_by_phone(request):
         )
 
     user, created = User.objects.get_or_create(username=phone)
-    Profile.objects.get_or_create(user=user)
-    token = SmsToken(user=user)
-    token.save()
+    # this will create profile
+    assert user.profile
+    # todo: move sms_token relation to profile ?
+    token = user.sms_token.last()
     res = _send_sms(user, token)
     if isinstance(res, TwilioException):
         return JsonResponse({'status': 'error'})
