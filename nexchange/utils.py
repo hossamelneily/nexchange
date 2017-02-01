@@ -16,6 +16,8 @@ import xml.etree.ElementTree as ET
 import requests
 import json
 from django.utils.log import AdminEmailHandler
+import string
+
 
 api = Uphold(settings.UPHOLD_IS_TEST)
 api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
@@ -33,6 +35,8 @@ def send_email(to, subject='Nexchange', msg=None):
 
 
 def send_sms(msg, phone):
+    if not phone.startswith('+'):
+        phone = '+{}'.format(phone)
     try:
         client = TwilioRestClient(
             settings.TWILIO_ACCOUNT_SID,
@@ -357,9 +361,10 @@ def get_nexchange_logger(name, with_console=True, with_email=False):
     if with_console:
         console_ch = logging.StreamHandler(sys.stdout)
         handlers.append((console_ch, 'DEBUG',))
+
     if with_email and not settings.DEBUG:
         email_ch = AdminEmailHandler()
-        handlers.append((email_ch, 'ERROR',))
+        handlers.append((email_ch, 'WARNING',))
 
     for handler, level in handlers:
         level_code = getattr(logging, level, logging.DEBUG)
@@ -372,3 +377,11 @@ def get_nexchange_logger(name, with_console=True, with_email=False):
         print_traceback()
 
     return logger
+
+
+class Del:
+    def __init__(self, keep=string.digits):
+        self.comp = dict((ord(c), c) for c in keep)
+
+    def __getitem__(self, k):
+        return self.comp.get(k)
