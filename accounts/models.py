@@ -86,9 +86,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
             token.save()
         if not self.phone:
             self.phone = self.user.username
-        else:
-            self.user.username = self.phone
-            self.user.save()
+
         lang = get_language()
         if lang and self.lang != lang:
             self.lang = lang
