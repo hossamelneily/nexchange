@@ -10,6 +10,10 @@ DATABASES = {
     }
 }
 
+# TODO: unit tests should not write to disk!
+STATIC_ROOT = '/tmp'
+MEDIA_ROOT = '/tmp'
+
 DEBUG = True
 
 
