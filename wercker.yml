@@ -318,7 +318,7 @@ build:
             python manage.py loaddata articles/fixtures/articles.json
           fi
 
-          if [ ! -z $CMS_FROM_FIXTURE] && [ ${TICKER_FROM_FIXTURE} -eq 1 ]
+          if [ ! -z $TICKER_FROM_FIXTURE] && [ ${TICKER_FROM_FIXTURE} -eq 1 ]
           then
             python manage.py loaddata ticker/fixtures/ticker.json
           fi
