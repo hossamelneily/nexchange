@@ -68,12 +68,41 @@ def release_payment(withdraw, amount, type_='BTC'):
         print_traceback()
 
 
+def check_address_blockchain(address, confirmations=3):
+    def _set_network(_address):
+        if not address or not address.address:
+            return False
+        currency = 'btc'
+        if address.currency:
+            currency = _address.currency.code.lower()
+        _network = '{}'.format(currency)
+        if settings.DEBUG:
+            _network = 't{}'.format(currency)
+        return _network
+
+    def _set_url(_network, wallet_address, _confirmations):
+        btc_blockr = (
+            'http://{}.blockr.io/api/v1/address/txs/{}?confirmations='
+            '{}').format(_network, wallet_address, _confirmations)
+        return btc_blockr
+    network = _set_network(address)
+    url = _set_url(network, str(address.address), confirmations)
+    info = get(url)
+    if info.status_code != 200:
+        return False
+    transactions = info.json()['data']
+    return transactions
+
+
 def check_transaction_blockchain(tx):
     if not tx or not tx.tx_id:
         return False
-    network = 'btc'
+    currency = 'btc'
+    if tx.address_to.currency:
+        currency = tx.address_to.currency.code.lower()
+    network = '{}'.format(currency)
     if settings.DEBUG:
-        network = 'tbtc'
+        network = 't{}'.format(currency)
     btc_blockr = 'http://{}.blockr.io/api/v1/tx/info/{}'.\
         format(network, str(tx.tx_id))
     info = get(btc_blockr)

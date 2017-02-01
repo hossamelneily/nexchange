@@ -80,12 +80,12 @@ class OrderBaseTestCase(UserBaseTestCase):
         mock.patch.object(Price, 'get_eur_rate', price_api_mock)
 
         cls.RUB = Currency.objects.get(code='RUB')
-        cls.RUB.save()
 
         cls.USD = Currency.objects.get(code='USD')
-        cls.USD.save()
 
         cls.EUR = Currency.objects.get(code='EUR')
+
+        cls.BTC = Currency.objects.get(code='BTC')
 
         cls.ticker_buy = \
             Price(type=Price.BUY,

@@ -117,6 +117,13 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
 
         self.amount_cash = money_format(self.amount_cash)
 
+    def send_money(self):
+        # 1. check preference
+        # 2. send money by preference
+        # 3. return True (if no preference or no automatic sending return
+        # False)
+        return False
+
     @property
     def is_buy(self):
         return self.order_type

@@ -31,6 +31,7 @@ class Address(BtcBase, SoftDeletableModel):
     name = models.CharField(max_length=100, blank=True)
     address = models.CharField(max_length=42, validators=[validate_bc])
     user = models.ForeignKey(User)
+    currency = models.ForeignKey('core.Currency', blank=True, null=True)
 
     def __str__(self):
         return '{} {}'.format(self.address, self.name)
@@ -48,7 +49,7 @@ class Transaction(BtcBase):
     address_to = models.ForeignKey('core.Address',
                                    related_name='address_to')
     # TODO: how to handle cancellation?
-    order = models.ForeignKey('orders.Order')
+    order = models.ForeignKey('orders.Order', related_name='transactions')
     is_verified = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
 

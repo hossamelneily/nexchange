@@ -26,3 +26,4 @@ node.exe
 .pydevproject
 .settings/
 static/dist/js/bundle.js
+.ropeproject

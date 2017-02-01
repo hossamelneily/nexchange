@@ -1,6 +1,8 @@
 from unittest import TestCase
-from nexchange.utils import PayeerAPIClient
+from nexchange.utils import PayeerAPIClient, check_address_blockchain
 import requests_mock
+from core.models import Address
+from core.tests.base import OrderBaseTestCase
 
 
 class PayeerAPIClientTestCase(TestCase):
@@ -26,3 +28,27 @@ class PayeerAPIClientTestCase(TestCase):
         self.assertIn('shopOrderId', res[key])
         self.assertIn('shopId', res[key])
         self.assertIn('comment', res[key])
+
+
+class BlockchainTestCase(OrderBaseTestCase):
+
+    def setUp(self):
+        super(BlockchainTestCase, self).setUp()
+        self.wallet_address = '198aMn6ZYAczwrE5NvNTUMyJ5qkfy4g3Hi'
+        self.address = Address(
+            name='test address',
+            address=self.wallet_address,
+            currency=self.BTC,
+            user=self.user
+        )
+        self.url = 'http://btc.blockr.io/api/v1/address/txs/{}'.format(
+            self.wallet_address
+        )
+
+    @requests_mock.mock()
+    def test_get_transactions_by_address(self, m):
+        cont_path = 'nexchange/tests/fixtures/blockr/address_transactions.json'
+        with open(cont_path) as f:
+            m.get(self.url, text=f.read().replace('\n', ''))
+        res = check_address_blockchain(self.address)
+        self.assertEqual(2, len(res['txs']))
