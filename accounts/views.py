@@ -1,8 +1,6 @@
 import json
-import re
 
 from axes.decorators import watch_login
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -14,12 +12,11 @@ from django.shortcuts import redirect, render
 from django.template.loader import get_template
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
-from nexchange.utils import Del
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from phonenumber_field.validators import validate_international_phonenumber
-from twilio.exceptions import TwilioException
-from twilio.rest import TwilioRestClient
+from nexchange.utils import send_auth_sms, sanitize_number
+
 
 from accounts.decoratos import not_logged_in_required, recaptcha_required
 from accounts.forms import (CustomUserCreationForm, UpdateUserProfileForm,
@@ -54,10 +51,7 @@ def user_registration(request):
                     profile = profile_form.save(commit=False)
                     profile.disabled = True
                     profile.save()
-                    res = _send_sms(user)
-                    assert res
-                    if settings.DEBUG:
-                        print(res)
+                    send_auth_sms(user)
 
                     messages.success(request, success_message)
 
@@ -130,26 +124,6 @@ class UserUpdateView(View):
             return render(request, 'accounts/user_profile.html', ctx, )
 
 
-def _send_sms(user):
-    token = SmsToken.objects.filter(user=user).latest('id')
-    if not token.valid:
-        token = SmsToken(user=user)
-        token.save()
-
-    msg = settings.SMS_MESSAGE_AUTH + '{}'.format(token.sms_token)
-    phone_to = str(user.username)
-
-    try:
-        client = TwilioRestClient(
-            settings.TWILIO_ACCOUNT_SID,
-            settings.TWILIO_AUTH_TOKEN)
-        message = client.messages.create(
-            body=msg, to=phone_to, from_=settings.TWILIO_PHONE_FROM)
-        return message
-    except TwilioException as err:
-        return err
-
-
 @watch_login
 def resend_sms(request):
     phone = request.POST.get('phone')
@@ -157,7 +131,7 @@ def resend_sms(request):
         user = User.objects.get(profile__phone=phone)
     else:
         user = request.user
-    message = _send_sms(user)
+    message = send_auth_sms(user)
     return JsonResponse({'message_sid': message.sid}, safe=False)
 
 
@@ -176,9 +150,10 @@ def verify_phone(request):
         )
 
     sent_token = request.POST.get('token')
-    sent_token = re.sub(' +', '', sent_token)
+    sent_token = sanitize_number(sent_token)
     phone = request.POST.get('phone')
-    phone = re.sub(' +', '', phone)
+    phone = sanitize_number(phone, True)
+
     anonymous = request.user.is_anonymous()
     if anonymous and phone:
         try:
@@ -232,9 +207,8 @@ def verify_phone(request):
 @not_logged_in_required
 @watch_login
 def user_by_phone(request):
-    keep_numbers = Del()
     phone = request.POST.get('phone')
-    phone = '+{}'.format(phone.translate(keep_numbers))
+    phone = sanitize_number(phone, True)
     try:
         validate_international_phonenumber(phone)
     except ValidationError as e:
@@ -253,8 +227,8 @@ def user_by_phone(request):
     Profile.objects.get_or_create(user=user)
     # todo: move sms_token relation to profile ?
 
-    res = _send_sms(user)
-    if isinstance(res, TwilioException):
+    res = send_auth_sms(user)
+    if isinstance(res, Exception):
         return JsonResponse({'status': 'error'})
     else:
         return JsonResponse({'status': 'ok'})
