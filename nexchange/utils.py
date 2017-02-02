@@ -31,6 +31,7 @@ class Del:
     def __getitem__(self, k):
         return self.comp.get(k)
 
+
 def send_email(to, subject='Nexchange', msg=None):
     send_mail(
         subject,
@@ -41,7 +42,7 @@ def send_email(to, subject='Nexchange', msg=None):
     )
 
 
-def call_twilio(msg, phone):
+def send_sms(msg, phone):
     if not phone.startswith('+'):
         phone = '+{}'.format(phone)
     try:
@@ -58,8 +59,13 @@ def call_twilio(msg, phone):
 
 def sanitize_number(phone, is_phone=False):
     keep_numbers = Del()
-    return '{}{}'.format('+' if is_phone else '',
-                         phone.translate(keep_numbers))
+    phone = phone.translate(keep_numbers)
+    if phone.startswith(settings.NUMERIC_INTERNATIONAL_PREFIX):
+        phone = phone.replace(settings.NUMERIC_INTERNATIONAL_PREFIX,
+                              '')
+    return '{}{}'.format(settings.PLUS_INTERNATIONAL_PREFIX
+                         if is_phone else '',
+                         phone)
 
 
 def send_auth_sms(user):

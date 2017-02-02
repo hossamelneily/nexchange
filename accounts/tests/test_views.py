@@ -399,7 +399,8 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             res = self.client.post(url, data=payload)
             self.assertEquals(res.status_code, 200)
 
-            formatted_uname = '+{}'.format(uname)
+            formatted_uname = '{}{}'.format(settings.PLUS_INTERNATIONAL_PREFIX
+                                            ,uname)
             users = User.objects.filter(username=formatted_uname)
 
             tokens = SmsToken.objects.all()
@@ -433,7 +434,8 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             res = self.client.post(url, data=payload)
             self.assertEquals(res.status_code, 200)
 
-            formatted_uname = '+{}'.format(uname)
+            formatted_uname = '{}{}'.format(settings.PLUS_INTERNATIONAL_PREFIX,
+                                            uname)
             users = User.objects.filter(username=formatted_uname)
 
             tokens_after = SmsToken.objects.all()
@@ -471,7 +473,8 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             res = self.client.post(url, data=payload)
             self.assertEquals(res.status_code, 200)
 
-            formatted_uname = '+{}'.format(uname)
+            formatted_uname = '{}{}'.format(settings.PLUS_INTERNATIONAL_PREFIX,
+                                            uname)
             users = User.objects.filter(username=formatted_uname)
 
             tokens_after = SmsToken.objects.all()
@@ -523,7 +526,8 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             res = self.client.post(url, data=payload)
             self.assertEquals(res.status_code, 200)
 
-            formatted_uname = '+{}'.format(uname)
+            formatted_uname = '{}{}'.format(settings.PLUS_INTERNATIONAL_PREFIX,
+                                            uname)
             users = User.objects.filter(username=formatted_uname)
 
             profile = Profile.objects.filter(
@@ -548,7 +552,8 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         users = User.objects.filter(username=uname)
         self.assertEquals(len(users), 0)
 
-        formatted_uname = '+{}'.format(uname)
+        formatted_uname = '{}{}'.format(settings.PLUS_INTERNATIONAL_PREFIX,
+                                        uname)
         users = User.objects.filter(username=formatted_uname)
         self.assertEquals(len(users), 1)
         self.user = users[0]
@@ -574,7 +579,8 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         res = self.client.post(url, data=payload)
 
         self.assertEquals(res.status_code, 200)
-        good_uname_plus = '+{}'.format(good_uname)
+        good_uname_plus = '{}{}'.format(settings.PLUS_INTERNATIONAL_PREFIX,
+                                        good_uname)
         users = User.objects.filter(username=good_uname_plus)
 
         self.assertEquals(len(users), 1)
