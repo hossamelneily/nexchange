@@ -251,12 +251,19 @@
                         );
                     },
                     403: lockoutResponse,
+                    410: function (data) {
+                        return failureResponse(
+                            data,
+                            'Your token has expired, please request a new one'
+                        );
+                    },
                     428: function (data) {
                         return failureResponse(
                             data,
                             'Invalid phone number'
                         );
-                    }
+                    },
+
                 }
             });
         });
