@@ -248,6 +248,7 @@ build:
           export DEBUG=${DEBUG}
           export CELERY_ALWAYS_EAGER=${CELERY_ALWAYS_EAGER}
           export UPHOLD_IS_TEST=${UPHOLD_IS_TEST}
+          export UPHOLD_CARD_ID_BTC=${UPHOLD_CARD_ID_BTC}
           # YANDEX
           export YANDEX_METRICA_ID_UK=${YANDEX_METRICA_ID_UK}
           export YANDEX_METRICA_ID_RU=${YANDEX_METRICA_ID_RU}

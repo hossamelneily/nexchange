@@ -75,10 +75,10 @@ def buy_order_release():
                     profile = user.profile
                     verbose_match = True
                 else:
-                    logger.error('could not associate payment {}'
-                                 ' with an order. owner user of wallet '
-                                 '{} not found. '
-                                 'SmartMatching disabled.'.format(p, pm))
+                    logger.warn('could not associate payment {}'
+                                ' with an order. owner user of wallet '
+                                '{} not found. '
+                                'SmartMatching disabled.'.format(p, pm))
                     p.moderator_flag = True
                     p.save()
                     continue
