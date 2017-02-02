@@ -130,11 +130,13 @@ class UserUpdateView(View):
             return render(request, 'accounts/user_profile.html', ctx, )
 
 
-def _send_sms(user, token=None):
-    if token is None:
-        token = SmsToken.objects.filter(user=user).latest('id')
+def _send_sms(user):
+    token = SmsToken.objects.filter(user=user).latest('id')
+    if not token.valid:
+        token = SmsToken(user=user)
+        token.save()
 
-    msg = _('Nexchange confirmation code: ') + '%s' % token.sms_token
+    msg = settings.SMS_MESSAGE_AUTH + '{}'.format(token.sms_token)
     phone_to = str(user.username)
 
     try:
@@ -246,12 +248,12 @@ def user_by_phone(request):
             content_type='application/json'
         )
 
-    user, created = User.objects.get_or_create(username=phone)
+    user, u_created = User.objects.get_or_create(username=phone)
     # this will create profile
-    assert user.profile
+    Profile.objects.get_or_create(user=user)
     # todo: move sms_token relation to profile ?
-    token = user.sms_token.last()
-    res = _send_sms(user, token)
+
+    res = _send_sms(user)
     if isinstance(res, TwilioException):
         return JsonResponse({'status': 'error'})
     else:

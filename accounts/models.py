@@ -84,6 +84,8 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         if self.pk is None:
             token = SmsToken(user=self.user)
             token.save()
+
+        # for short creation for user_by_phone
         if not self.phone:
             self.phone = self.user.username
 

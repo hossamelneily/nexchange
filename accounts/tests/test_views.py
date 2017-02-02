@@ -1,6 +1,6 @@
 import json
-from datetime import datetime
-from unittest.mock import patch
+from datetime import datetime, timedelta
+from unittest.mock import patch, MagicMock
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -354,7 +354,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             filter(user=self.user).last()
         self.assertTrue(sms_token)
 
-        send_sms.assert_called_once_with(self.user, sms_token)
+        send_sms.assert_called_once_with(self.user)
 
     @patch('accounts.views._send_sms')
     def test_user_create_once(self, send_sms):
@@ -384,6 +384,158 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
         self.assertEqual(2, send_sms.call_count)
 
+    @patch('accounts.views._send_sms')
+    def test_creates_sms_token(self, send_sms):
+        url = reverse('accounts.user_by_phone')
+        uname = '79259737305'
+        payload = {
+            'phone': uname,
+        }
+        self.client.get(self.logout_url)
+        users = User.objects.filter(username=uname)
+        self.assertEquals(len(users), 0)
+        creation_time = datetime.now()
+        with freeze_time(creation_time, tick=False):
+            tokens_before_len = SmsToken.objects.all().count()
+            res = self.client.post(url, data=payload)
+            self.assertEquals(res.status_code, 200)
+
+            formatted_uname = '+{}'.format(uname)
+            users = User.objects.filter(username=formatted_uname)
+
+            tokens = SmsToken.objects.all()
+            tokens_after_len = tokens.count()
+            last_token = tokens.last()
+
+        self.assertEqual(last_token.created_on.timestamp(), creation_time.timestamp())
+        self.assertEqual(users[0], last_token.user)
+        self.assertEqual(tokens_before_len+1, tokens_after_len)
+
+    @patch('accounts.views.TwilioRestClient')
+    def test_reuse_sms_token(self, rest_client):
+        rest_client.return_value = MagicMock()
+        url = reverse('accounts.user_by_phone')
+        uname = '79259737305'
+        payload = {
+            'phone': uname,
+        }
+        self.client.get(self.logout_url)
+        users = User.objects.filter(username=uname)
+        self.assertEquals(len(users), 0)
+        res = self.client.post(url, data=payload)
+        self.assertEquals(res.status_code, 200)
+
+        before_last_tokens = SmsToken.objects.all()
+        before_last_token = before_last_tokens.last()
+        len_before = before_last_tokens.count()
+        not_expired_time = datetime.now() + settings.SMS_TOKEN_VALIDITY - \
+                           timedelta(minutes=2)
+        with freeze_time(not_expired_time, tick=False):
+
+            res = self.client.post(url, data=payload)
+            self.assertEquals(res.status_code, 200)
+
+            formatted_uname = '+{}'.format(uname)
+            users = User.objects.filter(username=formatted_uname)
+
+            tokens_after = SmsToken.objects.all()
+            last_token = tokens_after.last()
+            len_after = tokens_after.count()
+
+        self.assertEqual(last_token,
+                         before_last_token)
+        self.assertEqual(users[0], last_token.user)
+        self.assertEqual(len_before,
+                         len_after)
+
+    @patch('accounts.views.TwilioRestClient')
+    def test_expire_sms_token(self, rest_client):
+        rest_client.return_value = MagicMock()
+        url = reverse('accounts.user_by_phone')
+        uname = '79259737305'
+        payload = {
+            'phone': uname,
+        }
+        self.client.get(self.logout_url)
+        users = User.objects.filter(username=uname)
+        self.assertEquals(len(users), 0)
+        res = self.client.post(url, data=payload)
+        self.assertEquals(res.status_code, 200)
+
+        before_last_tokens = SmsToken.objects.all()
+        before_last_token = before_last_tokens.last()
+        before_len = before_last_tokens.count()
+        expired_time = datetime.now() + settings.SMS_TOKEN_VALIDITY + \
+            timedelta(seconds=5)
+
+        with freeze_time(expired_time, tick=False):
+
+            res = self.client.post(url, data=payload)
+            self.assertEquals(res.status_code, 200)
+
+            formatted_uname = '+{}'.format(uname)
+            users = User.objects.filter(username=formatted_uname)
+
+            tokens_after = SmsToken.objects.all()
+            last_token = tokens_after.last()
+            after_len = tokens_after.count()
+
+        self.assertNotEqual(last_token,
+                            before_last_token)
+        self.assertNotEqual(last_token.created_on.timestamp(),
+                            before_last_token.created_on.timestamp())
+        self.assertEqual(users[0], last_token.user)
+        self.assertEqual(before_len + 1,
+                         after_len)
+
+    @patch('accounts.views.TwilioRestClient')
+    def test_call_twillio_api(self, rest_client):
+        rest_client.return_value = MagicMock()
+        url = reverse('accounts.user_by_phone')
+        uname = '+79259737305'
+        payload = {
+            'phone': uname,
+        }
+        self.client.get(self.logout_url)
+        users = User.objects.filter(username=uname)
+        res = self.client.post(url, data=payload)
+        self.assertEquals(res.status_code, 200)
+        users = User.objects.filter(username=uname)
+        self.assertEquals(len(users), 1)
+        last_token = SmsToken.objects.filter(user=users[0]).latest('id')
+        msg = settings.SMS_MESSAGE_AUTH + "{}".format(last_token.sms_token)
+        rest_client.assert_called_once_with(settings.TWILIO_ACCOUNT_SID,
+                                            settings.TWILIO_AUTH_TOKEN)
+        rest_client.return_value.messages.\
+            create.assert_called_once_with(body=msg, to=uname,
+                                           from_=settings.TWILIO_PHONE_FROM)
+
+
+    @patch('accounts.views._send_sms')
+    def test_creates_profile(self, send_sms):
+        url = reverse('accounts.user_by_phone')
+        uname = '79259737399'
+        payload = {
+            'phone': uname,
+        }
+        creation_time = datetime.now()
+        with freeze_time(creation_time, tick=False):
+            self.client.get(self.logout_url)
+            users = User.objects.filter(username=uname)
+            self.assertEquals(len(users), 0)
+            res = self.client.post(url, data=payload)
+            self.assertEquals(res.status_code, 200)
+
+            formatted_uname = '+{}'.format(uname)
+            users = User.objects.filter(username=formatted_uname)
+
+            profile = Profile.objects.filter(
+                user=users[0],
+            )
+
+        self.assertEqual(1, len(profile))
+        self.assertEqual(formatted_uname, str(profile[0].phone))
+        self.assertEqual(creation_time.timestamp(), profile[0].created_on.timestamp())
 
     @patch('accounts.views._send_sms')
     def test_sms_adds_plus(self, send_sms):
@@ -411,8 +563,6 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
                          self.user.username)
         self.assertEqual(formatted_uname,
                          self.user.profile.phone)
-
-
         self.assertEqual(1, send_sms.call_count)
 
     @patch('accounts.views._send_sms')
@@ -436,7 +586,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         sms_token = SmsToken.objects. \
             filter(user=self.user).last()
         self.assertTrue(sms_token)
-        send_sms.assert_called_once_with(self.user, sms_token)
+        send_sms.assert_called_once_with(self.user)
         self.assertEqual(1, send_sms.call_count)
 
     @patch('accounts.decoratos.get_google_response')
@@ -474,8 +624,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         self.assertEqual(expected_uname,
                          user.username)
 
-        send_sms.assert_called_once_with(user,
-                                         self.token)
+        send_sms.assert_called_once_with(user)
 
     @patch('accounts.views._send_sms')
     def test_sms_not_sent_after_limit_is_exceeded(self, send_sms):
