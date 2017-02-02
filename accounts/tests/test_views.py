@@ -60,7 +60,6 @@ class RegistrationTestCase(TestCase):
 
 
 class ProfileUpdateTestCase(UserBaseTestCase):
-
     def test_can_update_profile(self):
         response = self.client.post(
             reverse('accounts.user_profile'), self.data)
@@ -334,7 +333,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         res = self.client.post(url, data=payload)
         self.assertEquals(res.status_code, 403)
 
-    @patch('accounts.views._send_sms')
+    @patch('accounts.views.send_auth_sms')
     def test_sms_sent_success(self, send_sms):
         url = reverse('accounts.user_by_phone')
         uname = '+79259737305'
@@ -356,7 +355,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
         send_sms.assert_called_once_with(self.user)
 
-    @patch('accounts.views._send_sms')
+    @patch('accounts.views.send_auth_sms')
     def test_user_create_once(self, send_sms):
         url = reverse('accounts.user_by_phone')
         uname = '+79259737305'
@@ -384,7 +383,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
         self.assertEqual(2, send_sms.call_count)
 
-    @patch('accounts.views._send_sms')
+    @patch('accounts.views.send_auth_sms')
     def test_creates_sms_token(self, send_sms):
         url = reverse('accounts.user_by_phone')
         uname = '79259737305'
@@ -411,7 +410,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         self.assertEqual(users[0], last_token.user)
         self.assertEqual(tokens_before_len+1, tokens_after_len)
 
-    @patch('accounts.views.TwilioRestClient')
+    @patch('nexchange.utils.TwilioRestClient')
     def test_reuse_sms_token(self, rest_client):
         rest_client.return_value = MagicMock()
         url = reverse('accounts.user_by_phone')
@@ -429,9 +428,8 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         before_last_token = before_last_tokens.last()
         len_before = before_last_tokens.count()
         not_expired_time = datetime.now() + settings.SMS_TOKEN_VALIDITY - \
-                           timedelta(minutes=2)
+                           timedelta(minutes=1)
         with freeze_time(not_expired_time, tick=False):
-
             res = self.client.post(url, data=payload)
             self.assertEquals(res.status_code, 200)
 
@@ -448,7 +446,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         self.assertEqual(len_before,
                          len_after)
 
-    @patch('accounts.views.TwilioRestClient')
+    @patch('nexchange.utils.TwilioRestClient')
     def test_expire_sms_token(self, rest_client):
         rest_client.return_value = MagicMock()
         url = reverse('accounts.user_by_phone')
@@ -488,7 +486,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         self.assertEqual(before_len + 1,
                          after_len)
 
-    @patch('accounts.views.TwilioRestClient')
+    @patch('nexchange.utils.TwilioRestClient')
     def test_call_twillio_api(self, rest_client):
         rest_client.return_value = MagicMock()
         url = reverse('accounts.user_by_phone')
@@ -510,8 +508,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             create.assert_called_once_with(body=msg, to=uname,
                                            from_=settings.TWILIO_PHONE_FROM)
 
-
-    @patch('accounts.views._send_sms')
+    @patch('accounts.views.send_auth_sms')
     def test_creates_profile(self, send_sms):
         url = reverse('accounts.user_by_phone')
         uname = '79259737399'
@@ -537,7 +534,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         self.assertEqual(formatted_uname, str(profile[0].phone))
         self.assertEqual(creation_time.timestamp(), profile[0].created_on.timestamp())
 
-    @patch('accounts.views._send_sms')
+    @patch('accounts.views.send_auth_sms')
     def test_sms_adds_plus(self, send_sms):
         url = reverse('accounts.user_by_phone')
         uname = '79259737305'
@@ -565,7 +562,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
                          self.user.profile.phone)
         self.assertEqual(1, send_sms.call_count)
 
-    @patch('accounts.views._send_sms')
+    @patch('accounts.views.send_auth_sms')
     def test_sms_truncates_str(self, send_sms):
         url = reverse('accounts.user_by_phone')
         good_uname = '79259737305'
@@ -590,7 +587,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         self.assertEqual(1, send_sms.call_count)
 
     @patch('accounts.decoratos.get_google_response')
-    @patch('accounts.views._send_sms')
+    @patch('accounts.views.send_auth_sms')
     def test_sms_sent_no_recaptcha_forbidden(self, send_sms, get_google):
         # request with no verify parameter
         get_google.return_value = False
@@ -604,7 +601,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
         self.assertEquals(res.status_code, 428)
 
-    @patch('accounts.views._send_sms')
+    @patch('accounts.views.send_auth_sms')
     def test_sms_sent_replace_phone_spaces(self, send_sms):
         self.client.logout()
         url = reverse('accounts.user_by_phone')
@@ -626,7 +623,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
         send_sms.assert_called_once_with(user)
 
-    @patch('accounts.views._send_sms')
+    @patch('accounts.views.send_auth_sms')
     def test_sms_not_sent_after_limit_is_exceeded(self, send_sms):
         self.client.logout()
         url = reverse('accounts.user_by_phone')
@@ -651,7 +648,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         self.assertEquals(res.status_code, 403)
         self.assertEquals(send_sms.call_count, i + 1)
 
-    @patch('accounts.views._send_sms')
+    @patch('accounts.views.send_auth_sms')
     def test_sms_sent_after_limit_is_exceeded_and_time_passed(self, send_sms):
         self.client.logout()
         url = reverse('accounts.user_by_phone')

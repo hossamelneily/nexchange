@@ -6,7 +6,6 @@ from django.core.mail import send_mail
 from requests import get
 from twilio.exceptions import TwilioException
 from twilio.rest import TwilioRestClient
-
 from uphold import Uphold
 from suds.client import Client
 from suds import WebFault
@@ -16,6 +15,7 @@ import xml.etree.ElementTree as ET
 import requests
 import json
 from django.utils.log import AdminEmailHandler
+from accounts.models import SmsToken
 import string
 
 
@@ -23,6 +23,13 @@ api = Uphold(settings.UPHOLD_IS_TEST)
 api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
 logging.basicConfig(level=logging.DEBUG)
 
+
+class Del:
+    def __init__(self, keep=string.digits):
+        self.comp = dict((ord(c), c) for c in keep)
+
+    def __getitem__(self, k):
+        return self.comp.get(k)
 
 def send_email(to, subject='Nexchange', msg=None):
     send_mail(
@@ -34,7 +41,7 @@ def send_email(to, subject='Nexchange', msg=None):
     )
 
 
-def send_sms(msg, phone):
+def call_twilio(msg, phone):
     if not phone.startswith('+'):
         phone = '+{}'.format(phone)
     try:
@@ -44,6 +51,32 @@ def send_sms(msg, phone):
         )
         message = client.messages.create(
             body=msg, to=phone, from_=settings.TWILIO_PHONE_FROM)
+        return message
+    except TwilioException as err:
+        return err
+
+
+def sanitize_number(phone, is_phone=False):
+    keep_numbers = Del()
+    return '{}{}'.format('+' if is_phone else '',
+                         phone.translate(keep_numbers))
+
+
+def send_auth_sms(user):
+    token = SmsToken.objects.filter(user=user).latest('id')
+    if not token.valid:
+        token = SmsToken(user=user)
+        token.save()
+
+    msg = settings.SMS_MESSAGE_AUTH + '{}'.format(token.sms_token)
+    phone_to = str(user.username)
+
+    try:
+        client = TwilioRestClient(
+            settings.TWILIO_ACCOUNT_SID,
+            settings.TWILIO_AUTH_TOKEN)
+        message = client.messages.create(
+            body=msg, to=phone_to, from_=settings.TWILIO_PHONE_FROM)
         return message
     except TwilioException as err:
         return err
@@ -378,10 +411,3 @@ def get_nexchange_logger(name, with_console=True, with_email=False):
 
     return logger
 
-
-class Del:
-    def __init__(self, keep=string.digits):
-        self.comp = dict((ord(c), c) for c in keep)
-
-    def __getitem__(self, k):
-        return self.comp.get(k)
