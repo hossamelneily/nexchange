@@ -33,16 +33,15 @@ class LoginEndToEndTestCase(UserBaseTestCase):
         self.assertEquals(res.status_code, 200)
 
         not_expired_time = datetime.now() + settings.SMS_TOKEN_VALIDITY - \
-                           timedelta(minutes=1)
+            timedelta(minutes=1)
         with freeze_time(not_expired_time, tick=False):
             user = User.objects.last()
             token = SmsToken.objects.last()
             msg = settings.SMS_MESSAGE_AUTH + '{}'.format(token.sms_token)
             rest_client.assert_called_once_with(settings.TWILIO_ACCOUNT_SID,
                                                 settings.TWILIO_AUTH_TOKEN)
-            rest_client.return_value.messages. \
-                create.assert_called_once_with(body=msg, to=user.username,
-                                               from_=settings.TWILIO_PHONE_FROM)
+            rest_client.return_value.messages. create.assert_called_once_with(
+                body=msg, to=user.username, from_=settings.TWILIO_PHONE_FROM)
 
             passive_authentication_helper(
                 self.client,

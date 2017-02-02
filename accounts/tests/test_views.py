@@ -10,7 +10,7 @@ from freezegun import freeze_time
 
 from accounts.models import Profile, SmsToken
 from core.tests.base import UserBaseTestCase
-from core.tests.utils import passive_authentication_helper
+from core.tests.utils import passive_authentication_helper, data_provider
 
 
 class RegistrationTestCase(TestCase):
@@ -60,6 +60,7 @@ class RegistrationTestCase(TestCase):
 
 
 class ProfileUpdateTestCase(UserBaseTestCase):
+
     def test_can_update_profile(self):
         response = self.client.post(
             reverse('accounts.user_profile'), self.data)
@@ -197,8 +198,9 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         # Ensure profile was not enabled
         self.assertTrue(user.profile.disabled)
 
-    def test_phone_verification_fails_with_wrong_token_logged_out_with_phone(
-            self):
+    @data_provider(lambda: (('xx', 201, False), ('12', 400, True),))
+    def test_phone_verification_token_logged_out_with_phone(
+            self, token_addition, status_code, profile_disabled):
         user = self.user
         # Ensure profile is disabled
         profile = user.profile
@@ -206,7 +208,8 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         profile.save()
         self.assertTrue(user.profile.disabled)
         sms_token = SmsToken.objects.filter(user=user).latest('id')
-        token = '{}xx'.format(sms_token.sms_token)
+        token = '{}{}'.format(sms_token.sms_token,
+                              token_addition)
 
         response = passive_authentication_helper(
             self.client,
@@ -217,10 +220,10 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         )
 
         # Ensure the token was correctly received
-        self.assertEqual(400, response.status_code)
+        self.assertEqual(status_code, response.status_code)
 
         # Ensure profile was not enabled
-        self.assertTrue(user.profile.disabled)
+        self.assertEqual(profile_disabled, user.profile.disabled)
 
     def test_phone_verification_success_with_spaces_in_token(self):
         user = self.user
@@ -399,17 +402,19 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             res = self.client.post(url, data=payload)
             self.assertEquals(res.status_code, 200)
 
-            formatted_uname = '{}{}'.format(settings.PLUS_INTERNATIONAL_PREFIX
-                                            ,uname)
+            formatted_uname = '{}{}'.format(
+                settings.PLUS_INTERNATIONAL_PREFIX, uname)
             users = User.objects.filter(username=formatted_uname)
 
             tokens = SmsToken.objects.all()
             tokens_after_len = tokens.count()
             last_token = tokens.last()
 
-        self.assertEqual(last_token.created_on.timestamp(), creation_time.timestamp())
+        self.assertEqual(
+            last_token.created_on.timestamp(),
+            creation_time.timestamp())
         self.assertEqual(users[0], last_token.user)
-        self.assertEqual(tokens_before_len+1, tokens_after_len)
+        self.assertEqual(tokens_before_len + 1, tokens_after_len)
 
     @patch('nexchange.utils.TwilioRestClient')
     def test_reuse_sms_token(self, rest_client):
@@ -429,7 +434,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         before_last_token = before_last_tokens.last()
         len_before = before_last_tokens.count()
         not_expired_time = datetime.now() + settings.SMS_TOKEN_VALIDITY - \
-                           timedelta(minutes=1)
+            timedelta(minutes=1)
         with freeze_time(not_expired_time, tick=False):
             res = self.client.post(url, data=payload)
             self.assertEquals(res.status_code, 200)
@@ -536,7 +541,9 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
         self.assertEqual(1, len(profile))
         self.assertEqual(formatted_uname, str(profile[0].phone))
-        self.assertEqual(creation_time.timestamp(), profile[0].created_on.timestamp())
+        self.assertEqual(
+            creation_time.timestamp(),
+            profile[0].created_on.timestamp())
 
     @patch('accounts.views.send_auth_sms')
     def test_sms_adds_plus(self, send_sms):
