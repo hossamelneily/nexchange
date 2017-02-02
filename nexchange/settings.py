@@ -64,7 +64,11 @@ UNIQUE_REFERENCE_LENGTH = 5
 REFERENCE_LOOKUP_ATTEMPTS = 5
 SMS_TOKEN_LENGTH = 4
 PAYMENT_WINDOW = 60
-MAX_EXPIRED_ORDERS_LIMIT = 3
+MAX_
+
+
+
+RED_ORDERS_LIMIT = 3
 REFERRAL_FEE = 2
 
 NUMERIC_INTERNATIONAL_PREFIX = '00'
@@ -159,7 +163,6 @@ CELERY_BEAT_SCHEDULE = {
     'sell_order_release': {
         'task': 'orders.task_summary.sell_order_release_invoke',
         'schedule': timedelta(seconds=60),
-        'expires': 30,
     },
     'renew_cards_reserve': {
         'task': 'accounts.task_summary.update_pending_transactions_invoke',
@@ -168,7 +171,6 @@ CELERY_BEAT_SCHEDULE = {
     'import_btc_deposit_transactions': {
         'task': 'accounts.task_summary.import_transaction_deposit_btc_invoke',
         'schedule': timedelta(seconds=60),
-        'expires': 60,
     },
     'check_okpay_payments': {
         'task': 'payments.task_summary.run_okpay',
@@ -177,7 +179,6 @@ CELERY_BEAT_SCHEDULE = {
     'check_payeer_payments': {
         'task': 'payments.task_summary.run_payeer',
         'schedule': timedelta(seconds=60),
-
     },
     'checker_transactions': {
         'task': 'accounts.task_summary.renew_cards_reserve_invoke',
