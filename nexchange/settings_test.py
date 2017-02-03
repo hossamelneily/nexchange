@@ -56,18 +56,18 @@ PAYEER_API_ID = os.getenv('PAYEER_API_ID',
 PAYEER_API_KEY = os.getenv('PAYEER_API_KEY',
                            settings_dev.PAYEER_API_KEY)
 
-# UPHOLD
-UPHOLD_USER = os.getenv('UPHOLD_USER',
-                        settings_dev.UPHOLD_USER)
-UPHOLD_PASS = os.getenv('UPHOLD_PASS',
-                        settings_dev.UPHOLD_PASS)
+# API1
+API1_USER = os.getenv('API1_USER',
+                      settings_dev.API1_USER)
+API1_PASS = os.getenv('API1_PASS',
+                      settings_dev.API1_PASS)
 
 
-# Kraken
-KRAKEN_API_KEY = os.getenv('KRAKEN_API_KEY',
-                           settings_dev.KRAKEN_API_KEY)
-KRAKEN_API_SECRET = os.getenv('KRAKEN_API_SECRET',
-                              settings_dev.KRAKEN_API_SECRET)
+# API2
+API2_KEY = os.getenv('API2__KEY',
+                           settings_dev.API2_KEY)
+API2_SECRET = os.getenv('API2__SECRET',
+                              settings_dev.API2_SECRET)
 
 
 # ROBOKASSA
