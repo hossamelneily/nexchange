@@ -44,6 +44,7 @@ API1_PASS = os.getenv('API1_PASS')
 API1_ID_C1 = os.getenv('API1_ID_C1')
 API1_IS_TEST = bool(os.getenv('API1_IS_TEST', False))
 
+
 # API2
 API2_KEY = os.getenv('KRAKEN_API_KEY')
 API2_SECRET = os.getenv('KRAKEN_API_SECRET')
