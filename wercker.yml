@@ -247,8 +247,9 @@ build:
           # DEBUG
           export DEBUG=${DEBUG}
           export CELERY_ALWAYS_EAGER=${CELERY_ALWAYS_EAGER}
-          export UPHOLD_IS_TEST=${UPHOLD_IS_TEST}
-          export UPHOLD_CARD_ID_BTC=${UPHOLD_CARD_ID_BTC}
+          export API1_IS_TEST=${API1_IS_TEST}
+          export API1_ID_C1=${API1_ID_C1}
+          
           # YANDEX
           export YANDEX_METRICA_ID_UK=${YANDEX_METRICA_ID_UK}
           export YANDEX_METRICA_ID_RU=${YANDEX_METRICA_ID_RU}
@@ -272,14 +273,13 @@ build:
           export OKPAY_WALLET=${OKPAY_WALLET}
           export OKPAY_API_KEY=${OKPAY_API_KEY}
 
-          # UPHOLD
-          export UPHOLD_USER=${UPHOLD_USER}
-          export UPHOLD_PASS=${UPHOLD_PASS}
-          export UPHOLD_IS_TEST=${UPHOLD_IS_TEST}
+          # API1
+          export API1_USER=${API1_USER}
+          export API1_PASS=${API1_PASS}
 
-          # Kraken
-          export KRAKEN_API_KEY=${KRAKEN_API_KEY}
-          export KRAKEN_API_SECRET=${KRAKEN_API_SECRET}
+          # API2
+          export API2_KEY=${API2_KEY}
+          export API2_SECRET=${API2_SECRET}
 
           # ROBOKASSA
           export ROBOKASSA_IS_TEST=${ROBOKASSA_IS_TEST}

@@ -36,7 +36,7 @@ def send_email(to, subject='Nexchange', msg=None):
     send_mail(
         subject,
         msg,
-        'noreply@nexchange.ru',
+        'noreply@nexchange.co.uk',
         [to],
         fail_silently=not settings.DEBUG,
     )
