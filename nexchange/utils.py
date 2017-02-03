@@ -19,8 +19,8 @@ from accounts.models import SmsToken
 import string
 
 
-api = Uphold(settings.UPHOLD_IS_TEST)
-api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
+api = Uphold(settings.API1_IS_TEST)
+api.auth_basic(settings.API1_USER, settings.API1_PASS)
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -96,10 +96,10 @@ def print_traceback():
 def release_payment(withdraw, amount, type_='BTC'):
     # TODO: take from user cards
     try:
-        txn_id = api.prepare_txn(settings.UPHOLD_CARD_ID_BTC,
+        txn_id = api.prepare_txn(settings.API1_ID_C1,
                                  withdraw, amount, type_)
         print(txn_id)
-        res = api.execute_txn(settings.UPHOLD_CARD_ID_BTC, txn_id)
+        res = api.execute_txn(settings.API1_ID_C1, txn_id)
         print(res)
         return txn_id
     except Exception as e:
