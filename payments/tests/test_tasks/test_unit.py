@@ -24,7 +24,7 @@ class BasePaymentCheckerTestCase(TestCase):
 
     # trivial stuff
     @patch('payments.models.PaymentMethod.objects.get')
-    @patch('payments.models.PaymentPreference.objects.get')
+    @patch('payments.models.PaymentPreference.objects.filter')
     def test_init_logic(self, get_payment, get_pref):
         self.checker = BasePaymentChecker()
         payment_pref = '__pref__'
@@ -39,7 +39,7 @@ class BasePaymentCheckerTestCase(TestCase):
 
     @data_provider(get_data_set.__func__(ABSTRACT_METHODS))
     @patch('payments.models.PaymentMethod.objects.get')
-    @patch('payments.models.PaymentPreference.objects.get')
+    @patch('payments.models.PaymentPreference.objects.filter')
     def test_abstract_methods_throw_exception(self, abc_method,
                                               method, preference):
         self.checker = BasePaymentChecker()

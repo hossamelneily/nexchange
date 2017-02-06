@@ -85,6 +85,7 @@ def send_auth_sms(user):
             body=msg, to=phone_to, from_=settings.TWILIO_PHONE_FROM)
         return message
     except TwilioException as err:
+        raise err
         return err
 
 
@@ -392,6 +393,8 @@ class PayeerAPIClient(object):
 
 
 def validate_payment_matches_order(order, payment, verbose_match, logger):
+    order_already_released = payment.order or order.is_released
+
     details_match =\
         order.currency == payment.currency and\
         order.amount_cash == payment.amount_cash
@@ -401,6 +404,9 @@ def validate_payment_matches_order(order, payment, verbose_match, logger):
 
     user_matches = not payment.user or payment.user == order.user
 
+    if order_already_released:
+        logger.error('order: {} payment: {} ALREADY RELEASED'
+                     .format(order, payment))
     if not user_matches:
         logger.error('order: {} payment: {} NO USER MATCH'.
                      format(order, payment))
@@ -415,7 +421,8 @@ def validate_payment_matches_order(order, payment, verbose_match, logger):
                     'RELEASE BY VERBOSE_MATCH (cross reference)'.
                     format(order, payment))
 
-    return user_matches and details_match and ref_matches
+    return user_matches and details_match and ref_matches \
+           and not order_already_released
 
 
 def get_nexchange_logger(name, with_console=True, with_email=False):

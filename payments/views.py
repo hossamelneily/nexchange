@@ -132,6 +132,7 @@ def payment_success(request, provider):
     # This is only a provisional
     # flag which the user can set himself
     # does not affect business logic, only visual
+    # TODO: fix this
     order.is_paid = True
     order.save()
     # TODO: check signature

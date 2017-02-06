@@ -86,6 +86,8 @@ TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID',
                                settings_dev.TWILIO_ACCOUNT_SID)
 TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN',
                               settings_dev.TWILIO_AUTH_TOKEN)
+TWILIO_PHONE_FROM = '+15005550006'
+
 
 # Smtp
 EMAIL_HOST = os.getenv('EMAIL_HOST', settings_dev.EMAIL_HOST)

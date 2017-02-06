@@ -22,15 +22,19 @@ def buy_order_release():
                                   unique_reference=p.reference)
             if o.payment_preference.payment_method !=\
                     p.payment_preference.payment_method:
+
+                if o.moderator_flag is not p.pk:
+                    logger.error('Payment: {} Order: {} match exists'
+                                 'but payment methods do not correspond '
+                                 'Flagged for moderation - IGNORING'
+                                 .format(o, p))
+
                 # MHM... Odd
                 o.moderator_flag = p.pk
                 o.save()
                 p.moderator_flag = o.pk
                 p.save()
-                logger.error('Payment: {} Order: {} match exists'
-                             'but payment methods do not correspond '
-                             'Flagged for moderation - IGNORING'
-                             .format(o, p))
+
                 continue
 
             if not p.user or not p.payment_preference.user:
@@ -46,11 +50,15 @@ def buy_order_release():
                              'is it a new user with old preference?'
                              .format(p, o))
                 continue
+            else:
+                user = o.user
+                profile = user.profile
 
             if not o.withdraw_address:
                 logging.info('{} has now withdrawal address, moving on'.
                              format(o.unique_reference))
                 continue
+
 
             logging.info(
                 'Found order {} with payment {} '.
@@ -75,10 +83,11 @@ def buy_order_release():
                     profile = user.profile
                     verbose_match = True
                 else:
-                    logger.warn('could not associate payment {}'
-                                ' with an order. owner user of wallet '
-                                '{} not found. '
-                                'SmartMatching disabled.'.format(p, pm))
+                    if p.moderator_flag is not True:
+                        logger.error('could not associate payment {}'
+                                     ' with an order. owner user of wallet '
+                                     '{} not found. '
+                                     'SmartMatching disabled.'.format(p, pm))
                     p.moderator_flag = True
                     p.save()
                     continue
@@ -87,6 +96,7 @@ def buy_order_release():
                              ' through ID or SmartMatching'.format(p))
                 continue
 
+        # logging is done inside
         if validate_payment_matches_order(o, p, verbose_match, logger):
             logging.info('Order {}  VALID {}'
                          .format(o, o.withdraw_address))

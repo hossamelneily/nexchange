@@ -1,6 +1,5 @@
 !(function (window, $) {
-      'use strict';
-
+    'use strict';
 
     $(document).ajaxStart(function () {
         NProgress.start();
@@ -168,18 +167,7 @@
 
     $(function() {
         function lockoutResponse (data) {
-            var formattedTime = data
-                    .responseJSON
-                    .cooloff_time
-                    .replace("PT","")
-                    .replace("H",":")
-                    .replace("M","")
-                    .replace("S",""),
-                errorMsg = gettext('You were locked out, please try again in '),
-                completeMsg = errorMsg +
-                    formattedTime + ' ' +
-                    gettext('minutes');
-            toastr.error(completeMsg);
+            toastr.error(window.getLockOutText(data));
         }
 
         function failureResponse (data, defaultMsg) {

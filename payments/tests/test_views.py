@@ -204,7 +204,8 @@ class PaymentReleaseTestCase(OrderBaseTestCase):
                                        order=self.order, address_to=self.addr)
         self.transaction.save()
 
-    def test_bad_release_payment(self):
+    @patch('nexchange.utils.api.prepare_txn')
+    def test_bad_release_payment(self, prepare):
         for o in Order.objects.filter(is_paid=True, is_released=False):
             p = Payment.objects.filter(user=o.user,
                                        amount_cash=o.amount_cash,

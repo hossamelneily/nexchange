@@ -245,7 +245,7 @@ msgstr "Сбросить пароль"
 #: templates/accounts/registration_base.html:12
 #: templates/accounts/user_login.html:8 templates/accounts/user_profile.html:9
 #: templates/accounts/user_registration.html:8 templates/core/index.html:7
-msgid "BTC - Exchange"
+msgid "Nexchange"
 msgstr "Биткоин-обмен"
 
 #: templates/accounts/user_login.html:8 templates/accounts/user_login.html:18

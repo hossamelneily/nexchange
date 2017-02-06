@@ -35,13 +35,11 @@ class RegistrationTestCase(TestCase):
         # Redirect is to user profile Page
         self.assertEqual(302, response.status_code)
         self.assertEqual(reverse('accounts.user_profile'), response.url)
-
         # Saved data Ok
         user = User.objects.last()
         self.assertEqual(self.data['phone'], user.profile.phone)
 
     def test_cannot_register_existent_phone(self):
-
         # Creates first with the phone
         self.client.post(
             reverse('accounts.register'),

@@ -1093,9 +1093,12 @@ body #nprogress .spinner-icon {
     margin: 0 auto;
 }
 .cms_header, .page-header{
-    display: inline-block;
     font-size: 32px;
     border:0;
+}
+
+.cms_header{
+    display: inline-block;
 }
 
 .register .controls {

@@ -59,7 +59,6 @@ def user_registration(request):
                     username=user.username,
                     password=user_form.cleaned_data['password1'])
                 login(request, user)
-
                 return redirect(reverse('accounts.user_profile'))
 
             except Exception as e:
@@ -126,6 +125,7 @@ class UserUpdateView(View):
 
 @watch_login
 def resend_sms(request):
+    """Thi is used solely in profile page"""
     phone = request.POST.get('phone')
     if request.user.is_anonymous() and phone:
         user = User.objects.get(profile__phone=phone)
@@ -152,11 +152,11 @@ def verify_phone(request):
     sent_token = request.POST.get('token')
     sent_token = sanitize_number(sent_token)
     phone = request.POST.get('phone')
-    phone = sanitize_number(phone, True)
-
     anonymous = request.user.is_anonymous()
     if anonymous and phone:
+        # fast registration
         try:
+            phone = sanitize_number(phone, True)
             user = User.objects.get(username=phone)
         except User.DoesNotExist:
             return render_response(
@@ -164,13 +164,16 @@ def verify_phone(request):
                 400
             )
 
-    elif not phone:
+    elif anonymous and not phone:
+        # Fast registration
         return render_response(
             'Please enter your phone number',
             400
         )
     else:
+        # Profile page
         user = request.user
+
     sms_token = SmsToken.objects.filter(user=user).latest('id')
     if sent_token == sms_token.sms_token:
         if not sms_token.valid:
@@ -207,6 +210,7 @@ def verify_phone(request):
 @not_logged_in_required
 @watch_login
 def user_by_phone(request):
+    """This is used for seemless fast login"""
     phone = request.POST.get('phone')
     phone = sanitize_number(phone, True)
     try:

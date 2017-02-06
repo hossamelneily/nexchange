@@ -54,10 +54,10 @@ class BasePaymentChecker(BaseTask):
         self.payment_method = PaymentMethod.objects.get(
             name__icontains=self.name
         )
-        self.payment_preference = PaymentPreference.objects.get(
+        self.payment_preference = PaymentPreference.objects.filter(
             user__is_staff=True,
             payment_method=self.payment_method
-        )
+        ).first()
 
         self.allowed_beneficiary = set(self.payment_preference.identifier)
         if self.payment_preference.secondary_identifier:
@@ -234,12 +234,11 @@ class BasePaymentChecker(BaseTask):
                 payment_method=self.payment_method
             )
             pref.save()
-        else:
-            pref = pref1[0] if pref1 else pref2[0]
-
             self.logger.info(
                 'payment preference created {} {}'.format(
                     pref, self.data))
+        else:
+            pref = pref1[0] if pref1 else pref2[0]
 
         return pref
 

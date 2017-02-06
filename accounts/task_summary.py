@@ -15,6 +15,7 @@ def renew_cards_reserve_invoke():
 def update_pending_transactions_invoke():
     return update_pending_transactions()
 
+
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def import_transaction_deposit_btc_invoke():
     return import_transaction_deposit_btc()

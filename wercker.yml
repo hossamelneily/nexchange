@@ -19,7 +19,7 @@ dev:
     - script:
         name: export django settings module
         code: |
-          export DJANGO_SETTING S_MODULE=nexchange.settings_dev
+          export DJANGO_SETTINGS_MODULE=nexchange.settings_dev
     - script:
         name: create static and media root
         code: |
@@ -185,18 +185,13 @@ build:
           python manage.py makemigrations
           yes w | python manage.py makemigrations --merge
     - script:
-        name: django collect and compile translations
+        name: django compile translations
         code: |
           # python manage.py compilemessages
     - script:
         name: Build js
         code: |
           npm run build-js
-    - script:
-        name: Django collect static
-        code: |
-          python manage.py collectstatic --noinput
-    - script:
       name: copy files
       code: |
         mkdir -p /usr/src/app
@@ -275,7 +270,7 @@ build:
 
           # API1
           export API1_USER=${API1_USER}
-          export API1_PASS=${API1_PASS}
+          export API1_PASS='${API1_PASS}'
 
           # API2
           export API2_KEY=${API2_KEY}

@@ -105,6 +105,11 @@ class Payment(TimeStampedModel, SoftDeletableModel):
     payment_system_id = models.CharField(max_length=255, unique=True,
                                          null=True, default=None)
 
+    def __str__(self):
+        return '{} {} - {}'.format(self.amount_cash,
+                                   self.currency,
+                                   self.payment_preference)
+
 
 class PaymentCredentials(TimeStampedModel, SoftDeletableModel):
     payment_preference = models.ForeignKey('PaymentPreference')

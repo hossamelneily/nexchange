@@ -1,6 +1,13 @@
 !(function (window, $) {
     "use strict";
 
+    var get_msg = function (data) {
+        var defaultMsg = gettext('The code you sent was incorrect. Please, try again.'),
+            message = data.responseJSON.message || window.getLockOutText(data) || defaultMsg;
+
+        return message;
+    };
+
     var requestNewSMSToken = function() {
         var url = $("#resend_sms_button").data('url');
 
@@ -14,13 +21,13 @@
             );
             var message = gettext("SMS token sent. Fill in the verification form field and click on 'Verify phone now'.");
             toastr.info(message);
-        }).fail(function(){
-
+        }).
+        fail(function(data){
             $("#resend_sms_button").html(
                 '<i class="fa fa-repeat" aria-hidden="true"></i>&nbsp;Send-me the verification token again'
             );
-            var message = gettext("Something went wrong. Please, try again.");
-            toastr.error(message);
+
+            toastr.error(get_msg(data));
         });
     };
 
@@ -30,30 +37,19 @@
     var verifyPhone = function() {
         var url = $("#verify_phone_now").data('url');
         var token = $("#verification_code").val();
-
         $("#alert_phone_not_verified").hide();
         $("#alert_verifying_phone").show();
-
          $.post( url , {'token': token}, function( data ) {
-            if (data.status === 'OK') {
-                location.reload(); //TODO: Ajax update screen..
-            } else if (data.status === 'NOT_MATCH') {
-                $("#alert_verifying_phone").hide();
-                $("#alert_phone_not_verified").show();
-                var message = gettext('The code you sent was incorrect. Please, try again.');
-                toastr.error(message);
-            }
-
-
-        }).fail(function(){
+             if (data.status.toUpperCase() === 'OK') {
+                 location.reload(); //TODO: Ajax update screen..
+             }
+         })
+         .fail(function (data) {
             $("#alert_verifying_phone").hide();
             $("#alert_phone_not_verified").show();
-            var message = gettext('Something went wrong. Please, try again.');
-            toastr.error(message);
-        });
-
+            toastr.error(get_msg(data));
+         });
     };
-
     $("#verify_phone_now").on("click", verifyPhone);
 
     window.verifyPhone = verifyPhone; //hack to allow tests to run

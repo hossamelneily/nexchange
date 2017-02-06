@@ -176,15 +176,15 @@ class WalletBaseTestCase(OrderBaseTestCase):
         # look at:
         # nexchange/tests/fixtures/transaction_history.xml self.order_data
         # matches first transaction from the XML file
-        okpay_pref = PaymentPreference.objects.get(
+        okpay_pref = PaymentPreference.objects.filter(
             user__is_staff=True,
             payment_method__name__icontains='okpay'
-        )
+        ).first()
 
-        payeer_pref = PaymentPreference.objects.get(
+        payeer_pref = PaymentPreference.objects.filter(
             user__is_staff=True,
             payment_method__name__icontains='payeer'
-        )
+        ).first()
 
         self.okpay_order_data = {
             'amount_cash': 85.85,
