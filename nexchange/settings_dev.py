@@ -92,3 +92,22 @@ TWILIO_PHONE_FROM = '+15005550006'
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_HOST_USER = 'onit_demo'
 EMAIL_HOST_PASSWORD = 'Fo19F2fJe53BVPDnJl3DSZ'
+
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+            'include_html': True,
+        }
+    }
+}

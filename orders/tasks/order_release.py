@@ -29,7 +29,6 @@ def buy_order_release():
                                 'Flagged for moderation - IGNORING'
                                 .format(o, p))
 
-
                 # MHM... Odd
                 o.moderator_flag = p.pk
                 o.save()
