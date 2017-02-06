@@ -54,7 +54,7 @@
     <div class="paymentSelectionContainer">
     </div>
     {% include 'payments/partials/modals/sell.html' with id="c2cSellModal" form="card" legend="Get pay with card to card transfer" icon="icons/small/c2c.ico" %}
-    {% include 'payments/partials/modals/sell.html' with id="paypalSellModal" form="card" legend="Get paid with PayPal" icon="icons/small/paypal.png" %}
+    {% include 'payments/partials/modals/sell.html' with id="paypalSellModal" form="email" legend="Get paid with PayPal" icon="icons/small/paypal.png" %}
     {% include 'payments/partials/modals/sell.html' with id="qiwiSellModal" form="phone" legend="Get paid with Qiwi Wallet" icon="icons/small/qiwi.png" %}
     {% include 'payments/partials/modals/sell.html' with id="sepaSellModal" form="iban" legend="Get paid using a SEPA trasnfer" icon="icons/small/sepa.png" %}
     {% include 'payments/partials/modals/sell.html' with id="swiftSellModal" form="swift" swift_fields="true" legend="Get paid using a SWIFT transfer" icon="icons/small/swift.png" %}

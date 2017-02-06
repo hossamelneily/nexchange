@@ -93,11 +93,13 @@
           {% block options %}
           <div class="row text-left">
               <div class="col-xs-12 auto-exchange">
-                    <input type="checkbox" id="default_order_trigger">
+                    <input type="checkbox" id="default-order-trigger" value="1">
+                  <label for="default-order-trigger">
                     {% blocktrans %}
                         Credit my withdraw address automatically with any funds
                         sent by you to our {{ order.payment_preference.payment_method.name }}
                     {% endblocktrans %}
+                  </label>
               </div>
           </div>
           {% endblock %}

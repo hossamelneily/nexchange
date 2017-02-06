@@ -161,7 +161,7 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(seconds=60),
     },
     'renew_cards_reserve': {
-        'task': 'accounts.task_summary.update_pending_transactions_invoke',
+        'task': 'accounts.task_summary.renew_cards_reserve_invoke',
         'schedule': timedelta(seconds=60),
     },
     'import_btc_deposit_transactions': {
@@ -177,7 +177,7 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(seconds=60),
     },
     'checker_transactions': {
-        'task': 'accounts.task_summary.renew_cards_reserve_invoke',
+        'task': 'accounts.task_summary.update_pending_transactions_invoke',
         'schedule': timedelta(seconds=60),
     },
 }

@@ -236,13 +236,6 @@
 
 }
 
-.new-order{
-    width: 100px;
-    height: 35px;
-    border-radius: 0;
-    padding-left: 2px;
-}
-
 @-webkit-keyframes spin1 {
     0% { -webkit-transform: rotate(0deg);}
     100% { -webkit-transform: rotate(360deg);}
@@ -885,7 +878,7 @@ html body .modal-content {
     position: relative;
     background-color: #fff;
     border: 1px solid #FFFFFF;
-    border-radius: 0;
+    border-radius: 2px;
     outline: 0;
     -webkit-box-shadow: 0;
     box-shadow: 0;
@@ -1253,4 +1246,17 @@ p.support-link a{
 
 .btn.search-order {
     height: 50px;
+}
+
+#profile-save-checkbox, #default-order-trigger {
+    display: inline-block;
+    margin: 0 -5px 2px 0;
+    padding: 0;
+    width: 25px;
+    border-radius: 0;
+    vertical-align: middle;
+}
+
+label, input {
+    cursor: pointer;
 }

@@ -24,10 +24,11 @@ def buy_order_release():
                     p.payment_preference.payment_method:
 
                 if o.moderator_flag is not p.pk:
-                    logger.error('Payment: {} Order: {} match exists'
-                                 'but payment methods do not correspond '
-                                 'Flagged for moderation - IGNORING'
-                                 .format(o, p))
+                    logger.warn('Payment: {} Order: {} match exists'
+                                'but payment methods do not correspond '
+                                'Flagged for moderation - IGNORING'
+                                .format(o, p))
+
 
                 # MHM... Odd
                 o.moderator_flag = p.pk
@@ -46,9 +47,9 @@ def buy_order_release():
                     p.save()
                     p.payment_preference.save()
             elif p.user != o.user:
-                logger.error('payment {} user {} users don\'t match '
-                             'is it a new user with old preference?'
-                             .format(p, o))
+                logger.warn('payment {} user {} users don\'t match '
+                            'is it a new user with old preference?'
+                            .format(p, o))
                 continue
             else:
                 user = o.user
@@ -84,10 +85,10 @@ def buy_order_release():
                     verbose_match = True
                 else:
                     if p.moderator_flag is not True:
-                        logger.error('could not associate payment {}'
-                                     ' with an order. owner user of wallet '
-                                     '{} not found. '
-                                     'SmartMatching disabled.'.format(p, pm))
+                        logger.warn('could not associate payment {}'
+                                    ' with an order. owner user of wallet '
+                                    '{} not found. '
+                                    'SmartMatching disabled.'.format(p, pm))
                     p.moderator_flag = True
                     p.save()
                     continue

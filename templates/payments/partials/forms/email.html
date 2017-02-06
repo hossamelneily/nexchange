@@ -5,17 +5,19 @@
             <label for="phone">{% trans 'Account Holder' %} </label>
                 <input type="text" name="iban_holder"
                        class="iban val" placeholder="{% trans 'John Smith' %}"
-                       {% if user.is_authenticated %}value="{{ user.first_name }} {{ user.last_name }}"{% endif %}>
+                       {% if user.is_authenticated and user.first_name %}value="{{ user.first_name }} {{ user.last_namene }}"{% endif %}>
         </div>
     </div>
     <div class="row">
         <div class="col col-lg-10 col-sm-offset-1 text-left">
             <label for="phone">{% trans 'Account Email' %}</label>
             <input type="text" name="acoount-number" class="account-number val"
-               {% if user.is_authenticated %}value="{% user.email %}"{% endif %} placeholder="{% trans 'Account Email' %}">
+               {% if user.is_authenticated %}value="{{ user.email }}"{% endif %} placeholder="{% trans 'Account Email' %}">
             {% if user.is_authenticated and not user.email %}
-                <input type="checkbox" value="1">
-                {% trans 'Save this email to my profile' %}
+                <input type="checkbox" id="profile-save-checkbox" value="1">
+                <label for="profile-save-checkbox">
+                    {% trans 'Save this data to my profile' %}
+                </label>
             {% endif %}
         </div>
     </div>
