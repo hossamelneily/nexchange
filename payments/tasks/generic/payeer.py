@@ -19,9 +19,6 @@ class PayeerPaymentChecker(BasePaymentChecker):
             url=settings.PAYEER_API_URL
         )
 
-    def get_transactions(self):
-        self.transactions = self.api.history_of_transactions()
-
     def transactions_iterator(self):
         for tid in self.transactions:
             yield self.transactions[tid]

@@ -2,8 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from django.utils.translation import ugettext_lazy as _
-
-from core.common.models import SoftDeletableModel, TimeStampedModel
+from django.conf import settings
+from core.common.models import SoftDeletableModel, TimeStampedModel, FlagableMixin
 
 
 class PaymentMethodManager(models.Manager):
@@ -18,7 +18,10 @@ class PaymentMethod(TimeStampedModel, SoftDeletableModel):
     name = models.CharField(max_length=100)
     handler = models.CharField(max_length=100, null=True)
     bin = models.IntegerField(null=True, default=None)
-    fee = models.FloatField(null=True)
+    fee_deposit = models.DecimalField(max_digits=5, decimal_places=3,
+                                      null=True, blank=True, default=0)
+    fee_withdraw = models.DecimalField(max_digits=5, decimal_places=3,
+                                       null=True, blank=True, default=0)
     is_slow = models.BooleanField(default=False)
     payment_window = models
     is_internal = models.BooleanField(default=False)
@@ -30,7 +33,9 @@ class PaymentMethod(TimeStampedModel, SoftDeletableModel):
         return "{} ({})".format(self.name, self.bin)
 
 
-class PaymentPreference(TimeStampedModel, SoftDeletableModel):
+class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
+    class Meta:
+        unique_together = ('user', 'identifier', 'payment_method')
     # NULL or Admin for out own (buy adds)
     enabled = models.BooleanField(default=True)
     user = models.ForeignKey(User, default=None, blank=True, null=True)
@@ -78,19 +83,16 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel):
                               self.identifier)
 
 
-class Payment(TimeStampedModel, SoftDeletableModel):
+class Payment(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     nonce = models.CharField(_('Nonce'),
                              max_length=256,
                              null=True,
                              blank=True)
-    amount_cash = models.DecimalField(max_digits=12, decimal_places=2)
+    amount_cash = models.DecimalField(max_digits=14, decimal_places=2)
     currency = models.ForeignKey('core.Currency', default=None)
     is_redeemed = models.BooleanField(default=False)
     is_complete = models.BooleanField(default=False)
     is_success = models.BooleanField(default=False)
-    # flagged for moderation
-    moderator_flag = models.IntegerField(default=None,
-                                         null=True, blank=True)
     payment_preference = models.ForeignKey('PaymentPreference',
                                            null=False, default=None)
     # Super admin if we are paying for BTC
@@ -104,6 +106,16 @@ class Payment(TimeStampedModel, SoftDeletableModel):
                                null=True, default=None)
     payment_system_id = models.CharField(max_length=255, unique=True,
                                          null=True, default=None)
+    
+    @property
+    def api_time(self):
+        safe_time = self.created_on - settings.PAYMENT_WINDOW_SAFETY_INTERVAL
+        return safe_time.__format__('%Y-%m-%d %H:%M:%S')
+
+    def __str__(self):
+        return '{} {} - {}'.format(self.amount_cash,
+                                   self.currency,
+                                   self.payment_preference)
 
     def __str__(self):
         return '{} {} - {}'.format(self.amount_cash,

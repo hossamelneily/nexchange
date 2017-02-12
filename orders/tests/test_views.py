@@ -218,7 +218,6 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
 
         method_data = {
             'bin': 426101,
-            'fee': 0.0,
             'is_slow': 0,
             'name': 'Alpha Bank Visa'
         }

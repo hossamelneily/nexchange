@@ -20,8 +20,8 @@ from payments.adapters import (leupay_adapter, robokassa_adapter,
                                payeer_adapter)
 from payments.models import Payment, PaymentPreference
 from payments.utils import get_payeer_sign
+from payments.task_summary import run_payeer, run_okpay
 from decimal import Decimal
-
 
 
 @login_required
@@ -96,11 +96,19 @@ def payment_success(request, provider):
         received_order = okpay_adapter(request)
     elif provider == 'payeer':
         received_order = payeer_adapter(request)
+
+    # hacky hack
     supporterd = ['okpay', 'payeer']
 
     if provider not in supporterd:
         logger.error('Success view provider '
                      '{} not supported!'.format(provider))
+    else:
+        if provider == 'payeer':
+            run_payeer.apply_async()
+        if provider == 'okpay':
+            run_okpay.apply_async()
+        logger.info('Triggered payeer payment import for {}'.format(provider))
 
     logger.info('User at {} success view.'
                 'request: {} user: {}'
@@ -137,7 +145,6 @@ def payment_success(request, provider):
     order.save()
     # TODO: check signature
     # TODO: check api async for payment (optimization)
-
     redirect_url = "{}?oid={}".\
         format(reverse('orders.orders_list'), order.id)
     logger.info('User at {} success view.'

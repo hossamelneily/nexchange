@@ -8,13 +8,15 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 
 from core.common.models import (SoftDeletableModel, TimeStampedModel,
-                                UniqueFieldMixin)
+                                UniqueFieldMixin, FlagableMixin)
 from core.models import Currency
 from payments.utils import money_format
 from ticker.models import Price
+from django.core.exceptions import ValidationError
 
 
-class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
+class Order(TimeStampedModel, SoftDeletableModel,
+            UniqueFieldMixin, FlagableMixin):
     USD = "USD"
     RUB = "RUB"
     EUR = "EUR"
@@ -28,7 +30,7 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
 
     # Todo: inherit from BTC base?, move lengths to settings?
     order_type = models.IntegerField(choices=TYPES, default=BUY)
-    amount_cash = models.DecimalField(max_digits=12, decimal_places=2)
+    amount_cash = models.DecimalField(max_digits=14, decimal_places=2)
     amount_btc = models.DecimalField(max_digits=18, decimal_places=8)
     currency = models.ForeignKey(Currency)
     payment_window = models.IntegerField(default=settings.PAYMENT_WINDOW)
@@ -37,11 +39,9 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     is_released = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
     is_failed = models.BooleanField(default=False)
-    # Flagged for moderation
-    moderator_flag = models.IntegerField(default=None,
-                                         null=True, blank=True)
+    # Unique by custom validation function
     unique_reference = models.CharField(
-        max_length=settings.UNIQUE_REFERENCE_LENGTH, unique=True)
+        max_length=settings.UNIQUE_REFERENCE_LENGTH)
     admin_comment = models.CharField(max_length=200)
     payment_preference = models.ForeignKey('payments.PaymentPreference',
                                            default=None,
@@ -51,9 +51,22 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
                                          related_name='order_set',
                                          default=None)
     is_default_rule = models.BooleanField(default=False)
+    from_default_rule = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-created_on']
+        # unique_together = ['deleted', 'unique_reference']
+
+    def validate_unique(self, exclude=None):
+        # TODO: exclude expired?
+        if not self.deleted and \
+                self.objects.exclude(pk=self.pk).filter(
+                    unique_reference=self.unique_reference,
+                    deleted=False).exists():
+            raise ValidationError(
+                'Un-deleted order with same reference exists')
+
+        super(Order, self).validate_unique(exclude=exclude)
 
     def save(self, *args, **kwargs):
         if not self.unique_reference:
@@ -90,7 +103,6 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
                     price_buy[0].price_rub,
                     price_buy[0].price_eur])
 
-        # TODO: Make this logic more generic,
         # TODO: migrate to using currency through payment_preference
 
         # SELL
@@ -169,3 +181,4 @@ class Order(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
                                            self.amount_btc,
                                            self.amount_cash,
                                            self.currency)
+

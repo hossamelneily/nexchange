@@ -6,11 +6,13 @@ from celery import shared_task
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def run_payeer():
-    instance = PayeerPaymentChecker()
-    return instance.run()
+    # TODO: migrate to single instance
+    payeer_checker = PayeerPaymentChecker()
+    return payeer_checker.run()
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def run_okpay():
-    instance = OkPayPaymentChecker()
-    return instance.run()
+    # TODO: migrate to single instance
+    okpay_checker = OkPayPaymentChecker()
+    return okpay_checker.run()

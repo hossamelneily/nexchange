@@ -134,3 +134,19 @@ class Balance(TimeStampedModel):
     user = models.ForeignKey(User, related_name='user')
     currency = models.ForeignKey('core.Currency', related_name='currency')
     balance = models.DecimalField(max_digits=18, decimal_places=8, default=0)
+
+
+class UserDuplication(TimeStampedModel):
+    DUPLICATE_WALLET = 1
+    DUPLICATE_IP = 2
+    DUPLICATE_USER_AGENT = 3
+    DUPLICATE_EMAIL = 4
+    DUPLICATION_REASONS = (
+        (DUPLICATE_WALLET, 'Duplicate Wallet'),
+        (DUPLICATE_IP, 'Duplicate IP'),
+        (DUPLICATE_USER_AGENT, 'Duplicate User Agent'),
+        (DUPLICATE_EMAIL, 'Duplicate Email'),
+    )
+    user = models.ForeignKey(User, related_name='duplicate_set')
+    duplicate_of = models.ForeignKey(User, related_name='original_user_set')
+    duplication_reason = models.IntegerField(choices=DUPLICATION_REASONS, max_length=2)

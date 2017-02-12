@@ -53,8 +53,11 @@ LANGUAGES = [
 
 
 # CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+CELERY_RESULT_SERIALIZER = 'pickle'
 
 # CUSTOM SETTINGS
+PAYMENT_WINDOW_SAFETY_INTERVAL = timedelta(seconds=60)
+PAYMENT_DEFAULT_SEEK_INTERVAL = timedelta(hours=12)
 SMS_TOKEN_VALIDITY = timedelta(minutes=3)
 SMS_TOKEN_CHARS = '1234567890'
 REFERRAL_CODE_LENGTH = 10
@@ -152,14 +155,6 @@ CELERY_BROKER_URL = REDIS_URL
 
 
 CELERY_BEAT_SCHEDULE = {
-    'buy_order_release': {
-        'task': 'orders.task_summary.buy_order_release_invoke',
-        'schedule': timedelta(seconds=60),
-    },
-    'sell_order_release': {
-        'task': 'orders.task_summary.sell_order_release_invoke',
-        'schedule': timedelta(seconds=60),
-    },
     'renew_cards_reserve': {
         'task': 'accounts.task_summary.renew_cards_reserve_invoke',
         'schedule': timedelta(seconds=60),

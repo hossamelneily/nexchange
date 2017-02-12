@@ -8,30 +8,29 @@ from payments.tasks.generic.ok_pay import OkPayPaymentChecker
 from payments.tasks.generic.payeer import PayeerPaymentChecker
 from accounts.tests.base import TransactionImportBaseTestCase
 from accounts.task_summary import import_transaction_deposit_btc_invoke
-from orders.task_summary import sell_order_release_invoke
-from orders.task_summary import buy_order_release_invoke
+from orders.task_summary import sell_order_release_invoke, buy_order_release_by_reference_invoke, \
+    buy_order_release_by_wallet_invoke, buy_order_release_by_rule_invoke
 from django.conf import settings
-import json
 from decimal import Decimal
+import json
+import os
 
 
 class OKPayEndToEndTestCase(WalletBaseTestCase):
     @patch('orders.models.Order.convert_coin_to_cash')
-    @patch('nexchange.utils.OkPayAPI.get_date_time')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
-    @patch('orders.tasks.order_release.release_payment')
-    @patch('orders.tasks.order_release.send_sms')
-    @patch('orders.tasks.order_release.send_email')
+    @patch('orders.tasks.generic.base.release_payment')
+    @patch('orders.tasks.generic.base.send_sms')
+    @patch('orders.tasks.generic.base.send_email')
     def test_fail_release_no_address(self, send_email,
                                      send_sms, release_payment,
-                                     _get_transaction_history, get_date_time,
+                                     _get_transaction_history,
                                      convert_coin_to_cash):
         # Purge
         Payment.objects.all().delete()
         release_payment.return_value = 'TX123'
         convert_coin_to_cash.return_value = None
         _get_transaction_history.return_value = get_ok_pay_mock()
-        get_date_time.return_value = '2017-01-11-10:00'
         order = Order(**self.okpay_order_data)
         order.save()
         import_okpay_payments = OkPayPaymentChecker()
@@ -42,7 +41,7 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
             reference=order.unique_reference
         )
 
-        buy_order_release_invoke.apply()
+        buy_order_release_by_reference_invoke.apply()
         p.refresh_from_db()
         order.refresh_from_db()
         self.assertEqual(False, p.is_complete)
@@ -50,20 +49,18 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
         self.assertEqual(False, order.is_released)
 
     @patch('orders.models.Order.convert_coin_to_cash')
-    @patch('nexchange.utils.OkPayAPI.get_date_time')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
-    @patch('orders.tasks.order_release.release_payment')
-    @patch('orders.tasks.order_release.send_sms')
-    @patch('orders.tasks.order_release.send_email')
+    @patch('orders.tasks.generic.base.release_payment')
+    @patch('orders.tasks.generic.base.send_sms')
+    @patch('orders.tasks.generic.base.send_email')
     def test_success_release(self, send_email, send_sms, release_payment,
-                             _get_transaction_history, get_date_time,
+                             _get_transaction_history,
                              convert_coin_to_cash):
         # Purge
         release_payment.return_value = 'TX123'
         Payment.objects.all().delete()
         convert_coin_to_cash.return_value = None
         _get_transaction_history.return_value = get_ok_pay_mock()
-        get_date_time.return_value = '2017-01-11-10:00'
         order = Order(**self.okpay_order_data_address)
         order.save()
         import_okpay_payments = OkPayPaymentChecker()
@@ -74,7 +71,7 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
             reference=order.unique_reference
         )
 
-        buy_order_release_invoke.apply()
+        buy_order_release_by_reference_invoke.apply([p.pk])
         p.refresh_from_db()
         order.refresh_from_db()
         self.assertEqual(True, p.is_complete)
@@ -95,20 +92,20 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
 
 
 class PayeerEndToEndTestCase(WalletBaseTestCase):
-    @patch('nexchange.utils.PayeerAPIClient.history_of_transactions')
+    @patch('nexchange.utils.PayeerAPIClient.get_transaction_history')
     @patch('orders.models.Order.convert_coin_to_cash')
-    @patch('orders.tasks.order_release.release_payment')
-    @patch('orders.tasks.order_release.send_sms')
-    @patch('orders.tasks.order_release.send_email')
+    @patch('orders.tasks.generic.base.release_payment')
+    @patch('orders.tasks.generic.base.send_sms')
+    @patch('orders.tasks.generic.base.send_email')
     def test_failure_release_no_address(self, send_email, send_sms,
                                         release_payment,
                                         convert_coin_to_cash,
-                                        history_of_transactions):
+                                        transaction_history):
         release_payment.return_value = 'TX123'
         convert_coin_to_cash.return_value = None
         sender = 'zaza'
         # TODO: get fixutre
-        history_of_transactions.return_value = {
+        transaction_history.return_value = {
             '1': {
                 'id': '1',
                 'type': 'transfer',
@@ -131,7 +128,7 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
             reference=order.unique_reference
         )
 
-        buy_order_release_invoke.apply()
+        buy_order_release_by_reference_invoke.apply([p.pk])
 
         p.refresh_from_db()
         order.refresh_from_db()
@@ -140,20 +137,20 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
         self.assertEqual(False, p.is_redeemed)
         self.assertEqual(False, order.is_released)
 
-    @patch('nexchange.utils.PayeerAPIClient.history_of_transactions')
+    @patch('nexchange.utils.PayeerAPIClient.get_transaction_history')
     @patch('orders.models.Order.convert_coin_to_cash')
-    @patch('orders.tasks.order_release.release_payment')
-    @patch('orders.tasks.order_release.send_sms')
-    @patch('orders.tasks.order_release.send_email')
+    @patch('orders.tasks.generic.base.release_payment')
+    @patch('orders.tasks.generic.base.send_sms')
+    @patch('orders.tasks.generic.base.send_email')
     def test_success_release(self, send_email, send_sms,
                              release_payment,
                              convert_coin_to_cash,
-                             history_of_transactions):
+                             transaction_history):
         release_payment.return_value = 'TX123'
         convert_coin_to_cash.return_value = None
         sender = 'zaza'
         # TODO: get fixutre
-        history_of_transactions.return_value = {
+        transaction_history.return_value = {
             '1': {
                 'id': '1',
                 'type': 'transfer',
@@ -176,7 +173,7 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
             reference=order.unique_reference
         )
 
-        buy_order_release_invoke.apply()
+        buy_order_release_by_reference_invoke.apply([p.pk])
 
         p.refresh_from_db()
         order.refresh_from_db()
@@ -199,7 +196,6 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
 
 
 class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
-
     def setUp(self):
         self.confirmation_list = [settings.MIN_REQUIRED_CONFIRMATIONS,
                                   settings.MIN_REQUIRED_CONFIRMATIONS - 1]
@@ -220,7 +216,9 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.unique_ref_2 = self.order_2.unique_reference
 
     def _read_fixture(self):
-        cont_path = 'nexchange/tests/fixtures/blockr/address_transactions.json'
+        cont_path = os.path.join(settings.BASE_DIR,
+                                 'nexchange/tests/fixtures/'
+                                 'blockr/address_transactions.json')
         with open(cont_path) as f:
             response = f.read().replace('\n', '').replace(' ', '')
             loads = json.loads(response)

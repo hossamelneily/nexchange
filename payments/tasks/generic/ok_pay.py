@@ -18,8 +18,8 @@ class OkPayPaymentChecker(BasePaymentChecker):
         )
 
     def get_transactions(self):
-        self.transactions = \
-            self.api.get_transaction_history()['Transactions']
+        res = super(OkPayPaymentChecker, self).get_transactions()
+        return res['Transactions']
 
     def transactions_iterator(self):
         for trans in self.transactions:

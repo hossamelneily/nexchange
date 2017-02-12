@@ -1,8 +1,10 @@
 from core.models import Address, Transaction
 from orders.models import Order
 from core.tests.base import OrderBaseTestCase
-import json
+from django.conf import settings
 from decimal import Decimal
+import json
+import os
 
 
 class TransactionImportBaseTestCase(OrderBaseTestCase):
@@ -33,7 +35,9 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.unique_ref = self.order.unique_reference
 
     def _read_fixture(self):
-        cont_path = 'nexchange/tests/fixtures/blockr/address_transactions.json'
+        cont_path = os.path.join(settings.BASE_DIR,
+                                 'nexchange/tests/fixtures/'
+                                 'blockr/address_transactions.json')
         with open(cont_path) as f:
             self.blockr_response = f.read().replace('\n', '').replace(' ', '')
             self.wallet_address = json.loads(self.blockr_response)['data'][

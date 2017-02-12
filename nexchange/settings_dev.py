@@ -97,7 +97,7 @@ LOGGING = {
     'version': 1,
     'handlers': {
         'console': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
             'stream': sys.stdout,
         }
@@ -105,7 +105,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
             'include_html': True,
         }

@@ -192,8 +192,23 @@ class CreateUpholdCard(Uphold):
         return self._post('/me/cards/{}/addresses'.format(card), fields)
 
 
-class OkPayAPI(object):
+class BasePaymentApi:
+    def get_transaction_history(self):
+        raise NotImplementedError
 
+    def get_default_ranges(self, to_date, from_date):
+        if to_date is None:
+            to_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        if from_date is None:
+            default_from_time = (datetime.datetime.now() -
+                                settings.PAYMENT_DEFAULT_SEEK_INTERVAL)
+            from_date = default_from_time.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        return from_date, to_date
+
+
+
+class OkPayAPI(BasePaymentApi):
     def __init__(self, api_password=None, wallet_id=None):
         ''' Set up your API Access Information
             https://www.okpay.com/en/developers/interfaces/setup.html '''
@@ -218,15 +233,15 @@ class OkPayAPI(object):
             retxml=True
         )
 
-    def get_date_time(self):
-        ''' Get the server time in UTC.
-            Params: None
-            Returns: String value - Date (YYYY-MM-DD HH:mm:SS)
-                    2010-12-31 10:33:44 '''
-        response = self.client.service.Get_Date_Time()
-        root = ET.fromstring(response)
-        now = root[0][0][0].text
-        return now
+    # def get_date_time(self):
+    #     ''' Get the server time in UTC.
+    #         Params: None
+    #         Returns: String value - Date (YYYY-MM-DD HH:mm:SS)
+    #                 2010-12-31 10:33:44'''
+    #     response = self.client.service.Get_Date_Time()
+    #     root = ET.fromstring(response)
+    #     now = root[0][0][0].text
+    #     return now
 
     def get_balance(self, currency=None):
         ''' Get the balance of all currency wallets or of a single currency.
@@ -254,17 +269,18 @@ class OkPayAPI(object):
 
         return response
 
-    def _get_transaction_history(self, from_date, till_date, page_size,
+    def _get_transaction_history(self, from_date, to_date, page_size,
                                  page_number):
         """
         https://dev.okpay.com/en/manual/interfaces/functions/general
         /transaction-history.html
         """
+
         response = self.client.service.Transaction_History(
             self.wallet_id,
             self.security_token,
             from_date,
-            till_date,
+            to_date,
             page_size,
             page_number)
         return response
@@ -290,12 +306,11 @@ class OkPayAPI(object):
             res.append(attributes)
         return res
 
-    def get_transaction_history(self, page_size=50, page_number=1):
-        from_date = '2011-05-16 10:22:33'
-        till_date = self.get_date_time()
+    def get_transaction_history(self, from_date=None, to_date=None, page_size=50, page_number=1):
+        from_date, to_date = self.get_default_ranges(from_date, to_date)
         try:
             service_resp = self._get_transaction_history(
-                from_date, till_date, page_size, page_number
+                from_date, to_date, page_size, page_number
             )
             root = ET.fromstring(service_resp)[0][0][0]
             res = {}
@@ -340,7 +355,7 @@ class OkPayAPI(object):
         return response
 
 
-class PayeerAPIClient(object):
+class PayeerAPIClient(BasePaymentApi):
     """ Documentation: http://docs.payeercom.apiary.io/# """
 
     def __init__(self, account='12345', apiId='12345', apiPass='12345',
@@ -369,18 +384,19 @@ class PayeerAPIClient(object):
         response = requests.post(self.url, payload)
         return response
 
-    def history_of_transactions(self, sort='desc', count=10, to_dt=None,
-                                trans_type='incoming'):
-        if to_dt is None:
-            to_dt = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    def get_transaction_history(self, to_date=None, from_date=None,
+                                page_size=50, sort='desc', trans_type='incoming'):
+        from_date, to_date = self.get_default_ranges(from_date, to_date)
+
         payload = {
             'account': self.account,
             'apiId': self.apiId,
             'apiPass': self.apiPass,
             'action': 'history',
             'sort': sort,
-            'count': count,
-            'to': to_dt,
+            'count': page_size,
+            'from': from_date,
+            'to': to_date,
             'type': trans_type
         }
         response = requests.post(self.url, payload)
@@ -390,39 +406,6 @@ class PayeerAPIClient(object):
         except KeyError:
             res = content['errors']
         return res
-
-
-def validate_payment_matches_order(order, payment, verbose_match, logger):
-    order_already_released = payment.order or order.is_released
-
-    details_match =\
-        order.currency == payment.currency and\
-        order.amount_cash == payment.amount_cash
-
-    ref_matches = order.unique_reference == payment.reference or \
-        (verbose_match and not payment.reference)
-
-    user_matches = not payment.user or payment.user == order.user
-
-    if order_already_released:
-        logger.error('order: {} payment: {} ALREADY RELEASED'
-                     .format(order, payment))
-    if not user_matches:
-        logger.error('order: {} payment: {} NO USER MATCH'.
-                     format(order, payment))
-    if not details_match:
-        logger.error('order: {} payment: {} NO DETAILS MATCH'.
-                     format(order, payment))
-    if not ref_matches:
-        logger.error('order: {} payment: {} NO REFERENCE MATCH'.
-                     format(order, payment))
-    elif verbose_match:
-        logger.info('order: {} payment: {} NO REFERENCE MATCH,'
-                    'RELEASE BY VERBOSE_MATCH (cross reference)'.
-                    format(order, payment))
-
-    return user_matches and details_match and ref_matches \
-           and not order_already_released
 
 
 def get_nexchange_logger(name, with_console=True, with_email=False):

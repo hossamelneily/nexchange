@@ -39,8 +39,10 @@ class Address(BtcBase, SoftDeletableModel):
 
 class Transaction(BtcBase):
     confirmations = models.IntegerField(default=0)
-    tx_id = models.CharField(max_length=65, default=None, null=True)
-    tx_id_api = models.CharField(max_length=55, default=None, null=True)
+    tx_id = models.CharField(max_length=65, default=None,
+                             null=True, unique=True)
+    tx_id_api = models.CharField(max_length=55, default=None,
+                                 null=True, unique=True)
     address_from = models.ForeignKey(
         'core.Address',
         related_name='address_from',
@@ -75,3 +77,5 @@ class Currency(TimeStampedModel, SoftDeletableModel):
 
     def __str__(self):
         return self.name
+
+

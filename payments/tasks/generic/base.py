@@ -3,9 +3,11 @@ from nexchange.tasks.base import BaseTask
 import logging
 from django.db.models import Q
 from payments.models import Payment, PaymentPreference, PaymentMethod
+from orders.models import Order
 from core.models import Currency
 from django.core.exceptions import MultipleObjectsReturned
 from django.conf import settings
+from copy import deepcopy
 
 
 class BasePaymentChecker(BaseTask):
@@ -16,6 +18,10 @@ class BasePaymentChecker(BaseTask):
         self.data = {}
         self.api = None
         self.payment_preference = None
+
+        self.last_payment = Payment.objects.last()
+        self.start_time = self.last_payment.api_time\
+            if self.last_payment else None
 
         # TODO: consider using ABC
         self.abstract_methods = [
@@ -72,7 +78,7 @@ class BasePaymentChecker(BaseTask):
         raise NotImplementedError
 
     def get_transactions(self):
-        raise NotImplementedError
+        return self.api.get_transaction_history(self.start_time)
 
     def validate_beneficiary(self):
         try:
@@ -176,7 +182,7 @@ class BasePaymentChecker(BaseTask):
 
         return success and valid_beneficiary
 
-    def create_payment(self, pref):
+    def create_payment(self, pref, order=None):
         # get only by unique refs, even if the rest does not match
         # at the moment if the user pays the same invoice twice
         # we will not know about it and he will need to contact support
@@ -199,26 +205,38 @@ class BasePaymentChecker(BaseTask):
                 reference=self.data['unique_ref'],
                 amount_cash=self.data['amount_cash'],
                 payment_preference=pref,
-                user=pref.user,
+                user=order.user if order else None,
                 currency=self.get_currency()
             )
             payment.save()
             self.logger.info('new payment created {}'
                              .format(payment.__dict__))
 
-    def create_payment_preference(self):
+            return payment
+        return None
+
+    def create_payment_preference(self, order=None):
         pref1, pref2 = (None, None,)
         # If we have no identifier ValueError is
         # thrown already at @see parse_data
+        filters = {
+            'payment_method': self.payment_method,
+            'user': order.user if order else None
+        }
         if self.data['identifier']:
+            pref1_filters = deepcopy(filters)
+            pref1_filters.update({'identifier': self.data['identifier']})
             pref1 = PaymentPreference.objects.filter(
-                identifier=self.data['identifier'],
-                payment_method=self.payment_method
+                **pref1_filters
             )
         if self.data['secondary_identifier']:
+            pref2_filters = deepcopy(filters)
+            pref1_filters.update(
+                {'secondary_identifier': self.data['secondary_identifier']}
+            )
+
             pref2 = PaymentPreference.objects.filter(
-                secondary_identifier=self.data['secondary_identifier'],
-                payment_method=self.payment_method
+                **pref2_filters
             )
         new_pref = not pref1 and not pref2
         if pref1 and pref2 and pref1[0] != pref2[0]:
@@ -231,14 +249,22 @@ class BasePaymentChecker(BaseTask):
             pref = PaymentPreference.objects.create(
                 identifier=self.data['identifier'],
                 secondary_identifier=self.data['secondary_identifier'],
-                payment_method=self.payment_method
+                payment_method=self.payment_method,
+                user=order.user if order else None
             )
-            pref.save()
+            if not order:
+                flag, created = pref.flag()
+                if created:
+                    self.logger.warn('perf: {} without owner and order'
+                                     .format(pref))
+
             self.logger.info(
                 'payment preference created {} {}'.format(
                     pref, self.data))
         else:
             pref = pref1[0] if pref1 else pref2[0]
+
+        pref.save()
 
         return pref
 
@@ -258,19 +284,37 @@ class BasePaymentChecker(BaseTask):
         return db_curr
 
     def run(self):
-        self.get_transactions()
+        self.transactions = self.get_transactions()
 
         for trans in self.transactions_iterator():
             try:
                 self.parse_data(trans)
             except ValueError as e:
+                self.logger.warn(e)
                 continue
 
-            except KeyError:
+            except KeyError as e:
+                self.logger.warn(e)
                 continue
 
             if not self.validate_transaction():
                 continue
+            order = Order.objects.filter(
+                unique_reference=self.data['unique_ref']
+            ).last()
+            pref = self.create_payment_preference(order)
+            payment = self.create_payment(pref, order)
 
-            pref = self.create_payment_preference()
-            self.create_payment(pref)
+            # only if new payment is created
+            if payment:
+                if payment.reference:
+                    task = 'orders.task_summary.release_by_reference_invoke'
+                else:
+                    task = 'orders.task_summary.release_by_wallet_invoke'
+
+                self.add_next_task(
+                    task,
+                    [payment.pk]
+                )
+
+            super(BasePaymentChecker, self).run()

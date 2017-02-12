@@ -54,3 +54,23 @@ class IpAwareModel(TimeStampedModel, SoftDeleteMixin):
 
     class Meta:
         abstract = True
+
+
+class Flag(TimeStampedModel):
+    flag_val = models.CharField(default=None, null=True, blank=True,
+                                max_length=255)
+    model_name = models.CharField(default=None, max_length=255)
+    flagged_id = models.PositiveIntegerField(default=None)
+
+
+class FlagableMixin(models.Model):
+
+    class Meta:
+        abstract = True
+
+    def flag(self, val=None):
+        return Flag.objects.get_or_create(
+            model_name=self.__class__.__name__,
+            flagged_id=self.pk,
+            flag_val=val
+        )

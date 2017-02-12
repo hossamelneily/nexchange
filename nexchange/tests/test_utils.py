@@ -3,6 +3,8 @@ from nexchange.utils import PayeerAPIClient, check_address_blockchain
 import requests_mock
 from core.models import Address
 from core.tests.base import OrderBaseTestCase
+from django.conf import settings
+import os
 
 
 class PayeerAPIClientTestCase(TestCase):
@@ -13,10 +15,12 @@ class PayeerAPIClientTestCase(TestCase):
 
     @requests_mock.mock()
     def test_history_of_transactions(self, m):
-        cont_path = 'nexchange/tests/fixtures/payeer/transaction_history.json'
+        cont_path = os.path.join(settings.BASE_DIR,
+                                 'nexchange/tests/fixtures/payeer/'
+                                 'transaction_history.json')
         with open(cont_path) as f:
             m.post(self.url, text=f.read().replace('\n', ''))
-        res = self.client.history_of_transactions()
+        res = self.client.get_transaction_history()
         key = next(iter(res))
         self.assertIn('id', res[key])
         self.assertEqual(res[key]['id'], key)
@@ -47,7 +51,9 @@ class BlockchainTestCase(OrderBaseTestCase):
 
     @requests_mock.mock()
     def test_get_transactions_by_address(self, m):
-        cont_path = 'nexchange/tests/fixtures/blockr/address_transactions.json'
+        cont_path = os.path.join(
+            settings.BASE_DIR,
+            'nexchange/tests/fixtures/blockr/address_transactions.json')
         with open(cont_path) as f:
             m.get(self.url, text=f.read().replace('\n', ''))
         res = check_address_blockchain(self.address)

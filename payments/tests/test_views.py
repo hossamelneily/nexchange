@@ -54,9 +54,9 @@ class PayeerTestCase(OrderBaseTestCase):
         self.payment_method.save()
         self._create_input_params()
         pref_data = {
-            'user': self.user,
             'comment': 'Just testing',
-            'payment_method': self.payment_method
+            'payment_method': self.payment_method,
+            'user': self.user
         }
         self.pref = PaymentPreference(**pref_data)
         self.pref.save()
@@ -165,14 +165,13 @@ class PaymentReleaseTestCase(OrderBaseTestCase):
         self.addr.save()
 
         pref_data = {
-            'user': self.user,
             'comment': 'Just testing',
-            'payment_method': self.payment_method
+            'payment_method': self.payment_method,
+            'user': self.user
         }
 
         pref = PaymentPreference(**pref_data)
         pref.save('internal')
-
         self.data = {
             'amount_cash': amount_cash,
             'amount_btc': Decimal(1.00),

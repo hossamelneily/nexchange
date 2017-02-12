@@ -763,7 +763,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             )
 
         unlock_time = datetime.now() + \
-            settings.AXES_COOLOFF_TIME
+            settings.AXES_COOLOFF_TIME + timedelta(seconds=1)
 
         with freeze_time(unlock_time, tick=True):
             sms_token = SmsToken(user=user)

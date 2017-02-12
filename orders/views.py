@@ -160,8 +160,8 @@ def ajax_order(request):
 
     if trade_type == Order.SELL:
         payment_pref, created = PaymentPreference.objects.get_or_create(
-            user=request.user,
-            identifier=identifier
+            identifier=identifier,
+            user=request.user
         )
         payment_pref.currency.add(currency)
         payment_pref.save()

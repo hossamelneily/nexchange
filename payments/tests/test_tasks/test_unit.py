@@ -9,7 +9,6 @@ from core.tests.utils import data_provider
 class BasePaymentCheckerTestCase(TestCase):
     ABSTRACT_METHODS = [
         'transactions_iterator',
-        'get_transactions',
     ]
 
     def __init__(self, *args, **kwargs):

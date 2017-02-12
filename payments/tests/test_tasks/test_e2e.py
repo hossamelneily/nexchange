@@ -12,12 +12,11 @@ from core.tests.utils import get_ok_pay_mock
 
 class WalletAPITestCase(WalletBaseTestCase):
     @patch('orders.models.Order.convert_coin_to_cash')
-    @patch('nexchange.utils.OkPayAPI.get_date_time')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
-    def test_confirm_order_payment_with_okpay_celery(self, history, datetime,
+    def test_confirm_order_payment_with_okpay_celery(self,
+                                                     history,
                                                      convert_to_cash):
         history.return_value = get_ok_pay_mock()
-        datetime.return_value = '2017-01-11-10:00'
         convert_to_cash.return_value = None
         order = Order(**self.okpay_order_data)
         order.save()
@@ -49,9 +48,10 @@ class WalletAPITestCase(WalletBaseTestCase):
         self.assertEqual(pref[0].identifier, 'dobbscoin@gmail.com')
         self.assertEqual(pref[0].secondary_identifier, 'OK487565544')
 
-    @patch('nexchange.utils.PayeerAPIClient.history_of_transactions')
+    @patch('nexchange.utils.PayeerAPIClient.get_transaction_history')
     @patch('orders.models.Order.convert_coin_to_cash')
-    def test_import_payeer__invalid_wallet(self, convert_to_cash, trans_hist):
+    def test_import_payeer_invalid_wallet(self,
+                                          convert_to_cash, trans_hist):
         convert_to_cash.return_value = None
         sender = 'zaza'
         # TODO: get fixutre
@@ -80,7 +80,7 @@ class WalletAPITestCase(WalletBaseTestCase):
         self.assertEqual(0, len(p))
         # assert payment pref is created correctly
 
-    @patch('nexchange.utils.PayeerAPIClient.history_of_transactions')
+    @patch('nexchange.utils.PayeerAPIClient.get_transaction_history')
     @patch('orders.models.Order.convert_coin_to_cash')
     def test_import_payeer_invalid_status(self, convert_to_cash, trans_hist):
         convert_to_cash.return_value = None
@@ -111,7 +111,7 @@ class WalletAPITestCase(WalletBaseTestCase):
         self.assertEqual(0, len(p))
         # assert payment pref is created correctly
 
-    @patch('nexchange.utils.PayeerAPIClient.history_of_transactions')
+    @patch('nexchange.utils.PayeerAPIClient.get_transaction_history')
     @patch('orders.models.Order.convert_coin_to_cash')
     def test_confirm_order_payment_with_payeer_celery(self, convert_to_cash,
                                                       trans_hist):
