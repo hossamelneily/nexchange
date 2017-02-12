@@ -458,9 +458,11 @@ deploy:
           docker-compose -f /nexchange/docker-compose.yml up -d
         EOF
 tests:
-  - name: redis
+  services:
+   - name: redis
      id: redis
      cmd: redis-server
+
   steps:
     - script:
         name: Install python requirements
