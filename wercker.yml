@@ -308,6 +308,7 @@ build:
           python /usr/src/app/manage.py loaddata referrals/fixtures/program.json
           echo "To load the 'withdraw_address' fixture, uncomment the next line"
           # python manage.py loaddata core/fixtures/withdraw_address.json
+          python manage.py loaddata core/fixtures/pair.json
 
           if [ ! -z $CMS_FROM_FIXTURE] && [ ${CMS_FROM_FIXTURE} -eq 1 ]
           then
