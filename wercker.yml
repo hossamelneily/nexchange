@@ -97,7 +97,7 @@ dev:
         code: |
           python manage.py loaddata referrals/fixtures/program.json
     - script:
-        name: Django import Ticker fixtures
+        name: Django import Articles fixtures
         code: |
           if [ ! -z $LOCAL_CMS] && [ ${LOCAL_CMS} -eq 1 ]
           then

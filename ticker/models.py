@@ -6,7 +6,6 @@ from core.common.models import TimeStampedModel
 
 
 class Ticker(TimeStampedModel):
-
     ask = models.DecimalField(max_digits=18, decimal_places=8)
     bid = models.DecimalField(max_digits=18, decimal_places=8)
     pair = models.ForeignKey(Pair)

@@ -73,14 +73,14 @@ class BaseOrderRelease(BaseTask):
     def run(self, payment_id):
         payment = Payment.objects.get(pk=payment_id)
         order = self.get_order(payment)
-        if not order:
+        if order:
+            if self.validate(order, payment):
+                if self.do_release(order, payment):
+                    self.complete_missing_data(payment, order)
+                    self.notify(order)
+        else:
             self.logger.info('{} match order returned None'
                              .format(self.__class__.__name__))
-
-        if self.validate(order, payment):
-            if self.do_release(order, payment):
-                self.complete_missing_data(payment, order)
-                self.notify(order)
 
         super(BaseOrderRelease, self).run(payment_id)
 
