@@ -196,7 +196,7 @@ class BasePaymentApi:
     def get_transaction_history(self):
         raise NotImplementedError
 
-    def get_default_ranges(self, to_date, from_date):
+    def get_default_ranges(self, from_date, to_date):
         if to_date is None:
             to_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         if from_date is None:
@@ -384,7 +384,7 @@ class PayeerAPIClient(BasePaymentApi):
         response = requests.post(self.url, payload)
         return response
 
-    def get_transaction_history(self, to_date=None, from_date=None,
+    def get_transaction_history(self, from_date=None, to_date=None,
                                 page_size=50, sort='desc', trans_type='incoming'):
         from_date, to_date = self.get_default_ranges(from_date, to_date)
 
