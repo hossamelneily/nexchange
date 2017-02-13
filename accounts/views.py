@@ -174,7 +174,14 @@ def verify_phone(request):
         # Profile page
         user = request.user
 
-    sms_token = SmsToken.objects.filter(user=user).latest('id')
+    try:
+        sms_token = SmsToken.objects.filter(user=user).latest('id')
+    except SmsToken.DoesNotExist:
+        return render_response(
+            'Your token has expired, '
+            'Please request a new token',
+            400
+        )
     if sent_token == sms_token.sms_token:
         if not sms_token.valid:
             return render_response(

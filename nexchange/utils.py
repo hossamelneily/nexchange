@@ -69,10 +69,16 @@ def sanitize_number(phone, is_phone=False):
 
 
 def send_auth_sms(user):
-    token = SmsToken.objects.filter(user=user).latest('id')
+    def create_token():
+        _token = SmsToken(user=user)
+        _token.save()
+        return _token
+    try:
+        token = SmsToken.objects.filter(user=user).latest('id')
+    except SmsToken.DoesNotExist:
+        token = create_token()
     if not token.valid:
-        token = SmsToken(user=user)
-        token.save()
+        token = create_token()
 
     msg = settings.SMS_MESSAGE_AUTH + '{}'.format(token.sms_token)
     phone_to = str(user.username)

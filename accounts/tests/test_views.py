@@ -384,6 +384,51 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
         self.assertEqual(2, send_sms.call_count)
 
+    # regression!
+    @patch('accounts.views.send_auth_sms')
+    def test_user_login_2nd_time(self, send_sms):
+        url = reverse('accounts.user_by_phone')
+        uname = '+79259737305'
+        payload = {
+            'phone': uname,
+        }
+        # create once
+        self.client.get(self.logout_url)
+        res = self.client.post(url, data=payload)
+        self.assertEquals(res.status_code, 200)
+
+        # attempt to create twice
+        self.client.get(self.logout_url)
+        res = self.client.post(url, data=payload)
+        self.assertEquals(res.status_code, 200)
+
+        users = User.objects.filter(username=uname)
+
+        self.assertEquals(len(users), 1)
+        self.user = users[0]
+
+        sms_token = SmsToken.objects.\
+            filter(user=self.user).last()
+        self.assertTrue(sms_token)
+
+        self.assertEqual(2, send_sms.call_count)
+
+        token = SmsToken.objects.last()
+        url = reverse('accounts.verify_phone')
+        payload = {
+            'token': token.sms_token,
+            'phone': self.user.username
+        }
+        res = self.client.post(url, data=payload)
+        # make attacker think phone is always created
+        self.assertEqual(201, res.status_code)
+        self.assertTrue(self.user.is_authenticated())
+
+        res = self.client.post(url, data=payload)
+        # user is already logged in!
+        self.assertEqual(400, res.status_code)
+
+
     @patch('accounts.views.send_auth_sms')
     def test_creates_sms_token(self, send_sms):
         url = reverse('accounts.user_by_phone')
@@ -628,7 +673,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         self.token = SmsToken.objects.\
             filter(user=user).last()
 
-        # test cleanupm
+        # test clean-up
         self.assertEqual(expected_uname,
                          user.username)
 

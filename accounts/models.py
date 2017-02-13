@@ -149,4 +149,4 @@ class UserDuplication(TimeStampedModel):
     )
     user = models.ForeignKey(User, related_name='duplicate_set')
     duplicate_of = models.ForeignKey(User, related_name='original_user_set')
-    duplication_reason = models.IntegerField(choices=DUPLICATION_REASONS, max_length=2)
+    duplication_reason = models.IntegerField(choices=DUPLICATION_REASONS)
