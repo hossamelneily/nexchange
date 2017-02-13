@@ -175,6 +175,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'accounts.task_summary.update_pending_transactions_invoke',
         'schedule': timedelta(seconds=60),
     },
+    'get_all_enabled_tickers': {
+        'task': 'ticker.task_summary.get_all_tickers',
+        'schedule': timedelta(seconds=30),
+    },
 }
 
 TASKS_TIME_LIMIT = 30

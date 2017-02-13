@@ -62,9 +62,9 @@ class BlockchainTransactionImporter:
         if existing_transaction is None:
             orders = Order.objects.filter(
                 order_type=Order.SELL,
-                amount_btc=Decimal(str(self.data['amount'])),
-                is_completed=False,
-                is_paid=False
+                amount_base=Decimal(str(self.data['amount'])),
+                pair__base=self.address.currency,
+                status=Order.INITIAL
             )
             if len(orders) == 1:
                 order = orders[0]
@@ -77,7 +77,7 @@ class BlockchainTransactionImporter:
                 transaction.save()
                 self.logger.info('...new transaction created {}'
                                  .format(transaction.__dict__))
-                order.is_paid = True
+                order.status = Order.PAID
                 order.save()
                 self.logger.info('Order {} is marked as paid (is_paid=True)'
                                  .format(order.__dict__))

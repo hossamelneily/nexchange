@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -71,6 +73,7 @@ class Currency(TimeStampedModel, SoftDeletableModel):
     min_confirmation_high = \
         models.IntegerField(blank=True, null=True)
     is_crypto = models.BooleanField(default=False)
+    fee_offset = models.FloatField(default=0.0)
 
     def natural_key(self):
         return self.code
@@ -79,3 +82,51 @@ class Currency(TimeStampedModel, SoftDeletableModel):
         return self.name
 
 
+class Pair(TimeStampedModel):
+
+    base = models.ForeignKey(Currency, related_name='base_prices')
+    quote = models.ForeignKey(Currency, related_name='quote_prices')
+    fee_ask = models.DecimalField(max_digits=18, decimal_places=8,
+                                  default=Decimal('0.01'))
+    fee_bid = models.DecimalField(max_digits=18, decimal_places=8,
+                                  default=Decimal('0.01'))
+    name = models.CharField(max_length=8, blank=True, null=True)
+    disabled = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        self.name = '{}{}'.format(self.base, self.quote)
+        super(Pair, self).save(*args, **kwargs)
+
+    def __str__(self):
+        if self.disabled:
+            able = 'Disabled'
+        else:
+            able = 'Ebabled'
+        return '{}, {}'.format(self.name, able)
+
+    def kraken_format(self, code, is_crypto):
+        if code == 'BTC':
+            code = 'XBT'
+        if is_crypto:
+            res = 'X{}'.format(code)
+        else:
+            res = 'Z{}'.format(code)
+        return res
+
+    @property
+    def kraken_style(self):
+        base = self.kraken_format(self.base.code, self.base.is_crypto)
+        quote = self.kraken_format(self.quote.code, self.quote.is_crypto)
+        return '{}{}'.format(base, quote)
+
+    @property
+    def invert_kraken_style(self):
+        base = self.kraken_format(self.quote.code, self.quote.is_crypto)
+        quote = self.kraken_format(self.base.code, self.base.is_crypto)
+        return '{}{}'.format(base, quote)
+
+    @property
+    def is_crypto(self):
+        if self.base.is_crypto and self.quote.is_crypto:
+            return True
+        return False

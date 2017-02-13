@@ -18,6 +18,7 @@
         var val,
             rate,
             msg,
+            pair,
             amountCoin = $('.amount-coin'),
             amountCashConfirm = 0,
                 floor = 100000000;
@@ -29,19 +30,31 @@
             return;
         }
 
-       if(orderSmallerThanMin(amountCoin)) {
-            val = minOrderCoin;
-            elem = amountCoin;
+        if(orderSmallerThanMin(amountCoin)) {
+             val = minOrderCoin;
+             elem = amountCoin;
 
-           msg = gettext('Minimal order amount is ') + minOrderCoin + ' BTC';
-           toastr.error(msg);
-       }
+            msg = gettext('Minimal order amount is ') + minOrderCoin + ' BTC';
+            toastr.error(msg);
+        }
 
-        $.get(chartObject.tickerLatestUrl, function(data) {
+        if ($('.currency-pair option:selected').val()) {
+            pair = $('.currency-pair option:selected').val();
+        } else {
+             var base = $('.currency-to').val(),
+                 quote = $('.currency-from').val();
+             pair = base + quote;
+        }
+        var tickerLatestUrl = chartObject.apiRoot + pair + '/latest';
+
+        $.get(tickerLatestUrl, function(data) {
             // TODO: protect against NaN
-            updatePrice(getPrice(data[window.ACTION_BUY], currency), $('.rate-buy'));
-            updatePrice(getPrice(data[window.ACTION_SELL], currency), $('.rate-sell'));
-            rate = data[window.action]['price_' + currency + '_formatted'];
+            updatePrice(parseFloat(data[0].ticker.ask), $('.rate-buy'));
+            updatePrice(parseFloat(data[0].ticker.bid), $('.rate-sell'));
+            rate = parseFloat(data[0].ticker.ask);
+            if (window.action == window.ACTION_SELL) {
+                rate = parseFloat(data[0].ticker.bid);
+            }
             var btcAmount,
                 cashAmount;
             if (elem.hasClass('amount-coin')) {
@@ -120,14 +133,15 @@
         return data['price_' + currency + '_formatted'];
     }
 
-    function setCurrency (elem, currency) {
+    function setCurrency (elem, currency, currency_to, pair) {
         if (elem && elem.hasClass('currency_pair')) {
             $('.currency_to').val(elem.data('crypto'));
 
         }
         if (!!currency) {
             $('.currency').html(currency.toUpperCase());
-            chartObject.renderChart(currency, $("#graph-range").val());
+            var title = currency_to + '/' + currency;
+            chartObject.renderChart(pair, title, $("#graph-range").val());
         }
     }
 

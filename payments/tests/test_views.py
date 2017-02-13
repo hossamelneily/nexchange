@@ -1,4 +1,3 @@
-
 from decimal import Decimal
 from unittest import skip
 from unittest.mock import patch
@@ -85,9 +84,9 @@ class PayeerTestCase(OrderBaseTestCase):
     def test_payeer_payment_after_success(self, convert_coin):
         convert_coin.return_value = None
         order_data = {
-            'amount_cash': Decimal(self.input_params['m_amount']),
-            'amount_btc': Decimal(0.1),
-            'currency': self.EUR,
+            'amount_quote': Decimal(self.input_params['m_amount']),
+            'amount_base': Decimal(0.1),
+            'pair': self.BTCEUR,
             'user': self.user,
             'admin_comment': 'tests Order',
             'unique_reference': self.input_params['m_orderid'],
@@ -98,8 +97,8 @@ class PayeerTestCase(OrderBaseTestCase):
         self._create_input_params(order_id=order.unique_reference)
         self.client.post(self.status_url, self.input_params)
         p = Payment.objects.filter(
-            amount_cash=order.amount_cash,
-            currency=order.currency,
+            amount_cash=order.amount_quote,
+            currency=order.pair.quote,
             order=order,
             reference=order.unique_reference
         )
@@ -107,8 +106,8 @@ class PayeerTestCase(OrderBaseTestCase):
         # apply second time - should not create another payment
         self.client.post(self.status_url, self.input_params)
         p = Payment.objects.filter(
-            amount_cash=order.amount_cash,
-            currency=order.currency,
+            amount_cash=order.amount_quote,
+            currency=order.pair.quote,
             order=order,
             reference=order.unique_reference
         )
@@ -173,22 +172,22 @@ class PaymentReleaseTestCase(OrderBaseTestCase):
         pref = PaymentPreference(**pref_data)
         pref.save('internal')
         self.data = {
-            'amount_cash': amount_cash,
-            'amount_btc': Decimal(1.00),
-            'currency': self.RUB,
+            'amount_quote': amount_cash,
+            'amount_base': Decimal(1.00),
+            'pair': self.BTCRUB,
             'user': self.user,
             'admin_comment': 'tests Order',
             'unique_reference': '12345',
             'payment_preference': pref,
-            'is_paid': True
+            'status': Order.PAID
         }
 
         self.order = Order(**self.data)
         self.order.save()
 
         self.pay_data = {
-            'amount_cash': self.order.amount_cash,
-            'currency': self.RUB,
+            'amount_cash': self.order.amount_quote,
+            'currency': self.order.pair.quote,
             'user': self.user,
             'payment_preference': pref,
         }
@@ -205,34 +204,39 @@ class PaymentReleaseTestCase(OrderBaseTestCase):
 
     @patch('nexchange.utils.api.prepare_txn')
     def test_bad_release_payment(self, prepare):
-        for o in Order.objects.filter(is_paid=True, is_released=False):
+        for o in Order.objects.filter(status=Order.PAID):
             p = Payment.objects.filter(user=o.user,
-                                       amount_cash=o.amount_cash,
+                                       amount_cash=o.amount_quote,
                                        payment_preference=o.payment_preference,
                                        is_complete=False,
-                                       currency=o.currency).first()
+                                       currency=o.pair.quote).first()
             if p is not None:
                 tx_id_ = release_payment(o.withdraw_address,
-                                         o.amount_btc)
+                                         o.amount_base)
                 self.assertEqual(tx_id_, None)
 
     def test_orders_with_approved_payments(self):
 
-        for o in Order.objects.filter(is_paid=True, is_released=False):
+        for o in Order.objects.filter(status=Order.PAID):
 
             p = Payment.objects.filter(user=o.user,
-                                       amount_cash=o.amount_cash,
+                                       amount_cash=o.amount_quote,
                                        payment_preference=o.payment_preference,
                                        is_complete=False,
-                                       currency=o.currency).first()
+                                       currency=o.pair.quote).first()
 
             if p is not None:
 
-                o.is_released = True
+                o.status = Order.RELEASED
                 o.save()
 
                 p.is_complete = True
                 p.save()
 
-            self.assertTrue(o.is_released)
+            # Can't use refresh_from_db or o itself because 'RELEASED' is set
+            #  on test itself
+            order_check = Order.objects.get(
+                unique_reference=o.unique_reference
+            )
+            self.assertTrue(order_check.status == Order.RELEASED)
             self.assertTrue(p.is_complete)

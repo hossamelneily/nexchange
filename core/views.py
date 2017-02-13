@@ -7,8 +7,9 @@ from django.utils.translation import get_language
 
 def main(request):
     local_currency = 'RUB' if get_language() == 'ru' else 'EUR'
+    pair = 'BTC' + local_currency
     params = {
-        'currency': local_currency,
+        'pair': pair,
     }
     url = reverse('orders.add_order', kwargs=params)
 

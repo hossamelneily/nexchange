@@ -36,21 +36,20 @@ class BaseOrderReleaseTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(BaseOrderReleaseTestCase, self).setUp()
-        currency = self.RUB
         self.payments = []
         self.orders = []
         self.addr = Address(address='12345', user=self.user)
         self.addr.save()
         self.our_pref = PaymentPreference.objects.first()
         self.order_data = {
-            'amount_cash': '30674.85',
-            'amount_btc': Decimal(1.00),
+            'amount_quote': Decimal(30674.85),
+            'amount_base': Decimal(1.00),
             'user': self.user,
             'admin_comment': 'tests Order',
             'unique_reference': '123456',
             'payment_preference': self.our_pref,
-            'currency': currency,
             'withdraw_address': self.addr,
+            'pair': self.BTCRUB,
         }
 
         self.pref, created = PaymentPreference.objects.get_or_create(
@@ -59,14 +58,14 @@ class BaseOrderReleaseTestCase(OrderBaseTestCase):
             identifier='1234567',
         )
 
-        self.pref.currency.add(currency)
+        self.pref.currency.add(self.BTCRUB.quote)
         self.pref.save()
 
         self.base_payment_data = {
             'user': self.user,
-            'currency': currency,
+            'currency': self.BTCRUB.quote,
             'payment_preference': self.pref,
-            'amount_cash': 30674.85,
+            'amount_cash': self.order_data['amount_quote'],
             'is_success': True
         }
 
@@ -88,17 +87,20 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
              [{'is_default_rule': False,
                'unique_reference': 'correct_ref1'}],
              [{'reference': 'correct_ref1', 'is_success': False}],
-             [{'is_released': False}],
+             [{'status': Order.INITIAL}],
              [{'is_complete': False}],
              1,  # call count
              0,  # actual invoke time
              1,  # order count after exec
              ),
 
+            # subjects
             ([ref_release, wallet_release],
+             # modifiers
              [{'is_default_rule': False, 'unique_reference': 'blabla1'}],
              [{'reference': 'blabla1', 'is_success': True}],
-             [{'is_released': True}],
+             # expectations
+             [{'status': Order.RELEASED}],
              [{'is_complete': True}],
              1,  # call count
              1,  # actual invoke time
@@ -109,7 +111,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
             ([ref_release, wallet_release],
              [{'is_default_rule': False, 'unique_reference': 'blabla2'}],
              [{'reference': 'blabla2'}],
-             [{'is_released': True}],
+             [{'status': Order.RELEASED}],
              [{'is_complete': True}],
              3,  # call count
              1,  # actual invoke time
@@ -120,7 +122,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
             ([ref_release],
              [{'is_default_rule': False, 'unique_reference': 'correct_ref'}],
              [{'reference': 'incorrect_ref'}],
-             [{'is_released': False}],
+             [{'status': Order.INITIAL}],
              [{'is_complete': False}],
              1,  # call count
              0,  # actual invoke time
@@ -131,7 +133,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
             ([ref_release, wallet_release],
              [{'is_default_rule': False, 'unique_reference': 'correct_ref1'}],
              [{'reference': 'correct_ref1', 'amount_cash': 123}],
-             [{'is_released': False}],
+             [{'status': Order.INITIAL}],
              [{'is_complete': False}],
              1,  # call count
              0,  # actual invoke time
@@ -145,7 +147,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
                'currency': Currency.objects.get(
                    code='USD')}
               ],
-             [{'is_released': False}],
+             [{'status': Order.INITIAL}],
              [{'is_complete': False}],
              1,  # call count
              0,  # actual invoke time
@@ -158,7 +160,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
              [{'reference': 'correct_ref3',
                'user': User.objects.create(username='zaza')}
               ],
-             [{'is_released': False}],
+             [{'status': Order.INITIAL}],
              [{'is_complete': False}],
              1,  # call count
              0,  # actual invoke time
@@ -170,7 +172,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
              [{'is_default_rule': False, 'unique_reference':
                  'correct_ref4'}],
              [{'reference': 'correct_ref4'}],
-             [{'is_released': True}],
+             [{'status': Order.RELEASED}],
              [{'is_complete': True}],
              1,  # call count
              1,  # actual invoke time
@@ -182,7 +184,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
              [{'is_default_rule': False, 'unique_reference':
                  'correct_ref5'}],
              [{'reference': ''}],
-             [{'is_released': True}],
+             [{'status': Order.RELEASED}],
              [{'is_complete': True}],
              1,  # call count
              1,  # actual invoke time
@@ -193,7 +195,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
             ([wallet_release],
              [{'is_default_rule': False, 'unique_reference': 'correct_ref6'}],
              [{'reference': 'incorrect_ref'}],
-             [{'is_released': True}],
+             [{'status': Order.RELEASED}],
              [{'is_complete': True}],
              1,  # call count
              1,  # actual invoke time
@@ -203,6 +205,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
             # success release by even with wrong preceding payments
             # mutual cases for release by wallet and by reference
             ([ref_release, wallet_release],
+             # modifiers
              [
                  {'is_default_rule': False, 'unique_reference':
                      'correct_ref7'},
@@ -213,8 +216,8 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
                  {'amount_cash': 321},
                  {'is_success': False},
                  {'reference': 'correct_ref7'}  # correct one!
-            ],
-                [{'is_released': True}],
+            ],  # expects
+                [{'status': Order.RELEASED}],
                 [
                  {'is_complete': False},
                  {'is_complete': False},
@@ -228,7 +231,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
             ),
 
             # success release by even with wrong preceding payments
-            # cases only for ref relese
+            # cases only for ref release
             ([ref_release],
              [
                  {'is_default_rule': False, 'unique_reference':
@@ -242,7 +245,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
                  {'is_success': False},
                  {'reference': 'correct_ref8'}  # correct one!
             ],
-                [{'is_released': True}],
+                [{'status': Order.RELEASED}],
                 [
                  {'is_complete': False},
                  {'is_complete': False},
@@ -263,7 +266,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
                  {'is_default_rule': False, 'unique_reference':
                      'correct_ref9'},
                  {'is_default_rule': False, 'unique_reference':
-                     'correct_ref10', 'amount_cash': 4.20},
+                     'correct_ref10', 'amount_quote': 4.20},
             ],
                 [
                  {'reference': 'SomeRandomRef'},  # released by wallet
@@ -274,8 +277,8 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
                  {'amount_cash': 4.20},
                  {'reference': ''}  # no reference
             ],
-                [{'is_released': True},
-                 {'is_released': True}
+                [{'status': Order.RELEASED},
+                 {'status': Order.RELEASED}
                  ],
                 [
                  {'is_complete': True},
@@ -297,7 +300,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
              [{'is_default_rule': False, 'unique_reference': 'correct_ref11'}],
              [{'user': None}, {'reference': 'correct_ref11'}],
              [
-                 {'is_released': True}
+                 {'status': Order.RELEASED}
             ],
                 [
                  {'is_complete': False},
@@ -307,7 +310,6 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
                 1,  # actual invoke time
                 1,  # order count after exec
             ),
-
         )
     )
     @patch('orders.models.Order.convert_coin_to_cash')
@@ -473,11 +475,26 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
             self.assertEqual(expect_notify_by_email, send_email.call_count)
             self.assertEqual(expect_notify_by_phone, send_sms.call_count)
 
-    # TODO: move to utils tests (validate_payment)
-    # TODO: Tests for rule-order using the data provider
-    # Todo Tests for sell release order
-    def test_release_fail_payment_other_user(self):
-        pass
+    @patch('orders.tasks.generic.base.release_payment')
+    @patch('orders.tasks.generic.base.send_sms')
+    @patch('orders.tasks.generic.base.send_email')
+    def test_set_user_on_match(self, send_email, send_sms, release_payment):
+        release_payment.return_value = 'A555B'
+        self.payment = Payment(**self.base_payment_data)
+        self.payment.save()
 
-    def test_release_fail_other_currency(self):
-        pass
+        self.order = Order(**self.order_data)
+
+        wallet_release.apply()
+
+        self.payment.refresh_from_db()
+
+        # for easiness
+        p = self.payment
+        self.assertEqual(p.payment_preference.user,
+                         self.order.user)
+        self.assertEquals(p.user, self.order.user, p.payment_preference.user)
+
+# TODO: move to utils tests (validate_payment)
+# TODO: Tests for rule-order using the data provider
+# Todo Tests for sell release order

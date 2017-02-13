@@ -9,8 +9,9 @@ class DateFilterViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
         self.queryset = None
         super(DateFilterViewSet, self).__init__(*args, **kwargs)
 
-    def get_queryset(self):
-        filters = {}
+    def get_queryset(self, filters=None):
+        if filters is None:
+            filters = {}
         params = self.request.query_params
 
         if 'hours' in params:

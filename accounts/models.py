@@ -72,7 +72,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     def is_banned(self):
         return \
             Order.objects.filter(user=self,
-                                 is_paid=True,
+                                 status=Order.PAID,
                                  expired=True).length \
             > settings.MAX_EXPIRED_ORDERS_LIMIT
 

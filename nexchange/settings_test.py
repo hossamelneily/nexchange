@@ -65,9 +65,9 @@ API1_PASS = os.getenv('API1_PASS',
 
 # API2
 API2_KEY = os.getenv('API2__KEY',
-                           settings_dev.API2_KEY)
+                     settings_dev.API2_KEY)
 API2_SECRET = os.getenv('API2__SECRET',
-                              settings_dev.API2_SECRET)
+                        settings_dev.API2_SECRET)
 
 
 # ROBOKASSA

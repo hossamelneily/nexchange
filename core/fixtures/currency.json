@@ -235,5 +235,104 @@
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }
+  },
+  {
+    "model": "core.currency",
+    "pk": 24,
+    "fields": {
+      "code": "BRL",
+      "name": "BRL",
+      "fee_offset": 0.01,
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 25,
+    "fields": {
+      "code": "IDR",
+      "name": "IDR",
+      "fee_offset": 0.01,
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 26,
+    "fields": {
+      "code": "ILS",
+      "name": "ILS",
+      "fee_offset": 0.01,
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 27,
+    "fields": {
+      "code": "INR",
+      "name": "INR",
+      "fee_offset": 0.01,
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 28,
+    "fields": {
+      "code": "KRW",
+      "name": "KRW",
+      "fee_offset": 0.01,
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 29,
+    "fields": {
+      "code": "MXN",
+      "name": "MXN",
+      "fee_offset": 0.01,
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 30,
+    "fields": {
+      "code": "MYR",
+      "name": "MYR",
+      "fee_offset": 0.01,
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 31,
+    "fields": {
+      "code": "PHP",
+      "name": "PHP",
+      "fee_offset": 0.01,
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 32,
+    "fields": {
+      "code": "THB",
+      "name": "THB",
+      "fee_offset": 0.01,
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
   }
 ]

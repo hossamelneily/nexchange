@@ -73,6 +73,10 @@ dev:
         code: |
           python manage.py loaddata core/fixtures/currency.json
     - script:
+        name: Django import Pair fixture
+        code: |
+          python manage.py loaddata core/fixtures/pair.json
+    - script:
         name: Django import Payment Methods fixture
         code: |
           python manage.py loaddata payments/fixtures/payment_method.json
@@ -106,10 +110,6 @@ dev:
           then
             python manage.py loaddata ticker/fixtures/ticker.json
           fi
-    - script:
-        name: Django run ticker update prices command
-        code: |
-          python manage.py ticker
     - script:
         name: Link pre-commit hook script
         code: |
@@ -378,7 +378,6 @@ build:
     - script:
         name: Add cron jobs
         code: |
-          chmod +x /ticker.sh
           chmod +x /celery_dump_events.sh
           echo "* * * * * root /ticker.sh" > /etc/crontab
           # monitor celery events and dispatch to ELK stack every 5 minutes

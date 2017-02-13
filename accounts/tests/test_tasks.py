@@ -1,4 +1,4 @@
-from accounts.tests.base import TransactionImportBaseTestCase
+from core.tests.base import TransactionImportBaseTestCase
 from core.models import Address
 import requests_mock
 from accounts.task_summary import import_transaction_deposit_btc_invoke

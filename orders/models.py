@@ -6,10 +6,11 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 from django.utils.crypto import get_random_string
+from django.utils.translation import ugettext as _
 
 from core.common.models import (SoftDeletableModel, TimeStampedModel,
                                 UniqueFieldMixin, FlagableMixin)
-from core.models import Currency
+from core.models import Pair
 from payments.utils import money_format
 from ticker.models import Price
 from django.core.exceptions import ValidationError
@@ -20,26 +21,55 @@ class Order(TimeStampedModel, SoftDeletableModel,
     USD = "USD"
     RUB = "RUB"
     EUR = "EUR"
+    BTC = "BTC"
 
+    EXCHANGE = 2
     BUY = 1
     SELL = 0
     TYPES = (
         (SELL, 'SELL'),
         (BUY, 'BUY'),
+        (EXCHANGE, 'EXCHANGE'),
+    )
+    _order_type_help = (2 * '{} - {}<br/>' + '{} - {}.').format(
+        'BUY', 'Customer is giving fiat, and getting crypto money.',
+        'SELL', 'Customer is giving crypto and getting fiat money',
+        'EXCHANGE', 'Customer is exchanging different kinds of crypto '
+                    'currencies'
+    )
+
+    CANCELED = 0
+    INITIAL = 1
+    PAID = 2
+    RELEASED = 3
+    COMPLETED = 4
+    STATUS_TYPES = (
+        (CANCELED, 'CANCELED'),
+        (INITIAL, 'INITIAL'),
+        (PAID, 'PAID'),
+        (RELEASED, 'RELEASED'),
+        (COMPLETED, 'COMPLETED'),
+    )
+    _could_be_paid_msg = 'Could be paid by crypto transaction or fiat ' \
+                         'payment, depending on order_type.'
+    _order_status_help = (4 * '{} - {}<br/>' + '{} - {}.').format(
+        'INITIAL', 'Initial state of the order.',
+        'PAID', 'Order is Paid by customer. ' + _could_be_paid_msg,
+        'RELEASED', 'Order is paid by service provider. ' + _could_be_paid_msg,
+        'COMPLETED', 'All states of the order is completed',
+        'CANCELED', 'Order is canceled.'
     )
 
     # Todo: inherit from BTC base?, move lengths to settings?
-    order_type = models.IntegerField(choices=TYPES, default=BUY)
-    amount_cash = models.DecimalField(max_digits=14, decimal_places=2)
-    amount_btc = models.DecimalField(max_digits=18, decimal_places=8)
-    currency = models.ForeignKey(Currency)
+    order_type = models.IntegerField(
+        choices=TYPES, default=BUY, help_text=_order_type_help
+    )
+    status = models.IntegerField(choices=STATUS_TYPES, default=INITIAL,
+                                 help_text=_order_status_help)
+    amount_base = models.DecimalField(max_digits=18, decimal_places=8)
+    amount_quote = models.DecimalField(max_digits=18, decimal_places=8)
     payment_window = models.IntegerField(default=settings.PAYMENT_WINDOW)
     user = models.ForeignKey(User, related_name='orders')
-    is_paid = models.BooleanField(default=False)
-    is_released = models.BooleanField(default=False)
-    is_completed = models.BooleanField(default=False)
-    is_failed = models.BooleanField(default=False)
-    # Unique by custom validation function
     unique_reference = models.CharField(
         max_length=settings.UNIQUE_REFERENCE_LENGTH)
     admin_comment = models.CharField(max_length=200)
@@ -52,6 +82,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
                                          default=None)
     is_default_rule = models.BooleanField(default=False)
     from_default_rule = models.BooleanField(default=False)
+    pair = models.ForeignKey(Pair)
+    price = models.ForeignKey(Price, null=True, blank=True)
 
     class Meta:
         ordering = ['-created_on']
@@ -68,7 +100,25 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
         super(Order, self).validate_unique(exclude=exclude)
 
+    def _types_range_constrain(self, field, types):
+        """ This is used for validating IntegerField's with choices.
+        Assures that value is in range of choices.
+        """
+        if field > max([i[0] for i in types]):
+            raise ValidationError(_('Invalid order type choice'))
+        elif field < min([i[0] for i in types]):
+            raise ValidationError(_('Invalid order type choice'))
+
+    def _validate_fields(self):
+        self._types_range_constrain(self.order_type, self.TYPES)
+        self._types_range_constrain(self.status, self.STATUS_TYPES)
+
+    def clean(self, *args, **kwargs):
+        self._validate_fields()
+        super(Order, self).clean(*args, **kwargs)
+
     def save(self, *args, **kwargs):
+        self._validate_fields()
         if not self.unique_reference:
             self.unique_reference = \
                 self.gen_unique_value(
@@ -78,56 +128,25 @@ class Order(TimeStampedModel, SoftDeletableModel,
                 )
         self.convert_coin_to_cash()
 
-        if 'is_completed' in kwargs and\
-                kwargs['is_completed'] and\
-                not self.is_completed:
-            self.old_referral_revenue = \
-                self.user.referral_set.get().revenue
-
         super(Order, self).save(*args, **kwargs)
 
+    def _not_supported_exchange_msg(self):
+        msg = _('Sorry, we cannot convert {} to {}'.format(
+            self.currency_from.code, self.currency_to.code
+        ))
+        return msg
+
     def convert_coin_to_cash(self):
-        self.amount_btc = Decimal(self.amount_btc)
-        queryset = Price.objects.filter().order_by('-id')[:2]
-        price_sell = [price for price in queryset if price.type == Price.SELL]
-        price_buy = [price for price in queryset if price.type == Price.BUY]
-
-        # Below calculation affect real money the client pays
-        assert all([len(price_sell),
-                    price_sell[0].price_usd,
-                    price_buy[0].price_rub,
-                    price_buy[0].price_eur])
-
-        assert all([len(price_buy),
-                    price_buy[0].price_usd,
-                    price_buy[0].price_rub,
-                    price_buy[0].price_eur])
-
-        # TODO: migrate to using currency through payment_preference
-
-        # SELL
-        self.amount_cash = Decimal(self.amount_btc)
-
-        if self.order_type == Order.SELL and self.currency.code == Order.USD:
-            self.amount_cash *= price_buy[0].price_usd
-
-        elif self.order_type == Order.SELL and self.currency.code == Order.RUB:
-            self.amount_cash *= price_buy[0].price_rub
-
-        elif self.order_type == Order.SELL and self.currency.code == Order.EUR:
-            self.amount_cash *= price_buy[0].price_eur
-
-        # BUY
-        if self.order_type == Order.BUY and self.currency.code == Order.USD:
-            self.amount_cash *= price_sell[0].price_usd
-
-        elif self.order_type == Order.BUY and self.currency.code == Order.RUB:
-            self.amount_cash *= price_sell[0].price_rub
-
-        elif self.order_type == Order.BUY and self.currency.code == Order.EUR:
-            self.amount_cash *= price_sell[0].price_eur
-
-        self.amount_cash = money_format(self.amount_cash)
+        self.amount_base = Decimal(self.amount_base)
+        price = Price.objects.filter(pair=self.pair).last()
+        self.price = price
+        # For annotations
+        amount_quote = None
+        if self.order_type == Order.BUY:
+            amount_quote = self.amount_base * price.ticker.ask
+        elif self.order_type == Order.SELL:
+            amount_quote = self.amount_base * price.ticker.bid
+        self.amount_quote = money_format(amount_quote)
 
     def send_money(self):
         # 1. check preference
@@ -152,8 +171,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
         # TODO: validate this business rule
         # TODO: Refactor, it is unreasonable to have different standards of
         # time in the DB
-        return (timezone.now() > self.payment_deadline) and\
-               (not self.is_paid) and not self.is_released
+        return (timezone.now() > self.payment_deadline) and (
+            self.status < self.PAID)
 
     @property
     def payment_status_frozen(self):
@@ -162,7 +181,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         """
         # TODO: validate this business rule
         return self.expired or \
-            (self.is_paid and
+            ((self.status >= Order.PAID) and
              self.payment_set.last() and
              self.payment_set.last().
              payment_preference.
@@ -172,13 +191,13 @@ class Order(TimeStampedModel, SoftDeletableModel,
     def withdrawal_address_frozen(self):
         """return bool whether the withdraw address can
            be changed"""
-        return self.is_released
+        return self.status >= self.RELEASED
 
     def __str__(self):
-        return "{} {} {} BTC {} {}".format(self.user.username or
-                                           self.user.profile.phone,
-                                           self.order_type,
-                                           self.amount_btc,
-                                           self.amount_cash,
-                                           self.currency)
-
+        return "{} {} pair:{} base:{} quote:{}".format(
+            self.user.username or self.user.profile.phone,
+            self.order_type,
+            self.pair.name,
+            self.amount_base,
+            self.amount_quote
+        )

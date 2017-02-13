@@ -24,8 +24,8 @@ class WalletAPITestCase(WalletBaseTestCase):
         import_okpay_payments.run()
 
         p = Payment.objects.filter(
-            amount_cash=order.amount_cash,
-            currency=order.currency,
+            amount_cash=order.amount_quote,
+            currency=order.pair.quote,
             reference=order.unique_reference
         )
         self.assertEqual(1, len(p))
@@ -37,8 +37,8 @@ class WalletAPITestCase(WalletBaseTestCase):
         import_okpay_payments.run()
 
         p = Payment.objects.filter(
-            amount_cash=order.amount_cash,
-            currency=order.currency,
+            amount_cash=order.amount_quote,
+            currency=order.pair.quote,
             reference=order.unique_reference
         )
         self.assertEqual(1, len(p))
@@ -61,7 +61,7 @@ class WalletAPITestCase(WalletBaseTestCase):
                 'type': 'transfer',
                 'status': 'success',
                 'creditedCurrency': self.EUR.code,
-                'creditedAmount': str(self.payeer_order_data['amount_cash']),
+                'creditedAmount': str(self.payeer_order_data['amount_quote']),
                 'to': 'tata',
                 'shopOrderId': self.payeer_order_data['unique_reference'],
                 'comment': self.payeer_order_data['unique_reference'],
@@ -73,8 +73,8 @@ class WalletAPITestCase(WalletBaseTestCase):
         import_payeer_payments = PayeerPaymentChecker()
         import_payeer_payments.run()
         p = Payment.objects.filter(
-            amount_cash=order.amount_cash,
-            currency=order.currency,
+            amount_cash=order.amount_quote,
+            currency=order.pair.quote,
             reference=order.unique_reference
         )
         self.assertEqual(0, len(p))
@@ -92,7 +92,7 @@ class WalletAPITestCase(WalletBaseTestCase):
                 'type': 'transfer',
                 'status': 'None',
                 'creditedCurrency': self.EUR.code,
-                'creditedAmount': str(self.payeer_order_data['amount_cash']),
+                'creditedAmount': str(self.payeer_order_data['amount_quote']),
                 'to': 'tata',
                 'shopOrderId': self.payeer_order_data['unique_reference'],
                 'comment': self.payeer_order_data['unique_reference'],
@@ -104,8 +104,8 @@ class WalletAPITestCase(WalletBaseTestCase):
         import_payeer_payments = PayeerPaymentChecker()
         import_payeer_payments.run()
         p = Payment.objects.filter(
-            amount_cash=order.amount_cash,
-            currency=order.currency,
+            amount_cash=order.amount_quote,
+            currency=order.pair.quote,
             reference=order.unique_reference
         )
         self.assertEqual(0, len(p))
@@ -124,7 +124,7 @@ class WalletAPITestCase(WalletBaseTestCase):
                 'type': 'transfer',
                 'status': 'success',
                 'creditedCurrency': self.EUR.code,
-                'creditedAmount': str(self.payeer_order_data['amount_cash']),
+                'creditedAmount': str(self.payeer_order_data['amount_quote']),
                 'to': settings.PAYEER_ACCOUNT,
                 'shopOrderId': self.payeer_order_data['unique_reference'],
                 'comment': self.payeer_order_data['unique_reference'],
@@ -136,8 +136,8 @@ class WalletAPITestCase(WalletBaseTestCase):
         import_payeer_payments = PayeerPaymentChecker()
         import_payeer_payments.run()
         p = Payment.objects.filter(
-            amount_cash=order.amount_cash,
-            currency=order.currency,
+            amount_cash=order.amount_quote,
+            currency=order.pair.quote,
             reference=order.unique_reference
         )
         self.assertEqual(1, len(p))
@@ -152,8 +152,8 @@ class WalletAPITestCase(WalletBaseTestCase):
         # preference
         import_payeer_payments.run()
         p = Payment.objects.filter(
-            amount_cash=order.amount_cash,
-            currency=order.currency,
+            amount_cash=order.amount_quote,
+            currency=order.pair.quote,
             reference=order.unique_reference
         )
         self.assertEqual(1, len(p))

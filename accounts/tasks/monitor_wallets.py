@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from core.models import Transaction, Address
+from orders.models import Order
 from nexchange.utils import check_transaction_blockchain, \
     check_transaction_uphold, send_email, send_sms
 from accounts.utils import BlockchainTransactionImporter
@@ -20,7 +21,7 @@ def update_pending_transactions():
         if check_transaction_uphold(tr):
             tr.is_completed = True
             tr.save()
-            order.is_completed = True
+            order.state = Order.COMPLETED
             order.save()
 
         if check_transaction_blockchain(tr):

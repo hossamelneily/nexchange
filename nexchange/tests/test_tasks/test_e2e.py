@@ -6,10 +6,10 @@ from unittest.mock import patch
 import requests_mock
 from payments.tasks.generic.ok_pay import OkPayPaymentChecker
 from payments.tasks.generic.payeer import PayeerPaymentChecker
-from accounts.tests.base import TransactionImportBaseTestCase
+from core.tests.base import TransactionImportBaseTestCase
 from accounts.task_summary import import_transaction_deposit_btc_invoke
-from orders.task_summary import sell_order_release_invoke, buy_order_release_by_reference_invoke, \
-    buy_order_release_by_wallet_invoke, buy_order_release_by_rule_invoke
+from orders.task_summary import sell_order_release_invoke,\
+    buy_order_release_by_reference_invoke
 from django.conf import settings
 from decimal import Decimal
 import json
@@ -36,8 +36,8 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
         import_okpay_payments = OkPayPaymentChecker()
         import_okpay_payments.run()
         p = Payment.objects.get(
-            amount_cash=order.amount_cash,
-            currency=order.currency,
+            amount_cash=order.amount_quote,
+            currency=order.pair.quote,
             reference=order.unique_reference
         )
 
@@ -46,7 +46,7 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
         order.refresh_from_db()
         self.assertEqual(False, p.is_complete)
         self.assertEqual(False, p.is_redeemed)
-        self.assertEqual(False, order.is_released)
+        self.assertEqual(Order.INITIAL, order.status)
 
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
@@ -66,8 +66,8 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
         import_okpay_payments = OkPayPaymentChecker()
         import_okpay_payments.run()
         p = Payment.objects.get(
-            amount_cash=order.amount_cash,
-            currency=order.currency,
+            amount_cash=order.amount_quote,
+            currency=order.pair.quote,
             reference=order.unique_reference
         )
 
@@ -76,7 +76,7 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
         order.refresh_from_db()
         self.assertEqual(True, p.is_complete)
         self.assertEqual(True, p.is_redeemed)
-        self.assertEqual(True, order.is_released)
+        self.assertEqual(Order.RELEASED, order.status)
 
     def test_success_release_no_ref(self):
         pass
@@ -111,7 +111,7 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
                 'type': 'transfer',
                 'status': 'success',
                 'creditedCurrency': self.EUR.code,
-                'creditedAmount': str(self.payeer_order_data['amount_cash']),
+                'creditedAmount': str(self.payeer_order_data['amount_quote']),
                 'to': settings.PAYEER_ACCOUNT,
                 'shopOrderId': self.payeer_order_data['unique_reference'],
                 'comment': self.payeer_order_data['unique_reference'],
@@ -123,8 +123,8 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
         import_payeer_payments = PayeerPaymentChecker()
         import_payeer_payments.run()
         p = Payment.objects.get(
-            amount_cash=order.amount_cash,
-            currency=order.currency,
+            amount_cash=order.amount_quote,
+            currency=order.pair.quote,
             reference=order.unique_reference
         )
 
@@ -135,7 +135,7 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
 
         self.assertEqual(False, p.is_complete)
         self.assertEqual(False, p.is_redeemed)
-        self.assertEqual(False, order.is_released)
+        self.assertEqual(Order.INITIAL, order.status)
 
     @patch('nexchange.utils.PayeerAPIClient.get_transaction_history')
     @patch('orders.models.Order.convert_coin_to_cash')
@@ -156,7 +156,7 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
                 'type': 'transfer',
                 'status': 'success',
                 'creditedCurrency': self.EUR.code,
-                'creditedAmount': str(self.payeer_order_data['amount_cash']),
+                'creditedAmount': str(self.payeer_order_data['amount_quote']),
                 'to': settings.PAYEER_ACCOUNT,
                 'shopOrderId': self.payeer_order_data['unique_reference'],
                 'comment': self.payeer_order_data['unique_reference'],
@@ -168,8 +168,8 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
         import_payeer_payments = PayeerPaymentChecker()
         import_payeer_payments.run()
         p = Payment.objects.get(
-            amount_cash=order.amount_cash,
-            currency=order.currency,
+            amount_cash=order.amount_quote,
+            currency=order.pair.quote,
             reference=order.unique_reference
         )
 
@@ -180,7 +180,7 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
 
         self.assertEqual(True, p.is_complete)
         self.assertEqual(True, p.is_redeemed)
-        self.assertEqual(True, order.is_released)
+        self.assertEqual(True, order.status == Order.RELEASED)
 
     def test_success_release_no_ref(self):
         pass
@@ -206,11 +206,10 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
     def _create_second_order(self):
         self.order_2 = Order(
             order_type=Order.SELL,
-            amount_btc=Decimal(str(self.amounts[self.status_bad_list_index])),
-            currency=self.EUR,
+            amount_base=Decimal(str(self.amounts[self.status_bad_list_index])),
+            pair=self.BTCEUR,
             user=self.user,
-            is_completed=False,
-            is_paid=False
+            status=Order.INITIAL
         )
         self.order_2.save()
         self.unique_ref_2 = self.order_2.unique_reference
@@ -248,7 +247,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.import_txs_task.apply()
         self.release_task.apply()
         order = Order.objects.get(unique_reference=self.unique_ref)
-        self.assertTrue(order.is_released)
+        self.assertTrue(order.status >= Order.RELEASED)
 
     @requests_mock.mock()
     @patch('orders.models.Order.send_money')
@@ -261,7 +260,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.import_txs_task.apply()
         self.release_task.apply()
         order = Order.objects.get(unique_reference=self.unique_ref)
-        self.assertFalse(order.is_released)
+        self.assertFalse(order.status >= Order.RELEASED)
 
     @requests_mock.mock()
     @patch('orders.models.Order.send_money')
@@ -277,8 +276,8 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.release_task.apply()
         order = Order.objects.get(unique_reference=self.unique_ref)
         order_2 = Order.objects.get(unique_reference=self.unique_ref_2)
-        self.assertTrue(order.is_released)
-        self.assertFalse(order_2.is_released)
+        self.assertTrue(order.status >= Order.RELEASED)
+        self.assertFalse(order_2.status >= Order.RELEASED)
 
     @requests_mock.mock()
     @patch('orders.models.Order.send_money')
@@ -289,7 +288,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.import_txs_task.apply()
         self.release_task.apply()
         order = Order.objects.get(unique_reference=self.unique_ref)
-        self.assertFalse(order.is_released)
+        self.assertFalse(order.status >= Order.RELEASED)
 
     @requests_mock.mock()
     @patch('orders.models.Order.send_money')

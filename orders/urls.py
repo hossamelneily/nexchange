@@ -4,11 +4,11 @@ from orders import views
 
 order_urls = [
     url(r'^$', views.orders_list, name='orders.orders_list'),
-    url(r'^buy_bitcoin/(?P<currency>[A-Za-z_-]+)/$',
+    url(r'^buy_bitcoin/(?P<pair>[A-Za-z_-]+)/$',
         views.add_order, name='orders.add_order'),
     url(r'^buy_bitcoin/$',
         views.add_order, name='orders.add_order'),
-    url(r'^sell_bitcoin/(?P<currency>[A-Za-z_-]+)/$',
+    url(r'^sell_bitcoin/(?P<pair>[A-Za-z_-]+)/$',
         views.add_order_sell,
         name='orders.add_order_sell'),
     url(r'^sell_bitcoin/$',

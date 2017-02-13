@@ -1,4 +1,5 @@
 from random import randint
+from decimal import Decimal
 
 from core.tests.base import OrderBaseTestCase
 
@@ -19,7 +20,7 @@ class TestReferralModel(OrderBaseTestCase):
         self.test_subjects = 3
         self.referral = None
         self.revenue = None
-        self.turnover = 0
+        self.turnover = Decimal('0.0')
         super(TestReferralModel, self).__init__(*args, **kwargs)
 
     def setUp(self):
@@ -36,17 +37,17 @@ class TestReferralModel(OrderBaseTestCase):
                 randint(1, self.amount_coin_multiplier)
             order = Order(
                 user=self.user,
-                amount_btc=rand_coin,
-                currency=self.EUR
+                amount_base=rand_coin,
+                pair=self.BTCEUR
             )
             order.save()
             self.orders.append(order)
 
         for i in range(self.test_subjects):
             order = self.orders[i]
-            order.is_completed = True
+            order.status = Order.COMPLETED
             order.save()
-            self.turnover += order.amount_btc
+            self.turnover += Decimal(order.amount_base)
 
         self.revenue = self.turnover * \
             self.referral.program.percent_first_degree

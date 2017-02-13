@@ -4,6 +4,7 @@ from payments.models import Payment
 from nexchange.utils import send_email, send_sms, release_payment
 from django.db import transaction
 from core.models import Address, Transaction
+from orders.models import Order
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -22,7 +23,7 @@ class BaseOrderRelease(BaseTask):
 
     def validate(self, order, payment):
         order_already_released = payment.order or payment.is_redeemed or \
-                                 order.is_released
+            order.status == Order.RELEASED
 
         if order_already_released:
             flag, created = order.flag(__name__)
@@ -93,7 +94,7 @@ class BaseBuyOrderRelease(BaseOrderRelease):
             payment.is_complete = True
             payment.save()
             tx_id = release_payment(order.withdraw_address,
-                                    order.amount_btc)
+                                    order.amount_base)
 
             if tx_id is None:
                 self.logger.error('Payment release returned None, '
@@ -108,7 +109,7 @@ class BaseBuyOrderRelease(BaseOrderRelease):
                 )
             )
 
-            order.is_released = True
+            order.status = Order.RELEASED
             order.save()
 
             payment.is_redeemed = True
@@ -130,10 +131,10 @@ class BaseBuyOrderRelease(BaseOrderRelease):
         # hack to prevent circular imports
         verbose_match = type(self).__name__ == 'BuyOrderReleaseByWallet'
         details_match = \
-            order.currency == payment.currency and \
-            order.amount_cash == payment.amount_cash
+            order.pair.quote == payment.currency and \
+            order.amount_quote == payment.amount_cash
         ref_matches = order.unique_reference == payment.reference or \
-                      verbose_match
+            verbose_match
 
         user_matches = not payment.user or payment.user == order.user
 
@@ -164,4 +165,5 @@ class BaseBuyOrderRelease(BaseOrderRelease):
             self.logger.info('Order {}  VALID {}'
                              .format(order, order.withdraw_address))
 
-        return match and super(BaseBuyOrderRelease, self).validate(order, payment)
+        return match and super(BaseBuyOrderRelease, self)\
+            .validate(order, payment)

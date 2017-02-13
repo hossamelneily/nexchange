@@ -30,7 +30,7 @@ def payment_failure(request):
     # TODO: Better logic
     last_order = Order.objects.filter(user=request.user).latest('id')
     url = '/pay_try_again'
-    last_order.is_failed = True
+    last_order.status = Order.CANCELED
     last_order.save()
     return HttpResponse(template.render({'url_try_again': url}, request))
 
@@ -38,7 +38,7 @@ def payment_failure(request):
 @login_required
 def payment_retry(request):
     old_order = Order.objects.filter(user=request.user,
-                                     is_failed=True).latest('id')
+                                     status=Order.CANCELED).latest('id')
     order = old_order
     order.id = None
     order.save()
@@ -140,9 +140,9 @@ def payment_success(request, provider):
     # This is only a provisional
     # flag which the user can set himself
     # does not affect business logic, only visual
-    # TODO: fix this
-    order.is_paid = True
-    order.save()
+    if order.status not in [Order.COMPLETED, Order.CANCELED]:
+        order.status = Order.PAID
+        order.save()
     # TODO: check signature
     # TODO: check api async for payment (optimization)
     redirect_url = "{}?oid={}".\
@@ -245,9 +245,9 @@ def payeer_status(request):
             retval = request.POST['m_orderid'] + '|success'
 
             o_list = Order.objects.filter(
-                amount_cash=Decimal(request.POST['m_amount']),
+                amount_quote=Decimal(request.POST['m_amount']),
                 unique_reference=request.POST['m_orderid'],
-                currency__code=request.POST['m_curr']
+                pair__quote__code=request.POST['m_curr']
             )
             if len(o_list) == 1:
                 o = o_list[0]
@@ -257,7 +257,7 @@ def payeer_status(request):
                     order=o,
                     reference=o.unique_reference,
                     payment_preference=o.payment_preference,
-                    currency=o.currency
+                    currency=o.pair.quote
                 )
         else:
             retval = request.POST['m_orderid'] + '|error'

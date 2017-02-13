@@ -37,7 +37,12 @@
                     <div class="input-group">
                         <input type="text" class="form-control amount amount-cash rate-buy" name="amount-cash">
                         <div class="input-group-btn">
-                            {{select_from | safe}}
+                            <select name='currency_from'
+                                    class='currency-select currency-from price_box_selectbox_cont_selectbox classic'>
+                                {% for pair in pairs %}
+                                    <option value="{{ pair.quote.code }}">{{ pair.quote.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div><!-- /btn-group -->
                     </div><!-- /input-group -->
                 </div><!-- /pannel-body -->
@@ -54,7 +59,14 @@
                     <div class="input-group">
                         <input type="text" class="form-control amount amount-coin" placeholder="1" name="amount-coin">
                         <div class="input-group-btn">
-                            {{select_to | safe}}
+                            <select name='currency_to'
+                                    class='currency-select currency-to price_box_selectbox_cont_selectbox classic'>
+                                {% for code in base_currencies %}
+                                    <option value="{{ code }}">
+                                        {{ code }}
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div><!-- /btn-group -->
                     </div><!-- /input-group -->
                 </div><!-- /pannel-body -->

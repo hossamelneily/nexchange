@@ -12,8 +12,10 @@
     });
        var url = window.location.href,
            urlFragments = url.split('/'),
-           currencyPos = urlFragments.length - 2,
-           currency = urlFragments[currencyPos].toLowerCase(),
+           pairPos = urlFragments.length - 2,
+           pair = urlFragments[pairPos],
+           currency = pair.substring(3, 6),
+           currency_to = pair.substring(0, 3),
            currencyElem,
            paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
            cardsEndpoint = '/en/payments/options/',
@@ -21,6 +23,9 @@
            orderObject = require('./modules/orders.js'),
            paymentObject = require('./modules/payment.js'),
            captcha = require('./modules/captcha.js'),
+           $currencyFrom,
+           $currencyTo,
+           $currencyPair,
            $currencySelect;
 
         $('.trade-type').val('1');
@@ -35,7 +40,13 @@
         }
 
         $currencySelect = $('.currency-select');
-        orderObject.setCurrency(false, currency);
+        $currencyFrom = $('.currency-from');
+        $currencyTo = $('.currency-to');
+        $currencyPair = $('.currency-pair');
+        $currencyFrom.val(currency);
+        $currencyPair.val(pair);
+        $currencyTo.val(currency_to);
+        orderObject.setCurrency(false, currency, currency_to, pair);
         paymentObject.loadPaymentMethods(cardsEndpoint, currency);
         var timer = null,
             delay = 500,
@@ -61,7 +72,7 @@
         orderObject.updateOrder($('.amount-coin'), true, currency);
         // if not used event, isNext remove  jshint
         $('#graph-range').on('change', function() {
-            orderObject.setCurrency(false, currency);
+            orderObject.setCurrency(false, currency, currency_to, pair);
         });
 
         $('.exchange-sign').click(function () {
@@ -148,11 +159,27 @@
         });
 
         $currencySelect.on('change', function () {
-            currency = $(this).val().toLowerCase();
-            orderObject.setCurrency($(this), currency);
-            paymentObject.loadPaymentMethods(cardsEndpoint ,currency);
+            if ($(this).hasClass('currency-pair')) {
+                var selected = $(this).find('option:selected');
+                currency = selected.attr('data-fiat');
+                pair = selected.val();
+                currency_to = selected.attr('data-crypto');
+            } else if ($(this).hasClass('currency-from')) {
+                currency = $(this).val();
+                currency_to = $('.currency-to').val();
+                pair = currency_to + currency;
+            } else if ($(this).hasClass('currency-to')) {
+                currency_to = $(this).val();
+                currency = $('.currency-from').val();
+                pair = currency_to + currency;
+
+            }
+            orderObject.setCurrency($(this), currency, currency_to, pair);
+            paymentObject.loadPaymentMethods(cardsEndpoint, currency);
             //bind all select boxes
-            $currencySelect.not('.currency-to').val($(this).val());
+            $currencyFrom.val(currency);
+            $currencyPair.val(pair);
+            $currencyTo.val(currency_to);
             orderObject.updateOrder($('.amount-coin'), false, currency);
             // orderObject.reloadCardsPerCurrency(currency, cardsEndpoint);
         });
@@ -294,7 +321,7 @@
                 verifyPayload = {
                     'trade-type': $('.trade-type').val(),
                     'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
-                    'amount-coin': $('.amount-coin').val() || DEFAULT_AMOUNT,
+                    'amount-base': $('.amount-coin').val() || DEFAULT_AMOUNT,
                     'currency_from': $('.currency-from').val(), //fiat
                     'currency_to': $('.currency-to').val(), //crypto
                     'pp_type': actualPaymentType,
@@ -503,42 +530,34 @@ module.exports = {
 !(function(window ,$) {
     "use strict";
 
-    var apiRoot = '/en/api/v1',
-        chartDataRaw,
-        tickerHistoryUrl = apiRoot +'/price/history',
-        tickerLatestUrl = apiRoot + '/price/latest';
+    var apiRoot = '/en/api/v1/price/',
+        chartDataRaw;
 
     function responseToChart(data) {
         var i,
-            resRub = [],
-            resUsd = [],
-            resEur = [];
-
+            resPair = [];
         for (i = 0; i < data.length; i+=2) {
-            var sell = data[i],
-            buy = data[i + 1];
-            if(!!sell && !!buy) {
-                resRub.push([Date.parse(sell.created_on), buy.price_rub_formatted, sell.price_rub_formatted]);
-                resUsd.push([Date.parse(sell.created_on), buy.price_usd_formatted, sell.price_usd_formatted]);
-                resEur.push([Date.parse(sell.created_on), buy.price_eur_formatted, sell.price_eur_formatted]);
-            }
+            var price = data[i],
+                ask = parseFloat(price.ticker.ask),
+                bid = parseFloat(price.ticker.bid);
+            resPair.push([Date.parse(price.created_on), ask, bid]);
         }
         return {
-            rub: resRub,
-            usd: resUsd,
-            eur: resEur
+            pair: resPair,
         };
     }
 
-    function renderChart (currency, hours) {
-        var actualUrl = tickerHistoryUrl;
+    function renderChart (pair, title, hours) {
+        var tickerHistoryUrl= apiRoot + pair + '/history',
+            tickerLatestUrl = apiRoot + pair + '/latest';
         if (hours) {
-            actualUrl = actualUrl + '?hours=' + hours;
+            tickerHistoryUrl = tickerHistoryUrl + '?hours=' + hours;
         }
-         $.get(actualUrl, function(resdata) {
+         $.get(tickerHistoryUrl, function(resdata) {
             chartDataRaw = resdata;
-            var data = responseToChart(resdata)[currency],
-            container = $('#container-graph');
+
+            var data = responseToChart(resdata).pair,
+                container = $('#container-graph');
              if (!container || !container.length) {
                  return;
              }
@@ -562,30 +581,34 @@ module.exports = {
                              // set up the updating of the chart each second
                              $('.highcharts-credits').remove();
                              var series = this.series[0];
-                             setInterval(function () {
-                                 $.get(tickerLatestUrl, function (resdata) {
-                                     var lastdata = responseToChart(resdata)[currency];
-                                     if (chartDataRaw.length && parseInt(resdata[0].unix_time) >
-                                         parseInt(chartDataRaw[chartDataRaw.length - 1].unix_time)
-                                     ) {
-                                         //Only update if a ticker 'tick' had occured
-                                         var _lastadata = lastdata[0];
-                                         if (_lastadata[1] > _lastadata[2]) {
-                                             var a = _lastadata[1];
-                                             _lastadata[1] = _lastadata[2];
-                                             _lastadata[2] = a;
+                             var intervalId = setInterval(function () {
+                                 if (pair != $('.currency-pair option:selected').val()) {
+                                    clearInterval(intervalId);
+                                 } else {
+                                     $.get(tickerLatestUrl, function (resdata) {
+                                         var lastdata = responseToChart(resdata).pair;
+                                         if (chartDataRaw.length && parseInt(resdata[0].unix_time) >
+                                             parseInt(chartDataRaw[chartDataRaw.length - 1].unix_time)
+                                         ) {
+                                             //Only update if a ticker 'tick' had occured
+                                             var _lastadata = lastdata[0];
+                                             if (_lastadata[1] > _lastadata[2]) {
+                                                 var a = _lastadata[1];
+                                                 _lastadata[1] = _lastadata[2];
+                                                 _lastadata[2] = a;
+                                             }
+                                             series.addPoint(_lastadata, true, true);
+                                             Array.prototype.push.apply(chartDataRaw, resdata);
                                          }
-                                         series.addPoint(_lastadata, true, true);
-                                         Array.prototype.push.apply(chartDataRaw, resdata);
-                                     }
-                                 });
-                             }, 1000 * 30);
+                                     });
+                                 }
+                             }, 1000 * 10);
                          }
                      }
                  },
 
                  title: {
-                     text: 'BTC/' + currency.toUpperCase()
+                     text: title
                  },
 
                  xAxis: {
@@ -605,7 +628,7 @@ module.exports = {
                  tooltip: {
                      crosshairs: true,
                      shared: true,
-                     valueSuffix: ' ' + currency.toLocaleUpperCase()
+                     valueSuffix: ' ' + pair
                  },
 
                  legend: {
@@ -613,7 +636,7 @@ module.exports = {
                  },
 
                  series: [{
-                     name: currency.toLowerCase() === 'rub' ? 'цена' : 'Price',
+                     name: pair,
                      data: data,
                      color: '#8cc63f',
                      // TODO: fix this! make dynamic
@@ -627,9 +650,7 @@ module.exports = {
         responseToChart:responseToChart,
         renderChart: renderChart,
         apiRoot: apiRoot,
-        chartDataRaw: chartDataRaw,
-        tickerHistoryUrl: tickerHistoryUrl,
-        tickerLatestUrl: tickerLatestUrl
+        chartDataRaw: chartDataRaw
     };
 }(window, window.jQuery)); //jshint ignore:line
 
@@ -654,6 +675,7 @@ module.exports = {
         var val,
             rate,
             msg,
+            pair,
             amountCoin = $('.amount-coin'),
             amountCashConfirm = 0,
                 floor = 100000000;
@@ -665,19 +687,31 @@ module.exports = {
             return;
         }
 
-       if(orderSmallerThanMin(amountCoin)) {
-            val = minOrderCoin;
-            elem = amountCoin;
+        if(orderSmallerThanMin(amountCoin)) {
+             val = minOrderCoin;
+             elem = amountCoin;
 
-           msg = gettext('Minimal order amount is ') + minOrderCoin + ' BTC';
-           toastr.error(msg);
-       }
+            msg = gettext('Minimal order amount is ') + minOrderCoin + ' BTC';
+            toastr.error(msg);
+        }
 
-        $.get(chartObject.tickerLatestUrl, function(data) {
+        if ($('.currency-pair option:selected').val()) {
+            pair = $('.currency-pair option:selected').val();
+        } else {
+             var base = $('.currency-to').val(),
+                 quote = $('.currency-from').val();
+             pair = base + quote;
+        }
+        var tickerLatestUrl = chartObject.apiRoot + pair + '/latest';
+
+        $.get(tickerLatestUrl, function(data) {
             // TODO: protect against NaN
-            updatePrice(getPrice(data[window.ACTION_BUY], currency), $('.rate-buy'));
-            updatePrice(getPrice(data[window.ACTION_SELL], currency), $('.rate-sell'));
-            rate = data[window.action]['price_' + currency + '_formatted'];
+            updatePrice(parseFloat(data[0].ticker.ask), $('.rate-buy'));
+            updatePrice(parseFloat(data[0].ticker.bid), $('.rate-sell'));
+            rate = parseFloat(data[0].ticker.ask);
+            if (window.action == window.ACTION_SELL) {
+                rate = parseFloat(data[0].ticker.bid);
+            }
             var btcAmount,
                 cashAmount;
             if (elem.hasClass('amount-coin')) {
@@ -756,14 +790,15 @@ module.exports = {
         return data['price_' + currency + '_formatted'];
     }
 
-    function setCurrency (elem, currency) {
+    function setCurrency (elem, currency, currency_to, pair) {
         if (elem && elem.hasClass('currency_pair')) {
             $('.currency_to').val(elem.data('crypto'));
 
         }
         if (!!currency) {
             $('.currency').html(currency.toUpperCase());
-            chartObject.renderChart(currency, $("#graph-range").val());
+            var title = currency_to + '/' + currency;
+            chartObject.renderChart(pair, title, $("#graph-range").val());
         }
     }
 

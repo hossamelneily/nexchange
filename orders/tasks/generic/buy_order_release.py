@@ -6,8 +6,8 @@ from django.db import transaction
 class BuyOrderReleaseByReference(BaseBuyOrderRelease):
     def get_order(self, payment):
         try:
-            order = Order.objects.get(is_released=False,
-                                      unique_reference=payment.reference)
+            order = Order.objects.exclude(status=Order.RELEASED)\
+                .get(unique_reference=payment.reference)
             if order.payment_preference.payment_method != \
                     payment.payment_preference.payment_method:
 
@@ -48,10 +48,10 @@ class BuyOrderReleaseByReference(BaseBuyOrderRelease):
             return order
 
         except Order.DoesNotExist:
-            self.logged.info.error('Order for payment {} not found through ID'
-                                   ' or SmartMatching, '
-                                   'initiating BuyOrderReleaseByWallet'
-                                   .format(payment))
+            self.logger.info('Order for payment {} not found through ID'
+                             ' or SmartMatching, '
+                             'initiating BuyOrderReleaseByWallet'
+                             .format(payment))
             self.add_next_task(BaseBuyOrderRelease.RELEASE_BY_WALLET,
                                [payment.pk])
             return False
@@ -66,13 +66,12 @@ class BuyOrderReleaseByWallet(BaseBuyOrderRelease):
         try:
             method = payment.payment_preference.payment_method
             if payment.user and payment.payment_preference:
-                return Order.objects.get(
-                    user=payment.user,
-                    amount_cash=payment.amount_cash,
-                    payment_preference__payment_method=method,
-                    is_completed=False,
-                    currency=payment.currency,
-                )
+                return Order.objects.exclude(status=Order.RELEASED)\
+                    .get(
+                        user=payment.user,
+                        amount_quote=payment.amount_cash,
+                        payment_preference__payment_method=method,
+                        pair__quote=payment.currency)
             else:
                     flag, new_flag = payment.flag(__name__)
                     if new_flag:
@@ -98,20 +97,20 @@ class BuyOrderReleaseByWallet(BaseBuyOrderRelease):
 class BuyOrderReleaseByRule(BuyOrderReleaseByWallet):
     def get_order(self, payment):
         try:
+            method = payment.payment_preference.payment_method
             template_order = Order.objects.filter(
                 order_type=Order.BUY,
                 is_redeemed=True,
                 is_default_rule=True,
                 user=payment.user,
                 currency=payment.currency,
-                payment__payment_preference__payment_method=
-                payment.payment_preference.payment_method
+                payment__payment_preference__payment_method=method
             ).latest('id')
 
             new_order = Order(
                 order_type=template_order.order_type,
                 currency=template_order.currency,
-                amount_cash=payment.amount_cash,
+                amount_qoute=payment.amount_cash,
                 user=template_order.user,
                 payment_preference=template_order.payment_preference,
             )
@@ -138,4 +137,3 @@ class BuyOrderReleaseByRule(BuyOrderReleaseByWallet):
                 payment.payment_preference.save()
                 self.logger.info('Payment: {} Order: {} Set PaymentPreference '
                                  'user from order').format(payment, order)
-

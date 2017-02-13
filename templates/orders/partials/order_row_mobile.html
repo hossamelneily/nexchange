@@ -20,17 +20,17 @@
     </div>
 
     <div>
-        <div class = "headers-mobile header-text">{% trans "Currency" %}</div>
-        {{ order.currency.code }}
+        <div class = "headers-mobile header-text">{% trans "Pair" %}</div>
+        {{ order.pair.name }}
     </div>
 
     <div>
-        <div class = "headers-mobile header-text">{% trans "Amount" %}</div>
-        {{ order.amount_cash }}
+        <div class = "headers-mobile header-text">{% trans "Price" %}</div>
+        {{ order.amount_quote }}
     </div>
     <div>
-        <div class = "headers-mobile header-text">{% trans "BTC" %}</div>
-        {{ order.amount_btc }}
+        <div class = "headers-mobile header-text">{% trans "Volume" %}</div>
+        {{ order.amount_base }}
     </div>
 
 

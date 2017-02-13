@@ -128,7 +128,7 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         self.assertTrue(user.profile.disabled)
         sms_token = SmsToken.objects.filter(user=user).latest('id')
         token = sms_token.sms_token
-
+        self.client.get(self.logout_url)
         response = passive_authentication_helper(
             self.client,
             self.user,
@@ -427,7 +427,6 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         res = self.client.post(url, data=payload)
         # user is already logged in!
         self.assertEqual(400, res.status_code)
-
 
     @patch('accounts.views.send_auth_sms')
     def test_creates_sms_token(self, send_sms):
@@ -808,7 +807,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             )
 
         unlock_time = datetime.now() + \
-            settings.AXES_COOLOFF_TIME + timedelta(seconds=1)
+            settings.AXES_COOLOFF_TIME + timedelta(seconds=5)
 
         with freeze_time(unlock_time, tick=True):
             sms_token = SmsToken(user=user)

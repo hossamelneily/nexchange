@@ -10,12 +10,12 @@ class SupportTestModelUser(OrderBaseTestCase):
     def setUp(self):
 
         super(SupportTestModelUser, self).setUp()
-        currency = self.RUB
+        pair = self.BTCRUB
 
         self.data = {
-            'amount_cash': Decimal(30674.85),
-            'amount_btc': Decimal(1.00),
-            'currency': currency,
+            'amount_quote': Decimal(30674.85),
+            'amount_base': Decimal(1.00),
+            'pair': pair,
             'user': self.user,
             'admin_comment': 'tests Order'
         }

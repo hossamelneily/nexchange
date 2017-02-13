@@ -1,5 +1,5 @@
 <span class="released-indicator">
-    {% if order.is_released == 1 %}
+    {% if order.state >= order.RELEASED %}
         <span class="fa fa-check fa-1"></span>
     {% else %}
         <span class="fa fa-close fa-1"></span>

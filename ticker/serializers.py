@@ -1,11 +1,18 @@
 from rest_framework import serializers
 
-from ticker.models import Price
+from ticker.models import Price, Ticker
+
+
+class TickerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticker
+        fields = ('ask', 'bid')
 
 
 class PriceSerializer(serializers.ModelSerializer):
 
+    ticker = TickerSerializer()
+
     class Meta:
         model = Price
-        fields = ('type', 'created_on', 'unix_time', 'price_usd_formatted',
-                  'price_rub_formatted', 'price_eur_formatted')
+        fields = ('created_on', 'unix_time', 'ticker')

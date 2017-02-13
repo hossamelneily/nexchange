@@ -49,8 +49,9 @@
                     <form method="post" action="https://checkout.okpay.com/">
                        <input type="hidden" name="ok_receiver" value="{{ okpay_wallet }}"/>
                        <input type="hidden" name="ok_item_1_name" value="{{ unique_ref }}"/>
-                       <input type="hidden" name="ok_item_1_price" value="{{ amount_cash}}"/>
-                       <input type="hidden" name="ok_currency" value="{{ order.currency.name}}"/>
+                       <input type="hidden" name="ok_item_1_price"
+                              value="{{ amount_quote}}"/>
+                       <input type="hidden" name="ok_currency" value="{{ order.pair.quote.code}}"/>
                        <input type="hidden" name="ok_invoice" value="{{ unique_ref }}"/>
                        <input type="hidden" name="ok_fees" value="1"/>
                        <input type="image" class="payment-icon"
@@ -81,8 +82,9 @@
                     <form method="post" action="https://payeer.com/merchant/">
                         <input type="hidden" name="m_shop" value="{{ payeer_shop }}"/>
                         <input type="hidden" name="m_orderid" value="{{ order.unique_reference }}"/>
-                        <input type="hidden" name="m_amount" value="{{ amount_cash }}"/>
-                        <input type="hidden" name="m_curr" value="{{ order.currency.code }}"/>
+                        <input type="hidden" name="m_amount"
+                               value="{{ amount_quote }}"/>
+                        <input type="hidden" name="m_curr" value="{{ order.pair.quote.code }}"/>
                         <input type="hidden" name="m_desc" value="{{ payeer_desc }}"/>
                         <input type="hidden" name="m_sign" value="{{ payeer_sign }}"/>
                         <input type="image" class="payment-icon" name="submit" alt="Payeer Payment" src="/static/icons/small/payeer.png"/>

@@ -1,4 +1,4 @@
-from accounts.tests.base import TransactionImportBaseTestCase
+from core.tests.base import TransactionImportBaseTestCase
 import requests_mock
 from accounts.utils import BlockchainTransactionImporter
 

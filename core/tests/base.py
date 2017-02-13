@@ -1,4 +1,5 @@
 from decimal import Decimal
+import json
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -6,10 +7,10 @@ from django.test import Client, TestCase
 from django.utils.translation import activate
 
 from accounts.models import SmsToken
-from core.models import Currency, Address
+from core.models import Currency, Address, Transaction, Pair
 from orders.models import Order
 from payments.models import PaymentMethod, PaymentPreference
-from ticker.models import Price
+from ticker.models import Price, Ticker
 from copy import deepcopy
 import mock
 
@@ -60,14 +61,17 @@ class UserBaseTestCase(TestCase):
 class OrderBaseTestCase(UserBaseTestCase):
     fixtures = [
         'currency.json',
+        'pair.json',
         'payment_method.json',
         'payment_preference.json'
     ]
     PRICE_BUY_RUB = 36000
     PRICE_BUY_USD = 600
+    PRICE_BUY_EUR = 500
 
     PRICE_SELL_RUB = 30000
     PRICE_SELL_USD = 500
+    PRICE_SELL_EUR = 400
 
     RATE_EUR = 70.00
 
@@ -87,21 +91,39 @@ class OrderBaseTestCase(UserBaseTestCase):
 
         cls.BTC = Currency.objects.get(code='BTC')
 
-        cls.ticker_buy = \
-            Price(type=Price.BUY,
-                  price_rub=OrderBaseTestCase.PRICE_BUY_RUB,
-                  price_usd=OrderBaseTestCase.PRICE_BUY_USD,
-                  rate_eur=Decimal(OrderBaseTestCase.RATE_EUR))
+        cls.BTCRUB = Pair.objects.get(name='BTCRUB')
+        cls.BTCUSD = Pair.objects.get(name='BTCUSD')
+        cls.BTCEUR = Pair.objects.get(name='BTCEUR')
 
-        cls.ticker_buy.save()
+        ticker_rub = Ticker(
+            pair=cls.BTCRUB,
+            ask=OrderBaseTestCase.PRICE_BUY_RUB,
+            bid=OrderBaseTestCase.PRICE_SELL_RUB
+        )
+        ticker_rub.save()
 
-        cls.ticker_sell = \
-            Price(type=Price.SELL,
-                  price_rub=OrderBaseTestCase.PRICE_SELL_RUB,
-                  price_usd=OrderBaseTestCase.PRICE_SELL_USD,
-                  rate_eur=Decimal(OrderBaseTestCase.RATE_EUR))
+        ticker_usd = Ticker(
+            pair=cls.BTCUSD,
+            ask=OrderBaseTestCase.PRICE_BUY_USD,
+            bid=OrderBaseTestCase.PRICE_SELL_USD
+        )
+        ticker_usd.save()
 
-        cls.ticker_sell.save()
+        ticker_eur = Ticker(
+            pair=cls.BTCEUR,
+            ask=OrderBaseTestCase.PRICE_BUY_EUR,
+            bid=OrderBaseTestCase.PRICE_SELL_EUR
+        )
+        ticker_eur.save()
+
+        cls.price_rub = Price(pair=cls.BTCRUB, ticker=ticker_rub)
+        cls.price_rub.save()
+
+        cls.price_usd = Price(pair=cls.BTCUSD, ticker=ticker_usd)
+        cls.price_usd.save()
+
+        cls.price_eur = Price(pair=cls.BTCEUR, ticker=ticker_eur)
+        cls.price_eur.save()
 
     @classmethod
     def create_order(cls, user):
@@ -156,6 +178,7 @@ class OrderBaseTestCase(UserBaseTestCase):
 class WalletBaseTestCase(OrderBaseTestCase):
     fixtures = [
         'currency.json',
+        'pair.json',
         'payment_method.json',
         'payment_preference.json',
     ]
@@ -187,9 +210,9 @@ class WalletBaseTestCase(OrderBaseTestCase):
         ).first()
 
         self.okpay_order_data = {
-            'amount_cash': 85.85,
-            'amount_btc': Decimal(0.01),
-            'currency': self.EUR,
+            'amount_quote': 85.85,
+            'amount_base': Decimal(0.01),
+            'pair': self.BTCEUR,
             'user': self.user,
             'admin_comment': 'tests Order',
             'unique_reference': '12345',
@@ -206,3 +229,77 @@ class WalletBaseTestCase(OrderBaseTestCase):
         self.payeer_order_data_address = deepcopy(
             self.okpay_order_data_address)
         self.payeer_order_data_address['payment_preference'] = payeer_pref
+
+
+class TransactionImportBaseTestCase(OrderBaseTestCase):
+
+    def setUp(self):
+        super(TransactionImportBaseTestCase, self).setUp()
+        self._read_fixture()
+        self.address = Address(
+            name='test address',
+            address=self.wallet_address,
+            currency=self.BTC,
+            user=self.user,
+            type=Address.DEPOSIT
+        )
+        self.address.save()
+        self.url = 'http://btc.blockr.io/api/v1/address/txs/{}'.format(
+            self.wallet_address
+        )
+        self.order = Order(
+            order_type=Order.SELL,
+            amount_base=Decimal(str(self.amounts[self.status_ok_list_index])),
+            pair=self.BTCEUR,
+            user=self.user,
+            status=Order.INITIAL
+        )
+        self.order.save()
+        self.unique_ref = self.order.unique_reference
+
+    def _read_fixture(self):
+        cont_path = 'nexchange/tests/fixtures/blockr/address_transactions.json'
+        with open(cont_path) as f:
+            self.blockr_response = f.read().replace('\n', '').replace(' ', '')
+            self.wallet_address = json.loads(self.blockr_response)['data'][
+                'address'
+            ]
+            txs = json.loads(self.blockr_response)['data']['txs']
+            self.amounts = [tx['amount'] for tx in txs]
+            self.tx_ids = [tx['tx'] for tx in txs]
+        self.status_ok_list_index = 0
+        self.status_bad_list_index = 1
+
+    def base_test_create_transactions_with_task(self, mock_request,
+                                                run_method):
+        mock_request.get(self.url, text=self.blockr_response)
+        status_ok_list_index = 0
+        status_bad_list_index = 1
+        run_method()
+        tx_ok = Transaction.objects.filter(
+            tx_id=self.tx_ids[status_ok_list_index]
+        )
+        self.assertEqual(
+            len(tx_ok), 1,
+            'Transaction must be created if order is found!'
+        )
+        order = Order.objects.get(unique_reference=self.unique_ref)
+        self.assertTrue(
+            order.status == Order.PAID,
+            'Order should be marked as paid after transaction import'
+        )
+        tx_bad = Transaction.objects.filter(
+            tx_id=self.tx_ids[status_bad_list_index]
+        )
+        self.assertEqual(
+            len(tx_bad), 0,
+            'Transaction must not be created if order is not found!'
+        )
+        run_method()
+        tx_ok = Transaction.objects.filter(
+            tx_id=self.tx_ids[status_ok_list_index]
+        )
+        self.assertEqual(
+            len(tx_ok), 1,
+            'Transaction must be created only one time!'
+        )

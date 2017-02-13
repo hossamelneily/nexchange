@@ -6,6 +6,7 @@ from django.utils.crypto import get_random_string
 
 from core.common.models import (SoftDeleteMixin, TimeStampedModel,
                                 UniqueFieldMixin)
+from orders.models import Order
 from nexchange.settings import REFERRAL_CODE_LENGTH
 
 
@@ -50,7 +51,7 @@ class Referral(TimeStampedModel, SoftDeleteMixin):
     @property
     def orders(self):
         return self.referee. \
-            orders.filter(is_completed=True)
+            orders.filter(status=Order.COMPLETED)
 
     @property
     def confirmed_orders_count(self):
@@ -59,8 +60,8 @@ class Referral(TimeStampedModel, SoftDeleteMixin):
     @property
     def turnover(self):
         res = self.\
-            orders.aggregate(models.Sum('amount_btc'))
-        return round(res['amount_btc__sum'], 8)
+            orders.aggregate(models.Sum('amount_base'))
+        return round(res['amount_base__sum'], 8)
 
     @property
     def program(self):

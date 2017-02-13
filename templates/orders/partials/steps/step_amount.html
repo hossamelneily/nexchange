@@ -3,10 +3,18 @@
 {% block step_content %}
     <div class="chart_panel_selectbox_panel">
         <div class="input-group-btn">
-            {{select_pair| safe}}
+            <select name="currency_pair"
+                    class="js-example-basic-single currency-select currency-pair chart_panel_selectbox classic">
+                {% for pair in pairs %}
+                    <option value="{{ pair.name}}"
+                            data-fiat="{{ pair.quote.code }}"
+                            data-crypto={{ pair.base.code }}>{{ pair.base.code }}/{{pair.quote.code }}</option>
+                {% endfor %}
+            </select>
         </div>
         <div class="input-group-btn">
-            <select name="graph-range" id="graph-range" class="chart_panel_selectbox classic">
+            <select name="graph-range" id="graph-range"
+                    class="js-example-basic-single chart_panel_selectbox classic">
                 {% for range in graph_ranges %}
                     <option value="{{  range.val }}"> {{ range.name }} </option>
                 {% endfor %}
@@ -33,8 +41,13 @@
         <div class="row">
             <div class="col-xs-5 price_box" id="pricebox_rub">
                 <div class="price_box_selectbox_cont">
-                   <input type="text" class="price_box_selectbox_cont_textbox amount amount-cash" placeholder="">
-                   {{select_from | safe}}
+                    <input type="text" class="price_box_selectbox_cont_textbox amount amount-cash" placeholder="">
+                    <select name='currency_from'
+                            class='currency-select currency-from price_box_selectbox_cont_selectbox classic'>
+                        {% for pair in pairs %}
+                            <option value="{{ pair.quote.code }}">{{ pair.quote.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
             <div class="col-xs-2 price_box_mid">
@@ -44,7 +57,14 @@
 
                 <div class="price_box_selectbox_cont">
                     <input type="text" class="price_box_selectbox_cont_textbox amount amount-coin" placeholder="0.1">
-                    {{select_to | safe}}
+                    <select name='currency_to'
+                            class='currency-select currency-to price_box_selectbox_cont_selectbox classic'>
+                       {% for code in base_currencies %}
+                           <option value="{{ code }}">
+                               {{ code }}
+                           </option>
+                       {% endfor %}
+                     </select>
                 </div>
             </div>
         </div>

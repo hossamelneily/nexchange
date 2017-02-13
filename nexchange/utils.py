@@ -18,7 +18,6 @@ from django.utils.log import AdminEmailHandler
 from accounts.models import SmsToken
 import string
 
-
 api = Uphold(settings.API1_IS_TEST)
 api.auth_basic(settings.API1_USER, settings.API1_PASS)
 logging.basicConfig(level=logging.DEBUG)
@@ -207,11 +206,10 @@ class BasePaymentApi:
             to_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         if from_date is None:
             default_from_time = (datetime.datetime.now() -
-                                settings.PAYMENT_DEFAULT_SEEK_INTERVAL)
+                                 settings.PAYMENT_DEFAULT_SEEK_INTERVAL)
             from_date = default_from_time.now().strftime('%Y-%m-%d %H:%M:%S')
 
         return from_date, to_date
-
 
 
 class OkPayAPI(BasePaymentApi):
@@ -312,7 +310,8 @@ class OkPayAPI(BasePaymentApi):
             res.append(attributes)
         return res
 
-    def get_transaction_history(self, from_date=None, to_date=None, page_size=50, page_number=1):
+    def get_transaction_history(self, from_date=None, to_date=None,
+                                page_size=50, page_number=1):
         from_date, to_date = self.get_default_ranges(from_date, to_date)
         try:
             service_resp = self._get_transaction_history(
@@ -391,7 +390,8 @@ class PayeerAPIClient(BasePaymentApi):
         return response
 
     def get_transaction_history(self, from_date=None, to_date=None,
-                                page_size=50, sort='desc', trans_type='incoming'):
+                                page_size=50, sort='desc',
+                                trans_type='incoming'):
         from_date, to_date = self.get_default_ranges(from_date, to_date)
 
         payload = {
@@ -441,4 +441,3 @@ def get_nexchange_logger(name, with_console=True, with_email=False):
         print_traceback()
 
     return logger
-

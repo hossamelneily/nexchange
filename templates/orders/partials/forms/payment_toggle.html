@@ -12,7 +12,7 @@
             data-pk="{{order.pk}}"
             data-offstyle="danger"
             data-onstyle="success"
-            {% if order.is_paid %}
+            {% if order.status >= order.PAID %}
                 checked
             {% endif %}
             {% if order.frozen %}

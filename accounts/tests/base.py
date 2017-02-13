@@ -10,6 +10,7 @@ import os
 class TransactionImportBaseTestCase(OrderBaseTestCase):
 
     def setUp(self):
+        # TODO: Sarunas, why those tests are not migrated ?
         super(TransactionImportBaseTestCase, self).setUp()
         self._read_fixture()
         self.address = Address(

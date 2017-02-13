@@ -1,13 +1,7 @@
 from __future__ import absolute_import
-from core.models import Address, Transaction
-from payments.models import Payment
 from orders.models import Order
-from nexchange.utils import release_payment, send_email, send_sms, get_nexchange_logger
-from django.utils.translation import activate
-from django.db import transaction
-from django.utils.translation import ugettext_lazy as _
+from nexchange.utils import get_nexchange_logger
 from django.conf import settings
-import logging
 
 
 def sell_order_release():
@@ -23,8 +17,8 @@ def sell_order_release():
         return res
     logger = get_nexchange_logger(__name__)
     orders = Order.objects.filter(
-        is_paid=True, is_completed=False,
-        order_type=Order.SELL, is_released=False,
+        status=Order.PAID,
+        order_type=Order.SELL,
         transactions__isnull=False
     )
     for order in orders[::-1]:
@@ -33,7 +27,7 @@ def sell_order_release():
         status = order.send_money()
         if status:
             # TODO: move this to send money
-            order.is_released = True
+            order.status = Order.RELEASED
             order.save()
             logger.info('Order {} is released'.format(order))
         else:
