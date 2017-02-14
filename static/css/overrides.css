@@ -513,7 +513,11 @@ a:focus
     text-align:center;
     margin-bottom: -22px;
 }
-
+.select2{
+    font-size: 14px;
+    background-color: #FFF;
+    position:relative; z-index:2;  width: 200px;
+}
 
 .price_box{text-align:center; font-size:35px; font-family: 'Montserrat-Light', 'Gotham'; margin:12px 0;}
 
@@ -1260,3 +1264,4 @@ p.support-link a{
 label, input {
     cursor: pointer;
 }
+

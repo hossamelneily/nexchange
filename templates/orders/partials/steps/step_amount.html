@@ -4,7 +4,7 @@
     <div class="chart_panel_selectbox_panel">
         <div class="input-group-btn">
             <select name="currency_pair"
-                    class="js-example-basic-single currency-select currency-pair chart_panel_selectbox classic">
+                    class="currency-select currency-pair classic select2">
                 {% for pair in pairs %}
                     <option value="{{ pair.name}}"
                             data-fiat="{{ pair.quote.code }}"
@@ -14,7 +14,7 @@
         </div>
         <div class="input-group-btn">
             <select name="graph-range" id="graph-range"
-                    class="js-example-basic-single chart_panel_selectbox classic">
+                    class="select2 classic">
                 {% for range in graph_ranges %}
                     <option value="{{  range.val }}"> {{ range.name }} </option>
                 {% endfor %}
