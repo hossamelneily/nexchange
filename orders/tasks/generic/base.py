@@ -86,8 +86,12 @@ class BaseOrderRelease(BaseTask):
 
 
 class BaseBuyOrderRelease(BaseOrderRelease):
-    RELEASE_BY_WALLET = 'payments.task_summary.release_by_wallet'
-    RELEASE_BY_RULE = 'payments.task_summary.release_by_rule'
+    RELEASE_BY_REFERENCE = \
+        'payments.task_summary.buy_order_release_by_reference_invoke'
+    RELEASE_BY_WALLET = \
+        'payments.task_summary.buy_order_release_by_wallet_invoke'
+    RELEASE_BY_RULE = \
+        'payments.task_summary.buy_order_release_by_rule_invoke'
 
     def do_release(self, order, payment):
         with transaction.atomic(using='default'):

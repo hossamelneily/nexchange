@@ -8,6 +8,7 @@ from core.models import Currency
 from django.core.exceptions import MultipleObjectsReturned
 from django.conf import settings
 from copy import deepcopy
+from orders.tasks.generic.base import BaseBuyOrderRelease
 
 
 class BasePaymentChecker(BaseTask):
@@ -308,9 +309,9 @@ class BasePaymentChecker(BaseTask):
             # only if new payment is created
             if payment:
                 if payment.reference:
-                    task = 'orders.task_summary.release_by_reference_invoke'
+                    task = BaseBuyOrderRelease.RELEASE_BY_REFERENCE
                 else:
-                    task = 'orders.task_summary.release_by_wallet_invoke'
+                    task = BaseBuyOrderRelease.RELEASE_BY_RULE
 
                 self.add_next_task(
                     task,
