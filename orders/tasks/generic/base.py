@@ -73,21 +73,25 @@ class BaseOrderRelease(BaseTask):
     def run(self, payment_id):
         payment = Payment.objects.get(pk=payment_id)
         order = self.get_order(payment)
-        if not order:
+        if order:
+            if self.validate(order, payment):
+                if self.do_release(order, payment):
+                    self.complete_missing_data(payment, order)
+                    self.notify(order)
+        else:
             self.logger.info('{} match order returned None'
                              .format(self.__class__.__name__))
-
-        if self.validate(order, payment):
-            if self.do_release(order, payment):
-                self.complete_missing_data(payment, order)
-                self.notify(order)
 
         super(BaseOrderRelease, self).run(payment_id)
 
 
 class BaseBuyOrderRelease(BaseOrderRelease):
-    RELEASE_BY_WALLET = 'payments.task_summary.release_by_wallet'
-    RELEASE_BY_RULE = 'payments.task_summary.release_by_rule'
+    RELEASE_BY_REFERENCE = \
+        'payments.task_summary.buy_order_release_by_reference_invoke'
+    RELEASE_BY_WALLET = \
+        'payments.task_summary.buy_order_release_by_wallet_invoke'
+    RELEASE_BY_RULE = \
+        'payments.task_summary.buy_order_release_by_rule_invoke'
 
     def do_release(self, order, payment):
         with transaction.atomic(using='default'):

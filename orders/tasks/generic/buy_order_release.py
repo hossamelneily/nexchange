@@ -85,10 +85,10 @@ class BuyOrderReleaseByWallet(BaseBuyOrderRelease):
                     payment.save()
 
         except Order.DoesNotExist:
-            self.logger.info.error('order for payment {} not found'
-                                   ' through ID or SmartMatching, initiating '
-                                   'BuyOrderReleaseByRule'
-                                   .format(payment))
+            self.logger.info('order for payment {} not found'
+                             ' through ID or SmartMatching, initiating '
+                             'BuyOrderReleaseByRule'
+                             .format(payment))
             self.add_next_task(BaseBuyOrderRelease.RELEASE_BY_RULE,
                                [payment.pk])
             return False
