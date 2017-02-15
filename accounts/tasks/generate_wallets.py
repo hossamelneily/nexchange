@@ -9,11 +9,11 @@ def renew_cards_reserve():
     if settings.DEBUG:
         logging.info(
             settings.CARDS_RESERVE_COUNT,
-            settings.UPHOLD_USER,
-            settings.UPHOLD_PASS
+            settings.API1_USER,
+            settings.API1_PASS
         )
-    api = CreateUpholdCard(settings.UPHOLD_IS_TEST)
-    api.auth_basic(settings.UPHOLD_USER, settings.UPHOLD_PASS)
+    api = CreateUpholdCard(settings.API1_IS_TEST)
+    api.auth_basic(settings.API1_USER, settings.API1_PASS)
     currency = {
         'BTC': 'bitcoin',
         'LTC': 'litecoin',

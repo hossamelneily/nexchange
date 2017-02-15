@@ -3,7 +3,8 @@ from django.db import models
 
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
-from core.common.models import SoftDeletableModel, TimeStampedModel, FlagableMixin
+from core.common.models import SoftDeletableModel, \
+    TimeStampedModel, FlagableMixin
 
 
 class PaymentMethodManager(models.Manager):
@@ -67,9 +68,10 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         super(PaymentPreference, self).save(*args, **kwargs)
 
     def guess_payment_method(self):
-        card_bin = self.identifier[:PaymentMethod.BIN_LENGTH]
+        identifier = ''.join(self.identifier.split(' '))
+        card_bin = identifier[:PaymentMethod.BIN_LENGTH]
         payment_method = []
-        while all([self.identifier,
+        while all([identifier,
                    not len(payment_method),
                    len(card_bin) > 0]):
             payment_method = PaymentMethod.objects.filter(bin=card_bin)
@@ -106,16 +108,11 @@ class Payment(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                                null=True, default=None)
     payment_system_id = models.CharField(max_length=255, unique=True,
                                          null=True, default=None)
-    
+
     @property
     def api_time(self):
         safe_time = self.created_on - settings.PAYMENT_WINDOW_SAFETY_INTERVAL
         return safe_time.__format__('%Y-%m-%d %H:%M:%S')
-
-    def __str__(self):
-        return '{} {} - {}'.format(self.amount_cash,
-                                   self.currency,
-                                   self.payment_preference)
 
     def __str__(self):
         return '{} {} - {}'.format(self.amount_cash,

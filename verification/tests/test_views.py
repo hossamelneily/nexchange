@@ -8,13 +8,12 @@ from PIL import Image
 
 from core.tests.base import UserBaseTestCase
 from verification.models import Verification
-from unittest.mock import patch
+from unittest import mock
 
 
 class VerificationViewTestCase(UserBaseTestCase):
-
     def setUp(self):
-        super().setUp()
+        super(VerificationViewTestCase, self).setUp()
 
         # create Mockup picture
         image = Image.new('RGBA', size=(50, 50), color=(155, 0, 0))
@@ -39,7 +38,8 @@ class VerificationViewTestCase(UserBaseTestCase):
         # another client
         username = '+555190909100'
         password = '321Changed'
-        User.objects.create_user(username=username, password=password)
+        with mock.patch('core.signals.allocate_wallets.allocate_wallets'):
+            User.objects.create_user(username=username, password=password)
         self.client2 = Client()
         self.client2.login(username=username, password=password)
 

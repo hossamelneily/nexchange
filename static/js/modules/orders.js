@@ -5,6 +5,7 @@
      var chartObject = require("./chart.js"),
          registerObject = require("./register.js"),
          googleObject = require('./captcha.js'),
+         paymentObj = require('./payment.js'),
          currency = null,
          animationDelay = 3000,
          minOrderCoin = 0.0001;
@@ -201,12 +202,12 @@
             return;
         }
 
-        if (!$('.payment-preference-confirm').html().trim()) {
-            if (window.action == window.ACTION_BUY){
-                toggleBuyModal();
-            } else {
-                toggleSellModal();
-            }            
+        if (!$('.payment-preference-confirm').html().trim() && window.action == window.ACTION_BUY) {
+            toggleBuyModal();
+            return;
+        }
+        else if (window.action == window.ACTION_SELL && !paymentObj.getPaymentPreference()) {
+            toggleSellModal();
             return;
         }
 

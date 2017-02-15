@@ -1,17 +1,21 @@
+{% extends 'payments/partials/forms/base_from.html' %}
 {%  load i18n %}
+{% block form %}
 <div class="card-wrapper"></div>
 <form action="" name="card-form" id="card-form">
     {% trans legend %}
     <div class="row">
         <div class="col col-lg-10 col-lg-offset-1 panel">
             <div class="col col-sm-5 col-sm-offset-1 pay-row">
-                <input class="val" placeholder="{% trans "Card number" %}"
+                <input class="iban account-number"
+                       placeholder="{% trans "Card number" %}"
                        type="text" name="number">
             </div>
             <div class="col col-sm-5 pay-row">
                 <input placeholder="{% trans "Full name" %}" type="text"
-                       value="Ivan Ivanov" name="name" class="name">
+                       value="Ivan Ivanov" name="name" class="iban val">
             </div>
         </div>
     </div>
 </form>
+{% endblock %}

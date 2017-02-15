@@ -1,4 +1,6 @@
+{% extends 'payments/partials/forms/base_from.html' %}
 {% load i18n %}
+{%  block form %}
 <form action="">
     <div class="row">
         <div class="col col-lg-10 col-sm-offset-1 text-left">
@@ -13,9 +15,11 @@
             <label for="phone">{% trans 'IBAN' %}</label>
                 <div class="iban-group">
                     <div class="iban-flag iti-flag {{ COUNTRY_CODE }}"></div>
-                    <input type="text" name="iban" class="iban val"
+                    <input type="text" name="iban" class="iban account-number
+                    val"
                        value="{{ COUNTRY_CODE }}">
                 </div>
         </div>
     </div>
 </form>
+{% endblock %}

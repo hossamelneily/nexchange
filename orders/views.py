@@ -14,7 +14,7 @@ from core.common.forms import DateSearchForm
 from core.models import Address, Currency, Pair
 from core.views import main
 from orders.models import Order
-from payments.models import PaymentPreference
+from payments.models import PaymentPreference, PaymentMethod
 from payments.utils import geturl_robokassa, get_payeer_sign, get_payeer_desc
 from nexchange.utils import send_email
 
@@ -110,32 +110,80 @@ def add_order(request, pair=None):
 @login_required
 @csrf_exempt
 def ajax_order(request):
+    def serialize_pref(data, user, method):
+        optional_fields_serializer = {
+            'iban': 'identifier',
+            'phone-number': 'identifier',
+            'account-numer': 'identifier',
+            'name': 'beneficiary',
+            'owner': 'beneficiary',
+            'bic': 'bic',
+        }
+        serialized = {}
+        for request_key, object_key in optional_fields_serializer.items():
+            if request_key in data:
+                if object_key in serialized:
+                    raise ValueError('Double attribute found'.format(object_key))
+                serialized.update({object_key: data[request_key]})
+
+        serialized.update({'user': user, 'payment_method': method})
+
+        return serialized
+
+    def update_pref(pref, serialized_data):
+        for key, value in serialized_data.items():
+            setattr(pref, key, value)
+
+    def get_or_create_preference(req_data, _currency, user):
+        payment_method = req_data.get('method')
+        if payment_method:
+            method = PaymentMethod.objects.get(
+                name__icontains=payment_method
+            )
+        else:
+            # will be retrieved through GuessPaymentPreference
+            method = None
+
+        serialized_data = serialize_pref(req_data, user, method)
+        pref, created = \
+            PaymentPreference.objects.get_or_create(**serialized_data)
+
+        # update_pref(pref, serialized_data)
+        pref.currency.add(_currency)
+        pref.save()
+        return pref
+
     trade_type = int(request.POST.get('trade-type', Order.BUY))
     currency_from = request.POST.get('currency_from', 'RUB')
     currency_to = request.POST.get('currency_to', 'BTC')
     pair_name = currency_to + currency_from
     amount_base = Decimal(request.POST.get('amount-base'))
     pair = Pair.objects.get(name=pair_name)
-    currency = Currency.objects.get(name=currency_from)
+    _currency_from = Currency.objects.get(name=currency_from)
+    _currency_to = Currency.objects.get(name=currency_to)
+
+    # Only for buy order right now
     payment_method = request.POST.get('pp_type')
-    identifier = request.POST.get('pp_identifier', None)
-    identifier = identifier.replace(' ', '')
     amount_base = Decimal(amount_base)
     template = 'orders/partials/modals/order_success_{}.html'.\
         format('buy' if trade_type else 'sell')
     template = get_template(template)
-
     if trade_type == Order.SELL:
-        payment_pref, created = PaymentPreference.objects.get_or_create(
-            identifier=identifier,
-            user=request.user
+        payment_pref_data = {
+            'owner': request.POST.get('payment_preference[owner]'),
+            'iban': request.POST.get('payment_preference[iban]'),
+            'method': request.POST.get('payment_preference[method]')
+        }
+        payment_pref = get_or_create_preference(
+            payment_pref_data,
+            _currency_from,
+            request.user
         )
-        payment_pref.currency.add(currency_to)
-        payment_pref.save()
+
     else:
         payment_pref = PaymentPreference.objects.get(
             user__is_staff=True,
-            currency__in=[currency],
+            currency__in=[_currency_from],
             payment_method__name__icontains=payment_method
         )
 
@@ -150,7 +198,12 @@ def ajax_order(request):
     my_action = _('Result')
     address = ''
     if trade_type == Order.SELL:
-        address = settings.MAIN_DEPOSIT_ADDRESSES.pop()
+        addresses = Address.objects.filter(
+            user=request.user,
+            currency=_currency_to,
+            type=Address.DEPOSIT
+        )
+        address = addresses[0].address
 
     context = {
         'order': order,

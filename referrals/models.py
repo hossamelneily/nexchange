@@ -42,6 +42,9 @@ class ReferralCode(TimeStampedModel, UniqueFieldMixin):
 
 
 class Referral(TimeStampedModel, SoftDeleteMixin):
+    def __init__(self, *args, **kwargs):
+        super(Referral, self).__init__(*args, **kwargs)
+        self.old_referral_revenue = None
     # TODO: ensure that one user is not referred by many Users.
     code = models.ForeignKey('ReferralCode', default=None,
                              null=True)
@@ -61,7 +64,11 @@ class Referral(TimeStampedModel, SoftDeleteMixin):
     def turnover(self):
         res = self.\
             orders.aggregate(models.Sum('amount_base'))
-        return round(res['amount_base__sum'], 8)
+        if res['amount_base__sum']:
+            res = res['amount_base__sum']
+        else:
+            res = 0
+        return round(res, 8)
 
     @property
     def program(self):

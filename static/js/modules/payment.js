@@ -1,6 +1,6 @@
 !(function(window ,$) {
     "use strict";
-
+    var pref = null;
     function loadPaymentMethods(cardsEndpoint, currency) {
         if (!currency || currency.length > 3) {
             return;
@@ -19,6 +19,14 @@
         });
     }
 
+    function setPaymentPreference(new_pref) {
+        pref = new_pref;
+    }
+
+    function getPaymentPreference() {
+        return pref;
+    }
+
     function loadPaymentMethodsAccount(paymentMethodsAccountEndpoint, pm) {
         var data = {'payment_method': pm};
 
@@ -31,7 +39,9 @@
     module.exports =
     {
         loadPaymentMethods: loadPaymentMethods,
-        loadPaymentMethodsAccount: loadPaymentMethodsAccount
+        loadPaymentMethodsAccount: loadPaymentMethodsAccount,
+        setPaymentPreference: setPaymentPreference,
+        getPaymentPreference: getPaymentPreference
     };
 
 }(window, window.jQuery)); //jshint ignore:line

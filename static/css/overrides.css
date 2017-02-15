@@ -1265,3 +1265,6 @@ label, input {
     cursor: pointer;
 }
 
+.btn.btn-success.expand {
+    padding: 20px;
+}
