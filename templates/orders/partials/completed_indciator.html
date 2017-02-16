@@ -1,7 +1,7 @@
 <span class="completed-indicator">
-    {% if order.is_complete == 1 %}
+    {% if order.status == order.COMPLETED %}
         <span class="fa fa-check fa-1"></span>
-    {% elif order.expired %}
-        <span class="fa fa-close fa-1"></span>
+    {% else %}
+        <span class="fa fa-close fa-1 red"></span>
     {% endif %}
 </span>

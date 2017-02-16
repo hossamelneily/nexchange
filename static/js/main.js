@@ -21,6 +21,7 @@
            // Required modules
            orderObject = require('./modules/orders.js'),
            paymentObject = require('./modules/payment.js'),
+           register = require('./modules/register.js'),
            captcha = require('./modules/captcha.js'),
            $currencyFrom,
            $currencyTo,
@@ -193,17 +194,6 @@
     });
 
     $(function() {
-        function lockoutResponse (data) {
-            toastr.error(window.getLockOutText(data));
-        }
-
-        function failureResponse (data, defaultMsg) {
-            var _defaultMsg = gettext(defaultMsg),
-                message = data.responseJSON.message || _defaultMsg;
-            toastr.error(message);
-
-        }
-
         // For order index
         $('[data-toggle="popover"]').popover({content: $("#popover-template").html()});
         $( "#id_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
@@ -217,12 +207,8 @@
             confirm = amountCoin.val() ? amountCoin.val() : DEFAULT_AMOUNT;
         $('.btc-amount-confirm').text(confirm);
 
-        var apiRoot = '/en/api/v1',
-            createAccEndpoint =  '/en/accounts/authenticate/',
-            menuEndpoint = apiRoot + '/menu',
-            breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
-            validatePhoneEndpoint = '/en/accounts/verify_phone/',
-            placerAjaxOrder = '/en/orders/add_order/',
+
+           var placerAjaxOrder = '/en/orders/add_order/',
             paymentAjax = '/en/payments/ajax/',
             DEFAULT_AMOUNT = 1;
 
@@ -238,48 +224,14 @@
             if($(this).hasClass('disabled')) {
                 return;
             }
-            $('.phone.val').addClass('disabled');
-
-
+            // $('.phone.val').attr('disabled', 'disabled');
             var regPayload = {
                 // TODO: check collision with qiwi wallet
                 phone: $('.register .phone').val(),
-                g_recaptcha_response: grecaptcha.getResponse(),
+                g_recaptcha_response: grecaptcha.getResponse()
             };
-            $.ajax({
-                type: 'POST',
-                dataType: 'json',
-                url: createAccEndpoint,
-                data: regPayload,
-                statusCode: {
-                    200: function (data) {
-                        $('.register .step2').removeClass('hidden');
-                        $('.verify-acc').removeClass('hidden');
-                        $('.create-acc').addClass('hidden');
-                        $('.create-acc.resend').removeClass('hidden');
-                    },
-                    400: function (data) {
-                        return failureResponse(
-                            data,
-                            'Invalid phone number'
-                        );
-                    },
-                    403: lockoutResponse,
-                    410: function (data) {
-                        return failureResponse(
-                            data,
-                            'Your token has expired, please request a new one'
-                        );
-                    },
-                    428: function (data) {
-                        return failureResponse(
-                            data,
-                            'Invalid phone number'
-                        );
-                    },
+            register.seemlessRegistration(regPayload);
 
-                }
-            });
         });
 
         $('.verify-acc').on('click', function () {
@@ -287,26 +239,7 @@
                 token: $('#verification_code').val(),
                 phone: $('.register .phone').val()
             };
-            $.ajax({
-                type: 'POST',
-                dataType: 'json',
-                url: validatePhoneEndpoint,
-                data: verifyPayload,
-                statusCode: {
-                    201: function(data) {
-                        orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
-                        orderObject.changeState(null, 'next');
-                    },
-                    400: function (data) {
-                        failureResponse(
-                            data,
-                            'Incorrect code'
-                        );
-                    },
-                    403: lockoutResponse
-                }
-            });
-
+            register.verifyAccount(verifyPayload);
         });
 
 
@@ -386,6 +319,7 @@
             var paymentType = $(this).data('label'),
             actualPaymentType = $(this).data('type'),
             preferenceIdentifier = $(this).data('identifier');
+            paymentObject.setPaymentPreference({'method': actualPaymentType});
             $('.payment-preference-confirm').text(paymentType);
             $('.payment-preference-actual').text(actualPaymentType);
             $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
@@ -437,7 +371,6 @@
                 preferenceOwner = form.find('.iban.val').val(),
                 bic = form.find('.acoount-bic').val(),
                 method = form.find('.method').val();
-            console.log(method);
 
             if (preferenceElem.hasClass('account-iban')) {
                 if (!IBAN.isValid(preferenceIdentifier.val())) {

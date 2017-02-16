@@ -3,7 +3,6 @@
     var isVerified = false;
 
   var verifyRecatpchaCallback = function(response) {
-
           //console.log( 'g-recaptcha-response: ' + response );
       if($('.phone.val').val().length > 10) {
             $('.create-acc')

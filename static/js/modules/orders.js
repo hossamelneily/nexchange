@@ -50,8 +50,11 @@
 
         $.get(tickerLatestUrl, function(data) {
             // TODO: protect against NaN
-            updatePrice(parseFloat(data[0].ticker.ask), $('.rate-buy'));
-            updatePrice(parseFloat(data[0].ticker.bid), $('.rate-sell'));
+            var ticker = data[0].ticker,
+                bid = Number(ticker.bid).toFixed(2),
+                ask = Number(ticker.ask).toFixed(2);
+            updatePrice(bid, $('.rate-buy'));
+            updatePrice(ask, $('.rate-sell'));
             rate = parseFloat(data[0].ticker.ask);
             if (window.action == window.ACTION_SELL) {
                 rate = parseFloat(data[0].ticker.bid);
