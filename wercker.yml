@@ -456,7 +456,7 @@ deploy:
           # Start new instance
           docker-compose -f /nexchange/docker-compose.yml pull
           docker-compose -f /nexchange/docker-compose.yml up -d
-          docker-compose scale app=${APP_INSTANCES}
+          docker-compose -f /nexchange/docker-compose.yml scale app=${APP_INSTANCES}
         EOF
 tests:
   services:
