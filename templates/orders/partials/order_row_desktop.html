@@ -1,27 +1,39 @@
 {% load i18n %}
     <tr>
-        <td>{{ order.created_on |date:"D d M Y"}}</td>
+        <td>
+           {% if order.is_buy %}
+                <span class="btn btn-success btn-small">
+                    {% trans 'Buying' %}
+                </span>
+            {% else %}
+                <span class="btn btn-danger btn-small">
+                    {% trans 'Selling' %}
+                </span>
+            {% endif %}
+        </td>
+        <td>{{ order.created_on |date:"D d M"}}</td>
         <td>{{ order.unique_reference }}</td>
         <td>{{ order.pair.name }}</td>
-        <td>{{ order.amount_quote }}</td>
+        <td>{{ order.amount_quote | floatformat:2}}</td>
         <td>{{ order.amount_base }}</td>
         <td>
         {% include 'orders/partials/forms/payment_toggle.html' %}
         </td>
-        {% if order.status >= order.RELEASED %}
-        <td><img src="/static/icons/check_16.png"></td>
-        {% else %}
-        <td><img src="/static/icons/close_16.png"></td>
-        {% endif %}
-        {% if order.status == order.COMPLETED %}
-        <td><img src="/static/icons/check_16.png"></td>
-        {% else %}
-        <td><img src="/static/icons/close_16.png"></td>
-        {% endif %}
+        <td>
+            {% include 'orders/partials/released_indicator.html' %}
+        </td>
+        <td>
+            {% include 'orders/partials/completed_indciator.html' %}
+        </td>
 
         {%  if order.is_buy %}
         <td>
             {% include 'orders/partials/forms/withdraw_address_widget.html' %}
+        </td>
+        {% else %}
+        <td>
+            {{ order.payment_preference.payment_method.name }}:
+            {{ order.payment_preference.identifier }}
         </td>
         {% endif %}
     </tr>

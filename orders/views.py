@@ -146,9 +146,13 @@ def ajax_order(request):
 
         serialized_data = serialize_pref(req_data, user, method)
         pref, created = \
-            PaymentPreference.objects.get_or_create(**serialized_data)
+            PaymentPreference.objects.get_or_create(
+                user=serialized_data['user'],
+                payment_method=serialized_data['payment_method'],
+                identifier=serialized_data['identifier']
+            )
 
-        # update_pref(pref, serialized_data)
+        update_pref(pref, serialized_data)
         pref.currency.add(_currency)
         pref.save()
         return pref
@@ -163,7 +167,7 @@ def ajax_order(request):
     _currency_to = Currency.objects.get(name=currency_to)
 
     # Only for buy order right now
-    payment_method = request.POST.get('pp_type')
+    payment_method = request.POST.get('payment_preference[method]')
     amount_base = Decimal(amount_base)
     template = 'orders/partials/modals/order_success_{}.html'.\
         format('buy' if trade_type else 'sell')
@@ -216,6 +220,7 @@ def ajax_order(request):
         'okpay_wallet': settings.OKPAY_WALLET
 
     }
+
     if payment_method == 'Robokassa':
         url = geturl_robokassa(order.id,
                                str(round(Decimal(order.amount_from), 2)))
@@ -294,7 +299,7 @@ def payment_confirmation(request, pk):
     elif order.payment_status_frozen:
         return HttpResponseForbidden(
             _('This order can not be edited because is frozen'))
-    elif paid is True and not order.withdraw_address:
+    elif paid and not order.withdraw_address and order.is_buy:
         return HttpResponseForbidden(
             _('An order can not be set as paid without a withdraw address'))
     else:
@@ -303,9 +308,9 @@ def payment_confirmation(request, pk):
                 # FIXME: change to flag 'customer_marked_as_paid' or smth
                 order.status = Order.PAID
                 order.save()
-                send_email('oleg@onit.ws', '{} SET AS PAID',
-                           "User: {} Order: {}".format(order.user, order))
             order_paid = (order.status >= Order.PAID)
+            send_email('oleg@onit.ws', '{} SET AS PAID',
+                       "User: {} Order: {}".format(order.user, order))
             return JsonResponse({'status': 'ok',
                                  'frozen': order.payment_status_frozen,
                                  'paid': order_paid}, safe=False)
@@ -314,4 +319,6 @@ def payment_confirmation(request, pk):
             msg = e.messages[0]
             return JsonResponse({'status': 'ERR', 'msg': msg}, safe=False)
         except:
-            pass
+            return JsonResponse({'status': 'ok',
+                                 'frozen': order.payment_status_frozen,
+                                 'paid': order_paid}, safe=False)

@@ -177,7 +177,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'get_all_enabled_tickers': {
         'task': 'ticker.task_summary.get_all_tickers',
-        'schedule': timedelta(seconds=30),
+        'schedule': timedelta(seconds=60),
     },
 }
 
@@ -300,6 +300,7 @@ TWILIO_PHONE_FROM = '+447481341915'
 LOGIN_REDIRECT_URL = reverse_lazy('orders.add_order')
 
 GRAPH_HOUR_RANGES = [
+    {'val': 0.25, 'name': '15 minutes'},
     {'val': 1, 'name': '1 Hour'},
     {'val': 4, 'name': '4 Hours'},
     {'val': 6, 'name': '6 Hours'},

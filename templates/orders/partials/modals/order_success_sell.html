@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col col-xs-12">
                 {% trans 'Please send' %}
-                {{ order.amount_base}} {{ order.currency_to}}
+                {{ order.amount_base}} {{ order.pair.base }}
                 {% trans 'to the following address' %}
             </div>
         </div>

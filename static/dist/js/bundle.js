@@ -22,6 +22,7 @@
            // Required modules
            orderObject = require('./modules/orders.js'),
            paymentObject = require('./modules/payment.js'),
+           register = require('./modules/register.js'),
            captcha = require('./modules/captcha.js'),
            $currencyFrom,
            $currencyTo,
@@ -194,17 +195,6 @@
     });
 
     $(function() {
-        function lockoutResponse (data) {
-            toastr.error(window.getLockOutText(data));
-        }
-
-        function failureResponse (data, defaultMsg) {
-            var _defaultMsg = gettext(defaultMsg),
-                message = data.responseJSON.message || _defaultMsg;
-            toastr.error(message);
-
-        }
-
         // For order index
         $('[data-toggle="popover"]').popover({content: $("#popover-template").html()});
         $( "#id_date" ).datepicker({ dateFormat: 'yy-mm-dd' });
@@ -218,12 +208,8 @@
             confirm = amountCoin.val() ? amountCoin.val() : DEFAULT_AMOUNT;
         $('.btc-amount-confirm').text(confirm);
 
-        var apiRoot = '/en/api/v1',
-            createAccEndpoint =  '/en/accounts/authenticate/',
-            menuEndpoint = apiRoot + '/menu',
-            breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
-            validatePhoneEndpoint = '/en/accounts/verify_phone/',
-            placerAjaxOrder = '/en/orders/add_order/',
+
+           var placerAjaxOrder = '/en/orders/add_order/',
             paymentAjax = '/en/payments/ajax/',
             DEFAULT_AMOUNT = 1;
 
@@ -239,48 +225,14 @@
             if($(this).hasClass('disabled')) {
                 return;
             }
-            $('.phone.val').addClass('disabled');
-
-
+            // $('.phone.val').attr('disabled', 'disabled');
             var regPayload = {
                 // TODO: check collision with qiwi wallet
                 phone: $('.register .phone').val(),
-                g_recaptcha_response: grecaptcha.getResponse(),
+                g_recaptcha_response: grecaptcha.getResponse()
             };
-            $.ajax({
-                type: 'POST',
-                dataType: 'json',
-                url: createAccEndpoint,
-                data: regPayload,
-                statusCode: {
-                    200: function (data) {
-                        $('.register .step2').removeClass('hidden');
-                        $('.verify-acc').removeClass('hidden');
-                        $('.create-acc').addClass('hidden');
-                        $('.create-acc.resend').removeClass('hidden');
-                    },
-                    400: function (data) {
-                        return failureResponse(
-                            data,
-                            'Invalid phone number'
-                        );
-                    },
-                    403: lockoutResponse,
-                    410: function (data) {
-                        return failureResponse(
-                            data,
-                            'Your token has expired, please request a new one'
-                        );
-                    },
-                    428: function (data) {
-                        return failureResponse(
-                            data,
-                            'Invalid phone number'
-                        );
-                    },
+            register.seemlessRegistration(regPayload);
 
-                }
-            });
         });
 
         $('.verify-acc').on('click', function () {
@@ -288,26 +240,7 @@
                 token: $('#verification_code').val(),
                 phone: $('.register .phone').val()
             };
-            $.ajax({
-                type: 'POST',
-                dataType: 'json',
-                url: validatePhoneEndpoint,
-                data: verifyPayload,
-                statusCode: {
-                    201: function(data) {
-                        orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
-                        orderObject.changeState(null, 'next');
-                    },
-                    400: function (data) {
-                        failureResponse(
-                            data,
-                            'Incorrect code'
-                        );
-                    },
-                    403: lockoutResponse
-                }
-            });
-
+            register.verifyAccount(verifyPayload);
         });
 
 
@@ -387,6 +320,7 @@
             var paymentType = $(this).data('label'),
             actualPaymentType = $(this).data('type'),
             preferenceIdentifier = $(this).data('identifier');
+            paymentObject.setPaymentPreference({'method': actualPaymentType});
             $('.payment-preference-confirm').text(paymentType);
             $('.payment-preference-actual').text(actualPaymentType);
             $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
@@ -438,7 +372,6 @@
                 preferenceOwner = form.find('.iban.val').val(),
                 bic = form.find('.acoount-bic').val(),
                 method = form.find('.method').val();
-            console.log(method);
 
             if (preferenceElem.hasClass('account-iban')) {
                 if (!IBAN.isValid(preferenceIdentifier.val())) {
@@ -506,13 +439,12 @@
 
 
 
-},{"./modules/captcha.js":2,"./modules/orders.js":4,"./modules/payment.js":5}],2:[function(require,module,exports){
+},{"./modules/captcha.js":2,"./modules/orders.js":4,"./modules/payment.js":5,"./modules/register.js":6}],2:[function(require,module,exports){
 !(function(window ,$) {
   "use strict";
     var isVerified = false;
 
   var verifyRecatpchaCallback = function(response) {
-
           //console.log( 'g-recaptcha-response: ' + response );
       if($('.phone.val').val().length > 10) {
             $('.create-acc')
@@ -560,7 +492,7 @@ module.exports = {
             resPair.push([Date.parse(price.created_on), ask, bid]);
         }
         return {
-            pair: resPair,
+            pair: resPair
         };
     }
 
@@ -597,29 +529,37 @@ module.exports = {
                          load: function () {
                              // set up the updating of the chart each second
                              $('.highcharts-credits').remove();
-                             var series = this.series[0];
+                             var series = this.series[0],
+                                 interval = 10;
                              var intervalId = setInterval(function () {
                                  if (pair != $('.currency-pair option:selected').val()) {
                                     clearInterval(intervalId);
                                  } else {
                                      $.get(tickerLatestUrl, function (resdata) {
+                                         
                                          var lastdata = responseToChart(resdata).pair;
-                                         if (chartDataRaw.length && parseInt(resdata[0].unix_time) >
-                                             parseInt(chartDataRaw[chartDataRaw.length - 1].unix_time)
-                                         ) {
-                                             //Only update if a ticker 'tick' had occured
+                                          //Only update if a ticker 'tick'
+                                         // had occured
+                                         // removing this fixed weird gaps....
+                                         // if (chartDataRaw.length && parseInt(resdata[0].unix_time) >
+                                         //     parseInt(chartDataRaw[chartDataRaw.length - 1].unix_time)
+                                         // ) {
+                                             // check that buy price is
+                                             // higher than sell price
                                              var _lastadata = lastdata[0];
-                                             if (_lastadata[1] > _lastadata[2]) {
+                                             if (_lastadata[1] >= _lastadata[2]) {
                                                  var a = _lastadata[1];
                                                  _lastadata[1] = _lastadata[2];
                                                  _lastadata[2] = a;
                                              }
-                                             series.addPoint(_lastadata, true, true);
+                                             //fix gap issue
+                                             _lastadata[0] = series.points[series.points.length-1].x + interval;
+                                             series.addPoint(_lastadata, true, false, {duration: 500, easing: 'ease-in'});
                                              Array.prototype.push.apply(chartDataRaw, resdata);
-                                         }
+                                         // }
                                      });
                                  }
-                             }, 1000 * 10);
+                             }, interval * 1000);
                          }
                      }
                  },
@@ -657,7 +597,7 @@ module.exports = {
                      data: data,
                      color: '#8cc63f',
                      // TODO: fix this! make dynamic
-                     pointInterval: 3600 * 1000
+                     pointInterval: 1000
                  }]
              });
         });
@@ -724,8 +664,11 @@ module.exports = {
 
         $.get(tickerLatestUrl, function(data) {
             // TODO: protect against NaN
-            updatePrice(parseFloat(data[0].ticker.ask), $('.rate-buy'));
-            updatePrice(parseFloat(data[0].ticker.bid), $('.rate-sell'));
+            var ticker = data[0].ticker,
+                bid = Number(ticker.bid).toFixed(2),
+                ask = Number(ticker.ask).toFixed(2);
+            updatePrice(bid, $('.rate-buy'));
+            updatePrice(ask, $('.rate-sell'));
             rate = parseFloat(data[0].ticker.ask);
             if (window.action == window.ACTION_SELL) {
                 rate = parseFloat(data[0].ticker.bid);
@@ -1066,6 +1009,24 @@ module.exports = {
 },{}],6:[function(require,module,exports){
 !(function(window, $) {
     "use strict";
+    var orderObject = require('./orders.js'),
+        apiRoot = '/en/api/v1',
+        createAccEndpoint =  '/en/accounts/authenticate/',
+        menuEndpoint = apiRoot + '/menu',
+        breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
+        validatePhoneEndpoint = '/en/accounts/verify_phone/';
+
+
+    function lockoutResponse (data) {
+        toastr.error(window.getLockOutText(data));
+    }
+
+    function failureResponse (data, defaultMsg) {
+        var _defaultMsg = gettext(defaultMsg),
+            message = data.responseJSON.message || _defaultMsg;
+        toastr.error(message);
+
+    }
 
     function canProceedtoRegister(objectName) {
         var payMeth = $('#payment_method_id').val(),
@@ -1080,8 +1041,70 @@ module.exports = {
         return false;
     }
 
+    function seemlessRegistration (payload) {
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: createAccEndpoint,
+            data: payload,
+            statusCode: {
+                200: function (data) {
+                    $('.register .step2').removeClass('hidden');
+                    $('.verify-acc').removeClass('hidden');
+                    $('.create-acc').addClass('hidden');
+                    $('.create-acc.resend').removeClass('hidden');
+                },
+                400: function (data) {
+                    return failureResponse(
+                        data,
+                        'Invalid phone number'
+                    );
+                },
+                403: lockoutResponse,
+                428: function (data) {
+                    return failureResponse(
+                        data,
+                        'Invalid phone number'
+                    );
+                }
+            }
+        });
+    }
+
+    function verifyAccount (payload) {
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: validatePhoneEndpoint,
+            data: payload,
+            statusCode: {
+                201: function(data) {
+                    orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
+                    orderObject.changeState(null, 'next');
+                },
+                400: function (data) {
+                    failureResponse(
+                        data,
+                        'Incorrect code'
+                    );
+                },
+                410: function (data) {
+                    // deocreatedAuth();
+                    return failureResponse(
+                        data,
+                        'Your token has expired, please request a new token'
+                    );
+                },
+                403: lockoutResponse
+            }
+        });
+
+    }
+
     module.exports = {
-        canProceedtoRegister: canProceedtoRegister
+        canProceedtoRegister: canProceedtoRegister,
+        seemlessRegistration: seemlessRegistration,
+        verifyAccount: verifyAccount
     };
 }(window, window.jQuery)); //jshint ignore:line
-},{}]},{},[1]);
+},{"./orders.js":4}]},{},[1]);

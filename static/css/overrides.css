@@ -158,11 +158,16 @@
     color: #8dc73f;
 }
 
+
 .mobile-table > th{
     font-style: normal;
 }
 
-.header-text{
+.headers-mobile.header-text{
+    display: inline-block;
+    min-width: 40%;
+}
+.header-text {
     display: inline;
 }
 
@@ -566,11 +571,11 @@ body .price_box_ticker .trigger-sell, body .price_box_next_cont .sell-go{
   height: 100%;
   margin: 0 auto;
  }
- 
+
 .content {
   display: table-row;
   height: 100%;
-  
+
 }
 
 .footer_logo{width:100%; max-width:250px;}
@@ -735,7 +740,7 @@ div.payment-label {
     .price_box_ticker a.trigger {
         font-size: 26px;
         max-width: 125px;
-        
+
     }
 
        .price_box_ticker span.rate {
@@ -1092,6 +1097,7 @@ body #nprogress .spinner-icon {
 .cms_header, .page-header{
     font-size: 32px;
     border:0;
+    display: inline-block;
 }
 
 .cms_header{
@@ -1267,4 +1273,27 @@ label, input {
 
 .btn.btn-success.expand {
     padding: 20px;
+}
+
+.mobile-row {
+    margin: 20px 0;
+}
+
+.completed-indicator, .released-indicator {
+    color: #8cc63f;
+    font-size: 16px;
+}
+
+.completed-indicator span.red, .released-indicator span.red{
+ color: #ff8787;
+}
+
+.mobile-trade-indicator {
+margin-right: 15px;
+}
+
+
+.mobile-date {
+    font-size: 10px;
+    margin-top: 10px;
 }

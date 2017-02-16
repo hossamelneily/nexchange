@@ -1,9 +1,11 @@
-from nexchange.settings import *
+from nexchange.settings_prod import *
 
 DEBUG = True
 
+
 # Local and staging
 INTERNAL_IPS = ('127.0.0.1', '192.168.99.100')
+ALLOWED_HOSTS += ('localhost',)
 MIDDLEWARE_CLASSES += [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
@@ -39,7 +41,7 @@ DEBUG_TOOLBAR_CONFIG = {
 # Lockout only for 1 mins on dev
 AXES_LOGIN_FAILURE_LIMIT = 3
 AXES_COOLOFF_TIME = timedelta(minutes=5)
-CELERY_ALWAYS_EAGER = True
+CELERY_ALWAYS_EAGER = False
 
 # SECRET KEY TEST
 SECRET_KEY = 'zsl4+4%(%=0@f*tkf0f2u%dt&v&h_-g5mw*o25i$480=3qcb2k'

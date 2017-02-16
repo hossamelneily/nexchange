@@ -14,7 +14,7 @@
             resPair.push([Date.parse(price.created_on), ask, bid]);
         }
         return {
-            pair: resPair,
+            pair: resPair
         };
     }
 
@@ -51,29 +51,37 @@
                          load: function () {
                              // set up the updating of the chart each second
                              $('.highcharts-credits').remove();
-                             var series = this.series[0];
+                             var series = this.series[0],
+                                 interval = 10;
                              var intervalId = setInterval(function () {
                                  if (pair != $('.currency-pair option:selected').val()) {
                                     clearInterval(intervalId);
                                  } else {
                                      $.get(tickerLatestUrl, function (resdata) {
+                                         
                                          var lastdata = responseToChart(resdata).pair;
-                                         if (chartDataRaw.length && parseInt(resdata[0].unix_time) >
-                                             parseInt(chartDataRaw[chartDataRaw.length - 1].unix_time)
-                                         ) {
-                                             //Only update if a ticker 'tick' had occured
+                                          //Only update if a ticker 'tick'
+                                         // had occured
+                                         // removing this fixed weird gaps....
+                                         // if (chartDataRaw.length && parseInt(resdata[0].unix_time) >
+                                         //     parseInt(chartDataRaw[chartDataRaw.length - 1].unix_time)
+                                         // ) {
+                                             // check that buy price is
+                                             // higher than sell price
                                              var _lastadata = lastdata[0];
-                                             if (_lastadata[1] > _lastadata[2]) {
+                                             if (_lastadata[1] >= _lastadata[2]) {
                                                  var a = _lastadata[1];
                                                  _lastadata[1] = _lastadata[2];
                                                  _lastadata[2] = a;
                                              }
-                                             series.addPoint(_lastadata, true, true);
+                                             //fix gap issue
+                                             _lastadata[0] = series.points[series.points.length-1].x + interval;
+                                             series.addPoint(_lastadata, true, false, {duration: 500, easing: 'ease-in'});
                                              Array.prototype.push.apply(chartDataRaw, resdata);
-                                         }
+                                         // }
                                      });
                                  }
-                             }, 1000 * 10);
+                             }, interval * 1000);
                          }
                      }
                  },
@@ -111,7 +119,7 @@
                      data: data,
                      color: '#8cc63f',
                      // TODO: fix this! make dynamic
-                     pointInterval: 3600 * 1000
+                     pointInterval: 1000
                  }]
              });
         });
