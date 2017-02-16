@@ -314,23 +314,18 @@
             //TODO verify if $(this).hasClass('sell-go') add
             // the other type of transaction
             // add security checks
-            var actualPaymentType = $('.payment-preference-actual').text(),
-                preferenceIdentifier = $('.payment-preference-identifier-confirm').text(),
-                preferenceOwner = $('.payment-preference-owner-confirm').text(),
-                verifyPayload = {
+                var verifyPayload = {
                     'trade-type': $('.trade-type').val(),
                     'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
                     'amount-base': $('.amount-coin').val() || DEFAULT_AMOUNT,
                     'currency_from': $('.currency-from').val(), //fiat
                     'currency_to': $('.currency-to').val(), //crypto
-                    'pp_type': actualPaymentType,
-                    'pp_identifier': preferenceIdentifier,
-                    'pp_owner': preferenceOwner,
+                    'payment_preference': paymentObject.getPaymentPreference(),
                     '_locale': $('.topright_selectbox').val()
                 };
 
             $.ajax({
-                type: 'post',
+                type: 'POST',
                 url: placerAjaxOrder,
                 dataType: 'text',
                 data: verifyPayload,
@@ -437,9 +432,31 @@
             }
 
             var form = $(this).closest('.modal-body'),
-                preferenceIdentifier = form.find('.val').val(),
-                preferenceOwner = form.find('.name').val();
+                preferenceElem = form.find('.account-number.val'),
+                preferenceIdentifier = preferenceElem.val(),
+                preferenceOwner = form.find('.iban.val').val(),
+                bic = form.find('.acoount-bic').val(),
+                method = form.find('.method').val();
+            console.log(method);
 
+            if (preferenceElem.hasClass('account-iban')) {
+                if (!IBAN.isValid(preferenceIdentifier.val())) {
+                    toastr.error('Invalid IBAN');
+                    return false;
+                }
+            }
+
+            if (window.action == window.ACTION_SELL){
+                $('.buy-go').addClass('hidden');
+                $('.sell-go').removeClass('hidden');
+            }
+
+            paymentObject.setPaymentPreference({
+                'owner': preferenceOwner,
+                'iban': preferenceIdentifier,
+                'bic': bic,
+                'method': method
+            });
             $('.payment-preference-owner').val(preferenceOwner);
             $('.payment-preference-identifier').val(preferenceIdentifier);
             $('.payment-preference-identifier-confirm').text(preferenceIdentifier);

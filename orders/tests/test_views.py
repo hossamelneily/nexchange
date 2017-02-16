@@ -2,7 +2,7 @@ import json
 from datetime import timedelta
 from decimal import Decimal
 from http.cookies import SimpleCookie
-from unittest import skip
+from unittest import skip, mock
 
 import pytz
 from django.conf import settings
@@ -266,10 +266,11 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
         self.addr.save()
 
         # The 'other' address for the Transaction
-        user, created = User.objects.get_or_create(
-            username='onit',
-            email='weare@onit.ws',
-        )
+        with mock.patch('core.signals.allocate_wallets.allocate_wallets'):
+            user, created = User.objects.get_or_create(
+                username='onit',
+                email='weare@onit.ws',
+            )
         addr2 = Address(**self.addr_data)
         addr2.user = user
         addr2.save()
@@ -277,7 +278,9 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
     def test_forbiden_to_update_other_users_orders(self):
         username = '+555190909100'
         password = '321Changed'
-        User.objects.create_user(username=username, password=password)
+
+        with mock.patch('core.signals.allocate_wallets.allocate_wallets'):
+            User.objects.create_user(username=username, password=password)
 
         client = self.client
         client.login(username=username, password=password)

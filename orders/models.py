@@ -51,7 +51,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         (COMPLETED, 'COMPLETED'),
     )
     IN_PAID = [PAID, RELEASED, COMPLETED]
-    IN_REALEASED = [RELEASED, COMPLETED]
+    IN_RELEASED = [RELEASED, COMPLETED]
     _could_be_paid_msg = 'Could be paid by crypto transaction or fiat ' \
                          'payment, depending on order_type.'
     _order_status_help = (4 * '{} - {}<br/>' + '{} - {}.').format(
@@ -174,7 +174,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         # TODO: Refactor, it is unreasonable to have different standards of
         # time in the DB
         return (timezone.now() > self.payment_deadline) and (
-            self.status not in self.IN_PAID)
+            self.status not in Order.IN_PAID)
 
     @property
     def payment_status_frozen(self):
@@ -183,7 +183,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         """
         # TODO: validate this business rule
         return self.expired or \
-            ((self.status in self.IN_PAID) and
+            ((self.status in Order.IN_PAID) and
              self.payment_set.last() and
              self.payment_set.last().
              payment_preference.
@@ -193,7 +193,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     def withdrawal_address_frozen(self):
         """return bool whether the withdraw address can
            be changed"""
-        return self.status in self.IN_REALEASED
+        return self.status in Order.IN_RELEASED
 
     def __str__(self):
         return "{} {} pair:{} base:{} quote:{}".format(

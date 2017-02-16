@@ -13,16 +13,19 @@ from payments.models import PaymentMethod, PaymentPreference
 from ticker.models import Price, Ticker
 from copy import deepcopy
 import mock
+from unittest.mock import patch
 
 
 class UserBaseTestCase(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        User.objects.get_or_create(
-            username='onit',
-            email='weare@onit.ws',
-        )
+        with patch('core.signals.allocate_wallets.allocate_wallets'):
+            User.objects.get_or_create(
+                username='onit',
+                email='weare@onit.ws',
+            )
+
         super(UserBaseTestCase, cls).setUpClass()
 
     @classmethod
@@ -44,10 +47,11 @@ class UserBaseTestCase(TestCase):
             }
 
         activate('en')
-
-        self.user, created = User.objects.get_or_create(username=self.username)
-        self.user.set_password(self.password)
-        self.user.save()
+        with patch('core.signals.allocate_wallets.allocate_wallets'):
+            self.user, created = \
+                User.objects.get_or_create(username=self.username)
+            self.user.set_password(self.password)
+            self.user.save()
         assert isinstance(self.user, User)
         token = SmsToken(user=self.user)
         token.save()
@@ -185,13 +189,14 @@ class WalletBaseTestCase(OrderBaseTestCase):
 
     @classmethod
     def setUpClass(cls):
-        u, created = User.objects.get_or_create(
-            username='onit',
-            email='weare@onit.ws'
-        )
-        # ensure staff status, required for tests
-        u.is_staff = True
-        u.save()
+        with patch('core.signals.allocate_wallets.allocate_wallets'):
+            u, created = User.objects.get_or_create(
+                username='onit',
+                email='weare@onit.ws'
+            )
+            # ensure staff status, required for tests
+            u.is_staff = True
+            u.save()
         super(WalletBaseTestCase, cls).setUpClass()
 
     def setUp(self):
