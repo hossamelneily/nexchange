@@ -20,6 +20,7 @@
            paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
            cardsEndpoint = '/en/payments/options/',
            // Required modules
+           
            orderObject = require('./modules/orders.js'),
            paymentObject = require('./modules/payment.js'),
            register = require('./modules/register.js'),
