@@ -465,15 +465,29 @@ a:focus
 	vertical-align:middle;
 }
 
+.select2-container--open .select2-dropdown--below {
+    margin-top: 20px;
+    border: 3px solid #8CC63F;
+    padding: 5px;
+}
+
 .classic {
     background: url(../images/select-arrow.png) no-repeat calc(100% - 10px) calc(1em - 1px), 100% 0;
+}
+
+span.select2-selection.classic {
+    background: none;
 }
 
 .topright_panel_submit{width:40px; padding:7px; border-radius:120px; background-color:#8cc63f; color:#FFF; border:none; cursor:pointer; text-align:center; font-size:16px; display:inline-block; vertical-align:middle;}
 
 .menu_panel{border-bottom:2px solid #000;}
 
-
+#select2-graph-range-container,
+.select2-selection .select2-selection__rendered {
+ line-height: 13px !important;
+ padding-bottom: 18px;
+}
 .step_panel_cont{text-align:center;}
 
 .step_panel{width:100%; max-width:644px; display:inline-block; background-image:url(../images/step_bg.png); background-size:100% auto; background-repeat:no-repeat; background-position:center 10%; margin:50px 0; }
@@ -500,12 +514,15 @@ a:focus
 
 .chart_panel_large_image{position:relative; z-index:1; margin:-25px 0 0 0; width:100%;}
 
-.chart_panel_selectbox_panel{
-    display:inline-block; text-align:center; width:100%;
-}
-
-.chart_panel_selectbox{
-    position:relative; z-index:2;  width: 200px;
+span.select2-selection.chart_panel_selectbox,
+.chart_panel_selectbox,
+.currency-select{
+    position:relative;
+    line-height: 13px;
+    z-index:2;
+    outline: 0 !important;
+    height: 35px;
+    width: 200px;
     background-color: #FFF;
     border: 2px solid #8cc63f;
     padding: 10px 15px;
@@ -545,8 +562,18 @@ body .price_box_ticker .trigger-sell, body .price_box_next_cont .sell-go{
 
 .price_box_selectbox_cont_textbox{float:left; margin: 0px; text-align: center; width:65%; background-color:transparent; border:solid #8cc63f; font-size:18px; padding:8px 10px;border-width:0 2px 0 0; }
 
-.price_box_selectbox_cont_selectbox{float:left; width:33%; margin:0px 0 0 0; font-size:18px;  -webkit-appearance: none;
-    -moz-appearance: none; border:none; padding:8px 10px; font-family: 'Montserrat-Regular', 'Gotham';}
+.price_box_selectbox_cont_selectbox{
+    float:left;
+    width:33%;
+    margin:0px 0 0 0;
+    font-size:18px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    line-height: 26px;
+    border:none;
+    padding:8px 10px;
+    font-family: 'Montserrat-Regular', 'Gotham';
+    }
 
 
 .price_box_next_cont{text-align:center;}
@@ -671,6 +698,12 @@ div.payment-label {
     margin-top: 5px;
 }
 
+.chart_panel_selectbox,
+.currency-select{
+    width: 120px;
+    border-radius: 5px;
+}
+
 .price_box_next_cont { margin: 30px 0; }
 
 }
@@ -723,8 +756,12 @@ div.payment-label {
         padding-top: 20px;
         width: 90%;
     }
-    .chart_panel_selectbox {
-        width: 120px;
+    span.select2-selection.chart_panel_selectbox {
+        width: 180px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered{
+        font-size: 10px;
     }
 
     .price_box_selectbox_cont_textbox{
@@ -1292,8 +1329,33 @@ label, input {
 margin-right: 15px;
 }
 
-
 .mobile-date {
     font-size: 10px;
-    margin-top: 10px;
+    margin-top: 10px
+}
+
+ html body .chart_panel_selectbox_panel span.select2-selection__arrow b[role="presentation"] {
+    border-color: #fff transparent transparent !important;
+    border-width: 8px 6px 0 6px;
+    margin-left: -6px;
+}
+
+li.select2-results__option.select2-results__option--highlighted {
+   background-color: #8cc63f !important;
+}
+
+.select2-results__option {
+    min-width: 80px !important;
+    text-align: center;
+    border-radius: 5px;
+    margin: 5px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    position: absolute;
+    top: 0 !important;
+    right: 0 !important;
+    width: 30px !important;
+    height: 100% !important;
+    background: #8cc63f;
 }

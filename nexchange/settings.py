@@ -56,6 +56,8 @@ LANGUAGES = [
 CELERY_RESULT_SERIALIZER = 'pickle'
 
 # CUSTOM SETTINGS
+TICKER_INTERVAL = 30
+TICKER_CACHE_BACKEND = 'memory'
 PAYMENT_WINDOW_SAFETY_INTERVAL = timedelta(seconds=60)
 PAYMENT_DEFAULT_SEEK_INTERVAL = timedelta(hours=12)
 SMS_TOKEN_VALIDITY = timedelta(minutes=3)
@@ -177,7 +179,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'get_all_enabled_tickers': {
         'task': 'ticker.task_summary.get_all_tickers',
-        'schedule': timedelta(seconds=60),
+        'schedule': timedelta(seconds=TICKER_INTERVAL),
     },
 }
 
@@ -300,7 +302,7 @@ TWILIO_PHONE_FROM = '+447481341915'
 LOGIN_REDIRECT_URL = reverse_lazy('orders.add_order')
 
 GRAPH_HOUR_RANGES = [
-    {'val': 0.25, 'name': '15 minutes'},
+    {'val': 0.05, 'name': 'Live'},
     {'val': 1, 'name': '1 Hour'},
     {'val': 4, 'name': '4 Hours'},
     {'val': 6, 'name': '6 Hours'},

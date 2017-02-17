@@ -1,20 +1,22 @@
 {% extends 'orders/partials/steps/step_base.html' %}
 {% load i18n %}
 {% block step_content %}
-    <div class="chart_panel_selectbox_panel">
-        <div class="input-group-btn">
+    <div class="chart_panel_selectbox_panel" style="width: 100%;">
+        <div class="input-group-btn" style="width: 49%; text-align: center;
+        margin: auto; display: inline-block">
             <select name="currency_pair"
                     class="currency-select currency-pair classic select2">
                 {% for pair in pairs %}
-                    <option value="{{ pair.name}}"
+                    <option value="{{ pair.name}}" class="currency-select currency-pair chart_panel_selectbox classic"
                             data-fiat="{{ pair.quote.code }}"
                             data-crypto={{ pair.base.code }}>{{ pair.base.code }}/{{pair.quote.code }}</option>
                 {% endfor %}
             </select>
         </div>
-        <div class="input-group-btn">
+        <div style="width: 49%; text-align: center; margin: auto; display:
+        inline-block">
             <select name="graph-range" id="graph-range"
-                    class="select2 classic">
+                    class="select2 chart_panel_selectbox classic">
                 {% for range in graph_ranges %}
                     <option value="{{  range.val }}"> {{ range.name }} </option>
                 {% endfor %}

@@ -4,13 +4,15 @@ import requests_cache
 
 from ticker.models import Price
 from ticker.tasks.generic.base import BaseTicker
+from django.conf import settings
 
 
-requests_cache.install_cache('btc_crypto_cache', expire_after=30)
+requests_cache.install_cache('btc_crypto_cache',
+                             expire_after=settings.TICKER_INTERVAL,
+                             backend=settings.TICKER_CACHE_BACKEND)
 
 
 class BtcFiatTicker(BaseTicker):
-
     def get_ticker_crypto_fiat(self):
         price = self.handle()
         prices = self.convert_fiat(price)

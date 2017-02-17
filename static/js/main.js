@@ -35,6 +35,14 @@
         window.action = window.ACTION_BUY; // 1 - BUY 0 - SELL
 
     $(function () {
+        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+            $('.select2').removeClass('select2')
+        } else {
+            $(".select2").select2({'containerCssClass': 'currency-select ' +
+            'currency-pair chart_panel_selectbox classic'});
+        }
+
+
         if (currencyElem && currencyElem.val()){
                 currency = currencyElem.val().toLowerCase();
         }
