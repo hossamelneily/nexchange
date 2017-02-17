@@ -59,15 +59,10 @@
                                  } else {
                                      $.get(tickerLatestUrl, function (resdata) {
                                          
-                                         var lastdata = responseToChart(resdata).pair;
-                                          //Only update if a ticker 'tick'
-                                         // had occured
-                                         // removing this fixed weird gaps....
-                                         // if (chartDataRaw.length && parseInt(resdata[0].unix_time) >
-                                         //     parseInt(chartDataRaw[chartDataRaw.length - 1].unix_time)
-                                         // ) {
-                                             // check that buy price is
-                                             // higher than sell price
+                                         var lastdata = responseToChart(resdata).pair,
+                                             points = points || series.points;
+                                         if (hours < 1) {
+                                             // live mode
                                              var _lastadata = lastdata[0];
                                              if (_lastadata[1] >= _lastadata[2]) {
                                                  var a = _lastadata[1];
@@ -75,10 +70,10 @@
                                                  _lastadata[2] = a;
                                              }
                                              //fix gap issue
-                                             _lastadata[0] = series.points[series.points.length-1].x + interval;
+                                             _lastadata[0] = points[points.length-1].x + 10;
                                              series.addPoint(_lastadata, true, false, {duration: 500, easing: 'ease-in'});
                                              Array.prototype.push.apply(chartDataRaw, resdata);
-                                         // }
+                                         }
                                      });
                                  }
                              }, interval * 1000);

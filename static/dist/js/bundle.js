@@ -36,6 +36,14 @@
         window.action = window.ACTION_BUY; // 1 - BUY 0 - SELL
 
     $(function () {
+        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+            $('.select2').removeClass('select2')
+        } else {
+            $(".select2").select2({'containerCssClass': 'currency-select ' +
+            'currency-pair chart_panel_selectbox classic'});
+        }
+
+
         if (currencyElem && currencyElem.val()){
                 currency = currencyElem.val().toLowerCase();
         }
@@ -537,15 +545,10 @@ module.exports = {
                                  } else {
                                      $.get(tickerLatestUrl, function (resdata) {
                                          
-                                         var lastdata = responseToChart(resdata).pair;
-                                          //Only update if a ticker 'tick'
-                                         // had occured
-                                         // removing this fixed weird gaps....
-                                         // if (chartDataRaw.length && parseInt(resdata[0].unix_time) >
-                                         //     parseInt(chartDataRaw[chartDataRaw.length - 1].unix_time)
-                                         // ) {
-                                             // check that buy price is
-                                             // higher than sell price
+                                         var lastdata = responseToChart(resdata).pair,
+                                             points = points || series.points;
+                                         if (hours < 1) {
+                                             // live mode
                                              var _lastadata = lastdata[0];
                                              if (_lastadata[1] >= _lastadata[2]) {
                                                  var a = _lastadata[1];
@@ -553,10 +556,10 @@ module.exports = {
                                                  _lastadata[2] = a;
                                              }
                                              //fix gap issue
-                                             _lastadata[0] = series.points[series.points.length-1].x + interval;
+                                             _lastadata[0] = points[points.length-1].x + 10;
                                              series.addPoint(_lastadata, true, false, {duration: 500, easing: 'ease-in'});
                                              Array.prototype.push.apply(chartDataRaw, resdata);
-                                         // }
+                                         }
                                      });
                                  }
                              }, interval * 1000);
@@ -667,8 +670,8 @@ module.exports = {
             var ticker = data[0].ticker,
                 bid = Number(ticker.bid).toFixed(2),
                 ask = Number(ticker.ask).toFixed(2);
-            updatePrice(bid, $('.rate-buy'));
-            updatePrice(ask, $('.rate-sell'));
+            updatePrice(ask, $('.rate-buy'));
+            updatePrice(bid, $('.rate-sell'));
             rate = parseFloat(data[0].ticker.ask);
             if (window.action == window.ACTION_SELL) {
                 rate = parseFloat(data[0].ticker.bid);

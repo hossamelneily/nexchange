@@ -12,7 +12,7 @@ from nexchange.utils import get_nexchange_logger
 def get_ticker_btc_fiat(**kwargs):
     pair = kwargs.get('pair_pk', None)
     logger = get_nexchange_logger(__name__, True, True)
-    if pair is not None:
+    if pair:
         instance = BtcFiatTicker(pair)
         return instance.run()
     else:
@@ -23,7 +23,7 @@ def get_ticker_btc_fiat(**kwargs):
 def get_ticker_btc_crypto(**kwargs):
     logger = get_nexchange_logger(__name__, True, True)
     pair_pk = kwargs.get('pair_pk', None)
-    if pair_pk is not None:
+    if pair_pk:
         instance = BtcCryptoTicker(pair_pk)
         return instance.run()
     else:

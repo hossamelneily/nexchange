@@ -5,8 +5,11 @@ import requests_cache
 from core.models import Pair
 from ticker.models import Ticker
 from nexchange.tasks.base import BaseTask
+from django.conf import settings
 
-requests_cache.install_cache('ticker_cache', expire_after=30)
+requests_cache.install_cache('ticker_cache',
+                             expire_after=settings.TICKER_INTERVAL,
+                             backend=settings.TICKER_CACHE_BACKEND)
 
 
 class BaseTicker(BaseTask):
