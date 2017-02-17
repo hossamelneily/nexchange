@@ -92,6 +92,7 @@ class OrderValidatePaymentTestCase(OrderBaseTestCase):
 
         order = Order(**self.data)
         order.payment_window = 60  # expires after 1h
+        order.save()
         order.status = Order.PAID
         order.save()
 
@@ -125,6 +126,7 @@ class OrderValidatePaymentTestCase(OrderBaseTestCase):
 
     def test_not_frozen_if_paid(self):
         order = Order(**self.data)
+        order.save()
         order.status = Order.PAID
         order.save()
 
@@ -140,6 +142,7 @@ class OrderValidatePaymentTestCase(OrderBaseTestCase):
 
     def test_is_frozen_if_paid_internally(self):
         order = Order(**self.data)
+        order.save()
         order.status = Order.PAID
         order.save()
         payment_method = PaymentMethod(

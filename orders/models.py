@@ -86,6 +86,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     from_default_rule = models.BooleanField(default=False)
     pair = models.ForeignKey(Pair)
     price = models.ForeignKey(Price, null=True, blank=True)
+    user_marked_as_paid = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-created_on']
@@ -128,7 +129,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
                     lambda x: Order.objects.filter(unique_reference=x).count(),
                     settings.UNIQUE_REFERENCE_LENGTH
                 )
-        self.convert_coin_to_cash()
+        if self.status not in self.IN_PAID:
+            self.convert_coin_to_cash()
 
         super(Order, self).save(*args, **kwargs)
 
