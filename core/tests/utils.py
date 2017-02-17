@@ -37,14 +37,39 @@ def passive_authentication_helper(client,
     return response
 
 
-def get_ok_pay_mock():
+def get_ok_pay_mock(data='transaction_history'):
     mock_path = os.path.join(
         settings.BASE_DIR,
         'nexchange/tests/fixtures/'
-        'okpay/transaction_history.xml'
+        'okpay/{}.xml'.format(data)
     )
     with open(mock_path) as f:
         return str.encode(f.read().replace('\n', ''))
+
+
+def get_payeer_pay_mock(data):
+    mock_path = os.path.join(
+        settings.BASE_DIR,
+        'nexchange/tests/fixtures/'
+        'payeer/{}.json'.format(data)
+    )
+    with open(mock_path) as f:
+        return f.read().replace('\n', '')
+
+
+def split_ok_pay_mock(mock, element):
+    '''
+
+    Args:
+        mock: result from get_ok_pay_mock
+        element: element name from xml i.e.: Comment, Currency
+
+    Returns: element value
+
+    '''
+    m = mock.decode('utf-8')
+    res = m.split(element)[1].split('>')[1].split('<')[0]
+    return res
 
 
 class DisableSignals:

@@ -150,13 +150,6 @@ class Order(TimeStampedModel, SoftDeletableModel,
             amount_quote = self.amount_base * price.ticker.bid
         self.amount_quote = money_format(amount_quote)
 
-    def send_money(self):
-        # 1. check preference
-        # 2. send money by preference
-        # 3. return True (if no preference or no automatic sending return
-        # False)
-        return False
-
     @property
     def is_buy(self):
         return self.order_type

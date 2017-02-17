@@ -1,8 +1,11 @@
 from unittest import TestCase
-from nexchange.utils import PayeerAPIClient, check_address_blockchain
+from unittest.mock import patch
+from decimal import Decimal
+from nexchange.utils import PayeerAPIClient, OkPayAPI, check_address_blockchain
 import requests_mock
 from core.models import Address
 from core.tests.base import OrderBaseTestCase
+from core.tests.utils import get_ok_pay_mock, get_payeer_pay_mock
 from django.conf import settings
 import os
 
@@ -15,11 +18,7 @@ class PayeerAPIClientTestCase(TestCase):
 
     @requests_mock.mock()
     def test_history_of_transactions(self, m):
-        cont_path = os.path.join(settings.BASE_DIR,
-                                 'nexchange/tests/fixtures/payeer/'
-                                 'transaction_history.json')
-        with open(cont_path) as f:
-            m.post(self.url, text=f.read().replace('\n', ''))
+        m.post(self.url, text=get_payeer_pay_mock('transaction_history'))
         res = self.client.get_transaction_history()
         key = next(iter(res))
         self.assertIn('id', res[key])
@@ -32,6 +31,57 @@ class PayeerAPIClientTestCase(TestCase):
         self.assertIn('shopOrderId', res[key])
         self.assertIn('shopId', res[key])
         self.assertIn('comment', res[key])
+
+    @requests_mock.mock()
+    def test_transfer_funds(self, m):
+        m.post(self.url, text=get_payeer_pay_mock('transfer_funds'))
+        res = self.client.transfer_funds(
+            currency_in='EUR', currency_out='EUR', amount=Decimal('0.02'),
+            receiver='WEARE@ONIT.WS'
+        )
+        self.assertFalse(res['errors'])
+
+    @requests_mock.mock()
+    def test_transfer_funds_balance_error(self, m):
+        m.post(self.url, text=get_payeer_pay_mock(
+            'transfer_funds_balance_error'
+        ))
+        res = self.client.transfer_funds(
+            currency_in='EUR', currency_out='EUR', amount=Decimal('0.02'),
+            receiver='WEARE@ONIT.WS'
+        )
+        self.assertEqual(res['errors'][0], 'balanceError')
+
+
+class OkPayAPIClientTestCase(TestCase):
+
+    def setUp(self):
+        self.client = OkPayAPI(
+            api_password='password', wallet_id='OK*********'
+        )
+
+    def _ok_personal_keys(self, sender_receiver):
+        expected_keys = [
+            'AccountID', 'Country_ISO', 'Email', 'Name', 'VerificationStatus',
+            'WalletID'
+        ]
+        for key in expected_keys:
+            self.assertIn(key, sender_receiver)
+
+    @patch('nexchange.utils.OkPayAPI._send_money')
+    def test_send_money_keys(self, send_money):
+        send_money.return_value = get_ok_pay_mock(
+            data='transaction_send_money'
+        )
+        resp = self.client.send_money()
+        expected_keys = [
+            'Receiver', 'Sender', 'Amount', 'Comment', 'Currency', 'Date',
+            'Fees', 'ID', 'Invoice', 'Net'
+        ]
+        for key in expected_keys:
+            self.assertIn(key, resp)
+        self._ok_personal_keys(resp['Sender'])
+        self._ok_personal_keys(resp['Receiver'])
 
 
 class BlockchainTestCase(OrderBaseTestCase):

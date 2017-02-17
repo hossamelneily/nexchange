@@ -3,6 +3,7 @@ from unittest import skip
 from unittest.mock import patch
 from django.core.urlresolvers import reverse
 from django.test import Client
+from django.conf import settings
 
 from core.models import Address, Transaction
 from core.tests.base import OrderBaseTestCase, UserBaseTestCase
@@ -21,13 +22,13 @@ class PayeerTestCase(OrderBaseTestCase):
             '2609',
             '21.12.2012 21:12',
             '21.12.2012 21:12',
-            '287402376',
+            settings.PAYEER_WALLET,
             order_id,
             '100.00',
             'EUR',
             get_payeer_desc('BUY 0.1BTC'),
             status,
-            '12345'
+            settings.PAYEER_IPN_KEY
         ]
         self.input_params = {
             'm_operation_id': input_list[0],

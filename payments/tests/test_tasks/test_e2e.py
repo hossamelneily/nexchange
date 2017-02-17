@@ -11,13 +11,17 @@ from core.tests.utils import get_ok_pay_mock
 
 
 class WalletAPITestCase(WalletBaseTestCase):
+    @patch('payments.tasks.generic.base.BasePaymentChecker'
+           '.validate_beneficiary')
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
     def test_confirm_order_payment_with_okpay_celery(self,
                                                      history,
-                                                     convert_to_cash):
+                                                     convert_to_cash,
+                                                     validate):
         history.return_value = get_ok_pay_mock()
         convert_to_cash.return_value = None
+        validate.return_value = True
         order = Order(**self.okpay_order_data)
         order.save()
         import_okpay_payments = OkPayPaymentChecker()
@@ -111,10 +115,12 @@ class WalletAPITestCase(WalletBaseTestCase):
         self.assertEqual(0, len(p))
         # assert payment pref is created correctly
 
+    @patch('payments.tasks.generic.base.BasePaymentChecker'
+           '.validate_beneficiary')
     @patch('nexchange.utils.PayeerAPIClient.get_transaction_history')
     @patch('orders.models.Order.convert_coin_to_cash')
     def test_confirm_order_payment_with_payeer_celery(self, convert_to_cash,
-                                                      trans_hist):
+                                                      trans_hist, validate):
         convert_to_cash.return_value = None
         sender = 'zaza'
         # TODO: get fixutre
@@ -131,6 +137,7 @@ class WalletAPITestCase(WalletBaseTestCase):
                 'from': sender
             }
         }
+        validate.return_value = True
         order = Order(**self.payeer_order_data)
         order.save()
         import_payeer_payments = PayeerPaymentChecker()
