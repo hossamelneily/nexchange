@@ -286,7 +286,8 @@ class OkPayAPI(BasePaymentApi):
             from_date,
             to_date,
             page_size,
-            page_number)
+            page_number
+        )
         return response
 
     def _parse_user_data(self, user):
@@ -295,18 +296,22 @@ class OkPayAPI(BasePaymentApi):
             res.update({i.tag.split('}')[1]: i.text})
         return res
 
+    def _parse_transaction(self, transaction):
+        attributes = {}
+        for el in transaction:
+            attributes.update({el.tag.split('}')[1]: el.text})
+            if el.tag.split('}')[1] == 'Receiver':
+                attributes.update({'Receiver': self._parse_user_data(el)})
+            elif el.tag.split('}')[1] == 'Sender':
+                attributes.update({'Sender': self._parse_user_data(el)})
+        return attributes
+
     def _parse_transactions(self, transactions):
         res = []
         if transactions is None:
             return res
         for trans in transactions:
-            attributes = {}
-            for el in trans:
-                attributes.update({el.tag.split('}')[1]: el.text})
-                if el.tag.split('}')[1] == 'Receiver':
-                    attributes.update({'Receiver': self._parse_user_data(el)})
-                elif el.tag.split('}')[1] == 'Sender':
-                    attributes.update({'Sender': self._parse_user_data(el)})
+            attributes = self._parse_transaction(trans)
             res.append(attributes)
         return res
 
@@ -358,6 +363,39 @@ class OkPayAPI(BasePaymentApi):
         except WebFault as e:
             response = {'success': 0, 'error': e}
         return response
+
+    def _send_money(self, receiver=None, currency=None, amount=None,
+                    comment=None, is_receiver_pays_fees=False, invoice=None):
+        """
+        https://dev.okpay.com/en/manual/interfaces/functions/general
+        /send-money.html
+        """
+
+        response = self.client.service.Send_Money(
+            self.wallet_id,
+            self.security_token,
+            receiver,
+            currency,
+            amount,
+            comment,
+            is_receiver_pays_fees,
+            invoice
+        )
+        return response
+
+    def send_money(self, receiver=None, currency=None, amount=None,
+                   comment=None, is_receiver_pays_fees=False, invoice=None):
+        try:
+            service_resp = self._send_money(
+                receiver=receiver, currency=currency, amount=amount,
+                comment=comment, is_receiver_pays_fees=is_receiver_pays_fees,
+                invoice=invoice
+            )
+            transaction = ET.fromstring(service_resp)[0][0][0]
+            res = self._parse_transaction(transaction)
+        except WebFault as e:
+            res = {'success': 0, 'error': e}
+        return res
 
 
 class PayeerAPIClient(BasePaymentApi):
@@ -412,6 +450,24 @@ class PayeerAPIClient(BasePaymentApi):
         except KeyError:
             res = content['errors']
         return res
+
+    def transfer_funds(self, currency_in=None, currency_out=None, amount=None,
+                       receiver=None, comment=None):
+
+        payload = {
+            'account': self.account,
+            'apiId': self.apiId,
+            'apiPass': self.apiPass,
+            'action': 'transfer',
+            'curIn': currency_in,
+            'sumOut': amount,
+            'curOut': currency_out,
+            'comment': comment,
+            'to': receiver
+        }
+        response = requests.post(self.url, payload)
+        content = json.loads(response.content.decode('utf-8'))
+        return content
 
 
 def get_nexchange_logger(name, with_console=True, with_email=False):

@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from orders.models import Order
 from nexchange.utils import get_nexchange_logger
 from django.conf import settings
+from orders import utils
 
 
 def sell_order_release():
@@ -24,9 +25,8 @@ def sell_order_release():
     for order in orders[::-1]:
         if not _check_confirmations(order, logger):
             continue
-        status = order.send_money()
-        if status:
-            # TODO: move this to send money
+        send_money_status = utils.send_money(order.pk)
+        if send_money_status:
             order.status = Order.RELEASED
             order.save()
             logger.info('Order {} is released'.format(order))

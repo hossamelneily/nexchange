@@ -42,19 +42,14 @@ RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY',
 # OKPAY
 OKPAY_WALLET = os.getenv('OKPAY_WALLET',
                          settings_dev.OKPAY_WALLET)
-OKPAY_API_KEY = os.getenv('OKPAY_API_KEY',
-                          settings_dev.OKPAY_API_KEY)
+OKPAY_API_KEY = ''
 # PAYEER
 PAYEER_WALLET = os.getenv('PAYEER_WALLET',
                           settings_dev.PAYEER_WALLET)
-PAYEER_IPN_KEY = os.getenv('PAYEER_IPN_KEY',
-                           settings_dev.PAYEER_IPN_KEY)
-PAYEER_ACCOUNT = os.getenv('PAYEER_ACCOUNT',
-                           settings_dev.PAYEER_ACCOUNT)
-PAYEER_API_ID = os.getenv('PAYEER_API_ID',
-                          settings_dev.PAYEER_API_ID)
-PAYEER_API_KEY = os.getenv('PAYEER_API_KEY',
-                           settings_dev.PAYEER_API_KEY)
+PAYEER_IPN_KEY = ''
+PAYEER_ACCOUNT = ''
+PAYEER_API_ID = ''
+PAYEER_API_KEY = ''
 
 # API1
 API1_USER = os.getenv('API1_USER',

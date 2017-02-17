@@ -1,0 +1,32 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+    <s:Body><Send_MoneyResponse xmlns="https://api.okpay.com">
+        <Send_MoneyResult xmlns:a="http://schemas.datacontract.org/2004/07/OkPayAPI" xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+            <a:Amount>-0.0100</a:Amount>
+            <a:Comment>api test</a:Comment>
+            <a:Currency>EUR</a:Currency>
+            <a:Date>2017-02-15 07:50:11</a:Date>
+            <a:Fees>-0.0100</a:Fees>
+            <a:ID>6080916</a:ID>
+            <a:Invoice>test_invoice</a:Invoice>
+            <a:Net>-0.0200</a:Net>
+            <a:OperationName>Send Money</a:OperationName>
+            <a:Receiver>
+                <a:AccountID>923588624</a:AccountID>
+                <a:Country_ISO>GB</a:Country_ISO>
+                <a:Email>oleg@onit.ws</a:Email>
+                <a:Name>Nexchange</a:Name>
+                <a:VerificationStatus>Verified</a:VerificationStatus>
+                <a:WalletID>OK217536082</a:WalletID>
+            </a:Receiver>
+            <a:Sender>
+                <a:AccountID>940579706</a:AccountID>
+                <a:Country_ISO>LT</a:Country_ISO>
+                <a:Email>sarunas.azna@gmail.com</a:Email>
+                <a:Name>Mr. Sarunas Azna</a:Name>
+                <a:VerificationStatus>Unverified</a:VerificationStatus>
+                <a:WalletID>OK378628543</a:WalletID>
+            </a:Sender>
+            <a:Status>Completed</a:Status>
+        </Send_MoneyResult>
+    </Send_MoneyResponse></s:Body>
+</s:Envelope>

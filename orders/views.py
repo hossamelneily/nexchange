@@ -123,7 +123,9 @@ def ajax_order(request):
         for request_key, object_key in optional_fields_serializer.items():
             if request_key in data:
                 if object_key in serialized:
-                    raise ValueError('Double attribute found'.format(object_key))
+                    raise ValueError('Double attribute found'.format(
+                        object_key
+                    ))
                 serialized.update({object_key: data[request_key]})
 
         serialized.update({'user': user, 'payment_method': method})
@@ -306,7 +308,7 @@ def payment_confirmation(request, pk):
         try:
             if order.status not in [Order.RELEASED, Order.COMPLETED]:
                 # FIXME: change to flag 'customer_marked_as_paid' or smth
-                order.status = Order.PAID
+                order.user_marked_as_paid = True
                 order.save()
             order_paid = (order.status >= Order.PAID)
             send_email('oleg@onit.ws', '{} SET AS PAID',

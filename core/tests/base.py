@@ -8,6 +8,7 @@ from django.utils.translation import activate
 
 from accounts.models import SmsToken
 from core.models import Currency, Address, Transaction, Pair
+from core.tests.utils import get_ok_pay_mock, split_ok_pay_mock
 from orders.models import Order
 from payments.models import PaymentMethod, PaymentPreference
 from ticker.models import Price, Ticker
@@ -214,13 +215,14 @@ class WalletBaseTestCase(OrderBaseTestCase):
             payment_method__name__icontains='payeer'
         ).first()
 
+        mock = get_ok_pay_mock()
         self.okpay_order_data = {
-            'amount_quote': 85.85,
+            'amount_quote': Decimal(split_ok_pay_mock(mock, 'Net')),
             'amount_base': Decimal(0.01),
             'pair': self.BTCEUR,
             'user': self.user,
             'admin_comment': 'tests Order',
-            'unique_reference': '12345',
+            'unique_reference': split_ok_pay_mock(mock, 'Comment'),
             'payment_preference': okpay_pref,
         }
         self.payeer_order_data = deepcopy(self.okpay_order_data)
@@ -240,13 +242,22 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(TransactionImportBaseTestCase, self).setUp()
+        self.main_pref = self.okpay_pref = PaymentPreference.objects.filter(
+            user__is_staff=True,
+            payment_method__name__icontains='okpay'
+        ).first()
+
+        self.payeer_pref = PaymentPreference.objects.filter(
+            user__is_staff=True,
+            payment_method__name__icontains='payeer'
+        ).first()
         self._read_fixture()
         self.address = Address(
             name='test address',
             address=self.wallet_address,
             currency=self.BTC,
             user=self.user,
-            type=Address.DEPOSIT
+            type=Address.DEPOSIT,
         )
         self.address.save()
         self.url = 'http://btc.blockr.io/api/v1/address/txs/{}'.format(
@@ -257,7 +268,8 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             amount_base=Decimal(str(self.amounts[self.status_ok_list_index])),
             pair=self.BTCEUR,
             user=self.user,
-            status=Order.INITIAL
+            status=Order.INITIAL,
+            payment_preference=self.main_pref
         )
         self.order.save()
         self.unique_ref = self.order.unique_reference
