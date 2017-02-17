@@ -188,10 +188,8 @@ build:
         name: django compile translations
         code: |
           # python manage.py compilemessages
-    - script:
-        name: Build js
-        code: |
-          npm run build-js
+    - maxon/npm-run:
+        script: build-js
       name: copy files
       code: |
         mkdir -p /usr/src/app
@@ -330,6 +328,9 @@ build:
           #
           # Start Cron Process
           cron
+
+          # ensure js build again
+          npm run build-js
 
           # Start celery stuff
           adduser --disabled-password --gecos '' celery_user
