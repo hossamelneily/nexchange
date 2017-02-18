@@ -321,17 +321,14 @@ build:
 
 
           # Copy static data to nginx volume
-          cp -ra $WERCKER_OUTPUT_DIR/staticfiles/* /usr/share/nginx/html/static
           cp -ra $WERCKER_OUTPUT_DIR/mediafiles/* /usr/share/nginx/html/media
+          yes | python manage.py collectstatic
           #
           # Create superuser
           echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@onit.ws','weare0nit')" | python manage.py shell
           #
           # Start Cron Process
           cron
-
-          # ensure js build again
-          npm run build-js
 
           # Start celery stuff
           adduser --disabled-password --gecos '' celery_user
@@ -448,9 +445,6 @@ deploy:
               echo "OUR ENV: \n"
               printenv
           fi
-          echo "Printing current env:"
-          /usr/bin/env
-          echo "env of env"
           # Login to docker hub (for private images)
           docker login \
             -u $DOCKER_HUB_USER \
