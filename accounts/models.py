@@ -109,6 +109,7 @@ class SmsToken(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     sms_token = models.CharField(
         max_length=settings.SMS_TOKEN_LENGTH, blank=True)
     user = models.ForeignKey(User, related_name='sms_token')
+    send_count = models.IntegerField(default=0)
 
     @staticmethod
     def get_sms_token():

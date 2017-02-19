@@ -12,10 +12,10 @@
             {% endif %}
         </td>
         <td>{{ order.created_on |date:"D d M"}}</td>
-        <td>{{ order.unique_reference }}</td>
+        <td>{{ order.unique_reference|upper }}</td>
         <td>{{ order.pair.name }}</td>
         <td>{{ order.amount_quote | floatformat:2}}</td>
-        <td>{{ order.amount_base }}</td>
+        <td>{{ order.amount_base |floatformat}}</td>
         <td>
         {% include 'orders/partials/forms/payment_toggle.html' %}
         </td>

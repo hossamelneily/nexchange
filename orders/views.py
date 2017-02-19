@@ -269,7 +269,7 @@ def update_withdraw_address(request, pk):
             _('You don\'t have permission to edit this order'))
     elif order.withdrawal_address_frozen:
         return HttpResponseForbidden(
-            _('This order can not be edited because is frozen'))
+            _('This order can not be edited because it is already released'))
 
     if address_id:
         # be sure that user owns the address indicated
@@ -300,27 +300,23 @@ def payment_confirmation(request, pk):
             _('You don\'t have permission to edit this order'))
     elif order.payment_status_frozen:
         return HttpResponseForbidden(
-            _('This order can not be edited because is frozen'))
-    elif paid and not order.withdraw_address and order.is_buy:
+            _('This order can not be edited because is it already released'))
+    elif paid and not order.withdraw_address and order.is_buy \
+            and not order.system_marked_as_paid:
         return HttpResponseForbidden(
             _('An order can not be set as paid without a withdraw address'))
     else:
         try:
-            if order.status not in [Order.RELEASED, Order.COMPLETED]:
-                # FIXME: change to flag 'customer_marked_as_paid' or smth
-                order.user_marked_as_paid = True
-                order.save()
-            order_paid = (order.status >= Order.PAID)
-            send_email('oleg@onit.ws', '{} SET AS PAID',
-                       "User: {} Order: {}".format(order.user, order))
+            order.user_marked_as_paid = request.POST.get('paid') == 'true'
+            order.save()
+
             return JsonResponse({'status': 'ok',
                                  'frozen': order.payment_status_frozen,
-                                 'paid': order_paid}, safe=False)
+                                 'paid': order.user_marked_as_paid },
+                                safe=False)
 
         except ValidationError as e:
             msg = e.messages[0]
             return JsonResponse({'status': 'ERR', 'msg': msg}, safe=False)
-        except:
-            return JsonResponse({'status': 'ok',
-                                 'frozen': order.payment_status_frozen,
-                                 'paid': order_paid}, safe=False)
+
+

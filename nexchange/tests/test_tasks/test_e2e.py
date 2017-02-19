@@ -49,7 +49,7 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
         order.refresh_from_db()
         self.assertEqual(False, p.is_complete)
         self.assertEqual(False, p.is_redeemed)
-        self.assertEqual(Order.INITIAL, order.status)
+        self.assertEqual(Order.PAID, order.status)
 
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
@@ -144,7 +144,7 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
 
         self.assertEqual(False, p.is_complete)
         self.assertEqual(False, p.is_redeemed)
-        self.assertEqual(Order.INITIAL, order.status)
+        self.assertEqual(Order.PAID, order.status)
 
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')

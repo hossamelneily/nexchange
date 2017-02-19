@@ -87,6 +87,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     pair = models.ForeignKey(Pair)
     price = models.ForeignKey(Price, null=True, blank=True)
     user_marked_as_paid = models.BooleanField(default=False)
+    system_marked_as_paid = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-created_on']
@@ -95,7 +96,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     def validate_unique(self, exclude=None):
         # TODO: exclude expired?
         if not self.deleted and \
-                self.objects.exclude(pk=self.pk).filter(
+                Order.objects.exclude(pk=self.pk).filter(
                     unique_reference=self.unique_reference,
                     deleted=False).exists():
             raise ValidationError(
@@ -177,12 +178,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         Order is frozen if it is expired or has been paid
         """
         # TODO: validate this business rule
-        return self.expired or \
-            ((self.status in Order.IN_PAID) and
-             self.payment_set.last() and
-             self.payment_set.last().
-             payment_preference.
-             payment_method.is_internal)
+        return self.expired or self.status in Order.IN_PAID
 
     @property
     def withdrawal_address_frozen(self):

@@ -212,8 +212,8 @@ def verify_phone(request):
         )
 
 
-@recaptcha_required
 @csrf_exempt
+@recaptcha_required
 @not_logged_in_required
 @watch_login
 def user_by_phone(request):

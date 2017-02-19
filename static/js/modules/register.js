@@ -1,6 +1,6 @@
 !(function(window, $) {
     "use strict";
-    var orderObject = require('./orders.js'),
+    var orderObject,
         apiRoot = '/en/api/v1',
         createAccEndpoint =  '/en/accounts/authenticate/',
         menuEndpoint = apiRoot + '/menu',
@@ -70,6 +70,7 @@
             data: payload,
             statusCode: {
                 201: function(data) {
+                    orderObject = require('./orders.js');
                     orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
                     orderObject.changeState(null, 'next');
                 },

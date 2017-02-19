@@ -628,6 +628,45 @@ module.exports = {
          animationDelay = 3000,
          minOrderCoin = 0.0001;
 
+    $(function() {
+        function setAsPaidFlow () {
+            if (!rootElem || !rootElem.length) {
+                return
+            }
+            $('html, body').animate({
+                scrollTop: rootElem.offset().top
+            })
+            .delay(indicateWithdrawDelay)
+            .queue(function (next) {
+                rootElem.click();
+                next();
+            })
+            .delay(payDelay)
+            .queue(function (next) {
+                toggleElem =  $('.toggle-group').filter(':visible').siblings('.pay-setter');
+                if (isPaid && !toggleElem.is(':checked')) {
+                    toggleElem.parent().click();
+                    next();
+                }
+            });
+        }
+
+        var params = new URLSearchParams(window.location.search),
+            oid = params.get('oid'),
+            initialDelay = 1500,
+            payDelay = 1500,
+            isPaid =  params.get('is_paid'),
+            indicateWithdrawDelay = isPaid ? 1500 : 0,
+            oidSelector = '#' + oid,
+            rootElem = $(oidSelector),
+            toggleElem;
+
+
+        if (oid) {
+            setTimeout(function() {setAsPaidFlow()}, initialDelay);
+        }
+    });
+     
     function orderSmallerThanMin (amountCoin) {
         var val = parseFloat(amountCoin.val());
         return val < minOrderCoin;
@@ -992,6 +1031,9 @@ module.exports = {
     }
 
     function loadPaymentMethodsAccount(paymentMethodsAccountEndpoint, pm) {
+        if (!pm) {
+            return;
+        }
         var data = {'payment_method': pm};
 
         $.post(paymentMethodsAccountEndpoint, data, function (data) {
@@ -1013,7 +1055,7 @@ module.exports = {
 },{}],6:[function(require,module,exports){
 !(function(window, $) {
     "use strict";
-    var orderObject = require('./orders.js'),
+    var orderObject,
         apiRoot = '/en/api/v1',
         createAccEndpoint =  '/en/accounts/authenticate/',
         menuEndpoint = apiRoot + '/menu',
@@ -1083,6 +1125,7 @@ module.exports = {
             data: payload,
             statusCode: {
                 201: function(data) {
+                    orderObject = require('./orders.js');
                     orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
                     orderObject.changeState(null, 'next');
                 },
