@@ -23,7 +23,10 @@
             var input_address = form_create.find("input[type=text]:first");
             var btnSetAddress = form_update.find("button[type=submit]:first");
 
-
+            $('.scenes-wrapper').fadeOut().delay(500).queue(function (next) {
+               $(this).remove();
+               next();
+            });
             var close_popover = function() {
                 span.trigger("click");
             };
@@ -67,20 +70,15 @@
                 btnSetAddress.toggleClass('disabled');
 
                 $.post( span.data('url-update'), {'value': selected.val()}, function( data ) {
-                    if (data.status === 'OK') {
-                        span.html(selected.text());
-                        span.trigger("click");
-                    } else {
-                        withdraw_address_error(UNKNOW_ERROR);
-                    }
-
+                    span.html(selected.text());
+                    span.trigger("click");
                     btnSetAddress.button('reset');
                     btnSetAddress.toggleClass('disabled');
 
                 }).fail(function(jqXHR){
                     if (jqXHR.status == 403) {
                         withdraw_address_error(jqXHR.responseText);
-                    } else if(data.status === 'ERR') {
+                    } else if(data.msg) {
                         withdraw_address_error(data.msg);
                     } else {
                         withdraw_address_error(UNKNOW_ERROR);
@@ -105,8 +103,8 @@
                 btn.button('loading');
 
                 $.post( span.data('url-create'), {'value': input_address.val()}, function( data ) {
+                    
                     if (data.status === 'OK') {
-
                         // Add this address as an option to the select
                         select_addresses
                             .append($("<option></option>")
@@ -180,7 +178,7 @@
 
             $.post( $(this).data('url'), {'paid': $(this).prop('checked')}, function( data ) {
 
-                if (data.status === 'OK') {
+                if (data.status.toUpperCase() === 'OK') {
                     if (data.frozen) {
                         // so user wont change any payment confirmation
                         $(toggle).bootstrapToggle('disable');

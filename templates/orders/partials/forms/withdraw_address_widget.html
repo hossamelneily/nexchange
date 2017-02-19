@@ -1,28 +1,43 @@
 {% load i18n %}
-<span id="td-frozen-withdraw-{{order.pk}}"
-    {% if not order.frozen %}
-        style="display:none"
-    {% endif %}>
-
-    <span class="frozen">
-        {{order.withdraw_address.address | default:_("Not Defined")}}
-    </span>
-</span>
-<span id="td-withdraw-{{order.pk}}"
-        {% if order.frozen %}
+<div class="scenes-withdrawal-wrapper">
+    {% if order.is_buy and request.GET.oid == order.unique_reference and not order.withdraw_address %}
+    <div class="scenes-wrapper">
+        <div class="scenes">
+          <div class="scene scene1">
+            <div class="description">{% blocktrans %} Define your withdraw
+                address and get {{ order.pair.base.code }} now!
+            {% endblocktrans %}</div>
+            <div class="dot"></div>
+          </div>
+        </div>
+    </div>
+    {% endif %}
+    <span id="td-frozen-withdraw-{{order.unique_reference}}"
+        {% if not order.frozen %}
             style="display:none"
         {% endif %}>
-        <span class="withdraw_address" id="span-withdraw-{{order.pk}}"
-            data-toggle="popover"
-            title="{% trans 'Set Withdraw Address' %}"
-            data-html="true"
-            data-container="body"
-            data-placement="top"
-            data-pk="{{order.pk}}"
-            data-url-update="{% url 'orders.update_withdraw_address' order.pk %}"
-            data-url-create="{% url 'accounts.create_withdraw_address' %}">
-            {{order.withdraw_address.address |default:_("Not Defined")}}
+
+        <span class="frozen">
+            {{order.withdraw_address.address | default:_("Not Defined")}}
         </span>
-        <span class="fa fa-pencil" aria-hidden="true">
-        </span>
-</span>
+    </span>
+
+    <span id="td-withdraw-{{order.pk}}"
+            {% if order.frozen %}
+                style="display:none"
+            {% endif %}>
+            <span class="withdraw_address" id="span-withdraw-{{order.pk}}"
+                data-toggle="popover"
+                title="{% trans 'Set Withdraw Address' %}"
+                data-html="true"
+                data-container="body"
+                data-placement="top"
+                data-pk="{{order.pk}}"
+                data-url-update="{% url 'orders.update_withdraw_address' order.pk %}"
+                data-url-create="{% url 'accounts.create_withdraw_address' %}">
+                {{order.withdraw_address.address |default:_("Not Defined")}}
+            </span>
+            <span class="fa fa-pencil" aria-hidden="true">
+            </span>
+    </span>
+</div>

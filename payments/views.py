@@ -140,13 +140,13 @@ def payment_success(request, provider):
     # This is only a provisional
     # flag which the user can set himself
     # does not affect business logic, only visual
-    if order.status not in [Order.COMPLETED, Order.CANCELED]:
-        order.status = Order.PAID
-        order.save()
+    order.system_marked_as_paid = True
+    order.save()
+
     # TODO: check signature
     # TODO: check api async for payment (optimization)
-    redirect_url = "{}?oid={}".\
-        format(reverse('orders.orders_list'), order.id)
+    redirect_url = "{}?oid={}&is_paid=true".\
+        format(reverse('orders.orders_list'), order.unique_reference)
     logger.info('User at {} success view.'
                 'request: {} user: {} redirected'
                 'to order {}'

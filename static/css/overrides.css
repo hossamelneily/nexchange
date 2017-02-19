@@ -126,8 +126,19 @@
 .success-line.mid {
     margin-bottom: 10px;
 }
+
 .confirm-order{
     background-color: #F4F4F4;
+    border-radius: 5px;
+}
+
+
+.wrapper .content .row.step-confirm:after,
+.wrapper .content div.row.menu3:after,
+.wrapper .content .confirm-order:after,
+.wrapper .content div.container.main:after{
+    display: none !important;
+    clear: none !important;
 }
 
 .search-order{
@@ -1314,6 +1325,7 @@ label, input {
 
 .mobile-row {
     margin: 20px 0;
+    position: relative;
 }
 
 .completed-indicator, .released-indicator {
@@ -1358,4 +1370,97 @@ li.select2-results__option.select2-results__option--highlighted {
     width: 30px !important;
     height: 100% !important;
     background: #8cc63f;
+}
+
+.scenes-wrapper {
+  position:absolute;
+  top: -140px;
+  left: -30px;
+  pointer-events: none;
+  z-index: 999;
+  background: transparent;
+  border-radius: 50%;
+  overflow: hidden;
+  -webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
+}
+
+/* this fixes the overflow:hidden in Chrome */
+
+
+.scenes {
+  /*width: 20px;*/
+  border-radius: 50%;
+  margin: 0 auto;
+  border-collapse: collapse;
+  position: relative;
+  transform: scale(1);
+  width: 300px;
+  height: 300px;
+  background: transparent;
+}
+.scene {
+  width: 100%;
+  height: 100%;
+}
+
+.scene {
+  position: relative;
+  overflow: hidden;
+}
+
+.scene .description {
+  display: none;
+}
+
+.scene1 {
+  background-color: transparent;
+  /* right: 0; */
+  border-radius: 60px;
+  /* padding: 15px; */
+}
+
+.scene1 .dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.2em;
+  height: 0.2em;
+  background-color: #8cc63f;
+  box-shadow: 0 0 .2em .13em #8cc63f, 0 0 0 0 #ffffff, 0 0 0 0 #8dc73f;
+  opacity: 0;
+  animation: dot-anim linear 1.834s infinite;
+  border-radius: 50%;
+}
+
+@keyframes dot-anim {
+    45% {
+        opacity: 1;
+    }
+    46% {
+        box-shadow: 0 0 .2em .13em #8cc63f, 0 0 0 0 #ffffff, 0 0 5px 10px #8dc73f;
+    }
+    50% {
+        box-shadow: 0 0 .2em .13em #8cc63f, 0 0 0 101px #ffffff, 0 0 0 173px #8dc73f;
+    }
+    52% {
+        box-shadow: 0 0 .2em .13em #8cc63f, 0 0 0 245px #ffffff, 0 0 0 255px #8dc73f;
+    }
+    55% {
+        opacity: 1;
+        box-shadow: 0 0 .2em .13em #8cc63f, 0 0 0 317px #ffffff, 0 0 0 320px #8dc73f;
+    }
+    81% {
+        opacity: 0;
+        box-shadow: 0 0 .2em .13em #8cc63f, 0 0 0 549px #ffffff, 0 0 0 549px #8dc73f;
+    }
+}
+
+.table-responsive {
+    overflow: visible;
+}
+
+.scenes-withdrawal-wrapper {
+    position: relative;
+    display: inline;
+    padding-right: 30px;
 }

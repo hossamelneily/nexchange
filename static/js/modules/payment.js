@@ -28,6 +28,9 @@
     }
 
     function loadPaymentMethodsAccount(paymentMethodsAccountEndpoint, pm) {
+        if (!pm) {
+            return;
+        }
         var data = {'payment_method': pm};
 
         $.post(paymentMethodsAccountEndpoint, data, function (data) {

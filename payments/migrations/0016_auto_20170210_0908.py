@@ -13,10 +13,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveField(
-            model_name='payment',
-            name='moderator_flag',
-        ),
-        migrations.RemoveField(
             model_name='paymentmethod',
             name='fee',
         ),

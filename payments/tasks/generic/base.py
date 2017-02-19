@@ -11,7 +11,8 @@ from copy import deepcopy
 from orders.tasks.generic.base import BaseBuyOrderRelease
 
 
-class BasePaymentChecker(BaseTask):
+class \
+        BasePaymentChecker(BaseTask):
 
     def __init__(self, *args, **kwargs):
         self.currency_cache = {}
@@ -313,6 +314,8 @@ class BasePaymentChecker(BaseTask):
                 else:
                     task = BaseBuyOrderRelease.RELEASE_BY_RULE
 
+                order.status = Order.PAID
+                order.save()
                 self.add_next_task(
                     task,
                     [payment.pk]

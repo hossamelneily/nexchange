@@ -3,7 +3,7 @@ from functools import wraps
 
 import requests
 from django.conf import settings
-from django.http.response import HttpResponse, HttpResponseForbidden
+from django.http.response import HttpResponse
 from django.utils.translation import gettext_lazy as _
 
 
@@ -51,7 +51,7 @@ def get_google_response(request, captcha_rs):
 
 def recaptcha_required(view_fn):
     @wraps(view_fn)
-    def wrapper(request, *args, **kwds):
+    def wrapper(request, *args, **kwargs):
         if request.method == 'POST':
             data = request.POST
             captcha_rs = data.get('g_recaptcha_response')
@@ -67,6 +67,5 @@ def recaptcha_required(view_fn):
                     status=428,
                     content_type='application/json'
                 )
-
-        return view_fn(request, *args, **kwds)
+        return view_fn(request, *args, **kwargs)
     return wrapper

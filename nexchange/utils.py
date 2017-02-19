@@ -69,11 +69,13 @@ def sanitize_number(phone, is_phone=False):
 
 def send_auth_sms(user):
     def create_token():
-        _token = SmsToken(user=user)
+        _token = SmsToken(user=user, send_count=1)
         _token.save()
         return _token
     try:
         token = SmsToken.objects.filter(user=user).latest('id')
+        token.send_count += 1
+        token.save()
     except SmsToken.DoesNotExist:
         token = create_token()
     if not token.valid:
@@ -91,7 +93,6 @@ def send_auth_sms(user):
         return message
     except TwilioException as err:
         raise err
-        return err
 
 
 def print_traceback():

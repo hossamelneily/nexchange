@@ -47,6 +47,9 @@ def allocate_wallets(sender, instance=None, created=False, **kwargs):
             api = CreateUpholdCard(settings.API1_IS_TEST)
             api.auth_basic(settings.API1_USER, settings.API1_PASS)
             new_card = api.new_card(key)
+            if 'id' not in new_card:
+                logger.error('new card creation failed {}'.format(new_card))
+                return
             address = api.add_address(new_card['id'], value)
             card = UserCards(card_id=new_card['id'],
                              currency=new_card['currency'],

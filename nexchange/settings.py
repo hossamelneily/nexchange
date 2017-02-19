@@ -60,7 +60,7 @@ TICKER_INTERVAL = 30
 TICKER_CACHE_BACKEND = 'memory'
 PAYMENT_WINDOW_SAFETY_INTERVAL = timedelta(seconds=60)
 PAYMENT_DEFAULT_SEEK_INTERVAL = timedelta(hours=12)
-SMS_TOKEN_VALIDITY = timedelta(minutes=3)
+SMS_TOKEN_VALIDITY = timedelta(minutes=5)
 SMS_TOKEN_CHARS = '1234567890'
 REFERRAL_CODE_LENGTH = 10
 REFERRAL_CODE_CHARS = 'ABCDEFGIKJKLMNOPRSTXYZ1234567890'
@@ -358,7 +358,7 @@ SESSION_SECURITY_PASSIVE_URLS = ["/en/api/v1/price/latest/",
                                  "https://mc.yandex.ru/webvisor/39575585",
                                  "https://mc.yandex.ru/watch/39575585"]
 
-AXES_LOGIN_FAILURE_LIMIT = 6
+AXES_LOGIN_FAILURE_LIMIT = 10
 AXES_USERNAME_FORM_FIELD = 'username'
 AXES_COOLOFF_TIME = timedelta(minutes=30)
 
