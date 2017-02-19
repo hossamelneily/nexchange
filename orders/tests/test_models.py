@@ -124,7 +124,8 @@ class OrderValidatePaymentTestCase(OrderBaseTestCase):
         # even though it's not paid
         self.assertFalse(order.status > Order.PAID)
 
-    def test_not_frozen_if_paid(self):
+    def test_frozen_if_paid(self):
+        # As user input is irrelevant once order is paid
         order = Order(**self.data)
         order.save()
         order.status = Order.PAID
@@ -135,7 +136,7 @@ class OrderValidatePaymentTestCase(OrderBaseTestCase):
         self.assertTrue(order.status == Order.PAID)
 
         # therefore it's frozen
-        self.assertFalse(order.payment_status_frozen)
+        self.assertTrue(order.payment_status_frozen)
 
         # even though deadline is in the future
         self.assertTrue(order.payment_deadline >= timezone.now())
