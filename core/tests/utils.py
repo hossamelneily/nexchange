@@ -73,6 +73,7 @@ def split_ok_pay_mock(mock, element):
 
 
 class DisableSignals:
+
     def __init__(self, disabled_signals=None):
         self.stashed_signals = defaultdict(list)
         self.disabled_signals = disabled_signals or [

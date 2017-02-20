@@ -12,6 +12,7 @@ from unittest import mock
 
 
 class VerificationViewTestCase(UserBaseTestCase):
+
     def setUp(self):
         super(VerificationViewTestCase, self).setUp()
 

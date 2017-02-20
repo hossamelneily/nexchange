@@ -23,21 +23,37 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='order',
             name='payment_preference',
-            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='payments.PaymentPreference'),
+            field=models.ForeignKey(
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='payments.PaymentPreference'),
         ),
         migrations.AddField(
             model_name='order',
             name='price',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='ticker.Price'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='ticker.Price'),
         ),
         migrations.AddField(
             model_name='order',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='orders', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='orders',
+                to=settings.AUTH_USER_MODEL),
         ),
         migrations.AddField(
             model_name='order',
             name='withdraw_address',
-            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='order_set', to='core.Address'),
+            field=models.ForeignKey(
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='order_set',
+                to='core.Address'),
         ),
     ]

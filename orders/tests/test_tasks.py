@@ -352,7 +352,9 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
                     for i in range(release_count):
                         myargs = [_payment.pk]
                         res = tested_fn.apply(myargs)  # noqa
-                        self.assertEqual('SUCCESS', res.state)
+                    print(res.traceback)
+                    self.assertEqual(None, res.traceback)
+                    self.assertEqual('SUCCESS', res.state)
 
                 # reload from db
                 for order in self.orders:

@@ -21,26 +21,41 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='transaction',
             name='order',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='transactions', to='orders.Order'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='transactions',
+                to='orders.Order'),
         ),
         migrations.AddField(
             model_name='pair',
             name='base',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='base_prices', to='core.Currency'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='base_prices',
+                to='core.Currency'),
         ),
         migrations.AddField(
             model_name='pair',
             name='quote',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='quote_prices', to='core.Currency'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='quote_prices',
+                to='core.Currency'),
         ),
         migrations.AddField(
             model_name='address',
             name='currency',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='core.Currency'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='core.Currency'),
         ),
         migrations.AddField(
             model_name='address',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL),
         ),
     ]

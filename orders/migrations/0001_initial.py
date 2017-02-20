@@ -19,29 +19,90 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Order',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('deleted', models.BooleanField(default=False)),
-                ('disabled', models.BooleanField(default=False)),
-                ('created_on', models.DateTimeField(auto_now_add=True)),
-                ('modified_on', models.DateTimeField(auto_now=True)),
-                ('order_type', models.IntegerField(choices=[(0, 'SELL'), (1, 'BUY'), (2, 'EXCHANGE')], default=1, help_text='BUY - Customer is giving fiat, and getting crypto money.<br/>SELL - Customer is giving crypto and getting fiat money<br/>EXCHANGE - Customer is exchanging different kinds of crypto currencies.')),
-                ('status', models.IntegerField(choices=[(0, 'CANCELED'), (1, 'INITIAL'), (2, 'PAID'), (3, 'RELEASED'), (4, 'COMPLETED')], default=1, help_text='INITIAL - Initial state of the order.<br/>PAID - Order is Paid by customer. Could be paid by crypto transaction or fiat payment, depending on order_type.<br/>RELEASED - Order is paid by service provider. Could be paid by crypto transaction or fiat payment, depending on order_type.<br/>COMPLETED - All states of the order is completed<br/>CANCELED - Order is canceled..')),
-                ('amount_base', models.DecimalField(decimal_places=8, max_digits=18)),
-                ('amount_quote', models.DecimalField(decimal_places=8, max_digits=18)),
-                ('payment_window', models.IntegerField(default=60)),
-                ('unique_reference', models.CharField(max_length=5)),
-                ('admin_comment', models.CharField(max_length=200)),
-                ('is_default_rule', models.BooleanField(default=False)),
-                ('from_default_rule', models.BooleanField(default=False)),
-                ('user_marked_as_paid', models.BooleanField(default=False)),
-                ('system_marked_as_paid', models.BooleanField(default=False)),
-                ('pair', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='core.Pair')),
+                ('id',
+                 models.AutoField(
+                     auto_created=True,
+                     primary_key=True,
+                     serialize=False,
+                     verbose_name='ID')),
+                ('deleted',
+                 models.BooleanField(
+                     default=False)),
+                ('disabled',
+                 models.BooleanField(
+                     default=False)),
+                ('created_on',
+                 models.DateTimeField(
+                     auto_now_add=True)),
+                ('modified_on',
+                 models.DateTimeField(
+                     auto_now=True)),
+                ('order_type',
+                 models.IntegerField(
+                     choices=[
+                         (0,
+                          'SELL'),
+                         (1,
+                          'BUY'),
+                         (2,
+                          'EXCHANGE')],
+                     default=1,
+                     help_text='BUY - Customer is giving fiat, and getting crypto money.<br/>SELL - Customer is giving crypto and getting fiat money<br/>EXCHANGE - Customer is exchanging different kinds of crypto currencies.')),
+                ('status',
+                 models.IntegerField(
+                     choices=[
+                         (0,
+                          'CANCELED'),
+                         (1,
+                          'INITIAL'),
+                         (2,
+                          'PAID'),
+                         (3,
+                          'RELEASED'),
+                         (4,
+                          'COMPLETED')],
+                     default=1,
+                     help_text='INITIAL - Initial state of the order.<br/>PAID - Order is Paid by customer. Could be paid by crypto transaction or fiat payment, depending on order_type.<br/>RELEASED - Order is paid by service provider. Could be paid by crypto transaction or fiat payment, depending on order_type.<br/>COMPLETED - All states of the order is completed<br/>CANCELED - Order is canceled..')),
+                ('amount_base',
+                 models.DecimalField(
+                     decimal_places=8,
+                     max_digits=18)),
+                ('amount_quote',
+                 models.DecimalField(
+                     decimal_places=8,
+                     max_digits=18)),
+                ('payment_window',
+                 models.IntegerField(
+                     default=60)),
+                ('unique_reference',
+                 models.CharField(
+                     max_length=5)),
+                ('admin_comment',
+                 models.CharField(
+                     max_length=200)),
+                ('is_default_rule',
+                 models.BooleanField(
+                     default=False)),
+                ('from_default_rule',
+                 models.BooleanField(
+                     default=False)),
+                ('user_marked_as_paid',
+                 models.BooleanField(
+                     default=False)),
+                ('system_marked_as_paid',
+                 models.BooleanField(
+                     default=False)),
+                ('pair',
+                 models.ForeignKey(
+                     on_delete=django.db.models.deletion.CASCADE,
+                     to='core.Pair')),
             ],
             options={
                 'ordering': ['-created_on'],
             },
             managers=[
-                ('active_objects', django.db.models.manager.Manager()),
+                ('active_objects',
+                 django.db.models.manager.Manager()),
             ],
         ),
     ]

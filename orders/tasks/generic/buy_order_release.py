@@ -1,6 +1,7 @@
 from .base import BaseBuyOrderRelease
 from orders.models import Order
 from django.db import transaction
+from django.conf import settings
 
 
 class BuyOrderReleaseByReference(BaseBuyOrderRelease):
@@ -39,6 +40,14 @@ class BuyOrderReleaseByReference(BaseBuyOrderRelease):
             if not order.withdraw_address:
                 self.logger.info('{} has now withdrawal address, moving on'
                                  .format(order.unique_reference))
+                self.add_next_task(
+                    BaseBuyOrderRelease.RELEASE_BY_REFERENCE,
+                    [order.pk],
+                    {
+                        'countdown':
+                            settings.USER_SETS_WITHDRAW_ADDRESS_MEDIAN_TIME
+                    }
+                )
                 return False
 
             self.logger.info(

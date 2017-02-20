@@ -316,9 +316,14 @@ class \
 
                 order.status = Order.PAID
                 order.save()
+
                 self.add_next_task(
                     task,
-                    [payment.pk]
+                    [payment.pk],
+                    {
+                        'countdown': 0 if order.withdraw_address else
+                        settings.USER_SETS_WITHDRAW_ADDRESS_MEDIAN_TIME
+                    }
                 )
 
             super(BasePaymentChecker, self).run()

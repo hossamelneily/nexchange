@@ -22,13 +22,13 @@ class BaseTask(app.Task):
     def run(self, *args, **kwargs):
         self.apply_next_tasks()
 
-    def add_next_task(self, task, args):
+    def add_next_task(self, task, args, kwargs={}):
         self.logger.info('{} added next task {}'.
                          format(self.__class__.__name__,
                                 task.__class__.__name__))
 
         if self.immediate_apply:
-            app.send_task(task, args=args)
+            app.send_task(task, args=args, **kwargs)
 
         else:
             self.next_tasks.add((task, args,))

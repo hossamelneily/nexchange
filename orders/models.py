@@ -73,7 +73,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     payment_window = models.IntegerField(default=settings.PAYMENT_WINDOW)
     user = models.ForeignKey(User, related_name='orders')
     unique_reference = models.CharField(
-        max_length=settings.UNIQUE_REFERENCE_LENGTH)
+        max_length=settings.UNIQUE_REFERENCE_MAX_LENGTH)
     admin_comment = models.CharField(max_length=200)
     payment_preference = models.ForeignKey('payments.PaymentPreference',
                                            default=None,

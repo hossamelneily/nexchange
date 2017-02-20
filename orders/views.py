@@ -17,6 +17,7 @@ from orders.models import Order
 from payments.models import PaymentPreference, PaymentMethod
 from payments.utils import geturl_robokassa, get_payeer_sign, get_payeer_desc
 from nexchange.utils import send_email
+from orders.task_summary import buy_order_release_by_wallet_invoke
 
 
 @login_required
@@ -274,11 +275,13 @@ def update_withdraw_address(request, pk):
     if address_id:
         # be sure that user owns the address indicated
         try:
-            a = Address.objects.get(
+            addr = Address.objects.get(
                 user=request.user, pk=address_id)
-            a.save()
-            order.withdraw_address = a
+            addr.save()
+            order.withdraw_address = addr
             order.save()
+            if order.status == Order.PAID:
+                buy_order_release_by_wallet_invoke.apply_async([order.pk])
         except ObjectDoesNotExist:
             return HttpResponseForbidden(
                 _('Invalid address provided'))
