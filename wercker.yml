@@ -183,7 +183,7 @@ build:
         name: Django migrations
         code: |
           python manage.py makemigrations
-          yes w | python manage.py makemigrations --merge
+            w | python manage.py makemigrations --merge
     - script:
         name: django compile translations
         code: |
@@ -193,7 +193,7 @@ build:
     - script:
       name:
       code: |
-        yes | python manage.py collectstatic
+        yes y | python manage.py collectstatic
     - script:
       name: copy files
       code: |
