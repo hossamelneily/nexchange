@@ -208,7 +208,7 @@ class BasePaymentApi:
         if from_date is None:
             default_from_time = (datetime.datetime.now() -
                                  settings.PAYMENT_DEFAULT_SEEK_INTERVAL)
-            from_date = default_from_time.now().strftime('%Y-%m-%d %H:%M:%S')
+            from_date = default_from_time.strftime('%Y-%m-%d %H:%M:%S')
 
         return from_date, to_date
 

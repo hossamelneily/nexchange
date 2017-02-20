@@ -46,11 +46,13 @@ class WalletAPITestCase(WalletBaseTestCase):
             reference=order.unique_reference
         )
         self.assertEqual(1, len(p))
+        order.refresh_from_db()
         # check that pref is intact
         pref = PaymentPreference.objects.filter(payment=p[0])
         self.assertEqual(1, len(pref))
         self.assertEqual(pref[0].identifier, 'dobbscoin@gmail.com')
         self.assertEqual(pref[0].secondary_identifier, 'OK487565544')
+        self.assertIn(order.status, Order.IN_PAID)
 
     @patch('nexchange.utils.PayeerAPIClient.get_transaction_history')
     @patch('orders.models.Order.convert_coin_to_cash')
