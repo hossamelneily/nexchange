@@ -193,7 +193,7 @@ build:
     - script:
       name:
       code: |
-        yes y | python manage.py collectstatic
+        yes 'yes' | python manage.py collectstatic
     - script:
       name: copy files
       code: |
