@@ -15,6 +15,8 @@ from ticker.models import Price, Ticker
 from copy import deepcopy
 import mock
 from unittest.mock import patch
+import os
+from django.conf import settings
 
 
 class UserBaseTestCase(TestCase):
@@ -25,6 +27,7 @@ class UserBaseTestCase(TestCase):
             User.objects.get_or_create(
                 username='onit',
                 email='weare@onit.ws',
+                is_staff=True
             )
 
         super(UserBaseTestCase, cls).setUpClass()
@@ -193,7 +196,7 @@ class WalletBaseTestCase(OrderBaseTestCase):
         with patch('core.signals.allocate_wallets.allocate_wallets'):
             u, created = User.objects.get_or_create(
                 username='onit',
-                email='weare@onit.ws'
+                email='weare@onit.ws',
             )
             # ensure staff status, required for tests
             u.is_staff = True
@@ -239,19 +242,40 @@ class WalletBaseTestCase(OrderBaseTestCase):
 
 
 class TransactionImportBaseTestCase(OrderBaseTestCase):
-
     def setUp(self):
         super(TransactionImportBaseTestCase, self).setUp()
-        self.main_pref = self.okpay_pref = PaymentPreference.objects.filter(
+
+        self.main_pref = self.okpay_pref = PaymentPreference.objects.get(
             user__is_staff=True,
             payment_method__name__icontains='okpay'
-        ).first()
+        )
 
         self.payeer_pref = PaymentPreference.objects.filter(
             user__is_staff=True,
             payment_method__name__icontains='payeer'
         ).first()
+
+        self.order = Order(
+            order_type=Order.SELL,
+            amount_base=0,
+            pair=self.BTCEUR,
+            user=self.user,
+            status=Order.INITIAL,
+            payment_preference=self.main_pref
+        )
+        self.order.save()
+
+        self.order_modifiers = [
+            {'confirmations': self.order.pair.base.min_confirmations},
+            {'confirmations': self.order.pair.base.min_confirmations - 1}
+        ]
+
         self._read_fixture()
+
+        self.order.amount_base = \
+            Decimal(str(self.amounts[self.status_ok_list_index]))
+        self.order.save()
+
         self.address = Address(
             name='test address',
             address=self.wallet_address,
@@ -260,36 +284,73 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             type=Address.DEPOSIT,
         )
         self.address.save()
-        self.url = 'http://btc.blockr.io/api/v1/address/txs/{}'.format(
+
+        self.url_addr = 'http://btc.blockr.io/api/v1/address/txs/{}'.format(
             self.wallet_address
         )
-        self.order = Order(
-            order_type=Order.SELL,
-            amount_base=Decimal(str(self.amounts[self.status_ok_list_index])),
-            pair=self.BTCEUR,
-            user=self.user,
-            status=Order.INITIAL,
-            payment_preference=self.main_pref
+        self.url_tx_1 = 'http://btc.blockr.io/api/v1/tx/info/{}'.format(
+            self.tx_ids[0]
         )
-        self.order.save()
-        self.unique_ref = self.order.unique_reference
+
+        self.url_tx_2 = 'http://btc.blockr.io/api/v1/tx/info/{}'.format(
+            self.tx_ids[1]
+        )
 
     def _read_fixture(self):
-        cont_path = 'nexchange/tests/fixtures/blockr/address_transactions.json'
-        with open(cont_path) as f:
-            self.blockr_response = f.read().replace('\n', '').replace(' ', '')
-            self.wallet_address = json.loads(self.blockr_response)['data'][
-                'address'
-            ]
-            txs = json.loads(self.blockr_response)['data']['txs']
+        path_addr_fixture = os.path.join(settings.BASE_DIR,
+                                         'nexchange/tests/fixtures/'
+                                         'blockr/address_transactions.json')
+
+        path_tx1_fixture = os.path.join(settings.BASE_DIR,
+                                        'nexchange/tests/fixtures/'
+                                        'blockr/address_tx_1.json')
+
+        path_tx2_fixture = os.path.join(settings.BASE_DIR,
+                                        'nexchange/tests/fixtures/'
+                                        'blockr/address_tx_2.json')
+
+        with open(path_addr_fixture) as f:
+            self.blockr_response_addr =\
+                f.read().replace('\n', '').replace(' ', '')
+            self.wallet_address = json.loads(
+                self.blockr_response_addr
+            )['data']['address']
+
+            txs = json.loads(self.blockr_response_addr)['data']['txs']
             self.amounts = [tx['amount'] for tx in txs]
+
             self.tx_ids = [tx['tx'] for tx in txs]
+        with open(path_tx1_fixture) as f:
+            self.blockr_response_tx1 =\
+                f.read().replace('\n', '').replace(' ', '')
+            self.blockr_response_tx1_parsed = json.loads(
+                self.blockr_response_tx1
+            )
+
+        with open(path_tx2_fixture) as f:
+            self.blockr_response_tx2 =\
+                f.read().replace('\n', '').replace(' ', '')
+            self.blockr_response_tx2_parsed = json.loads(
+                self.blockr_response_tx2
+            )
+
+        self.txs = [
+            self.blockr_response_tx1_parsed,
+            self.blockr_response_tx2_parsed
+        ]
+
+        self.tx_texts = [
+            self.blockr_response_tx1,
+            self.blockr_response_tx2
+        ]
         self.status_ok_list_index = 0
         self.status_bad_list_index = 1
 
     def base_test_create_transactions_with_task(self, mock_request,
                                                 run_method):
-        mock_request.get(self.url, text=self.blockr_response)
+        mock_request.get(self.url_addr, text=self.blockr_response_addr)
+        mock_request.get(self.url_tx_1, text=self.blockr_response_tx1)
+        mock_request.get(self.url_tx_2, text=self.blockr_response_tx2)
         status_ok_list_index = 0
         status_bad_list_index = 1
         run_method()
@@ -300,10 +361,10 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             len(tx_ok), 1,
             'Transaction must be created if order is found!'
         )
-        order = Order.objects.get(unique_reference=self.unique_ref)
-        self.assertTrue(
-            order.status == Order.PAID,
-            'Order should be marked as paid after transaction import'
+        self.order.refresh_from_db()
+        self.assertEquals(
+            self.order.status, Order.PAID_UNCONFIRMED,
+            'Order should be marked as paid after pipeline'
         )
         tx_bad = Transaction.objects.filter(
             tx_id=self.tx_ids[status_bad_list_index]

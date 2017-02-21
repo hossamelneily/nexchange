@@ -8,26 +8,33 @@ from orders.models import Order
 from nexchange.utils import check_transaction_blockchain, \
     check_transaction_uphold, send_email, send_sms
 from accounts.utils import BlockchainTransactionImporter
-import logging
+from nexchange.utils import get_nexchange_logger
+from orders.task_summary import buy_order_release_by_reference_invoke
 
 
 def update_pending_transactions():
+    logger = get_nexchange_logger(__name__, True, True)
     for tr in Transaction.objects.\
             filter(Q(is_completed=False) | Q(is_verified=False)):
         order = tr.order
         profile = order.user.profile
-        logging.info(
+        logger.info(
             'Look-up transaction with txid api {} '.format(tr.tx_id_api))
-        if check_transaction_uphold(tr):
+        if tr.address_to.type == Address.WITHDRAW and \
+                check_transaction_uphold(tr):
             tr.is_completed = True
+            tr.is_verified = True
             tr.save()
             order.state = Order.COMPLETED
             order.save()
 
-        if check_transaction_blockchain(tr):
+        if tr.address_to.type == Address.DEPOSIT and \
+                check_transaction_blockchain(tr):
+            tr.is_completed = True
             tr.is_verified = True
             tr.save()
-
+            # trigger release
+            buy_order_release_by_reference_invoke.apply_assync([order.pk])
             title = _('Nexchange: Order released')
             msg = _('Your order {}:  is released'). \
                 format(tr.order.o.unique_reference)
@@ -37,23 +44,23 @@ def update_pending_transactions():
                 sms_result = send_sms(msg, phone_to)
 
                 if settings.DEBUG:
-                    logging.info(str(sms_result))
+                    logger.info(str(sms_result))
 
             if profile.notify_by_email:
                 email = send_email(tr.order.user.email, title, msg)
                 email.send()
 
             if settings.DEBUG:
-                logging.info('Transaction {} is completed'.format(tr.tx_id))
+                logger.info('Transaction {} is completed'.format(tr.tx_id))
 
 
 def import_transaction_deposit_btc():
-    address = Address.objects.filter(
-        Q(currency__code='BTC') | Q(currency=None),
+    addresses = Address.objects.filter(
+        Q(currency__is_crypto=True) | Q(currency=None),
         type=Address.DEPOSIT
     )
-    for add in address:
+    for addr in addresses:
         importer = BlockchainTransactionImporter(
-            add, min_confirmations=settings.MIN_REQUIRED_CONFIRMATIONS
+            addr
         )
         importer.import_income_transactions()

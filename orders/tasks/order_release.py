@@ -8,8 +8,8 @@ from orders import utils
 def sell_order_release():
     def _check_confirmations(_order, _logger):
         res = True
-        for txs in _order.transactions.all():
-            if txs.confirmations < settings.MIN_REQUIRED_CONFIRMATIONS:
+        for tx in _order.transactions.all():
+            if tx.confirmations < tx.address_to.currency.min_confirmations:
                 _logger.info('Order {} has unconfirmed transactions'.format(
                     _order)
                 )
@@ -18,7 +18,7 @@ def sell_order_release():
         return res
     logger = get_nexchange_logger(__name__)
     orders = Order.objects.filter(
-        status=Order.PAID,
+        status=Order.PAID_UNCONFIRMED,
         order_type=Order.SELL,
         transactions__isnull=False
     )
@@ -29,7 +29,7 @@ def sell_order_release():
         if send_money_status:
             order.status = Order.RELEASED
             order.save()
-            logger.info('Order {} is released'.format(order))
+            logger.info('Order {} is scheduled of released'.format(order))
         else:
             raise NotImplementedError(
                 'Order {} cannot be paid automatically.'.format(order)

@@ -7,13 +7,13 @@ import requests_mock
 from payments.tasks.generic.ok_pay import OkPayPaymentChecker
 from payments.tasks.generic.payeer import PayeerPaymentChecker
 from core.tests.base import TransactionImportBaseTestCase
-from accounts.task_summary import import_transaction_deposit_btc_invoke
+from accounts.task_summary import import_transaction_deposit_btc_invoke, \
+    update_pending_transactions_invoke
 from orders.task_summary import sell_order_release_invoke,\
     buy_order_release_by_reference_invoke
 from django.conf import settings
 from decimal import Decimal
 import json
-import os
 
 
 class OKPayEndToEndTestCase(WalletBaseTestCase):
@@ -209,10 +209,9 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
 
 class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
     def setUp(self):
-        self.confirmation_list = [settings.MIN_REQUIRED_CONFIRMATIONS,
-                                  settings.MIN_REQUIRED_CONFIRMATIONS - 1]
         super(SellOrderReleaseTaskTestCase, self).setUp()
         self.import_txs_task = import_transaction_deposit_btc_invoke
+        self.update_confirmation_task = update_pending_transactions_invoke
         self.release_task = sell_order_release_invoke
         self.payeer_url = settings.PAYEER_API_URL
 
@@ -226,103 +225,98 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
             payment_preference=self.main_pref
         )
         self.order_2.save()
-        self.unique_ref_2 = self.order_2.unique_reference
 
     def _read_fixture(self):
-        cont_path = os.path.join(settings.BASE_DIR,
-                                 'nexchange/tests/fixtures/'
-                                 'blockr/address_transactions.json')
-        with open(cont_path) as f:
-            response = f.read().replace('\n', '').replace(' ', '')
-            loads = json.loads(response)
-            # change confirmation numbers
-            for i, txs in enumerate(loads['data']['txs']):
-                confirmations = txs['confirmations']
-                response = response.replace(
-                    str(confirmations),
-                    str(self.confirmation_list[i])
-                )
+        super(SellOrderReleaseTaskTestCase, self)._read_fixture()
+        for idx, tx in enumerate(self.txs):
+            tx.update(self.order_modifiers[idx])
+            self.tx_texts[idx] = json.dumps(tx)
 
-            self.wallet_address = json.loads(response)['data'][
-                'address'
-            ]
-            self.blockr_response = response
-            txs = json.loads(self.blockr_response)['data']['txs']
-            self.amounts = [tx['amount'] for tx in txs]
-            self.tx_ids = [tx['tx'] for tx in txs]
+        self.amounts = [tx['data']['trade']['vouts'][0]['amount']
+                        for tx in self.txs]
+        self.tx_ids = [tx['data']['tx'] for tx in self.txs]
         self.status_ok_list_index = 0
         self.status_bad_list_index = 1
 
     @requests_mock.mock()
     @patch('orders.utils.send_money')
     def test_release_sell_order_confirmations(self, m, send_money):
-        m.get(self.url, text=self.blockr_response)
+        m.get(self.url_addr, text=self.blockr_response_addr)
+        m.get(self.url_tx_1, text=self.blockr_response_tx2)
+        m.get(self.url_tx_2, text=self.blockr_response_tx1)
         send_money.return_value = True
         self.import_txs_task.apply()
+        self.update_confirmation_task.apply()
         self.release_task.apply()
-        order = Order.objects.get(unique_reference=self.unique_ref)
-        self.assertTrue(order.status in Order.IN_RELEASED)
+        self.order.refresh_from_db()
+        self.assertTrue(self.order.status in Order.IN_RELEASED)
 
     @requests_mock.mock()
     @patch('orders.utils.send_money')
     def test_do_not_release_sell_order_not_enough_confirmations(self, m,
                                                                 send_money):
-        self.confirmation_list[0] = settings.MIN_REQUIRED_CONFIRMATIONS - 1
         self._read_fixture()
-        m.get(self.url, text=self.blockr_response)
+        m.get(self.url_addr, text=self.blockr_response_addr)
         send_money.return_value = True
         self.import_txs_task.apply()
         self.release_task.apply()
-        order = Order.objects.get(unique_reference=self.unique_ref)
-        self.assertNotIn(order.status, Order.IN_RELEASED)
+        self.assertNotIn(self.order.status, Order.IN_RELEASED)
 
     @requests_mock.mock()
     @patch('orders.utils.send_money')
     def test_sell_order_release_1_yes_1_no_due_to_confirmations(self, m,
                                                                 send_money):
-        self.confirmation_list = [settings.MIN_REQUIRED_CONFIRMATIONS,
-                                  settings.MIN_REQUIRED_CONFIRMATIONS - 1]
-        self._read_fixture()
         self._create_second_order()
+        self._read_fixture()
+
         send_money.return_value = True
-        m.get(self.url, text=self.blockr_response)
+        m.get(self.url_addr, text=self.blockr_response_addr)
+        m.get(self.url_tx_1, text=self.tx_texts[0])
+        m.get(self.url_tx_2, text=self.tx_texts[1])
         self.import_txs_task.apply()
+        self.update_confirmation_task.apply()
         self.release_task.apply()
-        order = Order.objects.get(unique_reference=self.unique_ref)
-        order_2 = Order.objects.get(unique_reference=self.unique_ref_2)
-        self.assertIn(order.status, Order.IN_RELEASED)
-        self.assertNotIn(order_2.status, Order.IN_RELEASED)
+        self.order.refresh_from_db()
+        self.order_2.refresh_from_db()
+        self.assertIn(self.order.status, Order.IN_RELEASED)
+        self.assertNotIn(self.order_2.status, Order.IN_RELEASED)
 
     @requests_mock.mock()
     @patch('orders.utils.send_money')
     def test_do_not_release_sell_order_with_task_not_send_money(self, m,
                                                                 send_money):
-        m.get(self.url, text=self.blockr_response)
+        m.get(self.url_addr, text=self.blockr_response_addr)
         send_money.return_value = False
         self.import_txs_task.apply()
         self.release_task.apply()
-        order = Order.objects.get(unique_reference=self.unique_ref)
-        self.assertNotIn(order.status, Order.IN_RELEASED)
+        self.assertNotIn(self.order.status, Order.IN_RELEASED)
 
     @requests_mock.mock()
     @patch('orders.utils.send_money')
     def test_notify_admin_if_not_send_money(self, m, send_money):
-        m.get(self.url, text=self.blockr_response)
+        m.get(self.url_addr, text=self.blockr_response_addr)
+        m.get(self.url_tx_1, text=self.tx_texts[0])
+        m.get(self.url_tx_2, text=self.tx_texts[1])
         send_money.return_value = False
         self.import_txs_task.apply()
+        self.update_confirmation_task.apply()
+
         with self.assertRaises(NotImplementedError):
             self.release_task()
 
     @requests_mock.mock()
     @patch('nexchange.utils.OkPayAPI._send_money')
     def test_okpay_send_money_sell_order(self, m, send_money):
-        m.get(self.url, text=self.blockr_response)
+        m.get(self.url_addr, text=self.blockr_response_addr)
+        m.get(self.url_tx_1, text=self.tx_texts[0])
+        m.get(self.url_tx_2, text=self.tx_texts[1])
         self.order.payment_preference = self.okpay_pref
         self.order.save()
         send_money.return_value = get_ok_pay_mock(
             data='transaction_send_money'
         )
         self.import_txs_task.apply()
+        self.update_confirmation_task.apply()
         self.release_task.apply()
         self.order.refresh_from_db()
 
@@ -332,11 +326,14 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
     @requests_mock.mock()
     @patch('nexchange.utils.PayeerAPIClient.transfer_funds')
     def test_payeer_send_money_sell_order(self, m, send_money):
-        m.get(self.url, text=self.blockr_response)
+        m.get(self.url_addr, text=self.blockr_response_addr)
         m.get(self.payeer_url, text=get_payeer_pay_mock('transfer_funds'))
+        m.get(self.url_tx_1, text=self.tx_texts[0])
+        m.get(self.url_tx_2, text=self.tx_texts[1])
         self.order.payment_preference = self.payeer_pref
         self.order.save()
         self.import_txs_task.apply()
+        self.update_confirmation_task.apply()
         self.release_task.apply()
         self.order.refresh_from_db()
 
@@ -345,11 +342,14 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
 
     @requests_mock.mock()
     def test_unknown_method_do_not_send_money_sell_order(self, m):
-        m.get(self.url, text=self.blockr_response)
+        m.get(self.url_addr, text=self.blockr_response_addr)
+        m.get(self.url_tx_1, text=self.tx_texts[0])
+        m.get(self.url_tx_2, text=self.tx_texts[1])
         payment_method = self.main_pref.payment_method
         payment_method.name = 'Some Random Name'
         payment_method.save()
         self.import_txs_task.apply()
+        self.update_confirmation_task.apply()
         self.release_task.apply()
 
         with self.assertRaises(NotImplementedError):

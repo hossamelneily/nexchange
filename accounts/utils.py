@@ -5,23 +5,25 @@ from core.models import Transaction, Currency
 from orders.models import Order
 from nexchange.utils import check_address_blockchain
 from decimal import Decimal
+from django.conf import settings
 import logging
 
 
 class BlockchainTransactionImporter:
-
-    def __init__(self, address, min_confirmations=3, *args, **kwargs):
+    def __init__(self, address, *args, **kwargs):
         self.name = 'Blockchain Transactions'
         self.address = address
-        self.confirmations = min_confirmations
-
+        self.min_confirmations = address.currency.min_confirmations if \
+            address.currency else settings.MIN_REQUIRED_CONFIRMATIONS
+        self.transactions = None
+        self.data = None
         self.logger = logging.getLogger(
             self.__class__.__name__
         )
 
     def get_transactions(self):
         self.transactions = check_address_blockchain(
-            self.address, confirmations=self.confirmations
+            self.address
         )
 
     def transactions_iterator(self):
@@ -77,7 +79,7 @@ class BlockchainTransactionImporter:
                 transaction.save()
                 self.logger.info('...new transaction created {}'
                                  .format(transaction.__dict__))
-                order.status = Order.PAID
+                order.status = Order.PAID_UNCONFIRMED
                 order.save()
                 self.logger.info('Order {} is marked as paid (is_paid=True)'
                                  .format(order.__dict__))

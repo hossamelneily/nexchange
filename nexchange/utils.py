@@ -114,24 +114,39 @@ def release_payment(withdraw, amount, type_='BTC'):
         print_traceback()
 
 
-def check_address_blockchain(address, confirmations=3):
+def check_address_blockchain(address):
+    # TODO: ethereum support
+    logger = get_nexchange_logger(__name__, True, True)
+
     def _set_network(_address):
+        _currency = None
+        _confirmations = None
         if not address or not address.address:
             return False
-        currency = 'btc'
         if address.currency:
-            currency = _address.currency.code.lower()
-        _network = '{}'.format(currency)
+            _confirmations = address.currency.min_confirmations
+            _currency = _address.currency.code.lower()
+
+            if not _currency:
+                logger.error('Currency not found for address pk {}'
+                             .format(address.pk))
+                return
+            elif _currency == 'eth':
+                logger.error('Address pk {} of unsupported type eth ethereum'
+                             .format(address.pk))
+                return
+
+        _network = '{}'.format(_currency)
         if settings.DEBUG:
-            _network = 't{}'.format(currency)
-        return _network
+            _network = 't{}'.format(_currency)
+        return _network, _confirmations
 
     def _set_url(_network, wallet_address, _confirmations):
         btc_blockr = (
             'http://{}.blockr.io/api/v1/address/txs/{}?confirmations='
             '{}').format(_network, wallet_address, _confirmations)
         return btc_blockr
-    network = _set_network(address)
+    network, confirmations = _set_network(address)
     url = _set_url(network, str(address.address), confirmations)
     info = get(url)
     if info.status_code != 200:
@@ -155,7 +170,11 @@ def check_transaction_blockchain(tx):
     if info.status_code != 200:
         return False
     num_confirmations = int(info.json()['data']['confirmations'])
-    if num_confirmations > settings.MIN_REQUIRED_CONFIRMATIONS:
+
+    tx.confirmations = num_confirmations
+    tx.save()
+
+    if num_confirmations > tx.address_to.currency.min_confirmations:
         return True
     else:
         return False

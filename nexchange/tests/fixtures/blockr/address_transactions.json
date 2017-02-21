@@ -1,6 +1,25 @@
-{"status":"success","data":{"address":"198aMn6ZYAczwrE5NvNTUMyJ5qkfy4g3Hi","limit_txs":200,"nb_txs":33,"nb_txs_displayed":33,"txs":[
-  {"time_utc":"2016-08-11T16:33:24Z",
-    "tx":"c653ac1e7a66117e097dd16cfd122b24b0f92060d096d8754a1e550d4c64f520","confirmations":25546,"amount":0.0002,"amount_multisig":0},
-  {"tx":"f6bc882aae4c9bc0174f19294a1ac18fc2559086a6dca482a3ce2ae901b0a196",
-    "time_utc":"2016-07-26T23:41:52Z","confirmations":27862,"amount":0.0003,"amount_multisig":0}
-]}}
+{
+  "status": "success",
+  "data": {
+    "address": "198aMn6ZYAczwrE5NvNTUMyJ5qkfy4g3Hi",
+    "limit_txs": 200,
+    "nb_txs": 33,
+    "nb_txs_displayed": 33,
+    "txs": [
+      {
+        "time_utc": "2016-08-11T16:33:24Z",
+        "tx": "c653ac1e7a66117e097dd16cfd122b24b0f92060d096d8754a1e550d4c64f520",
+        "confirmations": 0,
+        "amount": 0.0002,
+        "amount_multisig": 0
+      },
+      {
+        "tx": "f6bc882aae4c9bc0174f19294a1ac18fc2559086a6dca482a3ce2ae901b0a196",
+        "time_utc": "2016-07-26T23:41:52Z",
+        "confirmations": 0,
+        "amount": 0.0003,
+        "amount_multisig": 0
+      }
+    ]
+  }
+}
