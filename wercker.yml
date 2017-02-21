@@ -26,6 +26,11 @@ dev:
           mkdir -p /usr/share/nginx/html/static
           mkdir -p /usr/share/nginx/html/media
     - npm-install
+    - script:
+    name: create/validate static build roots
+    code: |
+       mkdir -p static/dist/js
+       mkdir -p static/dist/css
     - maxon/npm-run:
         script: bower
     - maxon/npm-run:
@@ -140,6 +145,11 @@ dev:
           chmod +x /ticker.sh
           echo "* * * * * root /ticker.sh" > /etc/crontab
           cron
+    - script:
+        name: create/validate static build roots
+        code: |
+           mkdir -p static/dist/js
+           mkdir -p static/dist/css
     - internal/watch:
         code: |
           echo 'Dev server running'
@@ -248,7 +258,7 @@ build:
           export CELERY_ALWAYS_EAGER=${CELERY_ALWAYS_EAGER}
           export API1_IS_TEST=${API1_IS_TEST}
           export API1_ID_C1=${API1_ID_C1}
-          
+
           # YANDEX
           export YANDEX_METRICA_ID_UK=${YANDEX_METRICA_ID_UK}
           export YANDEX_METRICA_ID_RU=${YANDEX_METRICA_ID_RU}
@@ -327,7 +337,8 @@ build:
 
           # Copy static data to nginx volume
           cp -ra $WERCKER_OUTPUT_DIR/mediafiles/* /usr/share/nginx/html/media
-          cp -ra $WERCKER_OUTPUT_DIR/staticfiles/* /usr/share/nginx/html/static
+          cp -ra $WERCKER_OUTPUT_DIR/
+          /* /usr/share/nginx/html/static
           #
           # Create superuser
           echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@onit.ws','weare0nit')" | python manage.py shell
