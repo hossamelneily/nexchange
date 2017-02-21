@@ -191,7 +191,7 @@ build:
     - maxon/npm-run:
         script: build-js
     - script:
-      name:
+      name: collect static
       code: |
         yes 'yes' | python manage.py collectstatic
     - script:
