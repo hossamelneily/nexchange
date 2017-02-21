@@ -18,7 +18,7 @@
             $('html, body').animate({
                 scrollTop: rootElem.offset().top
             })
-            .delay(indicateWithdrawDelay)
+            .delay(indicateWith-drawDelay)
             .queue(function (next) {
                 rootElem.click();
                 next();
