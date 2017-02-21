@@ -257,8 +257,8 @@ html body .ui-state-default{
 
 
 .unique_ref, .our_acc {
-    text-transform: uppercase;
-    font-weight: bold;
+    /* text-transform: uppercase; */
+    /* font-weight: bold; */
     font-size: 18px;
 }
 

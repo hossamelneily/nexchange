@@ -14,7 +14,31 @@
 
             <div class="row">
                 <div class="col col-xs-12 our_acc">
-                    <p><strong>{{order.payment_preference.identifier}}</strong></p>
+                    {% if order.payment_preference.payment_method.name in order.payment_preference.payment_method.METHODS_NAMES_WITH_BANK_DETAILS %}
+                        <p>
+                            {% trans 'IBAN: '%}
+                            <strong>{{order.payment_preference.identifier}}</strong>
+                        <p>
+                            {% trans 'BIC: '%}
+                            <strong>{{order.payment_preference.bic}}</strong>
+                        </p>
+                        <p><small>
+                            {% trans 'Bank Name: '%}
+                            <strong>{{order.payment_preference.name}}</strong>
+                        </small></p>
+                        <p><small>
+                            {% trans 'Bank Address: ' %}
+                            <strong>{{order.payment_preference.physical_address_bank}}</strong>
+                        </small></p>
+                        <p><small>
+                            {% trans 'Owner Address: ' %}
+                            <strong>{{order.payment_preference.physical_address_owner}}</strong>
+                        </small></p>
+                    {% else %}
+                        <p>
+                            <strong>{{order.payment_preference.identifier}}</strong>
+                        <p>
+                    {% endif %}
                 </div>
             </div>
             <div class="row">
