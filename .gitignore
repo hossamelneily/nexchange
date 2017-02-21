@@ -27,3 +27,4 @@ node.exe
 .pydevproject
 .settings/
 .ropeproject
+static/dist/

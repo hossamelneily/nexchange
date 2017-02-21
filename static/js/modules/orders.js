@@ -8,7 +8,7 @@
          paymentObj = require('./payment.js'),
          currency = null,
          animationDelay = 3000,
-         minOrderCoin = 0.0001;
+         minOrderCoin = 0.01;
 
     $(function() {
         function setAsPaidFlow () {
