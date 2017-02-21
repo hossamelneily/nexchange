@@ -242,6 +242,7 @@ class WalletBaseTestCase(OrderBaseTestCase):
 
 
 class TransactionImportBaseTestCase(OrderBaseTestCase):
+
     def setUp(self):
         super(TransactionImportBaseTestCase, self).setUp()
 
