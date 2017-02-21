@@ -26,10 +26,10 @@ dev:
           mkdir -p /usr/share/nginx/html/static
           mkdir -p /usr/share/nginx/html/media
     - script:
-    name: create/validate static build roots
-    code: |
-       mkdir -p static/dist/js
-       mkdir -p static/dist/css
+        name: create/validate static build roots
+        code: |
+           mkdir -p static/dist/js
+           mkdir -p static/dist/css
    - npm-install
     - maxon/npm-run:
         script: bower
