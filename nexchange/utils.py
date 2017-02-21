@@ -452,6 +452,7 @@ class PayeerAPIClient(BasePaymentApi):
                                 trans_type='incoming'):
         from_date, to_date = self.get_default_ranges(from_date, to_date)
 
+        # to is removed, because it is not UTC on Payeer side.
         payload = {
             'account': self.account,
             'apiId': self.apiId,
@@ -460,7 +461,6 @@ class PayeerAPIClient(BasePaymentApi):
             'sort': sort,
             'count': page_size,
             'from': from_date,
-            'to': to_date,
             'type': trans_type
         }
         response = requests.post(self.url, payload)

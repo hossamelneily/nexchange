@@ -60,7 +60,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
         'INITIAL', 'Initial state of the order.',
         'PAID', 'Order is Paid by customer. ' + _could_be_paid_msg,
         'PAID_UNCONFIRMED', 'Order is possibly paid (unconfirmed crypto '
-                            'transaction)',
+                            'transaction or fiat payment is to small to '
+                            'cover the order.)',
         'RELEASED', 'Order is paid by service provider. ' + _could_be_paid_msg,
         'COMPLETED', 'All states of the order is completed',
         'CANCELED', 'Order is canceled.'
@@ -134,7 +135,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
                     lambda x: Order.objects.filter(unique_reference=x).count(),
                     settings.UNIQUE_REFERENCE_LENGTH
                 )
-        if self.status not in self.IN_PAID:
+        if self.status == self.INITIAL:
             self.convert_coin_to_cash()
 
         super(Order, self).save(*args, **kwargs)

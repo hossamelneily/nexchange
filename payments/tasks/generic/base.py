@@ -9,6 +9,7 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.conf import settings
 from copy import deepcopy
 from orders.tasks.generic.base import BaseBuyOrderRelease
+from decimal import Decimal
 
 
 class \
@@ -21,7 +22,12 @@ class \
         self.api = None
         self.payment_preference = None
 
-        self.last_payment = Payment.objects.last()
+        if self.name:
+            self.last_payment = Payment.objects.filter(
+                payment_preference__payment_method__name__icontains=self.name
+            ).last()
+        else:
+            self.last_payment = Payment.objects.last()
         self.start_time = self.last_payment.api_time\
             if self.last_payment else None
 
@@ -184,6 +190,27 @@ class \
 
         return success and valid_beneficiary
 
+    def check_order_paid_status(self, order):
+        ref = order.unique_reference
+        payments = Payment.objects.filter(is_success=True, reference=ref)
+        sum_all = Decimal('0.0')
+        for p in payments:
+            sum_all += p.amount_cash
+        amount_expected = order.amount_quote
+        # FIXME: add transaction fee to customer on Payeer (or become a
+        # partner)
+        if order.payment_preference.payment_method.name == 'Payeer Wallet':
+            # transaction fee 0.0095 , minimal fee 0.01 cent
+            amount_expected = (amount_expected * Decimal('0.9905')) - Decimal(
+                '0.01')
+        if sum_all >= amount_expected:
+            if order.status not in Order.IN_PAID:
+                order.status = Order.PAID
+                order.save()
+        elif payments:
+            order.status = Order.PAID_UNCONFIRMED
+            order.save()
+
     def create_payment(self, pref, order=None):
         # get only by unique refs, even if the rest does not match
         # at the moment if the user pays the same invoice twice
@@ -306,6 +333,8 @@ class \
             ).last()
             pref = self.create_payment_preference(order)
             payment = self.create_payment(pref, order)
+            if order:
+                self.check_order_paid_status(order)
 
             # only if new payment is created
             if payment:
@@ -313,9 +342,6 @@ class \
                     task = BaseBuyOrderRelease.RELEASE_BY_REFERENCE
                 else:
                     task = BaseBuyOrderRelease.RELEASE_BY_RULE
-
-                order.status = Order.PAID
-                order.save()
 
                 self.add_next_task(
                     task,

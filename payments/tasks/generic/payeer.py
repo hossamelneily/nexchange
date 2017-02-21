@@ -57,7 +57,7 @@ class PayeerPaymentChecker(BasePaymentChecker):
                 'secondary_identifier': wallet if email else None,
                 'currency': trans['creditedCurrency'],
                 'amount_cash': Decimal(trans['creditedAmount']),
-                'unique_ref': trans['shopOrderId'],
+                'unique_ref': trans.get('shopOrderId', trans['comment']),
                 'payment_system_id': trans['id'],
                 # essential for checking a transaction
                 'is_success': trans['status'] == 'success',
