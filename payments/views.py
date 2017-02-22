@@ -179,6 +179,8 @@ def payment_type(request):
         'sber': get_pref_by_name('Sber', currency),
         'alfa': get_pref_by_name('Alfa', currency),
         'qiwi': get_pref_by_name('Qiwi', currency),
+        'sepa': get_pref_by_name('SEPA', currency),
+        'swift': get_pref_by_name('SWIFT', currency),
         'paypal': get_pref_by_name('PayPal', currency),
         'skrill': get_pref_by_name('Skrill', currency),
         'okpay': get_pref_by_name('Okpay', currency),
@@ -211,6 +213,8 @@ def payment_type_json(request):
         'sber': get_pref_by_name('Sber', currency),
         'alfa': get_pref_by_name('Alfa', currency),
         'qiwi': get_pref_by_name('Qiwi', currency),
+        'sepa': get_pref_by_name('SEPA', currency),
+        'swift': get_pref_by_name('SWIFT', currency),
         'paypal': get_pref_by_name('PayPal', currency),
         'okpay': get_pref_by_name('Okpay', currency),
 

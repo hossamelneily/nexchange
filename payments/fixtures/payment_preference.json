@@ -107,7 +107,7 @@
       "user": ["onit"],
       "identifier": "paypal@nexchange.co.uk",
       "payment_method": 12,
-      "comment": "Please note that you must send the payment as a personal payment",
+      "comment": "Please send the funds as a personal payment (this is a precaution to prevent charge backs, payments for goods and services will be automatically declined)",
       "currency": [
         ["EUR"],
         ["USD"],
@@ -555,6 +555,7 @@
       "identifier": "weare@onit.ws",
       "secondary_identifier": "OK217536082",
       "payment_method": 18,
+      "comment": "To pay with a Visa/Mastercard credit card please fund your OkPay account with your card and then pay from your OkPay balance (0% fee)",
       "currency": [
         ["JPY"],
         ["HRK"],
@@ -589,6 +590,7 @@
       "identifier": "weare@onit.ws",
       "secondary_identifier": "P39962269",
       "payment_method": 19,
+      "comment": "To pay with a Visa credit card please fund your Payeer account with your card and then pay from your Payeer balance (0.95% fee)",
       "currency": [
         ["EUR"],
         ["USD"],
