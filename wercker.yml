@@ -30,7 +30,7 @@ dev:
         code: |
            mkdir -p static/dist/js
            mkdir -p static/dist/css
-   - npm-install
+    - npm-install
     - maxon/npm-run:
         script: bower
     - maxon/npm-run:
