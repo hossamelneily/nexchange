@@ -122,29 +122,6 @@ dev:
           cd .git/hooks/
           ln -fs ../../.pre-commit.sh pre-commit
           cd -
-
-    - create-file:
-        name: Create cron invoked script to run ticker
-        filename: /ticker.sh
-        overwrite: true
-        content: |-
-          #!/bin/bash
-          #
-          export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-          export POSTGIS_ENV_POSTGRES_USER=${POSTGIS_ENV_POSTGRES_USER}
-          export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}
-          export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
-          export POSTGIS_PORT_5432_TCP_ADDR=${POSTGIS_PORT_5432_TCP_ADDR}
-          export POSTGIS_PORT_5432_TCP_PORT=${POSTGIS_PORT_5432_TCP_PORT}
-          #
-          cd ${WERCKER_SOURCE_DIR}
-          /usr/local/bin/python manage.py ticker >> /dev/stdout 2>&1
-    - script:
-        name: Add cron job
-        code: |
-          chmod +x /ticker.sh
-          echo "* * * * * root /ticker.sh" > /etc/crontab
-          cron
     - script:
         name: create/validate static build roots
         code: |
