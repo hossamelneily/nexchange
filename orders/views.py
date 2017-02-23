@@ -17,7 +17,7 @@ from orders.models import Order
 from payments.models import PaymentPreference, PaymentMethod
 from payments.utils import geturl_robokassa, get_payeer_sign, get_payeer_desc
 from nexchange.utils import send_email
-from orders.task_summary import buy_order_release_by_wallet_invoke
+from orders.task_summary import buy_order_release_by_reference_invoke
 
 
 @login_required
