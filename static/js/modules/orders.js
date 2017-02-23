@@ -13,7 +13,7 @@
     $(function() {
         function setAsPaidFlow () {
             if (!rootElem || !rootElem.length) {
-                return
+                return;
             }
             $('html, body').animate({
                 scrollTop: rootElem.offset().top
@@ -45,7 +45,7 @@
 
 
         if (oid) {
-            setTimeout(function() {setAsPaidFlow()}, initialDelay);
+            setTimeout(function() {setAsPaidFlow();}, initialDelay);
         }
     });
      

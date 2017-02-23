@@ -6,8 +6,8 @@
     <div class="payment_title">
         {% trans 'Credit cards' %}
     </div>
-    {% include 'payments/partials/modals/card.html' with card_type='visa' label='Visa' icon='icons/small/visa.png' card=cards.okpay %}
-    {% include 'payments/partials/modals/card.html' with card_type='mastercard' label='Mastercard' icon='icons/small/mastercard.png' card=cards.payeer %}
+    {% include 'payments/partials/modals/card.html' with card_type='payeer' label='Visa' icon='icons/small/visa.png' card=cards.payeer %}
+    {% include 'payments/partials/modals/card.html' with card_type='okpay' label='Mastercard' icon='icons/small/mastercard.png' card=cards.payeer %}
 </div>
 {% endif %}
 
@@ -31,10 +31,10 @@
         {% trans 'Bank'%}
     </div>
     {% if type == 'buy' %}
-        {% include 'payments/partials/modals/card.html' with card_type='alfa-bank' label='Alfa-Bank' icon='icons/small/alfabank.png' card=cards.alfa %}
-        {% include 'payments/partials/modals/card.html' with card_type='sbernank' label='Sberbank' icon='icons/small/sber.png' card=cards.sber %}
-        {% include 'payments/partials/modals/card.html' with card_type='sepa' label='Sepa' icon='icons/small/sepa.png'  card=cards.alfa %}
-        {% include 'payments/partials/modals/card.html' with card_type='swift' label='Swift' icon='icons/small/swift.png' card=cards.alfa %}
+        {% include 'payments/partials/modals/card.html' with card_type='alfa bank' label='Alfa-Bank' icon='icons/small/alfabank.png' card=cards.alfa %}
+        {% include 'payments/partials/modals/card.html' with card_type='sberbank' label='Sberbank' icon='icons/small/sber.png' card=cards.sber %}
+        {% include 'payments/partials/modals/card.html' with card_type='sepa' label='Sepa' icon='icons/small/sepa.png'  card=cards.sepa %}
+        {% include 'payments/partials/modals/card.html' with card_type='swift' label='Swift' icon='icons/small/swift.png' card=cards.swift %}
     {% else %}
         {% include 'payments/partials/modals/card.html' with card_type='c2c' label='Card 2 Card' icon='icons/small/c2c.ico' %}
         {% include 'payments/partials/modals/card.html' with card_type='Sepa' label='Sepa' icon='icons/small/sepa.png' %}

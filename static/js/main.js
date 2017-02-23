@@ -37,7 +37,7 @@
 
     $(function () {
         if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
-            $('.select2').removeClass('select2')
+            $('.select2').removeClass('select2');
         } else {
             $(".select2").select2({'containerCssClass': 'currency-select ' +
             'currency-pair chart_panel_selectbox classic'});
@@ -171,8 +171,8 @@
             if ($(this).hasClass('currency-pair')) {
                 var selected = $(this).find('option:selected');
                 currency = selected.attr('data-fiat');
-                pair = selected.val();
                 currency_to = selected.attr('data-crypto');
+                pair = currency_to + currency;
             } else if ($(this).hasClass('currency-from')) {
                 currency = $(this).val();
                 currency_to = $('.currency-to').val();
