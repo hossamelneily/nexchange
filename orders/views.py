@@ -281,7 +281,7 @@ def update_withdraw_address(request, pk):
             order.withdraw_address = addr
             order.save()
             if order.status == Order.PAID:
-                buy_order_release_by_wallet_invoke.apply_async([order.pk])
+                buy_order_release_by_reference_invoke.apply_async([order.pk])
         except ObjectDoesNotExist:
             return HttpResponseForbidden(
                 _('Invalid address provided'))
