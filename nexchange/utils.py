@@ -132,8 +132,8 @@ def check_address_blockchain(address):
                              .format(address.pk))
                 return
             elif _currency == 'eth':
-                logger.error('Address pk {} of unsupported type eth ethereum'
-                             .format(address.pk))
+                logger.warning('Address pk {} of unsupported type eth ethereum'
+                               .format(address.pk))
                 return
 
         _network = '{}'.format(_currency)
