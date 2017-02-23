@@ -113,8 +113,9 @@ class BaseBuyOrderRelease(BaseOrderRelease):
                 )
             )
 
-            order.status = Order.RELEASED
-            order.save()
+            if order.status not in Order.IN_RELEASED:
+                order.status = Order.RELEASED
+                order.save()
 
             payment.is_redeemed = True
             payment.order = order
