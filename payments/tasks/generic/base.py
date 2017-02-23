@@ -12,9 +12,7 @@ from orders.tasks.generic.base import BaseBuyOrderRelease
 from decimal import Decimal
 
 
-class \
-        BasePaymentChecker(BaseTask):
-
+class BasePaymentChecker(BaseTask):
     def __init__(self, *args, **kwargs):
         self.currency_cache = {}
         self.transactions = []
@@ -184,9 +182,10 @@ class \
         success = self.validate_success()
         valid_beneficiary = self.validate_beneficiary()
         if not success:
-            self.logger.error('Payment {} is not success'.format({}))
+            self.logger.error('Payment {} is not success'.format(self.data))
         if not valid_beneficiary:
-            self.logger.error('Payment {} is not to our wallet'.format({}))
+            self.logger.error('Payment {} is not to our wallet Allowed: {}'
+                              .format(self.data, self.allowed_beneficiary))
 
         return success and valid_beneficiary
 

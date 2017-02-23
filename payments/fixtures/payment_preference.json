@@ -552,7 +552,7 @@
     "pk": 31,
     "fields": {
       "user": ["onit"],
-      "identifier": "weare@onit.ws",
+      "identifier": "okpay@nexchange.co.uk",
       "secondary_identifier": "OK217536082",
       "payment_method": 18,
       "comment": "To pay with a Visa/Mastercard credit card please fund your OkPay account with your card and then pay from your OkPay balance (0% fee)",
@@ -566,7 +566,6 @@
         ["GBP"],
         ["RUB"],
         ["CHF"],
-
         ["CZK"],
         ["AUD"],
         ["CAD"],
@@ -587,7 +586,7 @@
     "pk": 32,
     "fields": {
       "user": ["onit"],
-      "identifier": "weare@onit.ws",
+      "identifier": "payeer@nexchange.co.uk",
       "secondary_identifier": "P39962269",
       "payment_method": 19,
       "comment": "To pay with a Visa credit card please fund your Payeer account with your card and then pay from your Payeer balance (0.95% fee)",
