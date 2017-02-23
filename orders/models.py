@@ -57,13 +57,13 @@ class Order(TimeStampedModel, SoftDeletableModel,
     _could_be_paid_msg = 'Could be paid by crypto transaction or fiat ' \
                          'payment, depending on order_type.'
     _order_status_help = (5 * '{} - {}<br/>' + '{} - {}.').format(
-        'INITIAL', 'Initial state of the order.',
+        'INITIAL', 'Initial status of the order.',
         'PAID', 'Order is Paid by customer. ' + _could_be_paid_msg,
         'PAID_UNCONFIRMED', 'Order is possibly paid (unconfirmed crypto '
                             'transaction or fiat payment is to small to '
                             'cover the order.)',
         'RELEASED', 'Order is paid by service provider. ' + _could_be_paid_msg,
-        'COMPLETED', 'All states of the order is completed',
+        'COMPLETED', 'All statuses of the order is completed',
         'CANCELED', 'Order is canceled.'
     )
 

@@ -25,7 +25,7 @@ def update_pending_transactions():
             tr.is_completed = True
             tr.is_verified = True
             tr.save()
-            order.state = Order.COMPLETED
+            order.status = Order.COMPLETED
             order.save()
 
         if tr.address_to.type == Address.DEPOSIT and \
