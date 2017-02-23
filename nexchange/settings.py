@@ -52,9 +52,6 @@ LANGUAGES = [
 ]
 
 
-# CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
-CELERY_RESULT_SERIALIZER = 'pickle'
-
 # CUSTOM SETTINGS
 USER_SETS_WITHDRAW_ADDRESS_MEDIAN_TIME = 30
 TICKER_INTERVAL = 30
@@ -154,8 +151,27 @@ CMSPAGES = {
 
 REDIS_ADDR = 'redis'
 REDIS_PORT = '6379'
-REDIS_URL = 'redis://{}:{}/1'.format(REDIS_ADDR, REDIS_PORT)
-CELERY_BROKER_URL = REDIS_URL
+REDIS_SCHEME = 'redis://{}:{}/{}'
+REDIS_URL_BROKER = REDIS_SCHEME.format(REDIS_ADDR, REDIS_PORT, 1)
+REDIS_URL_RESULT = REDIS_SCHEME.format(REDIS_ADDR, REDIS_PORT, 2)
+REDIS_URL_CACHE = REDIS_SCHEME.format(REDIS_ADDR, REDIS_PORT, 3)
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL_CACHE,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX": "nexchange"
+    }
+}
+
+
+CELERY_BROKER_URL = REDIS_URL_BROKER
+CELERY_RESULT_BACKEND = REDIS_URL_RESULT
+CELERY_RESULT_SERIALIZER = 'pickle'
+CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 
 
 CELERY_BEAT_SCHEDULE = {
