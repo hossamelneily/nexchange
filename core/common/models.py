@@ -64,7 +64,6 @@ class Flag(TimeStampedModel):
 
 
 class FlagableMixin(models.Model):
-
     class Meta:
         abstract = True
 

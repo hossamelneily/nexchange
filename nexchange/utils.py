@@ -128,12 +128,15 @@ def check_address_blockchain(address):
             _currency = _address.currency.code.lower()
 
             if not _currency:
-                logger.error('Currency not found for address pk {}'
-                             .format(address.pk))
+                if not _currency.flag(__name__)[1]:
+                    logger.error('Currency not found for address pk {}'
+                                 .format(address.pk))
                 return
             elif _currency == 'eth':
-                logger.warning('Address pk {} of unsupported type eth ethereum'
-                               .format(address.pk))
+                if not _currency.flag(__name__)[1]:
+                    logger.warning('Address pk {} of '
+                                   'unsupported type eth ethereum'
+                                   .format(address.pk))
                 return
 
         _network = '{}'.format(_currency)

@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from core.common.models import SoftDeletableModel, TimeStampedModel
-
+from core.common.models import FlagableMixin
 from .validators import validate_bc
 
 
@@ -64,7 +64,7 @@ class CurrencyManager(models.Manager):
         return self.get(code=code)
 
 
-class Currency(TimeStampedModel, SoftDeletableModel):
+class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     objects = CurrencyManager()
     code = models.CharField(max_length=3)
     name = models.CharField(max_length=10)
