@@ -277,10 +277,11 @@ def update_withdraw_address(request, pk):
         try:
             addr = Address.objects.get(
                 user=request.user, pk=address_id)
+            new_withdraw_address = not order.withdraw_address
             addr.save()
             order.withdraw_address = addr
             order.save()
-            if order.status == Order.PAID:
+            if order.status == Order.PAID and new_withdraw_address:
                 buy_order_release_by_reference_invoke.apply_async([order.pk])
         except ObjectDoesNotExist:
             return HttpResponseForbidden(
