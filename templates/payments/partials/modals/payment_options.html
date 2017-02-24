@@ -6,7 +6,7 @@
     <div class="payment_title">
         {% trans 'Credit cards' %}
     </div>
-    {% include 'payments/partials/modals/card.html' with card_type='payeer' label='Visa' icon='icons/small/visa.png' card=cards.payeer %}
+    {% include 'payments/partials/modals/card.html' with card_type='payeer' label='Visa' icon='icons/small/visa.png' card=cards.payeer extra_class='visa' %}
     {% include 'payments/partials/modals/card.html' with card_type='okpay' label='Mastercard' icon='icons/small/mastercard.png' card=cards.payeer %}
 </div>
 {% endif %}
