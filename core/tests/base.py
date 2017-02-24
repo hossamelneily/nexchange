@@ -310,6 +310,23 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
                                         'nexchange/tests/fixtures/'
                                         'blockr/address_tx_2.json')
 
+        uphold_get_details_fixture = os.path.join(
+            settings.BASE_DIR,
+            'nexchange/tests/fixtures/uphold/get_card_details.json'
+        )
+        uphold_commit_tx_fixture = os.path.join(
+            settings.BASE_DIR,
+            'nexchange/tests/fixtures/uphold/commit_transaction.json'
+        )
+        uphold_reverse_completed_fixture = os.path.join(
+            settings.BASE_DIR,
+            'nexchange/tests/fixtures/uphold/transaction_completed.json'
+        )
+        uphold_reverse_pending_fixture = os.path.join(
+            settings.BASE_DIR,
+            'nexchange/tests/fixtures/uphold/transaction_pending.json'
+        )
+
         with open(path_addr_fixture) as f:
             self.blockr_response_addr =\
                 f.read().replace('\n', '').replace(' ', '')
@@ -334,6 +351,23 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             self.blockr_response_tx2_parsed = json.loads(
                 self.blockr_response_tx2
             )
+
+        with open(uphold_get_details_fixture) as f:
+            self.uphold_get_card = \
+                f.read().replace('\n', '').replace(' ', '')
+            self.uphold_tx_id = json.loads(self.uphold_get_card)['id']
+
+        with open(uphold_commit_tx_fixture) as f:
+            self.uphold_commit_tx = \
+                f.read().replace('\n', '').replace(' ', '')
+
+        with open(uphold_reverse_completed_fixture) as f:
+            self.uphold_tx_completed = \
+                f.read().replace('\n', '').replace(' ', '')
+
+        with open(uphold_reverse_pending_fixture) as f:
+            self.uphold_tx_pending = \
+                f.read().replace('\n', '').replace(' ', '')
 
         self.txs = [
             self.blockr_response_tx1_parsed,

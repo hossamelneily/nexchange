@@ -1,11 +1,13 @@
 from core.tests.utils import get_ok_pay_mock, get_payeer_pay_mock
 from core.tests.base import WalletBaseTestCase
+from core.models import Address
 from orders.models import Order
 from payments.models import Payment
 from unittest.mock import patch
 import requests_mock
 from payments.tasks.generic.ok_pay import OkPayPaymentChecker
 from payments.tasks.generic.payeer import PayeerPaymentChecker
+from payments.task_summary import run_okpay
 from core.tests.base import TransactionImportBaseTestCase
 from accounts.task_summary import import_transaction_deposit_btc_invoke, \
     update_pending_transactions_invoke
@@ -357,3 +359,90 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
 
         self.order.refresh_from_db()
         self.assertNotIn(self.order.status, Order.IN_RELEASED)
+
+
+class BuyOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
+                                  WalletBaseTestCase):
+    def setUp(self):
+        super(BuyOrderReleaseTaskTestCase, self).setUp()
+        self.update_confirmation_task = update_pending_transactions_invoke
+        self.address.type = Address.WITHDRAW
+        self.address.save()
+        url_sandbox = 'https://api-sandbox.uphold.com'
+        card1 = settings.API1_ID_C1
+        self.url_prep_txn = '{}/v0/me/cards/{}/transactions'.format(
+            url_sandbox, card1
+        )
+        self.url_commit_txn = (
+            '{}/v0/me/cards/{}/transactions/{}/commit'.format(
+                url_sandbox, card1, self.uphold_tx_id
+            )
+        )
+        self.url_uphold_reverse = (
+            '{}/v0/reserve/transactions/{}'.format(url_sandbox,
+                                                   self.uphold_tx_id))
+
+    def base_mock_buy_order_to_release(self, transaction_history,
+                                       validate_paid, prepare_txn, execute_txn
+                                       ):
+        transaction_history.return_value = get_ok_pay_mock()
+        validate_paid.return_value = True
+
+        prepare_txn.return_value = 'txid12345'
+        execute_txn.return_value = True
+        # Create order
+        self.okpay_order_data['withdraw_address'] = self.address
+        order = Order(**self.okpay_order_data)
+        order.save()
+        self.assertEqual(order.status, Order.INITIAL)
+
+        # Import Payment
+        run_okpay.apply()
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PAID)
+
+        # Release Order
+        payment = Payment.objects.get(reference=order.unique_reference)
+        buy_order_release_by_reference_invoke.apply([payment.pk])
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.RELEASED)
+        return order
+
+    # TODO: change patch to request_mock (some problems with Uphold mocking
+    # while running all the tests)
+    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch('nexchange.utils.api.execute_txn')
+    @patch('nexchange.utils.api.prepare_txn')
+    @patch('payments.tasks.generic.base.BasePaymentChecker'
+           '.validate_beneficiary')
+    @patch('nexchange.utils.OkPayAPI._get_transaction_history')
+    def test_complete_buy_order(self, transaction_history, validate_paid,
+                                prepare_txn, execute_txn, reserve_txn):
+        order = self.base_mock_buy_order_to_release(
+            transaction_history, validate_paid, prepare_txn, execute_txn
+        )
+
+        # Check transaction status (Completed)
+        reserve_txn.return_value = {'status': 'completed'}
+        self.update_confirmation_task.apply()
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.COMPLETED)
+
+    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch('nexchange.utils.api.execute_txn')
+    @patch('nexchange.utils.api.prepare_txn')
+    @patch('payments.tasks.generic.base.BasePaymentChecker'
+           '.validate_beneficiary')
+    @patch('nexchange.utils.OkPayAPI._get_transaction_history')
+    def test_pending_tx_not_completed_buy_order(self, transaction_history,
+                                                validate_paid, prepare_txn,
+                                                execute_txn, reserve_txn):
+        order = self.base_mock_buy_order_to_release(
+            transaction_history, validate_paid, prepare_txn, execute_txn
+        )
+
+        # Check transaction status (Pending)
+        reserve_txn.return_value = {'status': 'pending'}
+        self.update_confirmation_task.apply()
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.RELEASED)

@@ -37,6 +37,7 @@ class BaseOrderRelease(BaseTask):
                 self.logger.warn('order: {} payment: {} IS NOT SUCCESS'
                                  .format(order, payment))
 
+
         return not order_already_released and payment.is_success
 
     def do_release(self, order, payment):
@@ -100,6 +101,7 @@ class BaseBuyOrderRelease(BaseOrderRelease):
             tx_id = release_payment(order.withdraw_address,
                                     order.amount_base)
 
+
             if tx_id is None:
                 self.logger.error('Payment release returned None, '
                                   'order {} payment {}'.format(order,
@@ -137,7 +139,7 @@ class BaseBuyOrderRelease(BaseOrderRelease):
         verbose_match = type(self).__name__ == 'BuyOrderReleaseByWallet'
         details_match = \
             order.pair.quote == payment.currency and \
-            order.amount_quote == payment.amount_cash
+            order.amount_quote <= payment.amount_cash
         ref_matches = order.unique_reference == payment.reference or \
             verbose_match
 
