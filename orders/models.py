@@ -192,10 +192,11 @@ class Order(TimeStampedModel, SoftDeletableModel,
         return self.status in Order.IN_RELEASED
 
     def __str__(self):
-        return "{} {} pair:{} base:{} quote:{}".format(
+        return "{} {} pair:{} base:{} quote:{} status:{}".format(
             self.user.username or self.user.profile.phone,
-            self.order_type,
+            self.get_order_type_display(),
             self.pair.name,
             self.amount_base,
-            self.amount_quote
+            self.amount_quote,
+            self.get_status_display()
         )

@@ -383,27 +383,36 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
 
     @data_provider(
         lambda: (
-            (True,
-             {'notify_by_phone': True,
-              'notify_by_email': True, 'lang': 'en'}, 1, 1),
-            (True,
-             {'notify_by_phone': False, 'notify_by_email': True,
-              'lang': 'en'}, 0, 1),
-            (True,
-             {'notify_by_phone': True, 'notify_by_email': False,
-              'lang': 'en'}, 1, 0),
-            (True,
-             {'notify_by_phone': False, 'notify_by_email': False,
-              'lang': 'en'},
-             0, 0),
-            (False,
-             {'notify_by_phone': False, 'notify_by_email': False,
-              'lang': 'en'},
-             0, 0),
-            (False,
+            (True, {'username': 'u1'},
              {'notify_by_phone': True, 'notify_by_email': True,
-              'lang': 'en'},
-             0, 0)
+              'phone': '+37068644145', 'lang': 'en'}, 1, 0),
+            (True, {'username': 'u2'},
+             {'notify_by_phone': True, 'notify_by_email': True,
+              'phone': '+37068644145', 'lang': 'en'}, 1, 0),
+            (True, {'username': 'u3', 'email': 'test@email.com'},
+             {'notify_by_phone': True, 'notify_by_email': True,
+              'phone': '+37068644145',
+              'lang': 'en'}, 1, 1),
+            (True, {'username': 'u4', 'email': 'test@email.com'},
+             {'notify_by_phone': False, 'notify_by_email': True,
+              'phone': '+37068644145',
+              'lang': 'en'}, 0, 1),
+            (True, {'username': 'u5', 'email': 'test@email.com'},
+             {'notify_by_phone': True, 'notify_by_email': False,
+              'phone': '+37068644145',
+              'lang': 'en'}, 1, 0),
+            (True, {'username': 'u6', 'email': 'test@email.com'},
+             {'notify_by_phone': False, 'notify_by_email': False,
+              'phone': '+37068644145',
+              'lang': 'en'}, 0, 0),
+            (False, {'username': 'u7', 'email': 'test@email.com'},
+             {'notify_by_phone': False, 'notify_by_email': False,
+              'phone': '+37068644145',
+              'lang': 'en'}, 0, 0),
+            (False, {'username': 'u8', 'email': 'test@email.com'},
+             {'notify_by_phone': True, 'notify_by_email': True,
+              'phone': '+37068644145',
+              'lang': 'en'}, 0, 0)
         )
     )
     @patch('orders.task_summary.release_by_ref.do_release')
@@ -424,7 +433,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
     def test_notification(self,
                           # data provider
                           release_return_val,
-                          profile_props, expect_notify_by_phone,
+                          user_props, profile_props, expect_notify_by_phone,
                           expect_notify_by_email,
                           # notification
                           payment_getter,
@@ -452,7 +461,9 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
         for fn in release_fns:
             send_sms.call_count, send_email.call_count = 0, 0
             payment_id = 1
+            user = User.objects.get_or_create(**user_props)[0]
             order = Order(**self.order_data)
+            order.user = user
             self.orders.append(order)
             profile = order.user.profile
 
@@ -476,8 +487,15 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
 
             res = fn.apply([payment_id])
             self.assertEqual('SUCCESS', res.state)
-            self.assertEqual(expect_notify_by_email, send_email.call_count)
-            self.assertEqual(expect_notify_by_phone, send_sms.call_count)
+            self.assertEqual(
+                expect_notify_by_email, send_email.call_count,
+                'user:{}, profile:{}'.format(user_props, profile_props)
+            )
+
+            self.assertEqual(
+                expect_notify_by_phone, send_sms.call_count,
+                'user:{}, profile:{}'.format(user_props, profile_props)
+            )
 
     @patch('orders.tasks.generic.base.release_payment')
     @patch('orders.tasks.generic.base.send_sms')
