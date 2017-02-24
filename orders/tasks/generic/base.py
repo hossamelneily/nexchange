@@ -61,13 +61,13 @@ class BaseOrderRelease(BaseTask):
                          .format(title, msg))
 
         # send sms depending on notification settings in profile
-        if profile.notify_by_phone:
+        if profile.notify_by_phone and profile.phone:
             phone_to = str(profile.phone)
             sms_result = send_sms(msg, phone_to)
             self.logger.info('sms res: {}'.format(str(sms_result)))
 
         # send email
-        if profile.notify_by_email:
+        if profile.notify_by_email and profile.user.email:
             send_email(profile.user.email, title, msg)
 
     def run(self, payment_id):
