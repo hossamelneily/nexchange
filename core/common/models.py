@@ -62,6 +62,10 @@ class Flag(TimeStampedModel):
     model_name = models.CharField(default=None, max_length=255)
     flagged_id = models.PositiveIntegerField(default=None)
 
+    def __str__(self):
+        return '{} pk {} ({})'.format(self.model_name, self.flagged_id,
+                                      self.flag_val)
+
 
 class FlagableMixin(models.Model):
     class Meta:
