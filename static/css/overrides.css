@@ -833,10 +833,12 @@ vertical design
         height: 56px;
     }
     .step-icon-container i {
-        margin-top: -2px;
+        margin-top: -5px;
+        font-size: 22px;
     }
     .fa-bar-chart {
-        margin-left: -5px;
+        margin-left: 0;
+        /* margin-top: -5px !important; */
     }
     .step_panel_box {
         padding-top: 0;
