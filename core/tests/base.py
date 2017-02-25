@@ -242,6 +242,12 @@ class WalletBaseTestCase(OrderBaseTestCase):
 
 
 class TransactionImportBaseTestCase(OrderBaseTestCase):
+    fixtures = [
+        'currency.json',
+        'pair.json',
+        'payment_method.json',
+        'payment_preference.json',
+    ]
 
     def setUp(self):
         super(TransactionImportBaseTestCase, self).setUp()

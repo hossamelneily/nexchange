@@ -80,32 +80,32 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
 
     @data_provider(
         lambda: (
-            # # Test single release by reference (pass multiple function if
-            # # rest of the params are the same)
-            # # fail release by ref/wallet - payment not success
-            # ([ref_release, wallet_release],
-            #  [{'is_default_rule': False,
-            #    'unique_reference': 'correct_ref1'}],
-            #  [{'reference': 'correct_ref1', 'is_success': False}],
-            #  [{'status': Order.INITIAL}],
-            #  [{'is_complete': False}],
-            #  1,  # call count
-            #  0,  # actual invoke time
-            #  1,  # order count after exec
-            #  ),
-            #
-            # # subjects
-            # ([ref_release, wallet_release],
-            #  # modifiers
-            #  [{'is_default_rule': False, 'unique_reference': 'blabla1'}],
-            #  [{'reference': 'blabla1', 'is_success': True}],
-            #  # expectations
-            #  [{'status': Order.RELEASED}],
-            #  [{'is_complete': True}],
-            #  1,  # call count
-            #  1,  # actual invoke time
-            #  1,  # order count after exec
-            #  ),
+            # Test single release by reference (pass multiple function if
+            # rest of the params are the same)
+            # fail release by ref/wallet - payment not success
+            ([ref_release, wallet_release],
+             [{'is_default_rule': False,
+               'unique_reference': 'correct_ref1'}],
+             [{'reference': 'correct_ref1', 'is_success': False}],
+             [{'status': Order.INITIAL}],
+             [{'is_complete': False}],
+             1,  # call count
+             0,  # actual invoke time
+             1,  # order count after exec
+             ),
+
+            # subjects
+            ([ref_release, wallet_release],
+             # modifiers
+             [{'is_default_rule': False, 'unique_reference': 'blabla1'}],
+             [{'reference': 'blabla1', 'is_success': True}],
+             # expectations
+             [{'status': Order.RELEASED}],
+             [{'is_complete': True}],
+             1,  # call count
+             1,  # actual invoke time
+             1,  # order count after exec
+             ),
 
             # Triple release by reference (do not release more than once!)
             ([ref_release, wallet_release],

@@ -15,6 +15,7 @@ from orders.task_summary import sell_order_release_invoke,\
     buy_order_release_by_reference_invoke
 from django.conf import settings
 from decimal import Decimal
+from django.core.urlresolvers import reverse
 import json
 
 
@@ -361,6 +362,174 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.assertNotIn(self.order.status, Order.IN_RELEASED)
 
 
+class SellOrderReleaseFromViewTestCase(WalletBaseTestCase):
+    def setUp(self):
+        super(SellOrderReleaseFromViewTestCase, self).setUp()
+
+        self.addr_data = {
+            'type': 'W',
+            'name': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+            'address': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+
+        }
+        self.addr = Address(**self.addr_data)
+        self.addr.user = self.user
+        self.addr.save()
+
+    @patch('payments.tasks.generic.base.BasePaymentChecker'
+           '.validate_beneficiary')
+    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('nexchange.utils.OkPayAPI._get_transaction_history')
+    @patch('orders.tasks.generic.base.release_payment')
+    @patch('orders.tasks.generic.base.send_sms')
+    @patch('orders.tasks.generic.base.send_email')
+    def test_release_if_paid_and_withdraaw_address_set(self, send_email,
+                                                       send_sms,
+                                                       release_payment,
+                                                       _get_transaction_history,
+                                                       convert_coin_to_cash,
+                                                       validate):
+        # Purge
+        release_payment.return_value = 'TX123'
+        Payment.objects.all().delete()
+        convert_coin_to_cash.return_value = None
+        validate.return_value = True
+        _get_transaction_history.return_value = get_ok_pay_mock()
+        order = Order(**self.okpay_order_data)
+        order.save()
+        import_okpay_payments = OkPayPaymentChecker()
+        import_okpay_payments.run()
+        p = Payment.objects.get(
+            amount_cash=order.amount_quote,
+            currency=order.pair.quote,
+            reference=order.unique_reference
+        )
+        url = reverse('orders.update_withdraw_address',
+                      kwargs={'pk': order.pk})
+        response = self.client.post(url, {
+            'pk': order.pk,
+            'value': self.addr.pk,
+        })
+
+        self.assertEquals(200, response.status_code)
+
+        p.refresh_from_db()
+        order.refresh_from_db()
+        self.assertEqual(True, p.is_complete)
+        self.assertEqual(True, p.is_redeemed)
+        self.assertEqual(Order.RELEASED, order.status)
+        self.assertEquals(1, release_payment.call_count)
+
+    @patch('payments.tasks.generic.base.BasePaymentChecker'
+           '.validate_beneficiary')
+    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('nexchange.utils.OkPayAPI._get_transaction_history')
+    @patch('orders.tasks.generic.base.release_payment')
+    @patch('orders.tasks.generic.base.send_sms')
+    @patch('orders.tasks.generic.base.send_email')
+    def test_fail_release_withdraaw_address_already_set(self, send_email,
+                                                        send_sms,
+                                                        release_payment,
+                                                        _get_transaction_history,
+                                                        convert_coin_to_cash,
+                                                        validate):
+        # Purge
+        release_payment.return_value = 'TX123'
+        Payment.objects.all().delete()
+        convert_coin_to_cash.return_value = None
+        validate.return_value = True
+        _get_transaction_history.return_value = get_ok_pay_mock()
+        order = Order(**self.okpay_order_data_address)
+        order.save()
+        import_okpay_payments = OkPayPaymentChecker()
+        import_okpay_payments.run()
+        p = Payment.objects.get(
+            amount_cash=order.amount_quote,
+            currency=order.pair.quote,
+            reference=order.unique_reference
+        )
+        url = reverse('orders.update_withdraw_address',
+                      kwargs={'pk': order.pk})
+        response = self.client.post(url, {
+            'pk': order.pk,
+            'value': self.addr.pk,
+        })
+
+        self.assertEquals(200, response.status_code)
+
+        p.refresh_from_db()
+        order.refresh_from_db()
+        self.assertEqual(False, p.is_complete)
+        self.assertEqual(False, p.is_redeemed)
+        self.assertEqual(Order.PAID, order.status)
+        self.assertEquals(0, release_payment.call_count)
+
+    @patch('payments.tasks.generic.base.BasePaymentChecker'
+           '.validate_beneficiary')
+    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('nexchange.utils.OkPayAPI._get_transaction_history')
+    @patch('orders.tasks.generic.base.release_payment')
+    @patch('orders.tasks.generic.base.send_sms')
+    @patch('orders.tasks.generic.base.send_email')
+    def test_fail_release_no_payment(self, send_email,
+                                     send_sms,
+                                     release_payment,
+                                     _get_transaction_history,
+                                     convert_coin_to_cash,
+                                     validate):
+        # Purge
+        release_payment.return_value = 'TX123'
+        Payment.objects.all().delete()
+        convert_coin_to_cash.return_value = None
+        validate.return_value = True
+        _get_transaction_history.return_value = get_ok_pay_mock()
+        order = Order(**self.okpay_order_data)
+        order.save()
+        url = reverse('orders.update_withdraw_address',
+                      kwargs={'pk': order.pk})
+        response = self.client.post(url, {
+            'pk': order.pk,
+            'value': self.addr.pk,
+        })
+
+        self.assertEquals(200, response.status_code)
+        order.refresh_from_db()
+        self.assertEqual(Order.INITIAL, order.status)
+        self.assertEquals(0, release_payment.call_count)
+
+    @patch('payments.tasks.generic.base.BasePaymentChecker'
+           '.validate_beneficiary')
+    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('nexchange.utils.OkPayAPI._get_transaction_history')
+    @patch('orders.tasks.generic.base.release_payment')
+    @patch('orders.tasks.generic.base.send_sms')
+    @patch('orders.tasks.generic.base.send_email')
+    def test_fail_release_withdraaw_address_set_no_paymnet(self, send_email,
+                                                           send_sms,
+                                                           release_payment,
+                                                           _get_transaction_history,
+                                                           convert_coin_to_cash,
+                                                           validate):
+        # Purge
+        release_payment.return_value = 'TX123'
+        Payment.objects.all().delete()
+        convert_coin_to_cash.return_value = None
+        validate.return_value = True
+        _get_transaction_history.return_value = get_ok_pay_mock()
+        order = Order(**self.okpay_order_data_address)
+        order.save()
+        url = reverse('orders.update_withdraw_address',
+                      kwargs={'pk': order.pk})
+        response = self.client.post(url, {
+            'pk': order.pk,
+            'value': self.addr.pk,
+        })
+
+        self.assertEquals(200, response.status_code)
+        order.refresh_from_db()
+        self.assertEqual(Order.INITIAL, order.status)
+        self.assertEquals(0, release_payment.call_count)
+
 class BuyOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                   WalletBaseTestCase):
     def setUp(self):
@@ -446,3 +615,4 @@ class BuyOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self.update_confirmation_task.apply()
         order.refresh_from_db()
         self.assertEqual(order.status, Order.RELEASED)
+  

@@ -14,10 +14,11 @@ from core.common.forms import DateSearchForm
 from core.models import Address, Currency, Pair
 from core.views import main
 from orders.models import Order
-from payments.models import PaymentPreference, PaymentMethod
+from payments.models import PaymentPreference, PaymentMethod, Payment
 from payments.utils import geturl_robokassa, get_payeer_sign, get_payeer_desc
-from nexchange.utils import send_email
-from orders.task_summary import buy_order_release_by_reference_invoke
+from nexchange.utils import send_email, get_nexchange_logger
+from orders.task_summary import buy_order_release_by_reference_invoke, \
+    buy_order_release_by_wallet_invoke
 
 
 @login_required
@@ -282,7 +283,18 @@ def update_withdraw_address(request, pk):
             order.withdraw_address = addr
             order.save()
             if order.status == Order.PAID and new_withdraw_address:
-                buy_order_release_by_reference_invoke.apply_async([order.pk])
+                payment = order.payment_set.first()
+                if payment:
+                    buy_order_release_by_reference_invoke\
+                            .apply_async([payment.pk])
+                else:
+                    payments = Payment.objects.filter(user=request.user,
+                                                      is_redeemed=False,
+                                                      is_success=True)
+                    for payment in payments:
+                        buy_order_release_by_wallet_invoke\
+                            .apply_async([payment.pk])
+
         except ObjectDoesNotExist:
             return HttpResponseForbidden(
                 _('Invalid address provided'))

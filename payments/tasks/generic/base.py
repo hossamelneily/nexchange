@@ -189,7 +189,7 @@ class BasePaymentChecker(BaseTask):
 
         return success and valid_beneficiary
 
-    def check_order_paid_status(self, order):
+    def set_order_paid_status(self, order):
         ref = order.unique_reference
         payments = Payment.objects.filter(is_success=True, reference=ref)
         sum_all = Decimal('0.0')
@@ -202,13 +202,17 @@ class BasePaymentChecker(BaseTask):
             # transaction fee 0.0095 , minimal fee 0.01 cent
             amount_expected = (amount_expected * Decimal('0.9905')) - Decimal(
                 '0.01')
+
         if sum_all >= amount_expected:
             if order.status not in Order.IN_PAID:
                 order.status = Order.PAID
                 order.save()
+                return True
         elif payments:
             order.status = Order.PAID_UNCONFIRMED
             order.save()
+
+        return False
 
     def create_payment(self, pref, order=None):
         # get only by unique refs, even if the rest does not match
@@ -233,6 +237,7 @@ class BasePaymentChecker(BaseTask):
                 reference=self.data['unique_ref'],
                 amount_cash=self.data['amount_cash'],
                 payment_preference=pref,
+                order=order,
                 user=order.user if order else None,
                 currency=self.get_currency()
             )
@@ -332,11 +337,9 @@ class BasePaymentChecker(BaseTask):
             ).last()
             pref = self.create_payment_preference(order)
             payment = self.create_payment(pref, order)
-            if order:
-                self.check_order_paid_status(order)
 
             # only if new payment is created
-            if payment and order:
+            if self.set_order_paid_status(order) and payment:
                 if payment.reference:
                     task = BaseBuyOrderRelease.RELEASE_BY_REFERENCE
                 else:

@@ -22,8 +22,8 @@ class BaseOrderRelease(BaseTask):
         return order.user.profile
 
     def validate(self, order, payment):
-        order_already_released = payment.order or payment.is_redeemed or \
-            order.status == Order.RELEASED
+        order_already_released = payment.is_redeemed or \
+                                 order.status == Order.RELEASED
 
         if order_already_released:
             flag, created = order.flag(__name__)

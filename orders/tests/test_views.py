@@ -19,9 +19,7 @@ from payments.models import Payment, PaymentMethod, PaymentPreference
 class OrderSetAsPaidTestCase(OrderBaseTestCase):
 
     def setUp(self):
-
         super(OrderSetAsPaidTestCase, self).setUp()
-
         self.data = {
             'amount_quote': Decimal(30674.85),
             'amount_base': Decimal(1.00),
@@ -33,8 +31,35 @@ class OrderSetAsPaidTestCase(OrderBaseTestCase):
         self.order = Order(**self.data)
         self.order.save()
 
+        self.payment_method = PaymentMethod(
+            name='Internal Test',
+            is_internal=True
+        )
+        self.payment_method.save()
+
+        self.pref = PaymentPreference(
+            payment_method=self.payment_method,
+            user=self.order.user,
+            identifier='InternalTestIdentifier'
+        )
+        self.pref.save()
+
+        self.payment = Payment(
+            payment_preference=self.pref,
+            amount_cash=self.order.amount_quote,
+            order=self.order,
+            currency=self.RUB,
+            user=self.order.user
+        )
+        self.payment.save()
+
         self.url = reverse('orders.confirm_payment',
                            kwargs={'pk': self.order.pk})
+
+    def tearDown(self):
+        super(OrderSetAsPaidTestCase, self).tearDown()
+        # Purge
+        Order.objects.all().delete()
 
     def test_cannot_set_as_paid_if_has_no_withdraw_address(self):
         response = self.client.post(self.url, {'paid': 'true'})
@@ -67,7 +92,7 @@ class OrderSetAsPaidTestCase(OrderBaseTestCase):
         self.assertJSONEqual(expected,
                              actual,)
 
-    @skip('DO NOT MERGE til fix')
+    @skip('DO NOT MERGE TILL FIX')
     def test_can_set_as_paid_if_has_withdraw_address_internal(self):
         # Creates an withdraw address fro this user
         address = Address(
@@ -78,27 +103,6 @@ class OrderSetAsPaidTestCase(OrderBaseTestCase):
         self.order.withdraw_address = address
         self.order.save()
 
-        payment_method = PaymentMethod(
-            name='Internal Test',
-            is_internal=True
-        )
-        payment_method.save()
-
-        pref = PaymentPreference(
-            payment_method=payment_method,
-            user=self.order.user,
-            identifier='InternalTestIdentifier'
-        )
-        pref.save()
-
-        payment = Payment(
-            payment_preference=pref,
-            amount_cash=self.order.amount_quote,
-            order=self.order,
-            currency=self.RUB,
-            user=self.order.user
-        )
-        payment.save()
 
         # Set Order as Paid
         response = self.client.post(self.url, {'paid': 'true'})
@@ -211,7 +215,6 @@ class OrderPayUntilTestCase(OrderBaseTestCase):
 
 
 class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
-
     def setUp(self):
         super(UpdateWithdrawAddressTestCase, self).setUp()
 
@@ -251,7 +254,6 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
         # order.full_clean()  # ensure is initially correct
         order.save()
         self.order = order
-
         pk = self.order.pk
         self.url = reverse('orders.update_withdraw_address', kwargs={'pk': pk})
 
@@ -311,9 +313,66 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
 
         self.assertEqual(b'Invalid address provided', response.content)
 
+    @mock.patch('orders.task_summary.buy_order_release_by_reference_invoke')
+    def release_on_first_withdraw_address_change(self, invoke):
+        self.client.login(username=self.user.username, password='password')
+        self.order.status = Order.PAID
+        self.order.save()
+
+        response = self.client.post(self.url, {
+            'pk': self.order.pk,
+            'value': self.addr.pk,
+        })
+
+        expected = '{"status": "OK"}'
+        actual = str(response.content, encoding='utf8')
+        self.assertJSONEqual(expected,
+                             actual,)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.withdraw_address, self.addr)
+        self.assertEquals(1, invoke.call_count)
+        invoke.assert_called_once_with([self.order.payment_set.first().pk])
+
+    @mock.patch('orders.task_summary.buy_order_release_by_reference_invoke')
+    def dont_release_on_first_withdraw_address_change_not_paid(self, invoke):
+        self.client.login(username=self.user.username, password='password')
+        self.order.status = Order.PAID_UNCONFIRMED
+        self.order.save()
+        response = self.client.post(self.url, {
+            'pk': self.order.pk,
+            'value': self.addr.pk,
+        })
+
+        expected = '{"status": "OK"}'
+        actual = str(response.content, encoding='utf8')
+        self.assertJSONEqual(expected,
+                             actual,)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.withdraw_address, self.addr)
+        self.assertEquals(0, invoke.call_count)
+
+    @mock.patch('orders.task_summary.buy_order_release_by_reference_invoke')
+    def dont_release_on_first_withdraw_address_change_not_paid(self, invoke):
+        self.client.login(username=self.user.username, password='password')
+        self.order.status = Order.PAID_UNCONFIRMED
+        self.order.save()
+        response = None
+        for i in range(2):
+            response = self.client.post(self.url, {
+                'pk': self.order.pk,
+                'value': self.addr.pk,
+            })
+
+        expected = '{"status": "OK"}'
+        actual = str(response.content, encoding='utf8')
+        self.assertJSONEqual(expected,
+                             actual,)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.withdraw_address, self.addr)
+        self.assertEquals(0, invoke.call_count)
+
 
 class OrderIndexOrderTestCase(OrderBaseTestCase):
-
     def setUp(self):
         super(OrderIndexOrderTestCase, self).setUp()
 

@@ -232,7 +232,7 @@ build:
           export SECRET_KEY='${SECRET_KEY}'
           # DEBUG
           export DEBUG=${DEBUG}
-          export CELERY_ALWAYS_EAGER=${CELERY_ALWAYS_EAGER}
+          export CELERY_TASK_ALWAYS_EAGER=${CELERY_ALWAYS_EAGER}
           export API1_IS_TEST=${API1_IS_TEST}
           export API1_ID_C1=${API1_ID_C1}
 

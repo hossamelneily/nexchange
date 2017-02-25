@@ -16,7 +16,7 @@ MEDIA_ROOT = '/tmp/media'
 
 DEBUG = True
 
-CELERY_ALWAYS_EAGER = True
+CELERY_TASK_ALWAYS_EAGER = True
 # SECRET KEY
 # Allow dual run: CI server and local
 SECRET_KEY = os.getenv('SECRET_KEY', settings_dev.SECRET_KEY)
