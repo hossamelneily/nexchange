@@ -71,7 +71,8 @@ class BasePaymentChecker(BaseTask):
             payment_method=self.payment_method
         ).first()
 
-        self.allowed_beneficiary = set(self.payment_preference.identifier)
+        self.allowed_beneficiary = set()
+        self.allowed_beneficiary.add(self.payment_preference.identifier)
         if self.payment_preference.secondary_identifier:
             self.allowed_beneficiary.add(
                 self.payment_preference
