@@ -190,9 +190,11 @@ class BasePaymentChecker(BaseTask):
         return success and valid_beneficiary
 
     def set_order_paid_status(self, order):
+        if not order:
+            return
         ref = order.unique_reference
         payments = Payment.objects.filter(is_success=True, reference=ref)
-        sum_all = Decimal('0.0')
+        sum_all = 0
         for p in payments:
             sum_all += p.amount_cash
         amount_expected = order.amount_quote
