@@ -55,6 +55,7 @@ LANGUAGES = [
 # CUSTOM SETTINGS
 USER_SETS_WITHDRAW_ADDRESS_MEDIAN_TIME = 30
 TICKER_INTERVAL = 30
+PAYMENT_IMPORT_INTERVAL = 30
 TICKER_CACHE_BACKEND = 'memory'
 PAYMENT_WINDOW_SAFETY_INTERVAL = timedelta(seconds=60)
 PAYMENT_DEFAULT_SEEK_INTERVAL = timedelta(hours=12)
@@ -185,11 +186,11 @@ CELERY_BEAT_SCHEDULE = {
     },
     'check_okpay_payments': {
         'task': 'payments.task_summary.run_okpay',
-        'schedule': timedelta(seconds=60),
+        'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
     },
     'check_payeer_payments': {
         'task': 'payments.task_summary.run_payeer',
-        'schedule': timedelta(seconds=60),
+        'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
     },
     'checker_transactions': {
         'task': 'accounts.task_summary.update_pending_transactions_invoke',
