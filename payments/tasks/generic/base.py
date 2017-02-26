@@ -182,7 +182,7 @@ class BasePaymentChecker(BaseTask):
     def validate_transaction(self):
         success = self.validate_success()
         valid_beneficiary = self.validate_beneficiary()
-        if not int(self.data['amount']):
+        if not int(self.data['amount_cash']):
             self.logger.info('Payment {} is debit'.format(self.data))
         if not success:
             self.logger.error('Payment {} is not success'.format(self.data))
