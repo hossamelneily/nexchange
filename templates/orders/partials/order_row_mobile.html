@@ -11,7 +11,7 @@
                     {% trans 'Selling' %}
                 </span>
             {% endif %}
-            {{ order.amount_base| floatformat }} {{ order.pair.base.code }}
+            {{ order.amount_base.normalize }} {{ order.pair.base.code }}
             <span class="pull-right mobile-date">
              {{ order.created_on |date:"D d M Y"}}
             </span>
@@ -38,7 +38,7 @@
     </div>
     <div class="mobile-row">
         <div class = "headers-mobile header-text">{% trans "Volume" %}</div>
-        {{ order.amount_base|floatformat }}
+        {{ order.amount_base.normalize }}
     </div>
 
     <div class="mobile-row">

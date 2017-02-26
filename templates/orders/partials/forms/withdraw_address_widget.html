@@ -1,7 +1,7 @@
 {% load i18n %}
 <div class="scenes-withdrawal-wrapper">
     {% if order.is_buy and request.GET.oid == order.unique_reference and not order.withdraw_address %}
-    <div class="scenes-wrapper">
+    <div class="scenes-wrapper" {% if request.GET.is_paid %}style="display: none"{% endif %}>
         <div class="scenes">
           <div class="scene scene1">
             <div class="description">{% blocktrans %} Define your withdraw

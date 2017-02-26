@@ -109,13 +109,6 @@ dev:
             python manage.py loaddata articles/fixtures/articles.json
           fi
     - script:
-        name: Django import Ticker fixtures
-        code: |
-          if [ ! -z $LOCAL_TICKER] && [ ${LOCAL_TICKER} -eq 1 ]
-          then
-            python manage.py loaddata ticker/fixtures/ticker.json
-          fi
-    - script:
         name: Link pre-commit hook script
         code: |
           chmod +x .pre-commit.sh
@@ -306,16 +299,9 @@ build:
             python manage.py loaddata articles/fixtures/articles.json
           fi
 
-          if [ ! -z $TICKER_FROM_FIXTURE] && [ ${TICKER_FROM_FIXTURE} -eq 1 ]
-          then
-            python manage.py loaddata ticker/fixtures/ticker.json
-          fi
-
-
           # Copy static data to nginx volume
+          cp -ra $WERCKER_OUTPUT_DIR/staticfiles/* /usr/share/nginx/html/static
           cp -ra $WERCKER_OUTPUT_DIR/mediafiles/* /usr/share/nginx/html/media
-          cp -ra $WERCKER_OUTPUT_DIR/
-          /* /usr/share/nginx/html/static
           #
           # Create superuser
           echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@onit.ws','weare0nit')" | python manage.py shell

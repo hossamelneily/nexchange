@@ -334,5 +334,3 @@ def payment_confirmation(request, pk):
         except ValidationError as e:
             msg = e.messages[0]
             return JsonResponse({'status': 'ERR', 'msg': msg}, safe=False)
-
-

@@ -8,6 +8,7 @@
          paymentObj = require('./payment.js'),
          currency = null,
          animationDelay = 3000,
+         beamerShowDelay = 1000,
          minOrderCoin = 0.01;
 
     $(function() {
@@ -18,7 +19,7 @@
             $('html, body').animate({
                 scrollTop: rootElem.offset().top
             })
-            .delay(indicateWith-drawDelay)
+            .delay(indicateWithdrawDelay)
             .queue(function (next) {
                 rootElem.click();
                 next();
@@ -30,6 +31,11 @@
                     toggleElem.parent().click();
                     next();
                 }
+            })
+            .delay(beamerShowDelay)
+            .queue(function (next) {
+                $('.scenes-wrapper').fadeIn();
+                next();
             });
         }
 

@@ -6,6 +6,10 @@
 	font-style: normal;
 }
 
+.page-header + label{
+    display: block !important;
+}
+
 .modal-header {
     border-bottom: 0;
 }
@@ -730,11 +734,16 @@ div.payment-label {
 }
 
 @media screen and (max-width:600px) {
+    label {
+        padding: 6px 12px;
+
+    }
     .input-group-addon:last-child {
         display: inline-block;
         width: 100%;
-        margin: 0 10px;
+        margin: 0 10px 20px 10px;
         border-radius: 2px;
+        text-align: left;
         border: 1px solid #E3E3E3;
     }
 

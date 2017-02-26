@@ -104,11 +104,17 @@ def payment_success(request, provider):
         logger.error('Success view provider '
                      '{} not supported!'.format(provider))
     else:
+        res = None
         if provider == 'payeer':
-            run_payeer.apply_async()
+            res = run_payeer.apply()
         if provider == 'okpay':
-            run_okpay.apply_async()
+            res = run_okpay.apply()
         logger.info('Triggered payeer payment import for {}'.format(provider))
+        if res.state == 'SUCCESS':
+            logger.info('SUCCESS import payments from success callback')
+        else:
+            logger.error('{} state import payments from success callback'
+                         'traceback: {}'.format(res.state, res.traceback))
 
     logger.info('User at {} success view.'
                 'request: {} user: {}'
@@ -125,7 +131,7 @@ def payment_success(request, provider):
     if received_order.get('order_id'):
         lookup['unique_reference'] = \
             received_order['order_id']
-    order = Order.objects.filter(**lookup).last()
+    order = Order.objects.filter(**lookup).latest('id')
 
     if not order:
         logger.error('Success view provider request '
