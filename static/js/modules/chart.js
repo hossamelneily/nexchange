@@ -19,7 +19,7 @@
     }
 
     function renderChart (pair, title, hours) {
-        var tickerHistoryUrl= apiRoot + pair + '/history',
+        var tickerHistoryUrl = apiRoot + pair + '/history',
             tickerLatestUrl = apiRoot + pair + '/latest';
         if (hours) {
             tickerHistoryUrl = tickerHistoryUrl + '?hours=' + hours;
