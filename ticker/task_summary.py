@@ -36,6 +36,6 @@ def get_all_tickers():
     for pair in pairs:
         kwargs = {'pair_pk': pair.pk}
         if pair.is_crypto:
-            get_ticker_btc_crypto.apply(kwargs=kwargs)
+            get_ticker_btc_crypto.apply_async(kwargs=kwargs)
         else:
-            get_ticker_btc_fiat.apply(kwargs=kwargs)
+            get_ticker_btc_fiat.apply_async(kwargs=kwargs)
