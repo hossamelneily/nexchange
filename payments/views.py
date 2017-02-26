@@ -105,9 +105,9 @@ def payment_success(request, provider):
                      '{} not supported!'.format(provider))
     else:
         if provider == 'payeer':
-            run_payeer.apply()
+            run_payeer.apply_async()
         if provider == 'okpay':
-            run_okpay.apply()
+            run_okpay.apply_async()
         logger.info('Triggered payeer payment import for {}'.format(provider))
 
     logger.info('User at {} success view.'
