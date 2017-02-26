@@ -33,17 +33,17 @@
                 }
             })
             .delay(beamerShowDelay)
-            .queue(function (next) {
-                $('.scenes-wrapper').fadeIn();
-                next();
-            });
+                .queue(function (next) {
+                    $('.scenes-wrapper').fadeIn();
+                    next();
+                });
         }
 
-        var params = new URLSearchParams(window.location.search),
-            oid = params.get('oid'),
+        var params = parseQuery(window.location.search),
+            oid = params['oid'],
             initialDelay = 1500,
             payDelay = 1500,
-            isPaid =  params.get('is_paid'),
+            isPaid =  params['is_paid'],
             indicateWithdrawDelay = isPaid ? 1500 : 0,
             oidSelector = '#' + oid,
             rootElem = $(oidSelector),
@@ -134,8 +134,18 @@
         });
     }
 
-    //order.js
+    //utils
+    function parseQuery(qstr) {
+            var query = {};
+            var a = (qstr[0] === '?' ? qstr.substr(1) : qstr).split('&');
+            for (var i = 0; i < a.length; i++) {
+                var b = a[i].split('=');
+                query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || '');
+            }
+            return query;
+        }
 
+    //order.js
     function updatePrice (price, elem) {
         var currentPriceText = elem.html().trim(),
             currentPrice,
