@@ -37,7 +37,6 @@ class BaseOrderRelease(BaseTask):
                 self.logger.warn('order: {} payment: {} IS NOT SUCCESS'
                                  .format(order, payment))
 
-
         return not order_already_released and payment.is_success
 
     def do_release(self, order, payment):
