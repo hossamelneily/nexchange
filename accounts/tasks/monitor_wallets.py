@@ -9,7 +9,7 @@ from nexchange.utils import check_transaction_blockchain, \
     check_transaction_uphold, send_email, send_sms
 from accounts.utils import BlockchainTransactionImporter
 from nexchange.utils import get_nexchange_logger
-from orders.task_summary import buy_order_release_by_reference_invoke
+from orders.task_summary import sell_order_release_invoke
 
 
 def update_pending_transactions():
@@ -36,19 +36,19 @@ def update_pending_transactions():
             order.status = Order.PAID
             order.save()
             # trigger release
-            buy_order_release_by_reference_invoke.apply_assync([order.pk])
+            sell_order_release_invoke.apply_assync()
             title = _('Nexchange: Order released')
             msg = _('Your order {}:  is released'). \
                 format(tr.order.o.unique_reference)
 
-            if profile.notify_by_phone:
+            if profile.notify_by_phone and profile.phone:
                 phone_to = str(tr.order.user.username)
                 sms_result = send_sms(msg, phone_to)
 
                 if settings.DEBUG:
                     logger.info(str(sms_result))
 
-            if profile.notify_by_email:
+            if profile.notify_by_email and profile.email:
                 email = send_email(tr.order.user.email, title, msg)
                 email.send()
 
