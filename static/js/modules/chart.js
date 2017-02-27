@@ -22,7 +22,7 @@
         var tickerHistoryUrl = apiRoot + pair + '/history',
             tickerLatestUrl = apiRoot + pair + '/latest';
         if (hours) {
-            tickerHistoryUrl = tickerHistoryUrl + '?hours=' + hours;
+            tickerHistoryUrl = tickerHistoryUrl + '?hours=' + hours.replace(',', '.');
         }
          $.get(tickerHistoryUrl, function(resdata) {
             chartDataRaw = resdata;
