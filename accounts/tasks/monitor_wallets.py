@@ -33,6 +33,8 @@ def update_pending_transactions():
             tr.is_completed = True
             tr.is_verified = True
             tr.save()
+            order.status = Order.PAID
+            order.save()
             # trigger release
             buy_order_release_by_reference_invoke.apply_assync([order.pk])
             title = _('Nexchange: Order released')

@@ -6,25 +6,13 @@ from orders import utils
 
 
 def sell_order_release():
-    def _check_confirmations(_order, _logger):
-        res = True
-        for tx in _order.transactions.all():
-            if tx.confirmations < tx.address_to.currency.min_confirmations:
-                _logger.info('Order {} has unconfirmed transactions'.format(
-                    _order)
-                )
-                res = False
-                continue
-        return res
     logger = get_nexchange_logger(__name__)
     orders = Order.objects.filter(
-        status=Order.PAID_UNCONFIRMED,
+        status=Order.PAID,
         order_type=Order.SELL,
         transactions__isnull=False
     )
     for order in orders[::-1]:
-        if not _check_confirmations(order, logger):
-            continue
         send_money_status = utils.send_money(order.pk)
         if send_money_status:
             order.status = Order.RELEASED

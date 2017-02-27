@@ -373,9 +373,10 @@ SOCIAL = {
 
 # NEW security measures
 
-SESSION_SECURITY_WARN_AFTER = 540
-SESSION_SECURITY_EXPIRE_AFTER = 600
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_SECURITY_WARN_AFTER = 1800
+SESSION_SECURITY_EXPIRE_AFTER = 1860
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SECURITY_INSECURE = True
 SESSION_SECURITY_PASSIVE_URLS = ["/en/api/v1/price/latest/",
                                  "/en/api/v1/price/history/",
                                  "/en/session_security/ping/",

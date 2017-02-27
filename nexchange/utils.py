@@ -134,9 +134,9 @@ def check_address_blockchain(address):
                 return
             elif _currency == 'eth':
                 if not address.currency.flag(__name__)[1]:
-                    logger.warning('Address pk {} of '
-                                   'unsupported type eth ethereum'
-                                   .format(address.pk))
+                    logger.info('Address pk {} of '
+                                'unsupported type eth ethereum'
+                                .format(address.pk))
                 return
 
         _network = '{}'.format(_currency)
