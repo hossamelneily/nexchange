@@ -115,11 +115,6 @@ dev:
           cd .git/hooks/
           ln -fs ../../.pre-commit.sh pre-commit
           cd -
-    - script:
-        name: create/validate static build roots
-        code: |
-           mkdir -p static/dist/js
-           mkdir -p static/dist/css
     - internal/watch:
         code: |
           echo 'Dev server running'
@@ -168,6 +163,11 @@ build:
         name: django compile translations
         code: |
           # python manage.py compilemessages
+    - script:
+        name: create/validate static build roots
+        code: |
+           mkdir -p static/dist/js
+           mkdir -p static/dist/css
     - maxon/npm-run:
         script: build-js
     - script:
