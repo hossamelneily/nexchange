@@ -34,7 +34,7 @@ dev:
     - maxon/npm-run:
         script: bower
     - maxon/npm-run:
-        script: build-js
+        script: webpack
     - script:
         name: pip install requirements (with cache)
         code: |
@@ -117,7 +117,7 @@ dev:
           echo 'Dev server running'
           tail -n 50 -f /var/log/*.log &
           newrelic-admin run-program python manage.py runserver 0.0.0.0:8000 &
-          npm run watch-js
+          npm run webpack
         reload: false
 
 build:
@@ -165,7 +165,7 @@ build:
            mkdir -p static/dist/js
            mkdir -p static/dist/css
     - maxon/npm-run:
-        script: build-js
+        script: webpack
     - script:
       name: collect static
       code: |

@@ -28,3 +28,4 @@ node.exe
 .settings/
 .ropeproject
 static/dist/js/bundle.js
+static/dist/css/*

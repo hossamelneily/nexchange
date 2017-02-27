@@ -103,7 +103,6 @@ class OrderSetAsPaidTestCase(OrderBaseTestCase):
         self.order.withdraw_address = address
         self.order.save()
 
-
         # Set Order as Paid
         response = self.client.post(self.url, {'paid': 'true'})
         expected_dict = {"frozen": True, "paid": True, "status": "OK"}
@@ -215,6 +214,7 @@ class OrderPayUntilTestCase(OrderBaseTestCase):
 
 
 class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
+
     def setUp(self):
         super(UpdateWithdrawAddressTestCase, self).setUp()
 
@@ -373,6 +373,7 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
 
 
 class OrderIndexOrderTestCase(OrderBaseTestCase):
+
     def setUp(self):
         super(OrderIndexOrderTestCase, self).setUp()
 

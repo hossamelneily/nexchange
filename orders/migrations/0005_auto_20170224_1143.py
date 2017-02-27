@@ -15,6 +15,21 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='order',
             name='status',
-            field=models.IntegerField(choices=[(-1, 'UNCONFIRMED PAYMENT'), (0, 'CANCELED'), (1, 'INITIAL'), (2, 'PAID'), (3, 'RELEASED'), (4, 'COMPLETED')], default=1, help_text='INITIAL - Initial status of the order.<br/>PAID - Order is Paid by customer. Could be paid by crypto transaction or fiat payment, depending on order_type.<br/>PAID_UNCONFIRMED - Order is possibly paid (unconfirmed crypto transaction or fiat payment is to small to cover the order.)<br/>RELEASED - Order is paid by service provider. Could be paid by crypto transaction or fiat payment, depending on order_type.<br/>COMPLETED - All statuses of the order is completed<br/>CANCELED - Order is canceled..'),
+            field=models.IntegerField(
+                choices=[
+                    (-1,
+                     'UNCONFIRMED PAYMENT'),
+                    (0,
+                     'CANCELED'),
+                    (1,
+                     'INITIAL'),
+                    (2,
+                     'PAID'),
+                    (3,
+                     'RELEASED'),
+                    (4,
+                     'COMPLETED')],
+                default=1,
+                help_text='INITIAL - Initial status of the order.<br/>PAID - Order is Paid by customer. Could be paid by crypto transaction or fiat payment, depending on order_type.<br/>PAID_UNCONFIRMED - Order is possibly paid (unconfirmed crypto transaction or fiat payment is to small to cover the order.)<br/>RELEASED - Order is paid by service provider. Could be paid by crypto transaction or fiat payment, depending on order_type.<br/>COMPLETED - All statuses of the order is completed<br/>CANCELED - Order is canceled..'),
         ),
     ]
