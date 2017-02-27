@@ -183,7 +183,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         Order is frozen if it is expired or has been paid
         """
         # TODO: validate this business rule
-        return self.expired or self.status in Order.IN_PAID
+        return self.expired or self.status in Order.IN_RELEASED
 
     @property
     def withdrawal_address_frozen(self):

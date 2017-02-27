@@ -29,10 +29,10 @@ def payment_failure(request):
     template = get_template('orders/partials/steps/step_retry_payment.html')
     # TODO: Better logic
     last_order = Order.objects.filter(user=request.user).latest('id')
-    url = '/pay_try_again'
+    url = reverse('orders.add_order', kwargs={'pair': last_order.pair.name})
     last_order.status = Order.CANCELED
     last_order.save()
-    return HttpResponse(template.render({'url_try_again': url}, request))
+    return HttpResponseRedirect(url)
 
 
 @login_required
