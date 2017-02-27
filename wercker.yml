@@ -30,11 +30,6 @@ dev:
         code: |
            mkdir -p static/dist/js
            mkdir -p static/dist/css
-    - npm-install
-    - maxon/npm-run:
-        script: bower
-    - maxon/npm-run:
-        script: webpack
     - script:
         name: pip install requirements (with cache)
         code: |
@@ -143,8 +138,6 @@ build:
       code: |
         # https://github.com/wercker/support/issues/227 :(
         rm -fr node_modules && npm install --production
-    - maxon/npm-run:
-        script: bower-prd
     - script:
         name: Install python requirements
         code: |
@@ -442,15 +435,6 @@ tests:
       code: |
         # rm -fr node_modules && npm install
         npm install
-    - script:
-        name: create/validate static build roots
-        code: |
-           mkdir -p static/dist/js
-           mkdir -p static/dist/css
-    - maxon/npm-run:
-        script: bower
-    - maxon/npm-run:
-        script: build-js
     - script:
         name: Backend tests
         code: |
