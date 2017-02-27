@@ -53,6 +53,7 @@ LANGUAGES = [
 
 
 # CUSTOM SETTINGS
+GATEWAY_RESOLVE_TIME = 5
 USER_SETS_WITHDRAW_ADDRESS_MEDIAN_TIME = 30
 TICKER_INTERVAL = 30
 PAYMENT_IMPORT_INTERVAL = 30
@@ -191,6 +192,10 @@ CELERY_BEAT_SCHEDULE = {
     'check_payeer_payments': {
         'task': 'payments.task_summary.run_payeer',
         'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
+    },
+    'buy_order_release_reference_periodic': {
+        'task': 'orders.task_summary.buy_order_release_reference_periodic',
+        'schedule': timedelta(30),
     },
     'checker_transactions': {
         'task': 'accounts.task_summary.update_pending_transactions_invoke',

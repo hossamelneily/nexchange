@@ -106,9 +106,13 @@ def payment_success(request, provider):
     else:
         res = None
         if provider == 'payeer':
-            res = run_payeer.apply()
+            res = run_payeer.apply_async(
+                countdown=settings.GATEWAY_RESOLVE_TIME
+            )
         if provider == 'okpay':
-            res = run_okpay.apply()
+            res = run_okpay.apply_async(
+                countdown=settings.GATEWAY_RESOLVE_TIME
+            )
         logger.info('Triggered payeer payment import for {}'.format(provider))
         if res.state == 'SUCCESS':
             logger.info('SUCCESS import payments from success callback')
