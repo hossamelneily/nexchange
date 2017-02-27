@@ -38,7 +38,9 @@ js_info_dict = {
         'nexchange',
         'core',
         'orders',
-        'payments'
+        'payments',
+        'referrals',
+        'ticker'
     ),
 }
 
