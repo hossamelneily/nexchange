@@ -14,6 +14,8 @@ DATABASES = {
 STATIC_ROOT = '/tmp/static'
 MEDIA_ROOT = '/tmp/media'
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 DEBUG = True
 
 CELERY_TASK_ALWAYS_EAGER = True

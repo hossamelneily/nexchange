@@ -19,7 +19,7 @@
            paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
            cardsEndpoint = '/en/payments/options/',
            // Required modules
-           
+
            orderObject = require('./modules/orders.js'),
            paymentObject = require('./modules/payment.js'),
            register = require('./modules/register.js'),
@@ -404,7 +404,7 @@
             $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
 
             $(this).closest('.modal').modal('hide');
-            
+
             setTimeout(function () {
                 orderObject.changeState(null, 'next');
             }, 600);
@@ -444,5 +444,3 @@
 
     window.submit_phone=submit_phone;
 } (window, window.jQuery)); //jshint ignore:line
-
-

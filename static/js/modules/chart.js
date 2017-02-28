@@ -58,7 +58,7 @@
                                     clearInterval(intervalId);
                                  } else {
                                      $.get(tickerLatestUrl, function (resdata) {
-                                         
+
                                          var lastdata = responseToChart(resdata).pair,
                                              points = points || series.points;
                                          if (hours < 1) {
