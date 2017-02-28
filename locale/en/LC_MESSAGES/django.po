@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-28 10:36+0000\n"
+"POT-Creation-Date: 2017-02-28 16:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,12 +33,14 @@ msgstr ""
 msgid "Enter phone number in international format. eg. +44020786543"
 msgstr ""
 
-#: accounts/tasks/monitor_wallets.py:40
+#: accounts/tasks/monitor_wallets.py:45
 msgid "Nexchange: Order released"
 msgstr ""
 
-#: accounts/tasks/monitor_wallets.py:41
-msgid "Your order {}:  is released"
+#: accounts/tasks/monitor_wallets.py:46
+msgid ""
+"Your order {}:  is released. \n"
+" {} {} were sent to {} {} {}"
 msgstr ""
 
 #: accounts/views.py:34
@@ -489,13 +491,13 @@ msgstr ""
 msgid "Setting as paid..."
 msgstr ""
 
-#: templates/orders/partials/forms/payment_toggle.html:24
+#: templates/orders/partials/forms/payment_toggle.html:23
 #: templates/orders/partials/order_row_mobile.html:51
 #: templates/orders/partials/orders_desktop.html:11
 msgid "Paid"
 msgstr ""
 
-#: templates/orders/partials/forms/payment_toggle.html:26
+#: templates/orders/partials/forms/payment_toggle.html:25
 msgid "Not Paid"
 msgstr ""
 

@@ -182,7 +182,8 @@ class BasePaymentChecker(BaseTask):
     def validate_transaction(self):
         success = self.validate_success()
         valid_beneficiary = self.validate_beneficiary()
-        if int(self.data['amount_cash']) < 0:
+        greater_than_zero = int(self.data['amount_cash']) < 0
+        if greater_than_zero:
             self.logger.info('Payment {} is debit'.format(self.data))
         if not success:
             self.logger.error('Payment {} is not success'.format(self.data))
@@ -190,7 +191,7 @@ class BasePaymentChecker(BaseTask):
             self.logger.error('Payment {} is not to our wallet Allowed: {}'
                               .format(self.data, self.allowed_beneficiary))
 
-        return success and valid_beneficiary
+        return success and valid_beneficiary and greater_than_zero
 
     def set_order_paid_status(self, order):
         if not order:

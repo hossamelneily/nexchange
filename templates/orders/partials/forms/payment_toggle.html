@@ -6,8 +6,7 @@
         {% trans "Setting as paid..." %}
     </span>
 
-    <label class="checkbox-inline
-            {% if order.status != order.PAID_UNCONFIRMED %}btn btn-warning{% endif %}">
+    <label class="checkbox-inline {% if order.status != order.PAID_UNCONFIRMED %}pendding{% endif %}">
         <input type="checkbox"
             {% if order.unique_reference == request.GET.oid %}class="pay-setter"{% endif %}
             data-url="{% url 'orders.confirm_payment' order.pk %}"

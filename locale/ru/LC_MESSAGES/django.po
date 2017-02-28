@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-28 10:35+0000\n"
+"POT-Creation-Date: 2017-02-28 15:59+0000\n"
 "PO-Revision-Date: 2016-12-24 08:08+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -38,12 +38,16 @@ msgstr "Телефон"
 msgid "Enter phone number in international format. eg. +44020786543"
 msgstr "Введите ваш номер мобильного телефона в формате +555198786543"
 
-#: accounts/tasks/monitor_wallets.py:40
+#: accounts/tasks/monitor_wallets.py:45
 msgid "Nexchange: Order released"
 msgstr ""
 
-#: accounts/tasks/monitor_wallets.py:41
-msgid "Your order {}:  is released"
+#: accounts/tasks/monitor_wallets.py:46
+#, fuzzy
+#| msgid "Your order {}:  is released"
+msgid ""
+"Your order {}:  is released. \n"
+" {} {} were sent to {} {} {}"
 msgstr "Ваш заказ {}: выполнен"
 
 #: accounts/views.py:34
@@ -525,13 +529,13 @@ msgstr "Обратите внимания, что вы должны заплат
 msgid "Setting as paid..."
 msgstr "Установить платеж как ..."
 
-#: templates/orders/partials/forms/payment_toggle.html:24
+#: templates/orders/partials/forms/payment_toggle.html:23
 #: templates/orders/partials/order_row_mobile.html:51
 #: templates/orders/partials/orders_desktop.html:11
 msgid "Paid"
 msgstr "Оплаченный"
 
-#: templates/orders/partials/forms/payment_toggle.html:26
+#: templates/orders/partials/forms/payment_toggle.html:25
 msgid "Not Paid"
 msgstr "Не оплачено"
 
@@ -1046,6 +1050,9 @@ msgstr "Не найдено ни одной записи"
 #| msgid "You don't have permission to edit this order"
 msgid "You don't have permission to download this document"
 msgstr "Вы не можете изменить оржер"
+
+#~ msgid "Your order {}:  is released"
+#~ msgstr "Ваш заказ {}: выполнен"
 
 #~ msgid "BTC Exchange code:"
 #~ msgstr "Код обмена :"

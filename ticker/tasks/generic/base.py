@@ -65,12 +65,6 @@ class BaseTicker(BaseTask):
             price = self.get_ticker_crypto_fiat()
         self.logger.info('Price {} created'.format(price))
 
-    def get_ticker_crypto(self):
-        pass
-
-    def get_ticker_crypto_fiat(self):
-        pass
-
     def create_ticker(self, ask, bid):
         ask = Decimal(ask) * (Decimal('1.0') + self.pair.fee_ask)
         bid = Decimal(bid) * (Decimal('1.0') - self.pair.fee_bid)
