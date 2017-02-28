@@ -15,8 +15,6 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      {pattern: 'static/dist/js/bundle.js', included: true, served: true},
-      {pattern: 'static/dist/css/bundle.css', included: true, served: true},
     ],
 
 
