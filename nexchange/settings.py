@@ -35,6 +35,10 @@ TEMPLATE_PATH_APP = os.path.join(TEMPLATE_PATH, 'app')
 STATIC_PATH = os.path.join(PROJECT_PATH, 'static')
 STATIC_URL = '/static/'
 
+API1_USER = ''
+API1_PASS = ''
+API1_ID_C1 = ''
+
 ADMINS = [
     ('Oleg', 'oleg@onit.ws'),
     ('Sarunas', 'sarunas.azna@gmail.com')

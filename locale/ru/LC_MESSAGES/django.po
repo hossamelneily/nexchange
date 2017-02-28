@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-27 15:27+0000\n"
+"POT-Creation-Date: 2017-02-28 08:15+0000\n"
 "PO-Revision-Date: 2016-12-24 08:08+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -95,43 +95,43 @@ msgstr "%(value)s имеет неверные символы в адресе"
 msgid "%(value)s is not a valid bit coin address"
 msgstr "%(value)s не верный адрес биткоинта"
 
-#: nexchange/settings.py:67
+#: nexchange/settings.py:71
 msgid "Nexchange confirmation code: "
 msgstr ""
 
-#: nexchange/settings.py:139 templates/core/partials/seo_footer.html:20
+#: nexchange/settings.py:143 templates/core/partials/seo_footer.html:20
 msgid "About Us"
 msgstr "О Нас"
 
-#: nexchange/settings.py:140 templates/core/partials/seo_footer.html:21
+#: nexchange/settings.py:144 templates/core/partials/seo_footer.html:21
 msgid "Careers"
 msgstr "Карьера"
 
-#: nexchange/settings.py:141 templates/core/partials/seo_footer.html:22
+#: nexchange/settings.py:145 templates/core/partials/seo_footer.html:22
 msgid "Press"
 msgstr "Пресса"
 
-#: nexchange/settings.py:142 templates/core/partials/seo_footer.html:23
+#: nexchange/settings.py:146 templates/core/partials/seo_footer.html:23
 msgid "Conference"
 msgstr "Конференция"
 
-#: nexchange/settings.py:143 templates/core/partials/seo_footer.html:24
+#: nexchange/settings.py:147 templates/core/partials/seo_footer.html:24
 msgid "Legal & Privacy"
 msgstr "Конфиденциальность"
 
-#: nexchange/settings.py:144 templates/core/partials/seo_footer.html:25
+#: nexchange/settings.py:148 templates/core/partials/seo_footer.html:25
 msgid "Security"
 msgstr "Безопасность"
 
-#: nexchange/settings.py:146 templates/core/partials/seo_footer.html:29
+#: nexchange/settings.py:150 templates/core/partials/seo_footer.html:29
 msgid "FAQ"
 msgstr "FAQ"
 
-#: nexchange/settings.py:148 templates/core/partials/seo_footer.html:31
+#: nexchange/settings.py:152 templates/core/partials/seo_footer.html:31
 msgid "Fees"
 msgstr "Коммиссии"
 
-#: nexchange/settings.py:149 templates/core/partials/seo_footer.html:32
+#: nexchange/settings.py:153 templates/core/partials/seo_footer.html:32
 msgid "Support"
 msgstr "Поддержка"
 

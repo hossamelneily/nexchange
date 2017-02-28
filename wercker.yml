@@ -1,4 +1,4 @@
-box: pitervergara/geodjango:nexchange
+box: onitsoft/wercker:nexchange
 ports:
   - "8000"
 
