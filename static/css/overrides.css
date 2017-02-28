@@ -1475,3 +1475,12 @@ li.select2-results__option.select2-results__option--highlighted {
     display: inline;
     padding-right: 30px;
 }
+
+.mylivechat_collapsed, .mylivechat_expanded, .mylivechat_prechat_submit_button {
+    background-color: #8BC53F !important;
+    border-color: #8BC53F !important;
+
+}
+.mylivechat_container{
+    border-color: #8BC53F !important;
+}
