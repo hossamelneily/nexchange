@@ -1,24 +1,21 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <oleg@onit.ws>, 2016.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-28 08:39+0000\n"
-"PO-Revision-Date: 2016-12-24 08:08+0300\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: ru\n"
+"POT-Creation-Date: 2017-02-28 08:41+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
-"%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Poedit 1.8.9\n"
 
 #: accounts/decoratos.py:16
 msgid "You are already logged in"
@@ -30,13 +27,11 @@ msgstr ""
 
 #: accounts/models.py:32 templates/accounts/user_profile.html:45
 msgid "Phone"
-msgstr "Телефон"
+msgstr ""
 
 #: accounts/models.py:33
-#, fuzzy
-#| msgid "Enter phone number in international format. eg. +555198786543"
 msgid "Enter phone number in international format. eg. +44020786543"
-msgstr "Введите ваш номер мобильного телефона в формате +555198786543"
+msgstr ""
 
 #: accounts/tasks/monitor_wallets.py:40
 msgid "Nexchange: Order released"
@@ -44,20 +39,19 @@ msgstr ""
 
 #: accounts/tasks/monitor_wallets.py:41
 msgid "Your order {}:  is released"
-msgstr "Ваш заказ {}: выполнен"
+msgstr ""
 
 #: accounts/views.py:34
 msgid "Registration completed. Check your phone for SMS confirmation code."
 msgstr ""
-"Регистрация завершена. Подтвердите Ваш телефон, с введя код, полученный в СМС"
 
 #: accounts/views.py:36
 msgid "Error during accounts. <br>Details: {}"
-msgstr "Ошибка во время регистрации. <br>Details: {}"
+msgstr ""
 
 #: accounts/views.py:106
 msgid "Profile updated with success"
-msgstr "Пользователь успешно обновлен"
+msgstr ""
 
 #: articles/templatetags/dateutils.py:15 articles/templatetags/dateutils.py:17
 msgid "th"
@@ -68,10 +62,8 @@ msgid "st"
 msgstr ""
 
 #: articles/templatetags/dateutils.py:16
-#, fuzzy
-#| msgid "Send"
 msgid "nd"
-msgstr "Отправить"
+msgstr ""
 
 #: articles/templatetags/dateutils.py:16
 msgid "rd"
@@ -79,21 +71,21 @@ msgstr ""
 
 #: articles/views.py:19
 msgid "Page not found"
-msgstr "Страница не найдена"
+msgstr ""
 
 #: core/common/forms.py:8
 msgid "Search by Date"
-msgstr "Поиск по дате"
+msgstr ""
 
 #: core/validators.py:28
 #, python-format
 msgid "%(value)s has invalid characters for a valid bit coin address"
-msgstr "%(value)s имеет неверные символы в адресе"
+msgstr ""
 
 #: core/validators.py:35
 #, python-format
 msgid "%(value)s is not a valid bit coin address"
-msgstr "%(value)s не верный адрес биткоинта"
+msgstr ""
 
 #: nexchange/settings.py:71
 msgid "Nexchange confirmation code: "
@@ -101,133 +93,119 @@ msgstr ""
 
 #: nexchange/settings.py:143 templates/core/partials/seo_footer.html:20
 msgid "About Us"
-msgstr "О Нас"
+msgstr ""
 
 #: nexchange/settings.py:144 templates/core/partials/seo_footer.html:21
 msgid "Careers"
-msgstr "Карьера"
+msgstr ""
 
 #: nexchange/settings.py:145 templates/core/partials/seo_footer.html:22
 msgid "Press"
-msgstr "Пресса"
+msgstr ""
 
 #: nexchange/settings.py:146 templates/core/partials/seo_footer.html:23
 msgid "Conference"
-msgstr "Конференция"
+msgstr ""
 
 #: nexchange/settings.py:147 templates/core/partials/seo_footer.html:24
 msgid "Legal & Privacy"
-msgstr "Конфиденциальность"
+msgstr ""
 
 #: nexchange/settings.py:148 templates/core/partials/seo_footer.html:25
 msgid "Security"
-msgstr "Безопасность"
+msgstr ""
 
 #: nexchange/settings.py:150 templates/core/partials/seo_footer.html:29
 msgid "FAQ"
-msgstr "FAQ"
+msgstr ""
 
 #: nexchange/settings.py:152 templates/core/partials/seo_footer.html:31
 msgid "Fees"
-msgstr "Коммиссии"
+msgstr ""
 
 #: nexchange/settings.py:153 templates/core/partials/seo_footer.html:32
 msgid "Support"
-msgstr "Поддержка"
+msgstr ""
 
 #: orders/models.py:117 orders/models.py:119
-#, fuzzy
-#| msgid "Invalid addresses informed."
 msgid "Invalid order type choice"
-msgstr "НЕдействительный адрес"
+msgstr ""
 
 #: orders/models.py:144
 msgid "Sorry, we cannot convert {} to {}"
 msgstr ""
 
 #: orders/tasks/generic/base.py:53
-#, fuzzy
-#| msgid "Your order {}:  is released"
 msgid "Nexchange: Order {} released"
-msgstr "Ваш заказ {}: выполнен"
+msgstr ""
 
 #: orders/tasks/generic/base.py:55
-#, fuzzy
-#| msgid "Your order {}:  is released"
 msgid "Your order {}: is released. Withdraw address: {}"
-msgstr "Ваш заказ {}: выполнен"
+msgstr ""
 
 #: orders/views.py:55
 msgid "Orders Main"
-msgstr "Список ордеров"
+msgstr ""
 
 #: orders/views.py:86 orders/views.py:206
 msgid "Result"
-msgstr "Результат"
+msgstr ""
 
 #: orders/views.py:100
 msgid "Add"
-msgstr "Добавить"
+msgstr ""
 
 #: orders/views.py:271 orders/views.py:316
 msgid "You don't have permission to edit this order"
-msgstr "Вы не можете изменить оржер"
+msgstr ""
 
 #: orders/views.py:274
-#, fuzzy
-#| msgid "This order can not be edited because is frozen"
 msgid "This order can not be edited because it is already released"
-msgstr "Ордер не может быть редактирован"
+msgstr ""
 
 #: orders/views.py:300
-#, fuzzy
-#| msgid "Invalid addresses informed."
 msgid "Invalid address provided"
-msgstr "НЕдействительный адрес"
+msgstr ""
 
 #: orders/views.py:319
-#, fuzzy
-#| msgid "This order can not be edited because is frozen"
 msgid "This order can not be edited because is it already released"
-msgstr "Ордер не может быть редактирован"
+msgstr ""
 
 #: orders/views.py:323
 msgid "An order can not be set as paid without a withdraw address"
-msgstr "Ордер не может быть облачен без отхоного адреса"
+msgstr ""
 
 #: payments/models.py:92 payments/models.py:130
 msgid "Nonce"
-msgstr "Данный"
+msgstr ""
 
 #: payments/models.py:128
 msgid "Uni"
-msgstr "Один"
+msgstr ""
 
 #: payments/models.py:132
 msgid "Token"
-msgstr "Токен"
+msgstr ""
 
 #: payments/models.py:134
 msgid "Default"
-msgstr "Текущий"
+msgstr ""
 
 #: payments/models.py:135
 msgid "Delete"
-msgstr "Удалить"
+msgstr ""
 
 #: payments/views.py:132
 msgid "Unsupported payment provider"
-msgstr "Данный способ оплаты не поддерживается"
+msgstr ""
 
 #: payments/views.py:238
 msgid "IP address is not allowed."
 msgstr ""
 
 #: payments/views.py:240
-#, fuzzy
-#| msgid "Page not found"
 msgid "Resource not found"
-msgstr "Страница не найдена"
+msgstr ""
 
 #: src/kombu/kombu/transport/qpid.py:1294
 #, python-format
@@ -247,65 +225,59 @@ msgstr ""
 #: static/js/tests/fixtures/ProfileFixture.html:5
 #: templates/accounts/user_profile.html:18
 msgid "Your phone number is not verified yet."
-msgstr "Ваш номер телефона до сих по не подтвержден"
+msgstr ""
 
 #: static/js/tests/fixtures/ProfileFixture.html:9
 #: templates/accounts/user_profile.html:22
 msgid "Verifying phone now..."
-msgstr "Ваш номер телефона еще не подтвержден..."
+msgstr ""
 
 #: static/js/tests/fixtures/ProfileFixture.html:17
 #: templates/accounts/user_profile.html:30
 msgid "Insert SMS verification token here"
-msgstr "Введите SMS-подтверждение"
+msgstr ""
 
 #: static/js/tests/fixtures/ProfileFixture.html:19
 #: templates/accounts/user_profile.html:32
 msgid "Verify phone now"
-msgstr "Проверьте ваш телефон"
+msgstr ""
 
 #: static/js/tests/fixtures/ProfileFixture.html:26
 #: templates/accounts/user_profile.html:39
 msgid "Send-me the token again"
-msgstr "Пришлать код подтверждения еще раз"
+msgstr ""
 
 #: support/forms.py:20
-#, fuzzy
-#| msgid "--- Please choise order ---"
 msgid "--- Please select an order (if applicable) ---"
-msgstr "--- Выберете, пожалуйста, заказ ---"
+msgstr ""
 
 #: support/forms.py:22
-#, fuzzy
-#| msgid "Choise a order related with question"
 msgid "Choose an order which is related to your request"
-msgstr "Выберете заказ, относящийся к вопросу"
+msgstr ""
 
 #: support/models.py:12
 msgid "Name*"
-msgstr "Имя*"
+msgstr ""
 
 #: support/models.py:13
 msgid "Email*"
-msgstr "Email*"
+msgstr ""
 
 #: support/models.py:14
 msgid "Telephone"
-msgstr "Телефон"
+msgstr ""
 
 #: support/models.py:16
 msgid "Subject"
-msgstr "Заголовок"
+msgstr ""
 
 #: support/models.py:18
 msgid "Message*"
-msgstr "Сообщение*"
+msgstr ""
 
 #: templates/accounts/password_reset.html:8
-#, fuzzy
-#| msgid "Password Reset"
 msgid "Password reset"
-msgstr "Сбросить пароль"
+msgstr ""
 
 #: templates/accounts/password_reset.html:16
 msgid "Send Reset Link"
@@ -313,17 +285,15 @@ msgstr ""
 
 #: templates/accounts/password_reset_complete.html:11
 msgid "Your password has been reset."
-msgstr "Ваш пароль сброшен."
+msgstr ""
 
 #: templates/accounts/password_reset_complete.html:12
 msgid "You can now login using this new password."
-msgstr "Вы можете зайти используя новый пароль."
+msgstr ""
 
 #: templates/accounts/password_reset_complete.html:15
-#, fuzzy
-#| msgid "Login"
 msgid "Login now"
-msgstr "Войти"
+msgstr ""
 
 #: templates/accounts/password_reset_confirm.html:10
 #: templates/accounts/password_reset_confirm.html:18
@@ -354,58 +324,56 @@ msgstr ""
 
 #: templates/accounts/registration_base.html:5
 msgid "Password Reset"
-msgstr "Сбросить пароль"
+msgstr ""
 
 #: templates/accounts/registration_base.html:12 templates/core/index.html:7
 msgid "Nexchange"
-msgstr "Биткоин-обмен"
+msgstr ""
 
 #: templates/accounts/user_login.html:8 templates/accounts/user_login.html:18
 #: templates/core/partials/breadcrumbs.html:26
 #: templates/core/partials/menu.html:76
 #: templates/core/partials/seo_footer.html:13
 msgid "Login"
-msgstr "Войти"
+msgstr ""
 
 #: templates/accounts/user_login.html:22
 msgid "Don't have an account?"
-msgstr "Не зарегистрированы?"
+msgstr ""
 
 #: templates/accounts/user_login.html:22
 msgid "Register here"
-msgstr "Зарегистрироваться"
+msgstr ""
 
 #: templates/accounts/user_login.html:23
 msgid "Forgot your password?"
-msgstr "Забыли пароль?"
+msgstr ""
 
 #: templates/accounts/user_login.html:23
 msgid "Reset it here"
-msgstr "Восстановить пароль"
+msgstr ""
 
 #: templates/accounts/user_profile.html:9
 msgid "User Profile"
-msgstr "Профиль пользователя"
+msgstr ""
 
 #: templates/accounts/user_profile.html:50
 msgid "Your phone has been verified."
-msgstr "Ваш телефон был подтвержден."
+msgstr ""
 
 #: templates/accounts/user_registration.html:8
 #: templates/accounts/user_registration.html:18
 #: templates/core/partials/menu.html:80
 msgid "Register"
-msgstr "Зарегистрироваться"
+msgstr ""
 
 #: templates/articles/cms_default.html:19
 msgid "Written by: "
 msgstr ""
 
 #: templates/articles/cms_default.html:19
-#, fuzzy
-#| msgid "Nexchange"
 msgid "Nexchange Team"
-msgstr "Nexchange"
+msgstr ""
 
 #: templates/articles/cms_default.html:22
 msgid "Lasst modified: "
@@ -416,87 +384,83 @@ msgid "Simple and powerful Bitcoin, Ethereum and Litecoin exchange"
 msgstr ""
 
 #: templates/core/base.html:25
-#, fuzzy
-#| msgid "Nexchange"
 msgid "Nexchange BETA"
-msgstr "Nexchange"
+msgstr ""
 
 #: templates/core/base.html:50
 msgid "Service unavailable. Please try again later."
-msgstr "Сервис не доступен. Пожалуйста, попробуйте позже"
+msgstr ""
 
 #: templates/core/partials/breadcrumbs.html:14
 msgid "Order"
-msgstr "Заказать"
+msgstr ""
 
 #: templates/core/partials/breadcrumbs.html:38
 msgid "Confirm"
-msgstr "Подтвердить"
+msgstr ""
 
 #: templates/core/partials/footer.html:3
 msgid "All rights reserved, Onit Solutions LLC 2015-2016"
-msgstr "Все права защищены, Onit Solutions LLC 2015-2016"
+msgstr ""
 
 #: templates/core/partials/menu.html:29
 msgid "Toggle navigation"
-msgstr "Переключение навигации"
+msgstr ""
 
 #: templates/core/partials/menu.html:41
 msgid "Home"
-msgstr "Главная"
+msgstr ""
 
 #: templates/core/partials/menu.html:46
 msgid "My Orders"
-msgstr "Мои Заказы"
+msgstr ""
 
 #: templates/core/partials/menu.html:51
 msgid "Referrals"
-msgstr "Рефералы"
+msgstr ""
 
 #: templates/core/partials/menu.html:56
-#, fuzzy
-#| msgid "Phone verification"
 msgid "Verification"
-msgstr "Проверка телефона"
+msgstr ""
 
 #: templates/core/partials/menu.html:72
 msgid "Logout"
-msgstr "Выйти"
+msgstr ""
 
 #: templates/core/partials/seo_footer.html:9
 msgid "ACCOUNT"
-msgstr "Аккаунт"
+msgstr ""
 
 #: templates/core/partials/seo_footer.html:11
 msgid "Profile"
-msgstr "Профиль"
+msgstr ""
 
 #: templates/core/partials/seo_footer.html:14
 msgid "SignUp"
-msgstr "Регистрация"
+msgstr ""
 
 #: templates/core/partials/seo_footer.html:19
 msgid "ABOUT"
-msgstr "О Нас"
+msgstr ""
 
 #: templates/core/partials/seo_footer.html:28
 msgid "RESOURCES"
-msgstr "Ресурсы"
+msgstr ""
 
 #: templates/core/partials/seo_footer.html:36
 msgid "Social"
-msgstr "Социальные сети"
+msgstr ""
 
 #: templates/core/partials/spa_navigation.html:5
 msgid "Next"
-msgstr "Далее"
+msgstr ""
 
 #: templates/core/partials/spa_navigation.html:10
 #: templates/orders/partials/steps/old_amount.html:26
 #: templates/orders/partials/steps/step_amount.html:41
 #: templates/orders/partials/steps/step_confirmation.html:41
 msgid "Sell"
-msgstr "Продать"
+msgstr ""
 
 #: templates/core/partials/spa_navigation.html:14
 #: templates/orders/partials/steps/old_amount.html:11
@@ -504,36 +468,36 @@ msgstr "Продать"
 #: templates/orders/partials/steps/step_confirmation.html:42
 #: templates/support/thanks.html:15
 msgid "Buy"
-msgstr "Купить"
+msgstr ""
 
 #: templates/core/partials/success_order_sell.html:5
 #: templates/orders/partials/modals/order_success_buy.html:8
 #: templates/orders/partials/modals/order_success_sell.html:8
 msgid "Order placed successfully"
-msgstr "Платеж выполнен успешно"
+msgstr ""
 
 #: templates/core/partials/success_order_sell.html:8
 msgid "Please tranfer to this BTC Address"
-msgstr "Пожалуйста, переведите на этот BTC адрес "
+msgstr ""
 
 #: templates/core/partials/success_order_sell.html:17
 msgid "Notice that you must pay until"
-msgstr "Обратите внимания, что вы должны заплатить до"
+msgstr ""
 
 #: templates/orders/partials/forms/payment_toggle.html:6
 #: templates/orders/partials/order_row_mobile.html:47
 msgid "Setting as paid..."
-msgstr "Установить платеж как ..."
+msgstr ""
 
 #: templates/orders/partials/forms/payment_toggle.html:24
 #: templates/orders/partials/order_row_mobile.html:51
 #: templates/orders/partials/orders_desktop.html:11
 msgid "Paid"
-msgstr "Оплаченный"
+msgstr ""
 
 #: templates/orders/partials/forms/payment_toggle.html:26
 msgid "Not Paid"
-msgstr "Не оплачено"
+msgstr ""
 
 #: templates/orders/partials/forms/withdraw_address_widget.html:7
 #, python-format
@@ -546,17 +510,15 @@ msgstr ""
 #: templates/orders/partials/forms/withdraw_address_widget.html:21
 #: templates/orders/partials/forms/withdraw_address_widget.html:38
 msgid "Not Defined"
-msgstr "Не определено"
+msgstr ""
 
 #: templates/orders/partials/forms/withdraw_address_widget.html:31
-#, fuzzy
-#| msgid "Withdraw Address"
 msgid "Set Withdraw Address"
-msgstr "Адрес для изьятия"
+msgstr ""
 
 #: templates/orders/partials/modals/order_success_buy.html:12
 msgid "Please make payment to the following"
-msgstr "Пожалуйста, чтобы выполнить платеж, сделайте следующее"
+msgstr ""
 
 #: templates/orders/partials/modals/order_success_buy.html:20
 msgid "IBAN: "
@@ -575,20 +537,16 @@ msgid "Bank Name: "
 msgstr ""
 
 #: templates/orders/partials/modals/order_success_buy.html:35
-#, fuzzy
-#| msgid "Withdraw Address"
 msgid "Bank Address: "
-msgstr "Адрес для изьятия"
+msgstr ""
 
 #: templates/orders/partials/modals/order_success_buy.html:39
 msgid "Owner Address: "
 msgstr ""
 
 #: templates/orders/partials/modals/order_success_buy.html:51
-#, fuzzy
-#| msgid "Please put the following reference in the comment:"
 msgid "Please put the following reference in the comment"
-msgstr "Пожалйуста приложите следующую ссылку к комментарию"
+msgstr ""
 
 #: templates/orders/partials/modals/order_success_buy.html:65
 #: templates/orders/partials/modals/order_success_buy.html:98
@@ -613,10 +571,8 @@ msgid ""
 msgstr ""
 
 #: templates/orders/partials/modals/order_success_buy.html:150
-#, fuzzy
-#| msgid "Notice that you must pay until"
 msgid "Please notice that you must pay until "
-msgstr "Обратите внимания, что вы должны заплатить до"
+msgstr ""
 
 #: templates/orders/partials/modals/order_success_buy.html:158
 msgid ""
@@ -625,32 +581,28 @@ msgid ""
 msgstr ""
 
 #: templates/orders/partials/modals/order_success_sell.html:11
-#, fuzzy
-#| msgid "Released"
 msgid "Please send"
-msgstr "Выпущеный"
+msgstr ""
 
 #: templates/orders/partials/modals/order_success_sell.html:13
-#, fuzzy
-#| msgid "Please send bitcoin to the following address"
 msgid "to the following address"
-msgstr "Пожалуйста отправьте биткоин по следующему адресу"
+msgstr ""
 
 #: templates/orders/partials/modals/order_success_sell.html:24
 msgid "Copy"
-msgstr "Копировать"
+msgstr ""
 
 #: templates/orders/partials/modals/order_success_sell.html:32
 msgid "You choose to get paid by:"
-msgstr "Вы выбрали для получения платежа"
+msgstr ""
 
 #: templates/orders/partials/modals/order_success_sell.html:42
 msgid "We will place the following reference in the comment to our payment:"
-msgstr "Мы размести следующую ссылку в комментарию к платежу"
+msgstr ""
 
 #: templates/orders/partials/modals/order_success_sell.html:51
 msgid "Notice that you must send coins until"
-msgstr "Обратите внимание, что вы должны послать деньги до"
+msgstr ""
 
 #: templates/orders/partials/modals/order_success_sell.html:58
 #, python-format
@@ -663,15 +615,15 @@ msgstr ""
 
 #: templates/orders/partials/modals/success_order.html:17
 msgid "Success"
-msgstr "Успешно"
+msgstr ""
 
 #: templates/orders/partials/modals/success_order.html:42
 msgid "Go to Robokassa"
-msgstr "Перейти в Робокассу"
+msgstr ""
 
 #: templates/orders/partials/modals/success_order.html:48
 msgid "Get your bitcoins"
-msgstr "Получить биткоины"
+msgstr ""
 
 #: templates/orders/partials/modals/success_order.html:50
 msgid "Done"
@@ -680,22 +632,22 @@ msgstr ""
 #: templates/orders/partials/order_pagination.html:5
 #: templates/referrals/index_referrals.html:107
 msgid "previous"
-msgstr "предыдущий"
+msgstr ""
 
 #: templates/orders/partials/order_pagination.html:9
 #: templates/referrals/index_referrals.html:111
 msgid "Page"
-msgstr "Страница"
+msgstr ""
 
 #: templates/orders/partials/order_pagination.html:11
 #: templates/referrals/index_referrals.html:111
 msgid "of"
-msgstr "из"
+msgstr ""
 
 #: templates/orders/partials/order_pagination.html:15
 #: templates/referrals/index_referrals.html:115
 msgid "next"
-msgstr "Далее"
+msgstr ""
 
 #: templates/orders/partials/order_pagination.html:21
 msgid "Hide expired and released"
@@ -708,19 +660,17 @@ msgstr ""
 #: templates/orders/partials/order_row_desktop.html:6
 #: templates/orders/partials/order_row_mobile.html:7
 msgid "Buying"
-msgstr "Покупка"
+msgstr ""
 
 #: templates/orders/partials/order_row_desktop.html:10
 #: templates/orders/partials/order_row_mobile.html:11
-#, fuzzy
-#| msgid "Sell"
 msgid "Selling"
-msgstr "Продать"
+msgstr ""
 
 #: templates/orders/partials/order_row_mobile.html:25
 #: templates/orders/partials/orders_desktop.html:7
 msgid "Reference"
-msgstr "Номер заказа"
+msgstr ""
 
 #: templates/orders/partials/order_row_mobile.html:31
 #: templates/orders/partials/orders_desktop.html:8
@@ -740,17 +690,17 @@ msgstr ""
 #: templates/orders/partials/order_row_mobile.html:58
 #: templates/orders/partials/orders_desktop.html:12
 msgid "Released"
-msgstr "Выпущеный"
+msgstr ""
 
 #: templates/orders/partials/order_row_mobile.html:67
 #: templates/orders/partials/orders_desktop.html:13
 msgid "Completed"
-msgstr "Завершенный"
+msgstr ""
 
 #: templates/orders/partials/order_row_mobile.html:75
 #: templates/orders/partials/orders_desktop.html:14
 msgid "Withdraw Address"
-msgstr "Адрес для изьятия"
+msgstr ""
 
 #: templates/orders/partials/orders_desktop.html:5
 msgid "Type"
@@ -758,35 +708,31 @@ msgstr ""
 
 #: templates/orders/partials/orders_desktop.html:6
 msgid "Date"
-msgstr "Дата"
+msgstr ""
 
 #: templates/orders/partials/orders_desktop.html:21
 msgid "No records found"
-msgstr "Не найдено ни одной записи"
+msgstr ""
 
 #: templates/orders/partials/orders_header.html:5
-#, fuzzy
-#| msgid "Your Order"
 msgid "Current Orders"
-msgstr "Ваш Заказ"
+msgstr ""
 
 #: templates/orders/partials/orders_header.html:14
-#, fuzzy
-#| msgid "New Order"
 msgid "New Order"
-msgstr "Новый заказ"
+msgstr ""
 
 #: templates/orders/partials/steps/old_amount.html:53
 msgid "To"
-msgstr "В"
+msgstr ""
 
 #: templates/orders/partials/steps/step_authentication.html:7
 msgid "Phone verification"
-msgstr "Проверка телефона"
+msgstr ""
 
 #: templates/orders/partials/steps/step_authentication.html:10
 msgid "Enter your phone"
-msgstr "Ваш номер телефона"
+msgstr ""
 
 #: templates/orders/partials/steps/step_authentication.html:14
 msgid "Mobile number"
@@ -794,72 +740,68 @@ msgstr ""
 
 #: templates/orders/partials/steps/step_authentication.html:25
 msgid "Human check"
-msgstr "Ручная проверка"
+msgstr ""
 
 #: templates/orders/partials/steps/step_authentication.html:36
 msgid "Code from SMS"
-msgstr "Введите код из СМС"
+msgstr ""
 
 #: templates/orders/partials/steps/step_authentication.html:45
 msgid "Send SMS"
-msgstr "Отправить СМС"
+msgstr ""
 
 #: templates/orders/partials/steps/step_authentication.html:48
 msgid "Send again"
-msgstr "Прислать код еще раз"
+msgstr ""
 
 #: templates/orders/partials/steps/step_authentication.html:51
 msgid "Go"
-msgstr "Дальше"
+msgstr ""
 
 #: templates/orders/partials/steps/step_confirmation.html:5
 msgid "Your Order"
-msgstr "Ваш Заказ"
+msgstr ""
 
 #: templates/orders/partials/steps/step_confirmation.html:9
 #: templates/referrals/index_referrals.html:13
 msgid "BTC"
-msgstr "Биткоин"
+msgstr ""
 
 #: templates/orders/partials/steps/step_confirmation.html:13
 msgid "for"
-msgstr "за"
+msgstr ""
 
 #: templates/orders/partials/steps/step_confirmation.html:21
 msgid "Payment Method"
-msgstr "Метод оплаты"
+msgstr ""
 
 #: templates/orders/partials/steps/step_confirmation.html:43
 msgid "Cancel"
-msgstr "Отмена"
+msgstr ""
 
 #: templates/orders/partials/steps/step_retry_payment.html:8
 msgid "Bad signature"
-msgstr "Неверная сигнатура"
+msgstr ""
 
 #: templates/orders/partials/steps/step_retry_payment.html:10
-#, fuzzy
-#| msgid "Your payment failed. You can try again or make new payment"
 msgid "Your payment failed. You can try again or make a new order"
-msgstr "Ваш платеж на прошел. Попробуйте еще раз"
+msgstr ""
 
 #: templates/orders/partials/steps/step_retry_payment.html:14
 msgid "Try again"
-msgstr "Попробуйте еще раз"
+msgstr ""
 
 #: templates/orders/partials/steps/step_retry_payment.html:16
-#, fuzzy
-#| msgid "New Order"
 msgid "New order"
-msgstr "Новый заказ"
+msgstr ""
 
 #: templates/payments/partials/forms/card.html:11
 msgid "Card number"
-msgstr "Номер карты"
+msgstr ""
 
 #: templates/payments/partials/forms/card.html:15
 msgid "Full name"
-msgstr "Полное имя"
+msgstr ""
 
 #: templates/payments/partials/forms/email.html:7
 #: templates/payments/partials/forms/iban.html:7
@@ -896,49 +838,45 @@ msgstr ""
 
 #: templates/payments/partials/forms/swift.html:22
 #: templates/payments/partials/forms/swift.html:24
-#, fuzzy
-#| msgid "BTC"
 msgid "BIC"
-msgstr "Биткоин"
+msgstr ""
 
 #: templates/payments/partials/modals/payment_options.html:7
 msgid "Credit cards"
-msgstr "Кредитная карта"
+msgstr ""
 
 #: templates/payments/partials/modals/payment_options.html:17
 msgid "Wallets"
-msgstr "Кошелек"
+msgstr ""
 
 #: templates/payments/partials/modals/payment_options.html:31
 msgid "Bank"
-msgstr "Банк"
+msgstr ""
 
 #: templates/payments/partials/modals/payment_type.html:11
 msgid "How would you like to pay?"
-msgstr "Как Вы желаете расплатиться?"
+msgstr ""
 
 #: templates/payments/partials/modals/payment_type.html:13
 msgid "How would you like to get paid?"
-msgstr "Как Вы желаете получить платеж?"
+msgstr ""
 
 #: templates/payments/partials/modals/payment_type.html:21
 #: templates/payments/partials/modals/sell.html:49
 msgid "Close"
-msgstr "Закрыть"
+msgstr ""
 
 #: templates/payments/partials/modals/sell.html:21
-#, fuzzy
-#| msgid "previous"
 msgid "Previously used"
-msgstr "предыдущий"
+msgstr ""
 
 #: templates/payments/partials/modals/sell.html:24
 msgid "Pick one of your saved accounts"
-msgstr "Выберите учетную запись"
+msgstr ""
 
 #: templates/payments/partials/modals/sell.html:35
 msgid "Use this "
-msgstr "Использовать"
+msgstr ""
 
 #: templates/payments/partials/modals/sell.html:42
 msgid "Save & Continue"
@@ -947,49 +885,45 @@ msgstr ""
 #: templates/payments/partials/modals/sell.html:48
 #: templates/support/thanks.html:21
 msgid "Back"
-msgstr "Назад"
+msgstr ""
 
 #: templates/referrals/index_referrals.html:27
 msgid "details"
-msgstr "подробности"
+msgstr ""
 
 #: templates/referrals/index_referrals.html:34
 #: templates/referrals/index_referrals.html:73
 msgid "Partial phone"
-msgstr "Неполный номер телефона"
+msgstr ""
 
 #: templates/referrals/index_referrals.html:40
 #: templates/referrals/index_referrals.html:74
 msgid "Confirmed orders count"
-msgstr "Количество подтвержденных заказов"
+msgstr ""
 
 #: templates/referrals/index_referrals.html:46
 #: templates/referrals/index_referrals.html:75
 msgid "Turnover"
-msgstr "Оборот"
+msgstr ""
 
 #: templates/referrals/index_referrals.html:52
 #: templates/referrals/index_referrals.html:76
-#, fuzzy
-#| msgid "Revenua"
 msgid "Revenue"
-msgstr "Обновить"
+msgstr ""
 
 #: templates/referrals/index_referrals.html:58
 #: templates/referrals/index_referrals.html:77
 msgid "Last seen"
-msgstr "Последний визит"
+msgstr ""
 
 #: templates/referrals/index_referrals.html:63
 #: templates/referrals/index_referrals.html:78
 msgid "Id"
-msgstr "id"
+msgstr ""
 
 #: templates/referrals/index_referrals.html:92
-#, fuzzy
-#| msgid "No records found"
 msgid "No referrals found"
-msgstr "Не найдено ни одной записи"
+msgstr ""
 
 #: templates/support/support.html:11
 msgid "Contact us"
@@ -997,7 +931,7 @@ msgstr ""
 
 #: templates/support/support.html:25
 msgid "Send"
-msgstr "Отправить"
+msgstr ""
 
 #: templates/support/support.html:33 templates/support/support.html:34
 msgid "support@nexchange.co.uk"
@@ -1010,10 +944,8 @@ msgid ""
 msgstr ""
 
 #: templates/verification/upload.html:11
-#, fuzzy
-#| msgid "Phone verification"
 msgid "Upload Verification"
-msgstr "Проверка телефона"
+msgstr ""
 
 #: templates/verification/upload.html:23
 msgid "Upload"
@@ -1036,142 +968,9 @@ msgid "Download here"
 msgstr ""
 
 #: templates/verification/upload.html:77
-#, fuzzy
-#| msgid "No records found"
 msgid "No documents found"
-msgstr "Не найдено ни одной записи"
+msgstr ""
 
 #: verification/views/views.py:52
-#, fuzzy
-#| msgid "You don't have permission to edit this order"
 msgid "You don't have permission to download this document"
-msgstr "Вы не можете изменить оржер"
-
-#~ msgid "BTC Exchange code:"
-#~ msgstr "Код обмена :"
-
-#~ msgid "Blog"
-#~ msgstr "Блог"
-
-#~ msgid "Trading Guide"
-#~ msgstr "Инструкция"
-
-#~ msgid "User Registration"
-#~ msgstr "Регистрация"
-
-#~ msgid "Send payment"
-#~ msgstr "Отправить платеж"
-
-#~ msgid "Currency"
-#~ msgstr "Валюта"
-
-#~ msgid "Amount"
-#~ msgstr "Сумма"
-
-#~ msgid "New"
-#~ msgstr "Новый"
-
-#~ msgid "Select payout option"
-#~ msgstr "Выберите вариант платежа"
-
-#~ msgid "Send Message"
-#~ msgstr "Отправить сообщение"
-
-#~ msgid "Thanks, soon we will answer you"
-#~ msgstr "Спасибо, в ближайшее время мы Вам ответим"
-
-#~ msgid "Complete payment & get bitcoins now"
-#~ msgstr "Закончить платеж и получить биткоины"
-
-#~ msgid "This section is under development"
-#~ msgstr "Раздел находится в разработке"
-
-#~ msgid "Payment"
-#~ msgstr "Оплата"
-
-#~ msgid "Choose your payment method to finish !"
-#~ msgstr "Выберите метод оплаты"
-
-# templates/core/partials/forms/card.html:1
-#~ msgid "Add a new payout card"
-#~ msgstr "Добавьте новую карту"
-
-#~ msgid "Russian"
-#~ msgstr "Русский"
-
-#~ msgid "English"
-#~ msgstr "Английский"
-
-#~ msgid "Exit"
-#~ msgstr "Выход"
-
-#~ msgid "Check"
-#~ msgstr "Проверьте"
-
-#~ msgid "Graph"
-#~ msgstr "График"
-
-#~ msgid "Already a User?"
-#~ msgstr "Уже зарегистрированны?"
-
-#~ msgid "Register!"
-#~ msgstr "Зарегистрироваться!"
-
-#~ msgid "Confirm your"
-#~ msgstr "Подтвердите"
-
-#~ msgid "Orders"
-#~ msgstr "Заказы"
-
-#~ msgid "back"
-#~ msgstr "назад"
-
-#~ msgid "Alfa-bank"
-#~ msgstr "Альфа-банк"
-
-#~ msgid "Pay with"
-#~ msgstr "С помощью"
-
-#~ msgid "Sberbank"
-#~ msgstr "Сбербанк"
-
-#~ msgid "Card 2 card - any bank"
-#~ msgstr "С карты на карту - одного банка"
-
-#~ msgid "Qiwi wallet"
-#~ msgstr "Qiwi кошелек"
-
-#~ msgid "For"
-#~ msgstr "Для"
-
-#~ msgid "RUB"
-#~ msgstr "РУБ"
-
-#~ msgid "The code you sent was incorrect. Please, try again."
-#~ msgstr "Введенный код неправильный. Попробуйте еще раз."
-
-#~ msgid "Во время регистрации произошла ошибка"
-#~ msgstr "Во время регистрации произошла ошибка"
-
-#~ msgid "User"
-#~ msgstr "Пользователь"
-
-#~ msgid "Atencion:"
-#~ msgstr "Atenvostok"
-
-#~ msgid "Exito:"
-#~ msgstr "Exitvosko"
-
-#, fuzzy
-#~| msgid "Exchange"
-#~ msgid "Exchange from"
-#~ msgstr "Обмен из"
-
-#~ msgid "BitCoins"
-#~ msgstr "Биткоины"
-
-#~ msgid "to other Currencies"
-#~ msgstr "на другие валюты"
-
-#~ msgid "Place"
-#~ msgstr "Место"
+msgstr ""
