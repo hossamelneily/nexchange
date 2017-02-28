@@ -1,4 +1,4 @@
-box: onitsoft/wercker:nexchange
+box: onitsoft/wercker
 ports:
   - "8000"
 
