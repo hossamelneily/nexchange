@@ -36,7 +36,7 @@ def update_pending_transactions():
             order.status = Order.PAID
             order.save()
             # trigger release
-            sell_order_release_invoke.apply_assync()
+            sell_order_release_invoke.apply_async()
             title = _('Nexchange: Order released')
             msg = _('Your order {}:  is released'). \
                 format(tr.order.o.unique_reference)
