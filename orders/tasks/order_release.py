@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 from orders.models import Order
 from nexchange.utils import get_nexchange_logger
-from django.conf import settings
 from orders import utils
 
 
@@ -17,7 +16,7 @@ def sell_order_release():
         if send_money_status:
             order.status = Order.RELEASED
             order.save()
-            logger.info('Order {} is scheduled of released'.format(order))
+            logger.info('Order {} is released, client paid'.format(order))
         else:
             raise NotImplementedError(
                 'Order {} cannot be paid automatically.'.format(order)
