@@ -49,7 +49,7 @@ module.exports = {
     },
     plugins: [
         new ExtractTextPlugin('bundle.css'),
-        //new OptimizeCssAssetsPlugin(),
+        new OptimizeCssAssetsPlugin(),
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
@@ -61,14 +61,12 @@ module.exports = {
             Cookies: 'js-cookie',
             moment: 'moment',
         }),
-        /*
         new webpack.optimize.UglifyJsPlugin({
             sourceMap: true,
             compressor: {
                 warnings: false
             }
         })
-        */
     ],
     watch: false,
     entry: [
