@@ -3,7 +3,6 @@ var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
-
 module.exports = {
     module: {
         loaders: [{
@@ -50,29 +49,43 @@ module.exports = {
     },
     plugins: [
         new ExtractTextPlugin('bundle.css'),
-        new OptimizeCssAssetsPlugin(),
+        //new OptimizeCssAssetsPlugin(),
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
             'window.jQuery': 'jquery',
             'window.$': 'jquery',
-            highcharts: 'highcharts',
             NProgress: 'nprogress',
-            toastr: 'toastr'
+            toastr: 'toastr',
+            highcharts: 'highcharts',
+            Cookies: 'js-cookie',
+            moment: 'moment',
         }),
+        /*
         new webpack.optimize.UglifyJsPlugin({
+            sourceMap: true,
             compressor: {
                 warnings: false
             }
         })
+        */
     ],
     watch: false,
     entry: [
-        'babel-polyfill',
-        'bootstrap-loader',
         // npm js
+        './node_modules/highcharts/highcharts.js',
+        './node_modules/highcharts/highcharts-more.js',
+        './node_modules/highcharts/modules/exporting.js',
         './node_modules/select2/dist/js/select2.full.js',
         './node_modules/jquery-ticker/jquery.ticker.js',
+        './node_modules/card/dist/jquery.card.js',
+        './node_modules/jquery-ui/ui/widgets/datepicker.js',
+        './node_modules/js-cookie/src/js.cookie.js',
+        './node_modules/moment-timezone/moment-timezone.js',
+        './node_modules/intl-tel-input/build/js/intlTelInput.js',
+        // loader
+        'babel-polyfill',
+        'bootstrap-loader',
         // run package
         './static/run.js',
         // old javascript
