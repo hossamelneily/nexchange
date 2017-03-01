@@ -52,12 +52,13 @@ module.exports = {
         new ExtractTextPlugin('bundle.css'),
         new OptimizeCssAssetsPlugin(),
         new webpack.ProvidePlugin({
-            $: "jquery",
-            jQuery: "jquery",
-            "window.jQuery": "jquery",
-            "window.$": "jquery",
+            $: 'jquery',
+            jQuery: 'jquery',
+            'window.jQuery': 'jquery',
+            'window.$': 'jquery',
             highcharts: 'highcharts',
-            NProgress: 'nprogress'
+            NProgress: 'nprogress',
+            toastr: 'toastr'
         }),
         new webpack.optimize.UglifyJsPlugin({
             compressor: {
