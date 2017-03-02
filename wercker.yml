@@ -28,8 +28,7 @@ dev:
     - script:
         name: create/validate static build roots
         code: |
-           mkdir -p static/dist/js
-           mkdir -p static/dist/css
+           mkdir -p static/bundles
     - script:
         name: pip install requirements (with cache)
         code: |
@@ -154,8 +153,7 @@ build:
     - script:
         name: create/validate static build roots
         code: |
-           mkdir -p static/dist/js
-           mkdir -p static/dist/css
+           mkdir -p static/bundles
     - maxon/npm-run:
         script: webpack
     - script:
