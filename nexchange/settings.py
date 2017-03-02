@@ -126,6 +126,7 @@ INSTALLED_APPS = [
     'axes',
     'nexchange',
     'support',
+    'webpack_loader'
 ]
 
 
@@ -421,5 +422,12 @@ LOGGING = {
             'propagate': True,
             'include_html': True,
         },
+    }
+}
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': '/bundles/',
+        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
     }
 }

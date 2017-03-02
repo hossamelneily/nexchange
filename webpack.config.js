@@ -2,8 +2,10 @@ var path = require('path');
 var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+var BundleTracker = require('webpack-bundle-tracker');
 
 module.exports = {
+    context: __dirname,
     module: {
         loaders: [{
             loader: "babel-loader",
@@ -38,16 +40,14 @@ module.exports = {
             loader: 'file-loader'
         }]
     },
-    resolve: {
-        alias: {
-            modules: path.join(__dirname, "node_modules"),
-        }
-    },
     output: {
-        path: './static/dist/css',
-        filename: '../js/bundle.js'
+        path: path.resolve('./static/bundles/'),
+        filename: "bundle.js",
     },
     plugins: [
+        new BundleTracker({
+            filename: './webpack-stats.json'
+        }),
         new ExtractTextPlugin('bundle.css'),
         new OptimizeCssAssetsPlugin(),
         new webpack.ProvidePlugin({
