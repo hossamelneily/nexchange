@@ -62,7 +62,7 @@
   },
   "scripts": {
     "test": "karma start --single-run",
-    "webpack": "webpack"
+    "build": "webpack --config webpack.config.js"
   },
   "repository": {
     "type": "git",

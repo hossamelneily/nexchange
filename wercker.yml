@@ -53,7 +53,8 @@ dev:
       name: Install node requirements
       code: |
         rm -fr node_modules && npm install
-        cd /pipeline/source && ./node_modules/.bin/webpack --config webpack.config.js
+    - maxon/npm-run:
+        script: build
     - script:
       name: collect static
       code: |
@@ -164,7 +165,8 @@ build:
       code: |
         # https://github.com/wercker/support/issues/227 :(
         rm -fr node_modules && npm install
-        ./node_modules/.bin/webpack --config webpack.config.js
+    - maxon/npm-run:
+        script: build
     - script:
       name: collect static
       code: |
@@ -181,7 +183,6 @@ build:
         code: |
           mv "nginx.conf" "$WERCKER_OUTPUT_DIR/nginx.conf"
           mv "docker-compose.yml" "$WERCKER_OUTPUT_DIR/docker-compose.yml"
-
     - create-file:
         #
         # PEM_FILE_CONTENT - the key to SSH into server (create key par via wercker web interface. remeber to install public key on server)
@@ -216,55 +217,44 @@ build:
           export REDIS_PORT_6379_TCP_PORT=${REDIS_PORT_6379_TCP_PORT}
           # SECURITY SETTINGS
           # DJ SECRET
-
           export SECRET_KEY='${SECRET_KEY}'
           # DEBUG
           export DEBUG=${DEBUG}
           export CELERY_TASK_ALWAYS_EAGER=${CELERY_ALWAYS_EAGER}
           export API1_IS_TEST=${API1_IS_TEST}
           export API1_ID_C1=${API1_ID_C1}
-
           # YANDEX
           export YANDEX_METRICA_ID_UK=${YANDEX_METRICA_ID_UK}
           export YANDEX_METRICA_ID_RU=${YANDEX_METRICA_ID_RU}
-
           # GA
           export GOOGLE_ANALYTICS_PROPERTY_ID_UK=${GOOGLE_ANALYTICS_PROPERTY_ID_UK}
           export GOOGLE_ANALYTICS_PROPERTY_ID_RU=${GOOGLE_ANALYTICS_PROPERTY_ID_RU}
-
           # CAPTCHA
           export RECAPTCHA_SITEKEY=${RECAPTCHA_SITEKEY}
           export RECAPTCHA_SECRET_KEY=${RECAPTCHA_SECRET_KEY}
-
           # PAYEER
           export PAYEER_IPN_KEY=${PAYEER_IPN_KEY}
           export PAYEER_WALLET=${PAYEER_WALLET}
           export PAYEER_ACCOUNT=${PAYEER_ACCOUNT}
           export PAYEER_API_ID=${PAYEER_API_ID}
           export PAYEER_API_KEY=${PAYEER_API_KEY}
-
           # OKPAY
           export OKPAY_WALLET=${OKPAY_WALLET}
           export OKPAY_API_KEY=${OKPAY_API_KEY}
-
           # API1
           export API1_USER=${API1_USER}
           export API1_PASS='${API1_PASS}'
-
           # API2
           export API2_KEY=${API2_KEY}
           export API2_SECRET=${API2_SECRET}
-
           # ROBOKASSA
           export ROBOKASSA_IS_TEST=${ROBOKASSA_IS_TEST}
           export ROBOKASSA_LOGIN=${ROBOKASSA_LOGIN}
           export ROBOKASSA_PASS1=${ROBOKASSA_PASS1}
           export ROBOKASSA_PASS2=${ROBOKASSA_PASS2}
-
           # Twilio
           export TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
           export TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
-
           # Smtp
           export EMAIL_HOST=${EMAIL_HOST}
           export EMAIL_HOST_USER=${EMAIL_HOST_USER}
@@ -288,12 +278,10 @@ build:
           echo "To load the 'withdraw_address' fixture, uncomment the next line"
           # python manage.py loaddata core/fixtures/withdraw_address.json
           python manage.py loaddata core/fixtures/pair.json
-
           if [ ! -z $CMS_FROM_FIXTURE] && [ ${CMS_FROM_FIXTURE} -eq 1 ]
           then
             python manage.py loaddata articles/fixtures/articles.json
           fi
-
           # Copy static data to nginx volume
           cp -ra $WERCKER_OUTPUT_DIR/staticfiles/* /usr/share/nginx/html/static
           cp -ra $WERCKER_OUTPUT_DIR/mediafiles/* /usr/share/nginx/html/media
@@ -303,16 +291,12 @@ build:
           #
           # Start Cron Process
           cron
-
           # Start celery stuff
           adduser --disabled-password --gecos '' celery_user
-
           celery worker -A nexchange --uid=celery_user -l info &
           celery beat -A nexchange -l info &
-
           echo "Gunicorn start"
           exec newrelic-admin run-program gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --access-logfile=- nexchange.wsgi:application "$@"
-
           # Remove entrypoint in production to protect data
           echo "from django.conf import settings; import os; int_debug = 1 if settings.DEBUG else 0; os.environ['PYDEBUG']=int_debug" | python manage.py shell
           if ! [ $PYDEBUG ]; then
@@ -441,7 +425,8 @@ tests:
       code: |
         # https://github.com/wercker/support/issues/227 :(
         rm -fr node_modules && npm install --production
-        cd /pipeline/source && ./node_modules/.bin/webpack --config webpack.config.js
+    - maxon/npm-run:
+        script: build
     - script:
       name: collect static
       code: |
@@ -468,7 +453,6 @@ static-validation-js:
         name: Run static-validation-js.sh
         code: |
           bash static-validation-js.sh
-
 static-validation-py:
   steps:
     - script:
