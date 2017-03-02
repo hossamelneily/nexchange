@@ -45,6 +45,10 @@ dev:
         code: |
           python manage.py migrate
     - script:
+      name: collect static
+      code: |
+        yes 'yes' | python manage.py collectstatic
+    - script:
         name: create/validate static build roots
         code: |
            mkdir -p static/bundles
@@ -55,10 +59,6 @@ dev:
         rm -fr node_modules && npm install
     - maxon/npm-run:
         script: build
-    - script:
-      name: collect static
-      code: |
-        yes 'yes' | python manage.py collectstatic
     - script:
         name: Run celery
         code: |
