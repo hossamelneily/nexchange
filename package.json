@@ -33,6 +33,7 @@
     "toastr": "^2.1.2",
     "url-loader": "^0.5.8",
     "webpack": "^2.2.1",
+    "webpack-bundle-tracker": "^0.2.0",
     "x-editable": "^1.5.1"
   },
   "devDependencies": {
@@ -57,7 +58,6 @@
     "sass-loader": "^6.0.2",
     "watchify": "latest",
     "webpack": "^2.2.1",
-    "webpack-bundle-tracker": "^0.2.0",
     "webpack-dev-server": "^2.4.1"
   },
   "scripts": {

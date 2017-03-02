@@ -43,16 +43,17 @@ def update_pending_transactions():
 
             # trigger release
             title = _('Nexchange: Order released')
-            msg = _('Your order {}:  is released. '
-                    '\n {} {} were sent to {} {} {}'). \
-                format(tr.order.unique_reference,
-                       tr.order.amount_quote,
-                       tr.order.pair.quote.code,
-                       tr.order.payment_preference.payment_method.name,
-                       tr.order.payment_preference.identifier,
-                       '('+tr.order.payment_preference.secondary_identifier+')'# noqa
-                       if tr.order.payment_preference.secondary_identifier
-                       else '')
+            msg = _(
+                'Your order {}:  is released. '
+                '\n {} {} were sent to {} {} {}'). format(
+                tr.order.unique_reference,
+                tr.order.amount_quote,
+                tr.order.pair.quote.code,
+                tr.order.payment_preference.payment_method.name,
+                tr.order.payment_preference.identifier,
+                '(' +
+                tr.order.payment_preference.secondary_identifier +
+                ')' if tr.order.payment_preference.secondary_identifier else '')
 
             if profile.notify_by_phone and profile.phone:
                 phone_to = str(tr.order.user.username)

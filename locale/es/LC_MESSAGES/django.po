@@ -981,4 +981,3 @@ msgstr ""
 #: verification/views/views.py:52
 msgid "You don't have permission to download this document"
 msgstr ""
-
