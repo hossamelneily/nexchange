@@ -27,4 +27,4 @@ node.exe
 .pydevproject
 .settings/
 .ropeproject
-static/bundles
+static/bundles/*.*
