@@ -164,7 +164,7 @@ build:
       code: |
         # https://github.com/wercker/support/issues/227 :(
         rm -fr node_modules && npm install
-        cd /pipeline/source && ./node_modules/.bin/webpack --config webpack.config.js
+        ./node_modules/.bin/webpack --config webpack.config.js
     - script:
       name: collect static
       code: |
