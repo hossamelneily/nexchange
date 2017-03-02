@@ -53,7 +53,7 @@ dev:
       name: Install node requirements
       code: |
         rm -fr node_modules && npm install
-        cd /pipeline/source && webpack --config webpack.config.js
+        cd /pipeline/source && ./node_modules/.bin/webpack --config webpack.config.js
     - script:
       name: collect static
       code: |
@@ -164,7 +164,7 @@ build:
       code: |
         # https://github.com/wercker/support/issues/227 :(
         rm -fr node_modules && npm install
-        cd /pipeline/source && webpack --config webpack.config.js
+        cd /pipeline/source && ./node_modules/.bin/webpack --config webpack.config.js
     - script:
       name: collect static
       code: |
@@ -440,8 +440,8 @@ tests:
       name: Install node requirements
       code: |
         # https://github.com/wercker/support/issues/227 :(
-        rm -fr node_modules && npm install
-        cd /pipeline/source && webpack --config webpack.config.js
+        rm -fr node_modules && npm install --production
+        cd /pipeline/source && ./node_modules/.bin/webpack --config webpack.config.js
     - script:
       name: collect static
       code: |
