@@ -156,6 +156,10 @@ build:
         code: |
            bash ./collect_translations.sh
     - script:
+      name: collect static
+      code: |
+        yes 'yes' | python manage.py collectstatic
+    - script:
         name: create/validate static build roots
         code: |
            mkdir -p static/bundles
@@ -167,10 +171,6 @@ build:
         rm -fr node_modules && npm install
     - maxon/npm-run:
         script: build
-    - script:
-      name: collect static
-      code: |
-        yes 'yes' | python manage.py collectstatic
     - script:
       name: copy files
       code: |
@@ -416,6 +416,10 @@ tests:
           mkdir -p ${pip_download_cache}
           yes w | pip install --cache-dir ${pip_download_cache} -r requirements.txt
     - script:
+      name: collect static
+      code: |
+        yes 'yes' | python manage.py collectstatic
+    - script:
         name: create/validate static build roots
         code: |
            mkdir -p static/bundles
@@ -427,10 +431,6 @@ tests:
         rm -fr node_modules && npm install --production
     - maxon/npm-run:
         script: build
-    - script:
-      name: collect static
-      code: |
-        yes 'yes' | python manage.py collectstatic
     - script:
         name: Backend tests
         code: |
