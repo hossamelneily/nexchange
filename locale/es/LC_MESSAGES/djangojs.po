@@ -52,3 +52,4 @@ msgid ""
 "SMS token sent. Fill in the verification form field and click on 'Verify "
 "phone now'."
 msgstr ""
+

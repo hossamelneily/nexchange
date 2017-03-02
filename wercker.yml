@@ -29,6 +29,7 @@ dev:
         name: create/validate static build roots
         code: |
            mkdir -p static/bundles
+           touch webpack-stats.json
     - script:
         name: pip install requirements (with cache)
         code: |
@@ -136,6 +137,7 @@ build:
       code: |
         # https://github.com/wercker/support/issues/227 :(
         rm -fr node_modules && npm install --production
+        ./node_modules/.bin/webpack --config webpack.config.js
     - script:
         name: Install python requirements
         code: |
@@ -154,6 +156,7 @@ build:
         name: create/validate static build roots
         code: |
            mkdir -p static/bundles
+           touch webpack-stats.json
     - maxon/npm-run:
         script: webpack
     - script:
@@ -432,6 +435,7 @@ tests:
       code: |
         # rm -fr node_modules && npm install
         npm install
+        ./node_modules/.bin/webpack --config webpack.config.js
     - script:
         name: Backend tests
         code: |
