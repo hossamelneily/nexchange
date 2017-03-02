@@ -82,7 +82,6 @@ module.exports = {
         './node_modules/moment-timezone/moment-timezone.js',
         './node_modules/intl-tel-input/build/js/intlTelInput.js',
         // loader
-        'babel-polyfill',
         'bootstrap-loader',
         // run package
         './static/run.js',
