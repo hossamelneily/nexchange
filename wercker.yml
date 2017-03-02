@@ -26,11 +26,6 @@ dev:
           mkdir -p /usr/share/nginx/html/static
           mkdir -p /usr/share/nginx/html/media
     - script:
-        name: create/validate static build roots
-        code: |
-           mkdir -p static/bundles
-           touch webpack-stats.json
-    - script:
         name: pip install requirements (with cache)
         code: |
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
@@ -49,7 +44,20 @@ dev:
         name: Django apply migrations
         code: |
           python manage.py migrate
-
+    - script:
+        name: create/validate static build roots
+        code: |
+           mkdir -p static/bundles
+           touch webpack-stats.json
+    - script:
+      name: Install node requirements
+      code: |
+        rm -fr node_modules && npm install
+        ./node_modules/.bin/webpack --config webpack.config.js
+    - script:
+      name: collect static
+      code: |
+        yes 'yes' | python manage.py collectstatic
     - script:
         name: Run celery
         code: |
@@ -133,12 +141,6 @@ build:
           mkdir -p /usr/share/nginx/html/static
           mkdir -p /usr/share/nginx/html/media
     - script:
-      name: Install node requirements
-      code: |
-        # https://github.com/wercker/support/issues/227 :(
-        rm -fr node_modules && npm install --production
-        ./node_modules/.bin/webpack --config webpack.config.js
-    - script:
         name: Install python requirements
         code: |
           pip_download_cache="$WERCKER_CACHE_DIR/wercker/_pipcache"
@@ -157,8 +159,12 @@ build:
         code: |
            mkdir -p static/bundles
            touch webpack-stats.json
-    - maxon/npm-run:
-        script: webpack
+    - script:
+      name: Install node requirements
+      code: |
+        # https://github.com/wercker/support/issues/227 :(
+        rm -fr node_modules && npm install --production
+        ./node_modules/.bin/webpack --config webpack.config.js
     - script:
       name: collect static
       code: |
@@ -428,14 +434,18 @@ tests:
     - script:
         name: create/validate static build roots
         code: |
-           mkdir -p static/dist/js
-           mkdir -p static/dist/css
+           mkdir -p static/bundles
+           touch webpack-stats.json
     - script:
       name: Install node requirements
       code: |
-        # rm -fr node_modules && npm install
-        npm install
+        # https://github.com/wercker/support/issues/227 :(
+        rm -fr node_modules && npm install --production
         ./node_modules/.bin/webpack --config webpack.config.js
+    - script:
+      name: collect static
+      code: |
+        yes 'yes' | python manage.py collectstatic
     - script:
         name: Backend tests
         code: |
