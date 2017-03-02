@@ -74,4 +74,3 @@ suds-jurko>=0.6
 drf-extensions>=0.3.1
 mock
 requests-cache>=0.4.13
-django-webpack-loader==0.4.1
