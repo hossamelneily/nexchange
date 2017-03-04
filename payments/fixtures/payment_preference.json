@@ -50,8 +50,8 @@
     "pk": 4,
     "fields": {
       "user": ["onit"],
-      "payment_method": ["427427"],
-      "identifier": "4274278009643456",
+      "payment_method": ["533"],
+      "identifier": "5336690056494828",
       "currency": [
         ["RUB"]
       ],

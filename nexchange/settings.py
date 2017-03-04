@@ -37,7 +37,6 @@ STATIC_URL = '/static/'
 
 API1_USER = ''
 API1_PASS = ''
-API1_ID_C1 = ''
 
 ADMINS = [
     ('Oleg', 'oleg@onit.ws'),
@@ -151,6 +150,7 @@ CMSPAGES = {
         # ('blog', _('Blog')),
         ('fees', _('Fees')),
         ('support', _('Support')),
+        ('affiliates', _('Affiliate Program')),
         # ('trading_guide', _('Trading Guide'))
     ]
 }

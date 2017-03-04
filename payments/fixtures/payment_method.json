@@ -44,7 +44,7 @@
     "pk": 5,
     "fields": {
       "name": "Sberbank Master Card",
-      "bin": "533205",
+      "bin": "533",
       "created_on":"2016-07-20T17:41:28+00:00",
       "modified_on":"2016-07-20T17:41:28+00:00"
     }

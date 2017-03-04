@@ -1,4 +1,4 @@
-box: onitsoft/wercker
+box: onitsoft/wercker:latest
 ports:
   - "8000"
 
