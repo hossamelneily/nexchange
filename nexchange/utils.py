@@ -87,13 +87,17 @@ def send_auth_sms(user):
 
     msg = settings.SMS_MESSAGE_AUTH + '{}'.format(token.sms_token)
     phone_to = str(user.username)
+    if phone_to.startswith('+1'):
+        from_phone = settings.TWILIO_PHONE_FROM_US
+    else:
+        from_phone = settings.TWILIO_PHONE_FROM_UK
 
     try:
         client = TwilioRestClient(
             settings.TWILIO_ACCOUNT_SID,
             settings.TWILIO_AUTH_TOKEN)
         message = client.messages.create(
-            body=msg, to=phone_to, from_=settings.TWILIO_PHONE_FROM)
+            body=msg, to=phone_to, from_=from_phone)
         return message
     except TwilioException as err:
         raise err
