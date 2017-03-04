@@ -44,13 +44,17 @@ def send_email(to, subject='Nexchange', msg=None):
 def send_sms(msg, phone):
     if not phone.startswith('+'):
         phone = '+{}'.format(phone)
+    if phone.startswith('+1'):
+        from_phone = settings.TWILIO_PHONE_FROM_US
+    else:
+        from_phone = settings.TWILIO_PHONE_FROM_UK
     try:
         client = TwilioRestClient(
             settings.TWILIO_ACCOUNT_SID,
             settings.TWILIO_AUTH_TOKEN
         )
         message = client.messages.create(
-            body=msg, to=phone, from_=settings.TWILIO_PHONE_FROM)
+            body=msg, to=phone, from_=from_phone)
         return message
     except TwilioException as err:
         return err

@@ -16,7 +16,8 @@ class LoginEndToEndTestCase(UserBaseTestCase):
     @data_provider(
         lambda: (('+79259737305',),
                  ('79259737306',),
-                 ('0079259737307',)))
+                 ('0079259737307',),
+                 ('+16464612877',)))
     @patch('accounts.decoratos.get_google_response')
     @patch('nexchange.utils.TwilioRestClient')
     def test_reuse_sms_token(self, uname, rest_client, verify_captcha):
@@ -35,13 +36,17 @@ class LoginEndToEndTestCase(UserBaseTestCase):
         not_expired_time = datetime.now() + settings.SMS_TOKEN_VALIDITY - \
             timedelta(minutes=1)
         with freeze_time(not_expired_time, tick=False):
+            asserted_from_phone = \
+                settings.TWILIO_PHONE_FROM_US if \
+                uname.startswith(+1) else settings.TWILIO_PHONE_FROM_UK
             user = User.objects.last()
             token = SmsToken.objects.last()
             msg = settings.SMS_MESSAGE_AUTH + '{}'.format(token.sms_token)
             rest_client.assert_called_once_with(settings.TWILIO_ACCOUNT_SID,
                                                 settings.TWILIO_AUTH_TOKEN)
-            rest_client.return_value.messages. create.assert_called_once_with(
-                body=msg, to=user.username, from_=settings.TWILIO_PHONE_FROM)
+            rest_client.return_value.messages.create.assert_called_once_with(
+                body=msg, to=user.username,
+                from_=asserted_from_phone)
 
             passive_authentication_helper(
                 self.client,

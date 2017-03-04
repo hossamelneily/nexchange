@@ -556,7 +556,29 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
                                             settings.TWILIO_AUTH_TOKEN)
         rest_client.return_value.messages.\
             create.assert_called_once_with(body=msg, to=uname,
-                                           from_=settings.TWILIO_PHONE_FROM)
+                                           from_=settings.TWILIO_PHONE_FROM_UK)
+
+    @patch('nexchange.utils.TwilioRestClient')
+    def test_call_twillio_api_us(self, rest_client):
+        rest_client.return_value = MagicMock()
+        url = reverse('accounts.user_by_phone')
+        uname = '+15005550001'
+        payload = {
+            'phone': uname,
+        }
+        self.client.get(self.logout_url)
+        users = User.objects.filter(username=uname)
+        res = self.client.post(url, data=payload)
+        self.assertEquals(res.status_code, 200)
+        users = User.objects.filter(username=uname)
+        self.assertEquals(len(users), 1)
+        last_token = SmsToken.objects.filter(user=users[0]).latest('id')
+        msg = settings.SMS_MESSAGE_AUTH + "{}".format(last_token.sms_token)
+        rest_client.assert_called_once_with(settings.TWILIO_ACCOUNT_SID,
+                                            settings.TWILIO_AUTH_TOKEN)
+        rest_client.return_value.messages.\
+            create.assert_called_once_with(body=msg, to=uname,
+                                           from_=settings.TWILIO_PHONE_FROM_US)
 
     @patch('accounts.views.send_auth_sms')
     def test_creates_profile(self, send_sms):
