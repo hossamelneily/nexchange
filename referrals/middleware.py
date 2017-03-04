@@ -1,6 +1,7 @@
 from django.conf import settings
 
 from referrals.models import Referral, ReferralCode
+from nexchange.utils import get_client_ip
 
 
 class ReferralMiddleWare(object):
@@ -23,7 +24,7 @@ class ReferralMiddleWare(object):
                     hasattr(request, 'user') and \
                     code.user != request.user:
                 request.session[settings.REFERRAL_SESSION_KEY] = str_code
-                ip = request.META['REMOTE_ADDR']
+                ip = get_client_ip()
                 ref, created = \
                     Referral.objects.get_or_create(ip=ip, code=code)
 

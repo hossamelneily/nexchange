@@ -1,5 +1,6 @@
 import json
 from functools import wraps
+from nexchange.utils import get_client_ip
 
 import requests
 from django.conf import settings
@@ -27,21 +28,12 @@ def not_logged_in_required(view_fn):
     return _wrapped_fn
 
 
-def _get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
-
-
 def get_google_response(request, captcha_rs):
     url = "https://www.google.com/recaptcha/api/siteverify"
     params = {
         'secret': settings.RECAPTCHA_SECRET_KEY,
         'response': captcha_rs,
-        'remoteip': _get_client_ip(request)
+        'remoteip': get_client_ip(request)
     }
     verify_rs = requests.post(url, data=params, verify=True)
     verify_rs = verify_rs.json()
