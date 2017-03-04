@@ -48,12 +48,12 @@ class TimeStampedModel(models.Model):
 
 
 class IpAwareModel(TimeStampedModel, SoftDeleteMixin):
+    class Meta:
+        abstract = True
+
     ip = models.CharField(max_length=39,
                           null=True,
                           default=None)
-
-    class Meta:
-        abstract = True
 
 
 class Flag(TimeStampedModel):

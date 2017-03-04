@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.crypto import get_random_string
 
-from core.common.models import (SoftDeleteMixin, TimeStampedModel,
+from core.common.models import (IpAwareModel, TimeStampedModel,
                                 UniqueFieldMixin)
 from orders.models import Order
 from nexchange.settings import REFERRAL_CODE_LENGTH
@@ -41,7 +41,7 @@ class ReferralCode(TimeStampedModel, UniqueFieldMixin):
         super(ReferralCode, self).save(*args, **kwargs)
 
 
-class Referral(TimeStampedModel, SoftDeleteMixin):
+class Referral(IpAwareModel):
     def __init__(self, *args, **kwargs):
         super(Referral, self).__init__(*args, **kwargs)
         self.old_referral_revenue = None
