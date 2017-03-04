@@ -78,7 +78,7 @@
     "pk": 6,
     "fields": {
       "user": ["onit"],
-      "payment_method": ["533205"],
+      "payment_method": ["533"],
       "identifier": "5332058092720842",
       "currency": [
         ["EUR"]
