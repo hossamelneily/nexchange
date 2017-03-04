@@ -392,6 +392,14 @@ deploy:
         scp ${SSH_OPTIONS} nginx.conf ${SSH_DEST}:/nexchange/etc/nginx/nginx.conf
         scp ${SSH_OPTIONS} docker-compose.yml ${SSH_DEST}:/nexchange/docker-compose.yml
         ssh ${SSH_OPTIONS} ${SSH_DEST} << EOF
+          ## Steps to stop docker from eating all the space in the drive ##
+          # remove exited containers
+          docker rm -v $(docker ps -a -q -f status=exited)
+          # remove dangling images
+          docker rmi $(docker images -f "dangling=true" -q)
+          # remove dangling voluemes
+          docker volume rm $(docker volume ls -qf dangling=true)
+
           # export the variables that docker-compose will inject into DB container
           export POSTGIS_ENV_POSTGRES_USER=${POSTGIS_ENV_POSTGRES_USER}
           export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}
