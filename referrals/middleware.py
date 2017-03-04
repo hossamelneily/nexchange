@@ -24,7 +24,7 @@ class ReferralMiddleWare(object):
                     hasattr(request, 'user') and \
                     code.user != request.user:
                 request.session[settings.REFERRAL_SESSION_KEY] = str_code
-                ip = get_client_ip()
+                ip = get_client_ip(request)
                 ref, created = \
                     Referral.objects.get_or_create(ip=ip, code=code)
 
