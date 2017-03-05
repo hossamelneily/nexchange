@@ -38,7 +38,7 @@ class LoginEndToEndTestCase(UserBaseTestCase):
         with freeze_time(not_expired_time, tick=False):
             asserted_from_phone = \
                 settings.TWILIO_PHONE_FROM_US if \
-                uname.startswith(+1) else settings.TWILIO_PHONE_FROM_UK
+                uname.startswith('+1') else settings.TWILIO_PHONE_FROM_UK
             user = User.objects.last()
             token = SmsToken.objects.last()
             msg = settings.SMS_MESSAGE_AUTH + '{}'.format(token.sms_token)
