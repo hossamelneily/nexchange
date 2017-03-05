@@ -5,7 +5,6 @@ from nexchange.utils import get_client_ip
 
 
 class ReferralMiddleWare(object):
-
     def process_request(self, request):
         str_code = \
             request.GET.get(settings.REFERRER_GET_PARAMETER, '').strip()

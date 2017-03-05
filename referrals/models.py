@@ -24,6 +24,14 @@ class Program(TimeStampedModel):
     max_lifespan = models.IntegerField(default=-1)
     is_default = models.BooleanField(default=False)
 
+    def __str__(self):
+        return "{} - {}%->-{}%>->%{} in {} max " \
+               "(users: {}, payout: {}, lifespan:{}})"\
+            .format(self.name, self.percent_first_degree,
+                    self.percent_second_degree, self.percent_third_degree,
+                    self.currency, self.max_users, self.max_payout_btc,
+                    self.max_lifespan)
+
 
 class ReferralCode(TimeStampedModel, UniqueFieldMixin):
     code = models.CharField(max_length=10, unique=True)
@@ -39,6 +47,9 @@ class ReferralCode(TimeStampedModel, UniqueFieldMixin):
         )
 
         super(ReferralCode, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return "{} {} {}".format(self.code, self.user, self.program)
 
 
 class Referral(IpAwareModel):
@@ -80,3 +91,9 @@ class Referral(IpAwareModel):
         res = Decimal(self.turnover) * \
             Decimal(self.program.percent_first_degree)
         return round(res, 8)
+
+    def __str__(self):
+        return "code: {} referee: {} orders: {} turnover: {} revenue: {} BTC"\
+            .format(self.code, self.referee, self.orders,
+                    self.turnover, self.revenue)
+
