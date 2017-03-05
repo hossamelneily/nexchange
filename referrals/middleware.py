@@ -1,10 +1,12 @@
 from django.conf import settings
 
 from referrals.models import Referral, ReferralCode
-from nexchange.utils import get_client_ip
+from nexchange.utils import get_client_ip, get_nexchange_logger
 
 
 class ReferralMiddleWare(object):
+    logger = get_nexchange_logger(__name__, True, True)
+
     def process_request(self, request):
         str_code = \
             request.GET.get(settings.REFERRER_GET_PARAMETER, '').strip()
@@ -17,7 +19,9 @@ class ReferralMiddleWare(object):
             try:
                 code = ReferralCode.objects.get(code=str_code)
             except ReferralCode.DoesNotExist:
-                pass
+                self.logger.info('code {} not found', str_code)
+            except ReferralCode.MultipleObjectsReturned:
+                self.logger.error('code {} multiple objects in db', str_code)
 
             if code is not None and \
                     hasattr(request, 'user') and \
@@ -28,9 +32,9 @@ class ReferralMiddleWare(object):
                     Referral.objects.get_or_create(ip=ip, code=code)
 
                 # allow referral only if the user has no orders
+                # todo use confirmed_orders_count (?)
                 if request.user.is_authenticated() \
-                        and (not ref.referee or not
-                             ref.referee.orders.count()):
+                        and not ref.confirmed_orders_count:
                     # avoid executing this middleware on every request
                     request.session.pop(settings.REFERRAL_SESSION_KEY, None)
                     ref.referee = request.user

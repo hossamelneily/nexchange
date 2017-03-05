@@ -25,8 +25,9 @@ class ReferralViewSet(DateFilterViewSet):
 def referrals(request):
     template = get_template('referrals/index_referrals.html')
     user = request.user
-    referrals_code = ReferralCode.objects.filter(user=user).first()
-    referrals_ = Referral.objects.filter(code=referrals_code)
+    referrals_code = ReferralCode.objects.filter(user=user)
+    referrals_ = Referral.objects.filter(code__in=referrals_code,
+                                         referee__isnull=False)
     # return JsonResponse({'tests': referrals_[0].turnover})
 
     paginate_by = 10

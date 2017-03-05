@@ -2,9 +2,9 @@ from random import randint
 from decimal import Decimal
 
 from core.tests.base import OrderBaseTestCase
-
 from orders.models import Order
 from referrals.models import ReferralCode, Referral, Program
+from accounts.models import Balance
 
 
 class TestReferralModel(OrderBaseTestCase):
@@ -17,9 +17,11 @@ class TestReferralModel(OrderBaseTestCase):
         self.amount_coin_multiplier = 10
         self.total_orders = 20
         self.orders = []
-        self.test_subjects = 3
+        self.test_subjects = 5
         self.referral = None
         self.revenue = None
+        self.withdrawals = 0
+
         self.turnover = Decimal('0.0')
         super(TestReferralModel, self).__init__(*args, **kwargs)
 
@@ -32,9 +34,10 @@ class TestReferralModel(OrderBaseTestCase):
         # referee and referrer are not the same person
         self.referral = Referral(code=code, referee=self.user)
         self.referral.save()
+        get_rand_int = lambda: randint(1, self.amount_coin_multiplier)
+
         for i in range(10):
-            rand_coin = self.amount_coin_base * \
-                randint(1, self.amount_coin_multiplier)
+            rand_coin = self.amount_coin_base * get_rand_int()
             order = Order(
                 user=self.user,
                 amount_base=rand_coin,
@@ -45,12 +48,20 @@ class TestReferralModel(OrderBaseTestCase):
 
         for i in range(self.test_subjects):
             order = self.orders[i]
+            intermediate_withdrawal = round(get_rand_int() * Decimal(0.001), 8)
             order.status = Order.COMPLETED
             order.save()
+
+            balance = Balance.objects.get(user=self.user)
+            balance.balance -= intermediate_withdrawal
+            balance.save()
+
+            self.withdrawals += intermediate_withdrawal
             self.turnover += Decimal(order.amount_base)
 
-        self.revenue = self.turnover * \
-            self.referral.program.percent_first_degree
+        self.revenue = round(self.turnover *
+                             Decimal(self.referral.program.percent_first_degree),
+                             8)
 
     def test_count_active(self):
         self.assertEqual(self.test_subjects,
@@ -69,6 +80,12 @@ class TestReferralModel(OrderBaseTestCase):
     def test_turnover(self):
         self.assertEqual(round(self.turnover, 8),
                          self.referral.turnover)
+
+    def test_correct_balance(self):
+        balance = Balance.objects.get(user=self.user)
+        adapted_balance = self.revenue - self.withdrawals
+        self.assertNotEqual(self.revenue, balance.balance)
+        self.assertEqual(adapted_balance, balance.balance)
 
     def test_not_turnover_active_if_program_exceed(self):
         pass

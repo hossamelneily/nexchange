@@ -10,7 +10,7 @@
         	
 			<div class="page-header">
 				<h1>
-					{% trans "BTC" %}<small> {{ action }} </small>
+                    {% trans 'My referrals' %}
 				</h1>
                 <div class="line-order" >
                 </div>
@@ -79,20 +79,22 @@
   				</tr>
 	    		
 	    		{% for ref in referrals %}
+                    <tr>
 			        	<td>{{ ref.referee.profile.partial_phone }}
 		            	<td>{{ ref.confirmed_orders_count }}</td>
 		                <td>{{ ref.turnover }}</td>
 		                <td>{{ ref.revenue }}</td>
-                        <td>{{ ref.referee.profile.last_visit }}</td>
+                        <td>{{ ref.referee.profile.last_visit_time }}</td>
                         <td>{{ ref.referee.id }}</td>
-	        	{% empty %}
-
-		    		<tr>
+                    </tr>
+	    		{% endfor %}
+                {% if not referrals %}
+                    <tr>
 		    			<td colspan="10">
 		    				<h3>{% trans "No referrals found" %}</h3>
 		    		    </td>
 		    		</tr>
-	    		{% endfor %}
+                {% endif %}
 			   
 			  </table>
 			</div><!-- end responsive -->

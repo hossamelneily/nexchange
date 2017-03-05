@@ -59,6 +59,7 @@ dev:
         name: Run celery
         code: |
           # Start celery stuff
+          export DJANGO_SETTINGS_MODULE=nexchange.settings_dev
           adduser --disabled-password --gecos '' celery_user
           touch /var/log/celeryd.log
           touch /var/log/celery-beat.log
@@ -68,7 +69,7 @@ dev:
     - script:
         name: Django collect & compile messages
         code: |
-          bash ./collect_translations.sh
+#          bash ./collect_translations.sh
     - script:
       name: Django create superuser
       code: |
@@ -93,10 +94,6 @@ dev:
         name: Django import Withdraw address fixture
         code: |
           python manage.py loaddata core/fixtures/withdraw_address.json
-    - script:
-        name: Django import referral program fixture
-        code: |
-          python manage.py loaddata referrals/fixtures/program.json
     - script:
         name: Django import referral program fixture
         code: |

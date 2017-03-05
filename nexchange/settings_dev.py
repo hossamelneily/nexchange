@@ -5,7 +5,7 @@ DEBUG = True
 
 # Local and staging
 INTERNAL_IPS = ('127.0.0.1', '192.168.99.100', '192.168.43.146')
-ALLOWED_HOSTS += ('localhost', '192.168.43.146')
+ALLOWED_HOSTS += ('localhost', '192.168.43.146', 'nexchange.dev')
 MIDDLEWARE_CLASSES += [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
@@ -28,6 +28,13 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.logging.LoggingPanel',
     'debug_toolbar.panels.redirects.RedirectsPanel',
 ]
+
+
+DATABASES = {
+    'default': dj_database_url.config(default='postgis://{}:{}@{}:{}/{}'
+                                      .format(user, password, host, port, db))
+
+}
 
 
 def show_toolbar(request):

@@ -4,33 +4,21 @@ from orders.models import Order
 from accounts.models import Balance
 
 
-def __round__(num):
-    return round(num)
-
-
 @receiver(pre_save, sender=Order)
 def calculate_pre_revenue(sender, instance, **kwargs):
-    referees = instance.user.referrals_set.all()
-    if len(referees):
-        rev = 0
-        for referee in referees:
-            rev += referee.revenue
-        instance.old_referral_revenue = rev
+    referral = instance.user.referrals_set.last()
+    if referral and instance.status == Order.COMPLETED:
+        instance.old_referral_revenue = referral.revenue
 
 
 @receiver(post_save, sender=Order)
 def calculate_post_revenue(sender, instance, **kwargs):
-    referees = instance.user.referrals_set.all()
-    if len(referees):
-        # TODO: Add referralTransaction
-        new_referral_revenue = 0
-        for referee in referees:
-            new_referral_revenue += referee.revenue
-        revenue_from_trade = \
-            new_referral_revenue - instance.old_referral_revenue
+    referral = instance.user.referrals_set.last()
+    if referral and instance.status == Order.COMPLETED:
+        revenue_from_trade = referral.revenue - instance.old_referral_revenue
 
         balance, created = \
-            Balance.objects.get_or_create(user=instance.user,
+            Balance.objects.get_or_create(user=referral.code.user,
                                           currency=instance.pair.base)
         balance.balance += revenue_from_trade
         balance.save()

@@ -5,6 +5,8 @@
     "fields": {
         "name": "Default",
         "percent_first_degree": 0.02,
+        "percent_second_degree": 0.01,
+        "percent_third_degree": 0.005,
         "currency": [1, 2, 3, 4],
         "max_payout_btc": 1,
         "max_lifespan": 31536000,

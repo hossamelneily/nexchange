@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-28 16:01+0000\n"
+"POT-Creation-Date: 2017-03-05 01:53+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: accounts/decoratos.py:16
+#: accounts/decoratos.py:17
 msgid "You are already logged in"
 msgstr ""
 
-#: accounts/decoratos.py:62
+#: accounts/decoratos.py:54
 msgid "Invalid reCAPTCHA!"
 msgstr ""
 
@@ -89,44 +89,48 @@ msgstr ""
 msgid "%(value)s is not a valid bit coin address"
 msgstr ""
 
-#: nexchange/settings.py:71
+#: nexchange/settings.py:70
 msgid "Nexchange confirmation code: "
 msgstr ""
 
-#: nexchange/settings.py:143 templates/core/partials/seo_footer.html:20
+#: nexchange/settings.py:142 templates/core/partials/seo_footer.html:20
 msgid "About Us"
 msgstr ""
 
-#: nexchange/settings.py:144 templates/core/partials/seo_footer.html:21
+#: nexchange/settings.py:143 templates/core/partials/seo_footer.html:21
 msgid "Careers"
 msgstr ""
 
-#: nexchange/settings.py:145 templates/core/partials/seo_footer.html:22
+#: nexchange/settings.py:144 templates/core/partials/seo_footer.html:22
 msgid "Press"
 msgstr ""
 
-#: nexchange/settings.py:146 templates/core/partials/seo_footer.html:23
+#: nexchange/settings.py:145 templates/core/partials/seo_footer.html:23
 msgid "Conference"
 msgstr ""
 
-#: nexchange/settings.py:147 templates/core/partials/seo_footer.html:24
+#: nexchange/settings.py:146 templates/core/partials/seo_footer.html:24
 msgid "Legal & Privacy"
 msgstr ""
 
-#: nexchange/settings.py:148 templates/core/partials/seo_footer.html:25
+#: nexchange/settings.py:147 templates/core/partials/seo_footer.html:25
 msgid "Security"
 msgstr ""
 
-#: nexchange/settings.py:150 templates/core/partials/seo_footer.html:29
+#: nexchange/settings.py:149 templates/core/partials/seo_footer.html:29
 msgid "FAQ"
 msgstr ""
 
-#: nexchange/settings.py:152 templates/core/partials/seo_footer.html:31
+#: nexchange/settings.py:151 templates/core/partials/seo_footer.html:31
 msgid "Fees"
 msgstr ""
 
-#: nexchange/settings.py:153 templates/core/partials/seo_footer.html:32
+#: nexchange/settings.py:152 templates/core/partials/seo_footer.html:32
 msgid "Support"
+msgstr ""
+
+#: nexchange/settings.py:153
+msgid "Affiliate Program"
 msgstr ""
 
 #: orders/models.py:117 orders/models.py:119

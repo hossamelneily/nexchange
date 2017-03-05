@@ -84,6 +84,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         if self.pk is None:
             token = SmsToken(user=self.user)
             token.save()
+            ReferralCode.objects.get_or_create(user=self.user)
 
         # for short creation for user_by_phone
         if not self.phone:
@@ -94,8 +95,6 @@ class Profile(TimeStampedModel, SoftDeletableModel):
             self.lang = lang
 
         # TODO: move to user class, allow many(?)
-        ReferralCode.objects.get_or_create(user=self.user)
-
         return super(Profile, self).save(*args, **kwargs)
 
 

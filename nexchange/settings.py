@@ -16,7 +16,7 @@ from datetime import timedelta
 
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
-
+import dj_database_url
 
 # SECRET KEY TEST
 SECRET_KEY = 'zsl4+4%(%=0@f*tkf0f2u%dt&v&h_-g5mw*o25i$480=3qcb2k'
@@ -267,11 +267,11 @@ port = os.getenv('POSTGIS_PORT_5432_TCP_PORT', '')
 db = os.getenv('POSTGIS_ENV_POSTGRES_DB', 'nexchange')
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3',
-    }
+    'default': dj_database_url.config(default='postgis://{}:{}@{}:{}/{}'
+                                      .format(user, password, host, port, db))
+
 }
+
 
 
 # Password validation
