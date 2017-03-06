@@ -19,9 +19,9 @@ class ReferralMiddleWare(object):
             try:
                 code = ReferralCode.objects.get(code=str_code)
             except ReferralCode.DoesNotExist:
-                self.logger.info('code {} not found', str_code)
+                self.logger.info('code {} not found'.format(str_code))
             except ReferralCode.MultipleObjectsReturned:
-                self.logger.error('code {} multiple objects in db', str_code)
+                self.logger.error('code {} multiple objects in db'.format(str_code))
 
             if code is not None and \
                     hasattr(request, 'user') and \
