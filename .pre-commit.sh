@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RUNNING_CONTAINER=$(docker ps -q --filter "ancestor=pitervergara/geodjango:nexchange" --filter name="wercker-pipeline-" --filter status=running)
+RUNNING_CONTAINER=$(docker ps -q --filter name="wercker-pipeline-" --filter status=running)
 
 function use_running_container {
     coverage_cmd="coverage erase"
