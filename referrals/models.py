@@ -37,7 +37,7 @@ class Program(TimeStampedModel):
 
 class ReferralCode(TimeStampedModel, UniqueFieldMixin):
     code = models.CharField(max_length=10, unique=True)
-    link = models.CharField(max_length=255, unique=True)
+    link = models.CharField(max_length=255)
     user = models.ForeignKey(User, related_name='referral_code')
     program = models.ForeignKey(Program, blank=True,
                                 null=True, default=None)

@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='referralcode',
             name='link',
-            field=models.CharField(default='', max_length=255, unique=True),
+            field=models.CharField(default='', max_length=255),
             preserve_default=False,
         ),
     ]
