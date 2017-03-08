@@ -4,7 +4,8 @@ from nexchange.settings import *
 DEBUG = bool(os.getenv('DEBUG', False))
 CELERY_TASK_ALWAYS_EAGER = bool(os.getenv('CELERY_TASK_ALWAYS_EAGER', False))
 ALLOWED_HOSTS = ['nexchange.co.uk', 'nexchange.ru',
-                 'www.nexchange.co.uk', 'www.nexchange.ru']
+                 'www.nexchange.co.uk', 'www.nexchange.ru',
+                 'new.nexchange.co.uk']
 
 DATABASES = {
     'default': dj_database_url.config(default='postgis://{}:{}@{}:{}/{}'
