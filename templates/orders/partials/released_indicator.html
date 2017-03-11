@@ -1,4 +1,4 @@
-<span class="released-indicator">
+<span class="released-indicator order-{{ order.pk }}">
     {% if order.status >= order.RELEASED %}
         <span class="fa fa-check fa-1"></span>
     {% else %}

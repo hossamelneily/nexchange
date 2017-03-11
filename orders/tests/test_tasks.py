@@ -13,6 +13,7 @@ from django.db import transaction
 from core.tests.utils import data_provider
 from django.contrib.auth.models import User
 import random
+import requests_mock
 
 
 class BaseOrderReleaseTestCase(OrderBaseTestCase):
@@ -461,7 +462,9 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
         for fn in release_fns:
             send_sms.call_count, send_email.call_count = 0, 0
             payment_id = 1
-            user = User.objects.get_or_create(**user_props)[0]
+            with requests_mock.mock() as m:
+                self._mock_cards_reserve(m)
+                user = User.objects.get_or_create(**user_props)[0]
             order = Order(**self.order_data)
             order.user = user
             self.orders.append(order)

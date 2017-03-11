@@ -1,0 +1,25 @@
+{{
+    "params": {{
+        "from": "2016-12-20 12:44:57",
+        "type": "incoming",
+        "to": "2017-01-20 09:44:03",
+        "count": 10,
+        "sort": "desc"
+    }},
+    "history": {{
+        "123456": {{
+            "id": "123456",
+            "type": "transfer",
+            "status": "success",
+            "from": "P1000000",
+            "creditedCurrency": "{currency}",
+            "creditedAmount": "{amount}",
+            "to": "{receiver_wallet}",
+            "shopOrderId": "{unique_reference}",
+            "shopId": "123",
+            "comment": "{unique_reference}"
+        }}
+    }},
+    "errors": [],
+    "auth_error": "0"
+}}

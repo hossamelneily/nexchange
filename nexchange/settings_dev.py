@@ -1,4 +1,5 @@
 from nexchange.settings_prod import *
+from nexchange import settings
 
 DEBUG = True
 
@@ -80,6 +81,12 @@ PAYEER_API_KEY = '12345'
 # API1 TEST
 API1_USER = 'kydim1312@yandex.ru'
 API1_PASS = '$Kyzin1990'
+API1_IS_TEST = os.getenv('API1_IS_TEST',
+                         settings.API1_IS_TEST)
+API1_ID_C1 = os.getenv('API1_ID_C1',
+                       settings.API1_ID_C1)
+CARDS_RESERVE_COUNT = os.getenv('CARDS_RESERVE_COUNT',
+                                settings.CARDS_RESERVE_COUNT)
 
 # ROBOKASSA TEST
 ROBOKASSA_IS_TEST = 1

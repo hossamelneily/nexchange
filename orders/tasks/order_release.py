@@ -14,7 +14,7 @@ def sell_order_release():
     for order in orders[::-1]:
         send_money_status = utils.send_money(order.pk)
         if send_money_status:
-            order.status = Order.RELEASED
+            order.status = Order.COMPLETED
             order.save()
             logger.info('Order {} is released, client paid'.format(order))
         else:

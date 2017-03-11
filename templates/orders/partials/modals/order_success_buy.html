@@ -75,7 +75,8 @@
             </div>
             <div class="row">
                 <div class="col col-xs-12">
-                    <form method="post" action="https://checkout.okpay.com/">
+                    <form method="post" action="https://checkout.okpay.com/"
+                          class="automatic-checkout">
                        <input type="hidden" name="ok_receiver" value="{{ okpay_wallet }}"/>
                        <input type="hidden" name="ok_item_1_name" value="{{ unique_ref }}"/>
                        <input type="hidden" name="ok_item_1_price"
@@ -108,7 +109,8 @@
             </div>
             <div class="row">
                 <div class="col col-xs-12">
-                    <form method="post" action="https://payeer.com/merchant/">
+                    <form method="post" action="https://payeer.com/merchant/"
+                    class="automatic-checkout">
                         <input type="hidden" name="m_shop" value="{{ payeer_shop }}"/>
                         <input type="hidden" name="m_orderid" value="{{ order.unique_reference }}"/>
                         <input type="hidden" name="m_amount"

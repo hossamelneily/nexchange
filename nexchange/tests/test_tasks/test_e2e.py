@@ -1,4 +1,4 @@
-from core.tests.utils import get_ok_pay_mock, get_payeer_pay_mock
+from core.tests.utils import get_ok_pay_mock, get_payeer_mock
 from core.tests.base import WalletBaseTestCase
 from core.models import Address
 from orders.models import Order
@@ -247,6 +247,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         m.get(self.url_addr, text=self.blockr_response_addr)
         m.get(self.url_tx_1, text=self.blockr_response_tx2)
         m.get(self.url_tx_2, text=self.blockr_response_tx1)
+        self.mock_empty_transactions_for_blockchain_address(m)
         send_money.return_value = True
         self.import_txs_task.apply()
         self.update_confirmation_task.apply()
@@ -273,9 +274,11 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self._read_fixture()
 
         send_money.return_value = True
+        unconfirmed = '{{"data":{"confirmations": 0}}'
         m.get(self.url_addr, text=self.blockr_response_addr)
         m.get(self.url_tx_1, text=self.tx_texts[0])
-        m.get(self.url_tx_2, text=self.tx_texts[1])
+        m.get(self.url_tx_2, text=unconfirmed)
+        self.mock_empty_transactions_for_blockchain_address(m)
         self.import_txs_task.apply()
         self.update_confirmation_task.apply()
         self.release_task.apply()
@@ -300,6 +303,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         m.get(self.url_addr, text=self.blockr_response_addr)
         m.get(self.url_tx_1, text=self.tx_texts[0])
         m.get(self.url_tx_2, text=self.tx_texts[1])
+        self.mock_empty_transactions_for_blockchain_address(m)
         send_money.return_value = False
         self.import_txs_task.apply()
         self.update_confirmation_task.apply()
@@ -313,6 +317,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         m.get(self.url_addr, text=self.blockr_response_addr)
         m.get(self.url_tx_1, text=self.tx_texts[0])
         m.get(self.url_tx_2, text=self.tx_texts[1])
+        self.mock_empty_transactions_for_blockchain_address(m)
         self.order.payment_preference = self.okpay_pref
         self.order.save()
         send_money.return_value = get_ok_pay_mock(
@@ -330,9 +335,10 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
     @patch('nexchange.utils.PayeerAPIClient.transfer_funds')
     def test_payeer_send_money_sell_order(self, m, send_money):
         m.get(self.url_addr, text=self.blockr_response_addr)
-        m.get(self.payeer_url, text=get_payeer_pay_mock('transfer_funds'))
+        m.get(self.payeer_url, text=get_payeer_mock('transfer_funds'))
         m.get(self.url_tx_1, text=self.tx_texts[0])
         m.get(self.url_tx_2, text=self.tx_texts[1])
+        self.mock_empty_transactions_for_blockchain_address(m)
         self.order.payment_preference = self.payeer_pref
         self.order.save()
         self.import_txs_task.apply()
@@ -348,6 +354,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         m.get(self.url_addr, text=self.blockr_response_addr)
         m.get(self.url_tx_1, text=self.tx_texts[0])
         m.get(self.url_tx_2, text=self.tx_texts[1])
+        self.mock_empty_transactions_for_blockchain_address(m)
         payment_method = self.main_pref.payment_method
         payment_method.name = 'Some Random Name'
         payment_method.save()
@@ -383,12 +390,9 @@ class SellOrderReleaseFromViewTestCase(WalletBaseTestCase):
     @patch('orders.tasks.generic.base.release_payment')
     @patch('orders.tasks.generic.base.send_sms')
     @patch('orders.tasks.generic.base.send_email')
-    def test_release_if_paid_and_withdraaw_address_set(self, send_email,
-                                                       send_sms,
-                                                       release_payment,
-                                                       _get_transaction_history,
-                                                       convert_coin_to_cash,
-                                                       validate):
+    def test_release_if_paid_and_withdraaw_address_set(
+            self, send_email, send_sms, release_payment,
+            _get_transaction_history, convert_coin_to_cash, validate):
         # Purge
         release_payment.return_value = 'TX123'
         Payment.objects.all().delete()
@@ -427,12 +431,9 @@ class SellOrderReleaseFromViewTestCase(WalletBaseTestCase):
     @patch('orders.tasks.generic.base.release_payment')
     @patch('orders.tasks.generic.base.send_sms')
     @patch('orders.tasks.generic.base.send_email')
-    def test_fail_release_withdraaw_address_already_set(self, send_email,
-                                                        send_sms,
-                                                        release_payment,
-                                                        _get_transaction_history,
-                                                        convert_coin_to_cash,
-                                                        validate):
+    def test_fail_release_withdraw_address_already_set(
+            self, send_email, send_sms, release_payment,
+            _get_transaction_history, convert_coin_to_cash, validate):
         # Purge
         release_payment.return_value = 'TX123'
         Payment.objects.all().delete()
@@ -504,12 +505,9 @@ class SellOrderReleaseFromViewTestCase(WalletBaseTestCase):
     @patch('orders.tasks.generic.base.release_payment')
     @patch('orders.tasks.generic.base.send_sms')
     @patch('orders.tasks.generic.base.send_email')
-    def test_fail_release_withdraaw_address_set_no_paymnet(self, send_email,
-                                                           send_sms,
-                                                           release_payment,
-                                                           _get_transaction_history,
-                                                           convert_coin_to_cash,
-                                                           validate):
+    def test_fail_release_withdraaw_address_set_no_payment(
+            self, send_email, send_sms, release_payment,
+            _get_transaction_history, convert_coin_to_cash, validate):
         # Purge
         release_payment.return_value = 'TX123'
         Payment.objects.all().delete()
@@ -529,6 +527,7 @@ class SellOrderReleaseFromViewTestCase(WalletBaseTestCase):
         order.refresh_from_db()
         self.assertEqual(Order.INITIAL, order.status)
         self.assertEquals(0, release_payment.call_count)
+
 
 class BuyOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                   WalletBaseTestCase):
@@ -615,4 +614,3 @@ class BuyOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self.update_confirmation_task.apply()
         order.refresh_from_db()
         self.assertEqual(order.status, Order.RELEASED)
-  

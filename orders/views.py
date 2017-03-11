@@ -16,9 +16,11 @@ from core.views import main
 from orders.models import Order
 from payments.models import PaymentPreference, PaymentMethod, Payment
 from payments.utils import geturl_robokassa, get_payeer_sign, get_payeer_desc
-from nexchange.utils import send_email, get_nexchange_logger
+from nexchange.utils import send_email
 from orders.task_summary import buy_order_release_by_reference_invoke, \
     buy_order_release_by_wallet_invoke
+from accounts.task_summary import (import_transaction_deposit_btc_invoke,
+                                   update_pending_transactions_invoke)
 
 
 @login_required
@@ -256,6 +258,16 @@ def ajax_order(request):
                    "{} {}".format(order, payment_pref))
     except:
         pass
+    if trade_type == Order.SELL:
+        import_transaction_deposit_btc_invoke.apply_async(
+            countdown=settings.TRANSACTION_IMPORT_TIME
+        )
+        countdown = getattr(settings, '{}_CONFIRMATION_TIME'.format(
+            order.pair.base.code
+        ))
+        update_pending_transactions_invoke.apply_async(
+            countdown=countdown
+        )
 
     res = template.render(context, request)
     return HttpResponse(res)
@@ -285,8 +297,15 @@ def update_withdraw_address(request, pk):
             if order.status == Order.PAID and new_withdraw_address:
                 payment = order.payment_set.first()
                 if payment:
-                    buy_order_release_by_reference_invoke\
-                            .apply_async([payment.pk])
+                    buy_order_release_by_reference_invoke.apply_async([
+                        payment.pk
+                    ])
+                    countdown = getattr(settings,
+                                        '{}_CONFIRMATION_TIME'.format(
+                                            order.pair.base.code
+                                        ))
+                    update_pending_transactions_invoke.apply_async(
+                        countdown=countdown)
                 else:
                     payments = Payment.objects.filter(user=request.user,
                                                       is_redeemed=False,
@@ -328,7 +347,7 @@ def payment_confirmation(request, pk):
 
             return JsonResponse({'status': 'ok',
                                  'frozen': order.payment_status_frozen,
-                                 'paid': order.user_marked_as_paid },
+                                 'paid': order.user_marked_as_paid},
                                 safe=False)
 
         except ValidationError as e:

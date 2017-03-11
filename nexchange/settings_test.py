@@ -47,7 +47,8 @@ OKPAY_API_KEY = ''
 PAYEER_WALLET = os.getenv('PAYEER_WALLET',
                           settings_dev.PAYEER_WALLET)
 PAYEER_IPN_KEY = ''
-PAYEER_ACCOUNT = ''
+PAYEER_ACCOUNT = os.getenv('PAYEER_ACCOUNT',
+                           settings_dev.PAYEER_WALLET)
 PAYEER_API_ID = ''
 PAYEER_API_KEY = ''
 
@@ -56,6 +57,11 @@ API1_USER = os.getenv('API1_USER',
                       settings_dev.API1_USER)
 API1_PASS = os.getenv('API1_PASS',
                       settings_dev.API1_PASS)
+API1_IS_TEST = False
+API1_ID_C1 = os.getenv('API1_ID_C1',
+                       settings_dev.API1_ID_C1)
+CARDS_RESERVE_COUNT = os.getenv('CARDS_RESERVE_COUNT',
+                                settings_dev.CARDS_RESERVE_COUNT)
 
 
 # API2
@@ -90,3 +96,5 @@ EMAIL_HOST = os.getenv('EMAIL_HOST', settings_dev.EMAIL_HOST)
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', settings_dev.EMAIL_HOST_USER)
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD',
                                 settings_dev.EMAIL_HOST_PASSWORD)
+
+AXES_COOLOFF_TIME = timedelta(seconds=1)

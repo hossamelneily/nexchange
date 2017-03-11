@@ -37,24 +37,54 @@ def passive_authentication_helper(client,
     return response
 
 
-def get_ok_pay_mock(data='transaction_history'):
+def get_mock(mock_path, output_type='bytes'):
+    with open(mock_path) as f:
+        s = f.read().replace('\n', '')
+        if output_type == 'string':
+            return s
+        elif output_type == 'bytes':
+            return str.encode(s)
+
+
+def get_ok_pay_mock(data='transaction_history', output_type='bytes'):
     mock_path = os.path.join(
         settings.BASE_DIR,
         'nexchange/tests/fixtures/'
         'okpay/{}.xml'.format(data)
     )
-    with open(mock_path) as f:
-        return str.encode(f.read().replace('\n', ''))
+    return get_mock(mock_path, output_type=output_type)
 
 
-def get_payeer_pay_mock(data):
+def create_ok_payment_mock_for_order(order):
+    s = get_ok_pay_mock(data='transaction_history_empty', output_type='string')
+    formatted = s.format(
+        amount=order.amount_quote,
+        email=order.payment_preference.identifier,
+        receiver_wallet=settings.OKPAY_WALLET,
+        unique_reference=order.unique_reference,
+        currency=order.pair.quote.code
+    )
+    return str.encode(formatted)
+
+
+def get_payeer_mock(data, output_type='string'):
     mock_path = os.path.join(
         settings.BASE_DIR,
         'nexchange/tests/fixtures/'
         'payeer/{}.json'.format(data)
     )
-    with open(mock_path) as f:
-        return f.read().replace('\n', '')
+    return get_mock(mock_path, output_type=output_type)
+
+
+def create_payeer_mock_for_order(order):
+    s = get_payeer_mock(data='transaction_history_empty', output_type='string')
+    formatted = s.format(
+        amount=order.amount_quote,
+        receiver_wallet=settings.PAYEER_ACCOUNT,
+        unique_reference=order.unique_reference,
+        currency=order.pair.quote.code
+    )
+    return formatted
 
 
 def split_ok_pay_mock(mock, element):

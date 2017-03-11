@@ -27,8 +27,9 @@ class BlockchainTransactionImporter:
         )
 
     def transactions_iterator(self):
-        for trans in self.transactions['txs']:
-            yield trans
+        if 'txs' in self.transactions:
+            for trans in self.transactions['txs']:
+                yield trans
 
     def parse_data(self, trans):
         try:
@@ -81,7 +82,7 @@ class BlockchainTransactionImporter:
                                  .format(transaction.__dict__))
                 order.status = Order.PAID_UNCONFIRMED
                 order.save()
-                self.logger.info('Order {} is marked as paid (is_paid=True)'
+                self.logger.info('Order {} is marked as PAID_UNCONFIRMED'
                                  .format(order.__dict__))
             elif len(orders) == 0:
                 self.logger.info(

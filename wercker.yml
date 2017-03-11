@@ -433,16 +433,32 @@ tests:
           mkdir -p ${pip_download_cache}
           yes w | pip install --cache-dir ${pip_download_cache} -r requirements.txt
     - script:
+        name: create/validate static build roots
+        code: |
+           mkdir -p static/dist/js
+           mkdir -p static/dist/css
+    - script:
       name: Install node requirements
       code: |
         # rm -fr node_modules && npm install
         npm install
+    - script:
+        name: create/validate static build roots
+        code: |
+           mkdir -p static/dist/js
+           mkdir -p static/dist/css
     - maxon/npm-run:
         script: bower
+    - maxon/npm-run:
+        script: build-js
     - script:
         name: Backend tests
         code: |
           DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh
+    - script:
+        name: Selenium tests
+        code: |
+          DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-selenium-tests.sh
     - script:
         name: Frontend tests
         code: |

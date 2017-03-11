@@ -14,21 +14,22 @@ from payments.models import PaymentMethod, PaymentPreference
 from ticker.models import Price, Ticker
 from copy import deepcopy
 import mock
-from unittest.mock import patch
 import os
 from django.conf import settings
+import requests_mock
+from time import time
+import re
 
 
 class UserBaseTestCase(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        with patch('core.signals.allocate_wallets.allocate_wallets'):
-            User.objects.get_or_create(
-                username='onit',
-                email='weare@onit.ws',
-                is_staff=True
-            )
+        User.objects.get_or_create(
+            username='onit',
+            email='weare@onit.ws',
+            is_staff=True
+        )
 
         super(UserBaseTestCase, cls).setUpClass()
 
@@ -51,7 +52,10 @@ class UserBaseTestCase(TestCase):
             }
 
         activate('en')
-        with patch('core.signals.allocate_wallets.allocate_wallets'):
+        # this is used to identify addresses created by allocate_wallets mock
+        self.address_id_pattern = 'addr_id_'
+        with requests_mock.mock() as m:
+            self._mock_cards_reserve(m)
             self.user, created = \
                 User.objects.get_or_create(username=self.username)
             self.user.set_password(self.password)
@@ -64,6 +68,34 @@ class UserBaseTestCase(TestCase):
                                     password=self.password)
         assert success
         super(UserBaseTestCase, self).setUp()
+
+    def _request_card(self, request, context):
+        post_params = {}
+        params = request._request.body.split('&')
+        for param in params:
+            p = param.split('=')
+            post_params.update({p[0]: p[1]})
+        currency = post_params['currency']
+        res = (
+            '{{"id":"test_card", "currency": '
+            '"{currency}"}}'.format(currency=currency)
+        )
+        return res
+
+    def _request_address(self, request, context):
+        id = str(time()).split('.')[1]
+        res = '{{"id":"{pattern}{id}"}}'.format(
+            pattern=self.address_id_pattern, id=id
+        )
+        return res
+
+    def _mock_cards_reserve(self, mock):
+        mock.post(
+            'https://api.uphold.com/v0/me/cards/',
+            text=self._request_card
+        )
+        mock.post('https://api.uphold.com/v0/me/cards/test_card/addresses',
+                  text=self._request_address)
 
 
 class OrderBaseTestCase(UserBaseTestCase):
@@ -193,14 +225,13 @@ class WalletBaseTestCase(OrderBaseTestCase):
 
     @classmethod
     def setUpClass(cls):
-        with patch('core.signals.allocate_wallets.allocate_wallets'):
-            u, created = User.objects.get_or_create(
-                username='onit',
-                email='weare@onit.ws',
-            )
-            # ensure staff status, required for tests
-            u.is_staff = True
-            u.save()
+        u, created = User.objects.get_or_create(
+            username='onit',
+            email='weare@onit.ws',
+        )
+        # ensure staff status, required for tests
+        u.is_staff = True
+        u.save()
         super(WalletBaseTestCase, cls).setUpClass()
 
     def setUp(self):
@@ -392,6 +423,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         mock_request.get(self.url_addr, text=self.blockr_response_addr)
         mock_request.get(self.url_tx_1, text=self.blockr_response_tx1)
         mock_request.get(self.url_tx_2, text=self.blockr_response_tx2)
+        self.mock_empty_transactions_for_blockchain_address(mock_request)
         status_ok_list_index = 0
         status_bad_list_index = 1
         run_method()
@@ -422,3 +454,10 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             len(tx_ok), 1,
             'Transaction must be created only one time!'
         )
+
+    def mock_empty_transactions_for_blockchain_address(self, mock,
+                                                       pattern=None):
+        if pattern is None:
+            pattern = '/api/v1/address/txs/{}'.format(self.address_id_pattern)
+        matcher = re.compile(pattern)
+        mock.get(matcher, text='{"data":{"txs":[]}}')

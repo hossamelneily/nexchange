@@ -57,6 +57,10 @@ LANGUAGES = [
 
 # CUSTOM SETTINGS
 GATEWAY_RESOLVE_TIME = 5
+TRANSACTION_IMPORT_TIME = 10
+BTC_CONFIRMATION_TIME = 3000
+ETH_CONFIRMATION_TIME = 1000
+LTC_CONFIRMATION_TIME = 1000
 USER_SETS_WITHDRAW_ADDRESS_MEDIAN_TIME = 30
 TICKER_INTERVAL = 30
 PAYMENT_IMPORT_INTERVAL = 30
@@ -271,8 +275,6 @@ DATABASES = {
                                       .format(user, password, host, port, db))
 
 }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators

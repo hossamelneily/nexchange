@@ -50,7 +50,7 @@ def update_pending_transactions():
                        tr.order.pair.quote.code,
                        tr.order.payment_preference.payment_method.name,
                        tr.order.payment_preference.identifier,
-                       '('+tr.order.payment_preference.secondary_identifier+')'
+                       '('+tr.order.payment_preference.secondary_identifier+')'# noqa
                        if tr.order.payment_preference.secondary_identifier
                        else '')
 
@@ -61,7 +61,7 @@ def update_pending_transactions():
                 if settings.DEBUG:
                     logger.info(str(sms_result))
 
-            if profile.notify_by_email and profile.email:
+            if profile.notify_by_email and order.user.email:
                 email = send_email(tr.order.user.email, title, msg)
                 email.send()
 

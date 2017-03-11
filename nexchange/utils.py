@@ -129,23 +129,31 @@ def check_address_blockchain(address):
     def _set_network(_address):
         _currency = None
         _confirmations = None
-        if not address or not address.address:
-            return False
+        if not _address or not _address.address:
+            error = 'No address for setting  blockchain Network'
+            logger.error(error)
+            return error
         if address.currency:
             _confirmations = address.currency.min_confirmations
             _currency = _address.currency.code.lower()
 
             if not _currency:
+                error = 'Currency not defined Error'
                 if not address.currency.flag(__name__)[1]:
-                    logger.error('Currency not found for address pk {}'
-                                 .format(address.pk))
-                return
+                    error = (
+                        'Currency not found for address pk {}'.format(
+                            address.pk
+                        )
+                    )
+                logger.error(error)
+                return error
             elif _currency == 'eth':
+                error = 'ETH not supported'
                 if not address.currency.flag(__name__)[1]:
-                    logger.info('Address pk {} of '
-                                'unsupported type eth ethereum'
-                                .format(address.pk))
-                return
+                    error = ('Address pk {} of unsupported type eth '
+                             'ethereum'.format(address.pk))
+                logger.info(error)
+                return error
 
         _network = '{}'.format(_currency)
         if settings.DEBUG:
@@ -157,11 +165,17 @@ def check_address_blockchain(address):
             'http://{}.blockr.io/api/v1/address/txs/{}?confirmations='
             '{}').format(_network, wallet_address, _confirmations)
         return btc_blockr
-    network, confirmations = _set_network(address)
+    try:
+        netwrk = _set_network(address)
+        network, confirmations = netwrk
+    except ValueError:
+        return {'error': 'Cannot set network for blockchain {}'.format(netwrk)}
     url = _set_url(network, str(address.address), confirmations)
     info = get(url)
     if info.status_code != 200:
-        return False
+        return {'error': 'Bad blockchain response status {}.'.format(
+            info.status_code
+        )}
     transactions = info.json()['data']
     return transactions
 

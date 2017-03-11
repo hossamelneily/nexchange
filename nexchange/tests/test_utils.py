@@ -5,7 +5,7 @@ from nexchange.utils import PayeerAPIClient, OkPayAPI, check_address_blockchain
 import requests_mock
 from core.models import Address
 from core.tests.base import OrderBaseTestCase
-from core.tests.utils import get_ok_pay_mock, get_payeer_pay_mock
+from core.tests.utils import get_ok_pay_mock, get_payeer_mock
 from django.conf import settings
 import os
 
@@ -18,7 +18,7 @@ class PayeerAPIClientTestCase(TestCase):
 
     @requests_mock.mock()
     def test_history_of_transactions(self, m):
-        m.post(self.url, text=get_payeer_pay_mock('transaction_history'))
+        m.post(self.url, text=get_payeer_mock('transaction_history'))
         res = self.client.get_transaction_history()
         key = next(iter(res))
         self.assertIn('id', res[key])
@@ -34,7 +34,7 @@ class PayeerAPIClientTestCase(TestCase):
 
     @requests_mock.mock()
     def test_transfer_funds(self, m):
-        m.post(self.url, text=get_payeer_pay_mock('transfer_funds'))
+        m.post(self.url, text=get_payeer_mock('transfer_funds'))
         res = self.client.transfer_funds(
             currency_in='EUR', currency_out='EUR', amount=Decimal('0.02'),
             receiver='WEARE@ONIT.WS'
@@ -43,7 +43,7 @@ class PayeerAPIClientTestCase(TestCase):
 
     @requests_mock.mock()
     def test_transfer_funds_balance_error(self, m):
-        m.post(self.url, text=get_payeer_pay_mock(
+        m.post(self.url, text=get_payeer_mock(
             'transfer_funds_balance_error'
         ))
         res = self.client.transfer_funds(
