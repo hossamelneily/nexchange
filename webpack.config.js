@@ -57,7 +57,6 @@ module.exports = {
             'window.$': 'jquery',
             NProgress: 'nprogress',
             toastr: 'toastr',
-            highcharts: 'highcharts',
             Cookies: 'js-cookie',
             moment: 'moment',
         }),
@@ -71,9 +70,6 @@ module.exports = {
     watch: false,
     entry: [
         // npm js
-        './node_modules/highcharts/highcharts.js',
-        './node_modules/highcharts/highcharts-more.js',
-        './node_modules/highcharts/modules/exporting.js',
         './node_modules/select2/dist/js/select2.full.js',
         './node_modules/jquery-ticker/jquery.ticker.js',
         './node_modules/card/dist/jquery.card.js',

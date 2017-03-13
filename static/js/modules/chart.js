@@ -29,7 +29,7 @@
             $.get(tickerHistoryUrl, function(resdata) {
                 chartDataRaw = resdata;
                 var data = responseToChart(resdata).pair;
-                highcharts.chart('container-graph', {
+                Highcharts.chart('container-graph', {
                     chart: {
                         type: 'arearange',
                         zoomType: 'x'
