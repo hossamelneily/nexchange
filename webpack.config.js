@@ -75,7 +75,7 @@ module.exports = {
         './node_modules/card/dist/jquery.card.js',
         './node_modules/jquery-ui/ui/widgets/datepicker.js',
         './node_modules/js-cookie/src/js.cookie.js',
-        './node_modules/moment-timezone/moment-timezone.js',
+        './node_modules/moment-timezone/builds/moment-timezone-with-data.js',
         './node_modules/intl-tel-input/build/js/intlTelInput.js',
         // loader
         'bootstrap-loader',

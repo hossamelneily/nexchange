@@ -1,4 +1,7 @@
-<!DOCTYPE HTML> {# Load the tag library #} {% load bootstrap3 %} {% load staticfiles %} {% load i18n %}
+<!DOCTYPE HTML> {# Load the tag library #}
+{% load bootstrap3 %}
+{% load staticfiles %}
+{% load i18n %}
 <html lang="{{COUNTRY_CODE}}">
 
 <head>
@@ -43,11 +46,13 @@
     <link rel="stylesheet" href="{% static 'bundles/bundle.css' %}">
     <script type="text/javascript" src="/en/jsi18n/"></script>
     <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?render=explicit" async defer></script>
-    <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?render=explicit" async defer></script>
     <script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>
     <script type="text/javascript" src="https://code.highcharts.com/highcharts-more.js"></script>
     <script type="text/javascript"
             src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script>
+        window.recaptchaSitekey = '{{ RECAPTCHA_SITEKEY }}';
+    </script>
 
     <script type="text/javascript" src="{% static 'bundles/bundle.js' %}"></script>
 

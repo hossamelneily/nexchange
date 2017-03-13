@@ -5,7 +5,6 @@ import '../node_modules/font-awesome/css/font-awesome.css';
 import '../node_modules/nprogress/nprogress.css';
 import '../node_modules/intl-tel-input/build/css/intlTelInput.css';
 
-window.recaptchaSitekey = '6LfWTBIUAAAAAAbvn2iUwPqZhnSs2I6bm_T7fEm3';
 window.countryCode = document.getElementsByTagName("html")[0].getAttribute("lang");
 
 window.getLockOutText = function(data) {
