@@ -17,6 +17,7 @@ from datetime import timedelta
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 import dj_database_url
+import logging
 
 # SECRET KEY TEST
 SECRET_KEY = 'zsl4+4%(%=0@f*tkf0f2u%dt&v&h_-g5mw*o25i$480=3qcb2k'
@@ -423,3 +424,4 @@ LOGGING = {
         },
     }
 }
+BASIC_LOGGING_LEVEL = logging.DEBUG

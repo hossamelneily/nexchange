@@ -1,5 +1,6 @@
 from .settings import *
 from nexchange import settings_dev
+import logging
 # When testing, use sqlite3 so the database is loaded in memory
 # this will make tests run faster
 
@@ -100,3 +101,26 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD',
                                 settings_dev.EMAIL_HOST_PASSWORD)
 
 AXES_COOLOFF_TIME = timedelta(seconds=1)
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'level': 'WARNING',
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'WARNING',
+            'propagate': True,
+            'include_html': True,
+        },
+    }
+}
+BASIC_LOGGING_LEVEL = logging.WARNING

@@ -20,7 +20,7 @@ import string
 
 api = Uphold(settings.API1_IS_TEST)
 api.auth_basic(settings.API1_USER, settings.API1_PASS)
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=settings.BASIC_LOGGING_LEVEL)
 
 
 class Del:
