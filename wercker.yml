@@ -428,13 +428,13 @@ tests:
     - maxon/npm-run:
         script: build
     - script:
-        name: Backend tests
-        code: |
-          DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh
-    - script:
         name: Selenium tests
         code: |
           DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-selenium-tests.sh
+    - script:
+        name: Backend tests
+        code: |
+          DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh
     - script:
         name: Frontend tests
         code: |
