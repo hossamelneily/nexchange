@@ -25,6 +25,7 @@ from accounts.models import SmsToken
 from unittest.mock import patch
 import requests_mock
 from time import time
+from selenium.webdriver.support.select import Select
 
 
 class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
@@ -40,7 +41,7 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.card_number = '1234567887654321'
         self.bic = '123456'
         self.withdraw_address = '2NGBPxkKAevijTQFxp4WMwCjZYsFjqDMZ97'
-        self.issavescreen = False
+        self.issavescreen = True
         self.url = self.live_server_url
         self.screenpath = os.path.join(
             os.path.dirname(__file__), 'Screenshots', str(time()))
@@ -119,6 +120,25 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             except Exception as e:
                 print(self.payment_method + " " + str(e))
                 sys.exit(1)
+
+    def test_currency_selection(self):
+        self.get_repeat_on_timeout(self.url)
+        # remove pair from url
+        url_base = self.driver.current_url[:-7]
+        pairs = ['BTCEUR', 'BTCRUB', 'BTCUSD']
+        for pair in pairs:
+            self.screenshot_no = 1
+            self.get_repeat_on_timeout(url_base + pair)
+            self.do_screenshot('main_')
+            c_pair = Select(self.driver.find_element_by_xpath(
+                '//select[@name="currency_pair"]'))
+            c_from = Select(self.driver.find_element_by_xpath(
+                '//select[@name="currency_from"]'))
+            c_to = Select(self.driver.find_element_by_xpath(
+                '//select[@name="currency_to"]'))
+            from_text = c_to.first_selected_option.text
+            to_text = c_from.first_selected_option.text
+            self.assertEqual(pair, from_text + to_text)
 
     def get_repeat_on_timeout(self, url):
         repeat = 5
