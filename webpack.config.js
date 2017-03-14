@@ -82,7 +82,6 @@ module.exports = {
         // run package
         './static/run.js',
         // old javascript
-        './static/js/add_orders.js',
         './static/js/profile.js',
         './static/js/main.js',
         './static/js/index_orders.js',
