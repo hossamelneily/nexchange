@@ -40,10 +40,10 @@
         }
 
         var params = parseQuery(window.location.search),
-            oid = params['oid'],
+            oid = params.oid,
             initialDelay = 1500,
             payDelay = 1500,
-            isPaid =  params['is_paid'],
+            isPaid =  params.is_paid,
             indicateWithdrawDelay = isPaid ? 1500 : 0,
             oidSelector = '#' + oid,
             rootElem = $(oidSelector),
