@@ -77,6 +77,7 @@ module.exports = {
         './node_modules/js-cookie/src/js.cookie.js',
         './node_modules/moment-timezone/builds/moment-timezone-with-data.js',
         './node_modules/intl-tel-input/build/js/intlTelInput.js',
+        './node_modules/bootstrap-toggle/js/bootstrap-toggle.min.js',
         // loader
         'bootstrap-loader',
         // run package

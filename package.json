@@ -34,7 +34,8 @@
     "url-loader": "^0.5.8",
     "webpack": "^2.2.1",
     "webpack-bundle-tracker": "^0.2.0",
-    "x-editable": "^1.5.1"
+    "x-editable": "^1.5.1",
+    "bootstrap-toggle": "^2.2.2"
   },
   "devDependencies": {
     "babel-cli": "^6.23.0",
