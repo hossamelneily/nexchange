@@ -51,9 +51,9 @@
         $currencySelect = $('.currency-select');
         $currencyFrom = $('.currency-from');
         $currencyTo = $('.currency-to');
-        $currencyPair = $('.currency-pair');
+        $currencyPair = $("select[name='currency_pair']");
         $currencyFrom.val(currency);
-        $currencyPair.val(pair);
+        $currencyPair.val(pair).trigger('change.select2');
         $currencyTo.val(currency_to);
         orderObject.setCurrency(false, currency, currency_to, pair);
         paymentObject.loadPaymentMethods(cardsEndpoint, currency);
@@ -187,7 +187,7 @@
             paymentObject.loadPaymentMethods(cardsEndpoint, currency);
             //bind all select boxes
             $currencyFrom.val(currency);
-            $currencyPair.val(pair);
+            $currencyPair.val(pair).trigger('change.select2');
             $currencyTo.val(currency_to);
             orderObject.updateOrder($('.amount-coin'), false, currency);
             // orderObject.reloadCardsPerCurrency(currency, cardsEndpoint);
