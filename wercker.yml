@@ -424,7 +424,7 @@ tests:
       name: Install node requirements
       code: |
         # https://github.com/wercker/support/issues/227 :(
-        rm -fr node_modules && npm install --production
+        rm -fr node_modules && npm install
     - maxon/npm-run:
         script: build
     - script:
