@@ -56,7 +56,7 @@ dev:
     - script:
       name: Install node requirements
       code: |
-        rm -fr node_modules && npm install
+        npm install
     - maxon/npm-run:
         script: build
     - script:

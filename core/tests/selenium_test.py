@@ -25,6 +25,8 @@ from accounts.models import SmsToken
 from unittest.mock import patch
 import requests_mock
 from time import time
+from selenium.webdriver.support.select import Select
+from core.models import Pair
 
 
 class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
@@ -40,10 +42,11 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.card_number = '1234567887654321'
         self.bic = '123456'
         self.withdraw_address = '2NGBPxkKAevijTQFxp4WMwCjZYsFjqDMZ97'
-        self.issavescreen = False
+        self.issavescreen = True
         self.url = self.live_server_url
         self.screenpath = os.path.join(
             os.path.dirname(__file__), 'Screenshots', str(time()))
+        self.screenpath2 = 'unsorted'
         self.mkdir(self.screenpath)
         user_agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64)' \
                      ' AppleWebKit/537.36 (KHTML, like Gecko)' \
@@ -60,7 +63,6 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.driver.set_window_size(1400, 1000)
         self.driver.set_page_load_timeout(self.timeout / 3)
         self.wait = WebDriverWait(self.driver, self.timeout)
-        self.payment_method = None
         self.screenshot_overall_no = 1
         self.stamp = time()
         self.shot_base64 = None
@@ -82,7 +84,7 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.workflow = 'BUY'
         for payment_method in payment_methods:
             self.screenshot_no = 1
-            self.payment_method = payment_method['name']
+            self.payment_method = self.screenpath2 = payment_method['name']
             self.driver.delete_all_cookies()
             print('Test {}'.format(self.payment_method))
             try:
@@ -112,13 +114,36 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         print('Test sell')
         for payment_method in payment_methods:
             self.screenshot_no = 1
-            self.payment_method = payment_method
+            self.payment_method = self.screenpath2 = payment_method
             self.driver.delete_all_cookies()
             try:
                 self.checksell()
             except Exception as e:
                 print(self.payment_method + " " + str(e))
                 sys.exit(1)
+
+    def test_currency_selection_by_url(self):
+        self.workflow = 'CURRENCY_SELECT'
+        self.screenpath2 = 'MAIN SCREENS'
+        self.get_repeat_on_timeout(self.url)
+        url_base = self.driver.current_url[:-7]  # this is url without the pair
+        enabled_pairs = Pair.objects.filter(disabled=False)
+        pair_names = [pair.name for pair in enabled_pairs]
+        for pair_name in pair_names:
+            self.screenshot_no = 1
+            self.get_repeat_on_timeout(url_base + pair_name)
+            self.do_screenshot('main_{}'.format(pair_name))
+            c_pair = Select(self.driver.find_element_by_xpath(
+                '//select[@name="currency_pair"]'))
+            c_from = Select(self.driver.find_element_by_xpath(
+                '//select[@name="currency_from"]'))
+            c_to = Select(self.driver.find_element_by_xpath(
+                '//select[@name="currency_to"]'))
+            from_text = c_to.first_selected_option.text
+            to_text = c_from.first_selected_option.text
+            pair_text = c_pair.first_selected_option.text
+            self.assertEqual(pair_name, from_text + to_text)
+            self.assertEqual(pair_text, '{}/{}'.format(from_text, to_text))
 
     def get_repeat_on_timeout(self, url):
         repeat = 5
@@ -497,12 +522,8 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         if self.issavescreen:
             if refresh:
                 self.driver.refresh()
-            if self.payment_method is None:
-                method_path = 'unsorted'
-            else:
-                method_path = self.payment_method
             path = os.path.join(
-                self.screenpath, self.workflow, method_path)
+                self.screenpath, self.workflow, self.screenpath2)
             filename = '{}({}). {} ({:.2f}s)'.format(
                 self.screenshot_no, self.screenshot_overall_no, filename, diff
             )
