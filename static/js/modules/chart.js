@@ -32,7 +32,8 @@
                 Highcharts.chart('container-graph', {
                     chart: {
                         type: 'arearange',
-                        zoomType: 'x'
+                        zoomType: 'x',
+                        backgroundColor: '#F3F3F3'
                     },
                     style: {
                         fontFamily: 'Gotham'

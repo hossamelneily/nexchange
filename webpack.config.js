@@ -16,7 +16,7 @@ module.exports = {
             query: {
                 plugins: ['transform-runtime'],
                 presets: ['es2015', 'stage-0', 'react']
-            },
+            }
         }, {
             test: /\.css$/,
             loader: ExtractTextPlugin.extract({
@@ -42,7 +42,7 @@ module.exports = {
     },
     output: {
         path: path.resolve('./static/bundles/'),
-        filename: "bundle.js",
+        filename: "bundle.js"
     },
     plugins: [
         new BundleTracker({
