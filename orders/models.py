@@ -31,7 +31,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         (BUY, 'BUY'),
         (EXCHANGE, 'EXCHANGE'),
     )
-    _order_type_help = (2 * '{} - {}<br/>' + '{} - {}.').format(
+    _order_type_help = (3 * '{} - {}<br/>').format(
         'BUY', 'Customer is giving fiat, and getting crypto money.',
         'SELL', 'Customer is giving crypto and getting fiat money',
         'EXCHANGE', 'Customer is exchanging different kinds of crypto '
@@ -56,7 +56,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     IN_RELEASED = [RELEASED, COMPLETED]
     _could_be_paid_msg = 'Could be paid by crypto transaction or fiat ' \
                          'payment, depending on order_type.'
-    _order_status_help = (5 * '{} - {}<br/>' + '{} - {}.').format(
+    _order_status_help = (6 * '{} - {}<br/>'    ).format(
         'INITIAL', 'Initial status of the order.',
         'PAID', 'Order is Paid by customer. ' + _could_be_paid_msg,
         'PAID_UNCONFIRMED', 'Order is possibly paid (unconfirmed crypto '
