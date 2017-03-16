@@ -120,7 +120,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
     def _validate_fields(self):
         self._types_range_constraint(self.order_type, self.TYPES)
-        self._types_range_sconstraint(self.status, self.STATUS_TYPES)
+        self._types_range_constraint(self.status, self.STATUS_TYPES)
 
     def clean(self, *args, **kwargs):
         self._validate_fields()
