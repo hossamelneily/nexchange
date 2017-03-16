@@ -10,12 +10,12 @@ module.exports = {
         loaders: [{
             loader: "babel-loader",
             include: [
-                path.resolve(__dirname, "static/js"),
+                path.resolve(__dirname, "static/js")
             ],
             test: /\.js?$/,
             query: {
                 plugins: ['transform-runtime'],
-                presets: ['es2015', 'stage-0', 'react'],
+                presets: ['es2015', 'stage-0', 'react']
             },
         }, {
             test: /\.css$/,
@@ -58,10 +58,12 @@ module.exports = {
             NProgress: 'nprogress',
             toastr: 'toastr',
             Cookies: 'js-cookie',
-            moment: 'moment',
+            moment: 'moment'
         }),
         new webpack.optimize.UglifyJsPlugin({
             sourceMap: true,
+            minimize: true,
+            compress: false,
             compressor: {
                 warnings: false
             }

@@ -14,6 +14,7 @@
 
     <!-- Fav and touch icons -->
     <link rel="shortcut icon" href="{% static 'images/icon.png'%}">
+    <link rel="stylesheet" href="{% static 'bundles/bundle.css' %}">
 
     <script type="text/javascript">
         // TODO: which is the best way to translate JS messages?
@@ -42,8 +43,6 @@
         {% block content %} {% endblock content %} {% block footer %} {% endblock %}
     </div>
     {% include 'core/partials/supported_payments.html' %} {% include 'core/partials/popular_faq.html' %} {% include 'core/partials/seo_footer.html' %}
-
-    <link rel="stylesheet" href="{% static 'bundles/bundle.css' %}">
     <script type="text/javascript" src="/en/jsi18n/"></script>
     <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?render=explicit" async defer></script>
     <script type="text/javascript" src="https://code.highcharts.com/highcharts.js"></script>

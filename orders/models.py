@@ -56,7 +56,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     IN_RELEASED = [RELEASED, COMPLETED]
     _could_be_paid_msg = 'Could be paid by crypto transaction or fiat ' \
                          'payment, depending on order_type.'
-    _order_status_help = (6 * '{} - {}<br/>'    ).format(
+    _order_status_help = (6 * '{} - {}<br/>').format(
         'INITIAL', 'Initial status of the order.',
         'PAID', 'Order is Paid by customer. ' + _could_be_paid_msg,
         'PAID_UNCONFIRMED', 'Order is possibly paid (unconfirmed crypto '
@@ -109,7 +109,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
         super(Order, self).validate_unique(exclude=exclude)
 
-    def _types_range_constrain(self, field, types):
+    def _types_range_constraint(self, field, types):
         """ This is used for validating IntegerField's with choices.
         Assures that value is in range of choices.
         """
@@ -119,8 +119,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
             raise ValidationError(_('Invalid order type choice'))
 
     def _validate_fields(self):
-        self._types_range_constrain(self.order_type, self.TYPES)
-        self._types_range_constrain(self.status, self.STATUS_TYPES)
+        self._types_range_constraint(self.order_type, self.TYPES)
+        self._types_range_sconstraint(self.status, self.STATUS_TYPES)
 
     def clean(self, *args, **kwargs):
         self._validate_fields()
