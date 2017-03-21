@@ -1,0 +1,44 @@
+[
+{
+  "model": "core.pair",
+  "pk": 1,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 1,
+    "quote": 2,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCLTC",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 2,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.521Z",
+    "base": 1,
+    "quote": 3,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCETH",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 3,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.521Z",
+    "base": 3,
+    "quote": 2,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHLTC",
+    "disabled": false
+  }
+}
+]

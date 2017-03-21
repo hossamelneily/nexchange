@@ -7,6 +7,19 @@ SoftDeleteMixin = safedelete_mixin_factory(policy=SOFT_DELETE,
                                            visibility=DELETED_VISIBLE_BY_PK)
 
 
+class NexchangeManager(models.Manager):
+    def get_by_natural_key(self, param):
+        qs = self.get_queryset()
+        lookup = {qs.model.NATURAL_KEY: param}
+        return self.get(**lookup)
+
+
+class NexchangeModel(models.Model):
+    class Meta:
+        abstract = True
+    objects = NexchangeManager()
+
+
 class UniqueFieldMixin(models.Model):
 
     class Meta:

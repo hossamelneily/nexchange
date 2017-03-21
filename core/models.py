@@ -5,7 +5,7 @@ from django.db import models
 
 from core.common.models import SoftDeletableModel, TimeStampedModel
 from core.common.models import FlagableMixin
-from .validators import validate_bc
+from .validators import validate_address
 
 
 class BtcBase(TimeStampedModel):
@@ -31,7 +31,7 @@ class Address(BtcBase, SoftDeletableModel):
         (DEPOSIT, 'DEPOSIT'),
     )
     name = models.CharField(max_length=100, blank=True)
-    address = models.CharField(max_length=42, validators=[validate_bc])
+    address = models.CharField(max_length=42, validators=[validate_address])
     user = models.ForeignKey(User)
     currency = models.ForeignKey('core.Currency', blank=True, null=True)
 

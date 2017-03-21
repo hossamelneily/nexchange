@@ -217,11 +217,13 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.update_confirmation_task = update_pending_transactions_invoke
         self.release_task = sell_order_release_invoke
         self.payeer_url = settings.PAYEER_API_URL
+        self.order_2 = None
+        self._create_mocks()
 
     def _create_second_order(self):
         self.order_2 = Order(
             order_type=Order.SELL,
-            amount_base=Decimal(str(self.amounts[self.status_bad_list_index])),
+            amount_base=Decimal('0.04'),
             pair=self.BTCEUR,
             user=self.user,
             status=Order.INITIAL,
@@ -229,81 +231,76 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         )
         self.order_2.save()
 
-    def _read_fixture(self):
-        super(SellOrderReleaseTaskTestCase, self)._read_fixture()
-        for idx, tx in enumerate(self.txs):
-            tx.update(self.order_modifiers[idx])
-            self.tx_texts[idx] = json.dumps(tx)
-
-        self.amounts = [tx['data']['trade']['vouts'][0]['amount']
-                        for tx in self.txs]
-        self.tx_ids = [tx['data']['tx'] for tx in self.txs]
-        self.status_ok_list_index = 0
-        self.status_bad_list_index = 1
-
-    @requests_mock.mock()
+    @patch('nexchange.utils.api.get_card_transactions')
+    @patch('nexchange.utils.api.get_reserve_transaction')
     @patch('orders.utils.send_money')
-    def test_release_sell_order_confirmations(self, m, send_money):
-        m.get(self.url_addr, text=self.blockr_response_addr)
-        m.get(self.url_tx_1, text=self.blockr_response_tx2)
-        m.get(self.url_tx_2, text=self.blockr_response_tx1)
-        self.mock_empty_transactions_for_blockchain_address(m)
+    def test_release_sell_order(self, send_money, reserve_txs, import_txs):
         send_money.return_value = True
+        reserve_txs.return_value = json.loads(self.completed)
+        import_txs.return_value = json.loads(self.import_txs)
         self.import_txs_task.apply()
         self.update_confirmation_task.apply()
         self.release_task.apply()
         self.order.refresh_from_db()
         self.assertTrue(self.order.status in Order.IN_RELEASED)
 
-    @requests_mock.mock()
-    @patch('orders.utils.send_money')
-    def test_do_not_release_sell_order_not_enough_confirmations(self, m,
-                                                                send_money):
-        self._read_fixture()
-        m.get(self.url_addr, text=self.blockr_response_addr)
-        send_money.return_value = True
+    @patch('nexchange.utils.api.get_card_transactions')
+    @patch('nexchange.utils.api.get_reserve_transaction')
+    def test_do_not_release_sell_order_transaction_pending(self, reserve_txs,
+                                                           import_txs):
+        reserve_txs.return_value = json.loads(self.pending)
+        import_txs.return_value = json.loads(self.import_txs)
         self.import_txs_task.apply()
         self.release_task.apply()
         self.assertNotIn(self.order.status, Order.IN_RELEASED)
 
-    @requests_mock.mock()
+    @patch('nexchange.utils.api.get_card_transactions')
+    @patch('nexchange.utils.api.get_reserve_transaction')
     @patch('orders.utils.send_money')
-    def test_sell_order_release_1_yes_1_no_due_to_confirmations(self, m,
-                                                                send_money):
+    def test_sell_order_release_1_yes_1_no_due_to_confirmations(self,
+                                                                send_money,
+                                                                reserve_txs,
+                                                                import_txs):
+        def side_effect(trans):
+            if trans == txs_data[0]['id']:
+                return json.loads(self.completed)
+            elif trans == txs_data[1]['id']:
+                return json.loads(self.pending)
         self._create_second_order()
-        self._read_fixture()
-
+        self._create_mocks(amount2=self.order_2.amount_base)
+        txs_data = json.loads(self.import_txs)
+        import_txs.return_value = txs_data
+        reserve_txs.return_value = json.loads(self.pending)
         send_money.return_value = True
-        unconfirmed = '{{"data":{"confirmations": 0}}'
-        m.get(self.url_addr, text=self.blockr_response_addr)
-        m.get(self.url_tx_1, text=self.tx_texts[0])
-        m.get(self.url_tx_2, text=unconfirmed)
-        self.mock_empty_transactions_for_blockchain_address(m)
         self.import_txs_task.apply()
-        self.update_confirmation_task.apply()
-        self.release_task.apply()
+        reserve_txs.side_effect = side_effect
+        self.update_confirmation_task()
+        self.release_task()
         self.order.refresh_from_db()
         self.order_2.refresh_from_db()
         self.assertIn(self.order.status, Order.IN_RELEASED)
         self.assertNotIn(self.order_2.status, Order.IN_RELEASED)
 
-    @requests_mock.mock()
+    @patch('nexchange.utils.api.get_card_transactions')
+    @patch('nexchange.utils.api.get_reserve_transaction')
     @patch('orders.utils.send_money')
-    def test_do_not_release_sell_order_with_task_not_send_money(self, m,
-                                                                send_money):
-        m.get(self.url_addr, text=self.blockr_response_addr)
+    def test_do_not_release_sell_order_without_send_money(self, send_money,
+                                                          reserve_txs,
+                                                          import_txs):
+        reserve_txs.return_value = json.loads(self.completed)
+        import_txs.return_value = json.loads(self.import_txs)
         send_money.return_value = False
         self.import_txs_task.apply()
         self.release_task.apply()
         self.assertNotIn(self.order.status, Order.IN_RELEASED)
 
-    @requests_mock.mock()
+    @patch('nexchange.utils.api.get_card_transactions')
+    @patch('nexchange.utils.api.get_reserve_transaction')
     @patch('orders.utils.send_money')
-    def test_notify_admin_if_not_send_money(self, m, send_money):
-        m.get(self.url_addr, text=self.blockr_response_addr)
-        m.get(self.url_tx_1, text=self.tx_texts[0])
-        m.get(self.url_tx_2, text=self.tx_texts[1])
-        self.mock_empty_transactions_for_blockchain_address(m)
+    def test_notify_admin_if_not_send_money(self, send_money, reserve_txs,
+                                            import_txs):
+        reserve_txs.return_value = json.loads(self.completed)
+        import_txs.return_value = json.loads(self.import_txs)
         send_money.return_value = False
         self.import_txs_task.apply()
         self.update_confirmation_task.apply()
@@ -311,13 +308,13 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         with self.assertRaises(NotImplementedError):
             self.release_task()
 
-    @requests_mock.mock()
+    @patch('nexchange.utils.api.get_card_transactions')
+    @patch('nexchange.utils.api.get_reserve_transaction')
     @patch('nexchange.utils.OkPayAPI._send_money')
-    def test_okpay_send_money_sell_order(self, m, send_money):
-        m.get(self.url_addr, text=self.blockr_response_addr)
-        m.get(self.url_tx_1, text=self.tx_texts[0])
-        m.get(self.url_tx_2, text=self.tx_texts[1])
-        self.mock_empty_transactions_for_blockchain_address(m)
+    def test_okpay_send_money_sell_order(self, send_money, reserve_txs,
+                                         import_txs):
+        reserve_txs.return_value = json.loads(self.completed)
+        import_txs.return_value = json.loads(self.import_txs)
         self.order.payment_preference = self.okpay_pref
         self.order.save()
         send_money.return_value = get_ok_pay_mock(
@@ -332,12 +329,14 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.assertIn(self.order.status, Order.IN_RELEASED)
 
     @requests_mock.mock()
+    @patch('nexchange.utils.api.get_card_transactions')
+    @patch('nexchange.utils.api.get_reserve_transaction')
     @patch('nexchange.utils.PayeerAPIClient.transfer_funds')
-    def test_payeer_send_money_sell_order(self, m, send_money):
-        m.get(self.url_addr, text=self.blockr_response_addr)
+    def test_payeer_send_money_sell_order(self, m, send_money, reserve_txs,
+                                          import_txs):
+        reserve_txs.return_value = json.loads(self.completed)
+        import_txs.return_value = json.loads(self.import_txs)
         m.get(self.payeer_url, text=get_payeer_mock('transfer_funds'))
-        m.get(self.url_tx_1, text=self.tx_texts[0])
-        m.get(self.url_tx_2, text=self.tx_texts[1])
         self.mock_empty_transactions_for_blockchain_address(m)
         self.order.payment_preference = self.payeer_pref
         self.order.save()
@@ -349,12 +348,12 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.assertEqual(1, send_money.call_count)
         self.assertIn(self.order.status, Order.IN_RELEASED)
 
-    @requests_mock.mock()
-    def test_unknown_method_do_not_send_money_sell_order(self, m):
-        m.get(self.url_addr, text=self.blockr_response_addr)
-        m.get(self.url_tx_1, text=self.tx_texts[0])
-        m.get(self.url_tx_2, text=self.tx_texts[1])
-        self.mock_empty_transactions_for_blockchain_address(m)
+    @patch('nexchange.utils.api.get_card_transactions')
+    @patch('nexchange.utils.api.get_reserve_transaction')
+    def test_unknown_method_do_not_send_money_sell_order(self, reserve_txs,
+                                                         import_txs):
+        reserve_txs.return_value = json.loads(self.completed)
+        import_txs.return_value = json.loads(self.import_txs)
         payment_method = self.main_pref.payment_method
         payment_method.name = 'Some Random Name'
         payment_method.save()
@@ -377,6 +376,7 @@ class SellOrderReleaseFromViewTestCase(WalletBaseTestCase):
             'type': 'W',
             'name': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
             'address': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+            'currency': self.BTC
 
         }
         self.addr = Address(**self.addr_data)

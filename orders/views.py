@@ -290,6 +290,11 @@ def update_withdraw_address(request, pk):
         try:
             addr = Address.objects.get(
                 user=request.user, pk=address_id)
+            if addr.currency != order.pair.base:
+                return HttpResponseForbidden(
+                    _('The currency({}) of this Address is not the same as '
+                      'the order base currency({}).'
+                      ''.format(addr.currency.code, order.pair.base.code)))
             new_withdraw_address = not order.withdraw_address
             addr.save()
             order.withdraw_address = addr

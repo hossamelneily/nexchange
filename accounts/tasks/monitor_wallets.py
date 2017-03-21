@@ -4,10 +4,10 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from core.models import Transaction, Address
+from payments.models import UserCards
 from orders.models import Order
-from nexchange.utils import check_transaction_blockchain, \
-    check_transaction_uphold, send_email, send_sms
-from accounts.utils import BlockchainTransactionImporter
+from nexchange.utils import check_transaction_uphold, send_email, send_sms
+from accounts.utils import UpholdTransactionImporter
 from nexchange.utils import get_nexchange_logger
 from orders.task_summary import sell_order_release_invoke
 from django.db import transaction
@@ -31,7 +31,7 @@ def update_pending_transactions():
             order.save()
 
         if tr.address_to.type == Address.DEPOSIT and \
-                check_transaction_blockchain(tr):
+                check_transaction_uphold(tr):
 
             with transaction.atomic():
                 tr.is_completed = True
@@ -53,7 +53,8 @@ def update_pending_transactions():
                 tr.order.payment_preference.identifier,
                 '(' +
                 tr.order.payment_preference.secondary_identifier +
-                ')' if tr.order.payment_preference.secondary_identifier else '')
+                ')' if tr.order.payment_preference.secondary_identifier else ''
+            )
 
             if profile.notify_by_phone and profile.phone:
                 phone_to = str(tr.order.user.username)
@@ -77,12 +78,25 @@ def update_pending_transactions():
 
 
 def import_transaction_deposit_btc():
+    logger = get_nexchange_logger(__name__, True, True)
     addresses = Address.objects.filter(
-        Q(currency__is_crypto=True) | Q(currency=None),
+        currency__is_crypto=True,
         type=Address.DEPOSIT
     )
     for addr in addresses:
-        importer = BlockchainTransactionImporter(
-            addr
+        cards = UserCards.objects.filter(
+            address_id=addr.address, user=addr.user, currency=addr.currency)
+        if len(cards) > 1:
+            logger.error('Deposit Address {} has more then 1 UserCard'.format(
+                addr
+            ))
+            continue
+        if len(cards) < 1:
+            logger.error('Deposit Address {} has no UserCard'.format(
+                addr
+            ))
+            continue
+        importer = UpholdTransactionImporter(
+            cards[0], addr
         )
         importer.import_income_transactions()

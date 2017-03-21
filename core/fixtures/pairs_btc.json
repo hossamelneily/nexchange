@@ -1,0 +1,408 @@
+[
+  {
+  "model": "core.pair",
+  "pk": 4,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.850Z",
+    "modified_on": "2017-03-01T12:49:28.852Z",
+    "base": 1,
+    "quote": 4,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCUSD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 5,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.854Z",
+    "modified_on": "2017-03-01T12:49:28.856Z",
+    "base": 1,
+    "quote": 5,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCRUB",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 6,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.859Z",
+    "modified_on": "2017-03-01T12:49:28.860Z",
+    "base": 1,
+    "quote": 6,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCEUR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 7,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.863Z",
+    "modified_on": "2017-03-01T12:49:28.864Z",
+    "base": 1,
+    "quote": 7,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCGBP",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 8,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.867Z",
+    "modified_on": "2017-03-01T12:49:28.868Z",
+    "base": 1,
+    "quote": 8,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCJPY",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 9,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.871Z",
+    "modified_on": "2017-03-01T12:49:28.872Z",
+    "base": 1,
+    "quote": 9,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCHRK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 10,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.874Z",
+    "modified_on": "2017-03-01T12:49:28.875Z",
+    "base": 1,
+    "quote": 10,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCCHF",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 11,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.878Z",
+    "modified_on": "2017-03-01T12:49:28.879Z",
+    "base": 1,
+    "quote": 11,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCPLN",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 12,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.883Z",
+    "modified_on": "2017-03-01T12:49:28.884Z",
+    "base": 1,
+    "quote": 12,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCRON",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 13,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.887Z",
+    "modified_on": "2017-03-01T12:49:28.888Z",
+    "base": 1,
+    "quote": 13,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCBGN",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 14,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.891Z",
+    "modified_on": "2017-03-01T12:49:28.893Z",
+    "base": 1,
+    "quote": 14,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCCZK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 15,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.896Z",
+    "modified_on": "2017-03-01T12:49:28.897Z",
+    "base": 1,
+    "quote": 15,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCAUD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 16,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.900Z",
+    "modified_on": "2017-03-01T12:49:28.901Z",
+    "base": 1,
+    "quote": 16,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCCAD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 17,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.904Z",
+    "modified_on": "2017-03-01T12:49:28.905Z",
+    "base": 1,
+    "quote": 17,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCNOK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 18,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.907Z",
+    "modified_on": "2017-03-01T12:49:28.909Z",
+    "base": 1,
+    "quote": 18,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCSEK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 19,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.912Z",
+    "modified_on": "2017-03-01T12:49:28.913Z",
+    "base": 1,
+    "quote": 19,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCDKK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 20,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.916Z",
+    "modified_on": "2017-03-01T12:49:28.917Z",
+    "base": 1,
+    "quote": 20,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCHUF",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 21,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.919Z",
+    "modified_on": "2017-03-01T12:49:28.920Z",
+    "base": 1,
+    "quote": 21,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCTRY",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 22,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.923Z",
+    "modified_on": "2017-03-01T12:49:28.924Z",
+    "base": 1,
+    "quote": 22,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCZAR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 23,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.927Z",
+    "modified_on": "2017-03-01T12:49:28.928Z",
+    "base": 1,
+    "quote": 23,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCNZD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 24,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.931Z",
+    "modified_on": "2017-03-01T12:49:28.932Z",
+    "base": 1,
+    "quote": 24,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCBRL",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 25,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.935Z",
+    "modified_on": "2017-03-01T12:49:28.936Z",
+    "base": 1,
+    "quote": 25,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCIDR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 26,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.941Z",
+    "modified_on": "2017-03-01T12:49:28.942Z",
+    "base": 1,
+    "quote": 26,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCILS",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 27,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.945Z",
+    "modified_on": "2017-03-01T12:49:28.946Z",
+    "base": 1,
+    "quote": 27,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCINR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 28,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.949Z",
+    "modified_on": "2017-03-01T12:49:28.950Z",
+    "base": 1,
+    "quote": 28,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCKRW",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 29,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.952Z",
+    "modified_on": "2017-03-01T12:49:28.954Z",
+    "base": 1,
+    "quote": 29,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCMXN",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 30,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.957Z",
+    "modified_on": "2017-03-01T12:49:28.958Z",
+    "base": 1,
+    "quote": 30,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCMYR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 31,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.961Z",
+    "modified_on": "2017-03-01T12:49:28.962Z",
+    "base": 1,
+    "quote": 31,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCPHP",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 32,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.964Z",
+    "modified_on": "2017-03-01T12:49:28.965Z",
+    "base": 1,
+    "quote": 32,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCTHB",
+    "disabled": false
+  }
+}
+]

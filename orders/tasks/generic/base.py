@@ -3,7 +3,7 @@ from django.utils.translation import activate
 from payments.models import Payment
 from nexchange.utils import send_email, send_sms, release_payment
 from django.db import transaction
-from core.models import Address, Transaction
+from core.models import Transaction
 from orders.models import Order
 from django.utils.translation import ugettext_lazy as _
 
@@ -22,8 +22,9 @@ class BaseOrderRelease(BaseTask):
         return order.user.profile
 
     def validate(self, order, payment):
-        order_already_released = payment.is_redeemed or \
-                                 order.status == Order.RELEASED
+        order_already_released = (
+            payment.is_redeemed or order.status == Order.RELEASED
+        )
 
         if order_already_released:
             flag, created = order.flag(__name__)
@@ -97,9 +98,9 @@ class BaseBuyOrderRelease(BaseOrderRelease):
         with transaction.atomic(using='default'):
             payment.is_complete = True
             payment.save()
+            type_ = order.pair.base.code
             tx_id = release_payment(order.withdraw_address,
-                                    order.amount_base)
-
+                                    order.amount_base, type_)
 
             if tx_id is None:
                 self.logger.error('Payment release returned None, '
@@ -122,13 +123,8 @@ class BaseBuyOrderRelease(BaseOrderRelease):
             payment.order = order
             payment.save()
 
-            # double check
-            adr = Address.objects.get(
-                user=order.user,
-                address=order.withdraw_address.address
-            )
-
-            t = Transaction(tx_id_api=tx_id, order=order, address_to=adr)
+            t = Transaction(tx_id_api=tx_id, order=order,
+                            address_to=order.withdraw_address)
             t.save()
 
             return True

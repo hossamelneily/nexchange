@@ -335,8 +335,10 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
             with patch('orders.tasks.generic.base.release_payment') as \
                     release_payment:
 
-                self.purge_orm_objects(self.orders,
-                                       self.payments)
+                self.purge_orm_objects(self.payments, self.orders)
+                # workaround to delete unpurgeble records
+                Order.objects.all().delete()
+                Payment.objects.all().delete()
 
                 self.payments += self.generate_orm_obj(
                     Payment,

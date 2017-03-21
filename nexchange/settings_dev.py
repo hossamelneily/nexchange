@@ -68,7 +68,7 @@ RECAPTCHA_SITEKEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
 RECAPTCHA_SECRET_KEY = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
 
 # OKPAY TEST
-OKPAY_WALLET = 'OK702746927'
+OKPAY_WALLET = ''
 OKPAY_API_KEY = ''
 
 # PAYEER TEST
@@ -79,12 +79,12 @@ PAYEER_API_ID = '291547231'
 PAYEER_API_KEY = '12345'
 
 # API1 TEST
-API1_USER = 'kydim1312@yandex.ru'
-API1_PASS = '$Kyzin1990'
-API1_IS_TEST = os.getenv('API1_IS_TEST',
-                         settings.API1_IS_TEST)
-API1_ID_C1 = os.getenv('API1_ID_C1',
-                       settings.API1_ID_C1)
+API1_USER = ''
+API1_PASS = ''
+API1_IS_TEST = False
+API1_ID_C1 = ''
+API1_ID_C2 = ''
+API1_ID_C3 = ''
 CARDS_RESERVE_COUNT = os.getenv('CARDS_RESERVE_COUNT',
                                 settings.CARDS_RESERVE_COUNT)
 

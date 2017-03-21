@@ -7,7 +7,7 @@
                     <select class="form-control">
                         <option value="">Select a registered one</option>
                         {% for addr in withdraw_addresses %}
-                        <option value="{{addr.pk}}">{{addr.address}}</option>
+                            <option value="{{addr.pk}}">{{addr.currency.code}}: {{addr.address}}</option>
                         {% endfor %}
                     </select>
                     <br/>
@@ -29,7 +29,7 @@
                 <div class="form-group">
 
                     <label for="withdraw_address" class="sr-only">New Address</label>
-                    <input type="text" maxlength="35" class="form-control" placeholder="Enter new address" />    
+                    <input type="text" maxlength="42" class="form-control" placeholder="Enter new address" />
                     <br/>
 
                     <button type="submit" data-loading-text='<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> OK' class="btn btn-primary" autocomplete="off">

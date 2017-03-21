@@ -1,0 +1,408 @@
+[
+{
+  "model": "core.pair",
+  "pk": 62,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.088Z",
+    "modified_on": "2017-03-01T12:49:29.090Z",
+    "base": 3,
+    "quote": 4,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHUSD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 63,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.093Z",
+    "modified_on": "2017-03-01T12:49:29.094Z",
+    "base": 3,
+    "quote": 5,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHRUB",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 64,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.096Z",
+    "modified_on": "2017-03-01T12:49:29.098Z",
+    "base": 3,
+    "quote": 6,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHEUR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 65,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.100Z",
+    "modified_on": "2017-03-01T12:49:29.101Z",
+    "base": 3,
+    "quote": 7,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHGBP",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 66,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.104Z",
+    "modified_on": "2017-03-01T12:49:29.105Z",
+    "base": 3,
+    "quote": 8,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHJPY",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 67,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.108Z",
+    "modified_on": "2017-03-01T12:49:29.109Z",
+    "base": 3,
+    "quote": 9,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHHRK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 68,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.111Z",
+    "modified_on": "2017-03-01T12:49:29.112Z",
+    "base": 3,
+    "quote": 10,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHCHF",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 69,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.115Z",
+    "modified_on": "2017-03-01T12:49:29.116Z",
+    "base": 3,
+    "quote": 11,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHPLN",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 70,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.119Z",
+    "modified_on": "2017-03-01T12:49:29.120Z",
+    "base": 3,
+    "quote": 12,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHRON",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 71,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.123Z",
+    "modified_on": "2017-03-01T12:49:29.125Z",
+    "base": 3,
+    "quote": 13,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHBGN",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 72,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.128Z",
+    "modified_on": "2017-03-01T12:49:29.129Z",
+    "base": 3,
+    "quote": 14,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHCZK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 73,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.132Z",
+    "modified_on": "2017-03-01T12:49:29.133Z",
+    "base": 3,
+    "quote": 15,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHAUD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 74,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.137Z",
+    "modified_on": "2017-03-01T12:49:29.138Z",
+    "base": 3,
+    "quote": 16,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHCAD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 75,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.141Z",
+    "modified_on": "2017-03-01T12:49:29.142Z",
+    "base": 3,
+    "quote": 17,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHNOK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 76,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.145Z",
+    "modified_on": "2017-03-01T12:49:29.146Z",
+    "base": 3,
+    "quote": 18,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHSEK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 77,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.149Z",
+    "modified_on": "2017-03-01T12:49:29.150Z",
+    "base": 3,
+    "quote": 19,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHDKK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 78,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.152Z",
+    "modified_on": "2017-03-01T12:49:29.153Z",
+    "base": 3,
+    "quote": 20,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHHUF",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 79,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.156Z",
+    "modified_on": "2017-03-01T12:49:29.157Z",
+    "base": 3,
+    "quote": 21,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHTRY",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 80,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.161Z",
+    "modified_on": "2017-03-01T12:49:29.162Z",
+    "base": 3,
+    "quote": 22,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHZAR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 81,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.165Z",
+    "modified_on": "2017-03-01T12:49:29.166Z",
+    "base": 3,
+    "quote": 23,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHNZD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 82,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.168Z",
+    "modified_on": "2017-03-01T12:49:29.169Z",
+    "base": 3,
+    "quote": 24,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHBRL",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 83,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.173Z",
+    "modified_on": "2017-03-01T12:49:29.175Z",
+    "base": 3,
+    "quote": 25,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHIDR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 84,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.178Z",
+    "modified_on": "2017-03-01T12:49:29.179Z",
+    "base": 3,
+    "quote": 26,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHILS",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 85,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.181Z",
+    "modified_on": "2017-03-01T12:49:29.184Z",
+    "base": 3,
+    "quote": 27,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHINR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 86,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.187Z",
+    "modified_on": "2017-03-01T12:49:29.188Z",
+    "base": 3,
+    "quote": 28,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHKRW",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 87,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.190Z",
+    "modified_on": "2017-03-01T12:49:29.191Z",
+    "base": 3,
+    "quote": 29,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHMXN",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 88,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.194Z",
+    "modified_on": "2017-03-01T12:49:29.195Z",
+    "base": 3,
+    "quote": 30,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHMYR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 89,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.198Z",
+    "modified_on": "2017-03-01T12:49:29.199Z",
+    "base": 3,
+    "quote": 31,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHPHP",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 90,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.201Z",
+    "modified_on": "2017-03-01T12:49:29.202Z",
+    "base": 3,
+    "quote": 32,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHTHB",
+    "disabled": false
+  }
+}
+]

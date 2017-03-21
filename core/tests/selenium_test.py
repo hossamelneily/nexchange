@@ -16,10 +16,11 @@ from selenium.webdriver.common.keys import Keys
 from core.tests.utils import (create_payeer_mock_for_order,
                               get_payeer_mock, get_ok_pay_mock,
                               create_ok_payment_mock_for_order)
+from core.models import Currency
 from orders.models import Order
+from payments.models import UserCards
 from django.conf import settings
 from django.contrib.auth.models import User
-from core.models import Address
 
 from accounts.models import SmsToken
 from unittest.mock import patch
@@ -27,6 +28,7 @@ import requests_mock
 from time import time
 from selenium.webdriver.support.select import Select
 from core.models import Pair
+import json
 
 
 class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
@@ -41,7 +43,7 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.account = 'LT121000011101001000'
         self.card_number = '1234567887654321'
         self.bic = '123456'
-        self.withdraw_address = '2NGBPxkKAevijTQFxp4WMwCjZYsFjqDMZ97'
+        self.withdraw_address = '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi'
         self.issavescreen = True
         self.url = self.live_server_url
         self.screenpath = os.path.join(
@@ -112,6 +114,7 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
     def test_sell(self, payment_methods):
         self.workflow = 'SELL'
         print('Test sell')
+        self.currency_code = 'BTC'
         for payment_method in payment_methods:
             self.screenshot_no = 1
             self.payment_method = self.screenpath2 = payment_method
@@ -129,7 +132,10 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         url_base = self.driver.current_url[:-7]  # this is url without the pair
         enabled_pairs = Pair.objects.filter(disabled=False)
         pair_names = [pair.name for pair in enabled_pairs]
-        for pair_name in pair_names:
+        # lots of pairs so test only every nth pair
+        nth = len(Currency.objects.filter(is_crypto=False))
+        picked_names = [pair_names[i] for i in range(0, len(pair_names), nth)]
+        for pair_name in picked_names:
             self.screenshot_no = 1
             self.get_repeat_on_timeout(url_base + pair_name)
             self.do_screenshot('main_{}'.format(pair_name))
@@ -243,8 +249,10 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.place_order(order_type)
 
     @requests_mock.mock()
+    @patch('nexchange.utils.api.get_card_transactions')
+    @patch('nexchange.utils.api.get_reserve_transaction')
     @patch('orders.utils.send_money')
-    def checksell(self, mock, send_money):
+    def checksell(self, mock, send_money, reserve_txs, import_txs):
         order_type = 'sell'
         send_money.return_value = True
         self.request_order(order_type)
@@ -277,35 +285,38 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         sleep(self.timeout / 5)
         self.do_screenshot('after login')
         # end login
-        self.mock_sell_transactions_from_customer(mock)
+        self.mock_sell_transactions_from_customer(mock, reserve_txs,
+                                                  import_txs)
 
         self.place_order(order_type)
         # FIXME: should be COMPLETED after sell_order_release task changes
         self.check_order_status(Order.COMPLETED)
         self.check_sell_order_on_list()
 
-    def mock_sell_transactions_from_customer(self, mock):
+    def mock_sell_transactions_from_customer(self, mock, reserve_txs,
+                                             import_txs):
         self.wait.until(EC.element_to_be_clickable((
             By.CLASS_NAME, 'btc-amount-confirm')))
         amount_base = self.driver.find_element_by_class_name(
             'btc-amount-confirm').text
-        addresses = Address.objects.filter(type=Address.DEPOSIT)
-        self.tx_id = 'tx' + str(time())
-        url_txs = 'http://btc.blockr.io/api/v1/tx/info/{}'.format(self.tx_id)
-        mock.get(url_txs, text=self.blockr_response_tx1)
-        get_txs_response = (
-            '{{"status": "success", "data": {{"txs": [{{"time_utc": '
-            '"2016-08-11T16:33:24Z","tx": "{tx_id}","confirmations": 0,'
-            '"amount": {amount},"amount_multisig": 0}}]}}}}'.format(
-                tx_id=self.tx_id,
-                amount=amount_base
-            )
+        self.tx_id_api = 'tx' + str(time())
+        url_txs = 'https://api.uphold.com/v0/reserve/transactions/{}'.format(
+            self.tx_id_api)
+        mock.get(url_txs, text=self.completed)
+        reserve_txs.return_value = json.loads(self.completed)
+        card = UserCards.objects.get(
+            user__profile__phone=self.phone,
+            currency=self.currency_code
         )
-        for address in addresses:
-            url_addr = 'http://{}.blockr.io/api/v1/address/txs/{}'.format(
-                address.currency.code.lower(), address.address
-            )
-            mock.get(url_addr, text=get_txs_response)
+        get_txs_response = self.uphold_import_transactions_empty.format(
+            tx_id_api1=self.tx_id_api,
+            tx_id_api2='nonsense',
+            amount1=amount_base,
+            amount2='0.0',
+            currency=card.currency,
+            card_id=card.card_id,
+        )
+        import_txs.return_value = json.loads(get_txs_response)
 
     def check_sell_order_on_list(self):
         try:
@@ -468,10 +479,11 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
                                                 execute_txn):
         prepare_txn.return_value = 'txid{}'.format(self.order.unique_reference)
         execute_txn.return_value = True
-        address = self.driver.find_element_by_id(
-            'span-withdraw-{}'.format(self.order.pk)
-        )
-        address.click()
+        address_id = 'span-withdraw-{}'.format(self.order.pk)
+
+        self.wait.until(EC.element_to_be_clickable((
+            By.ID, address_id
+        ))).click()
         self.write_withdraw_address_on_popover()
         sleep(self.timeout / 5)
         self.do_screenshot('Withdraw Address added')
@@ -505,6 +517,7 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             indicator = self.driver.find_elements_by_xpath(path)
             if len(indicator) == 0:
                 self.driver.refresh()
+                self.do_screenshot('wait for indicator')
                 continue
             break
         self.assertNotEqual(

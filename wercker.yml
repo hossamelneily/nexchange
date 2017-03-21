@@ -81,11 +81,15 @@ dev:
     - script:
         name: Django import Currency fixture
         code: |
-          python manage.py loaddata core/fixtures/currency.json
+          python manage.py loaddata core/fixtures/currency_crypto.json
+          python manage.py loaddata core/fixtures/currency_fiat.json
     - script:
         name: Django import Pair fixture
         code: |
-          python manage.py loaddata core/fixtures/pair.json
+          python manage.py loaddata core/fixtures/pairs_cross.json
+          python manage.py loaddata core/fixtures/pairs_btc.json
+          python manage.py loaddata core/fixtures/pairs_ltc.json
+          python manage.py loaddata core/fixtures/pairs_eth.json
     - script:
         name: Django import Payment Methods fixture
         code: |
@@ -271,13 +275,18 @@ build:
           # Apply migrations
           python /usr/src/app/manage.py migrate
           # Import fixtures
-          python /usr/src/app/manage.py loaddata core/fixtures/currency.json
+          python /usr/src/app/manage.py loaddata core/fixtures/currency_crypto.json
+          python /usr/src/app/manage.py loaddata core/fixtures/currency_fiat.json
           python /usr/src/app/manage.py loaddata payments/fixtures/payment_method.json
           python /usr/src/app/manage.py loaddata payments/fixtures/payment_preference.json
           python /usr/src/app/manage.py loaddata referrals/fixtures/program.json
           echo "To load the 'withdraw_address' fixture, uncomment the next line"
           # python manage.py loaddata core/fixtures/withdraw_address.json
-          python manage.py loaddata core/fixtures/pair.json
+          python manage.py loaddata core/fixtures/pairs_cross.json
+          python manage.py loaddata core/fixtures/pairs_btc.json
+          python manage.py loaddata core/fixtures/pairs_ltc.json
+          python manage.py loaddata core/fixtures/pairs_eth.json
+
           if [ ! -z $CMS_FROM_FIXTURE] && [ ${CMS_FROM_FIXTURE} -eq 1 ]
           then
             python manage.py loaddata articles/fixtures/articles.json
@@ -428,13 +437,13 @@ tests:
     - maxon/npm-run:
         script: build
     - script:
-        name: Backend tests
-        code: |
-          DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh
-    - script:
         name: Selenium tests
         code: |
           DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-selenium-tests.sh
+    - script:
+        name: Backend tests
+        code: |
+          DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh
     - script:
         name: Frontend tests
         code: |

@@ -119,6 +119,7 @@
                 }
             } else {
                 amountCashConfirm = val;
+                cashAmount = amountCashConfirm;
                 btcAmount = Math.floor(val / rate * floor) / floor;
                 btcAmount = btcAmount.toFixed(8);
                 if (isInitial) {
@@ -127,8 +128,8 @@
                     $('.amount-coin').val(btcAmount);
                 }
             }
-            $('.btc-amount-confirm').text(amountCoin.val()); // add
-            $('.cash-amount-confirm').text(amountCashConfirm); //add
+            $('.btc-amount-confirm').text(btcAmount); // add
+            $('.cash-amount-confirm').text(cashAmount); //add
 
             if(cb) cb();
         });
@@ -199,6 +200,7 @@
         }
         if (!!currency) {
             $('.currency').html(currency.toUpperCase());
+            $('.currency_base').html(currency_to.toUpperCase());
             var title = currency_to + '/' + currency;
             chartObject.renderChart(pair, title, $("#graph-range").val());
         }

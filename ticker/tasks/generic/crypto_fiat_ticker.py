@@ -12,12 +12,15 @@ requests_cache.install_cache('btc_crypto_cache',
                              backend=settings.TICKER_CACHE_BACKEND)
 
 
-class BtcFiatTicker(BaseTicker):
+class CryptoFiatTicker(BaseTicker):
     def get_ticker_crypto_fiat(self):
         price = self.handle()
         prices = self.convert_fiat(price)
+        self.get_kraken_base_multiplier()
         if prices:
-            ticker = self.create_ticker(prices['ask'], prices['bid'])
+            ticker = self.create_ticker(
+                prices['ask'], prices['bid']
+            )
             price = Price(pair=self.pair, ticker=ticker)
             price.save()
             return price

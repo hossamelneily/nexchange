@@ -1,20 +1,19 @@
 from __future__ import absolute_import
 from django.core.exceptions import MultipleObjectsReturned
+from django.db.models import Q
 
 from core.models import Transaction, Currency
 from orders.models import Order
-from nexchange.utils import check_address_blockchain
+from nexchange.utils import get_uphold_card_transactions, api
 from decimal import Decimal
-from django.conf import settings
 import logging
 
 
-class BlockchainTransactionImporter:
-    def __init__(self, address, *args, **kwargs):
-        self.name = 'Blockchain Transactions'
-        self.address = address
-        self.min_confirmations = address.currency.min_confirmations if \
-            address.currency else settings.MIN_REQUIRED_CONFIRMATIONS
+class UpholdTransactionImporter:
+    def __init__(self, card, addr, *args, **kwargs):
+        self.name = 'Uphold Transactions'
+        self.card = card
+        self.address = addr
         self.transactions = None
         self.data = None
         self.logger = logging.getLogger(
@@ -22,25 +21,34 @@ class BlockchainTransactionImporter:
         )
 
     def get_transactions(self):
-        self.transactions = check_address_blockchain(
-            self.address
+        card_id = self.card.card_id
+        existing_tx_ids = [tx.tx_id_api for tx in Transaction.objects.all()]
+        txs = get_uphold_card_transactions(
+            card_id, trans_type='incoming'
         )
+        self.transactions = [
+            tx for tx in txs if tx['id'] not in existing_tx_ids
+        ]
 
     def transactions_iterator(self):
-        if 'txs' in self.transactions:
-            for trans in self.transactions['txs']:
-                yield trans
+        for trans in self.transactions:
+            yield trans
 
     def parse_data(self, trans):
         try:
+            _currency = Currency.objects.get(
+                code=trans['destination']['currency']
+            )
+            tx_id_api = trans['id']
+            res = api.get_reserve_transaction(tx_id_api)
+            tx_id = res.get('params', {}).get('txid', None)
             self.data = {
                 # required
-                'currency': (self.address.currency or
-                             Currency.objects.get(code='BTC')),
-                'amount': trans['amount'],
-                'confirmations': trans['confirmations'],
-                'tx_id': trans['tx'],
-                'time_utc': trans['time_utc']
+                'currency': _currency,
+                'amount': trans['destination']['amount'],
+                'time_utc': trans['createdAt'],
+                'tx_id_api': tx_id_api,
+                'tx_id': tx_id
             }
         except KeyError as e:
             self.logger.error("Transaction {} key is missing {}"
@@ -52,8 +60,15 @@ class BlockchainTransactionImporter:
     def create_transaction(self):
         existing_transaction = None
         try:
+            if self.data['tx_id'] is not None:
+                query = (
+                    Q(tx_id=self.data['tx_id']) |
+                    Q(tx_id_api=self.data['tx_id_api'])
+                )
+            else:
+                query = Q(tx_id_api=self.data['tx_id_api'])
             existing_transaction = Transaction.objects.get(
-                tx_id=self.data['tx_id']
+                query
             )
         except MultipleObjectsReturned:
             self.logger.error('more than one same transactions exists in DB {}'
@@ -66,17 +81,22 @@ class BlockchainTransactionImporter:
             orders = Order.objects.filter(
                 order_type=Order.SELL,
                 amount_base=Decimal(str(self.data['amount'])),
-                pair__base=self.address.currency,
-                status=Order.INITIAL
+                pair__base=self.data['currency'],
+                status=Order.INITIAL,
+                user=self.card.user
             )
             if len(orders) == 1:
                 order = orders[0]
-                transaction = Transaction.objects.create(
-                    tx_id=self.data['tx_id'],
-                    address_to=self.address,
-                    order=orders[0],
-                    confirmations=int(self.data['confirmations'])
-                )
+                txs_data = {
+                    'tx_id_api': self.data['tx_id_api'],
+                    'address_to': self.address,
+                    'order': orders[0]
+                }
+                if self.data['tx_id'] is not None:
+                    txs_data.update({
+                        'tx_id': self.data['tx_id']
+                    })
+                transaction = Transaction(**txs_data)
                 transaction.save()
                 self.logger.info('...new transaction created {}'
                                  .format(transaction.__dict__))

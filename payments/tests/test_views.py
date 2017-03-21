@@ -213,7 +213,7 @@ class PaymentReleaseTestCase(OrderBaseTestCase):
                                        currency=o.pair.quote).first()
             if p is not None:
                 tx_id_ = release_payment(o.withdraw_address,
-                                         o.amount_base)
+                                         o.amount_base, 'BTC')
                 self.assertEqual(tx_id_, None)
 
     def test_orders_with_approved_payments(self):

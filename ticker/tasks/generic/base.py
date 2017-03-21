@@ -54,11 +54,13 @@ class BaseTicker(BaseTask):
         'PAYPAL',
     ]
 
-    def __init__(self, pair_pk):
+    def __init__(self):
         super(BaseTicker, self).__init__()
-        self.pair = Pair.objects.get(pk=pair_pk)
+        self.pair = None
 
-    def run(self):
+    def run(self, pair_pk):
+        self.pair = Pair.objects.get(pk=pair_pk)
+        self.ask_multip = self.bid_multip = Decimal('1.0')
         if self.pair.is_crypto:
             price = self.get_ticker_crypto()
         else:
@@ -66,8 +68,10 @@ class BaseTicker(BaseTask):
         self.logger.info('Price {} created'.format(price))
 
     def create_ticker(self, ask, bid):
-        ask = Decimal(ask) * (Decimal('1.0') + self.pair.fee_ask)
-        bid = Decimal(bid) * (Decimal('1.0') - self.pair.fee_bid)
+        ask = (self.ask_multip * Decimal(ask)
+               * (Decimal('1.0') + self.pair.fee_ask))
+        bid = (self.bid_multip * Decimal(bid)
+               * (Decimal('1.0') - self.pair.fee_bid))
         ticker = Ticker(pair=self.pair, ask=ask,
                         bid=bid)
         ticker.save()
@@ -158,3 +162,27 @@ class BaseTicker(BaseTask):
             'price_rub': rub_price,
             'type': self.ACTION_BUY if direction < 0 else self.ACTION_SELL
         }
+
+    def get_kraken_ticker(self, kraken_pair):
+        """ Available Kraken pairs https://www.kraken.com/help/fees
+            @param kraken_pair: currency pair in kranken style
+            i.e. BTC and CAD will be XXBTZCAD. Pair model contains kraken_style
+            and invert_kraken_style @property's
+        """
+
+        info = requests.get(self.KRAKEN_RESOURCE + '?pair={}'.format(
+            kraken_pair
+        )).json()['result']
+        ask = info[kraken_pair]['a'][0]
+        bid = info[kraken_pair]['b'][0]
+        return {'ask': ask, 'bid': bid}
+
+    def get_kraken_base_multiplier(self):
+        if self.pair.base.code != 'BTC':
+            crypto_pair = Pair.objects.get(
+                name='BTC{}'.format(self.pair.base.code)
+            )
+            kraken_pair = crypto_pair.invert_kraken_style
+            kraken_ticker = self.get_kraken_ticker(kraken_pair)
+            self.ask_multip = Decimal(kraken_ticker['ask'])
+            self.bid_multip = Decimal(kraken_ticker['bid'])

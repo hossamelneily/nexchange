@@ -5,6 +5,7 @@ import '../node_modules/font-awesome/css/font-awesome.css';
 import '../node_modules/nprogress/nprogress.css';
 import '../node_modules/intl-tel-input/build/css/intlTelInput.css';
 import '../node_modules/bootstrap-toggle/css/bootstrap-toggle.min.css';
+import '../node_modules/toastr/build/toastr.css';
 
 window.countryCode = document.getElementsByTagName("html")[0].getAttribute("lang");
 

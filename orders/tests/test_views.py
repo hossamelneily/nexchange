@@ -261,6 +261,7 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
             'type': 'W',
             'name': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
             'address': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+            'currency': self.BTC
 
         }
         self.addr = Address(**self.addr_data)
@@ -352,7 +353,7 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
         self.assertEquals(0, invoke.call_count)
 
     @mock.patch('orders.task_summary.buy_order_release_by_reference_invoke')
-    def dont_release_on_first_withdraw_address_change_not_paid(self, invoke):
+    def dont_release_on_first_withdraw_address_change_not_paid2(self, invoke):
         self.client.login(username=self.user.username, password='password')
         self.order.status = Order.PAID_UNCONFIRMED
         self.order.save()

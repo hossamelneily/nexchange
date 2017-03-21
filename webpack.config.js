@@ -80,6 +80,7 @@ module.exports = {
         './node_modules/moment-timezone/builds/moment-timezone-with-data.js',
         './node_modules/intl-tel-input/build/js/intlTelInput.js',
         './node_modules/bootstrap-toggle/js/bootstrap-toggle.min.js',
+        './node_modules/toastr/build/toastr.min.js',
         // loader
         'bootstrap-loader',
         // run package

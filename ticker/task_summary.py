@@ -3,29 +3,31 @@ from celery import shared_task
 from django.conf import settings
 
 from core.models import Pair
-from ticker.tasks.generic.btc_fiat_ticker import BtcFiatTicker
-from ticker.tasks.generic.btc_crypto_ticker import BtcCryptoTicker
+from ticker.tasks.generic.crypto_fiat_ticker import CryptoFiatTicker
+from ticker.tasks.generic.crypto_crypto_ticker import CryptoCryptoTicker
 from nexchange.utils import get_nexchange_logger
 
 
+crypto_fiat_ticker = CryptoFiatTicker()
+crypto_crypto_ticker = CryptoCryptoTicker()
+
+
 @shared_task()
-def get_ticker_btc_fiat(**kwargs):
-    pair = kwargs.get('pair_pk', None)
+def get_ticker_crypto_fiat(**kwargs):
+    pair_pk = kwargs.get('pair_pk', None)
     logger = get_nexchange_logger(__name__, True, True)
-    if pair:
-        instance = BtcFiatTicker(pair)
-        return instance.run()
+    if pair_pk:
+        return crypto_fiat_ticker.run(pair_pk)
     else:
         logger.warning('pair_pk is not defined in kwargs')
 
 
 @shared_task()
-def get_ticker_btc_crypto(**kwargs):
+def get_ticker_crypto_crypto(**kwargs):
     logger = get_nexchange_logger(__name__, True, True)
     pair_pk = kwargs.get('pair_pk', None)
     if pair_pk:
-        instance = BtcCryptoTicker(pair_pk)
-        return instance.run()
+        return crypto_crypto_ticker.run(pair_pk)
     else:
         logger.warning('pair_pk is not defined in kwargs')
 
@@ -36,6 +38,6 @@ def get_all_tickers():
     for pair in pairs:
         kwargs = {'pair_pk': pair.pk}
         if pair.is_crypto:
-            get_ticker_btc_crypto.apply_async(kwargs=kwargs)
+            get_ticker_crypto_crypto.apply_async(kwargs=kwargs)
         else:
-            get_ticker_btc_fiat.apply_async(kwargs=kwargs)
+            get_ticker_crypto_fiat.apply_async(kwargs=kwargs)
