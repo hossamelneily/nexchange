@@ -138,6 +138,7 @@ ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
 
 OKPAY_URL = 'https://www.okpay.com/en/account/login.html?verification={1}&' \
             'reference={2}&return_url={3}'
+OKPAY_API_URL = 'https://api.okpay.com/OkPayAPI?singleWsdl'
 
 PAYEER_API_URL = 'https://payeer.com/ajax/api/api.php'
 PAYEER_IPS = ['185.71.65.92', '185.71.65.189', '149.202.17.210']
@@ -190,8 +191,8 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'accounts.task_summary.renew_cards_reserve_invoke',
         'schedule': timedelta(seconds=60),
     },
-    'import_btc_deposit_transactions': {
-        'task': 'accounts.task_summary.import_transaction_deposit_btc_invoke',
+    'import_crypto_deposit_transactions': {
+        'task': 'accounts.task_summary.import_transaction_deposit_crypto_invoke', # noqa
         'schedule': timedelta(seconds=60),
     },
     'check_okpay_payments': {
@@ -204,6 +205,10 @@ CELERY_BEAT_SCHEDULE = {
     },
     'buy_order_release_reference_periodic': {
         'task': 'orders.task_summary.buy_order_release_reference_periodic',
+        'schedule': timedelta(30),
+    },
+    'exchange_order_release_periodic': {
+        'task': 'orders.task_summary.exchange_order_release_periodic',
         'schedule': timedelta(30),
     },
     'checker_transactions': {

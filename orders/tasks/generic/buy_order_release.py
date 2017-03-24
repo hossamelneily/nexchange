@@ -7,8 +7,9 @@ from django.conf import settings
 class BuyOrderReleaseByReference(BaseBuyOrderRelease):
     def get_order(self, payment):
         try:
-            order = Order.objects.exclude(status=Order.RELEASED)\
-                .get(unique_reference=payment.reference)
+            order = Order.objects.exclude(status=Order.RELEASED).\
+                exclude(status=Order.COMPLETED).\
+                get(unique_reference=payment.reference)
             if order.payment_preference.payment_method != \
                     payment.payment_preference.payment_method:
 

@@ -1,22 +1,24 @@
 from core.tests.utils import get_ok_pay_mock, get_payeer_mock
 from core.tests.base import WalletBaseTestCase
-from core.models import Address
+from core.models import Address, Pair, Transaction, Currency
 from orders.models import Order
-from payments.models import Payment
+from payments.models import Payment, UserCards
 from unittest.mock import patch
 import requests_mock
 from payments.tasks.generic.ok_pay import OkPayPaymentChecker
 from payments.tasks.generic.payeer import PayeerPaymentChecker
 from payments.task_summary import run_okpay
 from core.tests.base import TransactionImportBaseTestCase
-from accounts.task_summary import import_transaction_deposit_btc_invoke, \
+from ticker.tests.base import TickerBaseTestCase
+from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
     update_pending_transactions_invoke
 from orders.task_summary import sell_order_release_invoke,\
-    buy_order_release_by_reference_invoke
+    buy_order_release_by_reference_invoke, exchange_order_release_invoke
 from django.conf import settings
 from decimal import Decimal
 from django.core.urlresolvers import reverse
 import json
+from core.tests.utils import data_provider
 
 
 class OKPayEndToEndTestCase(WalletBaseTestCase):
@@ -213,7 +215,7 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
 class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
     def setUp(self):
         super(SellOrderReleaseTaskTestCase, self).setUp()
-        self.import_txs_task = import_transaction_deposit_btc_invoke
+        self.import_txs_task = import_transaction_deposit_crypto_invoke
         self.update_confirmation_task = update_pending_transactions_invoke
         self.release_task = sell_order_release_invoke
         self.payeer_url = settings.PAYEER_API_URL
@@ -614,3 +616,107 @@ class BuyOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self.update_confirmation_task.apply()
         order.refresh_from_db()
         self.assertEqual(order.status, Order.RELEASED)
+
+
+class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
+                                       TickerBaseTestCase):
+
+    def setUp(self):
+        super(ExchangeOrderReleaseTaskTestCase, self).setUp()
+        self.import_txs_task = import_transaction_deposit_crypto_invoke
+        self.update_confirmation_task = update_pending_transactions_invoke
+        self.release_task = exchange_order_release_invoke
+        self.LTC = Currency.objects.get(code='LTC')
+        self.ETH = Currency.objects.get(code='ETH')
+        self.BTC_address = self._create_withdraw_adress(
+            self.BTC, '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi')
+        self.LTC_address = self._create_withdraw_adress(
+            self.LTC, 'LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA')
+        self.ETH_address = self._create_withdraw_adress(
+            self.ETH, '0x8116546AaC209EB58c5B531011ec42DD28EdFb71')
+
+    def _update_withdraw_address(self, order, address):
+        url = reverse('orders.update_withdraw_address',
+                      kwargs={'pk': order.pk})
+        self.client.post(url, {
+            'pk': order.pk,
+            'value': address.pk,
+        })
+
+    def _create_withdraw_adress(self, currency, address):
+        addr_data = {
+            'type': 'W',
+            'name': address,
+            'address': address,
+            'currency': currency
+
+        }
+        addr = Address(**addr_data)
+        addr.user = self.user
+        addr.save()
+        return addr
+
+    def _create_order(self, order_type=Order.BUY,
+                      amount_base=0.05, pair_name='ETHLTC'):
+        pair = Pair.objects.get(name=pair_name)
+        # order.exchange == True if pair.is_crypto
+        self.order = Order(
+            order_type=order_type,
+            amount_base=Decimal(str(amount_base)),
+            pair=pair,
+            user=self.user,
+            status=Order.INITIAL
+        )
+        self.order.save()
+
+    @data_provider(
+        lambda: (('ETHLTC', Order.BUY,),
+                 ('BTCETH', Order.BUY,),
+                 ('BTCLTC', Order.BUY,),
+                 ('ETHLTC', Order.SELL,),
+                 ('BTCETH', Order.SELL,),
+                 ('BTCLTC', Order.SELL,),
+                 )
+    )
+    @patch('nexchange.utils.api.execute_txn')
+    @patch('nexchange.utils.api.prepare_txn')
+    @patch('nexchange.utils.api.get_card_transactions')
+    @patch('nexchange.utils.api.get_reserve_transaction')
+    def test_release_exchange_order(self, pair_name, order_type, reserve_txs,
+                                    import_txs, prepare_txn, execute_txn):
+        Transaction.objects.all().delete()
+        currency_quote_code = pair_name[3:]
+        currency_base_code = pair_name[0:3]
+        self._create_order(order_type=order_type, pair_name=pair_name)
+        if order_type == Order.BUY:
+            mock_currency_code = currency_quote_code
+            mock_amount = self.order.amount_quote
+            withdraw_currency_code = currency_base_code
+        elif order_type == Order.SELL:
+            mock_currency_code = currency_base_code
+            mock_amount = self.order.amount_base
+            withdraw_currency_code = currency_quote_code
+        card_id = UserCards.objects.filter(
+            user=self.order.user, currency=mock_currency_code)[0].card_id
+        self._create_mocks(
+            currency_code=mock_currency_code,
+            amount2=mock_amount,
+            card_id=card_id
+        )
+        txs_data = json.loads(self.import_txs)
+        import_txs.return_value = txs_data
+        reserve_txs.return_value = json.loads(self.completed)
+        prepare_txn.return_value = 'txid123454321'
+        execute_txn.return_value = True
+        self.import_txs_task.apply()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
+        self.update_confirmation_task.apply()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.PAID, pair_name)
+        tx_pk = Transaction.objects.last().pk
+        address = getattr(self, '{}_address'.format(withdraw_currency_code))
+        self._update_withdraw_address(self.order, address)
+        self.release_task.apply([tx_pk])
+        self.order.refresh_from_db()
+        self.assertIn(self.order.status, Order.IN_RELEASED, pair_name)

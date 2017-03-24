@@ -266,7 +266,10 @@ def create_withdraw_address(request, order_pk):
     addr.user = request.user
     addr.address = address
     order = Order.objects.get(pk=order_pk)
-    currency = order.pair.base
+    if order.order_type == Order.BUY:
+        currency = order.pair.base
+    else:
+        currency = order.pair.quote
     addr.currency = currency
 
     try:

@@ -61,8 +61,6 @@ API1_USER = os.getenv('API1_USER',
 API1_PASS = os.getenv('API1_PASS',
                       settings_dev.API1_PASS)
 API1_IS_TEST = False
-API1_ID_C1 = os.getenv('API1_ID_C1',
-                       settings_dev.API1_ID_C1)
 CARDS_RESERVE_COUNT = os.getenv('CARDS_RESERVE_COUNT',
                                 settings_dev.CARDS_RESERVE_COUNT)
 

@@ -23,13 +23,11 @@ class Order(TimeStampedModel, SoftDeletableModel,
     EUR = "EUR"
     BTC = "BTC"
 
-    EXCHANGE = 2
     BUY = 1
     SELL = 0
     TYPES = (
         (SELL, 'SELL'),
         (BUY, 'BUY'),
-        (EXCHANGE, 'EXCHANGE'),
     )
     _order_type_help = (3 * '{} - {}<br/>').format(
         'BUY', 'Customer is giving fiat, and getting crypto money.',
@@ -71,6 +69,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     order_type = models.IntegerField(
         choices=TYPES, default=BUY, help_text=_order_type_help
     )
+    exchange = models.BooleanField(default=False)
     status = models.IntegerField(choices=STATUS_TYPES, default=INITIAL,
                                  help_text=_order_status_help)
     amount_base = models.DecimalField(max_digits=18, decimal_places=8)
@@ -137,6 +136,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
                 )
         if self.status == self.INITIAL:
             self.convert_coin_to_cash()
+        if self.pair.is_crypto:
+            self.exchange = True
+        else:
+            self.exchange = False
 
         super(Order, self).save(*args, **kwargs)
 
@@ -160,7 +163,11 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
     @property
     def is_buy(self):
-        return self.order_type
+        return self.order_type == self.BUY
+
+    @property
+    def requires_withdraw_address(self):
+        return (self.order_type == self.BUY) or self.exchange
 
     @property
     def payment_deadline(self):

@@ -26,7 +26,7 @@
             {% include 'orders/partials/completed_indciator.html' %}
         </td>
 
-        {%  if order.is_buy %}
+        {%  if order.is_buy or order.exchange %}
         <td>
             {% include 'orders/partials/forms/withdraw_address_widget.html' %}
         </td>

@@ -271,7 +271,7 @@ class BasePaymentApi:
 
 
 class OkPayAPI(BasePaymentApi):
-    def __init__(self, api_password=None, wallet_id=None):
+    def __init__(self, api_password=None, wallet_id=None, url=None):
         ''' Set up your API Access Information
             https://www.okpay.com/en/developers/interfaces/setup.html '''
         if api_password is None:
@@ -290,16 +290,24 @@ class OkPayAPI(BasePaymentApi):
         concatenated = concatenated.encode('utf-8')
         self.security_token = sha256(concatenated).hexdigest()
         # Create proxy client
-        self.client = Client(
-            url='https://api.okpay.com/OkPayAPI?singleWsdl',
-            retxml=True
-        )
+        if url is None:
+            url = 'https://api.okpay.com/OkPayAPI?singleWsdl'
+        self.url = url
+        self.client = None
+
+    def _get_client(self):
+        if self.client is None:
+            self.client = Client(
+                url=self.url,
+                retxml=True
+            )
 
     # def get_date_time(self):
     #     ''' Get the server time in UTC.
     #         Params: None
     #         Returns: String value - Date (YYYY-MM-DD HH:mm:SS)
     #                 2010-12-31 10:33:44'''
+    #     self._get_client()
     #     response = self.client.service.Get_Date_Time()
     #     root = ET.fromstring(response)
     #     now = root[0][0][0].text
@@ -313,6 +321,7 @@ class OkPayAPI(BasePaymentApi):
                         returned.
             Returns: dictionary in the form {'balance': {'CUR': '0.0', ...}}
         '''
+        self._get_client()
         try:
             if currency is None:
                 response = self.client.service.Wallet_Get_Currency_Balance(
@@ -338,6 +347,7 @@ class OkPayAPI(BasePaymentApi):
         /transaction-history.html
         """
 
+        self._get_client()
         response = self.client.service.Transaction_History(
             self.wallet_id,
             self.security_token,
@@ -396,6 +406,7 @@ class OkPayAPI(BasePaymentApi):
         https://dev.okpay.com/en/manual/interfaces/functions/general
         /transaction-get.html
         """
+        self._get_client()
         try:
             response = self.client.service.Transaction_Get(
                 self.wallet_id,
@@ -412,6 +423,7 @@ class OkPayAPI(BasePaymentApi):
         https://dev.okpay.com/en/manual/interfaces/functions/general
         /account-check.html
         """
+        self._get_client()
         try:
             response = self.client.service.Account_Check(
                 self.wallet_id,
@@ -429,6 +441,7 @@ class OkPayAPI(BasePaymentApi):
         /send-money.html
         """
 
+        self._get_client()
         response = self.client.service.Send_Money(
             self.wallet_id,
             self.security_token,

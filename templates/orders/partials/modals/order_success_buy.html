@@ -6,6 +6,7 @@
 <div class="panel panel-success">
     <div class="panel-body">
         <h1>{% trans 'Order placed successfully' %}</h1>
+        {% if not order.exchange %}
             <div class="row">
                 <div class="col col xs-12"></div>
 
@@ -123,46 +124,88 @@
                 </div>
             </div>
             {% endif %}
-          {% block options %}
-          <div class="row text-left">
-              <div class="col-xs-12 auto-exchange">
-                    <input type="checkbox" id="default-order-trigger" value="1">
-                  <label for="default-order-trigger">
-                    {% blocktrans %}
-                        Credit my withdraw address automatically with any funds
-                        sent by you to our {{ order.payment_preference.payment_method.name }}
-                    {% endblocktrans %}
-                  </label>
-              </div>
-          </div>
-          {% endblock %}
+            {% block options %}
+            <div class="row text-left">
+                <div class="col-xs-12 auto-exchange">
+                      <input type="checkbox" id="default-order-trigger" value="1">
+                    <label for="default-order-trigger">
+                      {% blocktrans %}
+                          Credit my withdraw address automatically with any funds
+                          sent by you to our {{ order.payment_preference.payment_method.name }}
+                      {% endblocktrans %}
+                    </label>
+                </div>
+            </div>
+            {% endblock %}
 
-          {% block terms %}
-              <div class="exchange-terms">
-                  <div class="row text-left">
-                      {% if order.payment_preference.comment %}
-                          <div class="col col-xs-12 text-let">
-                              <label>
-                                  * {{ order.payment_preference.comment }}
-                              </label>
-                          </div>
-                      {% endif %}
-                    <div class="col col-xs-12 text-let">
-                       <label>
-                           * {% trans 'Please notice that you must pay until ' %}
-                           {% localtime on %}
-                               <strong>{{pay_until |date:"H:iA (e)"}}</strong>
-                           {% endlocaltime %}
-                       </label>
-                    </div>
-                    <div class="col col-xs-12 text-left">
-                        <label>
-                            * {% trans 'All exchange transactions are executed automatically by a computer regardless of the payment method' %}
-                        </label>
+            {% block terms %}
+                <div class="exchange-terms">
+                    <div class="row text-left">
+                        {% if order.payment_preference.comment %}
+                            <div class="col col-xs-12 text-let">
+                                <label>
+                                    * {{ order.payment_preference.comment }}
+                                </label>
+                            </div>
+                        {% endif %}
+                      <div class="col col-xs-12 text-let">
+                         <label>
+                             * {% trans 'Please notice that you must pay until ' %}
+                             {% localtime on %}
+                                 <strong>{{pay_until |date:"H:iA (e)"}}</strong>
+                             {% endlocaltime %}
+                         </label>
+                      </div>
+                      <div class="col col-xs-12 text-left">
+                          <label>
+                              * {% trans 'All exchange transactions are executed automatically by a computer regardless of the payment method' %}
+                          </label>
+                      </div>
+              </div>
+            </div>
+            {% endblock %}
+        {% else %}
+            <div class="row">
+                <div class="col col-xs-12">
+                    {% trans 'Please send' %}
+                    {{ order.amount_quote}} {{ order.pair.quote }}
+                    {% trans 'to the following address' %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col col-xs-12">
+                    <span class="expand" title=
+                            "{% trans 'Copy' %}">
+                        <i class="fa fa-copy"></i>
+                        <strong>{{address}}</strong>
+                    </span>
+                </div>
+                <div class="col col-xs-12">
+                    <div class="qrContainer">
+                        <img src="https://chart.googleapis.com/chart?cht=qr&chl={{ address }}&choe=UTF-8&chs=250x250" alt="{{ address }}">
                     </div>
                 </div>
-              </div>
-          {% endblock %}
+            </div>
+            <div class="row">
+                <div class="col col-xs-12">
+                    {% trans 'Order Reference:' %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col col-xs-12 unique_ref">
+                    <p><strong>{{unique_ref}}</strong></p>
+                </div>
+            </div>
+            <div class="col col-xs-12">
+             {% trans 'Notice that you must send coins until' %}
+            </div>
+            {% localtime on %}
+                <div class="col col-xs-12" id="pay_until_notice">
+                    <p><strong>{{pay_until |date:"H:iA (e)"}}</strong></p>
+                </div>
+            {% endlocaltime %}
+        {% endif %}
+
     </div><!-- /pannel-body -->
 </div><!-- /pannel -->
 <input type="hidden" name="order_id" value="{{order_id}}" class="order_id" >

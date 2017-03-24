@@ -75,7 +75,7 @@
         {% trans "Withdraw Address" %}
         </div>
 
-        {%  if order.is_buy %}
+        {%  if order.is_buy or order.exchange %}
         <div class="header-text">
             {%  include 'orders/partials/forms/withdraw_address_widget.html' %}
         </div>

@@ -57,6 +57,36 @@ class UpholdTransactionImporter:
             self.logger.error("Transaction {} is not valid for serialization"
                               .format(trans, e))
 
+    def get_orders(self):
+        sell_query = Q(
+            exchange=False,
+            order_type=Order.SELL,
+            amount_base=Decimal(str(self.data['amount'])),
+            pair__base=self.data['currency'],
+            status=Order.INITIAL,
+            user=self.card.user
+        )
+        buy_exchange_query = Q(
+            exchange=True,
+            order_type=Order.BUY,
+            amount_quote=Decimal(str(self.data['amount'])),
+            pair__quote=self.data['currency'],
+            status=Order.INITIAL,
+            user=self.card.user
+        )
+        sell_exchange_query = Q(
+            exchange=True,
+            order_type=Order.SELL,
+            amount_base=Decimal(str(self.data['amount'])),
+            pair__base=self.data['currency'],
+            status=Order.INITIAL,
+            user=self.card.user
+        )
+        orders = Order.objects.filter(
+            sell_query | buy_exchange_query | sell_exchange_query
+        )
+        return orders
+
     def create_transaction(self):
         existing_transaction = None
         try:
@@ -78,19 +108,13 @@ class UpholdTransactionImporter:
                              .format(self.data))
 
         if existing_transaction is None:
-            orders = Order.objects.filter(
-                order_type=Order.SELL,
-                amount_base=Decimal(str(self.data['amount'])),
-                pair__base=self.data['currency'],
-                status=Order.INITIAL,
-                user=self.card.user
-            )
+            orders = self.get_orders()
             if len(orders) == 1:
                 order = orders[0]
                 txs_data = {
                     'tx_id_api': self.data['tx_id_api'],
                     'address_to': self.address,
-                    'order': orders[0]
+                    'order': order
                 }
                 if self.data['tx_id'] is not None:
                     txs_data.update({

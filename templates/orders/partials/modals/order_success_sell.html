@@ -27,21 +27,29 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col col xs-12"></div>
-            {% trans 'You choose to get paid by:' %}
-            {{ order.payment_preference.payment_method.name }}
-        </div>
-        <div class="row">
-            <div class="col col-xs-12">
-                <p><strong>{{order.payment_preference.identifier}}</strong></p>
+        {% if not order.exchange %}
+            <div class="row">
+                <div class="col col xs-12"></div>
+                {% trans 'You choose to get paid by:' %}
+                {{ order.payment_preference.payment_method.name }}
             </div>
-        </div>
-        <div class="row">
-            <div class="col col-xs-12">
-                {% trans 'We will place the following reference in the comment to our payment:' %}
+            <div class="row">
+                <div class="col col-xs-12">
+                    <p><strong>{{order.payment_preference.identifier}}</strong></p>
+                </div>
             </div>
-        </div>
+            <div class="row">
+                <div class="col col-xs-12">
+                    {% trans 'We will place the following reference in the comment to our payment:' %}
+                </div>
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col col-xs-12">
+                    {% trans 'Order Reference:' %}
+                </div>
+            </div>
+        {% endif %}
         <div class="row">
             <div class="col col-xs-12 unique_ref">
                 <p><strong>{{unique_ref}}</strong></p>

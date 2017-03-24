@@ -9,7 +9,8 @@ def sell_order_release():
     orders = Order.objects.filter(
         status=Order.PAID,
         order_type=Order.SELL,
-        transactions__isnull=False
+        transactions__isnull=False,
+        exchange=False
     )
     for order in orders[::-1]:
         send_money_status = utils.send_money(order.pk)
@@ -21,14 +22,3 @@ def sell_order_release():
             raise NotImplementedError(
                 'Order {} cannot be paid automatically.'.format(order)
             )
-
-
-def exchange_order_release():
-    # TODO:
-    # This the task to release COINS for clients that
-    # EXCHANGE crypto-currencies, I.E. ETH to BTC
-    # 1. Auto release funds when coins are credited
-    # 2. Move funds from user card to our card
-    # 3. Notify admin if auto payment is not available
-    # for the payment preference that the user has selected.
-    pass

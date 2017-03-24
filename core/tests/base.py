@@ -474,17 +474,21 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         matcher = re.compile(pattern)
         mock.get(matcher, text='{"data":{"txs":[]}}')
 
-    def _create_mocks(self, amount2=Decimal('0.0')):
+    def _create_mocks(self, amount2=Decimal('0.0'), currency_code=None,
+                      card_id=None):
         self.tx_ids_api = ['12345', '54321']
-        card = UserCards.objects.filter(user=self.order.user,
-                                        currency=self.order.pair.base.code)[0]
+        if currency_code is None:
+            currency_code = self.order.pair.base.code
+        if card_id is None:
+            card_id = UserCards.objects.filter(
+                user=self.order.user, currency=currency_code)[0].card_id
         self.import_txs = self.uphold_import_transactions_empty.format(
             tx_id_api1=self.tx_ids_api[0],
             tx_id_api2=self.tx_ids_api[1],
             amount1=self.order.amount_base,
             amount2=amount2,
-            currency=self.order.pair.base.code,
-            card_id=card.card_id,
+            currency=currency_code,
+            card_id=card_id,
         )
         reserve_url = 'https://api.uphold.com/v0/reserve/transactions/{}'
         self.reverse_url1 = reserve_url.format(self.tx_ids_api[0])

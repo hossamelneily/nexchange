@@ -24,6 +24,7 @@
            paymentObject = require('./modules/payment.js'),
            register = require('./modules/register.js'),
            captcha = require('./modules/captcha.js'),
+           cryptoCurrCodes = ['BTC', 'ETH', 'LTC'],
            $currencyFrom,
            $currencyTo,
            $currencyPair,
@@ -102,14 +103,27 @@
                 $('.menu1').removeClass('sell');
                 window.action = window.ACTION_BUY;
                 orderObject.updateOrder($('.amount-coin'), false, currency, function () {
-                    orderObject.toggleBuyModal();
+                    if ((cryptoCurrCodes.indexOf($currencyFrom.val()) >= 0) && (cryptoCurrCodes.indexOf($currencyTo.val()) >= 0)) {
+                        $('.payment-preference-confirm').text('EXCHANGE');
+                        orderObject.changeState(null, 'next');
+                    } else {
+                        orderObject.toggleBuyModal();
+                    }
+
                 });
 
             } else {
                 $('.menu1').addClass('sell');
                 window.action = window.ACTION_SELL;
                 orderObject.updateOrder($('.amount-coin'), false, currency, function () {
-                    orderObject.toggleSellModal();
+                    if ((cryptoCurrCodes.indexOf($currencyFrom.val()) >= 0) && (cryptoCurrCodes.indexOf($currencyTo.val()) >= 0)) {
+                        $('.payment-preference-confirm').text('EXCHANGE');
+                        setTimeout(function () {
+                            orderObject.changeState(null, 'next');
+                        }, 600);
+                    } else {
+                        orderObject.toggleSellModal();
+                    }
                 });
             }
 
@@ -256,15 +270,21 @@
             //TODO verify if $(this).hasClass('sell-go') add
             // the other type of transaction
             // add security checks
-                var verifyPayload = {
-                    'trade-type': $('.trade-type').val(),
-                    'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
-                    'amount-base': $('.amount-coin').val() || DEFAULT_AMOUNT,
-                    'currency_from': $('.currency-from').val(), //fiat
-                    'currency_to': $('.currency-to').val(), //crypto
-                    'payment_preference': paymentObject.getPaymentPreference(),
-                    '_locale': $('.topright_selectbox').val()
-                };
+            var preferenceName = $('.payment-preference-confirm').text(),
+                payment_preference = paymentObject.getPaymentPreference();
+            if (preferenceName == 'EXCHANGE') {
+                payment_preference = preferenceName;
+            }
+
+            var verifyPayload = {
+                'trade-type': $('.trade-type').val(),
+                'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
+                'amount-base': $('.amount-coin').val() || DEFAULT_AMOUNT,
+                'currency_from': $('.currency-from').val(), //fiat
+                'currency_to': $('.currency-to').val(), //crypto
+                'payment_preference': payment_preference,
+                '_locale': $('.topright_selectbox').val()
+            };
 
             $.ajax({
                 type: 'POST',
