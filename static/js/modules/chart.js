@@ -1,3 +1,8 @@
+import highcharts from 'highcharts';
+import highchartsMore from 'highcharts-more';
+highchartsMore(highcharts);
+
+
 !(function(window, $) {
     "use strict";
 
@@ -28,11 +33,15 @@
         if ($('body').find('#container-graph').length > 0) {
             $.get(tickerHistoryUrl, function(resdata) {
                 chartDataRaw = resdata;
-                var data = responseToChart(resdata).pair;
-                Highcharts.chart('container-graph', {
+                var data = responseToChart(resdata).pair,
+                    container = $("#container-graph");
+                highcharts.chart('container-graph', {
                     chart: {
                         type: 'arearange',
-                        zoomType: 'x'
+                        zoomType: 'x',
+                        backgroundColor: '#F3F3F3',
+                        height: container.height(),
+                        width: container.width()
                     },
                     style: {
                         fontFamily: 'Gotham'

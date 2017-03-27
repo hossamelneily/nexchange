@@ -37,6 +37,15 @@
         window.action = window.ACTION_BUY; // 1 - BUY 0 - SELL
 
     $(function () {
+        $(window).load(function() {
+            $('body').fadeTo(1, 1000, function () {
+                try {
+                    orderObject.setCurrency(false, currency, currency_to, pair);
+                    paymentObject.loadPaymentMethods(cardsEndpoint, currency);
+                } catch (suppress) {}
+            });
+        });
+
         if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
             $('.select2').removeClass('select2');
         } else {
@@ -56,8 +65,6 @@
         $currencyFrom.val(currency);
         $currencyPair.val(pair).trigger('change.select2');
         $currencyTo.val(currency_to);
-        orderObject.setCurrency(false, currency, currency_to, pair);
-        paymentObject.loadPaymentMethods(cardsEndpoint, currency);
         var timer = null,
             delay = 500,
             phones = $('.phone'),
@@ -78,9 +85,10 @@
         phones.on('keyup', stripSpaces);
         verification_code.on('keyup', stripSpaces);
 
-
         orderObject.updateOrder($('.amount-coin'), true, currency);
         // if not used event, isNext remove  jshint
+
+
         $('#graph-range').on('change', function() {
             orderObject.setCurrency(false, currency, currency_to, pair);
         });
