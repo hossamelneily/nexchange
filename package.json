@@ -9,6 +9,7 @@
     "babel-preset-stage-0": "^6.22.0",
     "bootstrap-loader": "^2.0.0-beta.22",
     "bootstrap-sass": "^3.3.7",
+    "bootstrap-toggle": "^2.2.2",
     "browserify": "<14",
     "card": "^2.1.1",
     "commonjs-highcharts": "^4.0.3",
@@ -18,6 +19,7 @@
     "file-loader": "^0.10.1",
     "font-awesome": "^4.7.0",
     "highcharts": "^5.0.7",
+    "highcharts-more": "^0.1.2",
     "intl-tel-input": "^11.0.4",
     "jquery": "^1.11.3",
     "jquery-ticker": "^1.0.0",
@@ -34,8 +36,7 @@
     "url-loader": "^0.5.8",
     "webpack": "^2.2.1",
     "webpack-bundle-tracker": "^0.2.0",
-    "x-editable": "^1.5.1",
-    "bootstrap-toggle": "^2.2.2"
+    "x-editable": "^1.5.1"
   },
   "devDependencies": {
     "babel-cli": "^6.23.0",
