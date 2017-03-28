@@ -75,6 +75,9 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             try:
                 self.driver.get(url)
             except TimeoutException:
+                self.do_screenshot('Smth wrong with url load')
+                self.do_screenshot('Smth wrong with url load, refresh',
+                                   refresh=True)
                 continue
             else:
                 break
@@ -197,12 +200,10 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         )).click()
 
     def check_paid_toggle(self):
-        self.driver.refresh()
-        self.do_screenshot('Before payment Toggler check')
+        self.do_screenshot('Before payment Toggler check', refresh=True)
         success_toggle_input = self.select_paid_toggle()
         if len(success_toggle_input) == 0:
-            self.driver.refresh()
-            sleep(self.timeout / 10)
+            self.do_screenshot('Check for toggler once again', refresh=True)
             success_toggle_input = self.select_paid_toggle()
         self.assertTrue(
             len(success_toggle_input) >= 1,
@@ -299,7 +300,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             'Bad Order status on {}'.format(self.payment_method))
 
     def check_order_status_indicator(self, indicator_name, checked=True):
-        self.driver.refresh()
+        self.do_screenshot('Before checking status', refresh=True)
         is_checked = 'fa fa-check fa-1'
         is_unchecked = 'fa fa-close fa-1 red'
         if checked:
@@ -315,8 +316,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         for _ in range(5):
             indicator = self.driver.find_elements_by_xpath(path)
             if len(indicator) == 0:
-                self.driver.refresh()
-                self.do_screenshot('wait for indicator')
+                self.do_screenshot('wait for indicator', refresh=True)
                 continue
             break
         self.assertNotEqual(
@@ -396,6 +396,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         if self.issavescreen:
             if refresh:
                 self.driver.refresh()
+                sleep(self.timeout / 15)
             path = os.path.join(
                 self.screenpath, self.workflow, self.screenpath2)
             filename = '{}({}). {} ({:.2f}s)'.format(
