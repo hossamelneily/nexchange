@@ -174,13 +174,16 @@ def payment_info(request, provider):
 
 def payment_type(request):
     def get_pref_by_name(name, _currency):
+        if not _currency:
+            return None
+
         curr_obj = Currency.objects.get(code=_currency.upper())
         card = \
             PaymentPreference.\
             objects.filter(currency__in=[curr_obj],
                            user__is_staff=True,
                            payment_method__name__icontains=name)
-        return card[0] if len(card) else 'None'
+        return card[0] if len(card) else None
 
     template = get_template('payments/partials/modals/payment_type.html')
     currency = request.POST.get('currency')
