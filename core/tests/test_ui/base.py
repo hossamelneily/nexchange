@@ -61,6 +61,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.stamp = time()
         self.shot_base64 = None
         self.logged_in = False
+        self.recursive_withdraw_calls = 0
 
     def tearDown(self):
         super(BaseTestUI, self).tearDown()
@@ -283,8 +284,15 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         try:
             self.write_withdraw_address_on_popover(add_new=add_new)
         except Exception as e:
-            self.do_screenshot('fail to add withdraw address: {}'.format(e))
-            self.write_withdraw_address_on_popover(add_new=add_new)
+            self.do_screenshot('fail to add withdraw address: {}'.format(e),
+                               refresh=True)
+            if self.recursive_withdraw_calls < 1:
+                self.add_withdraw_address_on_payment_success(add_new=add_new)
+                self.recursive_withdraw_calls += 1
+                return
+            else:
+                self.write_withdraw_address_on_popover(add_new=add_new)
+
         sleep(self.timeout / 5)
         self.do_screenshot('Withdraw Address added')
 
