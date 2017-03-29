@@ -43,6 +43,8 @@ PAYEER_API_KEY = os.getenv('PAYEER_API_KEY')
 API1_USER = os.getenv('API1_USER')
 API1_PASS = os.getenv('API1_PASS')
 API1_ID_C1 = os.getenv('API1_ID_C1')
+API1_ID_C2 = os.getenv('API1_ID_C2')
+API1_ID_C3 = os.getenv('API1_ID_C3')
 API1_IS_TEST = bool(os.getenv('API1_IS_TEST', False))
 
 

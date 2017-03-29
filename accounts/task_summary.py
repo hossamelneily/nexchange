@@ -1,7 +1,7 @@
 # flake8: noqa
 from accounts.tasks.generate_wallets import renew_cards_reserve
 from accounts.tasks.monitor_wallets import update_pending_transactions
-from accounts.tasks.monitor_wallets import import_transaction_deposit_btc
+from accounts.tasks.monitor_wallets import import_transaction_deposit_crypto
 from django.conf import settings
 from celery import shared_task
 
@@ -17,5 +17,5 @@ def update_pending_transactions_invoke():
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def import_transaction_deposit_btc_invoke():
-    return import_transaction_deposit_btc()
+def import_transaction_deposit_crypto_invoke():
+    return import_transaction_deposit_crypto()

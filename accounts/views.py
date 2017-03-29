@@ -23,8 +23,10 @@ from accounts.forms import (CustomUserCreationForm, UpdateUserProfileForm,
                             UserForm, UserProfileForm)
 from accounts.models import NexchangeUser as User
 from accounts.models import Profile, SmsToken
+from orders.models import Order
 from core.models import Address
-from core.validators import validate_bc
+from core.validators import (validate_address, validate_btc, validate_ltc,
+                             validate_eth)
 from referrals.forms import ReferralTokenForm
 
 
@@ -255,7 +257,7 @@ def user_address_ajax(request):
 
 
 @login_required
-def create_withdraw_address(request):
+def create_withdraw_address(request, order_pk):
     error_message = 'Error creating address: %s'
 
     address = request.POST.get('value')
@@ -263,9 +265,22 @@ def create_withdraw_address(request):
     addr.type = Address.WITHDRAW
     addr.user = request.user
     addr.address = address
+    order = Order.objects.get(pk=order_pk)
+    if order.order_type == Order.BUY:
+        currency = order.pair.base
+    else:
+        currency = order.pair.quote
+    addr.currency = currency
 
     try:
-        validate_bc(addr.address)
+        if currency.code == 'BTC':
+            validate_btc(addr.address)
+        elif currency.code == 'LTC':
+            validate_ltc(addr.address)
+        elif currency.code == 'ETH':
+            validate_eth(addr.address)
+        else:
+            validate_address(addr.address)
         addr.save()
         resp = {'status': 'OK', 'pk': addr.pk}
 

@@ -10,7 +10,7 @@ from accounts.models import SmsToken
 from core.models import Currency, Address, Transaction, Pair
 from core.tests.utils import get_ok_pay_mock, split_ok_pay_mock
 from orders.models import Order
-from payments.models import PaymentMethod, PaymentPreference
+from payments.models import PaymentMethod, PaymentPreference, UserCards
 from ticker.models import Price, Ticker
 from copy import deepcopy
 import mock
@@ -19,6 +19,7 @@ from django.conf import settings
 import requests_mock
 from time import time
 import re
+from unittest.mock import patch
 
 
 class UserBaseTestCase(TestCase):
@@ -100,8 +101,12 @@ class UserBaseTestCase(TestCase):
 
 class OrderBaseTestCase(UserBaseTestCase):
     fixtures = [
-        'currency.json',
-        'pair.json',
+        'currency_crypto.json',
+        'currency_fiat.json',
+        'pairs_btc.json',
+        'pairs_cross.json',
+        'pairs_eth.json',
+        'pairs_ltc.json',
         'payment_method.json',
         'payment_preference.json'
     ]
@@ -217,8 +222,9 @@ class OrderBaseTestCase(UserBaseTestCase):
 
 class WalletBaseTestCase(OrderBaseTestCase):
     fixtures = [
-        'currency.json',
-        'pair.json',
+        'currency_crypto.json',
+        'currency_fiat.json',
+        'pairs_btc.json',
         'payment_method.json',
         'payment_preference.json',
     ]
@@ -273,12 +279,6 @@ class WalletBaseTestCase(OrderBaseTestCase):
 
 
 class TransactionImportBaseTestCase(OrderBaseTestCase):
-    fixtures = [
-        'currency.json',
-        'pair.json',
-        'payment_method.json',
-        'payment_preference.json',
-    ]
 
     def setUp(self):
         super(TransactionImportBaseTestCase, self).setUp()
@@ -322,6 +322,11 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             type=Address.DEPOSIT,
         )
         self.address.save()
+        self.card = UserCards(card_id='12345',
+                              currency=self.address.currency,
+                              address_id=self.address.address,
+                              user=self.address.user)
+        self.card.save()
 
         self.url_addr = 'http://btc.blockr.io/api/v1/address/txs/{}'.format(
             self.wallet_address
@@ -333,6 +338,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.url_tx_2 = 'http://btc.blockr.io/api/v1/tx/info/{}'.format(
             self.tx_ids[1]
         )
+        self._create_mocks()
 
     def _read_fixture(self):
         path_addr_fixture = os.path.join(settings.BASE_DIR,
@@ -362,6 +368,10 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         uphold_reverse_pending_fixture = os.path.join(
             settings.BASE_DIR,
             'nexchange/tests/fixtures/uphold/transaction_pending.json'
+        )
+        uphold_import_transactions_empty = os.path.join(
+            settings.BASE_DIR,
+            'nexchange/tests/fixtures/uphold/import_transactions_empty.json'
         )
 
         with open(path_addr_fixture) as f:
@@ -406,6 +416,10 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             self.uphold_tx_pending = \
                 f.read().replace('\n', '').replace(' ', '')
 
+        with open(uphold_import_transactions_empty) as f:
+            self.uphold_import_transactions_empty = \
+                f.read().replace('\n', '').replace(' ', '')
+
         self.txs = [
             self.blockr_response_tx1_parsed,
             self.blockr_response_tx2_parsed
@@ -418,17 +432,15 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.status_ok_list_index = 0
         self.status_bad_list_index = 1
 
-    def base_test_create_transactions_with_task(self, mock_request,
-                                                run_method):
-        mock_request.get(self.url_addr, text=self.blockr_response_addr)
-        mock_request.get(self.url_tx_1, text=self.blockr_response_tx1)
-        mock_request.get(self.url_tx_2, text=self.blockr_response_tx2)
-        self.mock_empty_transactions_for_blockchain_address(mock_request)
-        status_ok_list_index = 0
-        status_bad_list_index = 1
+    @patch('nexchange.utils.api.get_card_transactions')
+    @patch('nexchange.utils.api.get_reserve_transaction')
+    def base_test_create_transactions_with_task(self, run_method, reserve_txs,
+                                                import_txs):
+        reserve_txs.return_value = json.loads(self.completed)
+        import_txs.return_value = json.loads(self.import_txs)
         run_method()
         tx_ok = Transaction.objects.filter(
-            tx_id=self.tx_ids[status_ok_list_index]
+            tx_id_api=json.loads(self.import_txs)[0]['id']
         )
         self.assertEqual(
             len(tx_ok), 1,
@@ -440,7 +452,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             'Order should be marked as paid after pipeline'
         )
         tx_bad = Transaction.objects.filter(
-            tx_id=self.tx_ids[status_bad_list_index]
+            tx_id_api=json.loads(self.import_txs)[1]['id']
         )
         self.assertEqual(
             len(tx_bad), 0,
@@ -448,7 +460,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         )
         run_method()
         tx_ok = Transaction.objects.filter(
-            tx_id=self.tx_ids[status_ok_list_index]
+            tx_id_api=json.loads(self.import_txs)[0]['id']
         )
         self.assertEqual(
             len(tx_ok), 1,
@@ -461,3 +473,25 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             pattern = '/api/v1/address/txs/{}'.format(self.address_id_pattern)
         matcher = re.compile(pattern)
         mock.get(matcher, text='{"data":{"txs":[]}}')
+
+    def _create_mocks(self, amount2=Decimal('0.0'), currency_code=None,
+                      card_id=None):
+        self.tx_ids_api = ['12345', '54321']
+        if currency_code is None:
+            currency_code = self.order.pair.base.code
+        if card_id is None:
+            card_id = UserCards.objects.filter(
+                user=self.order.user, currency=currency_code)[0].card_id
+        self.import_txs = self.uphold_import_transactions_empty.format(
+            tx_id_api1=self.tx_ids_api[0],
+            tx_id_api2=self.tx_ids_api[1],
+            amount1=self.order.amount_base,
+            amount2=amount2,
+            currency=currency_code,
+            card_id=card_id,
+        )
+        reserve_url = 'https://api.uphold.com/v0/reserve/transactions/{}'
+        self.reverse_url1 = reserve_url.format(self.tx_ids_api[0])
+        self.reverse_url2 = reserve_url.format(self.tx_ids_api[1])
+        self.completed = '{"status": "completed"}'
+        self.pending = '{"status": "pending"}'

@@ -4,12 +4,13 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from core.models import Transaction, Address
+from payments.models import UserCards
 from orders.models import Order
-from nexchange.utils import check_transaction_blockchain, \
-    check_transaction_uphold, send_email, send_sms
-from accounts.utils import BlockchainTransactionImporter
+from nexchange.utils import check_transaction_uphold, send_email, send_sms
+from accounts.utils import UpholdTransactionImporter
 from nexchange.utils import get_nexchange_logger
-from orders.task_summary import sell_order_release_invoke
+from orders.task_summary import (sell_order_release_invoke,
+                                 exchange_order_release_invoke)
 from django.db import transaction
 
 
@@ -31,7 +32,7 @@ def update_pending_transactions():
             order.save()
 
         if tr.address_to.type == Address.DEPOSIT and \
-                check_transaction_blockchain(tr):
+                check_transaction_uphold(tr):
 
             with transaction.atomic():
                 tr.is_completed = True
@@ -39,20 +40,32 @@ def update_pending_transactions():
                 tr.save()
                 order.status = Order.PAID
                 order.save()
-                next_tasks.add(sell_order_release_invoke)
+            if not order.exchange:
+                next_tasks.add((sell_order_release_invoke, None,))
+            else:
+                next_tasks.add((exchange_order_release_invoke, tr.pk, ))
 
             # trigger release
             title = _('Nexchange: Order released')
-            msg = _('Your order {}:  is released. '
-                    '\n {} {} were sent to {} {} {}'). \
-                format(tr.order.unique_reference,
-                       tr.order.amount_quote,
-                       tr.order.pair.quote.code,
-                       tr.order.payment_preference.payment_method.name,
-                       tr.order.payment_preference.identifier,
-                       '('+tr.order.payment_preference.secondary_identifier+')'# noqa
-                       if tr.order.payment_preference.secondary_identifier
-                       else '')
+            if not order.exchange:
+                msg = _(
+                    'Your order {}:  is PAID. '
+                    '\n {} {} were sent to {} {} {}'). format(
+                    order.unique_reference,
+                    order.amount_quote,
+                    order.pair.quote.code,
+                    order.payment_preference.payment_method.name,
+                    order.payment_preference.identifier,
+                    '(' +
+                    order.payment_preference.secondary_identifier +
+                    ')' if
+                    order.payment_preference.secondary_identifier else ''
+                )
+            else:
+                msg = _(
+                    'Your order {}:  is PAID. '
+                    '\n '
+                ). format(order)
 
             if profile.notify_by_phone and profile.phone:
                 phone_to = str(tr.order.user.username)
@@ -68,20 +81,37 @@ def update_pending_transactions():
             if settings.DEBUG:
                 logger.info('Transaction {} is completed'.format(tr.tx_id))
 
-    for task in next_tasks:
-        res = task.apply()
+    for task, args in next_tasks:
+        if args is not None:
+            res = task.apply([args])
+        else:
+            res = task.apply()
         if res.state != 'SUCCESS':
-            logger.error('Task release_sell_order returned '
-                         'error traceback: {}'.format(res.traceback))
+            logger.error(
+                'Task {} returned error traceback: {}'.format(
+                    task.name, res.traceback))
 
 
-def import_transaction_deposit_btc():
+def import_transaction_deposit_crypto():
+    logger = get_nexchange_logger(__name__, True, True)
     addresses = Address.objects.filter(
-        Q(currency__is_crypto=True) | Q(currency=None),
+        currency__is_crypto=True,
         type=Address.DEPOSIT
     )
     for addr in addresses:
-        importer = BlockchainTransactionImporter(
-            addr
+        cards = UserCards.objects.filter(
+            address_id=addr.address, user=addr.user, currency=addr.currency)
+        if len(cards) > 1:
+            logger.error('Deposit Address {} has more then 1 UserCard'.format(
+                addr
+            ))
+            continue
+        if len(cards) < 1:
+            logger.error('Deposit Address {} has no UserCard'.format(
+                addr
+            ))
+            continue
+        importer = UpholdTransactionImporter(
+            cards[0], addr
         )
         importer.import_income_transactions()

@@ -1,0 +1,408 @@
+[
+  {
+  "model": "core.pair",
+  "pk": 33,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.969Z",
+    "modified_on": "2017-03-01T12:49:28.970Z",
+    "base": 2,
+    "quote": 4,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCUSD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 34,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.973Z",
+    "modified_on": "2017-03-01T12:49:28.974Z",
+    "base": 2,
+    "quote": 5,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCRUB",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 35,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.976Z",
+    "modified_on": "2017-03-01T12:49:28.978Z",
+    "base": 2,
+    "quote": 6,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCEUR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 36,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.981Z",
+    "modified_on": "2017-03-01T12:49:28.982Z",
+    "base": 2,
+    "quote": 7,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCGBP",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 37,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.986Z",
+    "modified_on": "2017-03-01T12:49:28.987Z",
+    "base": 2,
+    "quote": 8,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCJPY",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 38,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.991Z",
+    "modified_on": "2017-03-01T12:49:28.992Z",
+    "base": 2,
+    "quote": 9,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCHRK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 39,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.995Z",
+    "modified_on": "2017-03-01T12:49:28.996Z",
+    "base": 2,
+    "quote": 10,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCCHF",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 40,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.998Z",
+    "modified_on": "2017-03-01T12:49:28.999Z",
+    "base": 2,
+    "quote": 11,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCPLN",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 41,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.002Z",
+    "modified_on": "2017-03-01T12:49:29.003Z",
+    "base": 2,
+    "quote": 12,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCRON",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 42,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.006Z",
+    "modified_on": "2017-03-01T12:49:29.007Z",
+    "base": 2,
+    "quote": 13,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCBGN",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 43,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.010Z",
+    "modified_on": "2017-03-01T12:49:29.011Z",
+    "base": 2,
+    "quote": 14,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCCZK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 44,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.014Z",
+    "modified_on": "2017-03-01T12:49:29.015Z",
+    "base": 2,
+    "quote": 15,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCAUD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 45,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.018Z",
+    "modified_on": "2017-03-01T12:49:29.019Z",
+    "base": 2,
+    "quote": 16,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCCAD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 46,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.021Z",
+    "modified_on": "2017-03-01T12:49:29.022Z",
+    "base": 2,
+    "quote": 17,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCNOK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 47,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.025Z",
+    "modified_on": "2017-03-01T12:49:29.027Z",
+    "base": 2,
+    "quote": 18,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCSEK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 48,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.030Z",
+    "modified_on": "2017-03-01T12:49:29.032Z",
+    "base": 2,
+    "quote": 19,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCDKK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 49,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.034Z",
+    "modified_on": "2017-03-01T12:49:29.035Z",
+    "base": 2,
+    "quote": 20,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCHUF",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 50,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.040Z",
+    "modified_on": "2017-03-01T12:49:29.041Z",
+    "base": 2,
+    "quote": 21,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCTRY",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 51,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.044Z",
+    "modified_on": "2017-03-01T12:49:29.045Z",
+    "base": 2,
+    "quote": 22,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCZAR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 52,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.047Z",
+    "modified_on": "2017-03-01T12:49:29.048Z",
+    "base": 2,
+    "quote": 23,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCNZD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 53,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.051Z",
+    "modified_on": "2017-03-01T12:49:29.052Z",
+    "base": 2,
+    "quote": 24,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCBRL",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 54,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.054Z",
+    "modified_on": "2017-03-01T12:49:29.055Z",
+    "base": 2,
+    "quote": 25,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCIDR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 55,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.058Z",
+    "modified_on": "2017-03-01T12:49:29.060Z",
+    "base": 2,
+    "quote": 26,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCILS",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 56,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.062Z",
+    "modified_on": "2017-03-01T12:49:29.064Z",
+    "base": 2,
+    "quote": 27,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCINR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 57,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.066Z",
+    "modified_on": "2017-03-01T12:49:29.067Z",
+    "base": 2,
+    "quote": 28,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCKRW",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 58,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.070Z",
+    "modified_on": "2017-03-01T12:49:29.071Z",
+    "base": 2,
+    "quote": 29,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCMXN",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 59,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.075Z",
+    "modified_on": "2017-03-01T12:49:29.076Z",
+    "base": 2,
+    "quote": 30,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCMYR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 60,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.079Z",
+    "modified_on": "2017-03-01T12:49:29.080Z",
+    "base": 2,
+    "quote": 31,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCPHP",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 61,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.083Z",
+    "modified_on": "2017-03-01T12:49:29.084Z",
+    "base": 2,
+    "quote": 32,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCTHB",
+    "disabled": false
+  }
+}
+]

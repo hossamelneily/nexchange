@@ -197,7 +197,9 @@ class BasePaymentChecker(BaseTask):
         if not order:
             return
         ref = order.unique_reference
-        payments = Payment.objects.filter(is_success=True, reference=ref)
+        currency = order.pair.quote
+        payments = Payment.objects.filter(is_success=True, reference=ref,
+                                          currency=currency)
         sum_all = 0
         for p in payments:
             sum_all += p.amount_cash

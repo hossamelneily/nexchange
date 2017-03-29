@@ -1,5 +1,4 @@
 import os
-import sys
 from time import sleep
 
 from selenium import webdriver
@@ -11,27 +10,24 @@ from selenium.common.exceptions import TimeoutException
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from core.tests.base import TransactionImportBaseTestCase
 from ticker.tests.base import TickerBaseTestCase
-from core.tests.utils import data_provider
 from selenium.webdriver.common.keys import Keys
-from core.tests.utils import (create_payeer_mock_for_order,
-                              get_payeer_mock, get_ok_pay_mock,
-                              create_ok_payment_mock_for_order)
 from orders.models import Order
+from payments.models import UserCards
 from django.conf import settings
 from django.contrib.auth.models import User
-from core.models import Address
 
 from accounts.models import SmsToken
 from unittest.mock import patch
 import requests_mock
 from time import time
+import json
 
 
-class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
-             TickerBaseTestCase):
+class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
+                 TickerBaseTestCase):
 
     def setUp(self):
-        super(TestUI, self).setUp()
+        super(BaseTestUI, self).setUp()
         self.workflow = 'generic'
         self.phone = '+37068644145'
         self.email = 'sarunas@onin.ws'
@@ -39,11 +35,12 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.account = 'LT121000011101001000'
         self.card_number = '1234567887654321'
         self.bic = '123456'
-        self.withdraw_address = '2NGBPxkKAevijTQFxp4WMwCjZYsFjqDMZ97'
-        self.issavescreen = False
+        self.withdraw_address = '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi'
+        self.issavescreen = True
         self.url = self.live_server_url
         self.screenpath = os.path.join(
             os.path.dirname(__file__), 'Screenshots', str(time()))
+        self.screenpath2 = 'unsorted'
         self.mkdir(self.screenpath)
         user_agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64)' \
                      ' AppleWebKit/537.36 (KHTML, like Gecko)' \
@@ -60,65 +57,15 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.driver.set_window_size(1400, 1000)
         self.driver.set_page_load_timeout(self.timeout / 3)
         self.wait = WebDriverWait(self.driver, self.timeout)
-        self.payment_method = None
-        self.screenshot_overall_no = 1
+        self.screenshot_overall_no = self.screenshot_no = 1
         self.stamp = time()
         self.shot_base64 = None
+        self.logged_in = False
+        self.recursive_withdraw_calls = 0
 
     def tearDown(self):
-        super(TestUI, self).tearDown()
+        super(BaseTestUI, self).tearDown()
         self.driver.close()
-
-    @data_provider(lambda: (
-       ([{'name': 'OK Pay', 'success_url': '/okpay'}, # noqa
-         {'name': 'Payeer Wallet', 'success_url': '/payeer'}], True),
-       ([{'name': 'Alfa-Bank'}, {'name': 'Sberbank'},
-         {'name': 'Sepa'}, {'name': 'Swift'}], False),
-       ([{'name': 'Qiwi Wallet'},
-         {'name': 'PayPal'}, {'name': 'Skrill'}], False),
-       ([{'name': 'Visa'}, {'name': 'Mastercard'}], False),
-    ))
-    def test_buy(self, payment_methods, automatic_payment):
-        self.workflow = 'BUY'
-        for payment_method in payment_methods:
-            self.screenshot_no = 1
-            self.payment_method = payment_method['name']
-            self.driver.delete_all_cookies()
-            print('Test {}'.format(self.payment_method))
-            try:
-                self.checkbuy()
-                if automatic_payment:
-                    success_url = '/payments/success{}'.format(
-                        payment_method['success_url']
-                    )
-                    self.automatic_checkout(
-                        success_url=success_url
-                    )
-            except Exception as e:
-                print(self.payment_method + " " + str(e))
-                sys.exit(1)
-
-    @data_provider(lambda: (
-        (['PayPal',
-          'OK Pay',
-          # 'Qiwi wallet',
-          'Skrill',
-          # 'Card 2 Card',
-          'Sepa',
-          'Swift'],),
-    ))
-    def test_sell(self, payment_methods):
-        self.workflow = 'SELL'
-        print('Test sell')
-        for payment_method in payment_methods:
-            self.screenshot_no = 1
-            self.payment_method = payment_method
-            self.driver.delete_all_cookies()
-            try:
-                self.checksell()
-            except Exception as e:
-                print(self.payment_method + " " + str(e))
-                sys.exit(1)
 
     def get_repeat_on_timeout(self, url):
         repeat = 5
@@ -129,11 +76,19 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             try:
                 self.driver.get(url)
             except TimeoutException:
+                self.do_screenshot('Smth wrong with url load')
+                self.do_screenshot('Smth wrong with url load, refresh',
+                                   refresh=True)
                 continue
             else:
                 break
         # sleep for page load
         sleep(self.timeout / 10)
+
+    def get_currency_pair_main_screen(self, pair_name, lang='en'):
+        url = '{}/{}/orders/buy_bitcoin/{}/'.format(self.url, lang,
+                                                    pair_name)
+        self.get_repeat_on_timeout(url)
 
     def mkdir(self, path):
         if not os.path.exists(path):
@@ -146,6 +101,10 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
                     .find('btn-primary') > -1:
                 btsendsms.click()
                 break
+
+    def logout(self):
+        self.driver.delete_all_cookies()
+        self.logged_in = False
 
     @requests_mock.mock()
     def login_phone(self, mock):
@@ -182,17 +141,26 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.selenium_user = User.objects.get(username=self.phone)
         # FIXME: Should be done by mock
         sleep(self.timeout / 20)
+        self.do_screenshot('After Login')
+        self.logged_in = True
 
-    def request_order(self, order_type):
+    def request_order(self, order_type, click_payment_icon=True,
+                      pair_name=None):
         print(self.payment_method)
-        self.get_repeat_on_timeout(self.url)
+        order_type = order_type.lower()
+        if pair_name is None:
+            self.get_repeat_on_timeout(self.url)
+        else:
+            self.get_currency_pair_main_screen(pair_name)
         self.do_screenshot('main_')
         self.wait.until(EC.element_to_be_clickable((
             By.CLASS_NAME, 'trigger-{}'.format(order_type)))).click()
         self.do_screenshot('after {} click'.format(order_type))
-        self.click_on_payment_icon()
+        if click_payment_icon:
+            self.click_on_payment_icon()
 
     def place_order(self, order_type):
+        order_type = order_type.lower()
         bt_buys = self.driver.find_elements_by_class_name('{}-go'.format(
             order_type
         ))
@@ -206,95 +174,6 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         ref = self.driver.find_element_by_class_name('unique_ref').text
         self.order = Order.objects.get(unique_reference=ref)
         self.do_screenshot('End_')
-
-    def checkbuy(self):
-        order_type = 'buy'
-        self.request_order(order_type)
-
-        sleep(self.timeout / 20)
-        self.login_phone()
-        self.do_screenshot('after verifycate phone')
-        # press buy
-        self.place_order(order_type)
-
-    @requests_mock.mock()
-    @patch('orders.utils.send_money')
-    def checksell(self, mock, send_money):
-        order_type = 'sell'
-        send_money.return_value = True
-        self.request_order(order_type)
-        sleep(self.timeout / 5)
-        modal = self.driver.find_element_by_xpath(
-            '//div[@class="modal fade sellMethModal in"]'
-        )
-        if self.payment_method == 'Qiwi wallet':
-            self.fill_sell_card_data(modal, 'phone', self.phone)
-        elif self.payment_method in ['Ok Pay', 'PayPal', 'Skrill']:
-            self.fill_sell_card_data(modal, 'iban', self.name)
-            self.fill_sell_card_data(modal, 'account-number', self.email)
-        elif self.payment_method in ['Card 2 Card', 'Sepa', 'swift']:
-            if self.payment_method == 'Card 2 Card':
-                account = self.card_number
-            else:
-                account = self.account
-            self.fill_sell_card_data(modal, 'account-number', account)
-            self.fill_sell_card_data(modal, 'iban', self.name)
-            if self.payment_method == 'swift':
-                self.fill_sell_card_data(modal, 'account-bic', self.bic)
-
-        self.do_screenshot('Payment preference filled')
-
-        card_go = modal.find_element_by_class_name('save-card')
-        card_go.click()
-        # login
-        sleep(0.8)
-        self.login_phone()
-        sleep(self.timeout / 5)
-        self.do_screenshot('after login')
-        # end login
-        self.mock_sell_transactions_from_customer(mock)
-
-        self.place_order(order_type)
-        # FIXME: should be COMPLETED after sell_order_release task changes
-        self.check_order_status(Order.COMPLETED)
-        self.check_sell_order_on_list()
-
-    def mock_sell_transactions_from_customer(self, mock):
-        self.wait.until(EC.element_to_be_clickable((
-            By.CLASS_NAME, 'btc-amount-confirm')))
-        amount_base = self.driver.find_element_by_class_name(
-            'btc-amount-confirm').text
-        addresses = Address.objects.filter(type=Address.DEPOSIT)
-        self.tx_id = 'tx' + str(time())
-        url_txs = 'http://btc.blockr.io/api/v1/tx/info/{}'.format(self.tx_id)
-        mock.get(url_txs, text=self.blockr_response_tx1)
-        get_txs_response = (
-            '{{"status": "success", "data": {{"txs": [{{"time_utc": '
-            '"2016-08-11T16:33:24Z","tx": "{tx_id}","confirmations": 0,'
-            '"amount": {amount},"amount_multisig": 0}}]}}}}'.format(
-                tx_id=self.tx_id,
-                amount=amount_base
-            )
-        )
-        for address in addresses:
-            url_addr = 'http://{}.blockr.io/api/v1/address/txs/{}'.format(
-                address.currency.code.lower(), address.address
-            )
-            mock.get(url_addr, text=get_txs_response)
-
-    def check_sell_order_on_list(self):
-        self.wait.until(EC.element_to_be_clickable(
-            (By.XPATH, '//div[@class="modal fade in"]//a')
-        )).click()
-        self.check_paid_toggle()
-        self.check_order_status_indicator('released')
-        self.do_screenshot('Payment Success')
-        self.check_order_status_indicator('completed')
-
-    def fill_sell_card_data(self, modal, class_name, value):
-        key = modal.find_element_by_class_name(class_name)
-        key.clear()
-        key.send_keys(value)
 
     def click_on_payment_icon(self):
         try:
@@ -321,63 +200,11 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
              ))
         )).click()
 
-    @requests_mock.mock()
-    @patch('nexchange.utils.api.get_reserve_transaction')
-    @patch('nexchange.utils.OkPayAPI._get_transaction_history')
-    def automatic_checkout(self, mock, trans_history, reserve_txn,
-                           success_url=None):
-        trans_history.return_value = get_ok_pay_mock(
-            data='transaction_history'
-        )
-        reserve_txn.return_value = {'status': 'completed'}
-        mock.post('https://payeer.com/ajax/api/api.php',
-                  text=get_payeer_mock('transaction_history'))
-        method = self.order.payment_preference.payment_method
-        if 'okpay' in method.name.lower():
-            trans_history.return_value = create_ok_payment_mock_for_order(
-                self.order
-            )
-        elif 'payeer' in method.name.lower():
-            mock.post('https://payeer.com/ajax/api/api.php',
-                      text=create_payeer_mock_for_order(self.order))
-        self.do_screenshot('Before push auto-checkout')
-        auto_checkout = self.driver.find_elements_by_class_name(
-            'automatic-checkout'
-        )
-        self.assertTrue(
-            auto_checkout,
-            'There is no Automatic checkout button for {}'.format(
-                self.payment_method
-            )
-        )
-        # Payment success
-        self.get_repeat_on_timeout(self.url + success_url)
-        self.check_paid_toggle()
-        self.do_screenshot('Payment Success')
-        url_params = self.get_url_params(self.driver.current_url)
-        self.assertEqual(
-            url_params['is_paid'], 'true',
-            'Success call from payment provider should send is_paid=true')
-        self.assertEqual(
-            url_params['oid'], self.order.unique_reference,
-            'Success call from payment provider should send'
-            ' oid={self.order.unique_reference} - current order.')
-        self.check_order_status(Order.PAID)
-        # Add withdraw address
-        self.add_withdraw_address_on_payment_success()
-        # Order must be released after adding withdraw address
-        self.check_order_status_indicator('released')
-        # Order completed then transaction is completed
-        self.do_screenshot('Order Completed', refresh=True)
-        self.check_order_status_indicator('completed')
-
     def check_paid_toggle(self):
-        self.driver.refresh()
-        self.do_screenshot('Before payment Toggler check')
+        self.do_screenshot('Before payment Toggler check', refresh=True)
         success_toggle_input = self.select_paid_toggle()
         if len(success_toggle_input) == 0:
-            self.driver.refresh()
-            sleep(self.timeout / 10)
+            self.do_screenshot('Check for toggler once again', refresh=True)
             success_toggle_input = self.select_paid_toggle()
         self.assertTrue(
             len(success_toggle_input) >= 1,
@@ -389,7 +216,6 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         )
 
     def select_paid_toggle(self):
-        res = []
         res = self.driver.find_elements_by_xpath(
             '//div[@class="toggle btn btn-success"]//input[@data-pk="{'
             '}"]'.format(self.order.pk)
@@ -406,7 +232,7 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
                 res.update({p[0]: p[1]})
         return res
 
-    def write_withdraw_address_on_popover(self):
+    def write_withdraw_address_on_popover(self, add_new=False):
         popover_path = '//div[@class="popover fade top in"]'
         create_path = (
             '//div[contains(@class, "create_withdraw_address")]'
@@ -417,11 +243,21 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             '//option'
         )
         submit_path = '//button[@type="submit"]'
+        add_path = '//button[@type="button"]'
         create = self.driver.find_element_by_xpath(popover_path + create_path)
         submit = self.driver.find_element_by_xpath(popover_path + submit_path)
+        add = self.driver.find_element_by_xpath(popover_path + add_path)
         options = self.driver.find_elements_by_xpath(popover_path +
                                                      option_path)
         if create.is_displayed():
+            create.click()
+            create.send_keys(self.withdraw_address)
+            create.send_keys(Keys.ENTER)
+        elif add_new:
+            try:
+                add.click()
+            except TimeoutException as e:
+                raise TimeoutException('{}: {}'.format(self.payment_method, e))
             create.click()
             create.send_keys(self.withdraw_address)
             create.send_keys(Keys.ENTER)
@@ -433,14 +269,30 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
     @patch('nexchange.utils.api.execute_txn')
     @patch('nexchange.utils.api.prepare_txn')
     def add_withdraw_address_on_payment_success(self, prepare_txn,
-                                                execute_txn):
+                                                execute_txn, add_new=False):
         prepare_txn.return_value = 'txid{}'.format(self.order.unique_reference)
         execute_txn.return_value = True
-        address = self.driver.find_element_by_id(
-            'span-withdraw-{}'.format(self.order.pk)
-        )
-        address.click()
-        self.write_withdraw_address_on_popover()
+        address_id = 'span-withdraw-{}'.format(self.order.pk)
+
+        try:
+            self.wait.until(EC.element_to_be_clickable((
+                By.ID, address_id
+            ))).click()
+        except TimeoutException:
+            self.do_screenshot('TIMEOUT on Wait for address to be clickable')
+        sleep(self.timeout / 5)
+        try:
+            self.write_withdraw_address_on_popover(add_new=add_new)
+        except Exception as e:
+            self.do_screenshot('fail to add withdraw address: {}'.format(e),
+                               refresh=True)
+            if self.recursive_withdraw_calls < 1:
+                self.add_withdraw_address_on_payment_success(add_new=add_new)
+                self.recursive_withdraw_calls += 1
+                return
+            else:
+                self.write_withdraw_address_on_popover(add_new=add_new)
+
         sleep(self.timeout / 5)
         self.do_screenshot('Withdraw Address added')
 
@@ -456,7 +308,7 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             'Bad Order status on {}'.format(self.payment_method))
 
     def check_order_status_indicator(self, indicator_name, checked=True):
-        self.driver.refresh()
+        self.do_screenshot('Before checking status', refresh=True)
         is_checked = 'fa fa-check fa-1'
         is_unchecked = 'fa fa-close fa-1 red'
         if checked:
@@ -472,7 +324,7 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         for _ in range(5):
             indicator = self.driver.find_elements_by_xpath(path)
             if len(indicator) == 0:
-                self.driver.refresh()
+                self.do_screenshot('wait for indicator', refresh=True)
                 continue
             break
         self.assertNotEqual(
@@ -482,6 +334,68 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             )
         )
 
+    def check_confirm_amounts(self, pair_name=None):
+        try:
+            self.wait.until(EC.element_to_be_clickable((
+                By.CLASS_NAME, 'btc-amount-confirm')))
+        except TimeoutException:
+            # FIXME: sometimes unclickable is clicked (if you get there and
+            # tests are still passing)
+            self.do_screenshot(
+                'TIMEOUT btc-amount-confirm is not clickable (tests should not'
+                ' PASS cause you should not be abble to click unclickable '
+                'element)'
+            )
+        amount_base = self.driver.find_element_by_class_name(
+            'btc-amount-confirm').text
+        amount_quote = self.driver.find_element_by_class_name(
+            'cash-amount-confirm').text
+        currency_base = self.driver.find_element_by_class_name(
+            'currency_base').text
+        # FIXME: legacy on frontend, class should be called
+        # 'currency_quote'. Therefore XPATH is used here.
+        currency_quote = self.driver.find_element_by_xpath(
+            '//div[@id="menu3"]//span[@class="currency"]').text
+        self.assertNotEqual(amount_base, '')
+        self.assertNotEqual(amount_quote, '')
+        if pair_name is not None:
+            self.assertEqual(currency_base, pair_name[:3])
+            self.assertEqual(currency_quote, pair_name[3:])
+        res = {'currency_base': currency_base,
+               'currency_quote': currency_quote,
+               'amount_base': amount_base,
+               'amount_quote': amount_quote}
+        return res
+
+    def click_go_to_order_list(self):
+        try:
+            self.wait.until(EC.element_to_be_clickable(
+                (By.XPATH, '//div[@class="modal fade in"]//a')
+            )).click()
+        except TimeoutException:
+            # FIXME: sometimes unclickable is clicked (if you get there and
+            # tests are still passing)
+            self.do_screenshot('TIMEOUT on click GO/Getcoins (tests should not'
+                               ' PASS cause you should not be abble to click '
+                               'unclickable element)')
+
+    def mock_import_transaction(self, amount, currency_code, reserve_txs,
+                                import_txs):
+        tx_id_api = 'tx_customer' + str(time())
+        reserve_txs.return_value = json.loads(self.completed)
+        card_id = UserCards.objects.filter(
+            user__profile__phone=self.phone,
+            currency=currency_code)[0].card_id
+        get_txs_response = self.uphold_import_transactions_empty.format(
+            tx_id_api1=tx_id_api,
+            tx_id_api2='nonsense',
+            amount1=amount,
+            amount2='0.0',
+            currency=currency_code,
+            card_id=card_id,
+        )
+        import_txs.return_value = json.loads(get_txs_response)
+
     def do_screenshot(self, filename, refresh=False):
         self.shot_base64 = self.driver.get_screenshot_as_base64()
         now = time()
@@ -490,12 +404,9 @@ class TestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         if self.issavescreen:
             if refresh:
                 self.driver.refresh()
-            if self.payment_method is None:
-                method_path = 'unsorted'
-            else:
-                method_path = self.payment_method
+                sleep(self.timeout / 15)
             path = os.path.join(
-                self.screenpath, self.workflow, method_path)
+                self.screenpath, self.workflow, self.screenpath2)
             filename = '{}({}). {} ({:.2f}s)'.format(
                 self.screenshot_no, self.screenshot_overall_no, filename, diff
             )

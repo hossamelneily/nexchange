@@ -15,33 +15,41 @@
         </div>
         <div class="row">
             <div class="col col-xs-12">
-                <div class="qrContainer btn btn-success">
-                    <img src="//blockr.io/api/v1/address/Qr/{{ address }}" alt="{{ address }}">
-                </div>
-            </div>
-           <div class="col col-xs-12">
-                <span class="btn btn-success expand" title=
+                <span class="expand" title=
                         "{% trans 'Copy' %}">
                     <i class="fa fa-copy"></i>
                     <strong>{{address}}</strong>
                 </span>
             </div>
-        </div>
-        <div class="row">
-            <div class="col col xs-12"></div>
-            {% trans 'You choose to get paid by:' %}
-            {{ order.payment_preference.payment_method.name }}
-        </div>
-        <div class="row">
             <div class="col col-xs-12">
-                <p><strong>{{order.payment_preference.identifier}}</strong></p>
+                <div class="qrContainer">
+                    <img src="https://chart.googleapis.com/chart?cht=qr&chl={{ address }}&choe=UTF-8&chs=250x250" alt="{{ address }}">
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col col-xs-12">
-                {% trans 'We will place the following reference in the comment to our payment:' %}
+        {% if not order.exchange %}
+            <div class="row">
+                <div class="col col xs-12"></div>
+                {% trans 'You choose to get paid by:' %}
+                {{ order.payment_preference.payment_method.name }}
             </div>
-        </div>
+            <div class="row">
+                <div class="col col-xs-12">
+                    <p><strong>{{order.payment_preference.identifier}}</strong></p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col col-xs-12">
+                    {% trans 'We will place the following reference in the comment to our payment:' %}
+                </div>
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col col-xs-12">
+                    {% trans 'Order Reference:' %}
+                </div>
+            </div>
+        {% endif %}
         <div class="row">
             <div class="col col-xs-12 unique_ref">
                 <p><strong>{{unique_ref}}</strong></p>

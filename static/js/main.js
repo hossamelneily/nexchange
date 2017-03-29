@@ -19,11 +19,12 @@
            paymentMethodsAccountEndpoint = '/en/paymentmethods/account/ajax/',
            cardsEndpoint = '/en/payments/options/',
            // Required modules
-           
+
            orderObject = require('./modules/orders.js'),
            paymentObject = require('./modules/payment.js'),
            register = require('./modules/register.js'),
            captcha = require('./modules/captcha.js'),
+           cryptoCurrCodes = ['BTC', 'ETH', 'LTC'],
            $currencyFrom,
            $currencyTo,
            $currencyPair,
@@ -36,6 +37,15 @@
         window.action = window.ACTION_BUY; // 1 - BUY 0 - SELL
 
     $(function () {
+        $(window).load(function() {
+            $('body').fadeTo(1, 1000, function () {
+                try {
+                    orderObject.setCurrency(false, currency, currency_to, pair);
+                    paymentObject.loadPaymentMethods(cardsEndpoint, currency);
+                } catch (suppress) {}
+            });
+        });
+
         if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
             $('.select2').removeClass('select2');
         } else {
@@ -51,12 +61,10 @@
         $currencySelect = $('.currency-select');
         $currencyFrom = $('.currency-from');
         $currencyTo = $('.currency-to');
-        $currencyPair = $('.currency-pair');
+        $currencyPair = $("select[name='currency_pair']");
         $currencyFrom.val(currency);
-        $currencyPair.val(pair);
+        $currencyPair.val(pair).trigger('change.select2');
         $currencyTo.val(currency_to);
-        orderObject.setCurrency(false, currency, currency_to, pair);
-        paymentObject.loadPaymentMethods(cardsEndpoint, currency);
         var timer = null,
             delay = 500,
             phones = $('.phone'),
@@ -77,9 +85,10 @@
         phones.on('keyup', stripSpaces);
         verification_code.on('keyup', stripSpaces);
 
-
         orderObject.updateOrder($('.amount-coin'), true, currency);
         // if not used event, isNext remove  jshint
+
+
         $('#graph-range').on('change', function() {
             orderObject.setCurrency(false, currency, currency_to, pair);
         });
@@ -102,14 +111,27 @@
                 $('.menu1').removeClass('sell');
                 window.action = window.ACTION_BUY;
                 orderObject.updateOrder($('.amount-coin'), false, currency, function () {
-                    orderObject.toggleBuyModal();
+                    if ((cryptoCurrCodes.indexOf($currencyFrom.val()) >= 0) && (cryptoCurrCodes.indexOf($currencyTo.val()) >= 0)) {
+                        $('.payment-preference-confirm').text('EXCHANGE');
+                        orderObject.changeState(null, 'next');
+                    } else {
+                        orderObject.toggleBuyModal();
+                    }
+
                 });
 
             } else {
                 $('.menu1').addClass('sell');
                 window.action = window.ACTION_SELL;
                 orderObject.updateOrder($('.amount-coin'), false, currency, function () {
-                    orderObject.toggleSellModal();
+                    if ((cryptoCurrCodes.indexOf($currencyFrom.val()) >= 0) && (cryptoCurrCodes.indexOf($currencyTo.val()) >= 0)) {
+                        $('.payment-preference-confirm').text('EXCHANGE');
+                        setTimeout(function () {
+                            orderObject.changeState(null, 'next');
+                        }, 600);
+                    } else {
+                        orderObject.toggleSellModal();
+                    }
                 });
             }
 
@@ -187,7 +209,7 @@
             paymentObject.loadPaymentMethods(cardsEndpoint, currency);
             //bind all select boxes
             $currencyFrom.val(currency);
-            $currencyPair.val(pair);
+            $currencyPair.val(pair).trigger('change.select2');
             $currencyTo.val(currency_to);
             orderObject.updateOrder($('.amount-coin'), false, currency);
             // orderObject.reloadCardsPerCurrency(currency, cardsEndpoint);
@@ -256,15 +278,21 @@
             //TODO verify if $(this).hasClass('sell-go') add
             // the other type of transaction
             // add security checks
-                var verifyPayload = {
-                    'trade-type': $('.trade-type').val(),
-                    'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
-                    'amount-base': $('.amount-coin').val() || DEFAULT_AMOUNT,
-                    'currency_from': $('.currency-from').val(), //fiat
-                    'currency_to': $('.currency-to').val(), //crypto
-                    'payment_preference': paymentObject.getPaymentPreference(),
-                    '_locale': $('.topright_selectbox').val()
-                };
+            var preferenceName = $('.payment-preference-confirm').text(),
+                payment_preference = paymentObject.getPaymentPreference();
+            if (preferenceName == 'EXCHANGE') {
+                payment_preference = preferenceName;
+            }
+
+            var verifyPayload = {
+                'trade-type': $('.trade-type').val(),
+                'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
+                'amount-base': $('.amount-coin').val() || DEFAULT_AMOUNT,
+                'currency_from': $('.currency-from').val(), //fiat
+                'currency_to': $('.currency-to').val(), //crypto
+                'payment_preference': payment_preference,
+                '_locale': $('.topright_selectbox').val()
+            };
 
             $.ajax({
                 type: 'POST',
@@ -404,7 +432,7 @@
             $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
 
             $(this).closest('.modal').modal('hide');
-            
+
             setTimeout(function () {
                 orderObject.changeState(null, 'next');
             }, 600);
@@ -444,5 +472,3 @@
 
     window.submit_phone=submit_phone;
 } (window, window.jQuery)); //jshint ignore:line
-
-

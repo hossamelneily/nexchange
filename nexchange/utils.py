@@ -20,7 +20,7 @@ import string
 
 api = Uphold(settings.API1_IS_TEST)
 api.auth_basic(settings.API1_USER, settings.API1_PASS)
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=settings.BASIC_LOGGING_LEVEL)
 
 
 class Del:
@@ -108,13 +108,21 @@ def print_traceback():
     traceback.print_tb(tb)
 
 
-def release_payment(withdraw, amount, type_='BTC'):
+def release_payment(withdraw, amount, type_):
     # TODO: take from user cards
+    if type_ == 'BTC':
+        card = settings.API1_ID_C1
+    elif type_ == 'LTC':
+        card = settings.API1_ID_C2
+    elif type_ == 'ETH':
+        card = settings.API1_ID_C3
+    else:
+        raise ValueError('Card for type {} not found'.format(type_))
     try:
-        txn_id = api.prepare_txn(settings.API1_ID_C1,
+        txn_id = api.prepare_txn(card,
                                  withdraw, amount, type_)
         print(txn_id)
-        res = api.execute_txn(settings.API1_ID_C1, txn_id)
+        res = api.execute_txn(card, txn_id)
         print(res)
         return txn_id
     except Exception as e:
@@ -180,6 +188,12 @@ def check_address_blockchain(address):
     return transactions
 
 
+def get_transaction_blockchain(network, tx_id):
+    btc_blockr = 'http://{}.blockr.io/api/v1/tx/info/{}'. \
+        format(network, tx_id)
+    return get(btc_blockr)
+
+
 def check_transaction_blockchain(tx):
     if not tx or not tx.tx_id:
         return False
@@ -189,9 +203,7 @@ def check_transaction_blockchain(tx):
     network = '{}'.format(currency)
     if settings.DEBUG:
         network = 't{}'.format(currency)
-    btc_blockr = 'http://{}.blockr.io/api/v1/tx/info/{}'.\
-        format(network, str(tx.tx_id))
-    info = get(btc_blockr)
+    info = get_transaction_blockchain(network, str(tx.tx_id))
     if info.status_code != 200:
         return False
     num_confirmations = int(info.json()['data']['confirmations'])
@@ -211,9 +223,10 @@ def check_transaction_uphold(tx):
 
     res = api.get_reserve_transaction(tx.tx_id_api)
     if not tx.tx_id:
-        tx.tx_id = res.\
-            get('params', {}).\
-            get('txid')
+        tx_id = res.get('params', {}).get('txid')
+        if tx_id is not None:
+            tx.tx_id = tx_id
+            tx.save()
     print("status: {}".format(res.get('status')))
     return res.get('status') == 'completed'
 
@@ -258,7 +271,7 @@ class BasePaymentApi:
 
 
 class OkPayAPI(BasePaymentApi):
-    def __init__(self, api_password=None, wallet_id=None):
+    def __init__(self, api_password=None, wallet_id=None, url=None):
         ''' Set up your API Access Information
             https://www.okpay.com/en/developers/interfaces/setup.html '''
         if api_password is None:
@@ -277,16 +290,24 @@ class OkPayAPI(BasePaymentApi):
         concatenated = concatenated.encode('utf-8')
         self.security_token = sha256(concatenated).hexdigest()
         # Create proxy client
-        self.client = Client(
-            url='https://api.okpay.com/OkPayAPI?singleWsdl',
-            retxml=True
-        )
+        if url is None:
+            url = 'https://api.okpay.com/OkPayAPI?singleWsdl'
+        self.url = url
+        self.client = None
+
+    def _get_client(self):
+        if self.client is None:
+            self.client = Client(
+                url=self.url,
+                retxml=True
+            )
 
     # def get_date_time(self):
     #     ''' Get the server time in UTC.
     #         Params: None
     #         Returns: String value - Date (YYYY-MM-DD HH:mm:SS)
     #                 2010-12-31 10:33:44'''
+    #     self._get_client()
     #     response = self.client.service.Get_Date_Time()
     #     root = ET.fromstring(response)
     #     now = root[0][0][0].text
@@ -300,6 +321,7 @@ class OkPayAPI(BasePaymentApi):
                         returned.
             Returns: dictionary in the form {'balance': {'CUR': '0.0', ...}}
         '''
+        self._get_client()
         try:
             if currency is None:
                 response = self.client.service.Wallet_Get_Currency_Balance(
@@ -325,6 +347,7 @@ class OkPayAPI(BasePaymentApi):
         /transaction-history.html
         """
 
+        self._get_client()
         response = self.client.service.Transaction_History(
             self.wallet_id,
             self.security_token,
@@ -383,6 +406,7 @@ class OkPayAPI(BasePaymentApi):
         https://dev.okpay.com/en/manual/interfaces/functions/general
         /transaction-get.html
         """
+        self._get_client()
         try:
             response = self.client.service.Transaction_Get(
                 self.wallet_id,
@@ -399,6 +423,7 @@ class OkPayAPI(BasePaymentApi):
         https://dev.okpay.com/en/manual/interfaces/functions/general
         /account-check.html
         """
+        self._get_client()
         try:
             response = self.client.service.Account_Check(
                 self.wallet_id,
@@ -416,6 +441,7 @@ class OkPayAPI(BasePaymentApi):
         /send-money.html
         """
 
+        self._get_client()
         response = self.client.service.Send_Money(
             self.wallet_id,
             self.security_token,
@@ -551,3 +577,29 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+
+def get_uphold_card_transactions(card_id, trans_type='incoming'):
+    try:
+        all_txs = api.get_card_transactions(card_id)
+        txs = []
+        if trans_type == 'incoming':
+            for tx in all_txs:
+                if 'CardId' in tx['destination']:
+                    if tx['destination']['CardId'] == card_id:
+                        txs.append(tx)
+
+        elif trans_type == 'outgoing':
+            for tx in all_txs:
+                if 'CardId' in tx['destination']:
+                    if tx['destination']['CardId'] == card_id:
+                        continue
+                txs.append(tx)
+        elif trans_type == 'all':
+            txs = all_txs
+        else:
+            raise ValueError('Bad transaction type \'{}\''.format(trans_type))
+        return txs
+    except Exception as e:
+        print('error {}'.format(e))
+        print_traceback()

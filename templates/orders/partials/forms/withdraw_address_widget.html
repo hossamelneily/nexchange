@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="scenes-withdrawal-wrapper">
-    {% if order.is_buy and request.GET.oid == order.unique_reference and not order.withdraw_address %}
+    {% if order.requires_withdraw_address and request.GET.oid == order.unique_reference and not order.withdraw_address %}
     <div class="scenes-wrapper" {% if request.GET.is_paid %}style="display: none"{% endif %}>
         <div class="scenes">
           <div class="scene scene1">
@@ -34,7 +34,7 @@
                 data-placement="top"
                 data-pk="{{order.pk}}"
                 data-url-update="{% url 'orders.update_withdraw_address' order.pk %}"
-                data-url-create="{% url 'accounts.create_withdraw_address' %}">
+                data-url-create="{% url 'accounts.create_withdraw_address' order.pk %}">
                 {{order.withdraw_address.address |default:_("Not Defined")}}
             </span>
             <span class="fa fa-pencil" aria-hidden="true">

@@ -17,6 +17,7 @@ from datetime import timedelta
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 import dj_database_url
+import logging
 
 # SECRET KEY TEST
 SECRET_KEY = 'zsl4+4%(%=0@f*tkf0f2u%dt&v&h_-g5mw*o25i$480=3qcb2k'
@@ -125,7 +126,7 @@ INSTALLED_APPS = [
     'session_security',
     'axes',
     'nexchange',
-    'support',
+    'support'
 ]
 
 
@@ -137,6 +138,7 @@ ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
 
 OKPAY_URL = 'https://www.okpay.com/en/account/login.html?verification={1}&' \
             'reference={2}&return_url={3}'
+OKPAY_API_URL = 'https://api.okpay.com/OkPayAPI?singleWsdl'
 
 PAYEER_API_URL = 'https://payeer.com/ajax/api/api.php'
 PAYEER_IPS = ['185.71.65.92', '185.71.65.189', '149.202.17.210']
@@ -189,8 +191,8 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'accounts.task_summary.renew_cards_reserve_invoke',
         'schedule': timedelta(seconds=60),
     },
-    'import_btc_deposit_transactions': {
-        'task': 'accounts.task_summary.import_transaction_deposit_btc_invoke',
+    'import_crypto_deposit_transactions': {
+        'task': 'accounts.task_summary.import_transaction_deposit_crypto_invoke', # noqa
         'schedule': timedelta(seconds=60),
     },
     'check_okpay_payments': {
@@ -203,6 +205,10 @@ CELERY_BEAT_SCHEDULE = {
     },
     'buy_order_release_reference_periodic': {
         'task': 'orders.task_summary.buy_order_release_reference_periodic',
+        'schedule': timedelta(30),
+    },
+    'exchange_order_release_periodic': {
+        'task': 'orders.task_summary.exchange_order_release_periodic',
         'schedule': timedelta(30),
     },
     'checker_transactions': {
@@ -324,6 +330,8 @@ STATICFILES_DIRS = (
 
 API1_IS_TEST = True
 API1_ID_C1 = 'a1a88f60-7473-47e4-9b78-987daf198a5d'
+API1_ID_C2 = ''
+API1_ID_C3 = ''
 CARDS_RESERVE_COUNT = 6
 
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
@@ -423,3 +431,4 @@ LOGGING = {
         },
     }
 }
+BASIC_LOGGING_LEVEL = logging.DEBUG

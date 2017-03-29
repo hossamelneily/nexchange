@@ -14,9 +14,8 @@ class PaymentMethodManager(models.Manager):
 
 
 class PaymentMethod(TimeStampedModel, SoftDeletableModel):
-
+    NATURAL_KEY = 'bin'
     METHODS_NAMES_WITH_BANK_DETAILS = ['SEPA', 'SWIFT']
-
     BIN_LENGTH = 6
     objects = PaymentMethodManager()
     name = models.CharField(max_length=100)

@@ -17,8 +17,7 @@ function use_running_container {
 
     docker exec -t ${RUNNING_CONTAINER} bash -c "${static_validation_cmd_py}" &&
         docker exec -t ${RUNNING_CONTAINER} bash -c "${static_validation_cmd_js}" &&
-            docker exec -t ${RUNNING_CONTAINER} bash -c "${backend_tests}" &&
-                docker exec -t ${RUNNING_CONTAINER} bash -c "${frontend_tests}"
+            docker exec -t ${RUNNING_CONTAINER} bash -c "${backend_tests}"
 }
 
 function use_wercker {

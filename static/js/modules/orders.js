@@ -40,10 +40,10 @@
         }
 
         var params = parseQuery(window.location.search),
-            oid = params['oid'],
+            oid = params.oid,
             initialDelay = 1500,
             payDelay = 1500,
-            isPaid =  params['is_paid'],
+            isPaid =  params.is_paid,
             indicateWithdrawDelay = isPaid ? 1500 : 0,
             oidSelector = '#' + oid,
             rootElem = $(oidSelector),
@@ -54,7 +54,7 @@
             setTimeout(function() {setAsPaidFlow();}, initialDelay);
         }
     });
-     
+
     function orderSmallerThanMin (amountCoin) {
         var val = parseFloat(amountCoin.val());
         return val < minOrderCoin;
@@ -127,7 +127,7 @@
                     $('.amount-coin').val(btcAmount);
                 }
             }
-            $('.btc-amount-confirm').text(amountCoin.val()); // add
+            $('.btc-amount-confirm').text($('.amount-coin').val()); // add
             $('.cash-amount-confirm').text(amountCashConfirm); //add
 
             if(cb) cb();
@@ -199,6 +199,7 @@
         }
         if (!!currency) {
             $('.currency').html(currency.toUpperCase());
+            $('.currency_base').html(currency_to.toUpperCase());
             var title = currency_to + '/' + currency;
             chartObject.renderChart(pair, title, $("#graph-range").val());
         }
@@ -219,9 +220,9 @@
 
     function setButtonDefaultState (tabId) {
         if (tabId === 'menu2') {
-            googleObject.doRender();                 
+            googleObject.doRender();
             var modifier = window.ACTION_SELL ? 'btn-danger' : 'btn-success';
-            $('.next-step').removeClass('btn-info').addClass(modifier);                        
+            $('.next-step').removeClass('btn-info').addClass(modifier);
         } else {
             $('.next-step').removeClass('btn-success').removeClass('btn-danger').addClass('btn-info');
         }
@@ -251,7 +252,7 @@
         $("#UserAccountModal").modal({backdrop: "static"});
     }
 
-    function changeState (e, action) {       
+    function changeState (e, action) {    
         if (e) {
             e.preventDefault();
         }
@@ -264,10 +265,16 @@
             toggleBuyModal();
             return;
         }
+        else if (window.action == window.ACTION_SELL &&
+            $('.payment-preference-confirm').text() == 'EXCHANGE') {
+            $('.buy-go').addClass('hidden');
+            $('.sell-go').removeClass('hidden');
+        }
         else if (window.action == window.ACTION_SELL && !paymentObj.getPaymentPreference()) {
             toggleSellModal();
             return;
         }
+
 
         var valElem = $('.amount-coin'),
             val;
@@ -292,7 +299,7 @@
         if(nextState.hasClass('disabled') &&
             numericId < $(".process-step").length &&
             numericId > 1) {
-            changeState(null, action);            
+            changeState(null, action);
         }
 
 
@@ -313,7 +320,7 @@
                 .tab('show');
             window.scrollTo(0, 0);
         }
-        
+
 
         $(window).trigger('resize');
     }

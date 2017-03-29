@@ -103,7 +103,6 @@ class OrderSetAsPaidTestCase(OrderBaseTestCase):
         self.order.withdraw_address = address
         self.order.save()
 
-
         # Set Order as Paid
         response = self.client.post(self.url, {'paid': 'true'})
         expected_dict = {"frozen": True, "paid": True, "status": "OK"}
@@ -215,6 +214,7 @@ class OrderPayUntilTestCase(OrderBaseTestCase):
 
 
 class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
+
     def setUp(self):
         super(UpdateWithdrawAddressTestCase, self).setUp()
 
@@ -261,6 +261,7 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
             'type': 'W',
             'name': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
             'address': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+            'currency': self.BTC
 
         }
         self.addr = Address(**self.addr_data)
@@ -352,7 +353,7 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
         self.assertEquals(0, invoke.call_count)
 
     @mock.patch('orders.task_summary.buy_order_release_by_reference_invoke')
-    def dont_release_on_first_withdraw_address_change_not_paid(self, invoke):
+    def dont_release_on_first_withdraw_address_change_not_paid2(self, invoke):
         self.client.login(username=self.user.username, password='password')
         self.order.status = Order.PAID_UNCONFIRMED
         self.order.save()
@@ -373,6 +374,7 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
 
 
 class OrderIndexOrderTestCase(OrderBaseTestCase):
+
     def setUp(self):
         super(OrderIndexOrderTestCase, self).setUp()
 

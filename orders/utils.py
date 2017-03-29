@@ -6,7 +6,8 @@ from orders.models import Order
 
 ok_api = OkPayAPI(
     api_password=settings.OKPAY_API_KEY,
-    wallet_id=settings.OKPAY_WALLET
+    wallet_id=settings.OKPAY_WALLET,
+    url=settings.OKPAY_API_URL
 )
 
 payeer_api = PayeerAPIClient(

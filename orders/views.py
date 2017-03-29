@@ -18,8 +18,8 @@ from payments.models import PaymentPreference, PaymentMethod, Payment
 from payments.utils import geturl_robokassa, get_payeer_sign, get_payeer_desc
 from nexchange.utils import send_email
 from orders.task_summary import buy_order_release_by_reference_invoke, \
-    buy_order_release_by_wallet_invoke
-from accounts.task_summary import (import_transaction_deposit_btc_invoke,
+    buy_order_release_by_wallet_invoke, exchange_order_release_invoke
+from accounts.task_summary import (import_transaction_deposit_crypto_invoke,
                                    update_pending_transactions_invoke)
 
 
@@ -173,33 +173,43 @@ def ajax_order(request):
     _currency_to = Currency.objects.get(name=currency_to)
 
     # Only for buy order right now
-    payment_method = request.POST.get('payment_preference[method]')
+    exchange = False
+    if request.POST.get('payment_preference') == 'EXCHANGE':
+        exchange = True
+        payment_method = None
+    else:
+        payment_method = request.POST.get('payment_preference[method]')
     amount_base = Decimal(amount_base)
     template = 'orders/partials/modals/order_success_{}.html'.\
         format('buy' if trade_type else 'sell')
     template = get_template(template)
-    if trade_type == Order.SELL:
-        payment_pref_data = {
-            'owner': request.POST.get('payment_preference[owner]'),
-            'iban': request.POST.get('payment_preference[iban]'),
-            'method': request.POST.get('payment_preference[method]')
-        }
-        payment_pref = get_or_create_preference(
-            payment_pref_data,
-            _currency_from,
-            request.user
-        )
+    if payment_method is not None:
+        if trade_type == Order.SELL:
+            payment_pref_data = {
+                'owner': request.POST.get('payment_preference[owner]'),
+                'iban': request.POST.get('payment_preference[iban]'),
+                'method': request.POST.get('payment_preference[method]')
+            }
+            payment_pref = get_or_create_preference(
+                payment_pref_data,
+                _currency_from,
+                request.user
+            )
 
+        else:
+            payment_pref = PaymentPreference.objects.get(
+                user__is_staff=True,
+                currency__in=[_currency_from],
+                payment_method__name__icontains=payment_method
+            )
     else:
-        payment_pref = PaymentPreference.objects.get(
-            user__is_staff=True,
-            currency__in=[_currency_from],
-            payment_method__name__icontains=payment_method
-        )
+        payment_pref = None
 
     order = Order(amount_base=amount_base,
-                  order_type=trade_type, payment_preference=payment_pref,
-                  pair=pair, user=request.user)
+                  order_type=trade_type, pair=pair, user=request.user,
+                  exchange=exchange)
+    if payment_pref is not None:
+        order.payment_preference = payment_pref
     order.save()
     uniq_ref = order.unique_reference
     pay_until = order.created_on + timedelta(minutes=order.payment_window)
@@ -211,6 +221,13 @@ def ajax_order(request):
         addresses = Address.objects.filter(
             user=request.user,
             currency=_currency_to,
+            type=Address.DEPOSIT
+        )
+        address = addresses[0].address
+    elif trade_type == Order.BUY and order.exchange:
+        addresses = Address.objects.filter(
+            user=request.user,
+            currency=_currency_from,
             type=Address.DEPOSIT
         )
         address = addresses[0].address
@@ -258,12 +275,15 @@ def ajax_order(request):
                    "{} {}".format(order, payment_pref))
     except:
         pass
-    if trade_type == Order.SELL:
-        import_transaction_deposit_btc_invoke.apply_async(
+    if trade_type == Order.SELL or order.exchange:
+        import_transaction_deposit_crypto_invoke.apply_async(
             countdown=settings.TRANSACTION_IMPORT_TIME
         )
+        curr_code = order.pair.base.code
+        if trade_type == Order.BUY:
+            curr_code = order.pair.quote.code
         countdown = getattr(settings, '{}_CONFIRMATION_TIME'.format(
-            order.pair.base.code
+            curr_code
         ))
         update_pending_transactions_invoke.apply_async(
             countdown=countdown
@@ -290,13 +310,42 @@ def update_withdraw_address(request, pk):
         try:
             addr = Address.objects.get(
                 user=request.user, pk=address_id)
+            if order.order_type == Order.BUY:
+                if addr.currency != order.pair.base:
+                    return HttpResponseForbidden(
+                        _('The currency({}) of this Address is not the same as'
+                          ' the order base currency({}).'
+                          ''.format(addr.currency.code, order.pair.base.code))
+                    )
+            else:
+                if addr.currency != order.pair.quote:
+                    return HttpResponseForbidden(
+                        _('The currency({}) of this Address is not the same as'
+                          ' the order quote currency({}).'
+                          ''.format(addr.currency.code, order.pair.quote.code))
+                    )
             new_withdraw_address = not order.withdraw_address
             addr.save()
             order.withdraw_address = addr
             order.save()
             if order.status == Order.PAID and new_withdraw_address:
                 payment = order.payment_set.first()
-                if payment:
+                transaction = order.transactions.first()
+                if transaction and order.exchange:
+                    exchange_order_release_invoke.apply_async([
+                        transaction.pk
+                    ])
+                    if order.order_type == order.BUY:
+                        curr_code = order.pair.base.code
+                    else:
+                        curr_code = order.pair.quote.code
+                    countdown = getattr(settings,
+                                        '{}_CONFIRMATION_TIME'.format(
+                                            curr_code
+                                        ))
+                    update_pending_transactions_invoke.apply_async(
+                        countdown=countdown)
+                elif payment:
                     buy_order_release_by_reference_invoke.apply_async([
                         payment.pk
                     ])

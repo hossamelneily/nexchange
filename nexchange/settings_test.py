@@ -1,5 +1,6 @@
 from .settings import *
 from nexchange import settings_dev
+import logging
 # When testing, use sqlite3 so the database is loaded in memory
 # this will make tests run faster
 
@@ -13,6 +14,8 @@ DATABASES = {
 # TODO: unit tests should not write to disk!
 STATIC_ROOT = '/tmp/static'
 MEDIA_ROOT = '/tmp/media'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DEBUG = True
 
@@ -58,8 +61,6 @@ API1_USER = os.getenv('API1_USER',
 API1_PASS = os.getenv('API1_PASS',
                       settings_dev.API1_PASS)
 API1_IS_TEST = False
-API1_ID_C1 = os.getenv('API1_ID_C1',
-                       settings_dev.API1_ID_C1)
 CARDS_RESERVE_COUNT = os.getenv('CARDS_RESERVE_COUNT',
                                 settings_dev.CARDS_RESERVE_COUNT)
 
@@ -98,3 +99,26 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD',
                                 settings_dev.EMAIL_HOST_PASSWORD)
 
 AXES_COOLOFF_TIME = timedelta(seconds=1)
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'level': 'WARNING',
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'WARNING',
+            'propagate': True,
+            'include_html': True,
+        },
+    }
+}
+BASIC_LOGGING_LEVEL = logging.WARNING

@@ -27,4 +27,6 @@ node.exe
 .pydevproject
 .settings/
 .ropeproject
-static/dist/js/bundle.js
+static/bundles
+webpack-stats.json
+nexchange/settings_dev.py

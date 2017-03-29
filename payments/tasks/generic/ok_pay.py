@@ -14,7 +14,8 @@ class OkPayPaymentChecker(BasePaymentChecker):
         self.allowed_beneficiary.add(settings.OKPAY_WALLET)
         self.api = OkPayAPI(
             api_password=settings.OKPAY_API_KEY,
-            wallet_id=settings.OKPAY_WALLET
+            wallet_id=settings.OKPAY_WALLET,
+            url=settings.OKPAY_API_URL
         )
 
     def get_transactions(self):

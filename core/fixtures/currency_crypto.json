@@ -1,0 +1,39 @@
+[
+    {
+    "model": "core.currency",
+    "pk": 1,
+    "fields": {
+      "code": "BTC",
+      "name": "BTC",
+      "is_crypto": 1,
+      "min_confirmations": 1,
+      "min_confirmation_high": 6,
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 2,
+    "fields": {
+      "code": "LTC",
+      "name": "LTC",
+      "min_confirmations": 6,
+      "is_crypto": 1,
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 3,
+    "fields": {
+      "code": "ETH",
+      "name": "ETH",
+      "is_crypto": 1,
+      "min_confirmations": 12,
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  }
+]

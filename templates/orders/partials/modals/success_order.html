@@ -44,8 +44,8 @@
             {% else %}
                 <a href="{% url 'orders.orders_list' %}?oid={{ order.unique_reference }}"
                    class="btn btn-success">
-                    {%  if order.is_buy %}
-                        {% trans 'Get your bitcoins' %}
+                    {%  if order.is_buy or order.exchange %}
+                        {% trans 'Get your coins' %}
                     {% else %}
                         {% trans 'Done' %}
                     {% endif %}

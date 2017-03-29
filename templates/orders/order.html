@@ -1,9 +1,6 @@
 {% extends "core/base.html" %}
 {% load i18n %}
 {% load staticfiles %}
-{% block css %}
-    <link rel="stylesheet" href="{% static 'bower_components/intl-tel-input/build/css/intlTelInput.css' %}">
-{% endblock %}
 {% block main %}
 <div class="tab-content">
   <div class="breadcrumbsContainer">
@@ -20,17 +17,3 @@
     {% include 'core/partials/press.html' %}
 
 {% endblock %}
-{% block extra_js_footer %}
-    <script src="https://www.google.com/recaptcha/api.js?render=explicit" 
-      async defer></script>
-
-    
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/highcharts-more.js"></script>
-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
-    <script src="{% static 'bower_components/card/dist/jquery.card.js' %}"></script>
-    <script src="{% static 'bower_components/intl-tel-input/build/js/intlTelInput.min.js' %}"></script>   
-
-{% endblock %}
-
-

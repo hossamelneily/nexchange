@@ -20,7 +20,7 @@ account_urls = [
     url(r'^profile$', views.UserUpdateView.as_view(),
         name='accounts.user_profile'),
 
-    url(r'^create_withdraw_address/$',
+    url(r'^create_withdraw_address/(?P<order_pk>[\d]+)/$',
         views.create_withdraw_address,
         name='accounts.create_withdraw_address'),
 

@@ -1,0 +1,20 @@
+[
+  {{
+    "createdAt": "2015-06-04T11:43:30.645Z",
+    "id": "{tx_id_api1}",
+    "destination": {{
+      "CardId": "{card_id}",
+      "amount": "{amount1}",
+      "currency": "{currency}"
+    }}
+  }},
+  {{
+    "createdAt": "2015-06-04T11:43:30.645Z",
+    "id": "{tx_id_api2}",
+    "destination": {{
+      "CardId": "{card_id}",
+      "amount": "{amount2}",
+      "currency": "{currency}"
+    }}
+  }}
+]
