@@ -72,7 +72,7 @@ module.exports = {
     watch: false,
     entry: [
         // npm js
-        './node_modules/select2/dist/js/select2.full.js',
+        './node_modules/select2/dist/js/select2.full.min.js',
         './node_modules/jquery-ticker/jquery.ticker.js',
         './node_modules/card/dist/jquery.card.js',
         './node_modules/jquery-ui/ui/widgets/datepicker.js',

@@ -16,6 +16,7 @@ from core.views import main
 from orders.models import Order
 from payments.models import PaymentPreference, PaymentMethod, Payment
 from payments.utils import geturl_robokassa, get_payeer_sign, get_payeer_desc
+from nexchange.utils import send_email
 from orders.task_summary import buy_order_release_by_reference_invoke, \
     buy_order_release_by_wallet_invoke, exchange_order_release_invoke
 from accounts.task_summary import (import_transaction_deposit_crypto_invoke,
@@ -269,6 +270,11 @@ def ajax_order(request):
     elif payment_method == 'okpay':
         context.update({'okpay_wallet': settings.OKPAY_WALLET})
 
+    try:
+        send_email('oleg@onit.ws', 'NEW ORDER',
+                   "{} {}".format(order, payment_pref))
+    except:
+        pass
     if trade_type == Order.SELL or order.exchange:
         import_transaction_deposit_crypto_invoke.apply_async(
             countdown=settings.TRANSACTION_IMPORT_TIME

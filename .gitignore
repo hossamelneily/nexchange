@@ -29,3 +29,4 @@ node.exe
 .ropeproject
 static/bundles
 webpack-stats.json
+nexchange/settings_dev.py
