@@ -39,9 +39,7 @@ highchartsMore(highcharts);
                     chart: {
                         type: 'arearange',
                         zoomType: 'x',
-                        backgroundColor: '#F3F3F3',
-                        height: container.height(),
-                        width: container.width()
+                        backgroundColor: '#F3F3F3'
                     },
                     style: {
                         fontFamily: 'Gotham'
