@@ -401,17 +401,18 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         now = time()
         diff = now - self.stamp
         self.stamp = now
+        if refresh:
+            self.driver.refresh()
+            sleep(self.timeout / 15)
+        path = os.path.join(
+            self.screenpath, self.workflow, self.screenpath2)
+        filename = '{}({}). {} ({:.2f}s)'.format(
+            self.screenshot_no, self.screenshot_overall_no, filename, diff
+        )
+        self.mkdir(path)
+        self.screenshot_no += 1
+        self.screenshot_overall_no += 1
+        print('{}/{}: {}'.format(self.workflow, self.screenpath2, filename))
         if self.issavescreen:
-            if refresh:
-                self.driver.refresh()
-                sleep(self.timeout / 15)
-            path = os.path.join(
-                self.screenpath, self.workflow, self.screenpath2)
-            filename = '{}({}). {} ({:.2f}s)'.format(
-                self.screenshot_no, self.screenshot_overall_no, filename, diff
-            )
-            self.mkdir(path)
             self.driver.get_screenshot_as_file(
                 os.path.join(path, filename + '.png'))
-            self.screenshot_no += 1
-            self.screenshot_overall_no += 1
