@@ -40,7 +40,7 @@
                             <select name='currency_from'
                                     class='currency-select currency-from price_box_selectbox_cont_selectbox classic'>
                                 {% for pair in pairs %}
-                                    <option value="{{ pair.quote.code }}">{{ pair.quote.name }}</option>
+                                    <option value="{{ pair.quote.code }}">{{ pair.quote.code }}</option>
                                 {% endfor %}
                             </select>
                         </div><!-- /btn-group -->

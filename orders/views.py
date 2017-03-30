@@ -169,8 +169,8 @@ def ajax_order(request):
     pair_name = currency_to + currency_from
     amount_base = Decimal(request.POST.get('amount-base'))
     pair = Pair.objects.get(name=pair_name)
-    _currency_from = Currency.objects.get(name=currency_from)
-    _currency_to = Currency.objects.get(name=currency_to)
+    _currency_from = Currency.objects.get(code=currency_from)
+    _currency_to = Currency.objects.get(code=currency_to)
 
     # Only for buy order right now
     exchange = False

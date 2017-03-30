@@ -323,7 +323,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         )
         self.address.save()
         self.card = UserCards(card_id='12345',
-                              currency=self.address.currency,
+                              currency=self.address.currency.code,
                               address_id=self.address.address,
                               user=self.address.user)
         self.card.save()

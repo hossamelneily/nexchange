@@ -100,7 +100,8 @@ def import_transaction_deposit_crypto():
     )
     for addr in addresses:
         cards = UserCards.objects.filter(
-            address_id=addr.address, user=addr.user, currency=addr.currency)
+            address_id=addr.address, user=addr.user,
+            currency=addr.currency.code)
         if len(cards) > 1:
             logger.error('Deposit Address {} has more then 1 UserCard'.format(
                 addr
