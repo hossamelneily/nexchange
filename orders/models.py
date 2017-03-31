@@ -181,8 +181,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
         # TODO: validate this business rule
         # TODO: Refactor, it is unreasonable to have different standards of
         # time in the DB
-        return (timezone.now() > self.payment_deadline) and (
-            self.status not in Order.IN_PAID)
+        return (timezone.now() > self.payment_deadline) and \
+               (self.status not in Order.IN_PAID)
 
     @property
     def payment_status_frozen(self):

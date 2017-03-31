@@ -228,6 +228,8 @@ build:
           export CELERY_TASK_ALWAYS_EAGER=${CELERY_ALWAYS_EAGER}
           export API1_IS_TEST=${API1_IS_TEST}
           export API1_ID_C1=${API1_ID_C1}
+          export API1_ID_C2=${API1_ID_C2}
+          export API1_ID_C3=${API1_ID_C3}
           # YANDEX
           export YANDEX_METRICA_ID_UK=${YANDEX_METRICA_ID_UK}
           export YANDEX_METRICA_ID_RU=${YANDEX_METRICA_ID_RU}
