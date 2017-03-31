@@ -306,8 +306,8 @@ build:
           # Start celery stuff
 
           # Protect staging by password from ENV
-          echo -n "$HTTP_AUTH_USER:" >> /etc/nginx/.htpasswd
-          openssl passwd -apr1 $HTTP_AUTH_PASS >> /etc/nginx/.htpasswd
+          echo -n "$HTTP_AUTH_USER:" >> /nexchange/etc/nginx/.htpasswd
+          openssl passwd -apr1 $HTTP_AUTH_PASS >> /nexchange/etc/nginx/.htpasswd
 
           adduser --disabled-password --gecos '' celery_user
           celery worker -A nexchange --uid=celery_user -l info &
