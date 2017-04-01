@@ -4,7 +4,10 @@
 # or in web interface, for the builds...
 X_GUNICORN_PORT=8000
 X_DOCKER_HUB_USER=onit
-X_DOCKER_HUB_REPO=onitsoft/nexchange
+X_DOCKER_HUB_REPO=onitsoft/wercker
+X_DOCKER_IMAGE_TAG=latest
+X_DOCKER_HUB_USER=onit
+X_DOCKER_HUB_PASSWORD=*******
 # Where to copy the app deploy
 X_APP_ROOT=/usr/src/app
 X_POSTGIS_ENV_POSTGRES_USER=nexchange

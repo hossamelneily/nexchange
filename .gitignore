@@ -30,3 +30,4 @@ node.exe
 static/bundles
 webpack-stats.json
 nexchange/settings_dev.py
+.ENVIRONMENT

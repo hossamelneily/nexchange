@@ -14,18 +14,6 @@
     border-bottom: 0;
 }
 
-#UserAccountModal .modal-body,
-#PayMethModal .modal-body{
-    padding-left: 0;
-}
-
-#UserAccountModal .modal-footer,
-#PayMethModal .modal-footer{
-    margin: 0 25px;
-    padding-right: 0;
-    border-color: black;
-}
-
 .modal.fade.in .modal-footer {
     border: 0;
 }
@@ -1285,7 +1273,7 @@ p.support-link a{
 	margin-bottom: 10px;
 }
 
-.sellMethModal input {
+.add_payout_method input {
     display: block;
     height: 50px;
     width: 100%;
@@ -1309,6 +1297,7 @@ p.support-link a{
 
 .sell-img {
     margin: 10px 0;
+    max-width: 100px;
 }
 .modal-body .phone.val, .modal-body .intl-tel-input {
     width: 100%;
@@ -1316,7 +1305,7 @@ p.support-link a{
 }
 
 .payment-type-trigger img.paypal,
-.payment-type-trigger img.visa,
+.payment-type-trigger img.visa-internal,
 .payment-type-trigger img.sepa,
 .payment-type-trigger img.qiwi {
     width: 100px;
@@ -1375,12 +1364,16 @@ margin-right: 15px;
 li.select2-results__option.select2-results__option--highlighted {
    background-color: #8cc63f !important;
 }
-
+li.select2-results__option:first {
+	display: initial;
+}
 .select2-results__option {
     min-width: 80px !important;
     text-align: center;
     border-radius: 5px;
+    max-width: 48%;
     margin: 5px;
+    /* display: inline-block !important; */
 }
 
 .select2-container--default .select2-selection--single .select2-selection__arrow {

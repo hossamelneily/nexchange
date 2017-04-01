@@ -44,6 +44,9 @@ highchartsMore(highcharts);
                     style: {
                         fontFamily: 'Gotham'
                     },
+                    credits: {
+                        enabled: false
+                   },
                     backgroundColor: {
                         linearGradient: {
                             x1: 0,

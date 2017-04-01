@@ -104,7 +104,7 @@
             });
         });
 
-        $('.trigger').click( function(){
+        $('.trigger').click(function(){
             $('.trigger').removeClass('active-action');
             $(this).addClass('active-action');
             if ($(this).hasClass('trigger-buy')) {
@@ -349,7 +349,6 @@
                     toastr.error(message);
                 }
             });
-
         });
 
         $(document).on('click', '.buy .payment-type-trigger', function () {
@@ -360,23 +359,23 @@
             $('.payment-preference-confirm').text(paymentType);
             $('.payment-preference-actual').text(actualPaymentType);
             $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
-            $('#PayMethModal').modal('toggle');
+            $(this).closest('.modal').modal('hide');
             $('.payment-method').val(paymentType);
             orderObject.changeState(null, 'next');
         });
         // $(document).on('click', '.payment-type-trigger-footer', paymentNegotiation);
 
-        $('.sell .payment-type-trigger').on('click', function () {
-            var paymentType = $(this).data('type').toLocaleLowerCase(),
+        $(document).on('click', '.sell .payment-type-trigger', function () {
+                var paymentType = $(this).data('type').toLocaleLowerCase(),
                 modalId = paymentType + 'SellModal',
                 modal = $('#' + modalId);
             $(this).closest('.modal').modal('hide');
             modal.modal('show');
         });
 
-        $('.sellMethModal .back').click(function () {
+        $('.add_payout_method .back').click(function () {
             $(this).closest('.modal').modal('toggle');
-            $('#UserAccountModal').modal('toggle');
+            $('#sell_options_modal').modal('toggle');
         });
 
         $('.payment-widget .val').on('keyup, keydown', function() {

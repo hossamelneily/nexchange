@@ -22,7 +22,8 @@ class TestUIFiatOrders(BaseTestUI):
          {'name': 'Payeer Wallet', 'success_url': '/payeer'}], True, True),
        ([{'name': 'Alfa-Bank'}, {'name': 'Sberbank'},
          {'name': 'Sepa'}, {'name': 'Swift'}], False, False),
-       ([{'name': 'Qiwi Wallet'},
+       ([
+        # {'name': 'Qiwi Wallet'},
          {'name': 'PayPal'}, {'name': 'Skrill'}], False, False),
        ([{'name': 'Visa'}, {'name': 'Mastercard'}], False, False),
     ))
@@ -91,7 +92,7 @@ class TestUIFiatOrders(BaseTestUI):
         self.request_order(order_type)
         sleep(self.timeout / 5)
         modal = self.driver.find_element_by_xpath(
-            '//div[@class="modal fade sellMethModal in"]'
+            '//div[@class="modal fade add_payout_method in"]'
         )
         if self.payment_method == 'Qiwi wallet':
             self.fill_sell_card_data(modal, 'phone', self.phone)

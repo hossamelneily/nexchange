@@ -66,6 +66,7 @@ class CurrencyManager(models.Manager):
 
 class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     objects = CurrencyManager()
+    NATURAL_KEY = 'code'
     code = models.CharField(max_length=3)
     name = models.CharField(max_length=10)
     min_confirmations = \

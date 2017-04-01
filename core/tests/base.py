@@ -103,8 +103,8 @@ class OrderBaseTestCase(UserBaseTestCase):
     fixtures = [
         'currency_crypto.json',
         'currency_fiat.json',
-        'pairs_btc.json',
         'pairs_cross.json',
+        'pairs_btc.json',
         'pairs_eth.json',
         'pairs_ltc.json',
         'payment_method.json',
@@ -225,6 +225,8 @@ class WalletBaseTestCase(OrderBaseTestCase):
         'currency_crypto.json',
         'currency_fiat.json',
         'pairs_btc.json',
+        'pairs_ltc.json',
+        'pairs_eth.json',
         'payment_method.json',
         'payment_preference.json',
     ]
@@ -279,6 +281,16 @@ class WalletBaseTestCase(OrderBaseTestCase):
 
 
 class TransactionImportBaseTestCase(OrderBaseTestCase):
+    fixtures = [
+        'currency_crypto.json',
+        'currency_fiat.json',
+        'pairs_cross.json',
+        'pairs_btc.json',
+        'pairs_ltc.json',
+        'pairs_eth.json',
+        'payment_method.json',
+        'payment_preference.json',
+    ]
 
     def setUp(self):
         super(TransactionImportBaseTestCase, self).setUp()

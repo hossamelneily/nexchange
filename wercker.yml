@@ -295,6 +295,7 @@ build:
             python manage.py loaddata articles/fixtures/articles.json
           fi
           # Copy static data to nginx volume
+
           cp -ra $WERCKER_OUTPUT_DIR/staticfiles/* /usr/share/nginx/html/static
           cp -ra $WERCKER_OUTPUT_DIR/mediafiles/* /usr/share/nginx/html/media
           #
@@ -445,13 +446,13 @@ tests:
     - maxon/npm-run:
         script: build
     - script:
-        name: Selenium tests
-        code: |
-          DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-selenium-tests.sh
-    - script:
         name: Backend tests
         code: |
           DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh
+    - script:
+        name: Selenium tests
+        code: |
+          DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-selenium-tests.sh
     - script:
         name: Frontend tests
         code: |

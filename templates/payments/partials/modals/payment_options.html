@@ -1,45 +1,45 @@
 {% load i18n %}
 {% load static %}
-{% if type == 'buy' %}
-
-<div class="row {{ type }} row_type">
+{%  load payments_filters %}
+{# credit cards only available with buy #}
+{% if categories.credit_cards|any_values:is_buy %}
+<div class="row {{ is_buy|yesno:"buy,sell,none" }} row_type">
     <div class="payment_title">
         {% trans 'Credit cards' %}
     </div>
-    {% include 'payments/partials/modals/card.html' with card_type='payeer' label='Visa' icon='icons/small/visa.png' card=cards.payeer extra_class='visa' %}
-    {% include 'payments/partials/modals/card.html' with card_type='okpay' label='Mastercard' icon='icons/small/mastercard.png' card=cards.payeer %}
+    {% include 'payments/partials/modals/card.html' with card_type='visa-internal' label='Visa' icon='icons/small/visa.png' card=categories.credit_cards.visa %}
+    {% include 'payments/partials/modals/card.html' with card_type='mastercard-internal' label='Mastercard' icon='icons/small/mastercard.png' card=categories.credit_cards.mastercard %}
+    {% include 'payments/partials/modals/card.html' with card_type='mastercard-virtual' label='Virtual MC' icon='icons/small/mastercard.png' card=categories.credit_cards.virtual_mastercard %}
 </div>
 {% endif %}
 
-<div class="row {{ type }} row_type">
-
+{% if categories.wallets|any_values:is_buy %}
+<div class="row {{ is_buy|yesno:"buy,sell,none" }} row_type">
     <div class="payment_title">
         {% trans 'Wallets' %}
     </div>
-    {% include 'payments/partials/modals/card.html' with card_type='qiwi' label='Qiwi Wallet' icon='icons/small/qiwi.png' card=cards.qiwi %}
-    {% include 'payments/partials/modals/card.html' with card_type='okpay' label='OK Pay' icon='icons/small/okpay.png' card=cards.okpay %}
-    {% if type == 'buy' %}
-        {% include 'payments/partials/modals/card.html' with card_type='payeer' label='Payeer Wallet' icon='icons/small/payeer.png' card=cards.payeer %}
-        {% include 'payments/partials/modals/card.html' with card_type='robokass' icon='icons/small/robokass.png' card=cards.robokass %}
+    {% include 'payments/partials/modals/card.html' with card_type='qiwi' label='Qiwi Wallet' icon='icons/small/qiwi.png' card=categories.wallets.qiwi %}
+    {% include 'payments/partials/modals/card.html' with card_type='okpay' label='OK Pay' icon='icons/small/okpay.png' card=categories.wallets.okpay %}
+    {% if is_buy %}
+        {% include 'payments/partials/modals/card.html' with card_type='payeer' label='Payeer Wallet' icon='icons/small/payeer.png' card=categories.wallets.payeer %}
+        {% include 'payments/partials/modals/card.html' with card_type='robokassa' icon='icons/small/robokass.png' card=categories.wallets.robokassa %}
     {% endif %}
-    {% include 'payments/partials/modals/card.html' with card_type='paypal' label='PayPal' icon='icons/small/paypal.png' card=cards.paypal %}
-    {% include 'payments/partials/modals/card.html' with card_type='skrill' label='Skrill' icon='icons/small/skrill.png' card=cards.skrill %}
-
+    {% include 'payments/partials/modals/card.html' with card_type='paypal' label='PayPal' icon='icons/small/paypal.png' card=categories.wallets.paypal %}
+    {% include 'payments/partials/modals/card.html' with card_type='skrill' label='Skrill' icon='icons/small/skrill.png' card=categories.wallets.skrill %}
 </div>
-<div class="row {{ type }} row_type">
+{% endif %}
+
+{% if categories.banks|any_values:is_buy %}
+<div class="row {{ is_buy|yesno:"buy,sell,none" }} row_type">
     <div class="payment_title">
         {% trans 'Bank'%}
     </div>
-    {% if type == 'buy' %}
-        {% include 'payments/partials/modals/card.html' with card_type='alfa bank' label='Alfa-Bank' icon='icons/small/alfabank.png' card=cards.alfa %}
-        {% include 'payments/partials/modals/card.html' with card_type='sberbank' label='Sberbank' icon='icons/small/sber.png' card=cards.sber %}
-        {% include 'payments/partials/modals/card.html' with card_type='sepa' label='Sepa' icon='icons/small/sepa.png'  card=cards.sepa %}
-        {% include 'payments/partials/modals/card.html' with card_type='swift' label='Swift' icon='icons/small/swift.png' card=cards.swift %}
-    {% else %}
-        {% include 'payments/partials/modals/card.html' with card_type='c2c' label='Card 2 Card' icon='icons/small/c2c.ico' %}
-        {% include 'payments/partials/modals/card.html' with card_type='Sepa' label='Sepa' icon='icons/small/sepa.png' %}
-        {% include 'payments/partials/modals/card.html' with card_type='swift' label='Swift' icon='icons/small/swift.png'%}
-    {% endif %}
+        {% include 'payments/partials/modals/card.html' with card_type='alfa bank' label='Alfa-Bank' icon='icons/small/alfabank.png' card=categories.banks.alfa %}
+        {% include 'payments/partials/modals/card.html' with card_type='sberbank' label='Sberbank' icon='icons/small/sber.png' card=categories.banks.sber %}
+        {% include 'payments/partials/modals/card.html' with card_type='sepa' label='Sepa' icon='icons/small/sepa.png'  card=categories.banks.sepa %}
+        {% include 'payments/partials/modals/card.html' with card_type='swift' label='Swift' icon='icons/small/swift.png' card=categories.banks.swift %}
+        {% include 'payments/partials/modals/card.html' with card_type='c2c' label='Card 2 Card' icon='icons/small/c2c.ico' card=categories.banks.c2c  %}
 {# ALFA BANK cash deposit #}
     {% include 'payments/partials/modals/card.html' with card_type='Cash' label='Cash (MSK)' icon='icons/small/cash.png' card=cards.alfa %}
 </div>
+{% endif %}

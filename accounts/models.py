@@ -27,6 +27,7 @@ class ProfileManager(models.Manager):
 
 class Profile(TimeStampedModel, SoftDeletableModel):
     objects = ProfileManager()
+    NATURAL_KEY = 'user__username'
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = PhoneNumberField(_('Phone'), blank=False, help_text=_(

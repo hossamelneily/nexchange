@@ -3,7 +3,7 @@
 from django.contrib.auth.decorators import login_required
 
 from django.core.urlresolvers import reverse
-from django.http import (Http404, HttpResponse, JsonResponse,
+from django.http import (HttpResponseNotFound, HttpResponse, JsonResponse,
                          HttpResponseForbidden, HttpResponseRedirect)
 from django.shortcuts import redirect
 from django.template.loader import get_template
@@ -129,7 +129,7 @@ def payment_success(request, provider):
     if not received_order:
         logger.error('Success view without a provider request: '
                      '{} not found!'.format(request.__dict__))
-        return Http404(_('Unsupported payment provider'))
+        return HttpResponseNotFound(_('Unsupported payment provider'))
 
     lookup = {'user': request.user}
     if received_order.get('order_id'):
@@ -188,19 +188,31 @@ def payment_type(request):
     template = get_template('payments/partials/modals/payment_type.html')
     currency = request.POST.get('currency')
 
-    cards = {
-        'sber': get_pref_by_name('Sber', currency),
-        'alfa': get_pref_by_name('Alfa', currency),
-        'qiwi': get_pref_by_name('Qiwi', currency),
-        'sepa': get_pref_by_name('SEPA', currency),
-        'swift': get_pref_by_name('SWIFT', currency),
-        'paypal': get_pref_by_name('PayPal', currency),
-        'skrill': get_pref_by_name('Skrill', currency),
-        'okpay': get_pref_by_name('Okpay', currency),
-        'payeer': get_pref_by_name('Payeer', currency),
+    categories = {
+        'featured': {},  # Featured by country
+        'credit_cards': {
+            'visa': get_pref_by_name('Visa-internal', currency),
+            'mastercard': get_pref_by_name('Mastercard-internal', currency),
+            'virtual_mastercard': get_pref_by_name('Mastercard-virtual', currency),
+        },
+        'banks': {
+            'sber': get_pref_by_name('Sber', currency),
+            'alfa': get_pref_by_name('Alfa', currency),
+            'sepa': get_pref_by_name('SEPA', currency),
+            'swift': get_pref_by_name('SWIFT', currency),
+            'c2c':  get_pref_by_name('c2c', currency)
+        },
+        'wallets': {
+            'qiwi': get_pref_by_name('Qiwi', currency),
+            'skrill': get_pref_by_name('Skrill', currency),
+            'paypal': get_pref_by_name('PayPal', currency),
+            'okpay': get_pref_by_name('Okpay', currency),
+            'payeer': get_pref_by_name('Payeer', currency),
+        },
     }
+
     local_vars = {
-        'cards': cards,
+        'categories': categories,
         'type': 'buy',
         'currency': currency.upper(),
     }
@@ -238,9 +250,9 @@ def payment_type_json(request):
 
 def payeer_status(request):
     if request.META['REMOTE_ADDR'] not in settings.PAYEER_IPS:
-        return HttpResponseForbidden(_('IP address is not allowed.'))
+        return HttpResponseNotFound(_('Resource not found'))
     if not request.method == 'POST':
-        return Http404(_('Resource not found'))
+        return HttpResponseNotFound(_('Resource not found'))
     retval = 'error'
     try:
         ar_hash = (

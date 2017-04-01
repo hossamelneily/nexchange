@@ -12,6 +12,7 @@
     "bootstrap-toggle": "^2.2.2",
     "browserify": "<14",
     "card": "^2.1.1",
+    "clipboard": "^1.6.1",
     "commonjs-highcharts": "^4.0.3",
     "css-loader": "^0.26.2",
     "cssnano": "^3.10.0",

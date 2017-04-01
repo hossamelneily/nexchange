@@ -271,8 +271,9 @@ def ajax_order(request):
         context.update({'okpay_wallet': settings.OKPAY_WALLET})
 
     try:
-        send_email('oleg@onit.ws', 'NEW ORDER',
-                   "{} {}".format(order, payment_pref))
+        if not settings.DEBUG:
+            send_email('oleg@onit.ws', 'NEW ORDER',
+                       "{} {}".format(order, payment_pref))
     except:
         pass
     if trade_type == Order.SELL or order.exchange:

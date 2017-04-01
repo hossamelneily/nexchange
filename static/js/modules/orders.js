@@ -232,7 +232,7 @@
     }
 
     function toggleBuyModal () {
-        $("#PayMethModal").modal('toggle');
+        $("#buy_options_modal").modal('toggle');
     }
 
     function toggleSellModal () {
@@ -248,8 +248,8 @@
                 }
             });
         }
-        catch(e) {}
-        $("#UserAccountModal").modal({backdrop: "static"});
+        catch(supress) {}
+        $("#sell_options_modal").modal({backdrop: "static"});
     }
 
     function changeState (e, action) {    

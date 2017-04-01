@@ -117,7 +117,7 @@ class PayeerTestCase(OrderBaseTestCase):
     def test_payeer_forbidden_ip_request(self):
         client = Client(REMOTE_ADDR='127.0.0.1')
         response = client.post(self.status_url, self.input_params)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
 
 
 class RoboTestCase(UserBaseTestCase):

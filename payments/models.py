@@ -40,7 +40,8 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     class Meta:
         unique_together = ('user', 'identifier', 'payment_method')
     # NULL or Admin for out own (buy adds)
-    enabled = models.BooleanField(default=True)
+    buy_enabled = models.BooleanField(default=True)
+    sell_enabled = models.BooleanField(default=True)
     user = models.ForeignKey(User, default=None, blank=True, null=True)
     payment_method = models.ForeignKey('PaymentMethod', default=None)
     currency = models.ManyToManyField('core.Currency')
