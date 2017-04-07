@@ -254,6 +254,10 @@ build:
           # API2
           export API2_KEY=${API2_KEY}
           export API2_SECRET=${API2_SECRET}
+          # CARDPMT
+          export CARDPMT_API_ID=${CARDPMT_API_ID}
+          export CARDPMT_API_PASS=${CARDPMT_API_PASS}
+          CARDPMT_API_PASS = os.getenv('CARDPMT_API_PASS')
           # ROBOKASSA
           export ROBOKASSA_IS_TEST=${ROBOKASSA_IS_TEST}
           export ROBOKASSA_LOGIN=${ROBOKASSA_LOGIN}

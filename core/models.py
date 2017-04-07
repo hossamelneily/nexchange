@@ -131,3 +131,24 @@ class Pair(TimeStampedModel):
         if self.base.is_crypto and self.quote.is_crypto:
             return True
         return False
+
+
+class Location(TimeStampedModel, SoftDeletableModel):
+    firstname = models.CharField(max_length=255)
+    lastname = models.CharField(max_length=255)
+    zip = models.CharField(max_length=10)
+    country = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
+    address1 = models.CharField(max_length=255)
+    address2 = models.CharField(max_length=255, blank=True, null=True)
+    user = models.ForeignKey(User)
+
+    def full_address(self):
+        return "{}, {}, {}"\
+            .format(self.address1, self.city, self.zip)
+
+    def __str__(self):
+        return "{} {}: {}".format(
+            self.firstname, self.lastname, self.full_address()
+        )

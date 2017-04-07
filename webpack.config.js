@@ -81,6 +81,8 @@ module.exports = {
         './node_modules/intl-tel-input/build/js/intlTelInput.js',
         './node_modules/bootstrap-toggle/js/bootstrap-toggle.min.js',
         './node_modules/toastr/build/toastr.min.js',
+        './node_modules/jquery-validation/dist/jquery.validate.js',
+        './node_modules/jquery-validation/dist/additional-methods.js',
         // loader
         'bootstrap-loader',
         // run package

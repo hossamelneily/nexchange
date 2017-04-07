@@ -36,7 +36,7 @@ def buy_order_release_reference_periodic():
         is_success=True,
         is_redeemed=False
     ):
-        buy_order_release_by_reference_invoke.apply_async(args=[payment])
+        buy_order_release_by_reference_invoke.apply_async([payment])
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
@@ -56,4 +56,4 @@ def exchange_order_release_periodic():
         order__withdraw_address__isnull=False
     )
     for tx in txs:
-        exchange_order_release_invoke.apply_async(args=[tx.pk])
+        exchange_order_release_invoke.apply_async([tx.pk])

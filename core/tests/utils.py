@@ -131,3 +131,10 @@ class DisableSignals:
     def reconnect(self, signal):
         signal.receivers = self.stashed_signals.get(signal, [])
         del self.stashed_signals[signal]
+
+
+def read_fixture(path):
+    full_path = os.path.join(settings.BASE_DIR, path)
+    with open(full_path) as f:
+        fixture = f.read()
+    return fixture

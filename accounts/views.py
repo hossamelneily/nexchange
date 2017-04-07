@@ -16,11 +16,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from phonenumber_field.validators import validate_international_phonenumber
 from nexchange.utils import send_auth_sms, sanitize_number
+from django.forms import modelformset_factory
 
 
 from accounts.decoratos import not_logged_in_required, recaptcha_required
 from accounts.forms import (CustomUserCreationForm, UpdateUserProfileForm,
                             UserForm, UserProfileForm)
+from referrals.models import ReferralCode
 from accounts.models import NexchangeUser as User
 from accounts.models import Profile, SmsToken
 from orders.models import Order
@@ -78,19 +80,22 @@ def user_registration(request):
 
 @method_decorator(login_required, name='dispatch')
 class UserUpdateView(View):
+    ReferralFormSet = modelformset_factory(ReferralCode,
+                                           form=ReferralTokenForm, extra=1)
 
     def get(self, request):
         user_form = UserForm(
             instance=self.request.user)
         profile_form = UpdateUserProfileForm(
             instance=self.request.user.profile)
-        referral_form = ReferralTokenForm(
-            instance=self.request.user.referral_code.get())
+        all_referrals = request.user.referral_code.all()
+        referral_formset = \
+            UserUpdateView.ReferralFormSet(queryset=all_referrals)
 
         context = {
             'user_form': user_form,
             'profile_form': profile_form,
-            'referral_form': referral_form,
+            'referral_formset': referral_formset,
         }
 
         return render(request, 'accounts/user_profile.html', context)
@@ -102,24 +107,32 @@ class UserUpdateView(View):
         profile_form = \
             UpdateUserProfileForm(request.POST,
                                   instance=self.request.user.profile)
-        referral_form = \
-            ReferralTokenForm(request.POST,
-                              instance=self.request.user.referral_code.get())
-        success_message = _('Profile updated with success')
+        referral_formset = UserUpdateView.ReferralFormSet(request.POST)
 
+        success_message = ''
+
+        # TODO: separate referrals and profile in Views.py and Frontend (tabs)
         if user_form.is_valid() and \
                 profile_form.is_valid():
+            success_message += '{}\n'.format(_('Profile updated successfully'))
             user_form.save()
             profile_form.save()
-            # referral_form.save()
-            messages.success(self.request, success_message)
 
+        if referral_formset.is_valid():
+            instances = referral_formset.save(commit=False)
+            for instance in instances:
+                success_message += _('Referral codes updated successfully')
+                instance.user = request.user.pk
+                instance.save()
+
+        if success_message:
+            messages.success(self.request, success_message)
             return redirect(reverse('accounts.user_profile'))
         else:
             ctx = {
                 'user_form': user_form,
                 'profile_form': profile_form,
-                'referral_form': referral_form
+                'referral_formset': referral_formset
             }
 
             return render(request, 'accounts/user_profile.html', ctx, )
@@ -259,6 +272,12 @@ def user_address_ajax(request):
 @login_required
 def create_withdraw_address(request, order_pk):
     error_message = 'Error creating address: %s'
+    if not request.user.profile.is_verified:
+        resp = {
+            'status': 'ERR',
+            'msg': 'You need to be a verified user to set withdrawal address.'
+        }
+        return JsonResponse(resp, safe=False)
 
     address = request.POST.get('value')
     addr = Address()

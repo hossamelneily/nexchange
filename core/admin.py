@@ -1,5 +1,5 @@
 from django.contrib import admin
-from core.models import Currency, Transaction, Address, Pair
+from core.models import Currency, Transaction, Address, Pair, Location
 from core.common.models import Flag
 
 
@@ -8,4 +8,5 @@ admin.site.register(Transaction)
 admin.site.register(Address)
 admin.site.register(Pair)
 admin.site.register(Flag)
+admin.site.register(Location)
 admin.autodiscover()

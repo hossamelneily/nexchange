@@ -9,7 +9,6 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.conf import settings
 from copy import deepcopy
 from orders.tasks.generic.base import BaseBuyOrderRelease
-from decimal import Decimal
 
 
 class BasePaymentChecker(BaseTask):
@@ -196,27 +195,13 @@ class BasePaymentChecker(BaseTask):
     def set_order_paid_status(self, order):
         if not order:
             return
-        ref = order.unique_reference
-        currency = order.pair.quote
-        payments = Payment.objects.filter(is_success=True, reference=ref,
-                                          currency=currency)
-        sum_all = 0
-        for p in payments:
-            sum_all += p.amount_cash
-        amount_expected = order.amount_quote
-        # FIXME: add transaction fee to customer on Payeer (or become a
-        # partner)
-        if order.payment_preference.payment_method.name == 'Payeer Wallet':
-            # transaction fee 0.0095 , minimal fee 0.01 cent
-            amount_expected = (amount_expected * Decimal('0.9905')) - Decimal(
-                '0.01')
 
-        if sum_all >= amount_expected:
+        if order.is_paid:
             if order.status not in Order.IN_PAID:
                 order.status = Order.PAID
                 order.save()
                 return True
-        elif payments:
+        elif order.part_paid_buy > 0:
             order.status = Order.PAID_UNCONFIRMED
             order.save()
 

@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 
 from django.core.urlresolvers import reverse
 from django.http import (HttpResponseNotFound, HttpResponse, JsonResponse,
-                         HttpResponseForbidden, HttpResponseRedirect)
+                         HttpResponseRedirect, HttpResponseForbidden)
 from django.shortcuts import redirect
 from django.template.loader import get_template
 from django.utils import translation
@@ -12,7 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 
-from nexchange.utils import get_nexchange_logger
+from nexchange.utils import get_nexchange_logger, get_client_ip
 from core.models import Currency
 from orders.models import Order
 from payments.adapters import (leupay_adapter, robokassa_adapter,
@@ -22,11 +22,12 @@ from payments.models import Payment, PaymentPreference
 from payments.utils import get_payeer_sign
 from payments.task_summary import run_payeer, run_okpay
 from decimal import Decimal
+from payments.api_clients.card_pmt import CardPmtAPIClient
 
 
 @login_required
 def payment_failure(request):
-    template = get_template('orders/partials/steps/step_retry_payment.html')
+    get_template('orders/partials/steps/step_retry_payment.html')
     # TODO: Better logic
     last_order = Order.objects.filter(user=request.user).latest('id')
     url = reverse('orders.add_order', kwargs={'pair': last_order.pair.name})
@@ -177,7 +178,11 @@ def payment_type(request):
         if not _currency:
             return None
 
-        curr_obj = Currency.objects.get(code=_currency.upper())
+        curr_objs = Currency.objects.filter(code=_currency.upper())
+        if len(curr_objs) == 0:
+            return None
+        else:
+            curr_obj = curr_objs[0]
         card = \
             PaymentPreference.\
             objects.filter(currency__in=[curr_obj],
@@ -193,14 +198,15 @@ def payment_type(request):
         'credit_cards': {
             'visa': get_pref_by_name('Visa-internal', currency),
             'mastercard': get_pref_by_name('Mastercard-internal', currency),
-            'virtual_mastercard': get_pref_by_name('Mastercard-virtual', currency),
+            'virtual_mastercard': get_pref_by_name(
+                'Mastercard-virtual', currency),
         },
         'banks': {
             'sber': get_pref_by_name('Sber', currency),
             'alfa': get_pref_by_name('Alfa', currency),
             'sepa': get_pref_by_name('SEPA', currency),
             'swift': get_pref_by_name('SWIFT', currency),
-            'c2c':  get_pref_by_name('c2c', currency)
+            'c2c': get_pref_by_name('c2c', currency)
         },
         'wallets': {
             'qiwi': get_pref_by_name('Qiwi', currency),
@@ -293,3 +299,27 @@ def payeer_status(request):
     except KeyError:
         pass
     return HttpResponse(retval)
+
+
+@login_required
+@csrf_exempt
+def pay_with_credit_card(request):
+    client = CardPmtAPIClient()
+    ip = get_client_ip(request)
+    params = request.POST
+    params_dict = {'ip': ip}
+    for key in params:
+        if len(params[key]) != 0:
+            params_dict.update({key: params[key]})
+    params_dict['ccexp'] = params_dict['ccexp'].replace('/', '').\
+        replace(' ', '')
+    params_dict['ccn'] = params_dict['ccn'].replace(' ', '')
+    res = client.pay_for_the_order(**params_dict)
+    if res['status'] == 1:
+        redirect_url = reverse('orders.orders_list') + '?oid={}'.format(
+            params_dict['orderid']
+        )
+        return JsonResponse({'status': 'OK', 'redirect': redirect_url},
+                            safe=False)
+    else:
+        return HttpResponseForbidden(_(res['msg']))

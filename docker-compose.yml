@@ -25,6 +25,7 @@ services:
         volumes:
             - /nexchange/mediafiles:/usr/share/nginx/html/media
             - /nexchange/staticfiles:/usr/share/nginx/html/static
+            - /nexchange/etc/nginx/.htpasswd:/etc/nginx/.htpasswd
 
         links:
             - postgis

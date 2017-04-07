@@ -28,6 +28,13 @@
             <div class="col-lg-12 confirmation-elem">
                 <span class="payment-preference-identifier-confirm"></span>
             </div>
+            <div class="col-lg-12 confirmation-elem payment-fee hidden">
+                <span class="payment-preference-confirm"></span>
+                <span>{% trans "Fee: " %}</span>
+                <span class="payment-preference-fee-percent"></span>%
+                (<span class="amount payment-preference-fee-amount"></span>
+                <span class="currency"></span>)
+            </div>
         <div style="display:none">
           <input type="hidden" name="csrfmiddlewaretoken" id="csrfmiddlewaretoken" value="{{ csrf_token }}">
         </div>

@@ -2,15 +2,20 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from accounts.models import Profile
-from referrals.models import Program, Referral
+from referrals.models import Program, Referral, ReferralCode
 
 
 class ProgramSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Program
         fields = ('name', 'percent_first_degree',
                   'max_users', 'max_payout_btc')
+
+
+class ReferralCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReferralCode
+        fields = ('code', 'created_on', 'modified_on')
 
 
 class RefereeProfileSerializer(serializers.ModelSerializer):
@@ -18,7 +23,8 @@ class RefereeProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('partial_phone', 'last_seen', 'id',)
+        fields = ('partial_phone', 'last_visit_time', 'id', 'time_zone',
+                  'created_on', 'modified_on')
         depth = 3
 
 
@@ -35,8 +41,10 @@ class ReferralSerializer(serializers.ModelSerializer):
     turnover = serializers.ReadOnlyField()
     revenue = serializers.ReadOnlyField()
     referee = RefereeSerializer()
+    code = ReferralCodeSerializer()
 
     class Meta:
         model = Referral
-        fields = ('confirmed_orders_count', 'turnover', 'revenue', 'referee',)
+        fields = ('confirmed_orders_count', 'turnover', 'revenue', 'referee', 'code',
+                  'created_on', 'modified_on')
         depth = 3

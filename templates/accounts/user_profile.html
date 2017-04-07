@@ -62,7 +62,10 @@
 
         {% bootstrap_form profile_form %}
         {% bootstrap_form user_form %}
-        {% bootstrap_form referral_form %}
+        {{ referral_formset.management_form }}
+        {% for referral_form in referral_formset %}
+            {% bootstrap_form referral_form %}
+        {% endfor %}
 
         <input type="submit" name="submit" class="btn btn-success btn-lg" id="submit" value="Update Profile">
     </form>

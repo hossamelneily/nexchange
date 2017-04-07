@@ -29,12 +29,12 @@ def send_money(order_pk):
     if order.payment_preference.payment_method.name == 'Okpay':
         res = ok_api.send_money(
             receiver=receiver, currency=currency_code, amount=amount,
-            comment=ref, invoice=ref
+            comment=ref, invoice=ref, is_receiver_pays_fees=True
         )
     elif order.payment_preference.payment_method.name == 'Payeer Wallet':
         res = payeer_api.transfer_funds(
             currency_in=currency_code, currency_out=currency_code,
-            amount=amount, receiver=receiver, comment=None)
+            amount=amount, receiver=receiver, comment=ref)
     if 'error' in res or 'errors' in res:
         logger.info(
             'Order {} cannot be paid automatically. Send money '

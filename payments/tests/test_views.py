@@ -7,10 +7,15 @@ from django.conf import settings
 
 from core.models import Address, Transaction
 from core.tests.base import OrderBaseTestCase, UserBaseTestCase
+from core.tests.utils import data_provider
+from payments.tests.base import BaseCardPmtAPITestCase
 from nexchange.utils import release_payment
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
 from payments.utils import get_payeer_sign, get_payeer_desc
+import requests_mock
+from time import time
+from copy import deepcopy
 
 
 class PayeerTestCase(OrderBaseTestCase):
@@ -241,3 +246,42 @@ class PaymentReleaseTestCase(OrderBaseTestCase):
             )
             self.assertTrue(order_check.status == Order.RELEASED)
             self.assertTrue(p.is_complete)
+
+
+class MastercardTestCase(BaseCardPmtAPITestCase):
+
+    def setUp(self):
+        super(MastercardTestCase, self).setUp()
+        self.pay_url = reverse('payments.pay_with_credit_card')
+
+    @data_provider(lambda: (
+        ('1', 200, Order.PAID, {}),
+        ('0', 403, Order.INITIAL, {}),
+        ('1', 403, Order.INITIAL, {'ccn': 'nonesense'}),
+        ('1', 403, Order.INITIAL, {'cvv': 'nonesense'}),
+        ('1', 403, Order.INITIAL, {'ccexp': '0101'}),
+        ('1', 403, Order.INITIAL, {'address1': ''}),
+    ))
+    @requests_mock.mock()
+    def test_pay_for_the_order(self, pmt_status, response_status, order_status,
+                               update_params, mock):
+        provider_data = 'pmt:{}, response:{}, order:{}'.format(
+            pmt_status, response_status, order_status
+        )
+        updated_params = deepcopy(self.required_params_dict)
+        updated_params.update(update_params)
+        response_code = '100'
+        status = pmt_status
+        transaction_id = 'tx_id' + str(time())
+        transaction_success = self.transaction_response_empty.format(
+            response_code=response_code,
+            status=status,
+            transaction_id=transaction_id
+        )
+        mock.get(self.pmt_client.url, text=transaction_success)
+        response = self.client.post(self.pay_url, updated_params)
+        self.assertEqual(response.status_code, response_status, provider_data)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, order_status, provider_data)
+        self.order.status = Order.INITIAL
+        self.order.save()

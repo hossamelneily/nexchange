@@ -20,14 +20,26 @@ class TestUIFiatOrders(BaseTestUI):
     @data_provider(lambda: (
        ([{'name': 'OK Pay', 'success_url': '/okpay'}, # noqa
          {'name': 'Payeer Wallet', 'success_url': '/payeer'}], True, True),
-       ([{'name': 'Alfa-Bank'}, {'name': 'Sberbank'},
-         {'name': 'Sepa'}, {'name': 'Swift'}], False, False),
-       ([
-        # {'name': 'Qiwi Wallet'},
-         {'name': 'PayPal'}, {'name': 'Skrill'}], False, False),
-       ([{'name': 'Visa'}, {'name': 'Mastercard'}], False, False),
     ))
-    def test_buy(self, payment_methods, automatic_payment, do_logout):
+    def test_buy1(self, payment_methods, automatic_payment, do_logout):
+        self.base_test_buy(payment_methods, automatic_payment, do_logout)
+
+    @data_provider(lambda: (
+        ([{'name': 'Alfa-Bank'}, {'name': 'Sberbank'},
+          {'name': 'Sepa'}, {'name': 'Swift'}], False, False),
+    ))
+    def test_buy2(self, payment_methods, automatic_payment, do_logout):
+        self.base_test_buy(payment_methods, automatic_payment, do_logout)
+
+    # missing Qiwi
+    @data_provider(lambda: (
+        ([{'name': 'PayPal'}, {'name': 'Skrill'}], False, False),
+        ([{'name': 'Visa'}], False, False),
+    ))
+    def test_buy3(self, payment_methods, automatic_payment, do_logout):
+        self.base_test_buy(payment_methods, automatic_payment, do_logout)
+
+    def base_test_buy(self, payment_methods, automatic_payment, do_logout):
         self.workflow = 'BUY'
         for payment_method in payment_methods:
             self.screenshot_no = 1
@@ -50,14 +62,22 @@ class TestUIFiatOrders(BaseTestUI):
 
     @data_provider(lambda: (
         (['PayPal',
-          'OK Pay',
           # 'Qiwi wallet',
-          'Skrill',
+          'OK Pay'],),
+    ))
+    def test_sell1(self, payment_methods):
+        self.base_test_sell(payment_methods)
+
+    @data_provider(lambda: (
+        (['Skrill',
           # 'Card 2 Card',
           'Sepa',
           'Swift'],),
     ))
-    def test_sell(self, payment_methods):
+    def test_sell2(self, payment_methods):
+        self.base_test_sell(payment_methods)
+
+    def base_test_sell(self, payment_methods):
         self.workflow = 'SELL'
         print('Test sell')
         self.currency_code = 'BTC'

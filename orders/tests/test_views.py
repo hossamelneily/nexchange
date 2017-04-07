@@ -14,6 +14,7 @@ from core.models import Address
 from core.tests.base import OrderBaseTestCase
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
+from verification.models import Verification
 
 
 class OrderSetAsPaidTestCase(OrderBaseTestCase):
@@ -256,6 +257,8 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
         self.order = order
         pk = self.order.pk
         self.url = reverse('orders.update_withdraw_address', kwargs={'pk': pk})
+        self.url_create_withdraw = reverse('accounts.create_withdraw_address',
+                                           kwargs={'order_pk': pk})
 
         self.addr_data = {
             'type': 'W',
@@ -313,6 +316,26 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
             self.url, {'pk': self.order.pk, 'value': 50})
 
         self.assertEqual(b'Invalid address provided', response.content)
+
+    def test_throw_error_not_verified_user(self):
+        verifications = self.user.verification_set.all()
+        status_keys = ['id_status', 'util_status']
+        for key in status_keys:
+            for ver in verifications:
+                setattr(ver, key, Verification.REJECTED)
+                ver.save()
+            response = self.client.post(
+                self.url, {'pk': self.order.pk, 'value': self.addr.pk})
+            response_create = self.client.post(
+                self.url_create_withdraw, {'order_pk': self.order.pk,
+                                           'value': self.addr.address})
+
+            expected_msg =\
+                b'You need to be a verified user to set withdrawal address.'
+            self.assertEqual(expected_msg, response.content)
+            self.assertIn(expected_msg, response_create.content)
+            setattr(ver, key, Verification.OK)
+            ver.save()
 
     @mock.patch('orders.task_summary.buy_order_release_by_reference_invoke')
     def release_on_first_withdraw_address_change(self, invoke):

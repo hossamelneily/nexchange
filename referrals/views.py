@@ -25,15 +25,12 @@ class ReferralViewSet(DateFilterViewSet):
 def referrals(request):
     template = get_template('referrals/index_referrals.html')
     user = request.user
-    referrals_code = ReferralCode.objects.filter(user=user)
-    referrals_ = Referral.objects.filter(code__in=referrals_code,
-                                         referee__isnull=False)
+    referral_codes = ReferralCode.objects.filter(user=user)
+    referrals_list = Referral.objects.filter(code__in=referral_codes,
+                                             referee__isnull=False)
     # return JsonResponse({'tests': referrals_[0].turnover})
 
     paginate_by = 10
-    model = Referral
-    kwargs = {"code": referrals_code}
-    referrals_list = model.objects.filter(**kwargs)
     paginator = Paginator(referrals_list, paginate_by)
     page = request.GET.get('page')
 
@@ -46,6 +43,5 @@ def referrals(request):
     except EmptyPage:
         referrals_list = paginator.page(paginator.num_pages)
 
-    return HttpResponse(template.render({'referrals': referrals_,
-                                         'referrals_list': referrals_list},
+    return HttpResponse(template.render({'referrals_list': referrals_list},
                                         request))

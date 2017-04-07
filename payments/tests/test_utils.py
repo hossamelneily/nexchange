@@ -1,6 +1,7 @@
 from unittest import TestCase
 
-from payments.utils import get_payeer_sign, get_payeer_desc
+from payments.utils import (get_payeer_sign, get_payeer_desc,
+                            credit_card_number_validator)
 
 
 class UtilsTestCase(TestCase):
@@ -22,3 +23,31 @@ class UtilsTestCase(TestCase):
         expected = ('0266597A232B49167A9551E015FECF0BC20D3D5185B31F81B02159E3'
                     '86E393BD')
         self.assertEqual(sign, expected)
+
+    def test_credit_card_validator(self):
+        # examples from
+        # http://www.freeformatter.com/
+        # credit-card-number-generator-validator.html
+        valid_ccns = [
+            '5393932585574906',
+            '6011595607767392',
+            '5414756004318701',
+            '36776607099531',
+            '6706940898715066',
+            '6376755319882173',
+            '4485240254652579',
+            '379540054643851',
+            '3539254363782712',
+            '30548284759349',
+            '5893961121444923',
+            '4175007139180083'
+        ]
+        invalid_ccns = [
+            '1234567887654321',
+        ]
+        for ccn in valid_ccns:
+            res = credit_card_number_validator(ccn)
+            self.assertTrue(res, ccn)
+        for ccn in invalid_ccns:
+            res = credit_card_number_validator(ccn)
+            self.assertFalse(res, ccn)

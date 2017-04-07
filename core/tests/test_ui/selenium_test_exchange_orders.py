@@ -16,16 +16,41 @@ class TestUIExchangeOrders(BaseTestUI):
     @data_provider(
         lambda: (('ETHLTC', Order.BUY, True),
                  ('ETHLTC', Order.SELL, False),
-                 ('BTCETH', Order.BUY, False),
+                 )
+    )
+    @patch('nexchange.utils.api.get_card_transactions')
+    @patch('nexchange.utils.api.get_reserve_transaction')
+    def test_release_exchange_order1(self, pair_name, order_type,
+                                     do_logout, reserve_txs, import_txs):
+        self.base_test_release_exchange_order(pair_name, order_type, do_logout,
+                                              reserve_txs, import_txs)
+
+    @data_provider(
+        lambda: (('BTCETH', Order.BUY, False),
                  ('BTCETH', Order.SELL, False),
-                 ('BTCLTC', Order.BUY, False),
+                 )
+    )
+    @patch('nexchange.utils.api.get_card_transactions')
+    @patch('nexchange.utils.api.get_reserve_transaction')
+    def test_release_exchange_order2(self, pair_name, order_type,
+                                     do_logout, reserve_txs, import_txs):
+        self.base_test_release_exchange_order(pair_name, order_type, do_logout,
+                                              reserve_txs, import_txs)
+
+    @data_provider(
+        lambda: (('BTCLTC', Order.BUY, False),
                  ('BTCLTC', Order.SELL, False),
                  )
     )
     @patch('nexchange.utils.api.get_card_transactions')
     @patch('nexchange.utils.api.get_reserve_transaction')
-    def test_release_exchange_order(self, pair_name, order_type, do_logout,
-                                    reserve_txs, import_txs):
+    def test_release_exchange_order3(self, pair_name, order_type,
+                                     do_logout, reserve_txs, import_txs):
+        self.base_test_release_exchange_order(pair_name, order_type, do_logout,
+                                              reserve_txs, import_txs)
+
+    def base_test_release_exchange_order(self, pair_name, order_type,
+                                         do_logout, reserve_txs, import_txs):
         self.workflow = '{}'.format(pair_name)
         order_type_display = 'BUY' if order_type == Order.BUY else 'SELL'
         self.screenpath2 = order_type_display

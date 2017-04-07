@@ -8,7 +8,8 @@ from core.common.models import (IpAwareModel, TimeStampedModel,
                                 UniqueFieldMixin)
 from orders.models import Order
 from django.conf import settings
-from django.utils.translation import get_language, ugettext_lazy as _
+from django.utils.translation import get_language
+from django.utils.http import urlquote
 
 
 class Program(TimeStampedModel):
@@ -36,19 +37,24 @@ class Program(TimeStampedModel):
 
 
 class ReferralCode(TimeStampedModel, UniqueFieldMixin):
-    code = models.CharField(max_length=10, unique=True)
-    link = models.CharField(max_length=255)
+    code = models.CharField(max_length=20, unique=True)
+    link = models.CharField(max_length=255, default=None, blank=True, null=True)
+    comment = models.CharField(max_length=255, default=None, blank=True, null=True)
+    test_scenario = models.CharField(max_length=1, default=None, blank=True, null=True)
+
     user = models.ForeignKey(User, related_name='referral_code')
     program = models.ForeignKey(Program, blank=True,
                                 null=True, default=None)
 
     def save(self, *args, **kwargs):
-        self.code = self.gen_unique_value(
-            lambda x: get_random_string(x),
-            lambda x: ReferralCode.objects.filter(code=x).count(),
-            settings.REFERRAL_CODE_LENGTH
-        )
-
+        if not self.code:
+            self.code = self.gen_unique_value(
+                lambda x: get_random_string(x),
+                lambda x: ReferralCode.objects.filter(code=x).count(),
+                settings.REFERRAL_CODE_LENGTH
+            )
+        else:
+            self.code = urlquote(self.code)
         if not self.program:
             self.program = Program.objects.first()
 

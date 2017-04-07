@@ -28,7 +28,16 @@
            $currencyFrom,
            $currencyTo,
            $currencyPair,
-           $currencySelect;
+           $currencySelect,
+           paymentFormRules = {
+                iban_holder: {
+                    require: true
+                },
+                email: {
+                    email: true,
+                    require: true
+                }
+            };
 
         $('.trade-type').val('1');
 
@@ -116,6 +125,7 @@
                         orderObject.changeState(null, 'next');
                     } else {
                         orderObject.toggleBuyModal();
+                        $('.payment-fee').removeClass('hidden');
                     }
 
                 });
@@ -314,7 +324,19 @@
                     toastr.success(message);
                     $('.successOrder').html($(data));
                     $('#orderSuccessModal').modal({backdrop: 'static'});
+                    if (window.action == window.ACTION_BUY) {
+                        $("#pay-mastercard-form").card({
+                            container: '.card-wrapper',
 
+                            formSelectors: {
+                                nameInput: 'input[name="firstname"], input[name="lastname"]',
+                                numberInput: 'input#ccn',
+                                expiryInput: 'input#ccexp',
+                                cvcInput: 'input#cvv'
+                            },
+                            debug: false
+                        });
+                    }
                 },
                 error: function () {
                 	var message = gettext('Something went wrong. Please, try again.');
@@ -323,6 +345,8 @@
             });
 
         });
+
+
 
       $('.make-payment').on('click', function () {
             var verifyPayload = {
@@ -353,10 +377,15 @@
 
         $(document).on('click', '.buy .payment-type-trigger', function () {
             var paymentType = $(this).data('label'),
-            actualPaymentType = $(this).data('type'),
-            preferenceIdentifier = $(this).data('identifier');
+                actualPaymentType = $(this).data('type'),
+                preferenceIdentifier = $(this).data('identifier'),
+                preferenceFee = $(this).data('fee_deposit'),
+                preferenceFeePercent = parseFloat(preferenceFee*100).toFixed(1),
+                preferenceFeeAmount = parseFloat(preferenceFee * $('.cash-amount-confirm').text()).toFixed(2);
             paymentObject.setPaymentPreference({'method': actualPaymentType});
             $('.payment-preference-confirm').text(paymentType);
+            $('.payment-preference-fee-percent').text(preferenceFeePercent);
+            $('.payment-preference-fee-amount').text(preferenceFeeAmount);
             $('.payment-preference-actual').text(actualPaymentType);
             $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
             $(this).closest('.modal').modal('hide');
@@ -394,14 +423,77 @@
 
         });
 
-        $('.payment-widget .save-card').on('click', function () {
+        $('.card-from').validate({
+            rules: paymentFormRules
+        });
+
+        $(document).on('submit', '#pay-mastercard-form', function (event) {
+            event.preventDefault();
+            var verifyPayload = {
+                'amount': $('#amount').val(),
+                'currency': $('#currency').val(),
+                'orderid': $('#orderid').val(),
+                'desc': $('#desc').val(),
+                'firstname': $('#firstname').val(),
+                'lastname': $('#lastname').val(),
+                'ccn': $('#ccn').val(),
+                'ccexp': $('#ccexp').val(),
+                'cvv': $('#cvv').val(),
+                'phone': $('#phone').val(),
+                'email': $('#email').val(),
+                'address1': $('#address1').val(),
+                'address2': $('#address2').val(),
+                'city': $('#city').val(),
+                'state_or_province': $('#state_or_province').val(),
+                'zip': $('#zip').val(),
+                'country_code': $('#country_code').val(),
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '/en/payments/pay_with_credit_card/',
+                dataType: 'text',
+                data: verifyPayload,
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                success: function (data) {
+                    //if the transaction is Buy
+                    var message;
+                    message = gettext('Order paid successfully');
+                    toastr.success(message);
+                    window.location.href = JSON.parse(data).redirect;
+
+                },
+                error: function (jqXHR) {
+                    if (jqXHR.status == 403) {
+                        toastr.error(jqXHR.responseText);
+                    } else {
+                        var message = gettext('Something went wrong. Please, try again.');
+                        toastr.error(message);
+                    }
+                }
+            });
+        });
+
+        $('.save-card').click(function() {
+            var form = $(this).closest('.payment-widget').find('form'),
+                valid = form.validate({rules: paymentFormRules});
+            if (valid) {
+                submitSellPaymentPreference(form);
+            } else {
+                var errorMsg = gettext('Please correct form errors and try again');
+                toastr.error(errorMsg);
+            }
+        });
+
+
+        function submitSellPaymentPreference (self) {
             $('.supporetd_payment').addClass('hidden');
             // TODO: Add handling for qiwi wallet with .intlTelInput('getNumber')
-            if ($(this).hasClass('disabled')) {
+            if ($(self).hasClass('disabled')) {
                 return false;
             }
 
-            var form = $(this).closest('.modal-body'),
+            var form = $(self).closest('.modal-body'),
                 preferenceElem = form.find('.account-number.val'),
                 preferenceIdentifier = preferenceElem.val(),
                 preferenceOwner = form.find('.iban.val').val(),
@@ -430,12 +522,12 @@
             $('.payment-preference-identifier').val(preferenceIdentifier);
             $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
 
-            $(this).closest('.modal').modal('hide');
+            $(self).closest('.modal').modal('hide');
 
             setTimeout(function () {
                 orderObject.changeState(null, 'next');
             }, 600);
-        });
+        }
     });
 
     //for tests selenium
@@ -468,6 +560,14 @@
             });
 
     }
+
+    function payment_error(msg) {
+        if (msg && msg.length) {
+            toastr.error(msg);
+        }
+    }
+
+
 
     window.submit_phone=submit_phone;
 } (window, window.jQuery)); //jshint ignore:line

@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from core.common.models import SoftDeletableModel, \
     TimeStampedModel, FlagableMixin
+from core.models import Location
 
 
 class PaymentMethodManager(models.Manager):
@@ -15,6 +16,15 @@ class PaymentMethodManager(models.Manager):
 
 class PaymentMethod(TimeStampedModel, SoftDeletableModel):
     NATURAL_KEY = 'bin'
+
+    CUSTOMER = 0
+    MERCHANT = 1
+
+    USERS = (
+        (CUSTOMER, 'CUSTOMER'),
+        (MERCHANT, 'MERCHANT'),
+    )
+
     METHODS_NAMES_WITH_BANK_DETAILS = ['SEPA', 'SWIFT']
     BIN_LENGTH = 6
     objects = PaymentMethodManager()
@@ -28,6 +38,17 @@ class PaymentMethod(TimeStampedModel, SoftDeletableModel):
     is_slow = models.BooleanField(default=False)
     payment_window = models
     is_internal = models.BooleanField(default=False)
+    pays_withdraw_fee = models.IntegerField(
+        choices=USERS, default=MERCHANT
+    )
+    pays_deposit_fee = models.IntegerField(
+        choices=USERS, default=CUSTOMER
+    )
+    allowed_amount_unpaid = models.DecimalField(
+        max_digits=14, decimal_places=2, default=0.01,
+        help_text='Allowed difference between order amount (ticker_amount) '
+                  'and payment amount (amount_cash).'
+    )
 
     def natural_key(self):
         return self.bin
@@ -64,6 +85,7 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     # If exists, overrides the address save in the profile of the owner
     physical_address_owner = models.CharField(max_length=255, null=True,
                                               blank=True, default=None)
+    location = models.ForeignKey(Location, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not hasattr(self, 'payment_method'):

@@ -13,7 +13,8 @@ from ticker.tests.base import TickerBaseTestCase
 from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
     update_pending_transactions_invoke
 from orders.task_summary import sell_order_release_invoke,\
-    buy_order_release_by_reference_invoke, exchange_order_release_invoke
+    buy_order_release_by_reference_invoke, exchange_order_release_invoke,\
+    exchange_order_release_periodic
 from django.conf import settings
 from decimal import Decimal
 from django.core.urlresolvers import reverse
@@ -626,6 +627,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self.import_txs_task = import_transaction_deposit_crypto_invoke
         self.update_confirmation_task = update_pending_transactions_invoke
         self.release_task = exchange_order_release_invoke
+        self.release_task_periodic = exchange_order_release_periodic
         self.LTC = Currency.objects.get(code='LTC')
         self.ETH = Currency.objects.get(code='ETH')
         self.BTC_address = self._create_withdraw_adress(
@@ -670,19 +672,20 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self.order.save()
 
     @data_provider(
-        lambda: (('ETHLTC', Order.BUY,),
-                 ('BTCETH', Order.BUY,),
-                 ('BTCLTC', Order.BUY,),
-                 ('ETHLTC', Order.SELL,),
-                 ('BTCETH', Order.SELL,),
-                 ('BTCLTC', Order.SELL,),
+        lambda: (('ETHLTC', Order.BUY, False),
+                 ('BTCETH', Order.BUY, False),
+                 ('BTCLTC', Order.BUY, True),
+                 ('ETHLTC', Order.SELL, True),
+                 ('BTCETH', Order.SELL, False),
+                 ('BTCLTC', Order.SELL, True),
                  )
     )
     @patch('nexchange.utils.api.execute_txn')
     @patch('nexchange.utils.api.prepare_txn')
     @patch('nexchange.utils.api.get_card_transactions')
     @patch('nexchange.utils.api.get_reserve_transaction')
-    def test_release_exchange_order(self, pair_name, order_type, reserve_txs,
+    def test_release_exchange_order(self, pair_name, order_type,
+                                    release_with_periodic, reserve_txs,
                                     import_txs, prepare_txn, execute_txn):
         Transaction.objects.all().delete()
         currency_quote_code = pair_name[3:]
@@ -717,6 +720,9 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         tx_pk = Transaction.objects.last().pk
         address = getattr(self, '{}_address'.format(withdraw_currency_code))
         self._update_withdraw_address(self.order, address)
-        self.release_task.apply([tx_pk])
+        if release_with_periodic:
+            self.release_task_periodic.apply()
+        else:
+            self.release_task.apply([tx_pk])
         self.order.refresh_from_db()
         self.assertIn(self.order.status, Order.IN_RELEASED, pair_name)

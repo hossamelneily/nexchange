@@ -143,6 +143,11 @@ OKPAY_API_URL = 'https://api.okpay.com/OkPayAPI?singleWsdl'
 PAYEER_API_URL = 'https://payeer.com/ajax/api/api.php'
 PAYEER_IPS = ['185.71.65.92', '185.71.65.189', '149.202.17.210']
 
+
+CARDPMT_API_URL = 'https://gateway.cardpmt.com/api.cgi'
+CARDPMT_API_ID = 'user'
+CARDPMT_API_PASS = 'name'
+
 CMSPAGES = {
     'ABOUTUS': [
         ('about_us', _('About Us')),
@@ -237,6 +242,8 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'referrals.middleware.ReferralMiddleWare',
     'core.middleware.TimezoneMiddleware',
+    'core.middleware.LastSeenMiddleware',
+
 ]
 
 ROOT_URLCONF = 'nexchange.urls'
@@ -355,7 +362,7 @@ GRAPH_HOUR_RANGES = [
     {'val': 24 * 31 * 6, 'name': '6 Months'},
     {'val': 24 * 365, 'name': '1 Year'}
 ]
-DEFAULT_HOUR_RANGE = 6
+DEFAULT_HOUR_RANGE = 4
 
 # to tests the API with localhost
 CORS_ORIGIN_WHITELIST = (
@@ -432,3 +439,5 @@ LOGGING = {
     }
 }
 BASIC_LOGGING_LEVEL = logging.DEBUG
+CREDIT_CARD_IS_TEST = False
+CARDPMT_TEST_MODE = False

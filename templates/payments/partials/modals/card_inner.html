@@ -3,7 +3,9 @@
 <div class="col col-xs-6 col-md-3 payment-type-trigger"
      data-type="{{ card_type }}"
      data-label="{{ label }}"
-     data-identifier="{{ card.identifier }}">
+     data-identifier="{{ card.identifier }}"
+     data-fee_deposit="{{ card.payment_method.fee_deposit }}">>
+
     <div class="col col-sm-12 payment-trigger-image">
             <span class="helper"></span>
             <img src="{% static icon %}"

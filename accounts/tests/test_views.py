@@ -60,6 +60,11 @@ class RegistrationTestCase(TestCase):
 class ProfileUpdateTestCase(UserBaseTestCase):
 
     def test_can_update_profile(self):
+        management_from = {
+            'form-TOTAL_FORMS': 1,
+            'form-INITIAL_FORMS': 0
+        }
+        self.data.update(management_from)
         response = self.client.post(
             reverse('accounts.user_profile'), self.data)
         # Redirect after update

@@ -435,7 +435,7 @@ class OkPayAPI(BasePaymentApi):
         return response
 
     def _send_money(self, receiver=None, currency=None, amount=None,
-                    comment=None, is_receiver_pays_fees=False, invoice=None):
+                    comment=None, is_receiver_pays_fees=True, invoice=None):
         """
         https://dev.okpay.com/en/manual/interfaces/functions/general
         /send-money.html
@@ -455,7 +455,7 @@ class OkPayAPI(BasePaymentApi):
         return response
 
     def send_money(self, receiver=None, currency=None, amount=None,
-                   comment=None, is_receiver_pays_fees=False, invoice=None):
+                   comment=None, is_receiver_pays_fees=True, invoice=None):
         try:
             service_resp = self._send_money(
                 receiver=receiver, currency=currency, amount=amount,
@@ -524,6 +524,7 @@ class PayeerAPIClient(BasePaymentApi):
 
     def transfer_funds(self, currency_in=None, currency_out=None, amount=None,
                        receiver=None, comment=None):
+        """ http://docs.payeercom.apiary.io/#reference/0/transferring-funds """
 
         payload = {
             'account': self.account,
@@ -531,7 +532,7 @@ class PayeerAPIClient(BasePaymentApi):
             'apiPass': self.apiPass,
             'action': 'transfer',
             'curIn': currency_in,
-            'sumOut': amount,
+            'sum': amount,
             'curOut': currency_out,
             'comment': comment,
             'to': receiver

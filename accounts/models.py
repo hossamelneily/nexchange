@@ -10,6 +10,7 @@ from core.common.models import (SoftDeletableModel, TimeStampedModel,
                                 UniqueFieldMixin)
 from orders.models import Order
 from referrals.models import ReferralCode
+from verification.models import Verification
 
 
 class NexchangeUser(User):
@@ -43,6 +44,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
                                null=True, blank=True)
     last_visit_ip = models.CharField(max_length=39,
                                      default=None, null=True)
+    # Time-zone aware time (!)
     last_visit_time = models.DateTimeField(default=None, null=True)
     notify_by_phone = models.BooleanField(default=True)
     notify_by_email = models.BooleanField(default=True)
@@ -52,6 +54,8 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     lang = models.CharField(choices=settings.LANGUAGES,
                             max_length=100,
                             default='en')
+    time_zone = models.CharField(default=None, max_length=100,
+                                 blank=True, null=True)
     sig_key = models.CharField(max_length=64, blank=True)
     duplicate_of = models.ForeignKey('Profile', blank=True,
                                      null=True, default=None)
@@ -77,6 +81,20 @@ class Profile(TimeStampedModel, SoftDeletableModel):
                                  expired=True).length \
             > settings.MAX_EXPIRED_ORDERS_LIMIT
 
+    @property
+    def is_verified(self):
+        verifications = self.user.verification_set.all()
+        id_status = False
+        util_status = False
+        for ver in verifications:
+            if ver.id_status == Verification.OK:
+                id_status = True
+            if ver.util_status == Verification.OK:
+                util_status = True
+            if id_status and util_status:
+                return True
+        return False
+
     def natural_key(self):
         return self.user.username
 
@@ -85,7 +103,9 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         if self.pk is None:
             token = SmsToken(user=self.user)
             token.save()
-            ReferralCode.objects.get_or_create(user=self.user)
+            ReferralCode.objects.get_or_create(
+                user=self.user, comment=_('Default referral code')
+            )
 
         # for short creation for user_by_phone
         if not self.phone:

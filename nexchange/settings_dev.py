@@ -82,9 +82,6 @@ PAYEER_API_KEY = '12345'
 API1_USER = ''
 API1_PASS = ''
 API1_IS_TEST = False
-API1_ID_C1 = ''
-API1_ID_C2 = ''
-API1_ID_C3 = ''
 CARDS_RESERVE_COUNT = os.getenv('CARDS_RESERVE_COUNT',
                                 settings.CARDS_RESERVE_COUNT)
 
@@ -97,6 +94,10 @@ ROBOKASSA_PASS2 = 'vaXizy98NA4rOm8Mty6l'
 # API2 TEST
 API2_KEY = ''
 API2_SECRET = ''
+
+# PMT
+CARDPMT_API_ID = 'user'
+CARDPMT_API_PASS = 'name'
 
 
 # Twilio TEST
@@ -128,3 +129,5 @@ LOGGING = {
         }
     }
 }
+CREDIT_CARD_IS_TEST = True
+CARDPMT_TEST_MODE = True

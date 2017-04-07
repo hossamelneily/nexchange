@@ -7,12 +7,24 @@
 <div class="panel panel-success">
     <div class="panel-body">
         <h1>{% trans 'Order placed successfully' %}</h1>
-        {% if not order.exchange %}
+        {% if order.payment_preference.payment_method.name == 'Mastercard-Internal' %}
+
+            <div class="row">
+                <div class="col col xs-12"></div>
+                    {% trans 'Please fill the form to pay ' %}
+                    {{ order.amount_quote }} {{ order.pair.quote.code}}
+                    {% trans 'for this order.' %}
+            </div>
+        <div class="row">
+            {% include "payments/partials/forms/credit_card.html" %}
+        </div>
+        {% elif not order.exchange %}
             <div class="row">
                 <div class="col col xs-12"></div>
 
                 {% trans 'Please make payment to the following' %}
                 {{ order.payment_preference.payment_method.name }}
+                {{ order.amount_quote }} {{ order.pair.quote.code}}
             </div>
 
             <div class="row">
@@ -137,34 +149,7 @@
                     </label>
                 </div>
             </div>
-            {% endblock %}
-
-            {% block terms %}
-                <div class="exchange-terms">
-                    <div class="row text-left">
-                        {% if order.payment_preference.comment %}
-                            <div class="col col-xs-12 text-let">
-                                <label>
-                                    * {{ order.payment_preference.comment }}
-                                </label>
-                            </div>
-                        {% endif %}
-                      <div class="col col-xs-12 text-let">
-                         <label>
-                             * {% trans 'Please notice that you must pay until ' %}
-                             {% localtime on %}
-                                 <strong>{{pay_until |date:"H:iA (e)"}}</strong>
-                             {% endlocaltime %}
-                         </label>
-                      </div>
-                      <div class="col col-xs-12 text-left">
-                          <label>
-                              * {% trans 'All exchange transactions are executed automatically by a computer regardless of the payment method' %}
-                          </label>
-                      </div>
-              </div>
-            </div>
-            {% endblock %}
+           {% endblock %}
         {% else %}
             <div class="row">
                 <div class="col col-xs-12">
@@ -197,16 +182,33 @@
                     <p><strong>{{unique_ref}}</strong></p>
                 </div>
             </div>
-            <div class="col col-xs-12">
-             {% trans 'Notice that you must send coins until' %}
-            </div>
-            {% localtime on %}
-                <div class="col col-xs-12" id="pay_until_notice">
-                    <p><strong>{{pay_until |date:"H:iA (e)"}}</strong></p>
-                </div>
-            {% endlocaltime %}
         {% endif %}
-
+        {% block terms %}
+            <div class="exchange-terms">
+                <div class="row text-left">
+                    {% if order.payment_preference.comment %}
+                        <div class="col col-xs-12 text-let">
+                            <label>
+                                * {{ order.payment_preference.comment }}
+                            </label>
+                        </div>
+                    {% endif %}
+                    <div class="col col-xs-12 text-let">
+                       <label>
+                           * {% trans 'Please notice that you must pay until ' %}
+                           {% localtime on %}
+                               <strong>{{pay_until |date:"H:iA (e)"}}</strong>
+                           {% endlocaltime %}
+                       </label>
+                    </div>
+                    <div class="col col-xs-12 text-left">
+                        <label>
+                            * {% trans 'All exchange transactions are executed automatically by a computer regardless of the payment method' %}
+                        </label>
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
     </div><!-- /pannel-body -->
 </div><!-- /pannel -->
 <input type="hidden" name="order_id" value="{{order_id}}" class="order_id" >

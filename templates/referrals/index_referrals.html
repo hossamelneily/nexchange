@@ -21,7 +21,7 @@
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
 
             <div  class="panel panel-default  visible-sm visible-xs">
-        		{% for ref in referrals %}
+        		{% for ref in referrals_list %}
                   <div id="{{ ref.referee.id}}" class="headers-mobile panel-heading">{{ ref.referee.profile.partial_phone }}
                         <a class="pull-right" data-toggle="collapse" data-parent="{{ ref.referee.id}}" href="#body-{{ ref.referee.id}}">
                             {% trans "details" %}
@@ -37,7 +37,7 @@
 
 
                   <div>
-                      <div class = "headers-mobile header-text">{% trans "Confirmed orders count" %}</div>
+                      <div class = "headers-mobile header-text">{% trans "Confirmed orders" %}</div>
                       {{ ref.confirmed_orders_count }}
                   </div>
 
@@ -56,12 +56,16 @@
 
                   <div>
                       <div class = "headers-mobile header-text">{% trans "Last seen" %}</div>
-                      {{ ref.referee.profle.last_visit }}
+                      {{ ref.referee.profile.last_visit_time }}
                   </div>
 
 
-                  <div class = "headers-mobile header-text">{% trans "Id" %}</div>
-                      {{ ref.referee.profle.id }}
+                  <div class = "headers-mobile header-text">{% trans "Timezone" %}</div>
+                      {{ ref.referee.profile.time_zone }}
+                  </div>
+
+                  <div class = "headers-mobile header-text">{% trans "Referral Code" %}</div>
+                      {{ ref.code.code }}
                   </div>
 
               {% endfor %}
@@ -75,20 +79,22 @@
   					<th>{% trans "Turnover" %}</th>
   					<th>{% trans "Revenue" %}</th>
   					<th>{% trans "Last seen" %}</th>
-  					<th>{% trans "Id" %}</th>
+  					<th>{% trans "Timezone" %}</th>
+  					<th>{% trans "Referral Code" %}</th>
   				</tr>
 	    		
-	    		{% for ref in referrals %}
+	    		{% for ref in referrals_list %}
                     <tr>
 			        	<td>{{ ref.referee.profile.partial_phone }}
 		            	<td>{{ ref.confirmed_orders_count }}</td>
 		                <td>{{ ref.turnover }}</td>
 		                <td>{{ ref.revenue }}</td>
                         <td>{{ ref.referee.profile.last_visit_time }}</td>
-                        <td>{{ ref.referee.id }}</td>
+                        <td>{{ ref.referee.profile.time_zone }}</td>
+                        <td title="{{ ref.code.comment }}" class="clickable">{{ ref.code.code }}</td>
                     </tr>
 	    		{% endfor %}
-                {% if not referrals %}
+                {% if not referrals_list %}
                     <tr>
 		    			<td colspan="10">
 		    				<h3>{% trans "No referrals found" %}</h3>

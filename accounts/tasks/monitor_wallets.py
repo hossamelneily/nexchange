@@ -63,9 +63,8 @@ def update_pending_transactions():
                 )
             else:
                 msg = _(
-                    'Your order {}:  is PAID. '
-                    '\n '
-                ). format(order)
+                    'Your order {}: is paid. {}'
+                ). format(order, '\n')
 
             if profile.notify_by_phone and profile.phone:
                 phone_to = str(tr.order.user.username)

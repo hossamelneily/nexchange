@@ -16,4 +16,7 @@ payment_urls = [
         name='payments.options'),
     url(r'^payeer/status$', views.payeer_status,
         name='payments.payeer.status'),
+    url(r'^pay_with_credit_card/$',
+        views.pay_with_credit_card,
+        name='payments.pay_with_credit_card'),
 ]

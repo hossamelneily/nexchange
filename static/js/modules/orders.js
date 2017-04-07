@@ -266,7 +266,7 @@
             return;
         }
         else if (window.action == window.ACTION_SELL &&
-            $('.payment-preference-confirm').text() == 'EXCHANGE') {
+            $('.payment-preference-confirm').html() == 'EXCHANGE') {
             $('.buy-go').addClass('hidden');
             $('.sell-go').removeClass('hidden');
         }

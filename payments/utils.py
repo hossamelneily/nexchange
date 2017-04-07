@@ -85,3 +85,13 @@ def get_payeer_sign(ar_hash=()):
 def get_payeer_desc(description):
     desc = base64.b64encode(description.encode('utf8')).decode('utf8')
     return desc
+
+
+def credit_card_number_validator(input):
+    """ Luhn algorithm """
+    digits = [int(c) for c in input if c.isdigit()]
+    checksum = digits.pop()
+    digits.reverse()
+    doubled = [2 * d for d in digits[0::2]]
+    total = sum(d - 9 if d > 9 else d for d in doubled) + sum(digits[1::2])
+    return (total * 9) % 10 == checksum

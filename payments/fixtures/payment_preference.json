@@ -631,7 +631,6 @@
       "secondary_identifier": "MASTERCARD NEXCHANGE",
       "payment_method": ["-5"],
       "sell_enabled": false,
-      "comment": "To pay with a Mastercard credit card please fund your OkPay account with your card and then pay from your OkPay balance (no fee)",
       "currency": [
          ["USD"],
          ["RUB"],

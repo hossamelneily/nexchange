@@ -12,6 +12,7 @@ from core.common.models import (SoftDeletableModel, TimeStampedModel,
                                 UniqueFieldMixin, FlagableMixin)
 from core.models import Pair
 from payments.utils import money_format
+from payments.models import Payment
 from ticker.models import Price
 from django.core.exceptions import ValidationError
 
@@ -153,13 +154,88 @@ class Order(TimeStampedModel, SoftDeletableModel,
         self.amount_base = Decimal(self.amount_base)
         price = Price.objects.filter(pair=self.pair).last()
         self.price = price
-        # For annotations
-        amount_quote = None
-        if self.order_type == Order.BUY:
-            amount_quote = self.amount_base * price.ticker.ask
-        elif self.order_type == Order.SELL:
-            amount_quote = self.amount_base * price.ticker.bid
+        amount_quote = self.add_payment_fee(self.ticker_amount)
         self.amount_quote = money_format(amount_quote)
+
+    @property
+    def ticker_amount(self):
+        if not self.price:
+            return self.amount_quote
+        # For annotations
+        res = None
+        if self.order_type == Order.BUY:
+            res = self.amount_base * self.price.ticker.ask
+        elif self.order_type == Order.SELL:
+            res = self.amount_base * self.price.ticker.bid
+        return res
+
+    def add_payment_fee(self, amount_quote):
+        if not self.payment_preference:
+            return amount_quote
+        base = Decimal('1.0')
+        fee = Decimal('0.0')
+        method = self.payment_preference.payment_method
+        if self.order_type == self.BUY:
+            fee = method.fee_deposit
+            if method.pays_deposit_fee == method.MERCHANT:
+                fee = -fee
+        elif self.order_type == self.SELL:
+            fee = self.payment_preference.payment_method.fee_withdraw
+            if method.pays_withdraw_fee == method.MERCHANT:
+                fee = -fee
+        amount_quote = amount_quote * (base + fee)
+        return amount_quote
+
+    @property
+    def is_paid(self):
+        if self.order_type == self.BUY:
+            return self.is_paid_buy()
+        else:
+            raise NotImplementedError('Exists only for BUY orders.')
+
+    def success_payments_amount(self):
+        payments = self.success_payments_by_reference()
+        if not payments:
+            payments = self.success_payments_by_wallet()
+        sum_success = Decimal(0)
+        for p in payments:
+            sum_success += p.amount_cash
+        return sum_success
+
+    def success_payments_by_reference(self):
+        ref = self.unique_reference
+        payments = Payment.objects.filter(
+            is_success=True, reference=ref, currency=self.pair.quote)
+        return payments
+
+    def success_payments_by_wallet(self):
+        method = self.payment_preference.payment_method
+        payments = Payment.objects.filter(
+            is_success=True,
+            user=self.user,
+            amount_cash=self.ticker_amount,
+            payment_preference__payment_method=method,
+            currency=self.pair.quote
+        )
+        return payments
+
+    def is_paid_buy(self):
+        sum_all = self.success_payments_amount()
+        amount_expected = (
+            self.ticker_amount -
+            self.payment_preference.payment_method.allowed_amount_unpaid
+        )
+        if sum_all >= amount_expected:
+            return True
+        return False
+
+    @property
+    def part_paid_buy(self):
+        if self.order_type != self.BUY:
+            return False
+        sum_all = self.success_payments_amount()
+        amount_expected = self.ticker_amount
+        return sum_all / amount_expected
 
     @property
     def is_buy(self):

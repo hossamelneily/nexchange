@@ -12,6 +12,7 @@ from core.tests.utils import get_ok_pay_mock, split_ok_pay_mock
 from orders.models import Order
 from payments.models import PaymentMethod, PaymentPreference, UserCards
 from ticker.models import Price, Ticker
+from verification.models import Verification
 from copy import deepcopy
 import mock
 import os
@@ -61,6 +62,9 @@ class UserBaseTestCase(TestCase):
                 User.objects.get_or_create(username=self.username)
             self.user.set_password(self.password)
             self.user.save()
+            Verification(user=self.user,
+                         id_status=Verification.OK,
+                         util_status=Verification.OK).save()
         assert isinstance(self.user, User)
         token = SmsToken(user=self.user)
         token.save()

@@ -42,14 +42,16 @@
                     {% trans 'Go to Robokassa' %}
                 </a>
             {% else %}
-                <a href="{% url 'orders.orders_list' %}?oid={{ order.unique_reference }}"
-                   class="btn btn-success">
-                    {%  if order.is_buy or order.exchange %}
-                        {% trans 'Get your coins' %}
-                    {% else %}
-                        {% trans 'Done' %}
-                    {% endif %}
-                </a>
+                {% if order.payment_preference.payment_method.name != 'Mastercard-Internal' %}
+                    <a href="{% url 'orders.orders_list' %}?oid={{ order.unique_reference }}"
+                       class="btn btn-success">
+                        {%  if order.is_buy or order.exchange %}
+                            {% trans 'Get your coins' %}
+                        {% else %}
+                            {% trans 'Done' %}
+                        {% endif %}
+                    </a>
+                {% endif %}
             {% endif %}
         </div>
       </div>

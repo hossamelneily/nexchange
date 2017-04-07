@@ -22,9 +22,8 @@ class BaseOrderRelease(BaseTask):
         return order.user.profile
 
     def validate(self, order, payment):
-        order_already_released = (
-            payment.is_redeemed or order.status == Order.RELEASED
-        )
+        order_already_released = (payment.is_redeemed or
+                                  order.status == Order.RELEASED)
 
         if order_already_released:
             flag, created = order.flag(__name__)
@@ -132,13 +131,13 @@ class BaseBuyOrderRelease(BaseOrderRelease):
     def validate(self, order, payment):
         # hack to prevent circular imports
         verbose_match = type(self).__name__ == 'BuyOrderReleaseByWallet'
-        details_match = \
-            order.pair.quote == payment.currency and \
-            order.amount_quote <= payment.amount_cash
+        details_match = order.pair.quote == payment.currency
         ref_matches = order.unique_reference == payment.reference or \
             verbose_match
 
         user_matches = not payment.user or payment.user == order.user
+
+        order_paid = order.is_paid
 
         if verbose_match and payment.reference:
             payment.flag(__name__)
@@ -147,6 +146,9 @@ class BaseBuyOrderRelease(BaseOrderRelease):
                              'FALLING BACK TO CrossCheck RELEASE'
                              .format(order, payment))
 
+        if not order_paid:
+            self.logger.error('Cannot release Order({}) which is not '
+                              'Paid'.format(order))
         if not user_matches:
             self.logger.error('order: {} payment: {} NO USER MATCH'
                               .format(order, payment))
@@ -161,7 +163,7 @@ class BaseBuyOrderRelease(BaseOrderRelease):
                              'RELEASE BY VERBOSE_MATCH (cross reference)'.
                              format(order, payment))
 
-        match = user_matches and details_match and ref_matches
+        match = user_matches and details_match and ref_matches and order_paid
 
         if match:
             self.logger.info('Order {}  VALID {}'

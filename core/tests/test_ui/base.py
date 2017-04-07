@@ -13,6 +13,7 @@ from ticker.tests.base import TickerBaseTestCase
 from selenium.webdriver.common.keys import Keys
 from orders.models import Order
 from payments.models import UserCards
+from verification.models import Verification
 from django.conf import settings
 from django.contrib.auth.models import User
 
@@ -139,7 +140,9 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.click_span(class_name='verify-acc')
 
         self.selenium_user = User.objects.get(username=self.phone)
-        # FIXME: Should be done by mock
+        if not self.selenium_user.profile.is_verified:
+            Verification(user=self.selenium_user, id_status=Verification.OK,
+                         util_status=Verification.OK).save()
         sleep(self.timeout / 20)
         self.do_screenshot('After Login')
         self.logged_in = True
@@ -201,10 +204,10 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         )).click()
 
     def check_paid_toggle(self):
-        self.do_screenshot('Before payment Toggler check', refresh=True)
+        self.do_screenshot('Before payment Toggle check')
         success_toggle_input = self.select_paid_toggle()
         if len(success_toggle_input) == 0:
-            self.do_screenshot('Check for toggler once again', refresh=True)
+            self.do_screenshot('Check for toggle once again', refresh=True)
             success_toggle_input = self.select_paid_toggle()
         self.assertTrue(
             len(success_toggle_input) >= 1,
@@ -308,7 +311,9 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             'Bad Order status on {}'.format(self.payment_method))
 
     def check_order_status_indicator(self, indicator_name, checked=True):
-        self.do_screenshot('Before checking status', refresh=True)
+        self.do_screenshot(
+            'Before checking status \'{}\''.format(indicator_name)
+        )
         is_checked = 'fa fa-check fa-1'
         is_unchecked = 'fa fa-close fa-1 red'
         if checked:
@@ -397,13 +402,12 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         import_txs.return_value = json.loads(get_txs_response)
 
     def do_screenshot(self, filename, refresh=False):
-        self.shot_base64 = self.driver.get_screenshot_as_base64()
         now = time()
         diff = now - self.stamp
         self.stamp = now
         if refresh:
             self.driver.refresh()
-            sleep(self.timeout / 15)
+            sleep(self.timeout / 6)
         path = os.path.join(
             self.screenpath, self.workflow, self.screenpath2)
         filename = '{}({}). {} ({:.2f}s)'.format(

@@ -56,7 +56,7 @@ simplegeneric>=0.8.1
 six>=1.10.0
 sqlparse>=0.2.1
 traitlets>=4.2.2
-twilio>=5.4.0
+twilio==5.4.0
 requests-mock>=1.0.0
 django-filter>=0.14.0
 psycopg2>=2.6.1

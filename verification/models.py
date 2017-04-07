@@ -6,9 +6,11 @@ from core.common.models import SoftDeletableModel, TimeStampedModel
 
 class Verification(TimeStampedModel, SoftDeletableModel):
 
+    REJECTED = 'REJECTED'
+    OK = 'OK'
     TYPES = (
-        ('REJECTED', 'Rejected'),
-        ('OK', 'Approved'),
+        (REJECTED, 'Rejected'),
+        (OK, 'Approved'),
     )
 
     def _get_file_name(self, filename, root):
