@@ -50,10 +50,10 @@ LOCALE_PATHS = (
 
 LANGUAGE_CODE = 'en'
 LANGUAGES = [
-    ('ru-ru', _('Russian')),
-    ('en-en', _('English')),
-    ('es-es', _('Spanish')),
-    ('es-ca', _('Catalan')),
+    ('ru', _('Russian')),
+    ('en', _('English')),
+    ('es', _('Spanish')),
+    ('ca', _('Catalan')),
 ]
 
 
