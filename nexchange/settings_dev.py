@@ -129,5 +129,4 @@ LOGGING = {
         }
     }
 }
-CREDIT_CARD_IS_TEST = True
-CARDPMT_TEST_MODE = True
+CARDPMT_TEST_MODE = False

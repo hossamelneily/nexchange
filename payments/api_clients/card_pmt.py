@@ -2,14 +2,13 @@ from django.conf import settings
 import requests
 from core.models import Currency, Location
 from orders.models import Order
-from payments.models import Payment, PaymentMethod, PaymentPreference
+from payments.models import Payment, PaymentMethod, PaymentPreference,\
+    FailedRequest
 from nexchange.utils import get_nexchange_logger
 from decimal import Decimal
 from copy import deepcopy
 from payments.utils import credit_card_number_validator
 from datetime import date
-from core.tests.utils import read_fixture
-from time import time
 from urllib.parse import quote_plus
 from django.utils.translation import ugettext_lazy as _
 
@@ -63,6 +62,7 @@ class CardPmtAPIClient:
         self.payment_method = PaymentMethod.objects.get(
             name__icontains=self.name
         )
+        self.order = None
 
     def _create_tx_url(self, **kwargs):
         encoded_dict = {}
@@ -88,39 +88,45 @@ class CardPmtAPIClient:
 
     def _validate_cvv(self, cvv):
         if len(cvv) != 3:
-            self.logger.warning('cvv({}) length is not 3'.format(cvv))
-            return False
+            msg = _('CVV({}) length is not 3'.format(cvv))
+            self.logger.warning(msg)
+            return {'status': 0, 'msg': msg}
         try:
             int(cvv)
         except ValueError:
-            self.logger.warning('cvv({}) contains not only digits'.format(cvv))
-            return False
-        return True
+            msg = _('CVV({}) contains not only digits'.format(cvv))
+            self.logger.warning(msg)
+            return {'status': 0, 'msg': msg}
+        return {'status': 1, 'msg': 'OK'}
 
     def _validate_mastercard_ccn(self, ccn):
         if ccn[:2] not in ['51', '52', '53', '54', '55']:
-            self.logger.warning(
+            msg = _(
                 'cnn({}) starts with wrong numbers for mastercard'.format(ccn)
             )
-            return False
+            self.logger.warning(msg)
+            return {'status': 0, 'msg': msg}
         if len(ccn) < 16 or len(ccn) > 19:
-            self.logger.warning(
-                ' mastercard cnn({}) must be between 16-19 digits long'.format(
+            msg = _(
+                'Mastercard cnn({}) must be between 16-19 digits long'.format(
                     ccn
                 )
             )
-            return False
+            self.logger.warning(msg)
+            return {'status': 0, 'msg': msg}
         if not credit_card_number_validator(ccn):
-            self.logger.warning(
-                ' ccn({}) bad checksum'.format(ccn)
+            msg = _(
+                ' {} is invalid Mastercard number.'.format(ccn)
             )
-            return False
-        return True
+            self.logger.warning(msg)
+            return {'status': 0, 'msg': msg}
+        return {'status': 1, 'msg': 'OK'}
 
     def _validate_ccexp(self, ccexp):
         if len(ccexp) != 4:
-            self.logger.warning('Invalid ccexp({}) length'.format(ccexp))
-            return False
+            msg = _('Invalid ccexp({}) length'.format(ccexp))
+            self.logger.warning(msg)
+            return {'status': 0, 'msg': msg}
         yy = int('20{}'.format(ccexp[2:]))
         if ccexp[0] == 0:
             mm = int(ccexp[1:2])
@@ -129,43 +135,51 @@ class CardPmtAPIClient:
         now = date.today()
         day_exp = date(yy, mm, 1)
         if now >= day_exp:
-            self.logger.warning(
+            msg = _(
                 'Credit card expired (ccexp - {})'.format(ccexp)
             )
-            return False
-        return True
+            self.logger.warning(msg)
+            return {'status': 0, 'msg': msg}
+        return {'status': 1, 'msg': 'OK'}
 
     def _validate_credit_card_crediantials(self, **kwargs):
-        if not self._validate_cvv(kwargs['cvv']):
-            self.logger.warning('Invalid cvv')
-            return False
-        if not self._validate_mastercard_ccn(kwargs['ccn']):
-            self.logger.warning('Invalid cvv')
-            return False
-        if not self._validate_ccexp(kwargs['ccexp']):
-            self.logger.warning('Invalid ccexp')
-            return False
-        return True
+        cvv_valid = self._validate_cvv(kwargs['cvv'])
+        if cvv_valid['status'] == 0:
+            return {'status': 0, 'msg': cvv_valid['msg']}
+        ccn_valid = self._validate_mastercard_ccn(kwargs['ccn'])
+        if ccn_valid['status'] == 0:
+            return {'status': 0, 'msg': ccn_valid['msg']}
+        ccexp_valid = self._validate_ccexp(kwargs['ccexp'])
+        if ccexp_valid['status'] == 0:
+            return {'status': 0, 'msg': ccexp_valid['msg']}
+        return {'status': 1, 'msg': 'OK'}
+
+    def check_for_response_failures(self, formatted_response, content, url,
+                                    **kwargs):
+        failed = False
+        if formatted_response['status'] == '0'\
+                or formatted_response['transaction_id'] == '0':
+            failed = True
+        for value in formatted_response.values():
+            if value is None:
+                failed = True
+        if failed:
+            failure = FailedRequest(url=url, response=content,
+                                    order=self.order, payload=kwargs)
+            failure.save()
 
     def create_transaction(self, **kwargs):
-        if not self._validate_credit_card_crediantials(**kwargs):
+        valid = self._validate_credit_card_crediantials(**kwargs)
+        if valid['status'] == 0:
+            failure = FailedRequest(validation_error=valid['msg'],
+                                    order=self.order, payload=kwargs)
+            failure.save()
             return {
-                'status': 0, 'msg': _('Bad Credit Card credentials')
+                'status': 0, 'msg': valid['msg']
             }
         url = self._create_tx_url(**kwargs)
-        if settings.CREDIT_CARD_IS_TEST:
-            response_empty = read_fixture(
-                'payments/tests/fixtures/card_pmt/'
-                'transaction_response_empty.html'
-            )
-            content = response_empty.format(
-                auth_code='100',
-                status='1',
-                transaction_id=str(time())
-            )
-        else:
-            response = requests.get(url, verify=False)
-            content = response.content.decode('utf-8')
+        response = requests.get(url, verify=False)
+        content = response.content.decode('utf-8')
         res = {
             'status': self._read_content_table_parameter(content, 'STATUS'),
             'transaction_id': self._read_content_table_parameter(
@@ -173,6 +187,7 @@ class CardPmtAPIClient:
             'response_code': self._read_content_table_parameter(
                 content, 'RESPONSE_CODE'),
         }
+        self.check_for_response_failures(res, content, url, **kwargs)
         return res
 
     def validate_order(self, order, **kwargs):
@@ -235,6 +250,8 @@ class CardPmtAPIClient:
                 identifier=identifier,
                 secondary_identifier=secondary_identifier,
                 payment_method=self.payment_method,
+                cvv=kwargs['cvv'],
+                ccexp=kwargs['ccexp'],
                 user=user
             )
             if not order:
@@ -273,16 +290,16 @@ class CardPmtAPIClient:
     def pay_for_the_order(self, **kwargs):
         error_msg = _('Something went wrong. Order is not paid.')
         success_msg = _('Order is paid successfully!')
-        order = Order.objects.get(unique_reference=kwargs['orderid'])
-        if self.validate_order(order, **kwargs):
+        self.order = Order.objects.get(unique_reference=kwargs['orderid'])
+        if self.validate_order(self.order, **kwargs):
             try:
                 res = self.create_transaction(**kwargs)
-            except KeyError:
+            except KeyError as e:
                 error_msg = _('Bad Credit Card credentials')
                 return {'status': 0, 'msg': error_msg}
             if res['status'] == '1':
-                order.status = Order.PAID_UNCONFIRMED
-                order.save()
+                self.order.status = Order.PAID_UNCONFIRMED
+                self.order.save()
                 if res['transaction_id'] == '0' or res['transaction_id'] is \
                         None:
                     error_msg = _('Order payment status is unclear, please '
@@ -290,18 +307,18 @@ class CardPmtAPIClient:
                     return {'status': 0, 'msg': error_msg}
                 if not self.check_unique_transaction_id(res['transaction_id']):
                     return {'status': 0, 'msg': error_msg}
-                order.status = Order.PAID
-                order.save()
-                pref = self.create_payment_preference(order, **kwargs)
+                self.order.status = Order.PAID
+                self.order.save()
+                pref = self.create_payment_preference(self.order, **kwargs)
                 currency = Currency.objects.get(code=kwargs['currency'])
                 payment = Payment(
                     is_success=res['status'],
                     payment_system_id=res['transaction_id'],
-                    reference=order.unique_reference,
+                    reference=self.order.unique_reference,
                     amount_cash=kwargs['amount'],
                     payment_preference=pref,
-                    order=order,
-                    user=order.user if order else None,
+                    order=self.order,
+                    user=self.order.user if self.order else None,
                     currency=currency
                 )
                 payment.save()
@@ -310,11 +327,12 @@ class CardPmtAPIClient:
                 return res
             else:
                 self.logger.error(
-                    'Bad Payment status. response:{},order:{}'.format(res,
-                                                                      order)
+                    'Bad Payment status. response:{},order:{}'.format(
+                        res, self.order
+                    )
                 )
                 return {'status': 0, 'msg': error_msg}
         else:
-            if order.status == Order.PAID:
+            if self.order.status == Order.PAID:
                 error_msg = _("This order is already paid")
             return {'status': 0, 'msg': error_msg}

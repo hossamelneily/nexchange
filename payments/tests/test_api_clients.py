@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 import requests_mock
 from orders.models import Order
-from payments.models import Payment
+from payments.models import Payment, FailedRequest
 from time import time
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -16,10 +16,10 @@ class CardPmtAPIClientTestCase(BaseCardPmtAPITestCase):
         bad_cvv = ['', '1', '12', '1234', '12b']
         for cvv in good_cvv:
             res = self.pmt_client._validate_cvv(cvv)
-            self.assertTrue(res)
+            self.assertEqual(res['status'], 1)
         for cvv in bad_cvv:
             res = self.pmt_client._validate_cvv(cvv)
-            self.assertFalse(res)
+            self.assertEqual(res['status'], 0)
 
     def test_validate_ccn(self):
         valid_mastercard_ccn = ['5393932585574906', '5483872595838316']
@@ -29,16 +29,16 @@ class CardPmtAPIClientTestCase(BaseCardPmtAPITestCase):
         bad_checksum_mastercard_ccn = ['5393932585574907']
         for cnn in valid_mastercard_ccn:
             res = self.pmt_client._validate_mastercard_ccn(cnn)
-            self.assertTrue(res, cnn)
+            self.assertEqual(res['status'], 1)
         for cnn in valid_maestro_ccn:
             res = self.pmt_client._validate_mastercard_ccn(cnn)
-            self.assertFalse(res, cnn)
+            self.assertEqual(res['status'], 0)
         for cnn in wrong_length_ccn:
             res = self.pmt_client._validate_mastercard_ccn(cnn)
-            self.assertFalse(res, cnn)
+            self.assertEqual(res['status'], 0)
         for cnn in bad_checksum_mastercard_ccn:
             res = self.pmt_client._validate_mastercard_ccn(cnn)
-            self.assertFalse(res, cnn)
+            self.assertEqual(res['status'], 0)
 
     def test_calidate_ccexp(self):
         invalid_format = ['022020', '118']
@@ -60,10 +60,10 @@ class CardPmtAPIClientTestCase(BaseCardPmtAPITestCase):
                                           minus_two_years]
         for ccexp in valid_ccexp:
             res = self.pmt_client._validate_ccexp(ccexp)
-            self.assertTrue(res, ccexp)
+            self.assertEqual(res['status'], 1)
         for ccexp in invalid_ccexp:
             res = self.pmt_client._validate_ccexp(ccexp)
-            self.assertFalse(res, ccexp)
+            self.assertEqual(res['status'], 0)
 
     def test_validate_created_url(self):
         url = self.pmt_client._create_tx_url(**self.required_params_dict)
@@ -149,6 +149,9 @@ class CardPmtAPIClientTestCase(BaseCardPmtAPITestCase):
 
     @requests_mock.mock()
     def test_do_not_pay_for_the_order_bad_pmt_status(self, mock):
+        profile = self.order.user.profile
+        failed_requests_before = len(FailedRequest.objects.all())
+        failed_profile_requests_before = profile.failed_requests
         response_code = '100'
         status = '0'
         transaction_id = 'tx_id' + str(time())
@@ -167,6 +170,11 @@ class CardPmtAPIClientTestCase(BaseCardPmtAPITestCase):
             currency=self.order.pair.quote
         )
         self.assertEqual(len(payments), 0)
+        failed_requests_after = len(FailedRequest.objects.all())
+        failed_profile_requests_after = profile.failed_requests
+        self.assertEqual(failed_requests_before + 1, failed_requests_after)
+        self.assertEqual(failed_profile_requests_before + 1,
+                         failed_profile_requests_after)
 
     @data_provider(lambda: (
         ('<tr><td>STATUS</td><td>1</td></tr>',),
@@ -177,6 +185,7 @@ class CardPmtAPIClientTestCase(BaseCardPmtAPITestCase):
     def test_paid_unconfirmed_if_partialy_bad_response(self,
                                                        transaction_success,
                                                        mock):
+        failed_requests_before = len(FailedRequest.objects.all())
         mock.get(self.pmt_client.url, text=transaction_success)
         self.pmt_client.pay_for_the_order(**self.required_params_dict)
         self.order.refresh_from_db()
@@ -186,4 +195,9 @@ class CardPmtAPIClientTestCase(BaseCardPmtAPITestCase):
             amount_cash=self.order.amount_quote,
             currency=self.order.pair.quote
         )
-        self.assertEqual(len(payments), 0)
+        self.assertEqual(len(payments), 0, transaction_success)
+        failed_requests_after = len(FailedRequest.objects.all())
+        self.assertEqual(failed_requests_before + 1, failed_requests_after,
+                         transaction_success)
+        self.order.status = Order.INITIAL
+        self.order.save()

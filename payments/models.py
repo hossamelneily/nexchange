@@ -80,6 +80,8 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                                    blank=True, default=None)
     bic = models.CharField(max_length=100, null=True,
                            blank=True, default=None)
+    ccexp = models.CharField(max_length=5, null=True, blank=True, default=None)
+    cvv = models.CharField(max_length=4, null=True, blank=True, default=None)
     physical_address_bank = models.CharField(max_length=255, null=True,
                                              blank=True, default=None)
     # If exists, overrides the address save in the profile of the owner
@@ -182,3 +184,12 @@ class UserCards(models.Model):
         verbose_name = "Card"
         verbose_name_plural = "Cards"
         ordering = ['-created']
+
+
+class FailedRequest(TimeStampedModel):
+
+    url = models.TextField(null=True, blank=True)
+    response = models.TextField(null=True, blank=True)
+    payload = models.TextField(null=True, blank=True)
+    validation_error = models.TextField(null=True, blank=True)
+    order = models.ForeignKey('orders.Order')

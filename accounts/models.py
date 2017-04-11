@@ -9,6 +9,7 @@ from phonenumber_field.validators import validate_international_phonenumber
 from core.common.models import (SoftDeletableModel, TimeStampedModel,
                                 UniqueFieldMixin)
 from orders.models import Order
+from payments.models import FailedRequest
 from referrals.models import ReferralCode
 from verification.models import Verification
 
@@ -117,6 +118,11 @@ class Profile(TimeStampedModel, SoftDeletableModel):
 
         # TODO: move to user class, allow many(?)
         return super(Profile, self).save(*args, **kwargs)
+
+    @property
+    def failed_requests(self):
+        failures = FailedRequest.objects.filter(order__user=self.user)
+        return len(failures)
 
 
 # TODO: refactor this Profile is not writable via user

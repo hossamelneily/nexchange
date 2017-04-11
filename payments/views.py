@@ -314,6 +314,7 @@ def pay_with_credit_card(request):
     params_dict['ccexp'] = params_dict['ccexp'].replace('/', '').\
         replace(' ', '')
     params_dict['ccn'] = params_dict['ccn'].replace(' ', '')
+    params_dict['phone'] = params_dict['phone'].replace(' ', '')
     res = client.pay_for_the_order(**params_dict)
     if res['status'] == 1:
         redirect_url = reverse('orders.orders_list') + '?oid={}'.format(
