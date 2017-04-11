@@ -211,11 +211,11 @@ CELERY_BEAT_SCHEDULE = {
     },
     'buy_order_release_reference_periodic': {
         'task': 'orders.task_summary.buy_order_release_reference_periodic',
-        'schedule': timedelta(30),
+        'schedule': timedelta(seconds=30),
     },
     'exchange_order_release_periodic': {
         'task': 'orders.task_summary.exchange_order_release_periodic',
-        'schedule': timedelta(30),
+        'schedule': timedelta(seconds=30),
     },
     'checker_transactions': {
         'task': 'accounts.task_summary.update_pending_transactions_invoke',
