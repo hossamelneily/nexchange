@@ -68,7 +68,7 @@
   "scripts": {
     "test": "karma start --single-run",
     "build": "webpack --config webpack.config.js",
-    "build-dev": "webpack --watch --config webpack.config.js",
+    "build-dev": "webpack --watch --config webpack.config.js --devtool source-map",
     "lint": "jshint static/js/**"
   },
   "repository": {

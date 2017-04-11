@@ -14,7 +14,7 @@
         <div class="col col-lg-10 col-sm-offset-1 text-left">
             <label for="phone">{% trans 'IBAN' %}</label>
                 <div class="iban-group">
-                    <div class="iban-flag iti-flag {{ COUNTRY_CODE }}"></div>
+                    <div class="iban-flag iti-flag {{ COUNTRY_CODE|lower }}" data-flag="{{ COUNTRY_CODE|lower }}"></div>
                     <input type="text" name="iban" class="iban account-number
                     val"
                        value="{{ COUNTRY_CODE }}">
