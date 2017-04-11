@@ -124,6 +124,21 @@ class OrderBaseTestCase(UserBaseTestCase):
 
     RATE_EUR = 70.00
 
+    def setUp(self):
+        super(OrderBaseTestCase, self).setUp()
+        self.patcher_twilio_send_sms = patch('nexchange.utils._send_sms')
+        self._send_sms_patch = self.patcher_twilio_send_sms.start()
+        self._send_sms_patch.return_value = 'OK'
+        self.patcher_uphold_reserve_txn = patch(
+            'nexchange.utils.api.get_reserve_transaction'
+        )
+        self._reserve_txn_uphold = self.patcher_uphold_reserve_txn.start()
+        self._reserve_txn_uphold.return_value = {'status': 'completed'}
+
+    def tearDown(self):
+        self.patcher_twilio_send_sms.stop()
+        self.patcher_uphold_reserve_txn.stop()
+
     @classmethod
     def setUpClass(cls):
         super(OrderBaseTestCase, cls).setUpClass()

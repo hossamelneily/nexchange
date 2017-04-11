@@ -41,6 +41,18 @@ def send_email(to, subject='Nexchange', msg=None):
     )
 
 
+def _send_sms(msg, phone_to, from_phone):
+    try:
+        client = TwilioRestClient(
+            settings.TWILIO_ACCOUNT_SID,
+            settings.TWILIO_AUTH_TOKEN)
+        message = client.messages.create(
+            body=msg, to=phone_to, from_=from_phone)
+        return message
+    except TwilioException as err:
+        raise err
+
+
 def send_sms(msg, phone):
     if not phone.startswith('+'):
         phone = '+{}'.format(phone)
@@ -48,16 +60,8 @@ def send_sms(msg, phone):
         from_phone = settings.TWILIO_PHONE_FROM_US
     else:
         from_phone = settings.TWILIO_PHONE_FROM_UK
-    try:
-        client = TwilioRestClient(
-            settings.TWILIO_ACCOUNT_SID,
-            settings.TWILIO_AUTH_TOKEN
-        )
-        message = client.messages.create(
-            body=msg, to=phone, from_=from_phone)
-        return message
-    except TwilioException as err:
-        return err
+    message = _send_sms(msg, phone, from_phone)
+    return message
 
 
 def sanitize_number(phone, is_phone=False):
@@ -92,15 +96,8 @@ def send_auth_sms(user):
     else:
         from_phone = settings.TWILIO_PHONE_FROM_UK
 
-    try:
-        client = TwilioRestClient(
-            settings.TWILIO_ACCOUNT_SID,
-            settings.TWILIO_AUTH_TOKEN)
-        message = client.messages.create(
-            body=msg, to=phone_to, from_=from_phone)
-        return message
-    except TwilioException as err:
-        raise err
+    message = _send_sms(msg, phone_to, from_phone)
+    return message
 
 
 def print_traceback():

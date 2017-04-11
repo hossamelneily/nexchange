@@ -28,7 +28,9 @@ class RegistrationTestCase(TestCase):
         if self.user:
             self.user.delete()
 
-    def test_can_register(self):
+    @patch('nexchange.utils._send_sms')
+    def test_can_register(self, _send_sms):
+        _send_sms.return_value = 'OK'
         response = self.client.post(
             reverse('accounts.register'), self.data)
 
@@ -39,7 +41,9 @@ class RegistrationTestCase(TestCase):
         user = User.objects.last()
         self.assertEqual(self.data['phone'], user.profile.phone)
 
-    def test_cannot_register_existent_phone(self):
+    @patch('nexchange.utils._send_sms')
+    def test_cannot_register_existent_phone(self, _send_sms):
+        _send_sms.return_value = 'OK'
         # Creates first with the phone
         self.client.post(
             reverse('accounts.register'),

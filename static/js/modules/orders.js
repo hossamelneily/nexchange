@@ -128,7 +128,11 @@
                 }
             }
             $('.btc-amount-confirm').text($('.amount-coin').val()); // add
-            $('.cash-amount-confirm').text(amountCashConfirm); //add
+            if ($('.amount-cash').val().length == 0) {
+                $('.cash-amount-confirm').text(amountCashConfirm); //add
+            } else {
+                $('.cash-amount-confirm').text($('.amount-cash').val()); //add
+            }
 
             if(cb) cb();
         });

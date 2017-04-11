@@ -21,6 +21,7 @@ class ValidateUniqueFieldMixinTestCase(TestCase):
 class CurrencyTestCase(OrderBaseTestCase):
 
     def setUp(self):
+        super(CurrencyTestCase, self).setUp()
         self.currency = self.USD
 
     def test_find_currency_by_natural_key(self):

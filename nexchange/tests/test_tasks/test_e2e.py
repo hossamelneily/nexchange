@@ -424,7 +424,7 @@ class SellOrderReleaseFromViewTestCase(WalletBaseTestCase):
         order.refresh_from_db()
         self.assertEqual(True, p.is_complete)
         self.assertEqual(True, p.is_redeemed)
-        self.assertEqual(Order.RELEASED, order.status)
+        self.assertIn(order.status, Order.IN_RELEASED)
         self.assertEquals(1, release_payment.call_count)
 
     @patch('payments.tasks.generic.base.BasePaymentChecker'

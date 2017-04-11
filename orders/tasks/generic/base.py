@@ -23,7 +23,7 @@ class BaseOrderRelease(BaseTask):
 
     def validate(self, order, payment):
         order_already_released = (payment.is_redeemed or
-                                  order.status == Order.RELEASED)
+                                  order.status in Order.IN_RELEASED)
 
         if order_already_released:
             flag, created = order.flag(__name__)

@@ -24,4 +24,7 @@ class DateFilterViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
             # Todo: Add this functionality
             # Todo: Add start and end func
             raise NotImplementedError()
-        return self.queryset.filter(**filters).order_by('id')
+        if self.queryset is not None:
+            return self.queryset.filter(**filters).order_by('id')
+        else:
+            return []

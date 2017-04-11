@@ -18,11 +18,13 @@ class ExchangeOrderRelease(BaseOrderRelease):
             return False
         if not order.exchange:
             return False
+        if order.status != Order.PAID:
+            return False
         return order
 
     def validate(self, order, transaction):
         order_already_released = (
-            order.status == Order.RELEASED
+            order.status in Order.IN_RELEASED
         )
 
         if order_already_released:
