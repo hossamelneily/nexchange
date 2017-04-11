@@ -3,11 +3,12 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#: node_modules/x-editable/test/libs/jquery/jquery-1.8.2.min.js:2
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-05 01:52+0000\n"
+"POT-Creation-Date: 2017-04-11 15:53+0000\n"
 "PO-Revision-Date: 2016-11-23 04:30+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -20,38 +21,124 @@ msgstr ""
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 "X-Generator: Poedit 1.8.9\n"
 
-#: static/dist/js/bundle.js:280 static/dist/js/bundle.js:985
-#: static/js/main.js:279 static/js/modules/orders.js:367
-msgid "Buy order placed successfully"
-msgstr "Заказ на покупку размещен"
+#: node_modules/babel-polyfill/browser.js:1
+#: node_modules/babel-polyfill/dist/polyfill.min.js:1
+msgid "delete"
+msgstr ""
 
-#: static/dist/js/bundle.js:284 static/dist/js/bundle.js:989
-#: static/js/main.js:283 static/js/modules/orders.js:371
-msgid "Sell order placed successfully"
-msgstr "Заказ на продажу размещен"
+#: node_modules/babel-polyfill/browser.js:1
+#: node_modules/babel-polyfill/dist/polyfill.min.js:1
+msgid "has"
+msgstr ""
 
-#: static/dist/js/bundle.js:293 static/dist/js/bundle.js:321
-#: static/dist/js/bundle.js:439 static/dist/js/bundle.js:998
-#: static/js/add_orders.js:70 static/js/main.js:292 static/js/main.js:320
-#: static/js/main.js:438 static/js/modules/orders.js:380
-msgid "Something went wrong. Please, try again."
-msgstr "Что-то пошло не так. Попробуйте еще раз."
+#: node_modules/babel-polyfill/browser.js:1
+#: node_modules/babel-polyfill/dist/polyfill.min.js:1
+msgid "get"
+msgstr ""
 
-#: static/dist/js/bundle.js:434 static/js/main.js:433 static/js/profile.js:5
-msgid "The code you sent was incorrect. Please, try again."
-msgstr "Введенный код неправильный. Попробуйте еще раз."
+#: node_modules/x-editable/src/inputs/combodate/lib/moment.min.1.7.2.js:6
+msgid "year"
+msgstr ""
 
-#: static/dist/js/bundle.js:701 static/js/modules/orders.js:83
+#: static/bundles/bundle.js:32 static/js/modules/orders.js:83
 msgid "Minimal order amount is "
 msgstr ""
 
-#: static/js/add_orders.js:33
-msgid "Invalid phone number"
-msgstr "Неверный номер телефона"
+#: static/bundles/bundle.js:32 static/js/main.js:576 static/js/profile.js:5
+msgid "The code you sent was incorrect. Please, try again."
+msgstr "Введенный код неправильный. Попробуйте еще раз."
 
-#: static/js/profile.js:22
+#: static/bundles/bundle.js:32 static/js/main.js:370 static/js/main.js:400
+#: static/js/main.js:484 static/js/main.js:581 static/js/modules/orders.js:391
+msgid "Something went wrong. Please, try again."
+msgstr "Что-то пошло не так. Попробуйте еще раз."
+
+#: static/bundles/bundle.js:32 static/js/main.js:52
+msgid "Account Holder is required"
+msgstr ""
+
+#: static/bundles/bundle.js:32 static/js/main.js:55
+msgid "Account Email is required"
+msgstr ""
+
+#: static/bundles/bundle.js:32 static/js/main.js:56
+msgid "Please enter a valid email"
+msgstr ""
+
+#: static/bundles/bundle.js:32 static/js/main.js:59
+msgid "Account Number is required"
+msgstr ""
+
+#: static/bundles/bundle.js:32 static/js/main.js:60
+msgid "Please enter a valid number (i.e. 123456)"
+msgstr ""
+
+#: static/bundles/bundle.js:32 static/js/main.js:63
+msgid "BIC/SWIFT is required"
+msgstr ""
+
+#: static/bundles/bundle.js:32 static/js/main.js:64
+msgid "Please enter a BIC/SWIFT (i.e. BELADEBEXXX)"
+msgstr ""
+
+#: static/bundles/bundle.js:32 static/js/main.js:344
+#: static/js/modules/orders.js:378
+msgid "Buy order placed successfully"
+msgstr "Заказ на покупку размещен"
+
+#: static/bundles/bundle.js:32 static/js/main.js:348
+#: static/js/modules/orders.js:382
+msgid "Sell order placed successfully"
+msgstr "Заказ на продажу размещен"
+
+#: static/bundles/bundle.js:32 static/js/main.js:475
+#, fuzzy
+#| msgid "Buy order placed successfully"
+msgid "Order paid successfully"
+msgstr "Заказ на покупку размещен"
+
+#: static/bundles/bundle.js:32 static/js/main.js:497
+msgid "Please correct form errors and try again"
+msgstr ""
+
+#: static/bundles/bundle.js:32 static/js/profile.js:22
 msgid ""
 "SMS token sent. Fill in the verification form field and click on 'Verify "
 "phone now'."
 msgstr ""
 "Вам выслан код. Вставьте его в форму и нажмите 'Проверьте ваш телефон'."
+
+#: static/bundles/bundle.js:70
+msgid "d"
+msgstr ""
+
+#: static/bundles/bundle.js:70
+msgid "o"
+msgstr ""
+
+#: static/bundles/bundle.js:70
+msgid "m"
+msgstr ""
+
+#: static/bundles/bundle.js:70
+msgid "y"
+msgstr ""
+
+#: static/bundles/bundle.js:70
+msgid "@"
+msgstr ""
+
+#: static/bundles/bundle.js:70
+msgid "!"
+msgstr ""
+
+#: static/bundles/bundle.js:83 static/run.js:39
+msgid "You were locked out, please try again in "
+msgstr ""
+
+#: static/bundles/bundle.js:83 static/run.js:43
+msgid "minutes"
+msgstr ""
+
+#~ msgid "Invalid phone number"
+#~ msgstr "Неверный номер телефона"

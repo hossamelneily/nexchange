@@ -50,9 +50,10 @@ LOCALE_PATHS = (
 
 LANGUAGE_CODE = 'en'
 LANGUAGES = [
-    ('ru', 'Russian'),
-    ('en', 'English'),
-    ('es', 'Espanol'),
+    ('ru-ru', _('Russian')),
+    ('en-en', _('English')),
+    ('es-es', _('Spanish')),
+    ('es-ca', _('Catalan')),
 ]
 
 
@@ -210,11 +211,11 @@ CELERY_BEAT_SCHEDULE = {
     },
     'buy_order_release_reference_periodic': {
         'task': 'orders.task_summary.buy_order_release_reference_periodic',
-        'schedule': timedelta(seconds=30),
+        'schedule': timedelta(30),
     },
     'exchange_order_release_periodic': {
         'task': 'orders.task_summary.exchange_order_release_periodic',
-        'schedule': timedelta(seconds=30),
+        'schedule': timedelta(30),
     },
     'checker_transactions': {
         'task': 'accounts.task_summary.update_pending_transactions_invoke',
@@ -439,4 +440,5 @@ LOGGING = {
     }
 }
 BASIC_LOGGING_LEVEL = logging.DEBUG
+CREDIT_CARD_IS_TEST = False
 CARDPMT_TEST_MODE = False

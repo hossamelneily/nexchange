@@ -30,14 +30,41 @@
            $currencyPair,
            $currencySelect,
            paymentFormRules = {
-                iban_holder: {
-                    require: true
+                'iban_holder': {
+                    required: true,
+                    iban: false
                 },
-                email: {
+                'email': {
                     email: true,
-                    require: true
+                    required: true
+                },
+               'acoount-number': {
+                    number: true,
+                    required: true
+               },
+               'acoount-bic': {
+                    required: true,
+                    bic: true
+               }
+            },
+           paymentMessages = {
+                'iban_holder': {
+                    required: gettext('Account Holder is required')
+                },
+               'email': {
+                    required: gettext('Account Email is required'),
+                    email: gettext('Please enter a valid email')
+               },
+               'acoount-number': {
+                    required: gettext('Account Number is required'),
+                    number: gettext('Please enter a valid number (i.e. 123456)')
+                },
+               'acoount-bic': {
+                    required: gettext('BIC/SWIFT is required'),
+                    bic: gettext('Please enter a BIC/SWIFT (i.e. BELADEBEXXX)')
                 }
-            };
+
+           };
 
         $('.trade-type').val('1');
 
@@ -325,6 +352,7 @@
                     $('.successOrder').html($(data));
                     $('#orderSuccessModal').modal({backdrop: 'static'});
                     if (window.action == window.ACTION_BUY) {
+                        $(document).trigger('nexchange.cc-form-load');
                         $("#pay-mastercard-form").card({
                             container: '.card-wrapper',
 
@@ -423,31 +451,17 @@
 
         });
 
-        $('.card-from').validate({
-            rules: paymentFormRules
+        $('.card-form').each(function () {
+            $(this).validate({rules: paymentFormRules, messages: paymentMessages});
+        });
+
+        $(document).on('nexchange.cc-form-load', function() {
+            // TODO: add validation logic here
         });
 
         $(document).on('submit', '#pay-mastercard-form', function (event) {
             event.preventDefault();
-            var verifyPayload = {
-                'amount': $('#amount').val(),
-                'currency': $('#currency').val(),
-                'orderid': $('#orderid').val(),
-                'desc': $('#desc').val(),
-                'firstname': $('#firstname').val(),
-                'lastname': $('#lastname').val(),
-                'ccn': $('#ccn').val(),
-                'ccexp': $('#ccexp').val(),
-                'cvv': $('#cvv').val(),
-                'phone': $('#phone').val(),
-                'email': $('#email').val(),
-                'address1': $('#address1').val(),
-                'address2': $('#address2').val(),
-                'city': $('#city').val(),
-                'state_or_province': $('#state_or_province').val(),
-                'zip': $('#zip').val(),
-                'country_code': $('#country_code').val(),
-            };
+            var verifyPayload = $(this).serialize();
 
             $.ajax({
                 type: 'POST',
@@ -476,16 +490,26 @@
 
         $('.save-card').click(function() {
             var form = $(this).closest('.payment-widget').find('form'),
-                valid = form.validate({rules: paymentFormRules});
+                valid = $(form).valid();
             if (valid) {
-                submitSellPaymentPreference(form);
+                submitSellPaymentPreference($(form));
             } else {
                 var errorMsg = gettext('Please correct form errors and try again');
                 toastr.error(errorMsg);
             }
+
         });
 
-
+        $('.iban.account-number').on('change', function () {
+            var elem = $(this).prev(),
+                currentFlag = elem.data('flag');
+            if ($(this).valid()) {
+                var newFlag = $(this).val().substr(0,2).toLocaleLowerCase();
+                elem
+                    .removeClass(currentFlag)
+                    .addClass(newFlag);
+            }
+        });
         function submitSellPaymentPreference (self) {
             $('.supporetd_payment').addClass('hidden');
             // TODO: Add handling for qiwi wallet with .intlTelInput('getNumber')
