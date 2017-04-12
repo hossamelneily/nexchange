@@ -116,7 +116,7 @@ class TestUIFiatOrders(BaseTestUI):
         )
         if self.payment_method == 'Qiwi wallet':
             self.fill_sell_card_data(modal, 'phone', self.phone)
-        elif self.payment_method in ['Ok Pay', 'PayPal', 'Skrill']:
+        elif self.payment_method in ['OK Pay', 'PayPal', 'Skrill']:
             self.fill_sell_card_data(modal, 'iban', self.name)
             self.fill_sell_card_data(modal, 'account-number', self.email)
         elif self.payment_method in ['Card 2 Card', 'Sepa', 'swift']:
