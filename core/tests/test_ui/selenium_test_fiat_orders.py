@@ -119,14 +119,16 @@ class TestUIFiatOrders(BaseTestUI):
         elif self.payment_method in ['OK Pay', 'PayPal', 'Skrill']:
             self.fill_sell_card_data(modal, 'iban', self.name)
             self.fill_sell_card_data(modal, 'account-number', self.email)
-        elif self.payment_method in ['Card 2 Card', 'Sepa', 'swift']:
+        elif self.payment_method in ['Card 2 Card', 'Sepa', 'Swift']:
             if self.payment_method == 'Card 2 Card':
                 account = self.card_number
+            elif self.payment_method == 'Swift':
+                account = self.swift_iban
             else:
                 account = self.account
             self.fill_sell_card_data(modal, 'account-number', account)
             self.fill_sell_card_data(modal, 'iban', self.name)
-            if self.payment_method == 'swift':
+            if self.payment_method == 'Swift':
                 self.fill_sell_card_data(modal, 'account-bic', self.bic)
 
         self.do_screenshot('Payment preference filled')
