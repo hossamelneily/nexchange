@@ -35,7 +35,8 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.name = 'Sir Testalot'
         self.account = 'LT121000011101001000'
         self.card_number = '1234567887654321'
-        self.bic = '123456'
+        self.swift_iban = '987654321'
+        self.bic = 'DABAIE2D'
         self.withdraw_address = '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi'
         self.issavescreen = True
         self.url = self.live_server_url
