@@ -270,6 +270,12 @@ def ajax_order(request):
     elif payment_method == 'okpay':
         context.update({'okpay_wallet': settings.OKPAY_WALLET})
 
+    elif payment_method == 'sofort':
+        context.update({
+            'sofort_user_id': settings.SOFORT_USER_ID,
+            'sofort_project_id': settings.SOFORT_PROJECT_ID
+        })
+
     try:
         if not settings.DEBUG:
             send_email('oleg@onit.ws', 'NEW ORDER',

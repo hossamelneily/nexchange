@@ -1,0 +1,12 @@
+<form method="post" action="https://checkout.okpay.com/" class="automatic-checkout">
+   <input type="hidden" name="ok_receiver" value="{{ okpay_wallet }}"/>
+   <input type="hidden" name="ok_item_1_name" value="{{ unique_ref }}"/>
+   <input type="hidden" name="ok_item_1_price"
+          value="{{ amount_quote}}"/>
+   <input type="hidden" name="ok_currency" value="{{ order.pair.quote.code}}"/>
+   <input type="hidden" name="ok_invoice" value="{{ unique_ref }}"/>
+   <input type="hidden" name="ok_fees" value="1"/>
+   <input type="image" class="payment-icon"
+          name="submit" alt="OKPAY Payment"
+          src="/static/icons/small/okpay_green.png"/>
+</form>

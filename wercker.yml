@@ -257,6 +257,8 @@ build:
           # CARDPMT
           export CARDPMT_API_ID=${CARDPMT_API_ID}
           export CARDPMT_API_PASS=${CARDPMT_API_PASS}
+          # SOFORT
+          export SOFORT_API_KEY=${SOFORT_API_KEY}
           # ROBOKASSA
           export ROBOKASSA_IS_TEST=${ROBOKASSA_IS_TEST}
           export ROBOKASSA_LOGIN=${ROBOKASSA_LOGIN}

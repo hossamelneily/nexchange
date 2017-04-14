@@ -37,6 +37,12 @@ def payeer_adapter(request):
     }
 
 
+def sofort_adapter(request):
+    return {
+        'valid': True,
+    }
+
+
 def leupay_adapter(request):
     return {
         'valid': True,

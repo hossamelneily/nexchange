@@ -370,6 +370,14 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             self.tx_ids[1]
         )
         self._create_mocks()
+        self.LTC = Currency.objects.get(code='LTC')
+        self.ETH = Currency.objects.get(code='ETH')
+        self.BTC_address = self._create_withdraw_adress(
+            self.BTC, '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi')
+        self.LTC_address = self._create_withdraw_adress(
+            self.LTC, 'LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA')
+        self.ETH_address = self._create_withdraw_adress(
+            self.ETH, '0x8116546AaC209EB58c5B531011ec42DD28EdFb71')
 
     def _read_fixture(self):
         path_addr_fixture = os.path.join(settings.BASE_DIR,
@@ -505,6 +513,27 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         matcher = re.compile(pattern)
         mock.get(matcher, text='{"data":{"txs":[]}}')
 
+    def _update_withdraw_address(self, order, address):
+        url = reverse('orders.update_withdraw_address',
+                      kwargs={'pk': order.pk})
+        self.client.post(url, {
+            'pk': order.pk,
+            'value': address.pk,
+        })
+
+    def _create_withdraw_adress(self, currency, address):
+        addr_data = {
+            'type': 'W',
+            'name': address,
+            'address': address,
+            'currency': currency
+
+        }
+        addr = Address(**addr_data)
+        addr.user = self.user
+        addr.save()
+        return addr
+
     def _create_mocks(self, amount2=Decimal('0.0'), currency_code=None,
                       card_id=None):
         self.tx_ids_api = ['12345', '54321']
@@ -526,3 +555,19 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.reverse_url2 = reserve_url.format(self.tx_ids_api[1])
         self.completed = '{"status": "completed"}'
         self.pending = '{"status": "pending"}'
+
+    def _create_order(self, order_type=Order.BUY,
+                      amount_base=0.05, pair_name='ETHLTC',
+                      payment_preference=None):
+        pair = Pair.objects.get(name=pair_name)
+        # order.exchange == True if pair.is_crypto
+        self.order = Order(
+            order_type=order_type,
+            amount_base=Decimal(str(amount_base)),
+            pair=pair,
+            user=self.user,
+            status=Order.INITIAL
+        )
+        if payment_preference is not None:
+            self.order.payment_preference = payment_preference
+        self.order.save()

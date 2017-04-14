@@ -17,10 +17,10 @@ from core.models import Currency
 from orders.models import Order
 from payments.adapters import (leupay_adapter, robokassa_adapter,
                                unitpay_adapter, okpay_adapter,
-                               payeer_adapter)
+                               payeer_adapter, sofort_adapter)
 from payments.models import Payment, PaymentPreference
 from payments.utils import get_payeer_sign
-from payments.task_summary import run_payeer, run_okpay
+from payments.task_summary import run_payeer, run_okpay, run_sofort
 from decimal import Decimal
 from payments.api_clients.card_pmt import CardPmtAPIClient
 
@@ -97,9 +97,11 @@ def payment_success(request, provider):
         received_order = okpay_adapter(request)
     elif provider == 'payeer':
         received_order = payeer_adapter(request)
+    elif provider == 'sofort':
+        received_order = sofort_adapter(request)
 
     # hacky hack
-    supporterd = ['okpay', 'payeer']
+    supporterd = ['okpay', 'payeer', 'sofort']
 
     if provider not in supporterd:
         logger.error('Success view provider '
@@ -112,6 +114,10 @@ def payment_success(request, provider):
             )
         if provider == 'okpay':
             res = run_okpay.apply_async(
+                countdown=settings.GATEWAY_RESOLVE_TIME
+            )
+        if provider == 'sofort':
+            res = run_sofort.apply_async(
                 countdown=settings.GATEWAY_RESOLVE_TIME
             )
         logger.info('Triggered payeer payment import for {}'.format(provider))
@@ -206,7 +212,8 @@ def payment_type(request):
             'alfa': get_pref_by_name('Alfa', currency),
             'sepa': get_pref_by_name('SEPA', currency),
             'swift': get_pref_by_name('SWIFT', currency),
-            'c2c': get_pref_by_name('c2c', currency)
+            'c2c': get_pref_by_name('c2c', currency),
+            'sofort': get_pref_by_name('sofort', currency)
         },
         'wallets': {
             'qiwi': get_pref_by_name('Qiwi', currency),

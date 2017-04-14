@@ -253,6 +253,14 @@ class CreateUpholdCard(Uphold):
 
 
 class BasePaymentApi:
+
+    def __init__(self):
+        self.logger = get_nexchange_logger(
+            self.__class__.__name__,
+            True,
+            True
+        )
+
     def get_transaction_history(self):
         raise NotImplementedError
 

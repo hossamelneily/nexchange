@@ -1,6 +1,5 @@
 {% extends 'orders/partials/modals/success_order.html' %}
 {%  load i18n %}
-{% load tz %}
 
 {% block modal_content %}
 <div class="panel panel-success">
@@ -55,20 +54,14 @@
                 <p><strong>{{unique_ref}}</strong></p>
             </div>
         </div>
-        <div class="col col-xs-12">
-         {% trans 'Notice that you must send coins until' %}
-        </div>
-        {% localtime on %}
-        <div class="col col-xs-12" id="pay_until_notice">
-            <p><strong>{{pay_until |date:"H:iA (e)"}}</strong></p>
-        </div>
-        <div class="col-xs-12">
-        {% blocktrans %}
-             Convert coins credited to this address automatically to my
-             {{ order.payment_preference.payment_method.name }} in the future
-        {% endblocktrans %}
-        </div>
-        {% endlocaltime %}
+        {% if not order.exchange %}
+            {% block options %}
+                {% include "orders/partials/modals/order_success_options.html" %}
+            {% endblock %}
+        {% endif %}
+        {% block terms %}
+            {% include "orders/partials/modals/order_success_terms.html" %}
+        {% endblock %}
     </div><!-- /pannel-body -->
 </div><!-- /pannel -->
 <input type="hidden" name="order_id" value="{{order_id}}" class="order_id" >

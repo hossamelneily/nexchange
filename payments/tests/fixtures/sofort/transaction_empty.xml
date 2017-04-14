@@ -1,0 +1,16 @@
+<transaction_details>
+    <project_id>{project_id}</project_id>
+    <transaction>{transaction_id}</transaction>
+    <amount>{amount}</amount>
+    <currency_code>{currency}</currency_code>
+    <reasons>
+        <reason>{order_id}</reason>
+    </reasons>
+    <sender>
+        <holder>{sender_name}</holder>
+        <iban>{iban}</iban>
+    </sender>
+    <recipient>
+        <holder>YOA LTD</holder>
+    </recipient>
+</transaction_details>

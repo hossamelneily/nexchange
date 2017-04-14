@@ -1,13 +1,13 @@
 from core.tests.utils import get_ok_pay_mock, get_payeer_mock
 from core.tests.base import WalletBaseTestCase
-from core.models import Address, Pair, Transaction, Currency
+from core.models import Address, Transaction
 from orders.models import Order
 from payments.models import Payment, UserCards
 from unittest.mock import patch
 import requests_mock
 from payments.tasks.generic.ok_pay import OkPayPaymentChecker
 from payments.tasks.generic.payeer import PayeerPaymentChecker
-from payments.task_summary import run_okpay
+from payments.task_summary import run_okpay, run_sofort
 from core.tests.base import TransactionImportBaseTestCase
 from ticker.tests.base import TickerBaseTestCase
 from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
@@ -20,6 +20,8 @@ from decimal import Decimal
 from django.core.urlresolvers import reverse
 import json
 from core.tests.utils import data_provider
+from payments.tests.base import BaseSofortAPITestCase
+from time import time
 
 
 class OKPayEndToEndTestCase(WalletBaseTestCase):
@@ -628,48 +630,6 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self.update_confirmation_task = update_pending_transactions_invoke
         self.release_task = exchange_order_release_invoke
         self.release_task_periodic = exchange_order_release_periodic
-        self.LTC = Currency.objects.get(code='LTC')
-        self.ETH = Currency.objects.get(code='ETH')
-        self.BTC_address = self._create_withdraw_adress(
-            self.BTC, '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi')
-        self.LTC_address = self._create_withdraw_adress(
-            self.LTC, 'LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA')
-        self.ETH_address = self._create_withdraw_adress(
-            self.ETH, '0x8116546AaC209EB58c5B531011ec42DD28EdFb71')
-
-    def _update_withdraw_address(self, order, address):
-        url = reverse('orders.update_withdraw_address',
-                      kwargs={'pk': order.pk})
-        self.client.post(url, {
-            'pk': order.pk,
-            'value': address.pk,
-        })
-
-    def _create_withdraw_adress(self, currency, address):
-        addr_data = {
-            'type': 'W',
-            'name': address,
-            'address': address,
-            'currency': currency
-
-        }
-        addr = Address(**addr_data)
-        addr.user = self.user
-        addr.save()
-        return addr
-
-    def _create_order(self, order_type=Order.BUY,
-                      amount_base=0.05, pair_name='ETHLTC'):
-        pair = Pair.objects.get(name=pair_name)
-        # order.exchange == True if pair.is_crypto
-        self.order = Order(
-            order_type=order_type,
-            amount_base=Decimal(str(amount_base)),
-            pair=pair,
-            user=self.user,
-            status=Order.INITIAL
-        )
-        self.order.save()
 
     @data_provider(
         lambda: (('ETHLTC', Order.BUY, False),
@@ -726,3 +686,66 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             self.release_task.apply([tx_pk])
         self.order.refresh_from_db()
         self.assertIn(self.order.status, Order.IN_RELEASED, pair_name)
+
+
+class SofortEndToEndTestCase(BaseSofortAPITestCase,
+                             TransactionImportBaseTestCase,
+                             TickerBaseTestCase):
+
+    def setUp(self):
+        super(SofortEndToEndTestCase, self).setUp()
+        self.payments_importer = run_sofort
+        self.sender_name = 'Sender Awesome'
+        self.iban = 'DE86000000002345678902'
+        self.transaction_data = {
+            'sender_name': self.sender_name,
+            'iban': self.iban
+        }
+
+    @data_provider(lambda: (
+        ('BTCEUR',),
+        ('ETHEUR',),
+        ('LTCEUR',),
+    ))
+    @requests_mock.mock()
+    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch('nexchange.utils.api.execute_txn')
+    @patch('nexchange.utils.api.prepare_txn')
+    def test_success_release(self, pair_name, mock, prepare_txn, execute_txn,
+                             reserve_txn):
+        # Less then 1.0 fiat payments is blocked by PaymentChecker validator
+        self._create_order(amount_base=2.0, pair_name=pair_name,
+                           payment_preference=self.sofort_pref)
+        self.transaction_data.update({
+            'order_id': self.order.unique_reference,
+            'amount': self.order.amount_quote,
+            'currency': self.order.pair.quote.code,
+            'transaction_id': str(time())
+        })
+        transaction_xml = self.create_transaction_xml(
+            **self.transaction_data
+        )
+        self.mock_transaction_history(mock, transaction_xml)
+        self.payments_importer.apply()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.PAID, pair_name)
+        p = Payment.objects.get(
+            amount_cash=self.order.amount_quote,
+            currency=self.order.pair.quote,
+            reference=self.order.unique_reference
+        )
+
+        prepare_txn.return_value = str(time())
+        execute_txn.return_value = True
+        reserve_txn.return_value = {'status': 'completed'}
+        address = getattr(self, '{}_address'.format(pair_name[:3]))
+        self._update_withdraw_address(self.order, address)
+
+        buy_order_release_by_reference_invoke.apply([p.pk])
+
+        p.refresh_from_db()
+        self.order.refresh_from_db()
+
+        self.assertEqual(True, p.is_complete)
+        self.assertEqual(True, p.is_redeemed)
+        self.assertEqual(self.order.status, Order.COMPLETED)

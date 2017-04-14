@@ -13,9 +13,10 @@ import requests_mock
 from time import time
 import json
 from core.tests.test_ui.base import BaseTestUI
+from payments.tests.base import BaseSofortAPITestCase
 
 
-class TestUIFiatOrders(BaseTestUI):
+class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
 
     @data_provider(lambda: (
        ([{'name': 'OK Pay', 'success_url': '/okpay'}, # noqa
@@ -31,12 +32,19 @@ class TestUIFiatOrders(BaseTestUI):
     def test_buy2(self, payment_methods, automatic_payment, do_logout):
         self.base_test_buy(payment_methods, automatic_payment, do_logout)
 
-    # missing Qiwi
     @data_provider(lambda: (
         ([{'name': 'PayPal'}, {'name': 'Skrill'}], False, False),
         ([{'name': 'Visa'}], False, False),
+        ([{'name': 'Visa'}], False, False),
+        ([{'name': 'Qiwi Wallet', 'pair_name': 'BTCRUB'}], False, False),
     ))
     def test_buy3(self, payment_methods, automatic_payment, do_logout):
+        self.base_test_buy(payment_methods, automatic_payment, do_logout)
+
+    @data_provider(lambda: (
+        ([{'name': 'Sofort', 'success_url': '/sofort'}], True, True),
+    ))
+    def test_buy4(self, payment_methods, automatic_payment, do_logout):
         self.base_test_buy(payment_methods, automatic_payment, do_logout)
 
     def base_test_buy(self, payment_methods, automatic_payment, do_logout):
@@ -45,8 +53,9 @@ class TestUIFiatOrders(BaseTestUI):
             self.screenshot_no = 1
             self.payment_method = self.screenpath2 = payment_method['name']
             print('Test {}'.format(self.payment_method))
+            pair_name = payment_method.get('pair_name', 'BTCEUR')
             try:
-                self.checkbuy()
+                self.checkbuy(pair_name)
                 if automatic_payment:
                     success_url = '/payments/success{}'.format(
                         payment_method['success_url']
@@ -62,11 +71,11 @@ class TestUIFiatOrders(BaseTestUI):
 
     @data_provider(lambda: (
         (['PayPal',
-          # 'Qiwi wallet',
-          'OK Pay'],),
+          # 'Qiwi Wallet',
+          'OK Pay'], 'BTCRUB'),
     ))
-    def test_sell1(self, payment_methods):
-        self.base_test_sell(payment_methods)
+    def test_sell1(self, payment_methods, pair_name):
+        self.base_test_sell(payment_methods, pair_name=pair_name)
 
     @data_provider(lambda: (
         (['Skrill',
@@ -77,7 +86,7 @@ class TestUIFiatOrders(BaseTestUI):
     def test_sell2(self, payment_methods):
         self.base_test_sell(payment_methods)
 
-    def base_test_sell(self, payment_methods):
+    def base_test_sell(self, payment_methods, pair_name='BTCEUR'):
         self.workflow = 'SELL'
         print('Test sell')
         self.currency_code = 'BTC'
@@ -86,14 +95,14 @@ class TestUIFiatOrders(BaseTestUI):
             self.payment_method = self.screenpath2 = payment_method
             self.driver.delete_all_cookies()
             try:
-                self.checksell()
+                self.checksell(pair_name=pair_name)
             except Exception as e:
                 print(self.payment_method + " " + str(e))
                 sys.exit(1)
 
-    def checkbuy(self):
+    def checkbuy(self, pair_name='BTCEUR'):
         order_type = 'BUY'
-        self.request_order(order_type)
+        self.request_order(order_type, pair_name=pair_name)
 
         if not self.logged_in:
             self.login_phone()
@@ -106,15 +115,16 @@ class TestUIFiatOrders(BaseTestUI):
     @patch('nexchange.utils.api.get_card_transactions')
     @patch('nexchange.utils.api.get_reserve_transaction')
     @patch('orders.utils.send_money')
-    def checksell(self, mock, send_money, reserve_txs, import_txs):
+    def checksell(self, mock, send_money, reserve_txs, import_txs,
+                  pair_name='BTCEUR'):
         order_type = 'SELL'
         send_money.return_value = True
-        self.request_order(order_type)
+        self.request_order(order_type, pair_name=pair_name)
         sleep(self.timeout / 5)
         modal = self.driver.find_element_by_xpath(
             '//div[@class="modal fade add_payout_method in"]'
         )
-        if self.payment_method == 'Qiwi wallet':
+        if self.payment_method == 'Qiwi Wallet':
             self.fill_sell_card_data(modal, 'phone', self.phone)
         elif self.payment_method in ['OK Pay', 'PayPal', 'Skrill']:
             self.fill_sell_card_data(modal, 'iban', self.name)
@@ -199,6 +209,17 @@ class TestUIFiatOrders(BaseTestUI):
         elif 'payeer' in method.name.lower():
             mock.post('https://payeer.com/ajax/api/api.php',
                       text=create_payeer_mock_for_order(self.order))
+        elif 'sofort' in method.name.lower():
+            transaction_data = {
+                'order_id': self.order.unique_reference,
+                'amount': self.order.amount_quote,
+                'currency': self.order.pair.quote.code,
+                'transaction_id': str(time())
+            }
+            transaction_xml = self.create_transaction_xml(
+                **transaction_data
+            )
+            self.mock_transaction_history(mock, transaction_xml)
         self.do_screenshot('Before push auto-checkout')
         auto_checkout = self.driver.find_elements_by_class_name(
             'automatic-checkout'

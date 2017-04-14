@@ -1,8 +1,12 @@
 from core.tests.base import OrderBaseTestCase
 from payments.api_clients.card_pmt import CardPmtAPIClient
+from payments.api_clients.sofort import SofortAPIClient
 from django.core.validators import URLValidator
 from core.tests.utils import read_fixture
 from orders.models import Order
+from payments.models import PaymentPreference
+from django.conf import settings
+from time import time
 
 
 class BaseCardPmtAPITestCase(OrderBaseTestCase):
@@ -54,3 +58,50 @@ class BaseCardPmtAPITestCase(OrderBaseTestCase):
         self.assertEqual(location.user, user)
         if 'address2' in kwargs:
             self.assertEqual(location.address2, kwargs['address2'])
+
+
+class BaseSofortAPITestCase(OrderBaseTestCase):
+
+    def setUp(self):
+        super(BaseSofortAPITestCase, self).setUp()
+        self.sofort_pref = PaymentPreference.objects.filter(
+            user__is_staff=True,
+            payment_method__name__icontains='sofort'
+        ).first()
+        self.order_data = {
+            'amount_base': 1.00,
+            'pair': self.BTCEUR,
+            'user': self.user,
+            'payment_preference': self.sofort_pref,
+        }
+        self.order = Order.objects.create(**self.order_data)
+        self.api_client = SofortAPIClient()
+        self.transaction_history_empty = read_fixture(
+            'payments/tests/fixtures/sofort/transaction_history_empty.xml'
+        )
+        self.transaction_empty = read_fixture(
+            'payments/tests/fixtures/sofort/transaction_empty.xml'
+        )
+
+    def create_transaction_xml(self, project_id=settings.SOFORT_PROJECT_ID,
+                               transaction_id=str(time()), amount='10.00',
+                               currency='EUR', order_id='54321',
+                               sender_name='Sir Buyalot',
+                               iban='DE86000000002345678902'):
+        transaction = self.transaction_empty.format(
+            project_id=project_id,
+            transaction_id=transaction_id,
+            amount=amount,
+            currency=currency,
+            order_id=order_id,
+            sender_name=sender_name,
+            iban=iban,
+        )
+        return transaction
+
+    def mock_transaction_history(self, mock, transactions_xml, status=200):
+        transaction_history = self.transaction_history_empty.format(
+            transactions=transactions_xml
+        )
+        mock.post(self.api_client.url, text=transaction_history,
+                  status_code=status)

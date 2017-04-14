@@ -145,6 +145,12 @@ PAYEER_API_URL = 'https://payeer.com/ajax/api/api.php'
 PAYEER_IPS = ['185.71.65.92', '185.71.65.189', '149.202.17.210']
 
 
+SOFORT_API_URL = 'https://api.sofort.com/api/xml'
+SOFORT_USER_ID = '141789'
+SOFORT_PROJECT_ID = '344411'
+SOFORT_API_KEY = 'some_id'
+
+
 CARDPMT_API_URL = 'https://gateway.cardpmt.com/api.cgi'
 CARDPMT_API_ID = 'user'
 CARDPMT_API_PASS = 'name'
@@ -207,6 +213,10 @@ CELERY_BEAT_SCHEDULE = {
     },
     'check_payeer_payments': {
         'task': 'payments.task_summary.run_payeer',
+        'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
+    },
+    'check_sofort_payments': {
+        'task': 'payments.task_summary.run_sofort',
         'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
     },
     'buy_order_release_reference_periodic': {

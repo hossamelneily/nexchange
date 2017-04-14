@@ -1,13 +1,12 @@
 {% extends 'orders/partials/modals/success_order.html' %}
 {%  load i18n %}
-{% load tz %}
 {% load payments_filters %}
 
 {% block modal_content %}
 <div class="panel panel-success">
     <div class="panel-body">
         <h1>{% trans 'Order placed successfully' %}</h1>
-        {% if order.payment_preference.payment_method.name == 'Mastercard-Internal' %}
+        {% if order.payment_preference.payment_method.on_order_success_modal_checkout %}
 
             <div class="row">
                 <div class="col col xs-12"></div>
@@ -15,141 +14,110 @@
                     {{ order.amount_quote }} {{ order.pair.quote.code}}
                     {% trans 'for this order.' %}
             </div>
-        <div class="row">
-            {% include "payments/partials/forms/credit_card.html" %}
-        </div>
+            <div class="row">
+                {% include "payments/partials/forms/credit_card.html" %}
+            </div>
         {% elif not order.exchange %}
             <div class="row">
                 <div class="col col xs-12"></div>
 
-                {% trans 'Please make payment to the following' %}
-                {{ order.payment_preference.payment_method.name }}
+                {% trans 'Please make ' %}
                 {{ order.amount_quote }} {{ order.pair.quote.code}}
+                {% trans 'payment via ' %}
+                {{ order.payment_preference.payment_method.name }}
             </div>
 
-            <div class="row">
-                <div class="col col-xs-12 our_acc">
-                    {% if order.payment_preference.payment_method.name in order.payment_preference.payment_method.METHODS_NAMES_WITH_BANK_DETAILS %}
-                        <p>
-                            {% trans 'IBAN: '%}
-                            <strong>{{order.payment_preference.identifier}}</strong>
-                        <p>
-                            {% trans 'BIC: '%}
-                            <strong>{{order.payment_preference.bic}}</strong>
-                        </p>
-                        <p><small>
-                            {% trans 'Beneficiary: '%}
-                            <strong>{{order.payment_preference.beneficiary}}</strong>
-                        </small></p>
-                        <p><small>
-                            {% trans 'Bank Name: '%}
-                            <strong>{{order.payment_preference.name}}</strong>
-                        </small></p>
-                        <p><small>
-                            {% trans 'Bank Address: ' %}
-                            <strong>{{order.payment_preference.physical_address_bank}}</strong>
-                        </small></p>
-                        <p><small>
-                            {% trans 'Owner Address: ' %}
-                            <strong>{{order.payment_preference.physical_address_owner}}</strong>
-                        </small></p>
-                    {% else %}
-                        <p>
-                            <strong>{{order.payment_preference.identifier}}</strong>
-                        <p>
-                    {% endif %}
+            {% if order.payment_preference.payment_method.manual_checkout %}
+                <div class="row">
+                    <div class="col col-xs-12 our_acc">
+                        {% if order.payment_preference.payment_method.name in order.payment_preference.payment_method.METHODS_NAMES_WITH_BANK_DETAILS %}
+                            <p>
+                                {% trans 'IBAN: '%}
+                                <strong>{{order.payment_preference.identifier}}</strong>
+                            <p>
+                                {% trans 'BIC: '%}
+                                <strong>{{order.payment_preference.bic}}</strong>
+                            </p>
+                            <p><small>
+                                {% trans 'Beneficiary: '%}
+                                <strong>{{order.payment_preference.beneficiary}}</strong>
+                            </small></p>
+                            <p><small>
+                                {% trans 'Bank Name: '%}
+                                <strong>{{order.payment_preference.name}}</strong>
+                            </small></p>
+                            <p><small>
+                                {% trans 'Bank Address: ' %}
+                                <strong>{{order.payment_preference.physical_address_bank}}</strong>
+                            </small></p>
+                            <p><small>
+                                {% trans 'Owner Address: ' %}
+                                <strong>{{order.payment_preference.physical_address_owner}}</strong>
+                            </small></p>
+                        {% else %}
+                            <p>
+                                <strong>{{order.payment_preference.identifier}}</strong>
+                            <p>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col col-xs-12">
-                    {% trans 'Please put the following reference in the comment' %}
+                <div class="row">
+                    <div class="col col-xs-12">
+                        {% trans 'Please put the following reference in the comment' %}
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col col-xs-12 unique_ref">
-                    <p><strong>{{unique_ref}}</strong></p>
+                <div class="row">
+                    <div class="col col-xs-12 unique_ref">
+                        <p><strong>{{unique_ref}}</strong></p>
+                    </div>
                 </div>
-            </div>
-            {% if order.payment_preference.payment_method.name|upper|is_in:'OKPAY,VISA' %}
-            <div class="row">
-                <div class="col col-xs-10 col-xs-offset-1 success-line mid">
-                    <span class="line green">
-                        <h4 class="header">
-                            <span>
-                                {% trans 'OR' %}
+            {% endif %}
+            {% if order.payment_preference.payment_method.auto_checkout %}
+                {% if order.payment_preference.payment_method.manual_checkout %}
+                    <div class="row">
+                        <div class="col col-xs-10 col-xs-offset-1 success-line mid">
+                            <span class="line green">
+                                <h4 class="header">
+                                    <span>
+                                        {% trans 'OR' %}
+                                    </span>
+                                </h4>
                             </span>
-                        </h4>
-                    </span>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="row">
+                        <div class="col col-xs-12">
+                            {% trans 'Order reference:' %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col col-xs-12 unique_ref">
+                            <p><strong>{{unique_ref}}</strong></p>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="row">
+                    <div class="col col-xs-12">
+                        {% trans 'proceed to automatic-checkout' %}
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col col-xs-12">
-                    {% trans 'proceed to automatic-checkout' %}
+                <div class="row">
+                    <div class="col col-xs-12">
+                        {% if order.payment_preference.payment_method.name|upper|is_in:'OKPAY,VISA' %}
+                            {% include "payments/partials/forms/okpay_form.html" %}
+                        {% elif order.payment_preference.payment_method.name == 'Payeer Wallet' %}
+                            {% include "payments/partials/forms/payeer_form.html" %}
+                        {% elif order.payment_preference.payment_method.name == 'Sofort' %}
+                            {% include "payments/partials/forms/sofort_form.html" %}
+                        {% endif %}
+                    </div>
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col col-xs-12">
-                    <form method="post" action="https://checkout.okpay.com/"
-                          class="automatic-checkout">
-                       <input type="hidden" name="ok_receiver" value="{{ okpay_wallet }}"/>
-                       <input type="hidden" name="ok_item_1_name" value="{{ unique_ref }}"/>
-                       <input type="hidden" name="ok_item_1_price"
-                              value="{{ amount_quote}}"/>
-                       <input type="hidden" name="ok_currency" value="{{ order.pair.quote.code}}"/>
-                       <input type="hidden" name="ok_invoice" value="{{ unique_ref }}"/>
-                       <input type="hidden" name="ok_fees" value="1"/>
-                       <input type="image" class="payment-icon"
-                              name="submit" alt="OKPAY Payment"
-                              src="/static/icons/small/okpay_green.png"/>
-                    </form>
-                </div>
-            </div>
-            {% elif order.payment_preference.payment_method.name == 'Payeer Wallet' %}
-            <div class="row">
-                <div class="col col-xs-10 col-xs-offset-1 success-line mid">
-                    <span class="line green">
-                        <h4 class="header">
-                            <span>
-                                {% trans 'OR' %}
-                            </span>
-                        </h4>
-                    </span>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col col-xs-12">
-                    {% trans 'proceed to automatic-checkout' %}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col col-xs-12">
-                    <form method="post" action="https://payeer.com/merchant/"
-                    class="automatic-checkout">
-                        <input type="hidden" name="m_shop" value="{{ payeer_shop }}"/>
-                        <input type="hidden" name="m_orderid" value="{{ order.unique_reference }}"/>
-                        <input type="hidden" name="m_amount"
-                               value="{{ amount_quote }}"/>
-                        <input type="hidden" name="m_curr" value="{{ order.pair.quote.code }}"/>
-                        <input type="hidden" name="m_desc" value="{{ payeer_desc }}"/>
-                        <input type="hidden" name="m_sign" value="{{ payeer_sign }}"/>
-                        <input type="image" class="payment-icon" name="submit" alt="Payeer Payment" src="/static/icons/small/payeer.png"/>
-                    </form>
-                </div>
-            </div>
             {% endif %}
             {% block options %}
-            <div class="row text-left">
-                <div class="col-xs-12 auto-exchange">
-                      <input type="checkbox" id="default-order-trigger" value="1">
-                    <label for="default-order-trigger">
-                      {% blocktrans %}
-                          Credit my withdraw address automatically with any funds
-                          sent by you to our {{ order.payment_preference.payment_method.name }}
-                      {% endblocktrans %}
-                    </label>
-                </div>
-            </div>
-           {% endblock %}
+                {% include "orders/partials/modals/order_success_options.html" %}
+            {% endblock %}
         {% else %}
             <div class="row">
                 <div class="col col-xs-12">
@@ -184,30 +152,7 @@
             </div>
         {% endif %}
         {% block terms %}
-            <div class="exchange-terms">
-                <div class="row text-left">
-                    {% if order.payment_preference.comment %}
-                        <div class="col col-xs-12 text-let">
-                            <label>
-                                * {{ order.payment_preference.comment }}
-                            </label>
-                        </div>
-                    {% endif %}
-                    <div class="col col-xs-12 text-let">
-                       <label>
-                           * {% trans 'Please notice that you must pay until ' %}
-                           {% localtime on %}
-                               <strong>{{pay_until |date:"H:iA (e)"}}</strong>
-                           {% endlocaltime %}
-                       </label>
-                    </div>
-                    <div class="col col-xs-12 text-left">
-                        <label>
-                            * {% trans 'All exchange transactions are executed automatically by a computer regardless of the payment method' %}
-                        </label>
-                    </div>
-                </div>
-            </div>
+            {% include "orders/partials/modals/order_success_terms.html" %}
         {% endblock %}
     </div><!-- /pannel-body -->
 </div><!-- /pannel -->

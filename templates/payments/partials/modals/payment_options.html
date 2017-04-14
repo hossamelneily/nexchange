@@ -34,6 +34,7 @@
     <div class="payment_title">
         {% trans 'Bank'%}
     </div>
+        {% include 'payments/partials/modals/card.html' with card_type='sofort' label='Sofort' icon='icons/small/sofort.jpg' card=categories.banks.sofort %}
         {% include 'payments/partials/modals/card.html' with card_type='alfa bank' label='Alfa-Bank' icon='icons/small/alfabank.png' card=categories.banks.alfa %}
         {% include 'payments/partials/modals/card.html' with card_type='sberbank' label='Sberbank' icon='icons/small/sber.png' card=categories.banks.sber %}
         {% include 'payments/partials/modals/card.html' with card_type='sepa' label='Sepa' icon='icons/small/sepa.png'  card=categories.banks.sepa %}

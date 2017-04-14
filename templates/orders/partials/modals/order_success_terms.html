@@ -1,0 +1,27 @@
+{%  load i18n %}
+{% load tz %}
+
+ <div class="exchange-terms">
+    <div class="row text-left">
+        {% if order.payment_preference.comment %}
+            <div class="col col-xs-12 text-let">
+                <label>
+                    * {{ order.payment_preference.comment }}
+                </label>
+            </div>
+        {% endif %}
+        <div class="col col-xs-12 text-let">
+           <label>
+               * {% trans 'Please notice that you must pay until ' %}
+               {% localtime on %}
+                   <strong>{{pay_until |date:"H:iA (e)"}}</strong>
+               {% endlocaltime %}
+           </label>
+        </div>
+        <div class="col col-xs-12 text-left">
+            <label>
+                * {% trans 'All exchange transactions are executed automatically by a computer regardless of the payment method' %}
+            </label>
+        </div>
+    </div>
+</div>

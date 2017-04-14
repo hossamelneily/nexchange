@@ -25,6 +25,17 @@ class PaymentMethod(TimeStampedModel, SoftDeletableModel):
         (MERCHANT, 'MERCHANT'),
     )
 
+    MANUAL = 0
+    AUTO = 1
+    MANUAL_AND_AUTO = 2
+    ON_ORDER_SUCCESS_MODAL = 3
+    CHECKOUT_TYPES = (
+        (MANUAL, 'MANUAL'),
+        (AUTO, 'AUTO'),
+        (MANUAL_AND_AUTO, 'MANUAL & AUTO'),
+        (ON_ORDER_SUCCESS_MODAL, 'Checkout on Order Success'),
+    )
+
     METHODS_NAMES_WITH_BANK_DETAILS = ['SEPA', 'SWIFT']
     BIN_LENGTH = 6
     objects = PaymentMethodManager()
@@ -49,6 +60,27 @@ class PaymentMethod(TimeStampedModel, SoftDeletableModel):
         help_text='Allowed difference between order amount (ticker_amount) '
                   'and payment amount (amount_cash).'
     )
+    checkout_type = models.IntegerField(
+        choices=CHECKOUT_TYPES, default=MANUAL
+    )
+
+    @property
+    def auto_checkout(self):
+        if self.checkout_type in [self.AUTO, self.MANUAL_AND_AUTO]:
+            return True
+        return False
+
+    @property
+    def manual_checkout(self):
+        if self.checkout_type in [self.MANUAL, self.MANUAL_AND_AUTO]:
+            return True
+        return False
+
+    @property
+    def on_order_success_modal_checkout(self):
+        if self.checkout_type in [self.ON_ORDER_SUCCESS_MODAL]:
+            return True
+        return False
 
     def natural_key(self):
         return self.bin
@@ -140,6 +172,11 @@ class Payment(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     def api_time(self):
         safe_time = self.created_on - settings.PAYMENT_WINDOW_SAFETY_INTERVAL
         return safe_time.__format__('%Y-%m-%d %H:%M:%S')
+
+    @property
+    def api_time_iso_8601(self):
+        safe_time = self.created_on - settings.PAYMENT_WINDOW_SAFETY_INTERVAL
+        return safe_time.__format__('%Y-%m-%dT%H:%M:%S+00:00')
 
     def __str__(self):
         return '{} {} - {}'.format(self.amount_cash,

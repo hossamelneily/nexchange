@@ -13,6 +13,7 @@ from orders.tasks.generic.base import BaseBuyOrderRelease
 
 class BasePaymentChecker(BaseTask):
     def __init__(self, *args, **kwargs):
+        self.payment_time_property = 'api_time'
         self.currency_cache = {}
         self.transactions = []
         self.data = {}
@@ -25,7 +26,8 @@ class BasePaymentChecker(BaseTask):
             ).last()
         else:
             self.last_payment = Payment.objects.last()
-        self.start_time = self.last_payment.api_time\
+        self.start_time = getattr(self.last_payment,
+                                  self.payment_time_property)\
             if self.last_payment else None
 
         # TODO: consider using ABC
