@@ -1,5 +1,4 @@
 import sys
-from time import sleep
 
 from core.tests.utils import data_provider
 from core.tests.utils import (create_payeer_mock_for_order,
@@ -34,7 +33,6 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
 
     @data_provider(lambda: (
         ([{'name': 'PayPal'}, {'name': 'Skrill'}], False, False),
-        ([{'name': 'Visa'}], False, False),
         ([{'name': 'Visa'}], False, False),
         ([{'name': 'Qiwi Wallet', 'pair_name': 'BTCRUB'}], False, False),
     ))
@@ -86,19 +84,21 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
     def test_sell2(self, payment_methods):
         self.base_test_sell(payment_methods)
 
-    def base_test_sell(self, payment_methods, pair_name='BTCEUR'):
+    def base_test_sell(self, payment_methods, pair_name='BTCEUR',
+                       do_logout=False):
         self.workflow = 'SELL'
         print('Test sell')
         self.currency_code = 'BTC'
         for payment_method in payment_methods:
             self.screenshot_no = 1
             self.payment_method = self.screenpath2 = payment_method
-            self.driver.delete_all_cookies()
             try:
                 self.checksell(pair_name=pair_name)
             except Exception as e:
                 print(self.payment_method + " " + str(e))
                 sys.exit(1)
+            if do_logout:
+                self.logout()
 
     def checkbuy(self, pair_name='BTCEUR'):
         order_type = 'BUY'
@@ -120,7 +120,6 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
         order_type = 'SELL'
         send_money.return_value = True
         self.request_order(order_type, pair_name=pair_name)
-        sleep(self.timeout / 5)
         modal = self.driver.find_element_by_xpath(
             '//div[@class="modal fade add_payout_method in"]'
         )
@@ -146,8 +145,8 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
         card_go = modal.find_element_by_class_name('save-card')
         card_go.click()
         # login
-        self.login_phone()
-        sleep(self.timeout / 5)
+        if not self.logged_in:
+            self.login_phone()
         order_data = self.check_confirm_amounts()
         amount_base = order_data['amount_base']
         currency_base_code = order_data['currency_base']
@@ -246,7 +245,7 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
         # Add withdraw address
         self.add_withdraw_address_on_payment_success()
         # Order must be released after adding withdraw address
-        self.check_order_status_indicator('released')
+        self.check_order_status_indicator('released', refresh=True)
         # Order completed then transaction is completed
-        self.do_screenshot('Order Completed', refresh=True)
+        self.do_screenshot('Order Completed')
         self.check_order_status_indicator('completed')

@@ -13,11 +13,7 @@ class TestUIExchangeOrders(BaseTestUI):
         self.LTC_address = 'LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA'
         self.ETH_address = '0x8116546AaC209EB58c5B531011ec42DD28EdFb71'
 
-    @data_provider(
-        lambda: (('ETHLTC', Order.BUY, True),
-                 ('ETHLTC', Order.SELL, False),
-                 )
-    )
+    @data_provider(lambda: (('ETHLTC', Order.BUY, True),),)
     @patch('nexchange.utils.api.get_card_transactions')
     @patch('nexchange.utils.api.get_reserve_transaction')
     def test_release_exchange_order1(self, pair_name, order_type,
@@ -25,11 +21,7 @@ class TestUIExchangeOrders(BaseTestUI):
         self.base_test_release_exchange_order(pair_name, order_type, do_logout,
                                               reserve_txs, import_txs)
 
-    @data_provider(
-        lambda: (('BTCETH', Order.BUY, False),
-                 ('BTCETH', Order.SELL, False),
-                 )
-    )
+    @data_provider(lambda: (('BTCETH', Order.SELL, False),),)
     @patch('nexchange.utils.api.get_card_transactions')
     @patch('nexchange.utils.api.get_reserve_transaction')
     def test_release_exchange_order2(self, pair_name, order_type,
@@ -37,11 +29,7 @@ class TestUIExchangeOrders(BaseTestUI):
         self.base_test_release_exchange_order(pair_name, order_type, do_logout,
                                               reserve_txs, import_txs)
 
-    @data_provider(
-        lambda: (('BTCLTC', Order.BUY, False),
-                 ('BTCLTC', Order.SELL, False),
-                 )
-    )
+    @data_provider(lambda: (('BTCLTC', Order.BUY, False),),)
     @patch('nexchange.utils.api.get_card_transactions')
     @patch('nexchange.utils.api.get_reserve_transaction')
     def test_release_exchange_order3(self, pair_name, order_type,
@@ -89,9 +77,9 @@ class TestUIExchangeOrders(BaseTestUI):
         self.add_withdraw_address_on_payment_success(add_new=True)
         self.do_screenshot('After add Withdraw Addrress')
         # Order must be released after adding withdraw address
-        self.check_order_status_indicator('released')
+        self.check_order_status_indicator('released', refresh=True)
         # Order completed then transaction is completed
-        self.do_screenshot('Order Completed', refresh=True)
+        self.do_screenshot('Order Completed')
         self.check_order_status_indicator('completed')
         if do_logout:
             self.logout()

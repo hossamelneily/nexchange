@@ -85,7 +85,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             else:
                 break
         # sleep for page load
-        sleep(self.timeout / 10)
+        sleep(self.timeout / 60)
 
     def get_currency_pair_main_screen(self, pair_name, lang='en'):
         url = '{}/{}/orders/buy_bitcoin/{}/'.format(self.url, lang,
@@ -144,7 +144,6 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         if not self.selenium_user.profile.is_verified:
             Verification(user=self.selenium_user, id_status=Verification.OK,
                          util_status=Verification.OK).save()
-        sleep(self.timeout / 20)
         self.do_screenshot('After Login')
         self.logged_in = True
 
@@ -184,7 +183,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             self._click_on_payment_icon()
         except TimeoutException:
             self.do_screenshot('Tiemout Exception')
-            sleep(self.timeout / 2)
+            sleep(self.timeout / 20)
             try:
                 self._click_on_payment_icon()
             except TimeoutException:
@@ -284,7 +283,6 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             ))).click()
         except TimeoutException:
             self.do_screenshot('TIMEOUT on Wait for address to be clickable')
-        sleep(self.timeout / 5)
         try:
             self.write_withdraw_address_on_popover(add_new=add_new)
         except Exception as e:
@@ -297,23 +295,25 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             else:
                 self.write_withdraw_address_on_popover(add_new=add_new)
 
-        sleep(self.timeout / 5)
+        sleep(self.timeout / 30)
         self.do_screenshot('Withdraw Address added')
 
     def check_order_status(self, status):
-        for _ in range(3):
+        for _ in range(6):
             self.order.refresh_from_db()
             if self.order.status != status:
-                sleep(self.timeout / 6)
+                sleep(self.timeout / 20)
             else:
                 break
         self.assertEqual(
             self.order.status, status,
             'Bad Order status on {}'.format(self.payment_method))
 
-    def check_order_status_indicator(self, indicator_name, checked=True):
+    def check_order_status_indicator(self, indicator_name, checked=True,
+                                     refresh=False):
         self.do_screenshot(
-            'Before checking status \'{}\''.format(indicator_name)
+            'Before checking status \'{}\''.format(indicator_name),
+            refresh=refresh
         )
         is_checked = 'fa fa-check fa-1'
         is_unchecked = 'fa fa-close fa-1 red'
@@ -408,7 +408,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.stamp = now
         if refresh:
             self.driver.refresh()
-            sleep(self.timeout / 6)
+            sleep(self.timeout / 30)
         path = os.path.join(
             self.screenpath, self.workflow, self.screenpath2)
         filename = '{}({}). {} ({:.2f}s)'.format(
