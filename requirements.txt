@@ -75,3 +75,4 @@ drf-extensions>=0.3.1
 mock
 requests-cache>=0.4.13
 xmltodict>=0.10.2
+json-rpc

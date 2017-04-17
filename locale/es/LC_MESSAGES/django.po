@@ -3,604 +3,629 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR. SPANISH
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-04-11 18:43+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2017-04-14 16:48+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.0.1\n"
+"Last-Translator: \n"
+"Language: es\n"
 
 #: accounts/decoratos.py:17
 msgid "You are already logged in"
-msgstr ""
+msgstr "Ya ha iniciado sesión"
 
 #: accounts/decoratos.py:54
 msgid "Invalid reCAPTCHA!"
-msgstr ""
+msgstr "Inválido reCAPTCHA!"
 
 #: accounts/models.py:35 templates/accounts/user_profile.html:45
 #: templates/payments/partials/forms/credit_card.html:33
 msgid "Phone"
-msgstr ""
+msgstr "Teléfono"
 
 #: accounts/models.py:36
 msgid "Enter phone number in international format. eg. +44020786543"
 msgstr ""
+"Introduzca su número de teléfono con el código internacional: p.ej. "
+"+44020786543"
 
 #: accounts/models.py:108
 msgid "Default referral code"
-msgstr ""
+msgstr "Código de referencia por defecto"
 
 #: accounts/tasks/monitor_wallets.py:49
 msgid "Nexchange: Order released"
-msgstr ""
+msgstr "Nexchange: Orden enviada"
 
 #: accounts/tasks/monitor_wallets.py:52
 msgid ""
 "Your order {}:  is PAID. \n"
 " {} {} were sent to {} {} {}"
 msgstr ""
+"Su orden {}:  se ha PAGADO. \n"
+" {} {} se enviaron a {} {} {}"
 
 #: accounts/tasks/monitor_wallets.py:66
 msgid "Your order {}: is paid. {}"
-msgstr ""
+msgstr "Su orden {}: se ha pagado. {}"
 
 #: accounts/views.py:38
 msgid "Registration completed. Check your phone for SMS confirmation code."
 msgstr ""
+"Ha completado su registro. Compruebe el código de confirmación SMS en su "
+"teléfono."
 
 #: accounts/views.py:40
 msgid "Error during accounts. <br>Details: {}"
-msgstr ""
+msgstr "Error en las cuentas. <br>Detalles: {}"
 
 #: accounts/views.py:117
 msgid "Profile updated successfully"
-msgstr ""
+msgstr "Su perfil se ha actualizado con éxito"
 
 #: accounts/views.py:124
 msgid "Referral codes updated successfully"
-msgstr ""
+msgstr "Códigos de referencia actualizados correctamente"
 
 #: articles/templatetags/dateutils.py:15 articles/templatetags/dateutils.py:17
 msgid "th"
-msgstr ""
+msgstr "th"
 
 #: articles/templatetags/dateutils.py:16
 msgid "st"
-msgstr ""
+msgstr "st"
 
 #: articles/templatetags/dateutils.py:16
 msgid "nd"
-msgstr ""
+msgstr "nd"
 
 #: articles/templatetags/dateutils.py:16
 msgid "rd"
-msgstr ""
+msgstr "rd"
 
 #: articles/views.py:19
 msgid "Page not found"
-msgstr ""
+msgstr "Página no encontrada"
 
 #: core/common/forms.py:8
 msgid "Search by Date"
-msgstr ""
+msgstr "Buscar por fecha"
 
 #: core/validators.py:24
 #, python-format
 msgid "%(value)s is not a valid address"
-msgstr ""
+msgstr "%(value)s no es una dirección válida"
 
 #: core/validators.py:36
 #, python-format
 msgid "%(value)s has invalid characters for a valid Bitcoin address"
-msgstr ""
+msgstr "%(value)s contiene caracteres no válidos en una dirección Bitcoin"
 
 #: core/validators.py:49
 #, python-format
 msgid "%(value)s has invalid characters for a valid Litecoin address"
-msgstr ""
+msgstr "%(value)s contiene caracteres no válidos en una dirección Litecoin"
 
 #: core/validators.py:61
 #, python-format
 msgid "%(value)s has invalid characters for a valid Ethereum address"
-msgstr ""
+msgstr "%(value)s contiene caracteres no válidos en una dirección Ethereum"
 
 #: core/validators.py:76
 #, python-format
 msgid "%(value)s is invalid."
-msgstr ""
+msgstr "%(value)s no es válido."
 
 #: nexchange/settings.py:53
 msgid "Russian"
-msgstr ""
+msgstr "Ruso"
 
 #: nexchange/settings.py:54
 msgid "English"
-msgstr ""
+msgstr "Inglés"
 
 #: nexchange/settings.py:55
 msgid "Spanish"
-msgstr ""
+msgstr "Español"
 
 #: nexchange/settings.py:56
 msgid "Catalan"
-msgstr ""
+msgstr "Catalán"
 
 #: nexchange/settings.py:76
 msgid "Nexchange confirmation code: "
-msgstr ""
+msgstr "Código de confirmación de Nexchange: "
 
 #: nexchange/settings.py:154 templates/core/partials/seo_footer.html:20
 msgid "About Us"
-msgstr ""
+msgstr "Sobre nosotros"
 
 #: nexchange/settings.py:155 templates/core/partials/seo_footer.html:21
 msgid "Careers"
-msgstr ""
+msgstr "Trabaja con nosotros"
 
 #: nexchange/settings.py:156 templates/core/partials/seo_footer.html:22
 msgid "Press"
-msgstr ""
+msgstr "Prensa"
 
 #: nexchange/settings.py:157 templates/core/partials/seo_footer.html:23
 msgid "Conference"
-msgstr ""
+msgstr "Conferencia"
 
 #: nexchange/settings.py:158 templates/core/partials/seo_footer.html:24
 msgid "Legal & Privacy"
-msgstr ""
+msgstr "Aviso legal y privacidad"
 
 #: nexchange/settings.py:159 templates/core/partials/seo_footer.html:25
 msgid "Security"
-msgstr ""
+msgstr "Seguridad"
 
 #: nexchange/settings.py:161 templates/core/partials/seo_footer.html:29
 msgid "FAQ"
-msgstr ""
+msgstr "FAQ"
 
 #: nexchange/settings.py:163 templates/core/partials/seo_footer.html:31
 msgid "Fees"
-msgstr ""
+msgstr "Precios"
 
 #: nexchange/settings.py:164 templates/core/partials/seo_footer.html:32
 msgid "Support"
-msgstr ""
+msgstr "Soporte"
 
 #: nexchange/settings.py:165
 msgid "Affiliate Program"
-msgstr ""
+msgstr "Programa de afiliación"
 
 #: orders/models.py:117 orders/models.py:119
 msgid "Invalid order type choice"
-msgstr ""
+msgstr "Tipo de orden no válida"
 
 #: orders/models.py:148
 msgid "Sorry, we cannot convert {} to {}"
-msgstr ""
+msgstr "Lo lamentamos, no podemos convertir {} a {}"
 
 #: orders/tasks/generic/base.py:53
 msgid "Nexchange: Order {} released"
-msgstr ""
+msgstr "Nexchange: Orden {} enviada"
 
 #: orders/tasks/generic/base.py:55
 msgid "Your order {}: is released. Withdraw address: {}"
-msgstr ""
+msgstr "Su orden {}: se ha enviado. Dirección de destino: {}"
 
 #: orders/views.py:57
 msgid "Orders Main"
-msgstr ""
+msgstr "Listado de órdenes"
 
 #: orders/views.py:88 orders/views.py:218
 msgid "Result"
-msgstr ""
+msgstr "Resultado"
 
 #: orders/views.py:102
 msgid "Add"
-msgstr ""
+msgstr "Añadir"
 
 #: orders/views.py:304 orders/views.py:388
 msgid "You don't have permission to edit this order"
-msgstr ""
+msgstr "No tiene permiso para editar esta orden"
 
 #: orders/views.py:307
 msgid "This order can not be edited because it is already released"
-msgstr ""
+msgstr "Esta orden no puede ser editada porque ya se ha enviado"
 
 #: orders/views.py:310
 msgid "You need to be a verified user to set withdrawal address."
 msgstr ""
+"Necesita ser un usuario verificado para establecer una dirección de destino."
 
 #: orders/views.py:320
 msgid ""
 "The currency({}) of this Address is not the same as the order base "
 "currency({})."
 msgstr ""
+"La divisa({}) de esta Dirección no es la misma que la divisa base de la "
+"orden({})."
 
 #: orders/views.py:327
 msgid ""
 "The currency({}) of this Address is not the same as the order quote "
 "currency({})."
 msgstr ""
+"La divisa({}) de esta Dirección no es la misma que la divisa cotizada de la "
+"orden({})."
 
 #: orders/views.py:372
 msgid "Invalid address provided"
-msgstr ""
+msgstr "Dirección no válida"
 
 #: orders/views.py:391
 msgid "This order can not be edited because is it already released"
-msgstr ""
+msgstr "Esta orden no puede editarse porque ya se ha enviado"
 
 #: orders/views.py:395
 msgid "An order can not be set as paid without a withdraw address"
 msgstr ""
+"Una orden no puede configurarse como pagada sin una dirección de destino"
 
 #: payments/api_clients/card_pmt.py:91
 msgid "CVV({}) length is not 3"
-msgstr ""
+msgstr "El CVV({}) debe contener 3 dígitos"
 
 #: payments/api_clients/card_pmt.py:97
 msgid "CVV({}) contains not only digits"
-msgstr ""
+msgstr "El CVV({}) no solo contiene dígitos"
 
 #: payments/api_clients/card_pmt.py:105
 msgid "cnn({}) starts with wrong numbers for mastercard"
 msgstr ""
+"cnn({}) empieza con números incorrectos para tratarse de una mastercard"
 
 #: payments/api_clients/card_pmt.py:111
 msgid "Mastercard cnn({}) must be between 16-19 digits long"
-msgstr ""
+msgstr "El Mastercard cnn({}) debe contener entre 16 y 19 dígitos"
 
 #: payments/api_clients/card_pmt.py:119
 msgid " {} is invalid Mastercard number."
-msgstr ""
+msgstr " {} no es un número de Mastercard válido."
 
 #: payments/api_clients/card_pmt.py:127
 msgid "Invalid ccexp({}) length"
-msgstr ""
+msgstr "Longitud de ccexp({}) no válida"
 
 #: payments/api_clients/card_pmt.py:139
 msgid "Credit card expired (ccexp - {})"
-msgstr ""
+msgstr "Tarjeta de crédito caducada (ccexp - {})"
 
 #: payments/api_clients/card_pmt.py:291
 msgid "Something went wrong. Order is not paid."
-msgstr ""
+msgstr "Algo salió mal. La orden no se ha pagado."
 
 #: payments/api_clients/card_pmt.py:292
 msgid "Order is paid successfully!"
-msgstr ""
+msgstr "Pago de la orden con éxito!"
 
 #: payments/api_clients/card_pmt.py:298
 msgid "Bad Credit Card credentials"
-msgstr ""
+msgstr "Bad Credit Card credenciales"
 
 #: payments/api_clients/card_pmt.py:305
 msgid "Order payment status is unclear, please contact administrator!"
 msgstr ""
+"No podemos determinar el estado de la orden. Por favor contacte con el "
+"administrador!"
 
 #: payments/api_clients/card_pmt.py:337
 msgid "This order is already paid"
-msgstr ""
+msgstr "Esta orden ya se ha pagado"
 
 #: payments/models.py:116 payments/models.py:154
 msgid "Nonce"
-msgstr ""
+msgstr "Nonce"
 
 #: payments/models.py:152
 msgid "Uni"
-msgstr ""
+msgstr "Uni"
 
 #: payments/models.py:156
 msgid "Token"
-msgstr ""
+msgstr "Token"
 
 #: payments/models.py:158
 msgid "Default"
-msgstr ""
+msgstr "Por defecto"
 
 #: payments/models.py:159
 msgid "Delete"
-msgstr ""
+msgstr "Borrar"
 
 #: payments/views.py:133
 msgid "Unsupported payment provider"
-msgstr ""
+msgstr "Proveedor de pagos no soportado"
 
 #: payments/views.py:259 payments/views.py:261
 msgid "Resource not found"
-msgstr ""
+msgstr "Fondos no encontrados"
 
 #: referrals/forms.py:13
 msgid "Name / Short Comment"
-msgstr ""
+msgstr "Nombre / Comentario breve"
 
 #: referrals/forms.py:14
 msgid ""
 "This field can be used to describe the purpose and target public of this "
 "Referral Link"
 msgstr ""
+"En este campo puede describir el propósito y público objetivo de este "
+"Enlace de Referencia"
 
 #: referrals/forms.py:17
 msgid "Referral Link"
-msgstr ""
+msgstr "Enlace de referencia"
 
 #: referrals/forms.py:18
 msgid "Use this link to refer users to Nexchange and receive a commission!"
 msgstr ""
+"¡Con este enlace puede referir usuarios a Nexchange y obtener una comisión!"
 
 #: referrals/forms.py:22 templates/referrals/index_referrals.html:67
 #: templates/referrals/index_referrals.html:83
 msgid "Referral Code"
-msgstr ""
+msgstr "Código de referencia"
 
 #: referrals/forms.py:23
 msgid "A code to distinct your referrals from other users"
 msgstr ""
+"Un código para distinguir vuestros usuarios referidos del resto de usuarios"
 
 #: src/kombu/kombu/transport/qpid.py:1294
 #, python-format
 msgid "Attempting to connect to qpid with SASL mechanism %s"
-msgstr ""
+msgstr "Intentando conectar a qpid con el mecanismo SASL %s"
 
 #: src/kombu/kombu/transport/qpid.py:1299
 #, python-format
 msgid "Connected to qpid with SASL mechanism %s"
-msgstr ""
+msgstr "Conectado a qpid con el mecanismo SASL %s"
 
 #: src/kombu/kombu/transport/qpid.py:1317
 #, python-format
 msgid "Unable to connect to qpid with SASL mechanism %s"
-msgstr ""
+msgstr "No se pudo conectar a qpid con el mecanismo SASL %s"
 
 #: static/js/tests/fixtures/ProfileFixture.html:5
 #: templates/accounts/user_profile.html:18
 msgid "Your phone number is not verified yet."
-msgstr ""
+msgstr "Su número de teléfono todavía no se ha verificado."
 
 #: static/js/tests/fixtures/ProfileFixture.html:9
 #: templates/accounts/user_profile.html:22
 msgid "Verifying phone now..."
-msgstr ""
+msgstr "Verificando número de teléfono…"
 
 #: static/js/tests/fixtures/ProfileFixture.html:17
 #: templates/accounts/user_profile.html:30
 msgid "Insert SMS verification token here"
-msgstr ""
+msgstr "Insertar código de autentificación por SMS aquí"
 
 #: static/js/tests/fixtures/ProfileFixture.html:19
 #: templates/accounts/user_profile.html:32
 msgid "Verify phone now"
-msgstr ""
+msgstr "Verificar teléfono ahora"
 
 #: static/js/tests/fixtures/ProfileFixture.html:26
 #: templates/accounts/user_profile.html:39
 msgid "Send-me the token again"
-msgstr ""
+msgstr "Reenviar el token de verificación"
 
 #: support/forms.py:20
 msgid "--- Please select an order (if applicable) ---"
-msgstr ""
+msgstr "- - - Por favor seleccionar orden (si es necesario) - - -"
 
 #: support/forms.py:22
 msgid "Choose an order which is related to your request"
-msgstr ""
+msgstr "Escoja una orden relacionada con su petición"
 
 #: support/models.py:11
 msgid "Name*"
-msgstr ""
+msgstr "Nombre*"
 
 #: support/models.py:12
 msgid "Email*"
-msgstr ""
+msgstr "Correo electrónico*"
 
 #: support/models.py:13
 msgid "Telephone"
-msgstr ""
+msgstr "Teléfono"
 
 #: support/models.py:15
 msgid "Subject"
-msgstr ""
+msgstr "Asunto"
 
 #: support/models.py:17
 msgid "Message*"
-msgstr ""
+msgstr "Mensaje*"
 
 #: templates/accounts/password_reset.html:8
 msgid "Password reset"
-msgstr ""
+msgstr "Restablecer contraseña"
 
 #: templates/accounts/password_reset.html:16
 msgid "Send Reset Link"
-msgstr ""
+msgstr "Enviar enlace para restablecer contraseña"
 
 #: templates/accounts/password_reset_complete.html:11
 msgid "Your password has been reset."
-msgstr ""
+msgstr "Su contraseña se ha restablecido."
 
 #: templates/accounts/password_reset_complete.html:12
 msgid "You can now login using this new password."
-msgstr ""
+msgstr "Ya puede iniciar sesión con la nueva contraseña."
 
 #: templates/accounts/password_reset_complete.html:15
 msgid "Login now"
-msgstr ""
+msgstr "Iniciar sesión ahora"
 
 #: templates/accounts/password_reset_confirm.html:10
 #: templates/accounts/password_reset_confirm.html:18
 msgid "Define new password"
-msgstr ""
+msgstr "Definir nueva contraseña"
 
 #: templates/accounts/password_reset_confirm.html:13
 msgid "Fill in the form with your new password to complete the process:"
 msgstr ""
+"Rellene el formulario con su nueva contraseña para completar el proceso:"
 
 #: templates/accounts/password_reset_email.html:5
 msgid ""
 "You are receiving this message because you asked for a password reset at "
 "Nexchange website."
 msgstr ""
+"Está recibiendo este mensaje porque ha solicitado el restablecimiento de su "
+"contraseña en el sitio web Nexchange."
 
 #: templates/accounts/password_reset_email.html:7
 msgid "Please, follow the link below to create a new password:"
 msgstr ""
+"Por favor, haga clic en el link de abajo para crear una nueva contraseña:"
 
 #: templates/accounts/password_reset_email.html:14
 msgid "In case you have forgot, your username is"
-msgstr ""
+msgstr "En caso que lo haya olvidado, su nombre de usuario es"
 
 #: templates/accounts/password_reset_email.html:17
 msgid "Regards, team  Nexchange"
-msgstr ""
+msgstr "Un cordial saludo, el equipo de Nexchange"
 
 #: templates/accounts/registration_base.html:5
 msgid "Password Reset"
-msgstr ""
+msgstr "Restablecer contraseña"
 
 #: templates/accounts/registration_base.html:12 templates/core/index.html:7
 msgid "Nexchange"
-msgstr ""
+msgstr "Nexchange"
 
 #: templates/accounts/user_login.html:8 templates/accounts/user_login.html:18
 #: templates/core/partials/breadcrumbs.html:26
 #: templates/core/partials/menu.html:76
 #: templates/core/partials/seo_footer.html:13
 msgid "Login"
-msgstr ""
+msgstr "Inicio de sesión"
 
 #: templates/accounts/user_login.html:22
 msgid "Don't have an account?"
-msgstr ""
+msgstr "¿No tiene cuenta?"
 
 #: templates/accounts/user_login.html:22
 msgid "Register here"
-msgstr ""
+msgstr "Regístrese aquí"
 
 #: templates/accounts/user_login.html:23
 msgid "Forgot your password?"
-msgstr ""
+msgstr "¿Olvidó su contraseña?"
 
 #: templates/accounts/user_login.html:23
 msgid "Reset it here"
-msgstr ""
+msgstr "Restablecer contraseña aquí"
 
 #: templates/accounts/user_profile.html:9
 msgid "User Profile"
-msgstr ""
+msgstr "Perfil de usuario"
 
 #: templates/accounts/user_profile.html:50
 msgid "Your phone has been verified."
-msgstr ""
+msgstr "Su teléfono ha sido verificado."
 
 #: templates/accounts/user_registration.html:8
 #: templates/accounts/user_registration.html:18
 #: templates/core/partials/menu.html:80
 msgid "Register"
-msgstr ""
+msgstr "Registrar"
 
 #: templates/articles/cms_default.html:19
 msgid "Written by: "
-msgstr ""
+msgstr "Escrito por: "
 
 #: templates/articles/cms_default.html:19
 msgid "Nexchange Team"
-msgstr ""
+msgstr "Equipo de Nexchange"
 
 #: templates/articles/cms_default.html:22
 msgid "Last modified: "
-msgstr ""
+msgstr "Última modificación: "
 
 #: templates/core/base.html:10
 msgid "Simple and powerful Bitcoin, Ethereum and Litecoin exchange"
-msgstr ""
+msgstr "Intercambio de Bitcoin, Ethereum y Litecoin simple y potente"
 
 #: templates/core/base.html:13
 msgid "Nexchange BETA"
-msgstr ""
+msgstr "Nexchange BETA"
 
 #: templates/core/base.html:19
 msgid "Service unavailable. Please try again later."
-msgstr ""
+msgstr "Servicio no disponible. Por favor, inténtelo más tarde."
 
 #: templates/core/partials/breadcrumbs.html:14
 msgid "Order"
-msgstr ""
+msgstr "Orden"
 
 #: templates/core/partials/breadcrumbs.html:38
 msgid "Confirm"
-msgstr ""
+msgstr "Confirmar"
 
 #: templates/core/partials/footer.html:3
 msgid ""
 "All rights reserved, YOA LTD 2016-2017, England & Wales registered company "
 "No. 10009845"
 msgstr ""
+"Todos los derechos reservados, YOA LTD 2016-2017, Inglaterra y Gales "
+"empresa registrada No. 10009845"
 
 #: templates/core/partials/menu.html:29
 msgid "Toggle navigation"
-msgstr ""
+msgstr "Cambiar navegación"
 
 #: templates/core/partials/menu.html:41
 msgid "Home"
-msgstr ""
+msgstr "Inicio"
 
 #: templates/core/partials/menu.html:46
 msgid "My Orders"
-msgstr ""
+msgstr "Mis órdenes"
 
 #: templates/core/partials/menu.html:51
 msgid "Referrals"
-msgstr ""
+msgstr "Referencias"
 
 #: templates/core/partials/menu.html:56
 msgid "Verification"
-msgstr ""
+msgstr "Verificación"
 
 #: templates/core/partials/menu.html:72
 msgid "Logout"
-msgstr ""
+msgstr "Salir de la sesión"
 
 #: templates/core/partials/seo_footer.html:9
 msgid "ACCOUNT"
-msgstr ""
+msgstr "CUENTA"
 
 #: templates/core/partials/seo_footer.html:11
 msgid "Profile"
-msgstr ""
+msgstr "Perfil"
 
 #: templates/core/partials/seo_footer.html:14
 msgid "SignUp"
-msgstr ""
+msgstr "Registrarse"
 
 #: templates/core/partials/seo_footer.html:19
 msgid "ABOUT"
-msgstr ""
+msgstr "EMPRESA"
 
 #: templates/core/partials/seo_footer.html:28
 msgid "RESOURCES"
-msgstr ""
+msgstr "RECURSOS"
 
 #: templates/core/partials/seo_footer.html:36
 msgid "Social"
-msgstr ""
+msgstr "Social"
 
 #: templates/core/partials/spa_navigation.html:5
 msgid "Next"
-msgstr ""
+msgstr "Siguiente"
 
 #: templates/core/partials/spa_navigation.html:10
 #: templates/orders/partials/steps/old_amount.html:26
 #: templates/orders/partials/steps/step_amount.html:41
 #: templates/orders/partials/steps/step_confirmation.html:48
 msgid "Sell"
-msgstr ""
+msgstr "Vender"
 
 #: templates/core/partials/spa_navigation.html:14
 #: templates/orders/partials/steps/old_amount.html:11
@@ -608,36 +633,36 @@ msgstr ""
 #: templates/orders/partials/steps/step_confirmation.html:49
 #: templates/support/thanks.html:15
 msgid "Buy"
-msgstr ""
+msgstr "Comprar"
 
 #: templates/core/partials/success_order_sell.html:5
 #: templates/orders/partials/modals/order_success_buy.html:9
 #: templates/orders/partials/modals/order_success_sell.html:8
 msgid "Order placed successfully"
-msgstr ""
+msgstr "Orden encargada con éxito"
 
 #: templates/core/partials/success_order_sell.html:8
 msgid "Please tranfer to this BTC Address"
-msgstr ""
+msgstr "Por favor, transferir a esta dirección BTC"
 
 #: templates/core/partials/success_order_sell.html:17
 msgid "Notice that you must pay until"
-msgstr ""
+msgstr "Tiene que pagar hasta"
 
 #: templates/orders/partials/forms/payment_toggle.html:6
 #: templates/orders/partials/order_row_mobile.html:47
 msgid "Setting as paid..."
-msgstr ""
+msgstr "Estableciendo como pagada…"
 
 #: templates/orders/partials/forms/payment_toggle.html:23
 #: templates/orders/partials/order_row_mobile.html:51
 #: templates/orders/partials/orders_desktop.html:11
 msgid "Paid"
-msgstr ""
+msgstr "Pagada"
 
 #: templates/orders/partials/forms/payment_toggle.html:25
 msgid "Not Paid"
-msgstr ""
+msgstr "No pagada"
 
 #: templates/orders/partials/forms/withdraw_address_widget.html:7
 #, python-format
@@ -646,66 +671,69 @@ msgid ""
 "                address and get %(order.pair.base.code)s now!\n"
 "            "
 msgstr ""
+" Defina su dirección\n"
+"                de destino y obtenga %(order.pair.base.code)s ahora!\n"
+"            "
 
 #: templates/orders/partials/forms/withdraw_address_widget.html:21
 #: templates/orders/partials/forms/withdraw_address_widget.html:38
 msgid "Not Defined"
-msgstr ""
+msgstr "Sin definir"
 
 #: templates/orders/partials/forms/withdraw_address_widget.html:31
 msgid "Set Withdraw Address"
-msgstr ""
+msgstr "Establecer Dirección de Destino"
 
 #: templates/orders/partials/modals/order_success_buy.html:14
 msgid "Please fill the form to pay "
-msgstr ""
+msgstr "Por favor, rellene el formulario para pagar "
 
 #: templates/orders/partials/modals/order_success_buy.html:16
 msgid "for this order."
-msgstr ""
+msgstr "por esta orden."
 
 #: templates/orders/partials/modals/order_success_buy.html:25
 msgid "Please make payment to the following"
-msgstr ""
+msgstr "Por favor, realice el pago a estos datos"
 
 #: templates/orders/partials/modals/order_success_buy.html:34
 msgid "IBAN: "
-msgstr ""
+msgstr "IBAN: "
 
 #: templates/orders/partials/modals/order_success_buy.html:37
 msgid "BIC: "
-msgstr ""
+msgstr "BIC: "
 
 #: templates/orders/partials/modals/order_success_buy.html:41
 msgid "Beneficiary: "
-msgstr ""
+msgstr "Beneficiario: "
 
 #: templates/orders/partials/modals/order_success_buy.html:45
 msgid "Bank Name: "
-msgstr ""
+msgstr "Nombre del Banco: "
 
 #: templates/orders/partials/modals/order_success_buy.html:49
 msgid "Bank Address: "
-msgstr ""
+msgstr "Dirección del Banco: "
 
 #: templates/orders/partials/modals/order_success_buy.html:53
 msgid "Owner Address: "
-msgstr ""
+msgstr "Dirección del propietario: "
 
 #: templates/orders/partials/modals/order_success_buy.html:65
 msgid "Please put the following reference in the comment"
-msgstr ""
+msgstr "Por favor, rellene la siguiente referencia en el comentario"
 
 #: templates/orders/partials/modals/order_success_buy.html:79
 #: templates/orders/partials/modals/order_success_buy.html:113
 #: templates/support/thanks.html:18
 msgid "OR"
-msgstr ""
+msgstr "O"
 
 #: templates/orders/partials/modals/order_success_buy.html:87
 #: templates/orders/partials/modals/order_success_buy.html:121
 msgid "proceed to automatic-checkout"
-msgstr ""
+msgstr "proceda a la salida automática"
 
 #: templates/orders/partials/modals/order_success_buy.html:145
 #, python-format
@@ -717,471 +745,488 @@ msgid ""
 "%(order.payment_preference.payment_method.name)s\n"
 "                      "
 msgstr ""
+"\n"
+"                          Abonar mi dirección de destino con los fondos\n"
+"                          enviados por usted a "
+"%(order.payment_preference.payment_method.name)s\n"
+"                      "
 
 #: templates/orders/partials/modals/order_success_buy.html:156
 #: templates/orders/partials/modals/order_success_sell.html:11
 msgid "Please send"
-msgstr ""
+msgstr "Por favor, envíe"
 
 #: templates/orders/partials/modals/order_success_buy.html:158
 #: templates/orders/partials/modals/order_success_sell.html:13
 msgid "to the following address"
-msgstr ""
+msgstr "a la siguiente dirección"
 
 #: templates/orders/partials/modals/order_success_buy.html:164
 #: templates/orders/partials/modals/order_success_sell.html:19
 msgid "Copy"
-msgstr ""
+msgstr "Copiar"
 
 #: templates/orders/partials/modals/order_success_buy.html:177
 #: templates/orders/partials/modals/order_success_sell.html:49
 msgid "Order Reference:"
-msgstr ""
+msgstr "Referencia de la orden:"
 
 #: templates/orders/partials/modals/order_success_buy.html:198
 msgid "Please notice that you must pay until "
-msgstr ""
+msgstr "Por favor, tiene que pagar hasta "
 
 #: templates/orders/partials/modals/order_success_buy.html:206
 msgid ""
 "All exchange transactions are executed automatically by a computer "
 "regardless of the payment method"
 msgstr ""
+"Todas las transacciones se ejecutan automáticamente por ordenador sin "
+"importar el método de pago"
 
 #: templates/orders/partials/modals/order_success_sell.html:33
 msgid "You choose to get paid by:"
-msgstr ""
+msgstr "Ha escogido que le paguen con:"
 
 #: templates/orders/partials/modals/order_success_sell.html:43
 msgid "We will place the following reference in the comment to our payment:"
-msgstr ""
+msgstr "Añadiremos la siguiente referencia en el comentario de nuestro pago:"
 
 #: templates/orders/partials/modals/order_success_sell.html:59
 msgid "Notice that you must send coins until"
-msgstr ""
+msgstr "Debe enviar monedas hasta"
 
 #: templates/orders/partials/modals/order_success_sell.html:66
 #, python-format
 msgid ""
 "\n"
 "             Convert coins credited to this address automatically to my\n"
-"             %(order.payment_preference.payment_method.name)s in the future\n"
+"             %(order.payment_preference.payment_method.name)s in the "
+"future\n"
 "        "
 msgstr ""
+"\n"
+"             Convertir las monedas abonadas a esta dirección "
+"automáticamente a mi\n"
+"             %(order.payment_preference.payment_method.name)s en el futuro\n"
+"        "
 
 #: templates/orders/partials/modals/success_order.html:17
 msgid "Success"
-msgstr ""
+msgstr "Éxito"
 
 #: templates/orders/partials/modals/success_order.html:42
 msgid "Go to Robokassa"
-msgstr ""
+msgstr "Ir a Robokassa"
 
 #: templates/orders/partials/modals/success_order.html:49
 msgid "Get your coins"
-msgstr ""
+msgstr "Obtenga sus monedas"
 
 #: templates/orders/partials/modals/success_order.html:51
 msgid "Done"
-msgstr ""
+msgstr "Hecho"
 
 #: templates/orders/partials/order_pagination.html:5
 #: templates/referrals/index_referrals.html:115
 msgid "previous"
-msgstr ""
+msgstr "anterior"
 
 #: templates/orders/partials/order_pagination.html:9
 #: templates/referrals/index_referrals.html:119
 msgid "Page"
-msgstr ""
+msgstr "Página"
 
 #: templates/orders/partials/order_pagination.html:11
 #: templates/referrals/index_referrals.html:119
 msgid "of"
-msgstr ""
+msgstr "de"
 
 #: templates/orders/partials/order_pagination.html:15
 #: templates/referrals/index_referrals.html:123
 msgid "next"
-msgstr ""
+msgstr "siguiente"
 
 #: templates/orders/partials/order_pagination.html:21
 msgid "Hide expired and released"
-msgstr ""
+msgstr "Ocultar vencidas o enviadas"
 
 #: templates/orders/partials/order_pagination.html:23
 msgid "Show expired and released"
-msgstr ""
+msgstr "Mostrar vencidas y enviadas"
 
 #: templates/orders/partials/order_row_desktop.html:6
 #: templates/orders/partials/order_row_mobile.html:7
 msgid "Buying"
-msgstr ""
+msgstr "Comprando"
 
 #: templates/orders/partials/order_row_desktop.html:10
 #: templates/orders/partials/order_row_mobile.html:11
 msgid "Selling"
-msgstr ""
+msgstr "Vendiendo"
 
 #: templates/orders/partials/order_row_mobile.html:25
 #: templates/orders/partials/orders_desktop.html:7
 msgid "Reference"
-msgstr ""
+msgstr "Referencia"
 
 #: templates/orders/partials/order_row_mobile.html:31
 #: templates/orders/partials/orders_desktop.html:8
 msgid "Pair"
-msgstr ""
+msgstr "Pareja"
 
 #: templates/orders/partials/order_row_mobile.html:36
 #: templates/orders/partials/orders_desktop.html:9
 msgid "Price"
-msgstr ""
+msgstr "Precio"
 
 #: templates/orders/partials/order_row_mobile.html:40
 #: templates/orders/partials/orders_desktop.html:10
 msgid "Volume"
-msgstr ""
+msgstr "Volumen"
 
 #: templates/orders/partials/order_row_mobile.html:58
 #: templates/orders/partials/orders_desktop.html:12
 msgid "Released"
-msgstr ""
+msgstr "Enviadas"
 
 #: templates/orders/partials/order_row_mobile.html:67
 #: templates/orders/partials/orders_desktop.html:13
 msgid "Completed"
-msgstr ""
+msgstr "Completadas"
 
 #: templates/orders/partials/order_row_mobile.html:75
 #: templates/orders/partials/orders_desktop.html:14
 msgid "Withdraw Address"
-msgstr ""
+msgstr "Dirección de Destino"
 
 #: templates/orders/partials/orders_desktop.html:5
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
 #: templates/orders/partials/orders_desktop.html:6
 msgid "Date"
-msgstr ""
+msgstr "Fecha"
 
 #: templates/orders/partials/orders_desktop.html:21
 msgid "No records found"
-msgstr ""
+msgstr "No se han encontrado registros"
 
 #: templates/orders/partials/orders_header.html:5
 msgid "Current Orders"
-msgstr ""
+msgstr "Ordenes actuales"
 
 #: templates/orders/partials/orders_header.html:14
 msgid "New Order"
-msgstr ""
+msgstr "Nueva Orden"
 
 #: templates/orders/partials/steps/old_amount.html:53
 msgid "To"
-msgstr ""
+msgstr "Hacia"
 
 #: templates/orders/partials/steps/step_authentication.html:7
 msgid "Phone verification"
-msgstr ""
+msgstr "Verificación telefónica"
 
 #: templates/orders/partials/steps/step_authentication.html:10
 msgid "Enter your phone"
-msgstr ""
+msgstr "Introduzca su teléfono"
 
 #: templates/orders/partials/steps/step_authentication.html:14
 msgid "Mobile number"
-msgstr ""
+msgstr "Número de teléfono"
 
 #: templates/orders/partials/steps/step_authentication.html:25
 msgid "Human check"
-msgstr ""
+msgstr "Comprobación que es humano"
 
 #: templates/orders/partials/steps/step_authentication.html:36
 msgid "Code from SMS"
-msgstr ""
+msgstr "Código del SMS"
 
 #: templates/orders/partials/steps/step_authentication.html:45
 msgid "Send SMS"
-msgstr ""
+msgstr "Enviar SMS"
 
 #: templates/orders/partials/steps/step_authentication.html:48
 msgid "Send again"
-msgstr ""
+msgstr "Enviar otra vez"
 
 #: templates/orders/partials/steps/step_authentication.html:51
 msgid "Go"
-msgstr ""
+msgstr "Ir"
 
 #: templates/orders/partials/steps/step_confirmation.html:5
 msgid "Your Order"
-msgstr ""
+msgstr "Su Orden"
 
 #: templates/orders/partials/steps/step_confirmation.html:13
 msgid "for"
-msgstr ""
+msgstr "para"
 
 #: templates/orders/partials/steps/step_confirmation.html:21
 msgid "Payment Method"
-msgstr ""
+msgstr "Forma de pago"
 
 #: templates/orders/partials/steps/step_confirmation.html:33
 msgid "Fee: "
-msgstr ""
+msgstr "Comisión: "
 
 #: templates/orders/partials/steps/step_confirmation.html:50
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: templates/orders/partials/steps/step_retry_payment.html:8
 msgid "Bad signature"
-msgstr ""
+msgstr "Mala signatura"
 
 #: templates/orders/partials/steps/step_retry_payment.html:10
 msgid "Your payment failed. You can try again or make a new order"
 msgstr ""
+"Su pago no ha tenido éxito. Puede volver a intentarlo otra vez o realizar "
+"otra orden"
 
 #: templates/orders/partials/steps/step_retry_payment.html:14
 msgid "Try again"
-msgstr ""
+msgstr "Intentar otra vez"
 
 #: templates/orders/partials/steps/step_retry_payment.html:16
 msgid "New order"
-msgstr ""
+msgstr "Nueva orden"
 
 #: templates/payments/partials/forms/card.html:11
 #: templates/payments/partials/forms/credit_card.html:22
 msgid "Card number"
-msgstr ""
+msgstr "Número de la tarjeta"
 
 #: templates/payments/partials/forms/card.html:15
 msgid "Full name"
-msgstr ""
+msgstr "Nombre completo"
 
 #: templates/payments/partials/forms/credit_card.html:16
 msgid "Firstname"
-msgstr ""
+msgstr "Nombre"
 
 #: templates/payments/partials/forms/credit_card.html:19
 msgid "Lastname"
-msgstr ""
+msgstr "Apellido"
 
 #: templates/payments/partials/forms/credit_card.html:25
 msgid "MM / YY"
-msgstr ""
+msgstr "MM / YY"
 
 #: templates/payments/partials/forms/credit_card.html:28
 msgid "CVV"
-msgstr ""
+msgstr "CVV"
 
 #: templates/payments/partials/forms/credit_card.html:36
 msgid "Email"
-msgstr ""
+msgstr "Correo electrónico"
 
 #: templates/payments/partials/forms/credit_card.html:39
 msgid "Address line 1"
-msgstr ""
+msgstr "Dirección línea 1"
 
 #: templates/payments/partials/forms/credit_card.html:42
 msgid "Address line 2"
-msgstr ""
+msgstr "Dirección línea 2"
 
 #: templates/payments/partials/forms/credit_card.html:45
 msgid "City"
-msgstr ""
+msgstr "Ciudad"
 
 #: templates/payments/partials/forms/credit_card.html:48
 msgid "state / province / region"
-msgstr ""
+msgstr "estado / provincia / región"
 
 #: templates/payments/partials/forms/credit_card.html:51
 msgid "zip or postal code"
-msgstr ""
+msgstr "código postal o zip"
 
 #: templates/payments/partials/forms/credit_card.html:57
 msgid "Select your option"
-msgstr ""
+msgstr "Seleccione su opoción"
 
 #: templates/payments/partials/forms/credit_card.html:301
 msgid "Confirm Payment"
-msgstr ""
+msgstr "Confirmar pago"
 
 #: templates/payments/partials/forms/email.html:7
 #: templates/payments/partials/forms/iban.html:7
 #: templates/payments/partials/forms/swift.html:7
 msgid "Account Holder"
-msgstr ""
+msgstr "Titular de la cuenta"
 
 #: templates/payments/partials/forms/email.html:9
 #: templates/payments/partials/forms/iban.html:9
 #: templates/payments/partials/forms/swift.html:9
 msgid "John Smith"
-msgstr ""
+msgstr "John Smith"
 
 #: templates/payments/partials/forms/email.html:15
 #: templates/payments/partials/forms/email.html:17
 msgid "Account Email"
-msgstr ""
+msgstr "Correo de la cuenta"
 
 #: templates/payments/partials/forms/email.html:21
 msgid "Save this data to my profile"
-msgstr ""
+msgstr "Guardar los datos en mi perfil"
 
 #: templates/payments/partials/forms/iban.html:15
 msgid "IBAN"
-msgstr ""
+msgstr "IBAN"
 
 #: templates/payments/partials/forms/swift.html:15
 msgid "Account number"
-msgstr ""
+msgstr "Número de cuenta"
 
 #: templates/payments/partials/forms/swift.html:17
 msgid "Account Number"
-msgstr ""
+msgstr "Número de cuenta"
 
 #: templates/payments/partials/forms/swift.html:22
 #: templates/payments/partials/forms/swift.html:24
 msgid "BIC"
-msgstr ""
+msgstr "BIC"
 
 #: templates/payments/partials/modals/payment_options.html:8
 msgid "Credit cards"
-msgstr ""
+msgstr "Tarjetas de crédito"
 
 #: templates/payments/partials/modals/payment_options.html:19
 msgid "Wallets"
-msgstr ""
+msgstr "Monederos"
 
 #: templates/payments/partials/modals/payment_options.html:35
 msgid "Bank"
-msgstr ""
+msgstr "Banco"
 
 #: templates/payments/partials/modals/payment_type_inner.html:11
 msgid "How would you like to pay?"
-msgstr ""
+msgstr "¿Como desea pagar?"
 
 #: templates/payments/partials/modals/payment_type_inner.html:13
 msgid "How would you like to get paid?"
-msgstr ""
+msgstr "¿Cómo desea que le paguemos?"
 
 #: templates/payments/partials/modals/payment_type_inner.html:21
 #: templates/payments/partials/modals/sell.html:49
 msgid "Close"
-msgstr ""
+msgstr "Cerrar"
 
 #: templates/payments/partials/modals/sell.html:21
 msgid "Previously used"
-msgstr ""
+msgstr "Usado anteriormente"
 
 #: templates/payments/partials/modals/sell.html:24
 msgid "Pick one of your saved accounts"
-msgstr ""
+msgstr "Escoja una de las cuentas que ha guardado"
 
 #: templates/payments/partials/modals/sell.html:35
 msgid "Use this "
-msgstr ""
+msgstr "Utilice este "
 
 #: templates/payments/partials/modals/sell.html:42
 msgid "Save & Continue"
-msgstr ""
+msgstr "Guardar y Continuar"
 
 #: templates/payments/partials/modals/sell.html:48
 #: templates/support/thanks.html:21
 msgid "Back"
-msgstr ""
+msgstr "Atrás"
 
 #: templates/referrals/index_referrals.html:13
 msgid "My referrals"
-msgstr ""
+msgstr "Mis usuarios referidos"
 
 #: templates/referrals/index_referrals.html:27
 msgid "details"
-msgstr ""
+msgstr "detalles"
 
 #: templates/referrals/index_referrals.html:34
 #: templates/referrals/index_referrals.html:77
 msgid "Partial phone"
-msgstr ""
+msgstr "Teléfono parcial"
 
 #: templates/referrals/index_referrals.html:40
 msgid "Confirmed orders"
-msgstr ""
+msgstr "Órdenes confirmadas"
 
 #: templates/referrals/index_referrals.html:46
 #: templates/referrals/index_referrals.html:79
 msgid "Turnover"
-msgstr ""
+msgstr "Facturación"
 
 #: templates/referrals/index_referrals.html:52
 #: templates/referrals/index_referrals.html:80
 msgid "Revenue"
-msgstr ""
+msgstr "Ingresos"
 
 #: templates/referrals/index_referrals.html:58
 #: templates/referrals/index_referrals.html:81
 msgid "Last seen"
-msgstr ""
+msgstr "Últimas vistas"
 
 #: templates/referrals/index_referrals.html:63
 #: templates/referrals/index_referrals.html:82
 msgid "Timezone"
-msgstr ""
+msgstr "Zona horaria"
 
 #: templates/referrals/index_referrals.html:78
 msgid "Confirmed orders count"
-msgstr ""
+msgstr "Recuento de órdenes confirmadas"
 
 #: templates/referrals/index_referrals.html:100
 msgid "No referrals found"
-msgstr ""
+msgstr "No se han encontrado referencias"
 
 #: templates/support/support.html:11
 msgid "Contact us"
-msgstr ""
+msgstr "Contacte con nosotros"
 
 #: templates/support/support.html:25
 msgid "Send"
-msgstr ""
+msgstr "Enviar"
 
 #: templates/support/support.html:33 templates/support/support.html:34
 msgid "support@nexchange.co.uk"
-msgstr ""
+msgstr "support@nexchange.co.uk"
 
 #: templates/support/thanks.html:8
 msgid ""
 "Thank you, our support representative will be in touch with you within 24 "
 "hours"
 msgstr ""
+"Gracias. Nuestro técnico de soporte se pondrá en contacto con usted las "
+"próximas 24 horas"
 
 #: templates/verification/upload.html:11
 msgid "Upload Verification"
-msgstr ""
+msgstr "Subir verificación"
 
 #: templates/verification/upload.html:23
 msgid "Upload"
-msgstr ""
+msgstr "Subir"
 
 #: templates/verification/upload.html:28
 msgid "Created on"
-msgstr ""
+msgstr "Creat el"
 
 #: templates/verification/upload.html:29
 msgid "Identity Document"
-msgstr ""
+msgstr "Documento de Identidad"
 
 #: templates/verification/upload.html:30
 msgid "Utility Document"
-msgstr ""
+msgstr "Recibo"
 
 #: templates/verification/upload.html:46 templates/verification/upload.html:64
 msgid "Download here"
-msgstr ""
+msgstr "Descargar aquí"
 
 #: templates/verification/upload.html:76
 msgid "No documents found"
-msgstr ""
+msgstr "No se han encontrado documentos"
 
 #: verification/views/views.py:52
 msgid "You don't have permission to download this document"
-msgstr ""
+msgstr "No tiene permiso para descargar este documento"

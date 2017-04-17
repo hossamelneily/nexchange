@@ -3,13 +3,12 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: node_modules/x-editable/test/libs/jquery/jquery-1.8.2.min.js:2
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-04-11 18:40+0000\n"
-"PO-Revision-Date: 2016-11-23 04:30+0300\n"
+"PO-Revision-Date: 2017-04-15 19:01+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ru\n"
@@ -19,30 +18,30 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
-"X-Generator: Poedit 1.8.9\n"
+"X-Generator: Poedit 2.0.1\n"
 
 #: node_modules/babel-polyfill/browser.js:1
 #: node_modules/babel-polyfill/dist/polyfill.min.js:1
 msgid "delete"
-msgstr ""
+msgstr "удалить"
 
 #: node_modules/babel-polyfill/browser.js:1
 #: node_modules/babel-polyfill/dist/polyfill.min.js:1
 msgid "has"
-msgstr ""
+msgstr "был"
 
 #: node_modules/babel-polyfill/browser.js:1
 #: node_modules/babel-polyfill/dist/polyfill.min.js:1
 msgid "get"
-msgstr ""
+msgstr "получить"
 
 #: node_modules/x-editable/src/inputs/combodate/lib/moment.min.1.7.2.js:6
 msgid "year"
-msgstr ""
+msgstr "год"
 
 #: static/bundles/bundle.js:32 static/js/modules/orders.js:83
 msgid "Minimal order amount is "
-msgstr ""
+msgstr "Минимальная сумма ордера"
 
 #: static/bundles/bundle.js:32 static/js/main.js:576 static/js/profile.js:5
 msgid "The code you sent was incorrect. Please, try again."
@@ -55,31 +54,31 @@ msgstr "Что-то пошло не так. Попробуйте еще раз."
 
 #: static/bundles/bundle.js:32 static/js/main.js:52
 msgid "Account Holder is required"
-msgstr ""
+msgstr "Введите хозяина аккаунта"
 
 #: static/bundles/bundle.js:32 static/js/main.js:55
 msgid "Account Email is required"
-msgstr ""
+msgstr "Введите Email аккаунта"
 
 #: static/bundles/bundle.js:32 static/js/main.js:56
 msgid "Please enter a valid email"
-msgstr ""
+msgstr "Пожалуйста, введите действующий Email"
 
 #: static/bundles/bundle.js:32 static/js/main.js:59
 msgid "Account Number is required"
-msgstr ""
+msgstr "Необходим номер аккаунта"
 
 #: static/bundles/bundle.js:32 static/js/main.js:60
 msgid "Please enter a valid number (i.e. 123456)"
-msgstr ""
+msgstr "Пожалуйста, введите действующий номер"
 
 #: static/bundles/bundle.js:32 static/js/main.js:63
 msgid "BIC/SWIFT is required"
-msgstr ""
+msgstr "Необходим BIC/SWIFT "
 
 #: static/bundles/bundle.js:32 static/js/main.js:64
 msgid "Please enter a BIC/SWIFT (i.e. BELADEBEXXX)"
-msgstr ""
+msgstr "Пожалуйста, введите  BIC/SWIFT (прим. BELADEBEXXX)"
 
 #: static/bundles/bundle.js:32 static/js/main.js:344
 #: static/js/modules/orders.js:378
@@ -99,7 +98,7 @@ msgstr "Заказ на покупку размещен"
 
 #: static/bundles/bundle.js:32 static/js/main.js:497
 msgid "Please correct form errors and try again"
-msgstr ""
+msgstr "Пожалуйста, внесите изменения в форму, и попробуйте снова"
 
 #: static/bundles/bundle.js:32 static/js/profile.js:22
 msgid ""
@@ -134,11 +133,11 @@ msgstr ""
 
 #: static/bundles/bundle.js:83 static/run.js:39
 msgid "You were locked out, please try again in "
-msgstr ""
+msgstr "Вы были заблокированы, попробуйте снова"
 
 #: static/bundles/bundle.js:83 static/run.js:43
 msgid "minutes"
-msgstr ""
+msgstr "минуты"
 
 #~ msgid "Invalid phone number"
 #~ msgstr "Неверный номер телефона"

@@ -18,7 +18,7 @@
             <select name="graph-range" id="graph-range"
                     class="select2 chart_panel_selectbox classic">
                 {% for range in graph_ranges %}
-                    <option value="{{  range.val }}"> {{ range.name }} </option>
+                    <option value="{{  range.val }}" {% if range.val == DEFAULT_HOUR_RANGE %}selected="selected"{% endif %}> {{ range.name }} </option>
                 {% endfor %}
             </select>
         </div>

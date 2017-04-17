@@ -94,8 +94,7 @@ def add_order(request, pair=None):
         return HttpResponse(
             template.render(context, request)
         )
-    else:
-        pass
+
     pairs = Pair.objects.filter(disabled=False)
     base_currencies = set(pair.base.code for pair in pairs)
 
@@ -106,6 +105,7 @@ def add_order(request, pair=None):
         'pairs': pairs,
         'base_currencies': base_currencies,
         'action': my_action,
+        'DEFAULT_HOUR_RANGE': settings.DEFAULT_HOUR_RANGE,
     }
 
     return HttpResponse(template.render(context, request))
