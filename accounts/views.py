@@ -272,19 +272,23 @@ def user_address_ajax(request):
 @login_required
 def create_withdraw_address(request, order_pk):
     error_message = 'Error creating address: %s'
-    if not request.user.profile.is_verified:
-        resp = {
-            'status': 'ERR',
-            'msg': 'You need to be a verified user to set withdrawal address.'
-        }
-        return JsonResponse(resp, safe=False)
+    order = Order.objects.get(pk=order_pk)
+    if not order.user.profile.is_verified and not order.exchange:
+        pm = order.payment_preference.payment_method
+        if pm.required_verification_buy:
+            resp = {
+                'status': 'ERR',
+                'msg': 'You need to be a verified user to set withdrawal '
+                       'address for order with payment method \'{}\''
+                       ''.format(pm.name)
+            }
+            return JsonResponse(resp, safe=False)
 
     address = request.POST.get('value')
     addr = Address()
     addr.type = Address.WITHDRAW
     addr.user = request.user
     addr.address = address
-    order = Order.objects.get(pk=order_pk)
     if order.order_type == Order.BUY:
         currency = order.pair.base
     else:

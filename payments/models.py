@@ -63,6 +63,7 @@ class PaymentMethod(TimeStampedModel, SoftDeletableModel):
     checkout_type = models.IntegerField(
         choices=CHECKOUT_TYPES, default=MANUAL
     )
+    required_verification_buy = models.BooleanField(default=False)
 
     @property
     def auto_checkout(self):
@@ -138,6 +139,16 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
 
         return payment_method[0] if len(payment_method) \
             else PaymentMethod.objects.get(name='Cash')
+
+    @property
+    def user_verified_for_buy(self):
+        required_verification = self.payment_method.\
+            required_verification_buy
+        if not required_verification:
+            return True
+        if not self.user.profile.is_verified:
+            return False
+        return True
 
     def __str__(self):
         return "{} {}".format(self.payment_method.name,

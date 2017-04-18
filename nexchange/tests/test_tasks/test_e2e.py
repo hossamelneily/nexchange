@@ -3,6 +3,7 @@ from core.tests.base import WalletBaseTestCase
 from core.models import Address, Transaction
 from orders.models import Order
 from payments.models import Payment, UserCards
+from verification.models import Verification
 from unittest.mock import patch
 import requests_mock
 from payments.tasks.generic.ok_pay import OkPayPaymentChecker
@@ -14,7 +15,8 @@ from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
     update_pending_transactions_invoke
 from orders.task_summary import sell_order_release_invoke,\
     buy_order_release_by_reference_invoke, exchange_order_release_invoke,\
-    exchange_order_release_periodic
+    exchange_order_release_periodic, buy_order_release_by_wallet_invoke,\
+    buy_order_release_by_rule_invoke
 from django.conf import settings
 from decimal import Decimal
 from django.core.urlresolvers import reverse
@@ -749,3 +751,54 @@ class SofortEndToEndTestCase(BaseSofortAPITestCase,
         self.assertEqual(True, p.is_complete)
         self.assertEqual(True, p.is_redeemed)
         self.assertEqual(self.order.status, Order.COMPLETED)
+
+    @data_provider(lambda: (
+        (buy_order_release_by_reference_invoke,),
+        (buy_order_release_by_wallet_invoke,),
+        (buy_order_release_by_rule_invoke,),
+    ))
+    @requests_mock.mock()
+    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch('nexchange.utils.api.execute_txn')
+    @patch('nexchange.utils.api.prepare_txn')
+    def test_do_not_release_unverified(self, release_task, mock, prepare_txn,
+                                       execute_txn, reserve_txn):
+        self._create_order(amount_base=2.0, pair_name='BTCEUR',
+                           payment_preference=self.sofort_pref)
+        self.sofort_pref.required_verification_buy = True
+        self.sofort_pref.save()
+        self.transaction_data.update({
+            'order_id': self.order.unique_reference,
+            'amount': self.order.amount_quote,
+            'currency': self.order.pair.quote.code,
+            'transaction_id': str(time())
+        })
+        transaction_xml = self.create_transaction_xml(
+            **self.transaction_data
+        )
+        self.mock_transaction_history(mock, transaction_xml)
+        self.payments_importer.apply()
+        payment = Payment.objects.get(
+            amount_cash=self.order.amount_quote,
+            currency=self.order.pair.quote,
+            reference=self.order.unique_reference
+        )
+        verifications = Verification.objects.filter(user=payment.user)
+        for ver in verifications:
+            ver.id_status = Verification.REJECTED
+            ver.util_status = Verification.REJECTED
+            ver.save()
+        prepare_txn.return_value = str(time())
+        execute_txn.return_value = True
+        reserve_txn.return_value = {'status': 'completed'}
+        self.order.refresh_from_db()
+        self.order.withdraw_address = Address.objects.filter(
+            type=Address.WITHDRAW, currency=self.BTC)[0]
+        self.order.save()
+
+        release_task.apply([payment.pk])
+
+        self.order.refresh_from_db()
+
+        self.assertNotIn(self.order.status, Order.IN_RELEASED)
+        self.assertEqual(self.order.status, Order.PAID)

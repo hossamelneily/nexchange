@@ -139,6 +139,8 @@ class BaseBuyOrderRelease(BaseOrderRelease):
 
         order_paid = order.is_paid
 
+        verification_passed = payment.payment_preference.user_verified_for_buy
+
         if verbose_match and payment.reference:
             payment.flag(__name__)
             self.logger.warn('order: {} payment: {} '
@@ -163,7 +165,8 @@ class BaseBuyOrderRelease(BaseOrderRelease):
                              'RELEASE BY VERBOSE_MATCH (cross reference)'.
                              format(order, payment))
 
-        match = user_matches and details_match and ref_matches and order_paid
+        match = user_matches and details_match and ref_matches and order_paid\
+            and verification_passed
 
         if match:
             self.logger.info('Order {}  VALID {}'

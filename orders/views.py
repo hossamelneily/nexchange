@@ -311,9 +311,12 @@ def update_withdraw_address(request, pk):
     elif order.withdrawal_address_frozen:
         return HttpResponseForbidden(
             _('This order can not be edited because it is already released'))
-    if not order.user.profile.is_verified:
-        return HttpResponseForbidden(
-            _('You need to be a verified user to set withdrawal address.'))
+    if not order.user.profile.is_verified and not order.exchange:
+        pm = order.payment_preference.payment_method
+        if pm.required_verification_buy:
+            return HttpResponseForbidden(
+                _('You need to be a verified user to set withdrawal address '
+                  'for order with payment method \'{}\'').format(pm.name))
 
     if address_id:
         # be sure that user owns the address indicated
