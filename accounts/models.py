@@ -60,6 +60,9 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     sig_key = models.CharField(max_length=64, blank=True)
     duplicate_of = models.ForeignKey('Profile', blank=True,
                                      null=True, default=None)
+    affiliate_address = models.ForeignKey(
+        'core.Address', null=True, default=None, blank=True
+    )
 
     @property
     def partial_phone(self):

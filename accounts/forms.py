@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 
 from accounts.models import NexchangeUser as User
 from accounts.models import Profile
+from django.utils.translation import ugettext_lazy as _
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -48,6 +49,20 @@ class UpdateUserProfileForm(forms.ModelForm):
         model = Profile
         fields = ['first_name', 'last_name',
                   'notify_by_email', 'notify_by_phone']
+    affiliate_address = forms.CharField(
+        required=False,
+        label=_('Affiliate Address'),
+        help_text=_('Contact support to change Affiliate Address.'),
+        widget=forms.TextInput(
+            attrs={
+                'disabled': 'disabled',
+                'placeholder': _(
+                    'To become affiliate you need to complete at least one'
+                    ' order with withdraw address (Buy Crypto currency '
+                    'from us).'),
+            }
+        )
+    )
 
 
 class LoginForm(AuthenticationForm):
