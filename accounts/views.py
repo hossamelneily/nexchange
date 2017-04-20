@@ -30,6 +30,8 @@ from core.models import Address
 from core.validators import (validate_address, validate_btc, validate_ltc,
                              validate_eth)
 from referrals.forms import ReferralTokenForm
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 
 
 def user_registration(request):
@@ -315,3 +317,28 @@ def create_withdraw_address(request, order_pk):
         resp = {'status': 'ERR', 'msg': msg}
 
     return JsonResponse(resp, safe=False)
+
+
+def change_password(request):
+    main_form = PasswordChangeForm
+    if request.user.password == '':
+        main_form = SetPasswordForm
+    if request.method == 'POST':
+        form = main_form(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(
+                request, _('Your password was successfully updated!')
+            )
+            redirect_url = reverse('accounts.login')
+            return redirect(redirect_url)
+        else:
+            messages.error(
+                request, _('Please correct the error below.')
+            )
+    else:
+        form = main_form(request.user)
+    return render(request, 'accounts/change_password.html', {
+        'form': form
+    })

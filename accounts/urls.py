@@ -51,4 +51,6 @@ account_urls = [
     # after saved the new passwd
     url(r'^password/done/$', auth_views.password_reset_complete,
         {'template_name': 'accounts/password_reset_complete.html'}),
+    url(r'^password/change/$', views.change_password,
+        name='accounts.change_password'),
 ]
