@@ -41,7 +41,7 @@ API1_PASS = ''
 
 ADMINS = [
     ('Oleg', 'oleg@onit.ws'),
-    ('Sarunas', 'sarunas.azna@gmail.com')
+    ('Sarunas', 'sarunas@nexchange.co.uk')
 ]
 
 LOCALE_PATHS = (
