@@ -177,7 +177,7 @@ def verify_phone(request):
             user = User.objects.get(username=phone)
         except User.DoesNotExist:
             return render_response(
-                'Please make sure you phone is correct',
+                'Please make sure your phone is correct',
                 400
             )
 
@@ -229,6 +229,7 @@ def verify_phone(request):
         )
 
 
+# FIXME: merge user_by_phone and create_one_password
 @csrf_exempt
 @recaptcha_required
 @not_logged_in_required

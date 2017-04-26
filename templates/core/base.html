@@ -41,10 +41,11 @@
     </div>
     {% include 'core/partials/supported_payments.html' %} {% include 'core/partials/popular_faq.html' %} {% include 'core/partials/seo_footer.html' %}
     <script type="text/javascript" src="/en/jsi18n/"></script>
-    <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?render=explicit" async defer></script>
-    <script>
+
+    <script type="text/javascript">
         window.recaptchaSitekey = '{{ RECAPTCHA_SITEKEY }}';
     </script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <link rel="stylesheet" href="{% static 'bundles/bundle.css' %}">
     <script type="text/javascript" src="{% static 'bundles/bundle.js' %}"></script>

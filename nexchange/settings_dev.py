@@ -3,6 +3,8 @@ from nexchange import settings
 
 DEBUG = True
 
+ADMINS = []
+
 
 # Local and staging
 INTERNAL_IPS = ('127.0.0.1', '192.168.99.100', '192.168.43.146')
@@ -48,7 +50,7 @@ DEBUG_TOOLBAR_CONFIG = {
 
 # Lockout only for 1 mins on dev
 AXES_LOGIN_FAILURE_LIMIT = 10
-AXES_COOLOFF_TIME = timedelta(minutes=5)
+AXES_COOLOFF_TIME = timedelta(seconds=30)
 CELERY_ALWAYS_EAGER = False
 
 # SECRET KEY TEST
@@ -85,6 +87,7 @@ API1_IS_TEST = False
 CARDS_RESERVE_COUNT = os.getenv('CARDS_RESERVE_COUNT',
                                 settings.CARDS_RESERVE_COUNT)
 
+
 # ROBOKASSA TEST
 ROBOKASSA_IS_TEST = 1
 ROBOKASSA_LOGIN = 'nexchangeBTC'
@@ -106,10 +109,11 @@ TWILIO_AUTH_TOKEN = 'ce656e45dd35918a0e9e76b7a4cd1ec8'
 TWILIO_PHONE_FROM_UK = '+15005550006'
 TWILIO_PHONE_FROM_US = '+15005550002'
 
+
 # Smtp
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_HOST_USER = 'onit_demo'
-EMAIL_HOST_PASSWORD = 'Fo19F2fJe53BVPDnJl3DSZ'
+EMAIL_HOST_PASSWORD = ''
 
 LOGGING = {
     'version': 1,

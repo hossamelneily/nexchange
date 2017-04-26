@@ -40,8 +40,9 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.withdraw_address = '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi'
         self.issavescreen = True
         self.url = self.live_server_url
+        local_root_path = '{}_{}'.format(int(time()), self._testMethodName)
         self.screenpath = os.path.join(
-            os.path.dirname(__file__), 'Screenshots', str(time()))
+            os.path.dirname(__file__), 'Screenshots', local_root_path)
         self.screenpath2 = 'unsorted'
         self.mkdir(self.screenpath)
         user_agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64)' \
@@ -64,6 +65,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.shot_base64 = None
         self.logged_in = False
         self.recursive_withdraw_calls = 0
+        self.xpath_query_contains_text = "//*[contains(text(), '{}')]"
 
     def tearDown(self):
         super(BaseTestUI, self).tearDown()
@@ -108,6 +110,38 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.driver.delete_all_cookies()
         self.logged_in = False
 
+    def fill_element_by_id(self, element_id, value):
+        element = self.driver.find_element_by_id(element_id)
+        element.clear()
+        element.send_keys(value)
+        self.do_screenshot('after fill element:{}, with value:{}'.format(
+            element_id, value
+        ))
+
+    def wait_until_clickable_element_by_name(
+            self, name, by=By.CLASS_NAME, screenshot=False,
+            xpath_query=None):
+
+        if xpath_query is None:
+            xpath_query = self.xpath_query_contains_text
+        if by == By.XPATH:
+            query = xpath_query.format(name)
+        else:
+            query = name
+        element = self.wait.until(
+            EC.element_to_be_clickable((by, query))
+        )
+        if screenshot:
+            self.do_screenshot('element: {} is clickable'.format(name))
+        return element
+
+    def click_element_by_name(self, name, by=By.CLASS_NAME,
+                              screenshot=False, xpath_query=None):
+        self.wait_until_clickable_element_by_name(
+            name, by, xpath_query=xpath_query).click()
+        if screenshot:
+            self.do_screenshot('after click on: {}'.format(name))
+
     @requests_mock.mock()
     def login_phone(self, mock):
         mock.post(
@@ -144,6 +178,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         if not self.selenium_user.profile.is_verified:
             Verification(user=self.selenium_user, id_status=Verification.OK,
                          util_status=Verification.OK).save()
+        sleep(self.timeout / 60)
         self.do_screenshot('After Login')
         self.logged_in = True
 

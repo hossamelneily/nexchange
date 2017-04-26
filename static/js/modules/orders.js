@@ -224,7 +224,6 @@
 
     function setButtonDefaultState (tabId) {
         if (tabId === 'menu2') {
-            googleObject.doRender();
             var modifier = window.ACTION_SELL ? 'btn-danger' : 'btn-success';
             $('.next-step').removeClass('btn-info').addClass(modifier);
         } else {
