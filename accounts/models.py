@@ -8,6 +8,7 @@ from phonenumber_field.validators import validate_international_phonenumber
 
 from core.common.models import (SoftDeletableModel, TimeStampedModel,
                                 UniqueFieldMixin)
+from core.models import Address
 from orders.models import Order
 from payments.models import FailedRequest
 from referrals.models import ReferralCode
@@ -126,6 +127,18 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     def failed_requests(self):
         failures = FailedRequest.objects.filter(order__user=self.user)
         return len(failures)
+
+    @property
+    def completed_orders(self):
+        orders = Order.objects.filter(status=Order.COMPLETED, user=self.user)
+        return orders
+
+    @property
+    def owned_withdraw_addresses(self):
+        addresses = Address.objects.filter(
+            user=self.user, type=Address.WITHDRAW, currency__is_crypto=True
+        )
+        return addresses
 
 
 # TODO: refactor this Profile is not writable via user
