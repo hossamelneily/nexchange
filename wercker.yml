@@ -279,12 +279,14 @@ build:
           export EMAIL_HOST_USER=${EMAIL_HOST_USER}
           export EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
           export EMAIL_PORT=${EMAIL_PORT}
-
           #RPC1
           export RPC_RPC1_USER=${RPC_RPC1_USER}
           export RPC_RPC1_PASSWORD=${RPC_RPC1_PASSWORD}
           export RPC_RPC1_PORT=${RPC_RPC1_PORT}
           export RPC_RPC1_HOST=${RPC_RPC1_HOST}
+          # SOCIAL login
+          export SOCIAL_AUTH_TWITTER_KEY=${SOCIAL_AUTH_TWITTER_KEY}
+          export SOCIAL_AUTH_TWITTER_SECRET=${SOCIAL_AUTH_TWITTER_SECRET}
           #
           while ! nc -z ${POSTGIS_PORT_5432_TCP_ADDR} ${POSTGIS_PORT_5432_TCP_PORT}
           do

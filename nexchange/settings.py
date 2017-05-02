@@ -129,7 +129,8 @@ INSTALLED_APPS = [
     'axes',
     'nexchange',
     'support',
-    'loginurl'
+    'loginurl',
+    'social_django',
 ]
 
 
@@ -262,6 +263,7 @@ MIDDLEWARE_CLASSES = [
     'referrals.middleware.ReferralMiddleWare',
     'core.middleware.TimezoneMiddleware',
     'core.middleware.LastSeenMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware'
 
 ]
 
@@ -283,6 +285,8 @@ TEMPLATES = [
                 'core.context_processors.country_code',
                 'core.context_processors.recaptcha',
                 'articles.context_processors.cms',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
                 # 'django.core.context_processors.request'
             ],
         },
@@ -332,6 +336,18 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_PROFILE_MODULE = 'core.Profile'
 
+# SOCIAL Login
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.twitter.TwitterOAuth',
+    'social_core.backends.facebook.FacebookOAuth2',
+
+    'django.contrib.auth.backends.ModelBackend',
+)
+SOCIAL_AUTH_TWITTER_KEY = 'xnXj4eEWnImoBMkkLClOaRZTn'
+SOCIAL_AUTH_TWITTER_SECRET =\
+    'mG4na89H7NXRuz4hkeztYdDpWR1WmIXmdGooZ2UBgsobJpiIOr'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/

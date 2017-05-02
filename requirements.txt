@@ -44,3 +44,4 @@ python-bitcoinrpc
 urllib3
 pillow
 -e git+https://github.com/SarunasAzna/django-loginurl.git#egg=loginurl
+social-auth-app-django==1.1.0
