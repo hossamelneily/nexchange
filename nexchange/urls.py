@@ -67,6 +67,11 @@ urlpatterns = i18n_patterns(
         name='core.breadcrumbs'),
     url(r'session_security/', include('session_security.urls')),
 )
+# OAUTH outside i18n so that we do not need to explisitly define every
+# redirect address in social apps
+urlpatterns.append(
+    url(r'oauth/', include('social_django.urls', namespace='oauth.social'))
+)
 
 if settings.DEBUG:
     # pragma: no cover

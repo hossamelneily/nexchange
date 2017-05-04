@@ -1,5 +1,5 @@
 import django.contrib.auth.views as auth_views
-from django.conf.urls import url, include
+from django.conf.urls import url
 
 from accounts import views
 from accounts.forms import LoginForm
@@ -65,5 +65,4 @@ account_urls = [
         {'template_name': 'accounts/password_reset_complete.html'}),
     url(r'^password/change/$', views.change_password,
         name='accounts.change_password'),
-    url(r'^oauth/', include('social_django.urls', namespace='accounts.social'))
 ]
