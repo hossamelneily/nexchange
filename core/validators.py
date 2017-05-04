@@ -28,7 +28,7 @@ def validate_bc(value):
 
 def validate_btc(value):
     p = re.compile(
-        "^1[1-9A-Za-z]{25,34}$"
+        "^(1|3)[1-9A-Za-z]{25,34}$"
     )
 
     if not p.match(value):
