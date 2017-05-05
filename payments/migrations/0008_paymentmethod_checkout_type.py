@@ -15,6 +15,16 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='paymentmethod',
             name='checkout_type',
-            field=models.IntegerField(choices=[(0, 'MANUAL'), (1, 'AUTO'), (2, 'MANUAL & AUTO'), (3, 'Checkout on Order Success')], default=0),
+            field=models.IntegerField(
+                choices=[
+                    (0,
+                     'MANUAL'),
+                    (1,
+                     'AUTO'),
+                    (2,
+                     'MANUAL & AUTO'),
+                    (3,
+                     'Checkout on Order Success')],
+                default=0),
         ),
     ]

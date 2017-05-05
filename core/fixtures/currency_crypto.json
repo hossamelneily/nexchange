@@ -5,9 +5,13 @@
     "fields": {
       "code": "BTC",
       "name": "bitcoin",
+      "ticker": "kraken",
+      "wallet": "api1",
+      "algo": "sha256",
       "is_crypto": 1,
       "min_confirmations": 1,
       "min_confirmation_high": 6,
+      "median_confirmation": 60,
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }
@@ -18,8 +22,12 @@
     "fields": {
       "code": "LTC",
       "name": "litecoin",
+      "ticker": "kraken",
+      "wallet": "api1",
+      "algo": "scrypt",
       "min_confirmations": 6,
       "is_crypto": 1,
+      "median_confirmation": 15,
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }
@@ -30,8 +38,28 @@
     "fields": {
       "code": "ETH",
       "name": "ethereum",
+      "ticker": "kraken",
+      "wallet": "api1",
+      "algo": "ethash",
       "is_crypto": 1,
       "min_confirmations": 12,
+      "median_confirmation": 15,
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 33,
+    "fields": {
+      "code": "RNS",
+      "name": "renos",
+      "ticker": "cryptopia",
+      "wallet": "rpc1",
+      "algo": "scrypt",
+      "is_crypto": 1,
+      "min_confirmations": 4,
+      "median_confirmation": 15,
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }

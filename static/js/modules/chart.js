@@ -1,3 +1,5 @@
+/*jshint esversion: 6 */
+
 import highcharts from 'highcharts';
 import highchartsMore from 'highcharts-more';
 highchartsMore(highcharts);
@@ -97,7 +99,6 @@ highchartsMore(highcharts);
                                     clearInterval(intervalId);
                                 } else {
                                     $.get(tickerLatestUrl, function(resdata) {
-
                                         var lastdata = responseToChart(resdata).pair,
                                             points = points || series.points;
                                         if (hours < 1) {
@@ -108,8 +109,6 @@ highchartsMore(highcharts);
                                                 _lastadata[1] = _lastadata[2];
                                                 _lastadata[2] = a;
                                             }
-                                            //fix gap issue
-                                            _lastadata[0] = points[points.length - 1].x + 10;
                                             series.addPoint(_lastadata, true, false, {
                                                 duration: 500,
                                                 easing: 'ease-in'

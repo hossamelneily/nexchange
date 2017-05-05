@@ -3,8 +3,11 @@ import requests
 import requests_cache
 
 from ticker.models import Price
-from ticker.tasks.generic.base import BaseTicker
+from ticker.tasks.generic.base import BaseTicker,\
+    KrakenBaseTicker, CryptopiaBaseTicker
 from django.conf import settings
+from .base import cryptopia_adapter
+
 
 
 requests_cache.install_cache('btc_crypto_cache',
@@ -16,7 +19,7 @@ class CryptoFiatTicker(BaseTicker):
     def get_ticker_crypto_fiat(self):
         price = self.handle()
         prices = self.convert_fiat(price)
-        self.get_kraken_base_multiplier()
+        self.get_btc_base_multiplier()
         if prices:
             ticker = self.create_ticker(
                 prices['ask'], prices['bid']
@@ -57,7 +60,7 @@ class CryptoFiatTicker(BaseTicker):
         return prices
 
     def get_fixer_info(self):
-        rate_info = requests.get(self.EUR_RESOURCE).json()
+        rate_info = requests.get(self.FIAT_RATE_RESOURCE).json()
         return rate_info
 
     def get_rate(self, code, rate_usd, rate_info):
@@ -67,3 +70,13 @@ class CryptoFiatTicker(BaseTicker):
             eur_base = Decimal(rate_info['rates'][code])
         rate = Decimal(rate_info['rates']['USD']) * rate_usd / eur_base
         return rate
+
+
+class CryptoFiatKrakenTicker(CryptoFiatTicker, KrakenBaseTicker):
+    pass
+
+
+class CryptoFiatCryptopiaTicker(CryptoFiatTicker, CryptopiaBaseTicker):
+    def __init__(self, *args, **kwargs):
+        super(CryptoFiatCryptopiaTicker, self).__init__(*args, **kwargs)
+        self.bitcoin_api_adapter = cryptopia_adapter

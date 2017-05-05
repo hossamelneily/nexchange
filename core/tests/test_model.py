@@ -1,8 +1,7 @@
 from django.test import TestCase
-
-from core.common.models import UniqueFieldMixin
-from core.models import Currency
 from core.tests.base import OrderBaseTestCase
+from core.models import AddressReserve, Currency
+from core.common.models import UniqueFieldMixin
 
 
 class ValidateUniqueFieldMixinTestCase(TestCase):
@@ -31,3 +30,22 @@ class CurrencyTestCase(OrderBaseTestCase):
 
     def test_print_currency_name(self):
         self.assertEqual(str(self.currency), 'USD')
+
+
+class AddressReserveTest(OrderBaseTestCase):
+
+    def create_card(self):
+
+        self.data = {
+            'card_id': 'ade869d8-7913-4f67-bb4d-72719f0a2be0',
+            'address': '145ZeN94MAtTmEgvhXEch3rRgrs7BdD2cY',
+            'currency': self.USD,
+            'user': self.user,
+        }
+        AddressReserves = AddressReserve.objects.create(**self.data)
+        return AddressReserves
+
+    def test_AddressReserves_creation(self):
+        c = self.create_card()
+        self.assertTrue(isinstance(c, AddressReserve))
+        self.assertEqual(c.__str__(), c.card_id)

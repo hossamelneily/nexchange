@@ -38,7 +38,7 @@ class TestPrice(TestCase):
     @skip('Invalid, ticker structure changed')
     def test_eur_price(self):
         ret = MagicMock(return_value={'rates': self.rates})
-        self.adapter.register_uri('GET', Price.EUR_RESOURCE, ret)
+        self.adapter.register_uri('GET', Price.FIAT_RATE_RESOURCE, ret)
 
         p = Price(**self.data)
         p.save()
@@ -61,7 +61,7 @@ class TestPrice(TestCase):
     @skip('Invalid, ticker structure changed')
     def test_price(self):
         ret = MagicMock(return_value={'rates': self.rates})
-        self.adapter.register_uri('GET', Price.EUR_RESOURCE, ret)
+        self.adapter.register_uri('GET', Price.FIAT_RATE_RESOURCE, ret)
 
         p = Price(**self.data)
         p.save()

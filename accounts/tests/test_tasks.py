@@ -13,11 +13,10 @@ class TransactionImportTaskTestCase(TransactionImportBaseTestCase):
         self.base_test_create_transactions_with_task(self.run_method)
 
     def test_create_transactions_with_None_currency_address(self):
-        self.address = Address(
+        self.address, created = Address.objects.get_or_create(
             name='test address',
             address=self.wallet_address,
             user=self.user,
             type=Address.DEPOSIT
         )
-        self.address.save()
         self.base_test_create_transactions_with_task(self.run_method)

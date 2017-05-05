@@ -12,6 +12,7 @@ def sell_order_release():
         transactions__isnull=False,
         exchange=False
     )
+
     for order in orders[::-1]:
         send_money_status = utils.send_money(order.pk)
         if send_money_status:

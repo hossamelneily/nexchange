@@ -84,6 +84,9 @@ PAYEER_API_KEY = '12345'
 API1_USER = ''
 API1_PASS = ''
 API1_IS_TEST = False
+API1_ID_C1 = 'cb970e70-7dfa-4d80-bfad-627c863c5e23'
+API1_ID_C2 = '3ba17423-50d8-4f9c-88f1-ad84872dcfc4'
+API1_ID_C3 = '32339baf-3854-4204-8d46-79b2d025b036'
 CARDS_RESERVE_COUNT = os.getenv('CARDS_RESERVE_COUNT',
                                 settings.CARDS_RESERVE_COUNT)
 

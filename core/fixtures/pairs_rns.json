@@ -1,0 +1,409 @@
+[
+  {
+  "model": "core.pair",
+  "pk": 94,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.969Z",
+    "modified_on": "2017-03-01T12:49:28.970Z",
+    "base": 33,
+    "quote": 4,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSUSD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 95,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.973Z",
+    "modified_on": "2017-03-01T12:49:28.974Z",
+    "base": 33,
+    "quote": 5,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSRUB",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 96,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.976Z",
+    "modified_on": "2017-03-01T12:49:28.978Z",
+    "base": 33,
+    "quote": 6,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSEUR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 97,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.981Z",
+    "modified_on": "2017-03-01T12:49:28.982Z",
+    "base": 33,
+    "quote": 7,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSGBP",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 98,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.986Z",
+    "modified_on": "2017-03-01T12:49:28.987Z",
+    "base": 33,
+    "quote": 8,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSJPY",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 99,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.991Z",
+    "modified_on": "2017-03-01T12:49:28.992Z",
+    "base": 33,
+    "quote": 9,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSHRK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 100,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.995Z",
+    "modified_on": "2017-03-01T12:49:28.996Z",
+    "base": 33,
+    "quote": 10,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSCHF",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 101,
+  "fields": {
+    "created_on": "2017-03-01T12:49:28.998Z",
+    "modified_on": "2017-03-01T12:49:28.999Z",
+    "base": 33,
+    "quote": 11,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSPLN",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 102,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.002Z",
+    "modified_on": "2017-03-01T12:49:29.003Z",
+    "base": 33,
+    "quote": 12,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSRON",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 103,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.006Z",
+    "modified_on": "2017-03-01T12:49:29.007Z",
+    "base": 33,
+    "quote": 13,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSBGN",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 104,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.010Z",
+    "modified_on": "2017-03-01T12:49:29.011Z",
+    "base": 33,
+    "quote": 14,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSCZK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 105,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.014Z",
+    "modified_on": "2017-03-01T12:49:29.015Z",
+    "base": 33,
+    "quote": 15,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSAUD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 106,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.018Z",
+    "modified_on": "2017-03-01T12:49:29.019Z",
+    "base": 33,
+    "quote": 16,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSCAD",
+    
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 107,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.021Z",
+    "modified_on": "2017-03-01T12:49:29.022Z",
+    "base": 33,
+    "quote": 17,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSNOK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 108,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.025Z",
+    "modified_on": "2017-03-01T12:49:29.027Z",
+    "base": 33,
+    "quote": 18,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSSEK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 109,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.030Z",
+    "modified_on": "2017-03-01T12:49:29.032Z",
+    "base": 33,
+    "quote": 19,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSDKK",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 110,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.034Z",
+    "modified_on": "2017-03-01T12:49:29.035Z",
+    "base": 33,
+    "quote": 20,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSHUF",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 111,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.040Z",
+    "modified_on": "2017-03-01T12:49:29.041Z",
+    "base": 33,
+    "quote": 21,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSTRY",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 112,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.044Z",
+    "modified_on": "2017-03-01T12:49:29.045Z",
+    "base": 33,
+    "quote": 22,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSZAR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 113,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.047Z",
+    "modified_on": "2017-03-01T12:49:29.048Z",
+    "base": 33,
+    "quote": 23,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSNZD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 114,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.051Z",
+    "modified_on": "2017-03-01T12:49:29.052Z",
+    "base": 33,
+    "quote": 24,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSBRL",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 115,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.054Z",
+    "modified_on": "2017-03-01T12:49:29.055Z",
+    "base": 33,
+    "quote": 25,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSIDR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 116,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.058Z",
+    "modified_on": "2017-03-01T12:49:29.060Z",
+    "base": 33,
+    "quote": 26,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSILS",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 117,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.062Z",
+    "modified_on": "2017-03-01T12:49:29.064Z",
+    "base": 33,
+    "quote": 27,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSINR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 118,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.066Z",
+    "modified_on": "2017-03-01T12:49:29.067Z",
+    "base": 33,
+    "quote": 28,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSKRW",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 119,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.070Z",
+    "modified_on": "2017-03-01T12:49:29.071Z",
+    "base": 33,
+    "quote": 29,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSMXN",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 120,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.075Z",
+    "modified_on": "2017-03-01T12:49:29.076Z",
+    "base": 33,
+    "quote": 30,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSMYR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 121,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.079Z",
+    "modified_on": "2017-03-01T12:49:29.080Z",
+    "base": 33,
+    "quote": 31,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSPHP",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 122,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.083Z",
+    "modified_on": "2017-03-01T12:49:29.084Z",
+    "base": 33,
+    "quote": 32,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "RNSTHB",
+    "disabled": false
+  }
+}
+]

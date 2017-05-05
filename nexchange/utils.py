@@ -6,7 +6,6 @@ from django.core.mail import send_mail
 from requests import get
 from twilio.exceptions import TwilioException
 from twilio.rest import TwilioRestClient
-from uphold import Uphold
 from suds.client import Client
 from suds import WebFault
 import datetime
@@ -17,10 +16,6 @@ import json
 from django.utils.log import AdminEmailHandler
 from accounts.models import SmsToken
 import string
-
-api = Uphold(settings.API1_IS_TEST)
-api.auth_basic(settings.API1_USER, settings.API1_PASS)
-logging.basicConfig(level=settings.BASIC_LOGGING_LEVEL)
 
 
 class Del:
@@ -100,31 +95,9 @@ def send_auth_sms(user):
     return message
 
 
-def print_traceback():
+def get_traceback():
     ex_type, ex, tb = sys.exc_info()
-    traceback.print_tb(tb)
-
-
-def release_payment(withdraw, amount, type_):
-    # TODO: take from user cards
-    if type_ == 'BTC':
-        card = settings.API1_ID_C1
-    elif type_ == 'LTC':
-        card = settings.API1_ID_C2
-    elif type_ == 'ETH':
-        card = settings.API1_ID_C3
-    else:
-        raise ValueError('Card for type {} not found'.format(type_))
-    try:
-        txn_id = api.prepare_txn(card,
-                                 withdraw, amount, type_)
-        print(txn_id)
-        res = api.execute_txn(card, txn_id)
-        print(res)
-        return txn_id
-    except Exception as e:
-        print('error {}'.format(e))
-        print_traceback()
+    return traceback.format_tb(tb)
 
 
 def check_address_blockchain(address):
@@ -214,46 +187,7 @@ def check_transaction_blockchain(tx):
         return False
 
 
-def check_transaction_uphold(tx):
-    if not tx:
-        return False
-
-    res = api.get_reserve_transaction(tx.tx_id_api)
-    if not tx.tx_id:
-        tx_id = res.get('params', {}).get('txid')
-        if tx_id is not None:
-            tx.tx_id = tx_id
-            tx.save()
-    print("status: {}".format(res.get('status')))
-    return res.get('status') == 'completed'
-
-
-class CreateUpholdCard(Uphold):
-
-    def new_card(self, currency):
-        """
-        Create a new card
-        """
-
-        fields = {
-            'label': 'User card',
-            'currency': currency,
-        }
-        return self._post('/me/cards/', fields)
-
-    def add_address(self, card, network):
-        """
-        Add to card address
-        """
-
-        fields = {
-            'network': network,
-        }
-        return self._post('/me/cards/{}/addresses'.format(card), fields)
-
-
 class BasePaymentApi:
-
     def __init__(self):
         self.logger = get_nexchange_logger(
             self.__class__.__name__,
@@ -571,7 +505,7 @@ def get_nexchange_logger(name, with_console=True, with_email=False):
 
     if not handlers:
         print('WARNING: logger with no handlers')
-        print_traceback()
+        print(get_traceback())
 
     return logger
 
@@ -584,28 +518,3 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
-
-def get_uphold_card_transactions(card_id, trans_type='incoming'):
-    try:
-        all_txs = api.get_card_transactions(card_id)
-        txs = []
-        if trans_type == 'incoming':
-            for tx in all_txs:
-                if 'CardId' in tx['destination']:
-                    if tx['destination']['CardId'] == card_id:
-                        txs.append(tx)
-
-        elif trans_type == 'outgoing':
-            for tx in all_txs:
-                if 'CardId' in tx['destination']:
-                    if tx['destination']['CardId'] == card_id:
-                        continue
-                txs.append(tx)
-        elif trans_type == 'all':
-            txs = all_txs
-        else:
-            raise ValueError('Bad transaction type \'{}\''.format(trans_type))
-        return txs
-    except Exception as e:
-        print('error {}'.format(e))
-        print_traceback()

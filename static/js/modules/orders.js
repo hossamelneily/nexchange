@@ -9,7 +9,8 @@
          currency = null,
          animationDelay = 3000,
          beamerShowDelay = 1000,
-         minOrderCoin = 0.01;
+         minOrderCoin = 0.01,
+         minOrderCash = 10;
 
     $(function() {
         function setAsPaidFlow () {
@@ -55,17 +56,17 @@
         }
     });
 
-    function orderSmallerThanMin (amountCoin) {
-        var val = parseFloat(amountCoin.val());
-        return val < minOrderCoin;
+    function orderSmallerThanMin (amount, minOrder) {
+        var val = parseFloat(amount.val());
+        return val < minOrder;
     }
 
     function updateOrder (elem, isInitial, currency, cb) {
         var val,
             rate,
-            msg,
             pair,
             amountCoin = $('.amount-coin'),
+            amountCash = $('.amount-cash'),
             amountCashConfirm = 0,
                 floor = 100000000;
 
@@ -76,12 +77,19 @@
             return;
         }
 
-        if(orderSmallerThanMin(amountCoin)) {
+        var msgBase = gettext('Minimal order amount is '),
+            minOrderCoins = msgBase + minOrderCoin
+                + ' ' + gettext('Coins'),
+            minOrderCash = msgBase + minOrderCash;
+
+        if(orderSmallerThanMin(amountCoin, minOrderCoin)) {
              val = minOrderCoin;
              elem = amountCoin;
-
-            msg = gettext('Minimal order amount is ') + minOrderCoin + ' BTC';
-            toastr.error(msg);
+            toastr.error(minOrderCoins);
+        } else if (orderSmallerThanMin(amountCash, minOrderCash)) {
+             val = minOrderCash;
+             elem = amountCash;
+            toastr.error(minOrderCash);
         }
 
         if ($('.currency-pair option:selected').val()) {
@@ -96,8 +104,12 @@
         $.get(tickerLatestUrl, function(data) {
             // TODO: protect against NaN
             var ticker = data[0].ticker,
-                bid = Number(ticker.bid).toFixed(2),
-                ask = Number(ticker.ask).toFixed(2);
+                rawBid = Number(ticker.bid),
+                rawAsk = Number(ticker.ask),
+                cashFixed = rawBid >= 0.01 && rawAsk >= 0.01 ?
+                    2 : 8,
+                bid = rawBid.toFixed(cashFixed),
+                ask = rawAsk.toFixed(cashFixed);
             updatePrice(ask, $('.rate-buy'));
             updatePrice(bid, $('.rate-sell'));
             rate = parseFloat(data[0].ticker.ask);
@@ -105,10 +117,13 @@
                 rate = parseFloat(data[0].ticker.bid);
             }
             var btcAmount,
-                cashAmount;
+                cashAmount,
+                cashFixedCalc;
             if (elem.hasClass('amount-coin')) {
                 btcAmount = val.toFixed(8);
-                cashAmount = (rate * btcAmount).toFixed(2);
+                cashAmount = rate * btcAmount;
+                cashFixedCalc = cashAmount < 0.01 ? 8 : 2;
+                cashAmount = cashAmount.toFixed(cashFixedCalc);
                 amountCashConfirm = cashAmount;
                 $(this).val(btcAmount);
                 if (isInitial) {
@@ -128,7 +143,7 @@
                 }
             }
             $('.btc-amount-confirm').text($('.amount-coin').val()); // add
-            if ($('.amount-cash').val().length == 0) {
+            if ($('.amount-cash').val().length === 0) {
                 $('.cash-amount-confirm').text(amountCashConfirm); //add
             } else {
                 $('.cash-amount-confirm').text($('.amount-cash').val()); //add

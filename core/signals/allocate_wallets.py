@@ -1,5 +1,4 @@
-from core.models import Address, Currency
-from payments.models import UserCards
+from core.models import Address, AddressReserve, Currency
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from nexchange.utils import get_nexchange_logger
@@ -17,30 +16,31 @@ def allocate_wallets(sender, instance=None, created=False, **kwargs):
     if not created:
         # run only once
         return
-    _currencies = {'BTC': 'bitcoin', 'LTC': 'litecoin', 'ETH': 'ethereum'}
-    for key, value in _currencies.items():
-        try:
-            currency = Currency.objects.get(code=key.upper())
-        except Currency.DoesNotExist:
-            logger.error('Currency {} does not exist'.format(key))
-            continue
-        unassigned_cards = UserCards.objects.filter(currency=key, user=None)
+    _currencies = Currency.objects.filter(is_crypto=True)
+    for currency in _currencies:
+        unassigned_cards = AddressReserve.objects.filter(currency=currency,
+                                                         user=None)
+        logger.warning('instance {} has no reserve cards available'
+                       'calling renew_cards_reserve()'
+                       .format(instance))
         if len(unassigned_cards) == 0:
-            logger.error('{}'.format(instance))
-            unassigned_cards = UserCards.objects.filter(currency=key,
-                                                        user=None)
-            logger.error('{}'.format(unassigned_cards))
             renew_cards_reserve()
+            unassigned_cards = AddressReserve.objects.filter(currency=currency,
+                                                             user=None)
 
-        if unassigned_cards.exists():
+        if unassigned_cards:
             # FIFO
             card = unassigned_cards.earliest('id')
             card.user = instance
             address = Address(
-                address=card.address_id,
+                address=card.address,
                 user=card.user,
                 currency=currency,
-                type=Address.DEPOSIT
+                type=Address.DEPOSIT,
+                reserve=card
             )
             address.save()
             card.save()
+        else:
+            logger.error('instance {} has no cards available'
+                         .format(instance))

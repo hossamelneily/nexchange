@@ -15,6 +15,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='paymentmethod',
             name='allowed_amount_unpaid',
-            field=models.DecimalField(decimal_places=2, default=0.01, help_text='Allowed difference between order amount (ticker_amount) and payment amount (amount_cash).', max_digits=14),
+            field=models.DecimalField(
+                decimal_places=2,
+                default=0.01,
+                help_text='Allowed difference between order amount (ticker_amount) and payment amount (amount_cash).',
+                max_digits=14),
         ),
     ]

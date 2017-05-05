@@ -7,10 +7,10 @@ from django.test import Client, TestCase
 from django.utils.translation import activate
 
 from accounts.models import SmsToken
-from core.models import Currency, Address, Transaction, Pair
+from core.models import Currency, AddressReserve, Address, Transaction, Pair
 from core.tests.utils import get_ok_pay_mock, split_ok_pay_mock
 from orders.models import Order
-from payments.models import PaymentMethod, PaymentPreference, UserCards
+from payments.models import PaymentMethod, PaymentPreference
 from ticker.models import Price, Ticker
 from verification.models import Verification
 from copy import deepcopy
@@ -21,9 +21,16 @@ import requests_mock
 from time import time
 import re
 from unittest.mock import patch
+from random import randint
+
+UPHOLD_ROOT = 'nexchange.api_clients.uphold.Uphold.'
 
 
 class UserBaseTestCase(TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(UserBaseTestCase, self).__init__(*args, **kwargs)
+        self.rpc_mock = None
 
     @classmethod
     def setUpClass(cls):
@@ -56,6 +63,8 @@ class UserBaseTestCase(TestCase):
         activate('en')
         # this is used to identify addresses created by allocate_wallets mock
         self.address_id_pattern = 'addr_id_'
+        self._mock_rpc()
+        self._mock_uphold()
         with requests_mock.mock() as m:
             self._mock_cards_reserve(m)
             self.user, created = \
@@ -74,6 +83,7 @@ class UserBaseTestCase(TestCase):
         assert success
         super(UserBaseTestCase, self).setUp()
 
+    # deprecated
     def _request_card(self, request, context):
         post_params = {}
         params = request._request.body.split('&')
@@ -81,26 +91,68 @@ class UserBaseTestCase(TestCase):
             p = param.split('=')
             post_params.update({p[0]: p[1]})
         currency = post_params['currency']
+        card_id = '{}{}'.format(str(time()), randint(1, 999))
         res = (
-            '{{"id":"test_card", "currency": '
-            '"{currency}"}}'.format(currency=currency)
+            '{{"id":"{card_id}", "currency": '
+            '"{currency}"}}'.format(currency=currency,
+                                    card_id=card_id)
         )
         return res
 
-    def _request_address(self, request, context):
+    def _get_id(self, prefix):
         id = str(time()).split('.')[1]
-        res = '{{"id":"{pattern}{id}"}}'.format(
-            pattern=self.address_id_pattern, id=id
+        rand = randint(0, 999)
+        pattern = '{prefix}_{base}{id}{rand}'
+        return pattern.format(prefix=prefix,
+                              base=self.address_id_pattern,
+                              id=id, rand=rand)
+
+    # deprecated
+    def _request_address(self, request, context):
+        res = '{{"id":"{addr}"}}'.format(
+            pattern=self.address_id_pattern,
+            addr=self._get_id('addr')
         )
         return res
 
-    def _mock_cards_reserve(self, mock):
-        mock.post(
+    def _mock_rpc(self):
+        def addr_response(_self, c):
+            return {
+                'address': self._get_id('addr'),
+                'currency': c
+            }
+
+        rpc_client_path = 'nexchange.api_clients.rpc.ScryptRpcApiClient.'
+
+        self.rpc_mock_addr = \
+            mock.patch(rpc_client_path + 'create_address',
+                       new=addr_response)
+        self.rpc_mock_addr.start()
+
+        self.rpc_mock_addr.start()
+
+        self.mock_rpc_txs = mock.patch(rpc_client_path + 'get_txs', lambda _self, *args: 0, [])
+        self.mock_rpc_txs.start()
+
+    def _mock_uphold(self):
+        uphold_client_path = 'nexchange.api_clients.uphold.UpholdApiClient.'
+        self.new_card_mock = mock.patch(uphold_client_path + '_new_card',
+                                        new=lambda s, c: {'currency': c, 'id': self._get_id('card')})
+        self.new_addr_mock = mock.patch(uphold_client_path + '_new_address',
+                                        new=lambda s, c, n: {'id': self._get_id('addr')})
+
+        self.new_addr_mock.start()
+        self.new_card_mock.start()
+
+    # deprecated
+    def _mock_cards_reserve(self, _mock):
+        # renos_coin = Currency.objects.get(code='RNS')
+        _mock.post(
             'https://api.uphold.com/v0/me/cards/',
             text=self._request_card
         )
-        mock.post('https://api.uphold.com/v0/me/cards/test_card/addresses',
-                  text=self._request_address)
+        pattern_addr = re.compile('https://api.uphold.com/v0/me/cards/.+/addresses')
+        _mock.post(pattern_addr, text=self._request_address)
 
 
 class OrderBaseTestCase(UserBaseTestCase):
@@ -111,6 +163,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         'pairs_btc.json',
         'pairs_eth.json',
         'pairs_ltc.json',
+        'pairs_rns.json',
         'payment_method.json',
         'payment_preference.json'
     ]
@@ -130,7 +183,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         self._send_sms_patch = self.patcher_twilio_send_sms.start()
         self._send_sms_patch.return_value = 'OK'
         self.patcher_uphold_reserve_txn = patch(
-            'nexchange.utils.api.get_reserve_transaction'
+            UPHOLD_ROOT + 'get_transactions'
         )
         self._reserve_txn_uphold = self.patcher_uphold_reserve_txn.start()
         self._reserve_txn_uphold.return_value = {'status': 'completed'}
@@ -138,6 +191,12 @@ class OrderBaseTestCase(UserBaseTestCase):
     def tearDown(self):
         self.patcher_twilio_send_sms.stop()
         self.patcher_uphold_reserve_txn.stop()
+        # self.card.delete()
+
+        # rpc
+        self.rpc_mock_addr.stop()
+        self.mock_rpc_txs.stop()
+
 
     @classmethod
     def setUpClass(cls):
@@ -238,6 +297,19 @@ class OrderBaseTestCase(UserBaseTestCase):
 
         return order
 
+    def get_uphold_tx(self, currency_code, amount, card_id):
+        return {
+            'id': 'txapi{}{}'.format(time(), randint(1, 999)),
+            'status': 'completed',
+            'type': 'deposit',
+            'destination': {
+                'amount': amount,
+                'currency': currency_code,
+                'txid': 'tx{}{}'.format(time(), randint(1, 999)),
+                'CardId': card_id
+            }
+        }
+
 
 class WalletBaseTestCase(OrderBaseTestCase):
     fixtures = [
@@ -245,6 +317,7 @@ class WalletBaseTestCase(OrderBaseTestCase):
         'currency_fiat.json',
         'pairs_btc.json',
         'pairs_ltc.json',
+        'pairs_rns.json',
         'pairs_eth.json',
         'payment_method.json',
         'payment_preference.json',
@@ -306,10 +379,15 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         'pairs_cross.json',
         'pairs_btc.json',
         'pairs_ltc.json',
+        'pairs_rns.json',
         'pairs_eth.json',
         'payment_method.json',
         'payment_preference.json',
     ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.uphold_import_transactions_empty = None
 
     def setUp(self):
         super(TransactionImportBaseTestCase, self).setUp()
@@ -353,11 +431,13 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             type=Address.DEPOSIT,
         )
         self.address.save()
-        self.card = UserCards(card_id='12345',
-                              currency=self.address.currency.code,
-                              address_id=self.address.address,
-                              user=self.address.user)
+        self.card = AddressReserve(card_id='test_card',
+                                   currency=self.address.currency,
+                                   address=self.address.address,
+                                   user=self.address.user)
         self.card.save()
+        self.address.reserve = self.card
+        self.address.save()
 
         self.url_addr = 'http://btc.blockr.io/api/v1/address/txs/{}'.format(
             self.wallet_address
@@ -471,8 +551,8 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.status_ok_list_index = 0
         self.status_bad_list_index = 1
 
-    @patch('nexchange.utils.api.get_card_transactions')
-    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     def base_test_create_transactions_with_task(self, run_method, reserve_txs,
                                                 import_txs):
         reserve_txs.return_value = json.loads(self.completed)
@@ -540,8 +620,8 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         if currency_code is None:
             currency_code = self.order.pair.base.code
         if card_id is None:
-            card_id = UserCards.objects.filter(
-                user=self.order.user, currency=currency_code)[0].card_id
+            card_id = AddressReserve.objects.filter(
+                user=self.order.user, currency__code=currency_code)[1].card_id
         self.import_txs = self.uphold_import_transactions_empty.format(
             tx_id_api1=self.tx_ids_api[0],
             tx_id_api2=self.tx_ids_api[1],
@@ -553,8 +633,8 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         reserve_url = 'https://api.uphold.com/v0/reserve/transactions/{}'
         self.reverse_url1 = reserve_url.format(self.tx_ids_api[0])
         self.reverse_url2 = reserve_url.format(self.tx_ids_api[1])
-        self.completed = '{"status": "completed"}'
-        self.pending = '{"status": "pending"}'
+        self.completed = '{"status": "completed", "type": "deposit"}'
+        self.pending = '{"status": "pending", "type": "deposit"}'
 
     def _create_order(self, order_type=Order.BUY,
                       amount_base=0.05, pair_name='ETHLTC',

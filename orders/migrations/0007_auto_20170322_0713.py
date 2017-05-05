@@ -15,11 +15,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='order',
             name='exchange',
-            field=models.BooleanField(default=False),
+            field=models.BooleanField(
+                default=False),
         ),
         migrations.AlterField(
             model_name='order',
             name='order_type',
-            field=models.IntegerField(choices=[(0, 'SELL'), (1, 'BUY')], default=1, help_text='BUY - Customer is giving fiat, and getting crypto money.<br/>SELL - Customer is giving crypto and getting fiat money<br/>EXCHANGE - Customer is exchanging different kinds of crypto currencies<br/>'),
+            field=models.IntegerField(
+                choices=[
+                    (0,
+                     'SELL'),
+                    (1,
+                     'BUY')],
+                default=1,
+                help_text='BUY - Customer is giving fiat, and getting crypto money.<br/>SELL - Customer is giving crypto and getting fiat money<br/>EXCHANGE - Customer is exchanging different kinds of crypto currencies<br/>'),
         ),
     ]

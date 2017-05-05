@@ -15,6 +15,17 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='profile',
             name='lang',
-            field=models.CharField(choices=[('ru-ru', 'Russian'), ('en-en', 'English'), ('es-es', 'Spanish'), ('es-ca', 'Catalan')], default='en', max_length=100),
+            field=models.CharField(
+                choices=[
+                    ('ru-ru',
+                     'Russian'),
+                    ('en-en',
+                     'English'),
+                    ('es-es',
+                     'Spanish'),
+                    ('es-ca',
+                     'Catalan')],
+                default='en',
+                max_length=100),
         ),
     ]

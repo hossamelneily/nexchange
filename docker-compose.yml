@@ -30,6 +30,8 @@ services:
         links:
             - postgis
             - redis
+        ports:
+          - "65223:65223"
         restart: always
         logging:
             driver: gelf

@@ -85,7 +85,6 @@ class OkPayAPIClientTestCase(TestCase):
 
 
 class BlockchainTestCase(OrderBaseTestCase):
-
     def setUp(self):
         super(BlockchainTestCase, self).setUp()
         self.wallet_address = '198aMn6ZYAczwrE5NvNTUMyJ5qkfy4g3Hi'

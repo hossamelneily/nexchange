@@ -286,12 +286,12 @@ def ajax_order(request):
         import_transaction_deposit_crypto_invoke.apply_async(
             countdown=settings.TRANSACTION_IMPORT_TIME
         )
-        curr_code = order.pair.base.code
+        curr = order.pair.base
         if trade_type == Order.BUY:
-            curr_code = order.pair.quote.code
-        countdown = getattr(settings, '{}_CONFIRMATION_TIME'.format(
-            curr_code
-        ))
+            curr = order.pair.quote
+        
+        countdown = curr.median_confirmation * 60
+
         update_pending_transactions_invoke.apply_async(
             countdown=countdown
         )
@@ -349,23 +349,17 @@ def update_withdraw_address(request, pk):
                         transaction.pk
                     ])
                     if order.order_type == order.BUY:
-                        curr_code = order.pair.base.code
+                        curr= order.pair.base
                     else:
-                        curr_code = order.pair.quote.code
-                    countdown = getattr(settings,
-                                        '{}_CONFIRMATION_TIME'.format(
-                                            curr_code
-                                        ))
+                        curr = order.pair.quote
+                    countdown = curr.median_confirmation * 60
                     update_pending_transactions_invoke.apply_async(
                         countdown=countdown)
                 elif payment:
                     buy_order_release_by_reference_invoke.apply_async([
                         payment.pk
                     ])
-                    countdown = getattr(settings,
-                                        '{}_CONFIRMATION_TIME'.format(
-                                            order.pair.base.code
-                                        ))
+                    countdown = order.pair.base.median_confirmation * 60
                     update_pending_transactions_invoke.apply_async(
                         countdown=countdown)
                 else:

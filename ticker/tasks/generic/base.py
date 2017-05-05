@@ -5,18 +5,20 @@ import requests_cache
 from core.models import Pair
 from ticker.models import Ticker
 from nexchange.tasks.base import BaseTask
+from ticker.adapters import KrakenAdapter, CryptopiaAdapter
 from django.conf import settings
 
 requests_cache.install_cache('ticker_cache',
                              expire_after=settings.TICKER_INTERVAL,
                              backend=settings.TICKER_CACHE_BACKEND)
 
+kraken_adapter = KrakenAdapter()
+cryptopia_adapter = CryptopiaAdapter()
+
 
 class BaseTicker(BaseTask):
 
-    KRAKEN_RESOURCE = 'https://api.kraken.com/0/public/Ticker'
-
-    EUR_RESOURCE = 'http://api.fixer.io/latest'
+    FIAT_RATE_RESOURCE = 'http://api.fixer.io/latest'
 
     BITFINEX_TICKER = "https://api.bitfinex.com/v1/pubticker/btcusd"
     LOCALBTC_URL =\
@@ -57,6 +59,11 @@ class BaseTicker(BaseTask):
     def __init__(self):
         super(BaseTicker, self).__init__()
         self.pair = None
+        self.ask_multip = None
+        self.bid_multip = None
+        self.quote_api_adapter = None
+        self.bitcoin_api_adapter = kraken_adapter
+
 
     def run(self, pair_pk):
         self.pair = Pair.objects.get(pk=pair_pk)
@@ -68,10 +75,10 @@ class BaseTicker(BaseTask):
         self.logger.info('Price {} created'.format(price))
 
     def create_ticker(self, ask, bid):
-        ask = (self.ask_multip * Decimal(ask)
-               * (Decimal('1.0') + self.pair.fee_ask))
-        bid = (self.bid_multip * Decimal(bid)
-               * (Decimal('1.0') - self.pair.fee_bid))
+        ask = (self.ask_multip * Decimal(ask) *
+               (Decimal('1.0') + self.pair.fee_ask))
+        bid = (self.bid_multip * Decimal(bid) *
+               (Decimal('1.0') - self.pair.fee_bid))
         ticker = Ticker(pair=self.pair, ask=ask,
                         bid=bid)
         ticker.save()
@@ -163,26 +170,23 @@ class BaseTicker(BaseTask):
             'type': self.ACTION_BUY if direction < 0 else self.ACTION_SELL
         }
 
-    def get_kraken_ticker(self, kraken_pair):
-        """ Available Kraken pairs https://www.kraken.com/help/fees
-            @param kraken_pair: currency pair in kranken style
-            i.e. BTC and CAD will be XXBTZCAD. Pair model contains kraken_style
-            and invert_kraken_style @property's
-        """
-
-        info = requests.get(self.KRAKEN_RESOURCE + '?pair={}'.format(
-            kraken_pair
-        )).json()['result']
-        ask = info[kraken_pair]['a'][0]
-        bid = info[kraken_pair]['b'][0]
-        return {'ask': ask, 'bid': bid}
-
-    def get_kraken_base_multiplier(self):
+    def get_btc_base_multiplier(self):
         if self.pair.base.code != 'BTC':
             crypto_pair = Pair.objects.get(
                 name='BTC{}'.format(self.pair.base.code)
             )
-            kraken_pair = crypto_pair.invert_kraken_style
-            kraken_ticker = self.get_kraken_ticker(kraken_pair)
-            self.ask_multip = Decimal(kraken_ticker['ask'])
-            self.bid_multip = Decimal(kraken_ticker['bid'])
+            ticker = self.bitcoin_api_adapter.get_quote(crypto_pair)
+            self.ask_multip = Decimal(ticker['ask'])
+            self.bid_multip = Decimal(ticker['bid'])
+
+
+class KrakenBaseTicker(BaseTicker):
+    def __init__(self, *args, **kwargs):
+        super(KrakenBaseTicker, self).__init__(*args, **kwargs)
+        self.quote_api_adapter = kraken_adapter
+
+
+class CryptopiaBaseTicker(BaseTicker):
+    def __init__(self, *args, **kwargs):
+        super(CryptopiaBaseTicker, self).__init__(*args, **kwargs)
+        self.quote_api_adapter = cryptopia_adapter

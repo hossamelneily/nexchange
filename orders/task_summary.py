@@ -1,33 +1,30 @@
 from orders.tasks.order_release import sell_order_release
-from .tasks.generic.buy_order_release import BuyOrderReleaseByReference, \
-    BuyOrderReleaseByWallet, BuyOrderReleaseByRule
-from orders.tasks.generic.exchange_order_release import ExchangeOrderRelease
+from .tasks.generic.buy_order_release import BuyOrderReleaseByRule,\
+    BuyOrderReleaseByWallet, BuyOrderReleaseByReference
+from .tasks.generic.exchange_order_release import ExchangeOrderRelease
 from django.conf import settings
 from celery import shared_task
 from payments.models import Payment
 from orders.models import Order
 from core.models import Transaction
-
-
-release_by_wallet = BuyOrderReleaseByWallet()
-release_by_ref = BuyOrderReleaseByReference()
-release_by_rule = BuyOrderReleaseByRule()
-exchange_order_release = ExchangeOrderRelease()
+from .decorators import get_task
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def buy_order_release_by_reference_invoke(payment_id):
-    release_by_ref.run(payment_id)
+@get_task(task_cls=BuyOrderReleaseByReference, key='payment__in')
+def buy_order_release_by_reference_invoke(payment_id, task=None):
+    task.run(payment_id)
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+@get_task(task_cls=BuyOrderReleaseByRule, key='payment__in')
+def buy_order_release_by_rule_invoke(payment_id, task=None):
+    task.run(payment_id)
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def buy_order_release_by_rule_invoke(payment_id):
-    release_by_rule.run(payment_id)
-
-
-@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def buy_order_release_by_wallet_invoke(payment_id):
-    release_by_wallet.run(payment_id)
+@get_task(task_cls=BuyOrderReleaseByWallet, key='payment__in')
+def buy_order_release_by_wallet_invoke(payment_id, task=None):
+    task.run(payment_id)
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
@@ -45,8 +42,9 @@ def sell_order_release_invoke():
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def exchange_order_release_invoke(transaction_id):
-    exchange_order_release.run(transaction_id)
+@get_task(task_cls=ExchangeOrderRelease, key='transactions__in')
+def exchange_order_release_invoke(transaction_id, task=None):
+    task.run(transaction_id)
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)

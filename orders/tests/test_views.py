@@ -263,8 +263,16 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
 
         self.addr_data = {
             'type': 'W',
-            'name': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+            'name': 'addr1',
             'address': '17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
+            'currency': self.BTC
+
+        }
+
+        self.addr_data2 = {
+            'type': 'W',
+            'name': 'RedAndWhite',
+            'address': '1MwvS1idEevZ5gd428TjL3hB2kHaBH9WTL',
             'currency': self.BTC
 
         }
@@ -278,7 +286,7 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
                 username='onit',
                 email='weare@onit.ws',
             )
-        addr2 = Address(**self.addr_data)
+        addr2 = Address(**self.addr_data2)
         addr2.user = user
         addr2.save()
 

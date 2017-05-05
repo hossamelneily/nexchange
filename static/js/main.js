@@ -24,7 +24,7 @@
            paymentObject = require('./modules/payment.js'),
            register = require('./modules/register.js'),
            captcha = require('./modules/captcha.js'),
-           cryptoCurrCodes = ['BTC', 'ETH', 'LTC'],
+           cryptoCurrCodes = ['BTC', 'ETH', 'LTC', 'RNS'],
            $currencyFrom,
            $currencyTo,
            $currencyPair,
@@ -337,7 +337,7 @@
             // add security checks
             var preferenceName = $('.payment-preference-confirm').text(),
                 payment_preference = paymentObject.getPaymentPreference();
-            if (preferenceName == 'EXCHANGE') {
+            if (preferenceName === 'EXCHANGE') {
                 payment_preference = preferenceName;
             }
 

@@ -1,9 +1,15 @@
-box: onitsoft/wercker:latest
-ports:
-  - "8000"
-
+box:
+  id: onitsoft/wercker:latest
+  ports:
+    - "8000"
+    - "65223"
 dev:
   services:
+#   - id: onitsoft/renoscoin-docker
+#     ports:
+#       - "65223"
+#     cmd: /bin/bash -c "/root/renoscoin/app/start.sh"
+
    - id: mdillon/postgis
      ports:
        - "5432"
@@ -90,6 +96,7 @@ dev:
           python manage.py loaddata core/fixtures/pairs_btc.json
           python manage.py loaddata core/fixtures/pairs_ltc.json
           python manage.py loaddata core/fixtures/pairs_eth.json
+          python manage.py loaddata core/fixtures/pairs_rns.json
     - script:
         name: Django import Payment Methods fixture
         code: |
@@ -294,6 +301,7 @@ build:
           python manage.py loaddata core/fixtures/pairs_btc.json
           python manage.py loaddata core/fixtures/pairs_ltc.json
           python manage.py loaddata core/fixtures/pairs_eth.json
+          python manage.py loaddata core/fixtures/pairs_rns.json
 
           if [ ! -z $CMS_FROM_FIXTURE] && [ ${CMS_FROM_FIXTURE} -eq 1 ]
           then
@@ -453,7 +461,8 @@ tests:
     - script:
         name: Backend tests
         code: |
-          DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh
+#          DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh
+
     - script:
         name: Selenium tests
         code: |

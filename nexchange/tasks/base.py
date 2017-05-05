@@ -39,3 +39,9 @@ class BaseTask(app.Task):
     def apply_next_tasks(self):
         for task, args in self.next_tasks:
             app.send_task(task, args=args)
+
+
+class BaseApiTask(BaseTask):
+    def __init__(self, api, *args, **kwargs):
+        self.api = api
+        super(BaseApiTask, self).__init__(*args, **kwargs)

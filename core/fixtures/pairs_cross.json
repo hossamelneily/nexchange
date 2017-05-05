@@ -40,5 +40,47 @@
     "name": "ETHLTC",
     "disabled": false
   }
+},
+{
+  "model": "core.pair",
+  "pk": 91,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 1,
+    "quote": 33,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BTCRNS",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 92,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 2,
+    "quote": 33,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "LTCRNS",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 93,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 3,
+    "quote": 33,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "ETHRNS",
+    "disabled": false
+  }
 }
 ]

@@ -4,14 +4,13 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from core.models import Transaction, Address
-from payments.models import UserCards
 from orders.models import Order
-from nexchange.utils import check_transaction_uphold, send_email, send_sms
-from accounts.utils import UpholdTransactionImporter
+from nexchange.utils import send_email, send_sms
 from nexchange.utils import get_nexchange_logger
 from orders.task_summary import (sell_order_release_invoke,
                                  exchange_order_release_invoke)
 from django.db import transaction
+from nexchange.api_clients.factory import ApiClientFactory
 
 
 def update_pending_transactions():
@@ -19,12 +18,15 @@ def update_pending_transactions():
     next_tasks = set()
     for tr in Transaction.objects.\
             filter(Q(is_completed=False) | Q(is_verified=False)):
+        currency_to = tr.address_to.currency
+        api = ApiClientFactory.get_api_client(currency_to.wallet)
         order = tr.order
         profile = order.user.profile
+
         logger.info(
             'Look-up transaction with txid api {} '.format(tr.tx_id_api))
         if tr.address_to.type == Address.WITHDRAW and \
-                check_transaction_uphold(tr):
+                api.check_tx(tr, currency_to):
             tr.is_completed = True
             tr.is_verified = True
             tr.save()
@@ -32,7 +34,7 @@ def update_pending_transactions():
             order.save()
 
         if tr.address_to.type == Address.DEPOSIT and \
-                check_transaction_uphold(tr):
+                api.check_tx(tr, currency_to):
 
             with transaction.atomic():
                 tr.is_completed = True
@@ -91,27 +93,6 @@ def update_pending_transactions():
                     task.name, res.traceback))
 
 
-def import_transaction_deposit_crypto():
-    logger = get_nexchange_logger(__name__, True, True)
-    addresses = Address.objects.filter(
-        currency__is_crypto=True,
-        type=Address.DEPOSIT
-    )
-    for addr in addresses:
-        cards = UserCards.objects.filter(
-            address_id=addr.address, user=addr.user,
-            currency=addr.currency.code)
-        if len(cards) > 1:
-            logger.error('Deposit Address {} has more then 1 UserCard'.format(
-                addr
-            ))
-            continue
-        if len(cards) < 1:
-            logger.error('Deposit Address {} has no UserCard'.format(
-                addr
-            ))
-            continue
-        importer = UpholdTransactionImporter(
-            cards[0], addr
-        )
-        importer.import_income_transactions()
+def import_transaction_deposit_crypto(Importer):
+    importer = Importer()
+    importer.import_income_transactions()

@@ -1,34 +1,32 @@
 from __future__ import absolute_import
 from django.conf import settings
-from nexchange.utils import CreateUpholdCard
-from payments.models import UserCards
-import logging
-
+from nexchange.api_clients.factory import ApiClientFactory
+from core.models import AddressReserve
+from core.models import Currency
+from nexchange.utils import get_nexchange_logger, get_traceback
 
 def renew_cards_reserve():
+    logger = get_nexchange_logger(__name__)
+    logger.info(get_traceback())
     if settings.DEBUG:
-        logging.info(
+        logger.info(
             settings.CARDS_RESERVE_COUNT,
             settings.API1_USER,
             settings.API1_PASS
         )
-    api = CreateUpholdCard(settings.API1_IS_TEST)
-    api.auth_basic(settings.API1_USER, settings.API1_PASS)
-    currency = {
-        'BTC': 'bitcoin',
-        'LTC': 'litecoin',
-        'ETH': 'ethereum'
-    }
-    for key, value in currency.items():
-        count = UserCards.objects.filter(user=None, currency=key).count()
+
+    currencies = Currency.objects.filter(is_crypto=True)
+
+    for curr in currencies:
+        api = ApiClientFactory.get_api_client(curr.wallet)
+        count = AddressReserve.objects\
+            .filter(user=None, currency=curr).count()
         while count < settings.CARDS_RESERVE_COUNT:
-            new_card = api.new_card(key)
-            logging.info(
-                "new card currency: {}, card: {}".format(
-                    new_card, key))
-            address = api.add_address(new_card['id'], value)
-            card = UserCards(card_id=new_card['id'],
-                             currency=new_card['currency'],
-                             address_id=address['id'])
-            card.save()
-            count = UserCards.objects.filter(user=None, currency=key).count()
+            address_res = api.create_address(curr)
+            AddressReserve.objects.get_or_create(**address_res)
+            logger.info(
+                "new card currency: {}, address: {}".format(
+                    curr.code, address_res['address']))
+
+            count = AddressReserve.objects\
+                .filter(user=None, currency=curr).count()

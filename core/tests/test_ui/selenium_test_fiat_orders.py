@@ -5,7 +5,7 @@ from core.tests.utils import (create_payeer_mock_for_order,
                               get_payeer_mock, get_ok_pay_mock,
                               create_ok_payment_mock_for_order)
 from orders.models import Order
-from payments.models import UserCards
+from core.models import AddressReserve
 
 from unittest.mock import patch
 import requests_mock
@@ -13,6 +13,7 @@ from time import time
 import json
 from core.tests.test_ui.base import BaseTestUI
 from payments.tests.base import BaseSofortAPITestCase
+from core.tests.base import UPHOLD_ROOT
 
 
 class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
@@ -112,10 +113,10 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
         self.place_order(order_type)
 
     @requests_mock.mock()
-    @patch('nexchange.utils.api.get_card_transactions')
-    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
     @patch('orders.utils.send_money')
-    def checksell(self, mock, send_money, reserve_txs, import_txs,
+    def checksell(self, mock, send_money, get_txs, get_rtx,
                   pair_name='BTCEUR'):
         order_type = 'SELL'
         send_money.return_value = True
@@ -152,7 +153,7 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
         currency_base_code = order_data['currency_base']
         # end login
         self.mock_import_transaction(amount_base, currency_base_code,
-                                     reserve_txs, import_txs)
+                                     get_txs, get_rtx)
 
         self.place_order(order_type)
         # FIXME: should be COMPLETED after sell_order_release task changes
@@ -163,7 +164,7 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
                                              reserve_txs, import_txs):
         self.tx_id_api = 'tx' + str(time())
         reserve_txs.return_value = json.loads(self.completed)
-        card = UserCards.objects.get(
+        card = AddressReserve.objects.get(
             user__profile__phone=self.phone,
             currency=self.currency_code
         )
@@ -190,7 +191,7 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
         key.send_keys(value)
 
     @requests_mock.mock()
-    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
     def automatic_checkout(self, mock, trans_history, reserve_txn,
                            success_url=None):

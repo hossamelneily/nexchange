@@ -178,6 +178,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCCAD",
+
     "disabled": false
   }
 },
