@@ -10,11 +10,11 @@ class RpcMapper:
     @classmethod
     def get_rpc_addr(cls, node):
         protocol = 'http'
-        prefix = 'RPC_'
-        user_env = '{}{}{}'.format(prefix, node.upper(), 'USER')
-        pass_env = '{}{}{}'.format(prefix, node.upper(), 'PASSWORD')
-        host_env = '{}{}{}'.format(prefix, node.upper(), 'HOST')
-        port_env = '{}{}{}'.format(prefix, node.upper(), 'PORT')
+        prefix = 'RPC'
+        user_env = '{}_{}_{}'.format(prefix, node.upper(), 'USER')
+        pass_env = '{}_{}_{}'.format(prefix, node.upper(), 'PASSWORD')
+        host_env = '{}_{}_{}'.format(prefix, node.upper(), 'HOST')
+        port_env = '{}_{}_{}'.format(prefix, node.upper(), 'PORT')
         kwargs = {
             'protocol': protocol,
             'user': os.getenv(user_env, 'user'),
