@@ -30,6 +30,8 @@ from core.models import Address
 from core.validators import (validate_address, validate_btc, validate_ltc,
                              validate_eth)
 from referrals.forms import ReferralTokenForm
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 
 
 def user_registration(request):
@@ -175,7 +177,7 @@ def verify_phone(request):
             user = User.objects.get(username=phone)
         except User.DoesNotExist:
             return render_response(
-                'Please make sure you phone is correct',
+                'Please make sure your phone is correct',
                 400
             )
 
@@ -227,6 +229,7 @@ def verify_phone(request):
         )
 
 
+# FIXME: merge user_by_phone and create_one_password
 @csrf_exempt
 @recaptcha_required
 @not_logged_in_required
@@ -272,19 +275,23 @@ def user_address_ajax(request):
 @login_required
 def create_withdraw_address(request, order_pk):
     error_message = 'Error creating address: %s'
-    if not request.user.profile.is_verified:
-        resp = {
-            'status': 'ERR',
-            'msg': 'You need to be a verified user to set withdrawal address.'
-        }
-        return JsonResponse(resp, safe=False)
+    order = Order.objects.get(pk=order_pk)
+    if not order.user.profile.is_verified and not order.exchange:
+        pm = order.payment_preference.payment_method
+        if pm.required_verification_buy:
+            resp = {
+                'status': 'ERR',
+                'msg': 'You need to be a verified user to set withdrawal '
+                       'address for order with payment method \'{}\''
+                       ''.format(pm.name)
+            }
+            return JsonResponse(resp, safe=False)
 
     address = request.POST.get('value')
     addr = Address()
     addr.type = Address.WITHDRAW
     addr.user = request.user
     addr.address = address
-    order = Order.objects.get(pk=order_pk)
     if order.order_type == Order.BUY:
         currency = order.pair.base
     else:
@@ -311,3 +318,28 @@ def create_withdraw_address(request, order_pk):
         resp = {'status': 'ERR', 'msg': msg}
 
     return JsonResponse(resp, safe=False)
+
+
+def change_password(request):
+    main_form = PasswordChangeForm
+    if request.user.password == '':
+        main_form = SetPasswordForm
+    if request.method == 'POST':
+        form = main_form(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(
+                request, _('Your password was successfully updated!')
+            )
+            redirect_url = reverse('accounts.login')
+            return redirect(redirect_url)
+        else:
+            messages.error(
+                request, _('Please correct the error below.')
+            )
+    else:
+        form = main_form(request.user)
+    return render(request, 'accounts/change_password.html', {
+        'form': form
+    })

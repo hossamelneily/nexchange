@@ -24,7 +24,7 @@
            paymentObject = require('./modules/payment.js'),
            register = require('./modules/register.js'),
            captcha = require('./modules/captcha.js'),
-           cryptoCurrCodes = ['BTC', 'ETH', 'LTC'],
+           cryptoCurrCodes = ['BTC', 'ETH', 'LTC', 'RNS'],
            $currencyFrom,
            $currencyTo,
            $currencyPair,
@@ -288,24 +288,44 @@
                     .removeClass('disabled');
             }
         });
+
         $('.create-acc').on('click', function () {
-            if($(this).hasClass('disabled')) {
+            if ($(this).hasClass('disabled')) {
                 return;
             }
-            // $('.phone.val').attr('disabled', 'disabled');
+            if ($('.send-otp').is(':visible') || $('.send').is(':visible')) {
+                grecaptcha.execute();
+            } else {
+                window.submitCreateAcc()
+            }
+        });
+
+        window.submitCreateAcc = function() {
+            if ($('#login-form').is(':visible')) {
+                var phone = $('#id_username').val();
+            } else {
+                var phone = $('.register .phone').val();
+            }
             var regPayload = {
                 // TODO: check collision with qiwi wallet
-                phone: $('.register .phone').val(),
+                phone: phone,
                 g_recaptcha_response: grecaptcha.getResponse()
             };
             register.seemlessRegistration(regPayload);
-
-        });
+        };
 
         $('.verify-acc').on('click', function () {
+            if ($('#login-form').is(':visible')) {
+                var token = $('#id_password').val(),
+                    phone = $('#id_username').val();
+            } else {
+                var token = $('#verification_code').val(),
+                    phone = $('.register .phone').val();
+
+            }
             var verifyPayload = {
-                token: $('#verification_code').val(),
-                phone: $('.register .phone').val()
+                token: token,
+                phone: phone
             };
             register.verifyAccount(verifyPayload);
         });
@@ -317,7 +337,7 @@
             // add security checks
             var preferenceName = $('.payment-preference-confirm').text(),
                 payment_preference = paymentObject.getPaymentPreference();
-            if (preferenceName == 'EXCHANGE') {
+            if (preferenceName === 'EXCHANGE') {
                 payment_preference = preferenceName;
             }
 

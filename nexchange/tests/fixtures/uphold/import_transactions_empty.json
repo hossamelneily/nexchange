@@ -2,6 +2,7 @@
   {{
     "createdAt": "2015-06-04T11:43:30.645Z",
     "id": "{tx_id_api1}",
+    "type": "deposit",
     "destination": {{
       "CardId": "{card_id}",
       "amount": "{amount1}",
@@ -11,6 +12,7 @@
   {{
     "createdAt": "2015-06-04T11:43:30.645Z",
     "id": "{tx_id_api2}",
+    "type": "deposit",
     "destination": {{
       "CardId": "{card_id}",
       "amount": "{amount2}",

@@ -9,6 +9,15 @@
             <small>{% trans "User Profile" %}</small>
         </h1>
     </div>
+    <div class="p-list">
+        <p><a class="nav-link" href="{% url 'accounts.change_password' %}">
+            {% if profile_form.instance.user.password == '' %}
+                {% trans "Set password" %}
+            {% else %}
+                {% trans "Change password" %}
+            {% endif %}
+        </a></p>
+    </div>
 
 
     {% if request.user.profile.disabled %}

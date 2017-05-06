@@ -16,6 +16,12 @@ python manage.py makemessages -d djangojs -l es
 python manage.py makemessages -d django -l ca
 python manage.py makemessages -d djangojs -l ca
 
+
+# CA
+python manage.py makemessages -d django -l cn
+python manage.py makemessages -d djangojs -l cn
+
+
 # Compile
 
 python manage.py compilemessages

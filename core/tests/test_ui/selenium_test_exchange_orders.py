@@ -3,42 +3,42 @@ from orders.models import Order
 
 from unittest.mock import patch
 from core.tests.test_ui.base import BaseTestUI
-
+from core.tests.base import UPHOLD_ROOT
 
 class TestUIExchangeOrders(BaseTestUI):
 
     def setUp(self):
         super(TestUIExchangeOrders, self).setUp()
-        self.BTC_address = '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi'
-        self.LTC_address = 'LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA'
-        self.ETH_address = '0x8116546AaC209EB58c5B531011ec42DD28EdFb71'
+        self.BTC_address = '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2'
+        self.LTC_address = 'LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4'
+        self.ETH_address = '0x77454e832261aeed81422348efee52d5bd3a3684'
 
     @data_provider(lambda: (('ETHLTC', Order.BUY, True),),)
-    @patch('nexchange.utils.api.get_card_transactions')
-    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order1(self, pair_name, order_type,
-                                     do_logout, reserve_txs, import_txs):
+                                     do_logout, get_txs, get_rtx):
         self.base_test_release_exchange_order(pair_name, order_type, do_logout,
-                                              reserve_txs, import_txs)
+                                              get_txs, get_rtx)
 
     @data_provider(lambda: (('BTCETH', Order.SELL, False),),)
-    @patch('nexchange.utils.api.get_card_transactions')
-    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order2(self, pair_name, order_type,
-                                     do_logout, reserve_txs, import_txs):
+                do_logout, get_txs, get_rtx):
         self.base_test_release_exchange_order(pair_name, order_type, do_logout,
-                                              reserve_txs, import_txs)
+                                              get_txs, get_rtx)
 
     @data_provider(lambda: (('BTCLTC', Order.BUY, False),),)
-    @patch('nexchange.utils.api.get_card_transactions')
-    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order3(self, pair_name, order_type,
                                      do_logout, reserve_txs, import_txs):
         self.base_test_release_exchange_order(pair_name, order_type, do_logout,
                                               reserve_txs, import_txs)
 
     def base_test_release_exchange_order(self, pair_name, order_type,
-                                         do_logout, reserve_txs, import_txs):
+                                         do_logout, get_txs, get_rtx):
         self.workflow = '{}'.format(pair_name)
         order_type_display = 'BUY' if order_type == Order.BUY else 'SELL'
         self.screenpath2 = order_type_display
@@ -65,7 +65,7 @@ class TestUIExchangeOrders(BaseTestUI):
             mock_amount = amount_base
             withdraw_currency_code = currency_quote_code
         self.mock_import_transaction(mock_amount, mock_currency_code,
-                                     reserve_txs, import_txs)
+                                     get_txs, get_rtx)
         self.place_order(order_type_display)
         self.click_go_to_order_list()
         self.do_screenshot('After pres GO/GET coins')

@@ -18,15 +18,7 @@
                         {% else %}+7{% endif %}">
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-xs-10 col-xs-offset-1 register">
-                        <hr>
-                        <label>
-                            {% trans "Human check" %}
-                        </label>
-                        <div id="grecaptcha"></div>
-                    </div>
-                </div>
+                {% include "accounts/partials/recaptcha.html" %}
             </div>
 
             <div class="step2 hidden">
@@ -41,7 +33,7 @@
             </div>
         </div>
         <div class="col-xs-10 col-xs-offset-1 center controls">
-            <span class="btn btn-primary create-acc disabled">
+            <span class="btn btn-primary create-acc send disabled">
                 {% trans "Send SMS"%}
             </span>
             <span class="btn btn-danger create-acc resend hidden">

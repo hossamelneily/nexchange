@@ -1,8 +1,17 @@
 from .settings import *
 from nexchange import settings_dev
 import logging
-# When testing, use sqlite3 so the database is loaded in memory
-# this will make tests run faster
+from celery import current_app
+
+# fix send task always eager
+# https://github.com/celery/celery/issues/581
+# def send_task(name, args=(), kwargs={}, **opts):
+#     task = current_app.tasks[name]
+#     return task.apply(args, kwargs, **opts)
+#
+# if 'test' in sys.argv:
+#     current_app.send_task = send_task
+
 
 DATABASES = {
     'default': {

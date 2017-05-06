@@ -3,7 +3,9 @@ import json
 from core.tests.base import OrderBaseTestCase
 from ticker.tasks.generic.base import BaseTicker
 from ticker.task_summary import get_all_tickers
+from ticker.adapters import KrakenAdapter, CryptopiaAdapter
 import requests_mock
+import re
 
 
 class TickerBaseTestCase(OrderBaseTestCase):
@@ -15,12 +17,18 @@ class TickerBaseTestCase(OrderBaseTestCase):
             self.get_tickers(mock)
 
     def _read_fixtures_ticker(self):
-        kraken_path = 'ticker/tests/fixtures/kraken_ticker.json'
+        cryptopia_markets_path = 'ticker/tests/fixtures/cryptopia_markets.json'
+        cryptopia_ticker_path = 'ticker/tests/fixtures/cryptopia_ticker.json'
+        kraken_ticker_path = 'ticker/tests/fixtures/kraken_ticker.json'
         fixer_path = 'ticker/tests/fixtures/fixer.json'
         bitifex_path = 'ticker/tests/fixtures/bitifex.json'
         localbtc_buy_path = 'ticker/tests/fixtures/localbtc/buy.json'
         localbtc_sell_path = 'ticker/tests/fixtures/localbtc/sell.json'
-        with open(kraken_path) as f:
+        with open(cryptopia_markets_path) as f:
+            self.cryptopia_markets_resp = f.read().replace('\n', '')
+        with open(cryptopia_ticker_path) as f:
+            self.cryptopia_ticker_resp = f.read().replace('\n', '')
+        with open(kraken_ticker_path) as f:
             self.kraken_resp = f.read().replace('\n', '')
         self.kraken_info = json.loads(self.kraken_resp)['result']
         with open(fixer_path) as f:
@@ -33,9 +41,17 @@ class TickerBaseTestCase(OrderBaseTestCase):
             self.localbtc_sell_resp = f.read().replace('\n', '')
 
     def mock_resources(self, mock):
-        mock.get(BaseTicker.KRAKEN_RESOURCE, text=self.kraken_resp)
+        mock.get(
+            CryptopiaAdapter.RESOURCE_MARKETS,
+            text=self.cryptopia_markets_resp)
+
+        matcher = re.compile(CryptopiaAdapter.RESOURCE_TICKER + '\d+$')
+        mock.get(
+            matcher,
+            text=self.cryptopia_ticker_resp)
+        mock.get(KrakenAdapter.RESOURCE, text=self.kraken_resp)
         mock.get(BaseTicker.BITFINEX_TICKER, text=self.bitifex_resp)
-        mock.get(BaseTicker.EUR_RESOURCE, text=self.fixer_resp)
+        mock.get(BaseTicker.FIAT_RATE_RESOURCE, text=self.fixer_resp)
         mock.get(BaseTicker.LOCALBTC_URL.format(BaseTicker.ACTION_SELL),
                  text=self.localbtc_sell_resp)
         mock.get(BaseTicker.LOCALBTC_URL.format(BaseTicker.ACTION_BUY),

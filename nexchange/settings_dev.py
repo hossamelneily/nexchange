@@ -3,6 +3,8 @@ from nexchange import settings
 
 DEBUG = True
 
+ADMINS = []
+
 
 # Local and staging
 INTERNAL_IPS = ('127.0.0.1', '192.168.99.100', '192.168.43.146')
@@ -48,7 +50,7 @@ DEBUG_TOOLBAR_CONFIG = {
 
 # Lockout only for 1 mins on dev
 AXES_LOGIN_FAILURE_LIMIT = 10
-AXES_COOLOFF_TIME = timedelta(minutes=5)
+AXES_COOLOFF_TIME = timedelta(seconds=30)
 CELERY_ALWAYS_EAGER = False
 
 # SECRET KEY TEST
@@ -82,8 +84,12 @@ PAYEER_API_KEY = '12345'
 API1_USER = ''
 API1_PASS = ''
 API1_IS_TEST = False
+API1_ID_C1 = 'cb970e70-7dfa-4d80-bfad-627c863c5e23'
+API1_ID_C2 = '3ba17423-50d8-4f9c-88f1-ad84872dcfc4'
+API1_ID_C3 = '32339baf-3854-4204-8d46-79b2d025b036'
 CARDS_RESERVE_COUNT = os.getenv('CARDS_RESERVE_COUNT',
                                 settings.CARDS_RESERVE_COUNT)
+
 
 # ROBOKASSA TEST
 ROBOKASSA_IS_TEST = 1
@@ -106,10 +112,11 @@ TWILIO_AUTH_TOKEN = 'ce656e45dd35918a0e9e76b7a4cd1ec8'
 TWILIO_PHONE_FROM_UK = '+15005550006'
 TWILIO_PHONE_FROM_US = '+15005550002'
 
+
 # Smtp
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_HOST_USER = 'onit_demo'
-EMAIL_HOST_PASSWORD = 'Fo19F2fJe53BVPDnJl3DSZ'
+EMAIL_HOST_PASSWORD = ''
 
 LOGGING = {
     'version': 1,

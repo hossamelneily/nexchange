@@ -1,8 +1,9 @@
 from core.tests.utils import get_ok_pay_mock, get_payeer_mock
 from core.tests.base import WalletBaseTestCase
-from core.models import Address, Transaction
+from core.models import AddressReserve, Address, Transaction
 from orders.models import Order
-from payments.models import Payment, UserCards
+from payments.models import Payment
+from verification.models import Verification
 from unittest.mock import patch
 import requests_mock
 from payments.tasks.generic.ok_pay import OkPayPaymentChecker
@@ -14,7 +15,8 @@ from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
     update_pending_transactions_invoke
 from orders.task_summary import sell_order_release_invoke,\
     buy_order_release_by_reference_invoke, exchange_order_release_invoke,\
-    exchange_order_release_periodic
+    exchange_order_release_periodic, buy_order_release_by_wallet_invoke,\
+    buy_order_release_by_rule_invoke
 from django.conf import settings
 from decimal import Decimal
 from django.core.urlresolvers import reverse
@@ -22,14 +24,15 @@ import json
 from core.tests.utils import data_provider
 from payments.tests.base import BaseSofortAPITestCase
 from time import time
-
+from random import randint
+from core.tests.base import UPHOLD_ROOT
 
 class OKPayEndToEndTestCase(WalletBaseTestCase):
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
-    @patch('orders.tasks.generic.base.release_payment')
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.tasks.generic.base.send_sms')
     @patch('orders.tasks.generic.base.send_email')
     def test_fail_release_no_address(self, send_email,
@@ -63,7 +66,7 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
            '.validate_beneficiary')
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
-    @patch('orders.tasks.generic.base.release_payment')
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.tasks.generic.base.send_sms')
     @patch('orders.tasks.generic.base.send_email')
     def test_success_release(self, send_email, send_sms, release_payment,
@@ -110,7 +113,7 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
            '.validate_beneficiary')
     @patch('nexchange.utils.PayeerAPIClient.get_transaction_history')
     @patch('orders.models.Order.convert_coin_to_cash')
-    @patch('orders.tasks.generic.base.release_payment')
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.tasks.generic.base.send_sms')
     @patch('orders.tasks.generic.base.send_email')
     def test_failure_release_no_address(self, send_email, send_sms,
@@ -158,7 +161,7 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
            '.validate_beneficiary')
     @patch('nexchange.utils.PayeerAPIClient.get_transaction_history')
     @patch('orders.models.Order.convert_coin_to_cash')
-    @patch('orders.tasks.generic.base.release_payment')
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.tasks.generic.base.send_sms')
     @patch('orders.tasks.generic.base.send_email')
     def test_success_release(self, send_email, send_sms,
@@ -236,36 +239,40 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         )
         self.order_2.save()
 
-    @patch('nexchange.utils.api.get_card_transactions')
-    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'get_transactions')
     @patch('orders.utils.send_money')
-    def test_release_sell_order(self, send_money, reserve_txs, import_txs):
+    def test_release_sell_order(self, send_money, get_txs, get_rtx):
+        # TODO: generalise
         send_money.return_value = True
-        reserve_txs.return_value = json.loads(self.completed)
-        import_txs.return_value = json.loads(self.import_txs)
+        get_txs.return_value = json.loads(self.import_txs)
+        get_rtx.return_value = json.loads(self.completed)
+
         self.import_txs_task.apply()
         self.update_confirmation_task.apply()
         self.release_task.apply()
         self.order.refresh_from_db()
         self.assertTrue(self.order.status in Order.IN_RELEASED)
 
-    @patch('nexchange.utils.api.get_card_transactions')
-    @patch('nexchange.utils.api.get_reserve_transaction')
-    def test_do_not_release_sell_order_transaction_pending(self, reserve_txs,
-                                                           import_txs):
-        reserve_txs.return_value = json.loads(self.pending)
-        import_txs.return_value = json.loads(self.import_txs)
+    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'get_transactions')
+    def test_do_not_release_sell_order_transaction_pending(self, get_txs,
+                                                           get_rtx):
+        # TODO: generalise
+        get_txs.return_value = json.loads(self.import_txs)
+        get_rtx.return_value = json.loads(self.pending)
+
         self.import_txs_task.apply()
         self.release_task.apply()
         self.assertNotIn(self.order.status, Order.IN_RELEASED)
 
-    @patch('nexchange.utils.api.get_card_transactions')
-    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'get_transactions')
     @patch('orders.utils.send_money')
     def test_sell_order_release_1_yes_1_no_due_to_confirmations(self,
                                                                 send_money,
-                                                                reserve_txs,
-                                                                import_txs):
+                                                                get_txs,
+                                                                get_rtx):
         def side_effect(trans):
             if trans == txs_data[0]['id']:
                 return json.loads(self.completed)
@@ -274,11 +281,14 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self._create_second_order()
         self._create_mocks(amount2=self.order_2.amount_base)
         txs_data = json.loads(self.import_txs)
-        import_txs.return_value = txs_data
-        reserve_txs.return_value = json.loads(self.pending)
+
+        # TODO: generalise
+        get_txs.return_value = json.loads(self.import_txs)
+        get_rtx.return_value = json.loads(self.pending)
+
         send_money.return_value = True
         self.import_txs_task.apply()
-        reserve_txs.side_effect = side_effect
+        get_rtx.side_effect = side_effect
         self.update_confirmation_task()
         self.release_task()
         self.order.refresh_from_db()
@@ -286,26 +296,30 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.assertIn(self.order.status, Order.IN_RELEASED)
         self.assertNotIn(self.order_2.status, Order.IN_RELEASED)
 
-    @patch('nexchange.utils.api.get_card_transactions')
-    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'get_transactions')
     @patch('orders.utils.send_money')
     def test_do_not_release_sell_order_without_send_money(self, send_money,
-                                                          reserve_txs,
-                                                          import_txs):
-        reserve_txs.return_value = json.loads(self.completed)
-        import_txs.return_value = json.loads(self.import_txs)
+                                                          get_txs,
+                                                          get_rtx):
+        # TODO: generalise
+        get_txs.return_value = json.loads(self.import_txs)
+        get_rtx.return_value = json.loads(self.pending)
+
         send_money.return_value = False
         self.import_txs_task.apply()
         self.release_task.apply()
         self.assertNotIn(self.order.status, Order.IN_RELEASED)
 
-    @patch('nexchange.utils.api.get_card_transactions')
-    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'get_transactions')
     @patch('orders.utils.send_money')
-    def test_notify_admin_if_not_send_money(self, send_money, reserve_txs,
-                                            import_txs):
-        reserve_txs.return_value = json.loads(self.completed)
-        import_txs.return_value = json.loads(self.import_txs)
+    def test_notify_admin_if_not_send_money(self, send_money, get_txs,
+                                            get_rtx):
+        # TODO: generalise
+        get_txs.return_value = json.loads(self.import_txs)
+        get_rtx.return_value = json.loads(self.completed)
+
         send_money.return_value = False
         self.import_txs_task.apply()
         self.update_confirmation_task.apply()
@@ -313,13 +327,15 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         with self.assertRaises(NotImplementedError):
             self.release_task()
 
-    @patch('nexchange.utils.api.get_card_transactions')
-    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'get_transactions')
     @patch('nexchange.utils.OkPayAPI._send_money')
-    def test_okpay_send_money_sell_order(self, send_money, reserve_txs,
-                                         import_txs):
-        reserve_txs.return_value = json.loads(self.completed)
-        import_txs.return_value = json.loads(self.import_txs)
+    def test_okpay_send_money_sell_order(self, send_money,
+                                         get_txs, get_rtx):
+        # TODO: move to base, generalise
+        get_txs.return_value = json.loads(self.import_txs)
+        get_rtx.return_value = json.loads(self.completed)
+
         self.order.payment_preference = self.okpay_pref
         self.order.save()
         send_money.return_value = get_ok_pay_mock(
@@ -334,13 +350,15 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.assertIn(self.order.status, Order.IN_RELEASED)
 
     @requests_mock.mock()
-    @patch('nexchange.utils.api.get_card_transactions')
-    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'get_transactions')
     @patch('nexchange.utils.PayeerAPIClient.transfer_funds')
-    def test_payeer_send_money_sell_order(self, m, send_money, reserve_txs,
-                                          import_txs):
-        reserve_txs.return_value = json.loads(self.completed)
-        import_txs.return_value = json.loads(self.import_txs)
+    def test_payeer_send_money_sell_order(self, m, send_money,
+                                          get_txs, get_rtx):
+        # TODO: move to base, generalise, trx = reserve tx
+        get_txs.return_value = json.loads(self.import_txs)
+        get_rtx.return_value = json.loads(self.completed)
+
         m.get(self.payeer_url, text=get_payeer_mock('transfer_funds'))
         self.mock_empty_transactions_for_blockchain_address(m)
         self.order.payment_preference = self.payeer_pref
@@ -353,12 +371,15 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.assertEqual(1, send_money.call_count)
         self.assertIn(self.order.status, Order.IN_RELEASED)
 
-    @patch('nexchange.utils.api.get_card_transactions')
-    @patch('nexchange.utils.api.get_reserve_transaction')
-    def test_unknown_method_do_not_send_money_sell_order(self, reserve_txs,
-                                                         import_txs):
-        reserve_txs.return_value = json.loads(self.completed)
-        import_txs.return_value = json.loads(self.import_txs)
+    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'get_transactions')
+    def test_unknown_method_do_not_send_money_sell_order(self,
+                                                         get_txs,
+                                                         get_rtx):
+        # TODO: move to base, generalise
+        get_txs.return_value = json.loads(self.import_txs)
+        get_rtx.return_value = json.loads(self.completed)
+
         payment_method = self.main_pref.payment_method
         payment_method.name = 'Some Random Name'
         payment_method.save()
@@ -392,7 +413,7 @@ class SellOrderReleaseFromViewTestCase(WalletBaseTestCase):
            '.validate_beneficiary')
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
-    @patch('orders.tasks.generic.base.release_payment')
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.tasks.generic.base.send_sms')
     @patch('orders.tasks.generic.base.send_email')
     def test_release_if_paid_and_withdraaw_address_set(
@@ -433,7 +454,7 @@ class SellOrderReleaseFromViewTestCase(WalletBaseTestCase):
            '.validate_beneficiary')
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
-    @patch('orders.tasks.generic.base.release_payment')
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.tasks.generic.base.send_sms')
     @patch('orders.tasks.generic.base.send_email')
     def test_fail_release_withdraw_address_already_set(
@@ -474,7 +495,7 @@ class SellOrderReleaseFromViewTestCase(WalletBaseTestCase):
            '.validate_beneficiary')
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
-    @patch('orders.tasks.generic.base.release_payment')
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.tasks.generic.base.send_sms')
     @patch('orders.tasks.generic.base.send_email')
     def test_fail_release_no_payment(self, send_email,
@@ -507,7 +528,7 @@ class SellOrderReleaseFromViewTestCase(WalletBaseTestCase):
            '.validate_beneficiary')
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
-    @patch('orders.tasks.generic.base.release_payment')
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.tasks.generic.base.send_sms')
     @patch('orders.tasks.generic.base.send_email')
     def test_fail_release_withdraaw_address_set_no_payment(
@@ -583,9 +604,9 @@ class BuyOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
 
     # TODO: change patch to request_mock (some problems with Uphold mocking
     # while running all the tests)
-    @patch('nexchange.utils.api.get_reserve_transaction')
-    @patch('nexchange.utils.api.execute_txn')
-    @patch('nexchange.utils.api.prepare_txn')
+    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'execute_txn')
+    @patch(UPHOLD_ROOT +  'prepare_txn')
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
@@ -601,9 +622,9 @@ class BuyOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         order.refresh_from_db()
         self.assertEqual(order.status, Order.COMPLETED)
 
-    @patch('nexchange.utils.api.get_reserve_transaction')
-    @patch('nexchange.utils.api.execute_txn')
-    @patch('nexchange.utils.api.prepare_txn')
+    @patch(UPHOLD_ROOT +  'get_transactions')
+    @patch(UPHOLD_ROOT +  'execute_txn')
+    @patch(UPHOLD_ROOT +  'prepare_txn')
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
@@ -640,13 +661,14 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                  ('BTCLTC', Order.SELL, True),
                  )
     )
-    @patch('nexchange.utils.api.execute_txn')
-    @patch('nexchange.utils.api.prepare_txn')
-    @patch('nexchange.utils.api.get_card_transactions')
-    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch(UPHOLD_ROOT +  'execute_txn')
+    @patch(UPHOLD_ROOT +  'prepare_txn')
+    @patch(UPHOLD_ROOT +  'get_transactions')
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
     def test_release_exchange_order(self, pair_name, order_type,
-                                    release_with_periodic, reserve_txs,
-                                    import_txs, prepare_txn, execute_txn):
+                                    release_with_periodic,
+                                    check_tx,
+                                    get_txs, prepare_txn, execute_txn):
         Transaction.objects.all().delete()
         currency_quote_code = pair_name[3:]
         currency_base_code = pair_name[0:3]
@@ -659,21 +681,24 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             mock_currency_code = currency_base_code
             mock_amount = self.order.amount_base
             withdraw_currency_code = currency_quote_code
-        card_id = UserCards.objects.filter(
-            user=self.order.user, currency=mock_currency_code)[0].card_id
+
+        card_id = AddressReserve.objects.filter(
+            user=self.order.user, currency__code=mock_currency_code)[0].card_id
         self._create_mocks(
             currency_code=mock_currency_code,
             amount2=mock_amount,
             card_id=card_id
         )
-        txs_data = json.loads(self.import_txs)
-        import_txs.return_value = txs_data
-        reserve_txs.return_value = json.loads(self.completed)
-        prepare_txn.return_value = 'txid123454321'
+        check_tx.return_value = True
+        prepare_txn.return_value = 'txid_{}{}'.format(time(), randint(1, 999))
         execute_txn.return_value = True
+
+        get_txs.return_value = [
+            self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
+        ]
         self.import_txs_task.apply()
         self.order.refresh_from_db()
-        self.assertEqual(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
+        self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
         self.update_confirmation_task.apply()
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, Order.PAID, pair_name)
@@ -708,14 +733,17 @@ class SofortEndToEndTestCase(BaseSofortAPITestCase,
         ('LTCEUR',),
     ))
     @requests_mock.mock()
-    @patch('nexchange.utils.api.get_reserve_transaction')
-    @patch('nexchange.utils.api.execute_txn')
-    @patch('nexchange.utils.api.prepare_txn')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
+    @patch(UPHOLD_ROOT + 'execute_txn')
+    @patch(UPHOLD_ROOT + 'prepare_txn')
     def test_success_release(self, pair_name, mock, prepare_txn, execute_txn,
-                             reserve_txn):
+                             get_txs, get_rtx):
         # Less then 1.0 fiat payments is blocked by PaymentChecker validator
+        get_rtx.return_value = json.loads(self.completed)
         self._create_order(amount_base=2.0, pair_name=pair_name,
                            payment_preference=self.sofort_pref)
+
         self.transaction_data.update({
             'order_id': self.order.unique_reference,
             'amount': self.order.amount_quote,
@@ -737,15 +765,65 @@ class SofortEndToEndTestCase(BaseSofortAPITestCase,
 
         prepare_txn.return_value = str(time())
         execute_txn.return_value = True
-        reserve_txn.return_value = {'status': 'completed'}
+        get_txs.return_value = json.loads(self.import_txs)
         address = getattr(self, '{}_address'.format(pair_name[:3]))
         self._update_withdraw_address(self.order, address)
 
         buy_order_release_by_reference_invoke.apply([p.pk])
-
         p.refresh_from_db()
         self.order.refresh_from_db()
 
         self.assertEqual(True, p.is_complete)
         self.assertEqual(True, p.is_redeemed)
         self.assertEqual(self.order.status, Order.COMPLETED)
+
+    @data_provider(lambda: (
+        (buy_order_release_by_reference_invoke,),
+        (buy_order_release_by_wallet_invoke,),
+        (buy_order_release_by_rule_invoke,),
+    ))
+    @requests_mock.mock()
+    @patch('nexchange.utils.api.get_reserve_transaction')
+    @patch('nexchange.utils.api.execute_txn')
+    @patch('nexchange.utils.api.prepare_txn')
+    def test_do_not_release_unverified(self, release_task, mock, prepare_txn,
+                                       execute_txn, reserve_txn):
+        self._create_order(amount_base=2.0, pair_name='BTCEUR',
+                           payment_preference=self.sofort_pref)
+        self.sofort_pref.required_verification_buy = True
+        self.sofort_pref.save()
+        self.transaction_data.update({
+            'order_id': self.order.unique_reference,
+            'amount': self.order.amount_quote,
+            'currency': self.order.pair.quote.code,
+            'transaction_id': str(time())
+        })
+        transaction_xml = self.create_transaction_xml(
+            **self.transaction_data
+        )
+        self.mock_transaction_history(mock, transaction_xml)
+        self.payments_importer.apply()
+        payment = Payment.objects.get(
+            amount_cash=self.order.amount_quote,
+            currency=self.order.pair.quote,
+            reference=self.order.unique_reference
+        )
+        verifications = Verification.objects.filter(user=payment.user)
+        for ver in verifications:
+            ver.id_status = Verification.REJECTED
+            ver.util_status = Verification.REJECTED
+            ver.save()
+        prepare_txn.return_value = str(time())
+        execute_txn.return_value = True
+        reserve_txn.return_value = {'status': 'completed'}
+        self.order.refresh_from_db()
+        self.order.withdraw_address = Address.objects.filter(
+            type=Address.WITHDRAW, currency=self.BTC)[0]
+        self.order.save()
+
+        release_task.apply([payment.pk])
+
+        self.order.refresh_from_db()
+
+        self.assertNotIn(self.order.status, Order.IN_RELEASED)
+        self.assertEqual(self.order.status, Order.PAID)

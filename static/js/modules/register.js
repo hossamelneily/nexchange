@@ -40,10 +40,27 @@
             data: payload,
             statusCode: {
                 200: function (data) {
-                    $('.register .step2').removeClass('hidden');
-                    $('.verify-acc').removeClass('hidden');
-                    $('.create-acc').addClass('hidden');
-                    $('.create-acc.resend').removeClass('hidden');
+                    if ($('#login-form').is(':visible')) {
+                        $('.login-otp').removeClass('hidden');
+                        $('.resend-otp').removeClass('hidden');
+                        $('#submit').addClass('hidden');
+                        $('#submit').addClass('disabled');
+                        $('#id_password').val('');
+                        $('#id_password').attr(
+                            'placeholder', gettext('SMS Token'));
+                        $('#id_password').attr(
+                            'type', 'text');
+                        $('label[for="id_password"]').text(
+                            gettext('One Time Password')
+                        );
+                        $('.send-otp').addClass('hidden');
+                        $('#id_username').attr('readonly', true);
+                    } else {
+                        $('.register .step2').removeClass('hidden');
+                        $('.verify-acc').removeClass('hidden');
+                        $('.create-acc').addClass('hidden');
+                        $('.create-acc.resend').removeClass('hidden');
+                    }
                 },
                 400: function (data) {
                     return failureResponse(
@@ -63,6 +80,9 @@
     }
 
     function verifyAccount (payload) {
+        if ($('#login-form').is(':visible')) {
+            $('.login-otp').addClass('disabled');
+        }
         $.ajax({
             type: 'POST',
             dataType: 'json',
@@ -70,18 +90,27 @@
             data: payload,
             statusCode: {
                 201: function(data) {
-                    orderObject = require('./orders.js');
-                    orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
-                    orderObject.changeState(null, 'next');
+                    if ($('#login-form').is(':visible')) {
+                        window.location.href = '/';
+                    } else {
+                        orderObject = require('./orders.js');
+                        orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
+                        orderObject.changeState(null, 'next');
+                    }
                 },
                 400: function (data) {
+                    if ($('#login-form').is(':visible')) {
+                        $('.login-otp').removeClass('disabled');
+                    }
                     failureResponse(
                         data,
                         'Incorrect code'
                     );
                 },
                 410: function (data) {
-                    // deocreatedAuth();
+                    if ($('#login-form').is(':visible')) {
+                        $('.login-otp').removeClass('disabled');
+                    }
                     return failureResponse(
                         data,
                         'Your token has expired, please request a new token'
@@ -96,6 +125,6 @@
     module.exports = {
         canProceedtoRegister: canProceedtoRegister,
         seemlessRegistration: seemlessRegistration,
-        verifyAccount: verifyAccount
+        verifyAccount: verifyAccount,
     };
 }(window, window.jQuery)); //jshint ignore:line

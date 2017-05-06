@@ -8,6 +8,7 @@ SoftDeleteMixin = safedelete_mixin_factory(policy=SOFT_DELETE,
 
 
 class NexchangeManager(models.Manager):
+
     def get_by_natural_key(self, param):
         qs = self.get_queryset()
         lookup = {qs.model.NATURAL_KEY: param}
@@ -15,6 +16,7 @@ class NexchangeManager(models.Manager):
 
 
 class NexchangeModel(models.Model):
+
     class Meta:
         abstract = True
     objects = NexchangeManager()
@@ -61,6 +63,7 @@ class TimeStampedModel(models.Model):
 
 
 class IpAwareModel(TimeStampedModel, SoftDeleteMixin):
+
     class Meta:
         abstract = True
 

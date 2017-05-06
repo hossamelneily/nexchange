@@ -12,7 +12,7 @@ from core.tests.base import TransactionImportBaseTestCase
 from ticker.tests.base import TickerBaseTestCase
 from selenium.webdriver.common.keys import Keys
 from orders.models import Order
-from payments.models import UserCards
+from core.models import AddressReserve
 from verification.models import Verification
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -22,6 +22,8 @@ from unittest.mock import patch
 import requests_mock
 from time import time
 import json
+from random import randint
+from core.tests.base import UPHOLD_ROOT
 
 
 class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
@@ -37,11 +39,12 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.card_number = '1234567887654321'
         self.swift_iban = '987654321'
         self.bic = 'DABAIE2D'
-        self.withdraw_address = '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi'
+        self.withdraw_address = '162hFhCaEwDbBKbwLaUyAHhd4aVB3yW7DJ'
         self.issavescreen = True
         self.url = self.live_server_url
+        local_root_path = '{}_{}'.format(int(time()), self._testMethodName)
         self.screenpath = os.path.join(
-            os.path.dirname(__file__), 'Screenshots', str(time()))
+            os.path.dirname(__file__), 'Screenshots', local_root_path)
         self.screenpath2 = 'unsorted'
         self.mkdir(self.screenpath)
         user_agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64)' \
@@ -64,6 +67,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.shot_base64 = None
         self.logged_in = False
         self.recursive_withdraw_calls = 0
+        self.xpath_query_contains_text = "//*[contains(text(), '{}')]"
 
     def tearDown(self):
         super(BaseTestUI, self).tearDown()
@@ -85,7 +89,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             else:
                 break
         # sleep for page load
-        sleep(self.timeout / 60)
+        self.wait_page_load()
 
     def get_currency_pair_main_screen(self, pair_name, lang='en'):
         url = '{}/{}/orders/buy_bitcoin/{}/'.format(self.url, lang,
@@ -107,6 +111,38 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
     def logout(self):
         self.driver.delete_all_cookies()
         self.logged_in = False
+
+    def fill_element_by_id(self, element_id, value):
+        element = self.driver.find_element_by_id(element_id)
+        element.clear()
+        element.send_keys(value)
+        self.do_screenshot('after fill element:{}, with value:{}'.format(
+            element_id, value
+        ))
+
+    def wait_until_clickable_element_by_name(
+            self, name, by=By.CLASS_NAME, screenshot=False,
+            xpath_query=None):
+
+        if xpath_query is None:
+            xpath_query = self.xpath_query_contains_text
+        if by == By.XPATH:
+            query = xpath_query.format(name)
+        else:
+            query = name
+        element = self.wait.until(
+            EC.element_to_be_clickable((by, query))
+        )
+        if screenshot:
+            self.do_screenshot('element: {} is clickable'.format(name))
+        return element
+
+    def click_element_by_name(self, name, by=By.CLASS_NAME,
+                              screenshot=False, xpath_query=None):
+        self.wait_until_clickable_element_by_name(
+            name, by, xpath_query=xpath_query).click()
+        if screenshot:
+            self.do_screenshot('after click on: {}'.format(name))
 
     @requests_mock.mock()
     def login_phone(self, mock):
@@ -144,8 +180,18 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         if not self.selenium_user.profile.is_verified:
             Verification(user=self.selenium_user, id_status=Verification.OK,
                          util_status=Verification.OK).save()
+        sleep(self.timeout / 60)
         self.do_screenshot('After Login')
         self.logged_in = True
+
+    def wait_page_load(self):
+        state = self.driver.execute_script(
+            'return document.readyState;')
+        if state == 'complete':
+            return
+        else:
+            sleep(self.timeout / 60)
+            self.wait_page_load()
 
     def request_order(self, order_type, click_payment_icon=True,
                       pair_name=None):
@@ -269,8 +315,8 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             options[1].click()
             submit.click()
 
-    @patch('nexchange.utils.api.execute_txn')
-    @patch('nexchange.utils.api.prepare_txn')
+    @patch(UPHOLD_ROOT + 'execute_txn')
+    @patch(UPHOLD_ROOT + 'prepare_txn')
     def add_withdraw_address_on_payment_success(self, prepare_txn,
                                                 execute_txn, add_new=False):
         prepare_txn.return_value = 'txid{}'.format(self.order.unique_reference)
@@ -385,22 +431,24 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
                                ' PASS cause you should not be abble to click '
                                'unclickable element)')
 
-    def mock_import_transaction(self, amount, currency_code, reserve_txs,
-                                import_txs):
-        tx_id_api = 'tx_customer' + str(time())
-        reserve_txs.return_value = json.loads(self.completed)
-        card_id = UserCards.objects.filter(
+    def mock_import_transaction(self, amount, currency_code, get_txs,
+                                get_rtx):
+        tx_id_api1 = 'tx_customer{}{}'.format(str(time()), randint(0, 999))
+        tx_id_api2 = 'tx_customer{}{}'.format(str(time()), randint(0, 999))
+        card_id = AddressReserve.objects.filter(
             user__profile__phone=self.phone,
-            currency=currency_code)[0].card_id
+            currency__code=currency_code)[0].card_id
         get_txs_response = self.uphold_import_transactions_empty.format(
-            tx_id_api1=tx_id_api,
-            tx_id_api2='nonsense',
+            tx_id_api1=tx_id_api1,
+            tx_id_api2=tx_id_api2,
             amount1=amount,
             amount2='0.0',
             currency=currency_code,
             card_id=card_id,
         )
-        import_txs.return_value = json.loads(get_txs_response)
+
+        get_txs.return_value = json.loads(get_txs_response)
+        get_rtx.return_value = json.loads(self.completed)
 
     def do_screenshot(self, filename, refresh=False):
         now = time()
@@ -408,7 +456,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.stamp = now
         if refresh:
             self.driver.refresh()
-            sleep(self.timeout / 30)
+            self.wait_page_load()
         path = os.path.join(
             self.screenpath, self.workflow, self.screenpath2)
         filename = '{}({}). {} ({:.2f}s)'.format(

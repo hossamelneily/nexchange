@@ -1,15 +1,23 @@
-from .base import BaseBuyOrderRelease
-from orders.models import Order
-from django.db import transaction
 from django.conf import settings
+from django.db import transaction
+
+from nexchange.api_clients.mixins import UpholdBackendMixin, ScryptRpcMixin
+from orders.models import Order
+from .base import BaseBuyOrderRelease
 
 
 class BuyOrderReleaseByReference(BaseBuyOrderRelease):
-    def get_order(self, payment):
-        try:
-            order = Order.objects.exclude(status=Order.RELEASED).\
+    @classmethod
+    def get_order(cls, payment_id):
+        payment, order = super(BuyOrderReleaseByReference, cls).get_order(payment_id)
+        return payment,\
+               Order.objects.exclude(status=Order.RELEASED).\
                 exclude(status=Order.COMPLETED).\
                 get(unique_reference=payment.reference)
+
+    def _get_order(self, payment):
+        try:
+            payment, order = self.get_order(payment)
             if order.payment_preference.payment_method != \
                     payment.payment_preference.payment_method:
 
@@ -36,7 +44,7 @@ class BuyOrderReleaseByReference(BaseBuyOrderRelease):
                 self.logger.warn('payment {} user {} users don\'t match '
                                  'is it a new user with old preference?'
                                  .format(payment, order))
-                return False
+                return None, None
 
             if not order.withdraw_address:
                 self.logger.info('{} has now withdrawal address, moving on'
@@ -49,13 +57,13 @@ class BuyOrderReleaseByReference(BaseBuyOrderRelease):
                             settings.USER_SETS_WITHDRAW_ADDRESS_MEDIAN_TIME
                     }
                 )
-                return False
+                return None, None
 
             self.logger.info(
                 'Found order {} with payment {} '
                 .format(order.unique_reference, payment)
             )
-            return order
+            return payment, order
 
         except Order.DoesNotExist:
             self.logger.info('Order for payment {} not found through ID'
@@ -63,35 +71,41 @@ class BuyOrderReleaseByReference(BaseBuyOrderRelease):
                              'initiating BuyOrderReleaseByWallet'
                              .format(payment))
             self.add_next_task(BaseBuyOrderRelease.RELEASE_BY_WALLET,
-                               [payment.pk])
-            return False
+                               [payment])
+            return None, None
 
 
 class BuyOrderReleaseByWallet(BaseBuyOrderRelease):
-    def get_order(self, payment):
+    @classmethod
+    def get_order(cls, payment_id):
+        payment, order = super(BuyOrderReleaseByWallet, cls).get_order(payment_id)
+
+        method = payment.payment_preference.payment_method
+        return payment,\
+               Order.objects.exclude(status=Order.RELEASED) \
+            .get(
+            user=payment.user,
+            amount_quote=payment.amount_cash,
+            payment_preference__payment_method=method,
+            pair__quote=payment.currency)
+
+    def _get_order(self, payment):
         # Auto order payment
         # or user forgot reference
         # or uses out payout
         # feature
+
         try:
-            method = payment.payment_preference.payment_method
+            payment, order = self.get_order(payment)
             if payment.user and payment.payment_preference:
-                return Order.objects.exclude(status=Order.RELEASED)\
-                    .get(
-                        user=payment.user,
-                        amount_quote=payment.amount_cash,
-                        payment_preference__payment_method=method,
-                        pair__quote=payment.currency)
+                return payment, order
             else:
                     flag, new_flag = payment.flag(__name__)
                     if new_flag:
                         self.logger.warn('could not associate payment {}'
                                          ' with an order. '
-                                         'owner user of wallet '
-                                         '{} not found. '
                                          'SmartMatching disabled.'
-                                         .format(payment,
-                                                 method))
+                                         .format(payment))
                     payment.save()
 
         except Order.DoesNotExist:
@@ -100,35 +114,38 @@ class BuyOrderReleaseByWallet(BaseBuyOrderRelease):
                              'BuyOrderReleaseByRule'
                              .format(payment))
             self.add_next_task(BaseBuyOrderRelease.RELEASE_BY_RULE,
-                               [payment.pk])
-            return False
+                               [payment])
+            return None, None
 
 
 class BuyOrderReleaseByRule(BuyOrderReleaseByWallet):
-    def get_order(self, payment):
+    @classmethod
+    def get_order(cls, payment_id):
+        payment, order = super(BuyOrderReleaseByRule, cls).get_order(payment_id)
+        method = payment.payment_preference.payment_method
+        template_order = Order.objects.filter(
+            order_type=Order.BUY,
+            is_redeemed=True,
+            is_default_rule=True,
+            user=payment.user,
+            currency=payment.currency,
+            payment__payment_preference__payment_method=method
+        ).latest('id')
+
+        new_order = Order(
+            order_type=template_order.order_type,
+            currency=template_order.currency,
+            amount_qoute=payment.amount_cash,
+            user=template_order.user,
+            payment_preference=template_order.payment_preference,
+        )
+
+        new_order.save()
+        return payment, new_order
+
+    def _get_order(self, payment):
         try:
-            method = payment.payment_preference.payment_method
-            template_order = Order.objects.filter(
-                order_type=Order.BUY,
-                is_redeemed=True,
-                is_default_rule=True,
-                user=payment.user,
-                currency=payment.currency,
-                payment__payment_preference__payment_method=method
-            ).latest('id')
-
-            new_order = Order(
-                order_type=template_order.order_type,
-                currency=template_order.currency,
-                amount_qoute=payment.amount_cash,
-                user=template_order.user,
-                payment_preference=template_order.payment_preference,
-            )
-
-            new_order.save()
-
-            return new_order
-
+            return self.get_order(payment)
         except Order.DoesNotExist:
             flag, new_flag = payment.flag(__name__)
             if new_flag:
@@ -147,3 +164,35 @@ class BuyOrderReleaseByRule(BuyOrderReleaseByWallet):
                 payment.payment_preference.save()
                 self.logger.info('Payment: {} Order: {} Set PaymentPreference '
                                  'user from order').format(payment, order)
+
+
+# UPHOLD COINS
+class BuyOrderReleaseByReferenceUphold(BuyOrderReleaseByReference,
+                                       UpholdBackendMixin):
+    pass
+
+
+class BuyOrderReleaseByWalletUphold(BuyOrderReleaseByWallet,
+                                    UpholdBackendMixin):
+    pass
+
+
+class BuyOrderReleaseByRuleUphold(BuyOrderReleaseByRule,
+                                  UpholdBackendMixin):
+    pass
+
+
+# SCRYPT RPC COINS
+class BuyOrderReleaseByReferenceScrypt(BuyOrderReleaseByReference,
+                                       ScryptRpcMixin):
+    pass
+
+
+class BuyOrderReleaseByWalletScrypt(BuyOrderReleaseByWallet,
+                                    ScryptRpcMixin):
+    pass
+
+
+class BuyOrderReleaseByRuleScrypt(BuyOrderReleaseByRule,
+                                  ScryptRpcMixin):
+    pass

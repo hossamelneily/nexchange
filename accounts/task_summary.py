@@ -1,9 +1,12 @@
 # flake8: noqa
-from accounts.tasks.generate_wallets import renew_cards_reserve
-from accounts.tasks.monitor_wallets import update_pending_transactions
-from accounts.tasks.monitor_wallets import import_transaction_deposit_crypto
+from .tasks.generate_wallets import renew_cards_reserve
+from .tasks.monitor_wallets import update_pending_transactions
+from .tasks.monitor_wallets import import_transaction_deposit_crypto
+from .tasks.generic.tx_importer.uphold import UpholdTransactionImporter
+from .tasks.generic.tx_importer.scrypt import ScryptTransactionImporter
 from django.conf import settings
 from celery import shared_task
+
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
@@ -17,5 +20,21 @@ def update_pending_transactions_invoke():
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def import_transaction_deposit_renos_invoke():
+    return import_transaction_deposit_crypto(ScryptTransactionImporter)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def import_transaction_deposit_uphold_invoke():
+    return import_transaction_deposit_crypto(UpholdTransactionImporter)
+
+all_importers = [
+    import_transaction_deposit_uphold_invoke,
+    import_transaction_deposit_renos_invoke
+]
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def import_transaction_deposit_crypto_invoke():
-    return import_transaction_deposit_crypto()
+    for importer in all_importers:
+        importer.apply_async()

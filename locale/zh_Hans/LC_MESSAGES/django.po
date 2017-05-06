@@ -1,0 +1,1193 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-04-22 00:32+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: accounts/decoratos.py:17
+msgid "You are already logged in"
+msgstr ""
+
+#: accounts/decoratos.py:54
+msgid "Invalid reCAPTCHA!"
+msgstr ""
+
+#: accounts/models.py:35 templates/accounts/user_profile.html:45
+#: templates/payments/partials/forms/credit_card.html:33
+msgid "Phone"
+msgstr ""
+
+#: accounts/models.py:36
+msgid "Enter phone number in international format. eg. +44020786543"
+msgstr ""
+
+#: accounts/models.py:108
+msgid "Default referral code"
+msgstr ""
+
+#: accounts/tasks/monitor_wallets.py:51
+msgid "Nexchange: Order released"
+msgstr ""
+
+#: accounts/tasks/monitor_wallets.py:54
+msgid ""
+"Your order {}:  is PAID. \n"
+" {} {} were sent to {} {} {}"
+msgstr ""
+
+#: accounts/tasks/monitor_wallets.py:68
+msgid "Your order {}: is paid. {}"
+msgstr ""
+
+#: accounts/views.py:38
+msgid "Registration completed. Check your phone for SMS confirmation code."
+msgstr ""
+
+#: accounts/views.py:40
+msgid "Error during accounts. <br>Details: {}"
+msgstr ""
+
+#: accounts/views.py:117
+msgid "Profile updated successfully"
+msgstr ""
+
+#: accounts/views.py:124
+msgid "Referral codes updated successfully"
+msgstr ""
+
+#: articles/templatetags/dateutils.py:15 articles/templatetags/dateutils.py:17
+msgid "th"
+msgstr ""
+
+#: articles/templatetags/dateutils.py:16
+msgid "st"
+msgstr ""
+
+#: articles/templatetags/dateutils.py:16
+msgid "nd"
+msgstr ""
+
+#: articles/templatetags/dateutils.py:16
+msgid "rd"
+msgstr ""
+
+#: articles/views.py:19
+msgid "Page not found"
+msgstr ""
+
+#: core/common/forms.py:8
+msgid "Search by Date"
+msgstr ""
+
+#: core/validators.py:24
+#, python-format
+msgid "%(value)s is not a valid address"
+msgstr ""
+
+#: core/validators.py:36
+#, python-format
+msgid "%(value)s has invalid characters for a valid Bitcoin address"
+msgstr ""
+
+#: core/validators.py:49
+#, python-format
+msgid "%(value)s has invalid characters for a valid Litecoin address"
+msgstr ""
+
+#: core/validators.py:61
+#, python-format
+msgid "%(value)s has invalid characters for a valid Ethereum address"
+msgstr ""
+
+#: core/validators.py:76
+#, python-format
+msgid "%(value)s is invalid."
+msgstr ""
+
+#: nexchange/settings.py:53
+msgid "Russian"
+msgstr ""
+
+#: nexchange/settings.py:54
+msgid "English"
+msgstr ""
+
+#: nexchange/settings.py:55
+msgid "Spanish"
+msgstr ""
+
+#: nexchange/settings.py:56
+msgid "Catalan"
+msgstr ""
+
+#: nexchange/settings.py:57
+msgid "Chinese"
+msgstr ""
+
+#: nexchange/settings.py:75
+msgid "Nexchange confirmation code: "
+msgstr ""
+
+#: nexchange/settings.py:159 templates/core/partials/seo_footer.html:20
+msgid "About Us"
+msgstr ""
+
+#: nexchange/settings.py:160 templates/core/partials/seo_footer.html:21
+msgid "Careers"
+msgstr ""
+
+#: nexchange/settings.py:161 templates/core/partials/seo_footer.html:22
+msgid "Press"
+msgstr ""
+
+#: nexchange/settings.py:162 templates/core/partials/seo_footer.html:23
+msgid "Conference"
+msgstr ""
+
+#: nexchange/settings.py:163 templates/core/partials/seo_footer.html:24
+msgid "Legal & Privacy"
+msgstr ""
+
+#: nexchange/settings.py:164 templates/core/partials/seo_footer.html:25
+msgid "Security"
+msgstr ""
+
+#: nexchange/settings.py:166 templates/core/partials/seo_footer.html:29
+msgid "FAQ"
+msgstr ""
+
+#: nexchange/settings.py:168 templates/core/partials/seo_footer.html:31
+msgid "Fees"
+msgstr ""
+
+#: nexchange/settings.py:169 templates/core/partials/seo_footer.html:32
+msgid "Support"
+msgstr ""
+
+#: nexchange/settings.py:170
+msgid "Affiliate Program"
+msgstr ""
+
+#: orders/models.py:117 orders/models.py:119
+msgid "Invalid order type choice"
+msgstr ""
+
+#: orders/models.py:148
+msgid "Sorry, we cannot convert {} to {}"
+msgstr ""
+
+#: orders/tasks/generic/base.py:53
+msgid "Nexchange: Order {} released"
+msgstr ""
+
+#: orders/tasks/generic/base.py:55
+msgid "Your order {}: is released. Withdraw address: {}"
+msgstr ""
+
+#: orders/views.py:57
+msgid "Orders Main"
+msgstr ""
+
+#: orders/views.py:88 orders/views.py:218
+msgid "Result"
+msgstr ""
+
+#: orders/views.py:101
+msgid "Add"
+msgstr ""
+
+#: orders/views.py:310 orders/views.py:394
+msgid "You don't have permission to edit this order"
+msgstr ""
+
+#: orders/views.py:313
+msgid "This order can not be edited because it is already released"
+msgstr ""
+
+#: orders/views.py:316
+msgid "You need to be a verified user to set withdrawal address."
+msgstr ""
+
+#: orders/views.py:326
+msgid ""
+"The currency({}) of this Address is not the same as the order base "
+"currency({})."
+msgstr ""
+
+#: orders/views.py:333
+msgid ""
+"The currency({}) of this Address is not the same as the order quote "
+"currency({})."
+msgstr ""
+
+#: orders/views.py:378
+msgid "Invalid address provided"
+msgstr ""
+
+#: orders/views.py:397
+msgid "This order can not be edited because is it already released"
+msgstr ""
+
+#: orders/views.py:401
+msgid "An order can not be set as paid without a withdraw address"
+msgstr ""
+
+#: payments/api_clients/card_pmt.py:91
+msgid "CVV({}) length is not 3"
+msgstr ""
+
+#: payments/api_clients/card_pmt.py:97
+msgid "CVV({}) contains not only digits"
+msgstr ""
+
+#: payments/api_clients/card_pmt.py:105
+msgid "cnn({}) starts with wrong numbers for mastercard"
+msgstr ""
+
+#: payments/api_clients/card_pmt.py:111
+msgid "Mastercard cnn({}) must be between 16-19 digits long"
+msgstr ""
+
+#: payments/api_clients/card_pmt.py:119
+msgid " {} is invalid Mastercard number."
+msgstr ""
+
+#: payments/api_clients/card_pmt.py:127
+msgid "Invalid ccexp({}) length"
+msgstr ""
+
+#: payments/api_clients/card_pmt.py:139
+msgid "Credit card expired (ccexp - {})"
+msgstr ""
+
+#: payments/api_clients/card_pmt.py:291
+msgid "Something went wrong. Order is not paid."
+msgstr ""
+
+#: payments/api_clients/card_pmt.py:292
+msgid "Order is paid successfully!"
+msgstr ""
+
+#: payments/api_clients/card_pmt.py:298
+msgid "Bad Credit Card credentials"
+msgstr ""
+
+#: payments/api_clients/card_pmt.py:305
+msgid "Order payment status is unclear, please contact administrator!"
+msgstr ""
+
+#: payments/api_clients/card_pmt.py:337
+msgid "This order is already paid"
+msgstr ""
+
+#: payments/models.py:148 payments/models.py:191
+msgid "Nonce"
+msgstr ""
+
+#: payments/models.py:189
+msgid "Uni"
+msgstr ""
+
+#: payments/models.py:193
+msgid "Token"
+msgstr ""
+
+#: payments/models.py:195
+msgid "Default"
+msgstr ""
+
+#: payments/models.py:196
+msgid "Delete"
+msgstr ""
+
+#: payments/views.py:139
+msgid "Unsupported payment provider"
+msgstr ""
+
+#: payments/views.py:266 payments/views.py:268
+msgid "Resource not found"
+msgstr ""
+
+#: referrals/forms.py:13
+msgid "Name / Short Comment"
+msgstr ""
+
+#: referrals/forms.py:14
+msgid ""
+"This field can be used to describe the purpose and target public of this "
+"Referral Link"
+msgstr ""
+
+#: referrals/forms.py:17
+msgid "Referral Link"
+msgstr ""
+
+#: referrals/forms.py:18
+msgid "Use this link to refer users to Nexchange and receive a commission!"
+msgstr ""
+
+#: referrals/forms.py:22 templates/referrals/index_referrals.html:67
+#: templates/referrals/index_referrals.html:83
+msgid "Referral Code"
+msgstr ""
+
+#: referrals/forms.py:23
+msgid "A code to distinct your referrals from other users"
+msgstr ""
+
+#: src/kombu/kombu/transport/qpid.py:1294
+#, python-format
+msgid "Attempting to connect to qpid with SASL mechanism %s"
+msgstr ""
+
+#: src/kombu/kombu/transport/qpid.py:1299
+#, python-format
+msgid "Connected to qpid with SASL mechanism %s"
+msgstr ""
+
+#: src/kombu/kombu/transport/qpid.py:1317
+#, python-format
+msgid "Unable to connect to qpid with SASL mechanism %s"
+msgstr ""
+
+#: static/js/tests/fixtures/ProfileFixture.html:5
+#: templates/accounts/user_profile.html:18
+msgid "Your phone number is not verified yet."
+msgstr ""
+
+#: static/js/tests/fixtures/ProfileFixture.html:9
+#: templates/accounts/user_profile.html:22
+msgid "Verifying phone now..."
+msgstr ""
+
+#: static/js/tests/fixtures/ProfileFixture.html:17
+#: templates/accounts/user_profile.html:30
+msgid "Insert SMS verification token here"
+msgstr ""
+
+#: static/js/tests/fixtures/ProfileFixture.html:19
+#: templates/accounts/user_profile.html:32
+msgid "Verify phone now"
+msgstr ""
+
+#: static/js/tests/fixtures/ProfileFixture.html:26
+#: templates/accounts/user_profile.html:39
+msgid "Send-me the token again"
+msgstr ""
+
+#: support/forms.py:20
+msgid "--- Please select an order (if applicable) ---"
+msgstr ""
+
+#: support/forms.py:22
+msgid "Choose an order which is related to your request"
+msgstr ""
+
+#: support/models.py:11
+msgid "Name*"
+msgstr ""
+
+#: support/models.py:12
+msgid "Email*"
+msgstr ""
+
+#: support/models.py:13
+msgid "Telephone"
+msgstr ""
+
+#: support/models.py:15
+msgid "Subject"
+msgstr ""
+
+#: support/models.py:17
+msgid "Message*"
+msgstr ""
+
+#: templates/accounts/password_reset.html:8
+msgid "Password reset"
+msgstr ""
+
+#: templates/accounts/password_reset.html:16
+msgid "Send Reset Link"
+msgstr ""
+
+#: templates/accounts/password_reset_complete.html:11
+msgid "Your password has been reset."
+msgstr ""
+
+#: templates/accounts/password_reset_complete.html:12
+msgid "You can now login using this new password."
+msgstr ""
+
+#: templates/accounts/password_reset_complete.html:15
+msgid "Login now"
+msgstr ""
+
+#: templates/accounts/password_reset_confirm.html:10
+#: templates/accounts/password_reset_confirm.html:18
+msgid "Define new password"
+msgstr ""
+
+#: templates/accounts/password_reset_confirm.html:13
+msgid "Fill in the form with your new password to complete the process:"
+msgstr ""
+
+#: templates/accounts/password_reset_email.html:5
+msgid ""
+"You are receiving this message because you asked for a password reset at "
+"Nexchange website."
+msgstr ""
+
+#: templates/accounts/password_reset_email.html:7
+msgid "Please, follow the link below to create a new password:"
+msgstr ""
+
+#: templates/accounts/password_reset_email.html:14
+msgid "In case you have forgot, your username is"
+msgstr ""
+
+#: templates/accounts/password_reset_email.html:17
+msgid "Regards, team  Nexchange"
+msgstr ""
+
+#: templates/accounts/registration_base.html:5
+msgid "Password Reset"
+msgstr ""
+
+#: templates/accounts/registration_base.html:12 templates/core/index.html:7
+msgid "Nexchange"
+msgstr ""
+
+#: templates/accounts/user_login.html:8 templates/accounts/user_login.html:18
+#: templates/core/partials/breadcrumbs.html:26
+#: templates/core/partials/menu.html:76
+#: templates/core/partials/seo_footer.html:13
+msgid "Login"
+msgstr ""
+
+#: templates/accounts/user_login.html:22
+msgid "Don't have an account?"
+msgstr ""
+
+#: templates/accounts/user_login.html:22
+msgid "Register here"
+msgstr ""
+
+#: templates/accounts/user_login.html:23
+msgid "Forgot your password?"
+msgstr ""
+
+#: templates/accounts/user_login.html:23
+msgid "Reset it here"
+msgstr ""
+
+#: templates/accounts/user_profile.html:9
+msgid "User Profile"
+msgstr ""
+
+#: templates/accounts/user_profile.html:50
+msgid "Your phone has been verified."
+msgstr ""
+
+#: templates/accounts/user_registration.html:8
+#: templates/accounts/user_registration.html:18
+#: templates/core/partials/menu.html:80
+msgid "Register"
+msgstr ""
+
+#: templates/articles/cms_default.html:19
+msgid "Written by: "
+msgstr ""
+
+#: templates/articles/cms_default.html:19
+msgid "Nexchange Team"
+msgstr ""
+
+#: templates/articles/cms_default.html:22
+msgid "Last modified: "
+msgstr ""
+
+#: templates/core/base.html:10
+msgid "Simple and powerful Bitcoin, Ethereum and Litecoin exchange"
+msgstr ""
+
+#: templates/core/base.html:13
+msgid "Nexchange BETA"
+msgstr ""
+
+#: templates/core/base.html:19
+msgid "Service unavailable. Please try again later."
+msgstr ""
+
+#: templates/core/partials/breadcrumbs.html:14
+msgid "Order"
+msgstr ""
+
+#: templates/core/partials/breadcrumbs.html:38
+msgid "Confirm"
+msgstr ""
+
+#: templates/core/partials/footer.html:3
+msgid ""
+"All rights reserved, YOA LTD 2016-2017, England & Wales registered company "
+"No. 10009845"
+msgstr ""
+
+#: templates/core/partials/menu.html:29
+msgid "Toggle navigation"
+msgstr ""
+
+#: templates/core/partials/menu.html:41
+msgid "Home"
+msgstr ""
+
+#: templates/core/partials/menu.html:46
+msgid "My Orders"
+msgstr ""
+
+#: templates/core/partials/menu.html:51
+msgid "Referrals"
+msgstr ""
+
+#: templates/core/partials/menu.html:56
+msgid "Verification"
+msgstr ""
+
+#: templates/core/partials/menu.html:72
+msgid "Logout"
+msgstr ""
+
+#: templates/core/partials/seo_footer.html:9
+msgid "ACCOUNT"
+msgstr ""
+
+#: templates/core/partials/seo_footer.html:11
+msgid "Profile"
+msgstr ""
+
+#: templates/core/partials/seo_footer.html:14
+msgid "SignUp"
+msgstr ""
+
+#: templates/core/partials/seo_footer.html:19
+msgid "ABOUT"
+msgstr ""
+
+#: templates/core/partials/seo_footer.html:28
+msgid "RESOURCES"
+msgstr ""
+
+#: templates/core/partials/seo_footer.html:36
+msgid "Social"
+msgstr ""
+
+#: templates/core/partials/spa_navigation.html:5
+msgid "Next"
+msgstr ""
+
+#: templates/core/partials/spa_navigation.html:10
+#: templates/orders/partials/steps/old_amount.html:26
+#: templates/orders/partials/steps/step_amount.html:41
+#: templates/orders/partials/steps/step_confirmation.html:48
+msgid "Sell"
+msgstr ""
+
+#: templates/core/partials/spa_navigation.html:14
+#: templates/orders/partials/steps/old_amount.html:11
+#: templates/orders/partials/steps/step_amount.html:35
+#: templates/orders/partials/steps/step_confirmation.html:49
+#: templates/support/thanks.html:15
+msgid "Buy"
+msgstr ""
+
+#: templates/core/partials/success_order_sell.html:5
+#: templates/orders/partials/modals/order_success_buy.html:8
+#: templates/orders/partials/modals/order_success_sell.html:7
+msgid "Order placed successfully"
+msgstr ""
+
+#: templates/core/partials/success_order_sell.html:8
+msgid "Please tranfer to this BTC Address"
+msgstr ""
+
+#: templates/core/partials/success_order_sell.html:17
+msgid "Notice that you must pay until"
+msgstr ""
+
+#: templates/orders/partials/forms/payment_toggle.html:6
+#: templates/orders/partials/order_row_mobile.html:47
+msgid "Setting as paid..."
+msgstr ""
+
+#: templates/orders/partials/forms/payment_toggle.html:23
+#: templates/orders/partials/order_row_mobile.html:51
+#: templates/orders/partials/orders_desktop.html:11
+msgid "Paid"
+msgstr ""
+
+#: templates/orders/partials/forms/payment_toggle.html:25
+msgid "Not Paid"
+msgstr ""
+
+#: templates/orders/partials/forms/withdraw_address_widget.html:7
+#, python-format
+msgid ""
+" Define your withdraw\n"
+"                address and get %(order.pair.base.code)s now!\n"
+"            "
+msgstr ""
+
+#: templates/orders/partials/forms/withdraw_address_widget.html:21
+#: templates/orders/partials/forms/withdraw_address_widget.html:38
+msgid "Not Defined"
+msgstr ""
+
+#: templates/orders/partials/forms/withdraw_address_widget.html:31
+msgid "Set Withdraw Address"
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:13
+msgid "Please fill the form to pay "
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:15
+msgid "for this order."
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:24
+msgid "Please make "
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:26
+msgid "payment via "
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:35
+msgid "IBAN: "
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:38
+msgid "BIC: "
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:42
+msgid "Beneficiary: "
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:46
+msgid "Bank Name: "
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:50
+msgid "Bank Address: "
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:54
+msgid "Owner Address: "
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:66
+msgid "Please put the following reference in the comment"
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:82
+#: templates/support/thanks.html:18
+msgid "OR"
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:91
+msgid "Order reference:"
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:102
+msgid "proceed to automatic-checkout"
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:124
+#: templates/orders/partials/modals/order_success_sell.html:10
+msgid "Please send"
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:126
+#: templates/orders/partials/modals/order_success_sell.html:12
+msgid "to the following address"
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:132
+#: templates/orders/partials/modals/order_success_sell.html:18
+msgid "Copy"
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_buy.html:145
+#: templates/orders/partials/modals/order_success_sell.html:48
+msgid "Order Reference:"
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_options.html:7
+#, python-format
+msgid ""
+"\n"
+"                    Credit my withdraw address automatically with any funds\n"
+"                    sent by you to our "
+"%(order.payment_preference.payment_method.name)s\n"
+"                "
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_options.html:12
+#, python-format
+msgid ""
+"\n"
+"                    Convert coins credited to this address automatically to "
+"my\n"
+"                    %(order.payment_preference.payment_method.name)s in the "
+"future\n"
+"                "
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_sell.html:32
+msgid "You choose to get paid by:"
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_sell.html:42
+msgid "We will place the following reference in the comment to our payment:"
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_terms.html:15
+msgid "Please notice that you must pay until "
+msgstr ""
+
+#: templates/orders/partials/modals/order_success_terms.html:23
+msgid ""
+"All exchange transactions are executed automatically by a computer "
+"regardless of the payment method"
+msgstr ""
+
+#: templates/orders/partials/modals/success_order.html:17
+msgid "Success"
+msgstr ""
+
+#: templates/orders/partials/modals/success_order.html:42
+msgid "Go to Robokassa"
+msgstr ""
+
+#: templates/orders/partials/modals/success_order.html:49
+msgid "Get your coins"
+msgstr ""
+
+#: templates/orders/partials/modals/success_order.html:51
+msgid "Done"
+msgstr ""
+
+#: templates/orders/partials/order_pagination.html:5
+#: templates/referrals/index_referrals.html:115
+msgid "previous"
+msgstr ""
+
+#: templates/orders/partials/order_pagination.html:9
+#: templates/referrals/index_referrals.html:119
+msgid "Page"
+msgstr ""
+
+#: templates/orders/partials/order_pagination.html:11
+#: templates/referrals/index_referrals.html:119
+msgid "of"
+msgstr ""
+
+#: templates/orders/partials/order_pagination.html:15
+#: templates/referrals/index_referrals.html:123
+msgid "next"
+msgstr ""
+
+#: templates/orders/partials/order_pagination.html:21
+msgid "Hide expired and released"
+msgstr ""
+
+#: templates/orders/partials/order_pagination.html:23
+msgid "Show expired and released"
+msgstr ""
+
+#: templates/orders/partials/order_row_desktop.html:6
+#: templates/orders/partials/order_row_mobile.html:7
+msgid "Buying"
+msgstr ""
+
+#: templates/orders/partials/order_row_desktop.html:10
+#: templates/orders/partials/order_row_mobile.html:11
+msgid "Selling"
+msgstr ""
+
+#: templates/orders/partials/order_row_mobile.html:25
+#: templates/orders/partials/orders_desktop.html:7
+msgid "Reference"
+msgstr ""
+
+#: templates/orders/partials/order_row_mobile.html:31
+#: templates/orders/partials/orders_desktop.html:8
+msgid "Pair"
+msgstr ""
+
+#: templates/orders/partials/order_row_mobile.html:36
+#: templates/orders/partials/orders_desktop.html:9
+msgid "Price"
+msgstr ""
+
+#: templates/orders/partials/order_row_mobile.html:40
+#: templates/orders/partials/orders_desktop.html:10
+msgid "Volume"
+msgstr ""
+
+#: templates/orders/partials/order_row_mobile.html:58
+#: templates/orders/partials/orders_desktop.html:12
+msgid "Released"
+msgstr ""
+
+#: templates/orders/partials/order_row_mobile.html:67
+#: templates/orders/partials/orders_desktop.html:13
+msgid "Completed"
+msgstr ""
+
+#: templates/orders/partials/order_row_mobile.html:75
+#: templates/orders/partials/orders_desktop.html:14
+msgid "Withdraw Address"
+msgstr ""
+
+#: templates/orders/partials/orders_desktop.html:5
+msgid "Type"
+msgstr ""
+
+#: templates/orders/partials/orders_desktop.html:6
+msgid "Date"
+msgstr ""
+
+#: templates/orders/partials/orders_desktop.html:21
+msgid "No records found"
+msgstr ""
+
+#: templates/orders/partials/orders_header.html:5
+msgid "Current Orders"
+msgstr ""
+
+#: templates/orders/partials/orders_header.html:14
+msgid "New Order"
+msgstr ""
+
+#: templates/orders/partials/steps/old_amount.html:53
+msgid "To"
+msgstr ""
+
+#: templates/orders/partials/steps/step_authentication.html:7
+msgid "Phone verification"
+msgstr ""
+
+#: templates/orders/partials/steps/step_authentication.html:10
+msgid "Enter your phone"
+msgstr ""
+
+#: templates/orders/partials/steps/step_authentication.html:14
+msgid "Mobile number"
+msgstr ""
+
+#: templates/orders/partials/steps/step_authentication.html:25
+msgid "Human check"
+msgstr ""
+
+#: templates/orders/partials/steps/step_authentication.html:36
+msgid "Code from SMS"
+msgstr ""
+
+#: templates/orders/partials/steps/step_authentication.html:45
+msgid "Send SMS"
+msgstr ""
+
+#: templates/orders/partials/steps/step_authentication.html:48
+msgid "Send again"
+msgstr ""
+
+#: templates/orders/partials/steps/step_authentication.html:51
+msgid "Go"
+msgstr ""
+
+#: templates/orders/partials/steps/step_confirmation.html:5
+msgid "Your Order"
+msgstr ""
+
+#: templates/orders/partials/steps/step_confirmation.html:13
+msgid "for"
+msgstr ""
+
+#: templates/orders/partials/steps/step_confirmation.html:21
+msgid "Payment Method"
+msgstr ""
+
+#: templates/orders/partials/steps/step_confirmation.html:33
+msgid "Fee: "
+msgstr ""
+
+#: templates/orders/partials/steps/step_confirmation.html:50
+msgid "Cancel"
+msgstr ""
+
+#: templates/orders/partials/steps/step_retry_payment.html:8
+msgid "Bad signature"
+msgstr ""
+
+#: templates/orders/partials/steps/step_retry_payment.html:10
+msgid "Your payment failed. You can try again or make a new order"
+msgstr ""
+
+#: templates/orders/partials/steps/step_retry_payment.html:14
+msgid "Try again"
+msgstr ""
+
+#: templates/orders/partials/steps/step_retry_payment.html:16
+msgid "New order"
+msgstr ""
+
+#: templates/payments/partials/forms/card.html:11
+#: templates/payments/partials/forms/credit_card.html:22
+msgid "Card number"
+msgstr ""
+
+#: templates/payments/partials/forms/card.html:15
+msgid "Full name"
+msgstr ""
+
+#: templates/payments/partials/forms/credit_card.html:16
+msgid "Firstname"
+msgstr ""
+
+#: templates/payments/partials/forms/credit_card.html:19
+msgid "Lastname"
+msgstr ""
+
+#: templates/payments/partials/forms/credit_card.html:25
+msgid "MM / YY"
+msgstr ""
+
+#: templates/payments/partials/forms/credit_card.html:28
+msgid "CVV"
+msgstr ""
+
+#: templates/payments/partials/forms/credit_card.html:36
+msgid "Email"
+msgstr ""
+
+#: templates/payments/partials/forms/credit_card.html:39
+msgid "Address line 1"
+msgstr ""
+
+#: templates/payments/partials/forms/credit_card.html:42
+msgid "Address line 2"
+msgstr ""
+
+#: templates/payments/partials/forms/credit_card.html:45
+msgid "City"
+msgstr ""
+
+#: templates/payments/partials/forms/credit_card.html:48
+msgid "state / province / region"
+msgstr ""
+
+#: templates/payments/partials/forms/credit_card.html:51
+msgid "zip or postal code"
+msgstr ""
+
+#: templates/payments/partials/forms/credit_card.html:57
+msgid "Select your option"
+msgstr ""
+
+#: templates/payments/partials/forms/credit_card.html:301
+msgid "Confirm Payment"
+msgstr ""
+
+#: templates/payments/partials/forms/email.html:7
+#: templates/payments/partials/forms/iban.html:7
+#: templates/payments/partials/forms/swift.html:7
+msgid "Account Holder"
+msgstr ""
+
+#: templates/payments/partials/forms/email.html:9
+#: templates/payments/partials/forms/iban.html:9
+#: templates/payments/partials/forms/swift.html:9
+msgid "John Smith"
+msgstr ""
+
+#: templates/payments/partials/forms/email.html:15
+#: templates/payments/partials/forms/email.html:17
+msgid "Account Email"
+msgstr ""
+
+#: templates/payments/partials/forms/email.html:21
+msgid "Save this data to my profile"
+msgstr ""
+
+#: templates/payments/partials/forms/iban.html:15
+msgid "IBAN"
+msgstr ""
+
+#: templates/payments/partials/forms/swift.html:15
+msgid "Account number"
+msgstr ""
+
+#: templates/payments/partials/forms/swift.html:17
+msgid "Account Number"
+msgstr ""
+
+#: templates/payments/partials/forms/swift.html:22
+#: templates/payments/partials/forms/swift.html:24
+msgid "BIC"
+msgstr ""
+
+#: templates/payments/partials/modals/payment_options.html:8
+msgid "Credit cards"
+msgstr ""
+
+#: templates/payments/partials/modals/payment_options.html:19
+msgid "Wallets"
+msgstr ""
+
+#: templates/payments/partials/modals/payment_options.html:35
+msgid "Bank"
+msgstr ""
+
+#: templates/payments/partials/modals/payment_type_inner.html:11
+msgid "How would you like to pay?"
+msgstr ""
+
+#: templates/payments/partials/modals/payment_type_inner.html:13
+msgid "How would you like to get paid?"
+msgstr ""
+
+#: templates/payments/partials/modals/payment_type_inner.html:21
+#: templates/payments/partials/modals/sell.html:49
+msgid "Close"
+msgstr ""
+
+#: templates/payments/partials/modals/sell.html:21
+msgid "Previously used"
+msgstr ""
+
+#: templates/payments/partials/modals/sell.html:24
+msgid "Pick one of your saved accounts"
+msgstr ""
+
+#: templates/payments/partials/modals/sell.html:35
+msgid "Use this "
+msgstr ""
+
+#: templates/payments/partials/modals/sell.html:42
+msgid "Save & Continue"
+msgstr ""
+
+#: templates/payments/partials/modals/sell.html:48
+#: templates/support/thanks.html:21
+msgid "Back"
+msgstr ""
+
+#: templates/referrals/index_referrals.html:13
+msgid "My referrals"
+msgstr ""
+
+#: templates/referrals/index_referrals.html:27
+msgid "details"
+msgstr ""
+
+#: templates/referrals/index_referrals.html:34
+#: templates/referrals/index_referrals.html:77
+msgid "Partial phone"
+msgstr ""
+
+#: templates/referrals/index_referrals.html:40
+msgid "Confirmed orders"
+msgstr ""
+
+#: templates/referrals/index_referrals.html:46
+#: templates/referrals/index_referrals.html:79
+msgid "Turnover"
+msgstr ""
+
+#: templates/referrals/index_referrals.html:52
+#: templates/referrals/index_referrals.html:80
+msgid "Revenue"
+msgstr ""
+
+#: templates/referrals/index_referrals.html:58
+#: templates/referrals/index_referrals.html:81
+msgid "Last seen"
+msgstr ""
+
+#: templates/referrals/index_referrals.html:63
+#: templates/referrals/index_referrals.html:82
+msgid "Timezone"
+msgstr ""
+
+#: templates/referrals/index_referrals.html:78
+msgid "Confirmed orders count"
+msgstr ""
+
+#: templates/referrals/index_referrals.html:100
+msgid "No referrals found"
+msgstr ""
+
+#: templates/support/support.html:11
+msgid "Contact us"
+msgstr ""
+
+#: templates/support/support.html:25
+msgid "Send"
+msgstr ""
+
+#: templates/support/support.html:33 templates/support/support.html:34
+msgid "support@nexchange.co.uk"
+msgstr ""
+
+#: templates/support/thanks.html:8
+msgid ""
+"Thank you, our support representative will be in touch with you within 24 "
+"hours"
+msgstr ""
+
+#: templates/verification/upload.html:11
+msgid "Upload Verification"
+msgstr ""
+
+#: templates/verification/upload.html:23
+msgid "Upload"
+msgstr ""
+
+#: templates/verification/upload.html:28
+msgid "Created on"
+msgstr ""
+
+#: templates/verification/upload.html:29
+msgid "Identity Document"
+msgstr ""
+
+#: templates/verification/upload.html:30
+msgid "Utility Document"
+msgstr ""
+
+#: templates/verification/upload.html:46 templates/verification/upload.html:64
+msgid "Download here"
+msgstr ""
+
+#: templates/verification/upload.html:76
+msgid "No documents found"
+msgstr ""
+
+#: verification/views/views.py:52
+msgid "You don't have permission to download this document"
+msgstr ""

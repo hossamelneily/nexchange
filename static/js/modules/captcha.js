@@ -4,13 +4,16 @@
 
   var verifyRecatpchaCallback = function(response) {
           //console.log( 'g-recaptcha-response: ' + response );
-      if($('.phone.val').val().length > 10) {
-            $('.create-acc')
-                .not('.resend')
-                .removeClass('disabled');
-      }
+      var phone = $('.phone.val');
+      if (phone.length > 0) {
+          if (phone.val().length > 10) {
+              $('.create-acc')
+                  .not('.resend')
+                  .removeClass('disabled');
+          }
 
-      isVerified = true;
+          isVerified = true;
+      }
   };
   
   var getIsVerefied = function () {

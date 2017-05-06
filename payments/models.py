@@ -63,6 +63,7 @@ class PaymentMethod(TimeStampedModel, SoftDeletableModel):
     checkout_type = models.IntegerField(
         choices=CHECKOUT_TYPES, default=MANUAL
     )
+    required_verification_buy = models.BooleanField(default=False)
 
     @property
     def auto_checkout(self):
@@ -139,6 +140,16 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         return payment_method[0] if len(payment_method) \
             else PaymentMethod.objects.get(name='Cash')
 
+    @property
+    def user_verified_for_buy(self):
+        required_verification = self.payment_method.\
+            required_verification_buy
+        if not required_verification:
+            return True
+        if not self.user.profile.is_verified:
+            return False
+        return True
+
     def __str__(self):
         return "{} {}".format(self.payment_method.name,
                               self.identifier)
@@ -199,28 +210,6 @@ class PaymentCredentials(TimeStampedModel, SoftDeletableModel):
         pref = self.paymentpreference_set.get()
         return "{0} - ({1})".format(pref.user.username,
                                     pref.identifier)
-
-
-# TODO: Move to core
-class UserCards(models.Model):
-    TYPES = (
-        ('BTC', 'BTC'),
-        ('LTC', 'LTC'),
-        ('ETH', 'ETH'),
-    )
-    card_id = models.CharField('Card_id', max_length=36)
-    address_id = models.CharField('Address_id', max_length=42)
-    currency = models.CharField('Currency', choices=TYPES, max_length=3)
-    user = models.ForeignKey(User, null=True, blank=True, default=None)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.card_id
-
-    class Meta:
-        verbose_name = "Card"
-        verbose_name_plural = "Cards"
-        ordering = ['-created']
 
 
 class FailedRequest(TimeStampedModel):

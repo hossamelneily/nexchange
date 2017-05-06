@@ -1,18 +1,19 @@
-from nexchange.tasks.base import BaseTask
+from nexchange.tasks.base import BaseApiTask
 from django.utils.translation import activate
 from payments.models import Payment
-from nexchange.utils import send_email, send_sms, release_payment
+from nexchange.utils import send_email, send_sms
 from django.db import transaction
 from core.models import Transaction
 from orders.models import Order
 from django.utils.translation import ugettext_lazy as _
 
 
-class BaseOrderRelease(BaseTask):
-    def __init__(self):
-        super(BaseOrderRelease, self).__init__()
+class BaseOrderRelease(BaseApiTask):
+    @classmethod
+    def get_order(cls, payment_id):
+        return Payment.objects.get(pk=payment_id), None
 
-    def get_order(self, payment):
+    def _get_order(self, payment):
         raise NotImplementedError
 
     def complete_missing_data(self, payment, order):
@@ -71,8 +72,10 @@ class BaseOrderRelease(BaseTask):
             send_email(profile.user.email, title, msg)
 
     def run(self, payment_id):
-        payment = Payment.objects.get(pk=payment_id)
-        order = self.get_order(payment)
+        ret = self._get_order(payment_id)
+        if isinstance(ret, bool):
+            self._get_order(payment_id)
+        payment, order = ret
         if order:
             if self.validate(order, payment):
                 if self.do_release(order, payment):
@@ -87,7 +90,7 @@ class BaseOrderRelease(BaseTask):
 
 class BaseBuyOrderRelease(BaseOrderRelease):
     RELEASE_BY_REFERENCE = \
-        'payments.task_summary.buy_order_release_by_reference_invoke'
+        'orders.task_summary.buy_order_release_by_reference_invoke'
     RELEASE_BY_WALLET = \
         'payments.task_summary.buy_order_release_by_wallet_invoke'
     RELEASE_BY_RULE = \
@@ -97,9 +100,12 @@ class BaseBuyOrderRelease(BaseOrderRelease):
         with transaction.atomic(using='default'):
             payment.is_complete = True
             payment.save()
-            type_ = order.pair.base.code
-            tx_id = release_payment(order.withdraw_address,
-                                    order.amount_base, type_)
+            # type_ = order.pair.base.code
+            tx_id = self.api.release_coins(
+                order.pair.base,
+                order.withdraw_address,
+                order.amount_base
+            )
 
             if tx_id is None:
                 self.logger.error('Payment release returned None, '
@@ -139,6 +145,8 @@ class BaseBuyOrderRelease(BaseOrderRelease):
 
         order_paid = order.is_paid
 
+        verification_passed = payment.payment_preference.user_verified_for_buy
+
         if verbose_match and payment.reference:
             payment.flag(__name__)
             self.logger.warn('order: {} payment: {} '
@@ -163,7 +171,8 @@ class BaseBuyOrderRelease(BaseOrderRelease):
                              'RELEASE BY VERBOSE_MATCH (cross reference)'.
                              format(order, payment))
 
-        match = user_matches and details_match and ref_matches and order_paid
+        match = user_matches and details_match and ref_matches and order_paid\
+            and verification_passed
 
         if match:
             self.logger.info('Order {}  VALID {}'
@@ -171,3 +180,4 @@ class BaseBuyOrderRelease(BaseOrderRelease):
 
         return match and super(BaseBuyOrderRelease, self)\
             .validate(order, payment)
+

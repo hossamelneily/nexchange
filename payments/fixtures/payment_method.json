@@ -229,6 +229,7 @@
     "name": "Sofort" ,
     "fee_deposit": 0.02,
     "checkout_type": 1,
+    "required_verification_buy": true,
     "created_on":"2016-07-20T17:41:28+00:00",
     "modified_on":"2016-07-20T17:41:28+00:00"
   }

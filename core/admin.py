@@ -1,8 +1,10 @@
 from django.contrib import admin
-from core.models import Currency, Transaction, Address, Pair, Location
+from core.models import Currency, Transaction, Address, \
+    Pair, Location, AddressReserve
 from core.common.models import Flag
 
 
+admin.site.register(AddressReserve)
 admin.site.register(Currency)
 admin.site.register(Transaction)
 admin.site.register(Address)

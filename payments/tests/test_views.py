@@ -9,14 +9,14 @@ from core.models import Address, Transaction
 from core.tests.base import OrderBaseTestCase, UserBaseTestCase
 from core.tests.utils import data_provider
 from payments.tests.base import BaseCardPmtAPITestCase
-from nexchange.utils import release_payment
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
 from payments.utils import get_payeer_sign, get_payeer_desc
 import requests_mock
 from time import time
 from copy import deepcopy
-
+from nexchange.api_clients.uphold import UpholdApiClient
+from core.tests.base import UPHOLD_ROOT
 
 class PayeerTestCase(OrderBaseTestCase):
 
@@ -208,8 +208,10 @@ class PaymentReleaseTestCase(OrderBaseTestCase):
                                        order=self.order, address_to=self.addr)
         self.transaction.save()
 
-    @patch('nexchange.utils.api.prepare_txn')
+    @patch(UPHOLD_ROOT + 'prepare_txn')
     def test_bad_release_payment(self, prepare):
+        api = UpholdApiClient()
+
         for o in Order.objects.filter(status=Order.PAID):
             p = Payment.objects.filter(user=o.user,
                                        amount_cash=o.amount_quote,
@@ -217,8 +219,9 @@ class PaymentReleaseTestCase(OrderBaseTestCase):
                                        is_complete=False,
                                        currency=o.pair.quote).first()
             if p is not None:
-                tx_id_ = release_payment(o.withdraw_address,
-                                         o.amount_base, 'BTC')
+                tx_id_ = api.release_coins(o.pair.base,
+                                           o.withdraw_address,
+                                           o.amount_base)
                 self.assertEqual(tx_id_, None)
 
     def test_orders_with_approved_payments(self):

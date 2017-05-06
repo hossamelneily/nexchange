@@ -63,7 +63,7 @@ module.exports = {
         new webpack.optimize.UglifyJsPlugin({
             sourceMap: true,
             minimize: true,
-            compress: false,
+            compress: true,
             compressor: {
                 warnings: false
             }
@@ -73,7 +73,7 @@ module.exports = {
     entry: [
         // npm js
         './node_modules/select2/dist/js/select2.full.min.js',
-        './node_modules/jquery-ticker/jquery.ticker.js',
+        // './node_modules/jquery-ticker/jquery.ticker.js',
         './node_modules/card/dist/jquery.card.js',
         './node_modules/jquery-ui/ui/widgets/datepicker.js',
         './node_modules/js-cookie/src/js.cookie.js',

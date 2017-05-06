@@ -6,6 +6,7 @@ import xmltodict
 
 
 class SofortAPIClient(BasePaymentApi):
+
     def __init__(self, api_key=settings.SOFORT_API_KEY,
                  user_id=settings.SOFORT_USER_ID,
                  project_id=settings.SOFORT_PROJECT_ID,
