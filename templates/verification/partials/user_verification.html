@@ -1,0 +1,70 @@
+{% load bootstrap3 %}
+{% load i18n %}
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
+
+        <form method="post" action="{% url 'verification.upload'%}" class="form" enctype="multipart/form-data" action="">
+            {% csrf_token %}
+            {% bootstrap_form verification_form %}
+            <input type="submit" name="submit" id="submit" class="btn btn-success btn-lg" value="{% trans "Upload" %}"/>
+        </form>
+        <div class="table-responsive hidden-xs">
+              <table class=" table-hover table-condensed col-lg-12">
+                  <tr class="table-order">
+                    <th >{% trans "Created on" %}</th>
+                    <th >{% trans "Identity Document" %}</th>
+                    <th >{% trans "Utility Document" %}</th>
+                  </tr>
+                {% for ver in verifications %}
+                    <tr>
+                        <td>{{ ver.created_on}}</td>
+                        <td>
+                            {% if ver.identity_document %}
+                                <a href="{% url 'verification.download' ver.identity_document.name %}"
+                                    style="text-decoration:None">
+                                    {% if ver.id_status == 'OK' %}
+                                        <i class="fa fa-check-square-o"></i>
+                                    {% elif ver.id_status == 'REJECTED' %}
+                                        <i class="fa fa-exclamation-triangle"></i>
+                                    {% elif ver.id_status is None %}
+                                        <i class="fa fa-square-o"></i>
+                                    {% endif %}
+                                    {% trans "Download here" %}
+                                </a>
+                                {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        </td>
+                        <td>
+                            {% if ver.utility_document %}
+                                <a href="{% url 'verification.download' ver.utility_document.name %}"
+                                    style="text-decoration:None">
+                                    {% if ver.util_status == 'OK' %}
+                                        <i class="fa fa-check-square-o"></i>
+                                    {% elif ver.util_status == 'REJECTED' %}
+                                        <i class="fa fa-exclamation-triangle"></i>
+                                    {% elif ver.util_status is None %}
+                                        <i class="fa fa-square-o"></i>
+                                    {% endif %}
+                                    {% trans "Download here" %}
+                                </a>
+                                {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        </td>
+                    </tr>
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="10">
+                            <h3>{% trans "No documents found" %}</h3>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
