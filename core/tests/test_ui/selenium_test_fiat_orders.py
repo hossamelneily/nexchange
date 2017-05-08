@@ -44,9 +44,11 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
         ([{'name': 'Sofort', 'success_url': '/sofort'}], True, True),
     ))
     def test_buy4(self, payment_methods, automatic_payment, do_logout):
-        self.base_test_buy(payment_methods, automatic_payment, do_logout)
+        self.base_test_buy(payment_methods, automatic_payment, do_logout,
+                           reject_user_verification=False)
 
-    def base_test_buy(self, payment_methods, automatic_payment, do_logout):
+    def base_test_buy(self, payment_methods, automatic_payment, do_logout,
+                      reject_user_verification=True):
         self.workflow = 'BUY'
         for payment_method in payment_methods:
             self.screenshot_no = 1
@@ -54,7 +56,10 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
             print('Test {}'.format(self.payment_method))
             pair_name = payment_method.get('pair_name', 'BTCEUR')
             try:
-                self.checkbuy(pair_name)
+                self.checkbuy(
+                    pair_name,
+                    reject_user_verification=reject_user_verification
+                )
                 if automatic_payment:
                     success_url = '/payments/success{}'.format(
                         payment_method['success_url']
@@ -101,12 +106,12 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
             if do_logout:
                 self.logout()
 
-    def checkbuy(self, pair_name='BTCEUR'):
+    def checkbuy(self, pair_name='BTCEUR', reject_user_verification=True):
         order_type = 'BUY'
         self.request_order(order_type, pair_name=pair_name)
 
         if not self.logged_in:
-            self.login_phone()
+            self.login_phone(reject_user_verification=reject_user_verification)
         # FIXME: this fails on test pipeline
         # self.check_confirm_amounts()
         # press buy
