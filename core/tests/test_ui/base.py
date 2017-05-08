@@ -162,14 +162,30 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.wait_until_clickable_element_by_name('trigger-buy')
         self.selenium_user = User(username=username)
 
-    def login_phone(self):
-        self.login_seemless()
+    def verify_user(self, user, reject_user_verification=True):
+        if reject_user_verification:
+            status = Verification.REJECTED
+        else:
+            status = Verification.OK
+        verifications = Verification.objects.filter(user=user)
+        if len(verifications) == 0:
+            Verification(user=self.selenium_user, id_status=status,
+                         util_status=status).save()
+        else:
+            for ver in verifications:
+                ver.id_status = ver.util_status = status
+                ver.save()
 
-    def login_email(self):
-        self.login_seemless(with_email=True)
+    def login_phone(self, reject_user_verification=True):
+        self.login_seemless(reject_user_verification=reject_user_verification)
+
+    def login_email(self, reject_user_verification=True):
+        self.login_seemless(with_email=True,
+                            reject_user_verification=reject_user_verification)
 
     @requests_mock.mock()
-    def login_seemless(self, mock, with_email=False):
+    def login_seemless(self, mock, with_email=False,
+                       reject_user_verification=True):
         mock.post(
             'https://www.google.com/recaptcha/api/siteverify',
             text='{\n "success": true\n}'
@@ -219,9 +235,8 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.click_span(class_name='verify-acc')
 
         self.selenium_user = User.objects.get(username=self.username)
-        if not self.selenium_user.profile.is_verified:
-            Verification(user=self.selenium_user, id_status=Verification.OK,
-                         util_status=Verification.OK).save()
+        self.verify_user(self.selenium_user,
+                         reject_user_verification=reject_user_verification)
         sleep(self.timeout / 60)
         self.do_screenshot('After Login')
         self.logged_in = True
