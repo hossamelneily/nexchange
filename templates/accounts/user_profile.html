@@ -10,8 +10,9 @@
         </h1>
     </div>
     <div class="form-group">
-      <button class="btn btn-lg btn-primary tablinks active" onclick="openProfileTab(event, 'info')">Info</button>
-      <button class="btn btn-lg btn-primary tablinks" onclick="openProfileTab(event, 'verification')">Verification</button>
+        <button class="btn btn-lg btn-primary tablinks active" onclick="openProfileTab(event, 'info')">{% trans "Info" %}</button>
+        <button class="btn btn-lg btn-primary tablinks" onclick="openProfileTab(event, 'verification')">{% trans "Verification" %}</button>
+        <button class="btn btn-lg btn-primary tablinks" onclick="openProfileTab(event, 'referrals')">{%trans "Referrals" %}</button>
     </div>
 
     <div id="info" class="tabcontent" style="display: block;">
@@ -19,9 +20,11 @@
     </div>
 
     <div id="verification" class="tabcontent" style="display: none;">
-        <div>
         {% include "verification/partials/user_verification.html" %}
-        </div>
+    </div>
+
+    <div id="referrals" class="tabcontent" style="display: none;">
+        {% include "accounts/partials/user_profile_referral.html" %}
     </div>
 
 {% endblock %}

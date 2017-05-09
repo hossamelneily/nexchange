@@ -1,0 +1,14 @@
+{% load bootstrap3 %}
+{% load i18n %}
+
+<form method="post" action="{% url 'accounts.referral_update'%}" class="form" enctype="multipart/form-data" action="">
+    {% csrf_token %}
+
+
+    {{ referral_formset.management_form }}
+    {% for referral_form in referral_formset %}
+        {% bootstrap_form referral_form %}
+    {% endfor %}
+
+    <input type="submit" name="submit" class="btn btn-success btn-lg" id="submit" value="Update Profile">
+</form>

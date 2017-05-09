@@ -132,13 +132,6 @@ class UserUpdateView(View):
             user_form.save()
             profile_form.save()
 
-        if referral_formset.is_valid():
-            instances = referral_formset.save(commit=False)
-            for instance in instances:
-                success_message += _('Referral codes updated successfully')
-                instance.user = request.user.pk
-                instance.save()
-
         if success_message:
             messages.success(self.request, success_message)
             return redirect(reverse('accounts.user_profile'))
@@ -150,6 +143,30 @@ class UserUpdateView(View):
             }
 
             return render(request, 'accounts/user_profile.html', ctx, )
+
+
+@method_decorator(login_required, name='dispatch')
+class ReferralUpdateView(View):
+    ReferralFormSet = modelformset_factory(ReferralCode,
+                                           form=ReferralTokenForm, extra=1)
+
+    def post(self, request):
+        referral_formset = UserUpdateView.ReferralFormSet(request.POST)
+
+        success_message = ''
+
+        if referral_formset.is_valid():
+            instances = referral_formset.save(commit=False)
+            for instance in instances:
+                success_message += '{}\n'.format(
+                    _('Referral codes updated successfully')
+                )
+                instance.user = request.user
+                instance.save()
+
+        if success_message:
+            messages.success(self.request, success_message)
+        return redirect(reverse('accounts.user_profile'))
 
 
 @watch_login

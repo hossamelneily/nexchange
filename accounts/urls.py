@@ -21,6 +21,9 @@ account_urls = [
     url(r'^profile$', views.UserUpdateView.as_view(),
         name='accounts.user_profile'),
 
+    url(r'^profile/referrals/$', views.ReferralUpdateView.as_view(),
+        name='accounts.referral_update'),
+
     url(r'^create_withdraw_address/(?P<order_pk>[\d]+)/$',
         views.create_withdraw_address,
         name='accounts.create_withdraw_address'),
