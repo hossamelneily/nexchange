@@ -9,10 +9,10 @@
             {% trans "User Profile" %}
         </h1>
     </div>
-    <div class="form-group">
-        <button class="btn btn-lg btn-primary tablinks active" onclick="openProfileTab(event, 'info')">{% trans "Info" %}</button>
-        <button class="btn btn-lg btn-primary tablinks" onclick="openProfileTab(event, 'verification')">{% trans "Verification" %}</button>
-        <button class="btn btn-lg btn-primary tablinks" onclick="openProfileTab(event, 'referrals')">{%trans "Referrals" %}</button>
+    <div class="form-group" name="tabs" id="tabs">
+        <button id="info_button" class="btn btn-lg btn-primary tablinks active" onclick="openProfileTab(event, 'info')">{% trans "Info" %}</button>
+        <button id="verification_button" class="btn btn-lg btn-primary tablinks" onclick="openProfileTab(event, 'verification')">{% trans "Verification" %}</button>
+        <button id="referrals_button" class="btn btn-lg btn-primary tablinks" onclick="openProfileTab(event, 'referrals')">{%trans "Referrals" %}</button>
     </div>
 
     <div id="info" class="tabcontent" style="display: block;">

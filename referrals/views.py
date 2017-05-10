@@ -59,4 +59,4 @@ class ReferralCodeCreateView(View):
         new_code = ReferralCode(user=request.user)
         new_code.save()
 
-        return redirect(reverse('accounts.user_profile'))
+        return redirect(reverse('accounts.user_profile') + '?tab=referrals')

@@ -52,6 +52,16 @@
     };
     $("#verify_phone_now").on("click", verifyPhone);
 
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
     window.openProfileTab = function(evt, tabId) {
         // Declare all variables
         var i, tabcontent, tablinks;
@@ -70,8 +80,19 @@
 
         // Show the current tab, and add an "active" class to the button that opened the tab
         document.getElementById(tabId).style.display = "block";
-        evt.currentTarget.className += " active";
+        if (evt === null) {
+            $('#' + tabId + "_button").addClass('active');
+        } else {
+            evt.currentTarget.className += " active";
+        }
+
     };
+    $(document).ready(function() {
+        var tabName = getParameterByName('tab');
+        if (tabName !== null) {
+            window.openProfileTab(null, tabName);
+        }
+    });
 
     window.verifyPhone = verifyPhone; //hack to allow tests to run
 }(window, window.jQuery)); //jshint ignore:line
