@@ -91,7 +91,7 @@ def user_registration(request):
 @method_decorator(login_required, name='dispatch')
 class UserUpdateView(View):
     ReferralFormSet = modelformset_factory(ReferralCode,
-                                           form=ReferralTokenForm, extra=1)
+                                           form=ReferralTokenForm, extra=0)
 
     def get(self, request):
         user_form = UserForm(
@@ -148,7 +148,7 @@ class UserUpdateView(View):
 @method_decorator(login_required, name='dispatch')
 class ReferralUpdateView(View):
     ReferralFormSet = modelformset_factory(ReferralCode,
-                                           form=ReferralTokenForm, extra=1)
+                                           form=ReferralTokenForm, extra=0)
 
     def post(self, request):
         referral_formset = UserUpdateView.ReferralFormSet(request.POST)

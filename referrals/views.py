@@ -5,6 +5,10 @@ from django.template.loader import get_template
 
 from core.common.views import DateFilterViewSet
 from referrals.models import ReferralCode
+from django.utils.decorators import method_decorator
+from django.views.generic import View
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
 
 from .models import Referral
 from .permissions import IsLoggedIn
@@ -45,3 +49,14 @@ def referrals(request):
 
     return HttpResponse(template.render({'referrals_list': referrals_list},
                                         request))
+
+
+@method_decorator(login_required, name='dispatch')
+class ReferralCodeCreateView(View):
+
+    def post(self, request):
+
+        new_code = ReferralCode(user=request.user)
+        new_code.save()
+
+        return redirect(reverse('accounts.user_profile'))

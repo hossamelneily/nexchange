@@ -7,8 +7,13 @@
 
     {{ referral_formset.management_form }}
     {% for referral_form in referral_formset %}
+        <div class="line-hr"></div>
         {% bootstrap_form referral_form %}
     {% endfor %}
 
-    <input type="submit" name="submit" class="btn btn-success btn-lg" id="submit" value="Update Profile">
+    <input type="submit" name="submit" class="btn btn-success btn-lg" id="submit" value="Update Refferrals">
+    <input type="submit" class="btn btn-primary btn-lg" formmethod="post"
+           formaction="{% url 'referrals.code_new'%}"
+           value="{% trans 'Create New Referral' %}">
 </form>
+

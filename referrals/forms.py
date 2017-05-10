@@ -28,5 +28,6 @@ class ReferralTokenForm(forms.ModelForm):
     code = forms.CharField(
         label=_('Referral Code'),
         required=False,
-        help_text=_('A code to distinct your referrals from other users')
+        help_text=_('A code to distinct your referrals from other users'),
+        widget=forms.TextInput(attrs={'disabled': 'disabled'})
     )

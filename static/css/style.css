@@ -111,6 +111,15 @@
     background-color: #8cc63f
 }
 
+.line-hr{
+    height: 6px;
+    width:100%;
+    margin-bottom: 1.5em;
+    display:block;
+    overflow: hidden;
+    background-color: #8cc63f
+}
+
 .auto-exchange {
     margin: 20px 0;
 }
