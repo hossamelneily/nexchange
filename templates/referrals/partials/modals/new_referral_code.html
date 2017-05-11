@@ -1,0 +1,18 @@
+{% extends 'core/base_modal.html' %}
+{% load i18n %}
+{% block modal_name %}
+<h4 class="modal_head">{% trans 'Create New Referral Code' %}</h4>
+{% endblock %}
+{% block modal_body %}
+<form id="new-referral-code-form" class="card-form" enctype="multipart/form-data" action="">
+    {% csrf_token %}
+    <div class="form-group">
+        <input type="text" name="code_new" class="form-control" placeholder="{% trans 'Random Referral Code' %}">
+    </div>
+
+    <div class="form-group">
+        <input type="submit" class="btn btn-success btn-lg" value="{% trans 'Create New Code' %}">
+      <!--button id="cancel_referral_code" class="btn btn-danger btn-lg">{% trans 'Cancel' %}</button-->
+    </div>
+</form>
+{% endblock %}

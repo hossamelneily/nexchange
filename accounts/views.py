@@ -166,7 +166,7 @@ class ReferralUpdateView(View):
 
         if success_message:
             messages.success(self.request, success_message)
-        return redirect(reverse('accounts.user_profile'))
+        return redirect(reverse('accounts.user_profile') + "?tab=referrals")
 
 
 @watch_login

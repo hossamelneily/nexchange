@@ -53,12 +53,12 @@
     $("#verify_phone_now").on("click", verifyPhone);
 
     function getParameterByName(name, url) {
-        if (!url) url = window.location.href;
-            name = name.replace(/[\[\]]/g, "\\$&");
+        if (!url) {url = window.location.href;}
+        name = name.replace(/[\[\]]/g, "\\$&");
         var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
             results = regex.exec(url);
-        if (!results) return null;
-        if (!results[2]) return '';
+        if (!results) {return null;}
+        if (!results[2]) {return '';}
         return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
@@ -93,6 +93,38 @@
             window.openProfileTab(null, tabName);
         }
     });
+
+    $("#new-referral-code").on("click", function() {
+        $("#new-referral-code-modal").modal('show');
+    });
+
+    $(document).on('submit', '#new-referral-code-form', function (event) {
+            event.preventDefault();
+            var verifyPayload = $(this).serialize();
+
+            $.ajax({
+                type: 'POST',
+                url: '/en/referrals/code/new/',
+                dataType: 'text',
+                data: verifyPayload,
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                success: function success(data) {
+                    //if the transaction is Buy
+                    var status = JSON.parse(data).status,
+                        message = JSON.parse(data).msg;
+                    if (status == 'OK') {
+                        window.location.href = JSON.parse(data).redirect;
+                        toastr.success(message);
+                    } else {
+                        toastr.error(message);
+                    }
+                },
+                error: function error(jqXHR) {
+                    var message = gettext('Something went wrong. Please, try again.');
+                    toastr.error(message);
+                }
+            });
+        });
 
     window.verifyPhone = verifyPhone; //hack to allow tests to run
 }(window, window.jQuery)); //jshint ignore:line
