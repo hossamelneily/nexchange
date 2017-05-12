@@ -49,7 +49,7 @@ def user_registration(request):
             try:
                 with transaction.atomic(using='default'):
                     user = user_form.save(commit=False)
-                    user.username = profile_form.cleaned_data['phone']
+                    user.username = str(profile_form.cleaned_data['phone'])
                     user.save()
 
                     profile_form = UserProfileForm(

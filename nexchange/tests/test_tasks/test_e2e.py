@@ -783,9 +783,9 @@ class SofortEndToEndTestCase(BaseSofortAPITestCase,
         (buy_order_release_by_rule_invoke,),
     ))
     @requests_mock.mock()
-    @patch('nexchange.utils.api.get_reserve_transaction')
-    @patch('nexchange.utils.api.execute_txn')
-    @patch('nexchange.utils.api.prepare_txn')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'execute_txn')
+    @patch(UPHOLD_ROOT + 'prepare_txn')
     def test_do_not_release_unverified(self, release_task, mock, prepare_txn,
                                        execute_txn, reserve_txn):
         self._create_order(amount_base=2.0, pair_name='BTCEUR',

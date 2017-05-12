@@ -342,20 +342,24 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
                 ver.save()
             response = self.client.post(
                 self.url, {'pk': self.order.pk, 'value': self.addr.pk})
-            response_create = self.client.post(
-                self.url_create_withdraw, {'order_pk': self.order.pk,
-                                           'value': self.addr.address})
+            if required_verification:
+                response_create = self.client.post(
+                    self.url_create_withdraw,
+                    {'order_pk': self.order.pk, 'value': self.addr.address}
+                )
 
-            expected_msg = \
-                b'You need to be a verified user to set withdrawal address'
+                expected_msg = \
+                    b'You need to be a verified user to set withdrawal address'
+                self.assertIn(expected_msg, response_create.content)
             if not required_verification:
                 expected_msg = b'"status": "OK"'
             self.assertIn(expected_msg, response.content)
-            self.assertIn(expected_msg, response_create.content)
             setattr(ver, key, Verification.OK)
             ver.save()
             self.order.withdraw_address = None
             self.order.save()
+            if not required_verification:
+                break
 
     @mock.patch('orders.task_summary.buy_order_release_by_reference_invoke')
     def release_on_first_withdraw_address_change(self, invoke):
