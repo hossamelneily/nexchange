@@ -15,7 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from phonenumber_field.validators import validate_international_phonenumber
-from nexchange.utils import send_auth_sms, sanitize_number
+from nexchange.utils import sanitize_number
 from django.forms import modelformset_factory
 
 
@@ -29,9 +29,15 @@ from orders.models import Order
 from core.models import Address
 from core.validators import (validate_address, validate_btc, validate_ltc,
                              validate_eth)
+from django.core.validators import validate_email
 from referrals.forms import ReferralTokenForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
+from accounts.api_clients.auth_messages import AuthMessages
+
+auth_msg_api = AuthMessages()
+send_auth_sms = auth_msg_api.send_auth_sms
+send_auth_email = auth_msg_api.send_auth_email
 
 
 def user_registration(request):
@@ -153,7 +159,7 @@ def resend_sms(request):
 
 
 @watch_login
-def verify_phone(request):
+def verify_user(request):
     def render_response(msg, code):
         _context = {
             'status': 'Error' if code > 201 else 'OK',
@@ -168,23 +174,31 @@ def verify_phone(request):
 
     sent_token = request.POST.get('token')
     sent_token = sanitize_number(sent_token)
-    phone = request.POST.get('phone')
+    login_with_email = request.POST.get('login_with_email', False) == 'true'
+    email = request.POST.get('email', '')
+    phone = request.POST.get('phone', '')
+    phone = sanitize_number(phone, True)
+    if login_with_email:
+        username = email
+        _type = 'email'
+    else:
+        username = phone
+        _type = 'phone'
     anonymous = request.user.is_anonymous()
-    if anonymous and phone:
+    if anonymous and username:
         # fast registration
         try:
-            phone = sanitize_number(phone, True)
-            user = User.objects.get(username=phone)
+            user = User.objects.get(username=username)
         except User.DoesNotExist:
             return render_response(
-                'Please make sure your phone is correct',
+                'Please make sure your {} is correct'.format(_type),
                 400
             )
 
-    elif anonymous and not phone:
+    elif anonymous and not username:
         # Fast registration
         return render_response(
-            'Please enter your phone number',
+            'Please enter your {}'.format(_type),
             400
         )
     else:
@@ -207,8 +221,9 @@ def verify_phone(request):
                 410
             )
         profile = user.profile
-        profile.disabled = False
-        profile.save()
+        if not login_with_email:
+            profile.disabled = False
+            profile.save()
         sms_token.delete()
         if anonymous:
             user.backend = 'django.contrib.auth.backends.ModelBackend'
@@ -218,7 +233,7 @@ def verify_phone(request):
         # not registered with 201
         return render_response(
             'Successfully logged in' if anonymous
-            else 'Phone verified successfully',
+            else '{} verified successfully'.format(_type),
             201 if anonymous else 200
         )
 
@@ -229,17 +244,26 @@ def verify_phone(request):
         )
 
 
-# FIXME: merge user_by_phone and create_one_password
 @csrf_exempt
 @recaptcha_required
 @not_logged_in_required
 @watch_login
-def user_by_phone(request):
+def user_get_or_create(request):
     """This is used for seemless fast login"""
-    phone = request.POST.get('phone')
+    login_with_email = request.POST.get('login_with_email', False) == 'true'
+    phone = request.POST.get('phone', '')
     phone = sanitize_number(phone, True)
+    email = request.POST.get('email', '')
+    user_data = {}
+    profile_data = {}
+    if not login_with_email:
+        username = profile_data['phone'] = phone
+        _validator = validate_international_phonenumber
+    else:
+        username = user_data['email'] = email
+        _validator = validate_email
     try:
-        validate_international_phonenumber(phone)
+        _validator(username)
     except ValidationError as e:
         context = {
             'status': 'error',
@@ -250,13 +274,18 @@ def user_by_phone(request):
             status=400,
             content_type='application/json'
         )
+    user_data['username'] = username
 
-    user, u_created = User.objects.get_or_create(username=phone)
-    # this will create profile
-    Profile.objects.get_or_create(user=user)
-    # todo: move sms_token relation to profile ?
+    user, u_created = User.objects.get_or_create(**user_data)
+    if u_created:
+        profile_data['disabled'] = True
+    profile_data['user'] = user
+    Profile.objects.get_or_create(**profile_data)
 
-    res = send_auth_sms(user)
+    if not login_with_email:
+        res = send_auth_sms(user)
+    else:
+        res = send_auth_email(user)
     if isinstance(res, Exception):
         return JsonResponse({'status': 'error'})
     else:

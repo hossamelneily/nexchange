@@ -50,7 +50,7 @@ class TestUIExchangeOrders(BaseTestUI):
                            pair_name=pair_name)
         self.do_screenshot('After order request')
         if not self.logged_in:
-            self.login_phone()
+            self.login_email()
         order_data = self.check_confirm_amounts(pair_name=pair_name)
         amount_base = order_data['amount_base']
         amount_quote = order_data['amount_quote']

@@ -13,6 +13,7 @@ from orders.models import Order
 from payments.models import FailedRequest
 from referrals.models import ReferralCode
 from verification.models import Verification
+from django.core.exceptions import ValidationError
 
 
 class NexchangeUser(User):
@@ -33,8 +34,10 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     NATURAL_KEY = 'user__username'
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = PhoneNumberField(_('Phone'), blank=False, help_text=_(
-        'Enter phone number in international format. eg. +44020786543'))
+    phone = PhoneNumberField(
+        _('Phone'), blank=True, unique=True, null=True, help_text=_(
+            'Enter phone number in international format. eg. +44020786543')
+    )
     first_name = models.CharField(max_length=20, blank=True,
                                   null=True)
     last_name = models.CharField(max_length=20, blank=True,
@@ -112,9 +115,13 @@ class Profile(TimeStampedModel, SoftDeletableModel):
                 user=self.user, comment=_('Default referral code')
             )
 
-        # for short creation for user_by_phone
         if not self.phone:
-            self.phone = self.user.username
+            username = self.user.username
+            try:
+                validate_international_phonenumber(username)
+                self.phone = username
+            except ValidationError:
+                pass
 
         lang = get_language()
         if lang and self.lang != lang:
@@ -170,7 +177,7 @@ class SmsToken(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
         super(SmsToken, self).save(*args, **kwargs)
 
     def __str__(self):
-        return "{} ({})".format(self.sms_token, self.user.profile.phone)
+        return "{} ({})".format(self.sms_token, str(self.user.username))
 
 
 class Balance(TimeStampedModel):

@@ -8,15 +8,15 @@ account_urls = [
     url(r'^register$', views.user_registration,
         name='accounts.register'),
 
-    url(r'^authenticate/$', views.user_by_phone,
-        name='accounts.user_by_phone'),
+    url(r'^authenticate/$', views.user_get_or_create,
+        name='accounts.user_get_or_create'),
 
     url(r'^resend_sms/$', views.resend_sms,
         name='accounts.resend_sms'),
 
-    url(r'^verify_phone/$',
-        views.verify_phone,
-        name='accounts.verify_phone'),
+    url(r'^verify_user/$',
+        views.verify_user,
+        name='accounts.verify_user'),
 
     url(r'^profile$', views.UserUpdateView.as_view(),
         name='accounts.user_profile'),

@@ -28,7 +28,7 @@ class RegistrationTestCase(TestCase):
         if self.user:
             self.user.delete()
 
-    @patch('nexchange.utils._send_sms')
+    @patch('accounts.api_clients.auth_messages._send_sms')
     def test_can_register(self, _send_sms):
         _send_sms.return_value = 'OK'
         response = self.client.post(
@@ -41,7 +41,7 @@ class RegistrationTestCase(TestCase):
         user = User.objects.last()
         self.assertEqual(self.data['phone'], user.profile.phone)
 
-    @patch('nexchange.utils._send_sms')
+    @patch('accounts.api_clients.auth_messages._send_sms')
     def test_cannot_register_existent_phone(self, _send_sms):
         _send_sms.return_value = 'OK'
         # Creates first with the phone
@@ -317,6 +317,8 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
     def __init__(self, *args, **kwargs):
         self.token = None
         self.user = None
+        self.phone = '+79259737305'
+        self.email = 'sarunas@onit.ws'
         super(PassiveAuthenticationTestCase,
               self).__init__(*args, **kwargs)
 
@@ -335,7 +337,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
     def test_already_logged_in(self):
         uname = '+79259737305'
-        url = reverse('accounts.user_by_phone')
+        url = reverse('accounts.user_get_or_create')
         payload = {
             'phone': uname,
         }
@@ -343,17 +345,29 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         res = self.client.post(url, data=payload)
         self.assertEquals(res.status_code, 403)
 
+    @data_provider(lambda: (
+        (False,),
+        (True,),
+    ))
+    @patch('accounts.views.send_auth_email')
     @patch('accounts.views.send_auth_sms')
-    def test_sms_sent_success(self, send_sms):
-        url = reverse('accounts.user_by_phone')
-        uname = '+79259737305'
+    def test_sms_sent_success(self, login_with_email, send_sms, send_email):
+        url = reverse('accounts.user_get_or_create')
+        if login_with_email:
+            uname = self.email
+            patch = send_email
+        else:
+            uname = self.phone
+            patch = send_sms
         payload = {
             'phone': uname,
+            'email': uname,
+            'login_with_email': 'true' if login_with_email else 'false',
         }
         self.client.get(self.logout_url)
         res = self.client.post(url, data=payload)
 
-        self.assertEquals(res.status_code, 200)
+        self.assertEquals(res.status_code, 200, '{}'.format(login_with_email))
         users = User.objects.filter(username=uname)
 
         self.assertEquals(len(users), 1)
@@ -363,14 +377,26 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             filter(user=self.user).last()
         self.assertTrue(sms_token)
 
-        send_sms.assert_called_once_with(self.user)
+        patch.assert_called_once_with(self.user)
 
+    @data_provider(lambda: (
+        (False,),
+        (True,),
+    ))
+    @patch('accounts.views.send_auth_email')
     @patch('accounts.views.send_auth_sms')
-    def test_user_create_once(self, send_sms):
-        url = reverse('accounts.user_by_phone')
-        uname = '+79259737305'
+    def test_user_create_once(self, login_with_email, send_sms, send_email):
+        url = reverse('accounts.user_get_or_create')
+        if login_with_email:
+            uname = self.email
+            patch = send_email
+        else:
+            uname = self.phone
+            patch = send_sms
         payload = {
             'phone': uname,
+            'email': uname,
+            'login_with_email': 'true' if login_with_email else 'false',
         }
         # create once
         self.client.get(self.logout_url)
@@ -391,16 +417,29 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             filter(user=self.user).last()
         self.assertTrue(sms_token)
 
-        self.assertEqual(2, send_sms.call_count)
+        self.assertEqual(2, patch.call_count)
 
     # regression!
+    @data_provider(lambda: (
+        (False,),
+        (True,),
+    ))
+    @patch('accounts.views.send_auth_email')
     @patch('accounts.views.send_auth_sms')
-    def test_user_login_2nd_time(self, send_sms):
-        url = reverse('accounts.user_by_phone')
-        uname = '+79259737305'
+    def test_user_login_2nd_time(self, login_with_email, send_sms, send_email):
+        url = reverse('accounts.user_get_or_create')
+        if login_with_email:
+            uname = self.email
+            patch = send_email
+        else:
+            uname = self.phone
+            patch = send_sms
         payload = {
             'phone': uname,
+            'email': uname,
+            'login_with_email': 'true' if login_with_email else 'false',
         }
+        # create once
         # create once
         self.client.get(self.logout_url)
         res = self.client.post(url, data=payload)
@@ -420,18 +459,21 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             filter(user=self.user).last()
         self.assertTrue(sms_token)
 
-        self.assertEqual(2, send_sms.call_count)
+        self.assertEqual(2, patch.call_count)
 
         token = SmsToken.objects.last()
-        url = reverse('accounts.verify_phone')
+        url = reverse('accounts.verify_user')
         payload = {
             'token': token.sms_token,
-            'phone': self.user.username
+            'email': self.user.username,
+            'phone': self.user.username,
+            'login_with_email': 'true' if login_with_email else 'false',
         }
         res = self.client.post(url, data=payload)
         # make attacker think phone is always created
         self.assertEqual(201, res.status_code)
         self.assertTrue(self.user.is_authenticated())
+        self.assertEqual(self.user.profile.disabled, login_with_email)
 
         res = self.client.post(url, data=payload)
         # user is already logged in!
@@ -439,7 +481,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
     @patch('accounts.views.send_auth_sms')
     def test_creates_sms_token(self, send_sms):
-        url = reverse('accounts.user_by_phone')
+        url = reverse('accounts.user_get_or_create')
         uname = '79259737305'
         payload = {
             'phone': uname,
@@ -470,7 +512,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
     @patch('nexchange.utils.TwilioRestClient')
     def test_reuse_sms_token(self, rest_client):
         rest_client.return_value = MagicMock()
-        url = reverse('accounts.user_by_phone')
+        url = reverse('accounts.user_get_or_create')
         uname = '79259737305'
         payload = {
             'phone': uname,
@@ -507,7 +549,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
     @patch('nexchange.utils.TwilioRestClient')
     def test_expire_sms_token(self, rest_client):
         rest_client.return_value = MagicMock()
-        url = reverse('accounts.user_by_phone')
+        url = reverse('accounts.user_get_or_create')
         uname = '79259737305'
         payload = {
             'phone': uname,
@@ -548,7 +590,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
     @patch('nexchange.utils.TwilioRestClient')
     def test_call_twillio_api(self, rest_client):
         rest_client.return_value = MagicMock()
-        url = reverse('accounts.user_by_phone')
+        url = reverse('accounts.user_get_or_create')
         uname = '+79259737305'
         payload = {
             'phone': uname,
@@ -560,7 +602,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         users = User.objects.filter(username=uname)
         self.assertEquals(len(users), 1)
         last_token = SmsToken.objects.filter(user=users[0]).latest('id')
-        msg = settings.SMS_MESSAGE_AUTH + "{}".format(last_token.sms_token)
+        msg = settings.SMS_MESSAGE_AUTH.format(last_token.sms_token)
         rest_client.assert_called_once_with(settings.TWILIO_ACCOUNT_SID,
                                             settings.TWILIO_AUTH_TOKEN)
         rest_client.return_value.messages.\
@@ -570,19 +612,18 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
     @patch('nexchange.utils.TwilioRestClient')
     def test_call_twillio_api_us(self, rest_client):
         rest_client.return_value = MagicMock()
-        url = reverse('accounts.user_by_phone')
+        url = reverse('accounts.user_get_or_create')
         uname = '+15005550001'
         payload = {
             'phone': uname,
         }
         self.client.get(self.logout_url)
-        users = User.objects.filter(username=uname)
         res = self.client.post(url, data=payload)
         self.assertEquals(res.status_code, 200)
         users = User.objects.filter(username=uname)
         self.assertEquals(len(users), 1)
         last_token = SmsToken.objects.filter(user=users[0]).latest('id')
-        msg = settings.SMS_MESSAGE_AUTH + "{}".format(last_token.sms_token)
+        msg = settings.SMS_MESSAGE_AUTH.format(last_token.sms_token)
         rest_client.assert_called_once_with(settings.TWILIO_ACCOUNT_SID,
                                             settings.TWILIO_AUTH_TOKEN)
         rest_client.return_value.messages.\
@@ -591,7 +632,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
     @patch('accounts.views.send_auth_sms')
     def test_creates_profile(self, send_sms):
-        url = reverse('accounts.user_by_phone')
+        url = reverse('accounts.user_get_or_create')
         uname = '79259737399'
         payload = {
             'phone': uname,
@@ -620,7 +661,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
     @patch('accounts.views.send_auth_sms')
     def test_sms_adds_plus(self, send_sms):
-        url = reverse('accounts.user_by_phone')
+        url = reverse('accounts.user_get_or_create')
         uname = '79259737305'
         payload = {
             'phone': uname,
@@ -649,7 +690,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
     @patch('accounts.views.send_auth_sms')
     def test_sms_truncates_str(self, send_sms):
-        url = reverse('accounts.user_by_phone')
+        url = reverse('accounts.user_get_or_create')
         good_uname = '79259737305'
         bad_uname = 'abc{}abc'.format(good_uname)
         payload = {
@@ -677,7 +718,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
     def test_sms_sent_no_recaptcha_forbidden(self, send_sms, get_google):
         # request with no verify parameter
         get_google.return_value = False
-        url = reverse('accounts.user_by_phone')
+        url = reverse('accounts.user_get_or_create')
         uname = '+79259737305'
         payload = {
             'phone': uname,
@@ -690,7 +731,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
     @patch('accounts.views.send_auth_sms')
     def test_sms_sent_replace_phone_spaces(self, send_sms):
         self.client.logout()
-        url = reverse('accounts.user_by_phone')
+        url = reverse('accounts.user_get_or_create')
         uname = '+49 162 829 04 63'
         expected_uname = '+491628290463'
         payload = {
@@ -712,7 +753,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
     @patch('accounts.views.send_auth_sms')
     def test_sms_not_sent_after_limit_is_exceeded(self, send_sms):
         self.client.logout()
-        url = reverse('accounts.user_by_phone')
+        url = reverse('accounts.user_get_or_create')
         uname = '+491628290463'
         payload = {
             'phone': uname,
@@ -737,7 +778,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
     @patch('accounts.views.send_auth_sms')
     def test_sms_sent_after_limit_is_exceeded_and_time_passed(self, send_sms):
         self.client.logout()
-        url = reverse('accounts.user_by_phone')
+        url = reverse('accounts.user_get_or_create')
         uname = '+491628290463'
         payload = {
             'phone': uname,
@@ -777,7 +818,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
     def test_sms_sent_invalid_phone(self):
         self.client.logout()
-        url = reverse('accounts.user_by_phone')
+        url = reverse('accounts.user_get_or_create')
         uname = '+7 92 59 73 73zaza'
         payload = {
             'phone': uname,

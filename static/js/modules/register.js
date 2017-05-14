@@ -5,7 +5,7 @@
         createAccEndpoint =  '/en/accounts/authenticate/',
         menuEndpoint = apiRoot + '/menu',
         breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
-        validatePhoneEndpoint = '/en/accounts/verify_phone/';
+        validatePhoneEndpoint = '/en/accounts/verify_user/';
 
 
     function lockoutResponse (data) {

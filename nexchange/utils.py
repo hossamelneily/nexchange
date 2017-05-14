@@ -14,7 +14,6 @@ import xml.etree.ElementTree as ET
 import requests
 import json
 from django.utils.log import AdminEmailHandler
-from accounts.models import SmsToken
 import string
 
 
@@ -68,31 +67,6 @@ def sanitize_number(phone, is_phone=False):
     return '{}{}'.format(settings.PLUS_INTERNATIONAL_PREFIX
                          if is_phone else '',
                          phone)
-
-
-def send_auth_sms(user):
-    def create_token():
-        _token = SmsToken(user=user, send_count=1)
-        _token.save()
-        return _token
-    try:
-        token = SmsToken.objects.filter(user=user).latest('id')
-        token.send_count += 1
-        token.save()
-    except SmsToken.DoesNotExist:
-        token = create_token()
-    if not token.valid:
-        token = create_token()
-
-    msg = settings.SMS_MESSAGE_AUTH + '{}'.format(token.sms_token)
-    phone_to = str(user.username)
-    if phone_to.startswith('+1'):
-        from_phone = settings.TWILIO_PHONE_FROM_US
-    else:
-        from_phone = settings.TWILIO_PHONE_FROM_UK
-
-    message = _send_sms(msg, phone_to, from_phone)
-    return message
 
 
 def get_traceback():

@@ -47,12 +47,13 @@ class UpdateUserProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ['first_name', 'last_name',
+        fields = ['phone', 'first_name', 'last_name',
                   'notify_by_email', 'notify_by_phone', 'affiliate_address']
 
     def __init__(self, *args, **kwargs):
         super(UpdateUserProfileForm, self).__init__(*args, **kwargs)
         self._edit_affiliate_address_field()
+        self._edit_phone_field()
 
     def _edit_affiliate_address_field(self):
         affiliate_address = self.fields['affiliate_address']
@@ -79,10 +80,17 @@ class UpdateUserProfileForm(forms.ModelForm):
                 affiliate_address.help_text = _(
                     'Select your Affiliate Address.')
 
+    def _edit_phone_field(self):
+        if self.instance.phone:
+            self.fields.pop('phone')
+
 
 class LoginForm(AuthenticationForm):
     """So username is labeled as 'Phone'"""
 
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
-        self.fields['username'].label = 'Phone'
+        self.fields['username'].label = _('Username')
+        self.fields['username'].widget.attrs['placeholder'] = _(
+            'Phone or Email'
+        )

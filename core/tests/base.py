@@ -179,9 +179,21 @@ class OrderBaseTestCase(UserBaseTestCase):
 
     def setUp(self):
         super(OrderBaseTestCase, self).setUp()
-        self.patcher_twilio_send_sms = patch('nexchange.utils._send_sms')
+        self.patcher_twilio_send_sms = patch(
+            'accounts.api_clients.auth_messages._send_sms')
+        self.patcher_twilio_send_sms2 = patch(
+            'nexchange.utils._send_sms')
+        self.patcher_send_email = patch(
+            'accounts.api_clients.auth_messages.send_email')
+        self.patcher_send_email2 = patch(
+            'nexchange.utils.send_email')
         self._send_sms_patch = self.patcher_twilio_send_sms.start()
-        self._send_sms_patch.return_value = 'OK'
+        self._send_sms_patch2 = self.patcher_twilio_send_sms2.start()
+        self._send_email_patch = self.patcher_send_email.start()
+        self._send_email_patch2 = self.patcher_send_email2.start()
+        self._send_sms_patch.return_value = \
+            self._send_sms_patch2.return_value = 'OK'
+        self._send_email_patch.return_value = self._send_email_patch2 = None
         self.patcher_uphold_reserve_txn = patch(
             UPHOLD_ROOT + 'get_transactions'
         )
@@ -189,7 +201,11 @@ class OrderBaseTestCase(UserBaseTestCase):
         self._reserve_txn_uphold.return_value = {'status': 'completed'}
 
     def tearDown(self):
+        super(OrderBaseTestCase, self).tearDown()
         self.patcher_twilio_send_sms.stop()
+        self.patcher_twilio_send_sms2.stop()
+        self.patcher_send_email.stop()
+        self.patcher_send_email2.stop()
         self.patcher_uphold_reserve_txn.stop()
         # self.card.delete()
 

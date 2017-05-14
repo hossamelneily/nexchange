@@ -31,8 +31,8 @@ def passive_authentication_helper(client,
         client.logout()
     # incorrect token
     response = client.post(
-        reverse('accounts.verify_phone'), {'token': token,
-                                           'phone': phone})
+        reverse('accounts.verify_user'), {'token': token,
+                                          'phone': phone})
 
     return response
 

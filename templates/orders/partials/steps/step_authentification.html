@@ -1,0 +1,14 @@
+{% extends 'orders/partials/steps/step_base.html' %}
+{% load i18n %}
+
+{% block step_content %}
+
+    <div class="register">
+        {% include "accounts/partials/recaptcha.html" %}
+        {% include "orders/partials/steps/partials/step_authentification_fields.html" %}
+        {% include "orders/partials/steps/partials/step_authentification_buttons.html" %}
+    </div>
+
+{% endblock %}
+{% block spa_navigation %}
+{% endblock %}

@@ -23,7 +23,7 @@ class LoginEndToEndTestCase(UserBaseTestCase):
     def test_reuse_sms_token(self, uname, rest_client, verify_captcha):
         verify_captcha.return_value = True
         rest_client.return_value = MagicMock()
-        url = reverse('accounts.user_by_phone')
+        url = reverse('accounts.user_get_or_create')
         payload = {
             'phone': uname,
         }
@@ -41,7 +41,7 @@ class LoginEndToEndTestCase(UserBaseTestCase):
                 uname.startswith('+1') else settings.TWILIO_PHONE_FROM_UK
             user = User.objects.last()
             token = SmsToken.objects.last()
-            msg = settings.SMS_MESSAGE_AUTH + '{}'.format(token.sms_token)
+            msg = settings.SMS_MESSAGE_AUTH.format(token.sms_token)
             rest_client.assert_called_once_with(settings.TWILIO_ACCOUNT_SID,
                                                 settings.TWILIO_AUTH_TOKEN)
             rest_client.return_value.messages.create.assert_called_once_with(

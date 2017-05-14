@@ -20,7 +20,7 @@
     </div>
 
 
-    {% if request.user.profile.disabled %}
+    {% if request.user.profile.disabled and request.user.profile.phone%}
         <div class="well">
             
             <div class="alert alert-danger" role="alert" style="display:block" id="alert_phone_not_verified">
@@ -38,7 +38,7 @@
                     <div class="input-group"> 
                         <input type="text" aria-label={% trans "Insert SMS verification token here" %} placeholder={% trans "Insert SMS verification token here" %} class="form-control" id="verification_code"> 
                         <div class="input-group-btn"> 
-                            <button data-url="{% url 'accounts.verify_phone' %}" class="btn btn-default" type="button" id="verify_phone_now">{% trans "Verify phone now" %}</button>
+                            <button data-url="{% url 'accounts.verify_user' %}" class="btn btn-default" type="button" id="verify_phone_now">{% trans "Verify phone now" %}</button>
                         </div> 
                     </div> 
                 </div>
@@ -50,7 +50,7 @@
                 </div>
             </div>
         </div>
-    {% else %}
+    {% elif request.user.profile.phone %}
         <label class="control-label" for="phone">{% trans "Phone"%}</label>
         <div class="input-group"> 
             <input type="text" aria-describedby="basic-addon2" value="{{request.user.profile.phone}}" disabled="disabled" class="form-control disabled">

@@ -32,7 +32,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
     def setUp(self):
         super(BaseTestUI, self).setUp()
         self.workflow = 'generic'
-        self.phone = '+37068644145'
+        self.phone = '+37068644245'
         self.email = 'sarunas@onin.ws'
         self.name = 'Sir Testalot'
         self.account = 'LT121000011101001000'
@@ -100,13 +100,14 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         if not os.path.exists(path):
             os.makedirs(path)
 
-    def click_span(self, class_name):
+    def click_span(self, class_name, second_class='btn-primary'):
         btnes = self.driver.find_elements_by_class_name(class_name)
-        for btsendsms in btnes:
-            if btsendsms.get_attribute('class') \
-                    .find('btn-primary') > -1:
-                btsendsms.click()
-                break
+        for btn in btnes:
+            if btn.get_attribute('class') \
+                    .find(second_class) > -1:
+                if btn.is_displayed():
+                    btn.click()
+                    break
 
     def logout(self):
         self.driver.delete_all_cookies()
@@ -144,8 +145,14 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         if screenshot:
             self.do_screenshot('after click on: {}'.format(name))
 
+    def login_phone(self):
+        self.login_seemless()
+
+    def login_email(self):
+        self.login_seemless(with_email=True)
+
     @requests_mock.mock()
-    def login_phone(self, mock):
+    def login_seemless(self, mock, with_email=False):
         mock.post(
             'https://www.google.com/recaptcha/api/siteverify',
             text='{\n "success": true\n}'
@@ -158,25 +165,40 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             '//div[@id="menu2"]//div[@class="intl-tel-input allow-dropdown"]'
         )))
 
-        phone = self.driver.find_element_by_class_name(
-            'menu2').find_element_by_class_name('phone')
-        phone.clear()
-        phone.send_keys(self.phone)
+        if not with_email:
+            account_input = self.driver.find_element_by_class_name(
+                'menu2').find_element_by_class_name('phone')
+            self.username = self.phone
+        else:
+            self.click_span(class_name='switch-login',
+                            second_class='phone-verification')
+            account_input = self.driver.find_element_by_class_name(
+                'menu2').find_element_by_class_name('email')
+            self.do_screenshot('switched login')
+            self.username = self.email
+        account_input.clear()
+        account_input.send_keys(self.username)
 
-        self.do_screenshot('after input phone number')
-        self.click_span(class_name='create-acc')
-        # input sms code
+        self.do_screenshot('after input {}'.format(
+            'email' if with_email else 'phone'
+        ))
+
+        if not with_email:
+            self.click_span(class_name='create-acc')
+        else:
+            self.click_span(class_name='create-acc',
+                            second_class='email-verification')
 
         self.wait.until(EC.element_to_be_clickable(
             (By.ID, 'verification_code')
         )).send_keys(
-            SmsToken.objects.get(user__profile__phone=self.phone).sms_token
+            SmsToken.objects.get(user__username=self.username).sms_token
         )
 
         self.do_screenshot('after input code number')
         self.click_span(class_name='verify-acc')
 
-        self.selenium_user = User.objects.get(username=self.phone)
+        self.selenium_user = User.objects.get(username=self.username)
         if not self.selenium_user.profile.is_verified:
             Verification(user=self.selenium_user, id_status=Verification.OK,
                          util_status=Verification.OK).save()
@@ -436,7 +458,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         tx_id_api1 = 'tx_customer{}{}'.format(str(time()), randint(0, 999))
         tx_id_api2 = 'tx_customer{}{}'.format(str(time()), randint(0, 999))
         card_id = AddressReserve.objects.filter(
-            user__profile__phone=self.phone,
+            user__username=self.username,
             currency__code=currency_code)[0].card_id
         get_txs_response = self.uphold_import_transactions_empty.format(
             tx_id_api1=tx_id_api1,

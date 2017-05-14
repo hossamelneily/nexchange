@@ -29,6 +29,11 @@
            $currencyTo,
            $currencyPair,
            $currencySelect,
+           phone,
+           token,
+           email,
+           username,
+           login_with_email,
            paymentFormRules = {
                 'iban_holder': {
                     required: true,
@@ -289,47 +294,100 @@
             }
         });
 
+        $('.email.val').on('keyup', function () {
+            if($(this).val().length) {
+                $('.create-acc')
+                    .not('.resend')
+                    .removeClass('disabled');
+            }
+        });
+
         $('.create-acc').on('click', function () {
             if ($(this).hasClass('disabled')) {
                 return;
             }
+            $('.switch-login').addClass('hidden');
             if ($('.send-otp').is(':visible') || $('.send').is(':visible')) {
                 grecaptcha.execute();
             } else {
-                window.submitCreateAcc()
+                window.submitCreateAcc();
             }
         });
 
         window.submitCreateAcc = function() {
-            if ($('#login-form').is(':visible')) {
-                var phone = $('#id_username').val();
+            if ($('.email-verification').is(':visible')) {
+                email = $('.register .email').val();
+                login_with_email = true;
+                phone = null;
             } else {
-                var phone = $('.register .phone').val();
+                login_with_email = false;
+                email = null;
+                phone = null;
+                if ($('#login-form').is(':visible')) {
+                    username = $('#id_username').val();
+                    if (username.indexOf('@') !== -1) {
+                        email = username;
+                        login_with_email = true;
+                    } else {
+                        phone = username;
+                    }
+
+                } else {
+                    phone = $('.register .phone').val();
+                }
             }
             var regPayload = {
-                // TODO: check collision with qiwi wallet
                 phone: phone,
+                email: email,
+                login_with_email: login_with_email,
                 g_recaptcha_response: grecaptcha.getResponse()
             };
             register.seemlessRegistration(regPayload);
         };
 
         $('.verify-acc').on('click', function () {
-            if ($('#login-form').is(':visible')) {
-                var token = $('#id_password').val(),
-                    phone = $('#id_username').val();
+            if ($('.email-verification').is(':visible')) {
+                email = $('.register .email').val();
+                token = $('#verification_code').val();
+                login_with_email = true;
+                phone = null;
             } else {
-                var token = $('#verification_code').val(),
+                login_with_email = false;
+                email = null;
+                phone = null;
+                if ($('#login-form').is(':visible')) {
+                    token = $('#id_password').val();
+                    username = $('#id_username').val();
+                    if (username.indexOf('@') !== -1) {
+                        email = username;
+                        login_with_email = true;
+                    } else {
+                        phone = username;
+                    }
+                } else {
+                    token = $('#verification_code').val();
                     phone = $('.register .phone').val();
 
+                }
             }
             var verifyPayload = {
                 token: token,
-                phone: phone
+                phone: phone,
+                email: email,
+                login_with_email: login_with_email
             };
             register.verifyAccount(verifyPayload);
         });
 
+        $('.switch-login').on('click', function () {
+            if ($(this).hasClass('email-verification')) {
+                $('.phone-verification').removeClass('hidden');
+                $('.email-verification').addClass('hidden');
+            } else {
+                $('.email-verification').removeClass('hidden');
+                $('.phone-verification').addClass('hidden');
+            }
+        });
 
         $('.place-order').on('click', function () {
             //TODO verify if $(this).hasClass('sell-go') add

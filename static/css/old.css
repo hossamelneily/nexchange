@@ -159,6 +159,10 @@ html body .ui-state-default{
     text-align: center;
 }
 
+.text-center input {
+    text-align: center;
+}
+
 .register input {
     margin-top: 2px;
 }

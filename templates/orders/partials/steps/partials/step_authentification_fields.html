@@ -1,0 +1,40 @@
+{% load i18n %}
+
+<h4>
+    <p class="phone-verification">{% trans "Phone verification"%}</p>
+    <p class="email-verification hidden">{% trans "Email verification"%}</p>
+</h4>
+<div class="auth-steps">
+    <div class="step1">{% trans "Enter your phone" as enter_your_phone %}<br>
+        <div class="row phone-verification">
+            <div class="col-xs-10 col-xs-offset-1 register">
+                <label for="phone">
+                    {% trans "Mobile number" %}
+                </label>
+                <input type="text" name="phone" id="phone" class="phone val"
+                value="{% if user.is_authenticated  %}{{ user.profile.phone }}
+                {% else %}+7{% endif %}">
+            </div>
+        </div>
+        <div class="row email-verification hidden">
+            <div class="col-xs-10 col-xs-offset-1 register">
+                <label for="email">
+                    {% trans "Email" %}
+                </label>
+                <input type="email" name="email" id="email" class="email val text-center" size="25">
+            </div>
+        </div>
+    </div>
+
+    <div class="step2 hidden">
+        <div class="row">
+            <div class="col-xs-10 col-xs-offset-1 register">
+                <label for="verification_code">
+                    <p class="phone-verification">{% trans "Code from SMS" %}</p>
+                    <p class="email-verification hidden">{% trans "Code from Email" %}</p>
+                </label>
+                <input type="text" name="verification_code" id="verification_code">
+            </div>
+        </div>
+    </div>
+</div>

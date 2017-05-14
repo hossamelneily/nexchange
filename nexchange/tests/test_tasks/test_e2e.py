@@ -27,6 +27,7 @@ from time import time
 from random import randint
 from core.tests.base import UPHOLD_ROOT
 
+
 class OKPayEndToEndTestCase(WalletBaseTestCase):
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
@@ -239,8 +240,8 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         )
         self.order_2.save()
 
-    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
-    @patch(UPHOLD_ROOT +  'get_transactions')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
     @patch('orders.utils.send_money')
     def test_release_sell_order(self, send_money, get_txs, get_rtx):
         # TODO: generalise
@@ -254,8 +255,8 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.order.refresh_from_db()
         self.assertTrue(self.order.status in Order.IN_RELEASED)
 
-    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
-    @patch(UPHOLD_ROOT +  'get_transactions')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
     def test_do_not_release_sell_order_transaction_pending(self, get_txs,
                                                            get_rtx):
         # TODO: generalise
@@ -266,8 +267,8 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.release_task.apply()
         self.assertNotIn(self.order.status, Order.IN_RELEASED)
 
-    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
-    @patch(UPHOLD_ROOT +  'get_transactions')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
     @patch('orders.utils.send_money')
     def test_sell_order_release_1_yes_1_no_due_to_confirmations(self,
                                                                 send_money,
@@ -296,8 +297,8 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.assertIn(self.order.status, Order.IN_RELEASED)
         self.assertNotIn(self.order_2.status, Order.IN_RELEASED)
 
-    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
-    @patch(UPHOLD_ROOT +  'get_transactions')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
     @patch('orders.utils.send_money')
     def test_do_not_release_sell_order_without_send_money(self, send_money,
                                                           get_txs,
@@ -311,8 +312,8 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.release_task.apply()
         self.assertNotIn(self.order.status, Order.IN_RELEASED)
 
-    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
-    @patch(UPHOLD_ROOT +  'get_transactions')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
     @patch('orders.utils.send_money')
     def test_notify_admin_if_not_send_money(self, send_money, get_txs,
                                             get_rtx):
@@ -327,8 +328,8 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         with self.assertRaises(NotImplementedError):
             self.release_task()
 
-    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
-    @patch(UPHOLD_ROOT +  'get_transactions')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
     @patch('nexchange.utils.OkPayAPI._send_money')
     def test_okpay_send_money_sell_order(self, send_money,
                                          get_txs, get_rtx):
@@ -350,8 +351,8 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.assertIn(self.order.status, Order.IN_RELEASED)
 
     @requests_mock.mock()
-    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
-    @patch(UPHOLD_ROOT +  'get_transactions')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
     @patch('nexchange.utils.PayeerAPIClient.transfer_funds')
     def test_payeer_send_money_sell_order(self, m, send_money,
                                           get_txs, get_rtx):
@@ -371,8 +372,8 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.assertEqual(1, send_money.call_count)
         self.assertIn(self.order.status, Order.IN_RELEASED)
 
-    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
-    @patch(UPHOLD_ROOT +  'get_transactions')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
     def test_unknown_method_do_not_send_money_sell_order(self,
                                                          get_txs,
                                                          get_rtx):
@@ -604,9 +605,9 @@ class BuyOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
 
     # TODO: change patch to request_mock (some problems with Uphold mocking
     # while running all the tests)
-    @patch(UPHOLD_ROOT +  'get_reserve_transaction')
-    @patch(UPHOLD_ROOT +  'execute_txn')
-    @patch(UPHOLD_ROOT +  'prepare_txn')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'execute_txn')
+    @patch(UPHOLD_ROOT + 'prepare_txn')
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
@@ -622,9 +623,9 @@ class BuyOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         order.refresh_from_db()
         self.assertEqual(order.status, Order.COMPLETED)
 
-    @patch(UPHOLD_ROOT +  'get_transactions')
-    @patch(UPHOLD_ROOT +  'execute_txn')
-    @patch(UPHOLD_ROOT +  'prepare_txn')
+    @patch(UPHOLD_ROOT + 'get_transactions')
+    @patch(UPHOLD_ROOT + 'execute_txn')
+    @patch(UPHOLD_ROOT + 'prepare_txn')
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
@@ -661,9 +662,9 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                  ('BTCLTC', Order.SELL, True),
                  )
     )
-    @patch(UPHOLD_ROOT +  'execute_txn')
-    @patch(UPHOLD_ROOT +  'prepare_txn')
-    @patch(UPHOLD_ROOT +  'get_transactions')
+    @patch(UPHOLD_ROOT + 'execute_txn')
+    @patch(UPHOLD_ROOT + 'prepare_txn')
+    @patch(UPHOLD_ROOT + 'get_transactions')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
     def test_release_exchange_order(self, pair_name, order_type,
                                     release_with_periodic,

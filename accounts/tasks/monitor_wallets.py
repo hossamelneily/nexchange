@@ -69,15 +69,14 @@ def update_pending_transactions():
                 ). format(order, '\n')
 
             if profile.notify_by_phone and profile.phone:
-                phone_to = str(tr.order.user.username)
+                phone_to = str(profile.phone)
                 sms_result = send_sms(msg, phone_to)
 
                 if settings.DEBUG:
                     logger.info(str(sms_result))
 
             if profile.notify_by_email and order.user.email:
-                email = send_email(tr.order.user.email, title, msg)
-                email.send()
+                send_email(tr.order.user.email, subject=title, msg=msg)
 
             if settings.DEBUG:
                 logger.info('Transaction {} is completed'.format(tr.tx_id))
