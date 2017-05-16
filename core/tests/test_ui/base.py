@@ -31,7 +31,8 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
 
     def setUp(self):
         super(BaseTestUI, self).setUp()
-        self.workflow = 'generic'
+        self.workflow = self.__class__.__name__.split('TestUI')[1].upper()
+        self.screenpath2 = self._testMethodName.split('test_')[1].upper()
         self.phone = '+37068644245'
         self.email = 'sarunas@onin.ws'
         self.name = 'Sir Testalot'
@@ -45,7 +46,6 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         local_root_path = '{}_{}'.format(int(time()), self._testMethodName)
         self.screenpath = os.path.join(
             os.path.dirname(__file__), 'Screenshots', local_root_path)
-        self.screenpath2 = 'unsorted'
         self.mkdir(self.screenpath)
         user_agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64)' \
                      ' AppleWebKit/537.36 (KHTML, like Gecko)' \
@@ -145,6 +145,23 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         if screenshot:
             self.do_screenshot('after click on: {}'.format(name))
 
+    @requests_mock.mock()
+    def otp_login(self, username, mock):
+        mock.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            text='{\n "success": true\n}'
+        )
+        self.get_repeat_on_timeout(self.url)
+        self.click_element_by_name('Login', by=By.XPATH)
+        self.fill_element_by_id('id_username', username)
+        self.click_element_by_name('send-otp')
+        self.wait_until_clickable_element_by_name('login-otp')
+        token = SmsToken.objects.get(user__username=username).sms_token
+        self.fill_element_by_id('id_password', token)
+        self.click_element_by_name('login-otp')
+        self.wait_until_clickable_element_by_name('trigger-buy')
+        self.selenium_user = User(username=username)
+
     def login_phone(self):
         self.login_seemless()
 
@@ -206,7 +223,9 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.do_screenshot('After Login')
         self.logged_in = True
 
-    def wait_page_load(self):
+    def wait_page_load(self, delay=None):
+        if delay is not None:
+            sleep(delay)
         state = self.driver.execute_script(
             'return document.readyState;')
         if state == 'complete':
