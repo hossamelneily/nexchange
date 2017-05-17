@@ -1,0 +1,18 @@
+{% load bootstrap3 %}
+{% load i18n %}
+{% include 'referrals/partials/modals/new_referral_code.html' with id='new-referral-code-modal'%}
+
+<form method="post" action="{% url 'accounts.referral_update'%}" class="form" enctype="multipart/form-data" action="">
+    {% csrf_token %}
+
+
+    {{ referral_formset.management_form }}
+    {% for referral_form in referral_formset %}
+        <div class="line-hr"></div>
+        {% bootstrap_form referral_form %}
+    {% endfor %}
+
+        <input type="submit" name="submit" class="btn btn-success btn-lg" id="submit" value="Update Refferrals">
+        <input type="button" id="new-referral-code" class="btn btn-primary btn-lg" value="{% trans 'New Referral Code' %}">
+</form>
+

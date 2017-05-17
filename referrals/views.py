@@ -1,10 +1,14 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template.loader import get_template
 
 from core.common.views import DateFilterViewSet
 from referrals.models import ReferralCode
+from django.utils.decorators import method_decorator
+from django.views.generic import View
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from .models import Referral
 from .permissions import IsLoggedIn
@@ -45,3 +49,25 @@ def referrals(request):
 
     return HttpResponse(template.render({'referrals_list': referrals_list},
                                         request))
+
+
+@method_decorator(login_required, name='dispatch')
+class ReferralCodeCreateView(View):
+
+    def post(self, request):
+        success_msg = _('New Referral Code Created')
+
+        code = request.POST.get('code_new')
+        comment = request.POST.get('comment')
+        old_refs = ReferralCode.objects.filter(code=code)
+        if len(old_refs) > 0:
+            msg = _('Referral Code {} already exists.'.format(code))
+            return JsonResponse({'status': 'ERROR', 'msg': msg}, safe=False)
+        new_code = ReferralCode(user=request.user, code=code, comment=comment)
+        new_code.save()
+
+        redirect_url = reverse('accounts.user_profile') + '?tab=referrals'
+        return JsonResponse({
+            'status': 'OK', 'redirect': redirect_url, 'msg': success_msg},
+            safe=False
+        )

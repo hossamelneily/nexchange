@@ -17,6 +17,7 @@ from django.views.generic import View
 from phonenumber_field.validators import validate_international_phonenumber
 from nexchange.utils import sanitize_number
 from django.forms import modelformset_factory
+from verification.forms import VerificationUploadForm
 
 
 from accounts.decoratos import not_logged_in_required, recaptcha_required
@@ -34,6 +35,7 @@ from referrals.forms import ReferralTokenForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 from accounts.api_clients.auth_messages import AuthMessages
+from verification.models import Verification
 
 auth_msg_api = AuthMessages()
 send_auth_sms = auth_msg_api.send_auth_sms
@@ -89,7 +91,7 @@ def user_registration(request):
 @method_decorator(login_required, name='dispatch')
 class UserUpdateView(View):
     ReferralFormSet = modelformset_factory(ReferralCode,
-                                           form=ReferralTokenForm, extra=1)
+                                           form=ReferralTokenForm, extra=0)
 
     def get(self, request):
         user_form = UserForm(
@@ -99,11 +101,15 @@ class UserUpdateView(View):
         all_referrals = request.user.referral_code.all()
         referral_formset = \
             UserUpdateView.ReferralFormSet(queryset=all_referrals)
+        verification_form = VerificationUploadForm()
+        verification_list = Verification.objects.filter(user=self.request.user)
 
         context = {
             'user_form': user_form,
             'profile_form': profile_form,
             'referral_formset': referral_formset,
+            'verification_form': verification_form,
+            'verifications': verification_list
         }
 
         return render(request, 'accounts/user_profile.html', context)
@@ -126,13 +132,6 @@ class UserUpdateView(View):
             user_form.save()
             profile_form.save()
 
-        if referral_formset.is_valid():
-            instances = referral_formset.save(commit=False)
-            for instance in instances:
-                success_message += _('Referral codes updated successfully')
-                instance.user = request.user.pk
-                instance.save()
-
         if success_message:
             messages.success(self.request, success_message)
             return redirect(reverse('accounts.user_profile'))
@@ -144,6 +143,30 @@ class UserUpdateView(View):
             }
 
             return render(request, 'accounts/user_profile.html', ctx, )
+
+
+@method_decorator(login_required, name='dispatch')
+class ReferralUpdateView(View):
+    ReferralFormSet = modelformset_factory(ReferralCode,
+                                           form=ReferralTokenForm, extra=0)
+
+    def post(self, request):
+        referral_formset = UserUpdateView.ReferralFormSet(request.POST)
+
+        success_message = ''
+
+        if referral_formset.is_valid():
+            instances = referral_formset.save(commit=False)
+            for instance in instances:
+                success_message += '{}\n'.format(
+                    _('Referral codes updated successfully')
+                )
+                instance.user = request.user
+                instance.save()
+
+        if success_message:
+            messages.success(self.request, success_message)
+        return redirect(reverse('accounts.user_profile') + "?tab=referrals")
 
 
 @watch_login

@@ -38,7 +38,8 @@ class Upload(LoginRestrictedView, CreateView):
         form = self.form_class(initial=self.initial)
 
         return render(request, self.template_name,
-                      {'verifications': verification_list, 'form': form})
+                      {'verifications': verification_list,
+                       'verification_form': form})
 
 
 @login_required

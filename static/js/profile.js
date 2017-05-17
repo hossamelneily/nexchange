@@ -52,5 +52,79 @@
     };
     $("#verify_phone_now").on("click", verifyPhone);
 
+    function getParameterByName(name, url) {
+        if (!url) {url = window.location.href;}
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) {return null;}
+        if (!results[2]) {return '';}
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+    window.openProfileTab = function(evt, tabId) {
+        // Declare all variables
+        var i, tabcontent, tablinks;
+
+        // Get all elements with class="tabcontent" and hide them
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+
+        // Get all elements with class="tablinks" and remove the class "active"
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+
+        // Show the current tab, and add an "active" class to the button that opened the tab
+        document.getElementById(tabId).style.display = "block";
+        if (evt === null) {
+            $('#' + tabId + "_button").addClass('active');
+        } else {
+            evt.currentTarget.className += " active";
+        }
+
+    };
+    $(document).ready(function() {
+        var tabName = getParameterByName('tab');
+        if (tabName !== null) {
+            window.openProfileTab(null, tabName);
+        }
+    });
+
+    $("#new-referral-code").on("click", function() {
+        $("#new-referral-code-modal").modal('show');
+    });
+
+    $(document).on('submit', '#new-referral-code-form', function (event) {
+            event.preventDefault();
+            var verifyPayload = $(this).serialize();
+
+            $.ajax({
+                type: 'POST',
+                url: '/en/referrals/code/new/',
+                dataType: 'text',
+                data: verifyPayload,
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                success: function success(data) {
+                    //if the transaction is Buy
+                    var status = JSON.parse(data).status,
+                        message = JSON.parse(data).msg;
+                    if (status == 'OK') {
+                        window.location.href = JSON.parse(data).redirect;
+                        toastr.success(message);
+                    } else {
+                        toastr.error(message);
+                    }
+                },
+                error: function error(jqXHR) {
+                    var message = gettext('Something went wrong. Please, try again.');
+                    toastr.error(message);
+                }
+            });
+        });
+
     window.verifyPhone = verifyPhone; //hack to allow tests to run
 }(window, window.jQuery)); //jshint ignore:line

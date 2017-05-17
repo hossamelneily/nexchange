@@ -6,78 +6,27 @@
 {% block main %}
     <div class="page-header">
         <h1>
-            <small>{% trans "User Profile" %}</small>
+            {% trans "User Profile" %}
         </h1>
     </div>
-    <div class="p-list">
-        <p><a class="nav-link" href="{% url 'accounts.change_password' %}">
-            {% if profile_form.instance.user.password == '' %}
-                {% trans "Set password" %}
-            {% else %}
-                {% trans "Change password" %}
-            {% endif %}
-        </a></p>
+    <div class="form-group" name="tabs" id="tabs">
+        <button id="info_button" class="btn btn-lg btn-primary tablinks active" onclick="openProfileTab(event, 'info')">{% trans "Info" %}</button>
+        <button id="verification_button" class="btn btn-lg btn-primary tablinks" onclick="openProfileTab(event, 'verification')">{% trans "Verification" %}</button>
+        <button id="referrals_button" class="btn btn-lg btn-primary tablinks" onclick="openProfileTab(event, 'referrals')">{%trans "Referrals" %}</button>
     </div>
 
+    <div id="info" class="tabcontent" style="display: block;">
+        {% include "accounts/partials/user_profile_info.html" %}
+    </div>
 
-    {% if request.user.profile.disabled and request.user.profile.phone%}
-        <div class="well">
-            
-            <div class="alert alert-danger" role="alert" style="display:block" id="alert_phone_not_verified">
-                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {% trans "Your phone number is not verified yet." %}
-            </div> 
+    <div id="verification" class="tabcontent" style="display: none;">
+        {% include "verification/partials/user_verification.html" %}
+    </div>
 
-            <div class="alert alert-warning" role="alert" style="display:none" id="alert_verifying_phone">
-                <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>&nbsp;{% trans "Verifying phone now..." %}
-            </div>
+    <div id="referrals" class="tabcontent" style="display: none;">
+        {% include "accounts/partials/user_profile_referral.html" %}
+    </div>
 
-            
-
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="input-group"> 
-                        <input type="text" aria-label={% trans "Insert SMS verification token here" %} placeholder={% trans "Insert SMS verification token here" %} class="form-control" id="verification_code"> 
-                        <div class="input-group-btn"> 
-                            <button data-url="{% url 'accounts.verify_user' %}" class="btn btn-default" type="button" id="verify_phone_now">{% trans "Verify phone now" %}</button>
-                        </div> 
-                    </div> 
-                </div>
-
-                <div class="col-md-4">
-                    <a href="#" class="btn btn-success btn-sm pull-right" id="resend_sms_button" data-url="{% url 'accounts.resend_sms' %}">
-                        <i class="fa fa-repeat" aria-hidden="true"></i>&nbsp;{% trans "Send-me the token again" %}
-                    </a>
-                </div>
-            </div>
-        </div>
-    {% elif request.user.profile.phone %}
-        <label class="control-label" for="phone">{% trans "Phone"%}</label>
-        <div class="input-group"> 
-            <input type="text" aria-describedby="basic-addon2" value="{{request.user.profile.phone}}" disabled="disabled" class="form-control disabled">
-            <span id="basic-addon2" class="input-group-addon">
-                <i class="fa fa-check-square-o" aria-hidden="true"></i>
-                {% trans "Your phone has been verified." %}
-            </span>
-        </div>
-        <br>
-    {% endif%}
-
-
-
-
-    <form method="post" class="form" enctype="multipart/form-data" >
-        {% csrf_token %}
-
-
-        {% bootstrap_form profile_form %}
-        {% bootstrap_form user_form %}
-        {{ referral_formset.management_form }}
-        {% for referral_form in referral_formset %}
-            {% bootstrap_form referral_form %}
-        {% endfor %}
-
-        <input type="submit" name="submit" class="btn btn-success btn-lg" id="submit" value="Update Profile">
-    </form>
 {% endblock %}
 
 {% block extra_js_footer %}     
