@@ -16,7 +16,7 @@ def renew_cards_reserve():
             settings.API1_PASS
         )
 
-    currencies = Currency.objects.filter(code__in=['BTC', 'ETH', 'LTC'])
+    currencies = Currency.objects.filter(is_crypto=True)
 
     for curr in currencies:
         api = ApiClientFactory.get_api_client(curr.wallet)

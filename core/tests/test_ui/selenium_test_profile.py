@@ -89,5 +89,4 @@ class TestUIProfile(BaseTestUI):
         self.wait_page_load(delay=0.2)
         src = self.driver.page_source
         text_found = re.search(r'{}'.format(not_random_name), src)
-        self.do_screenshot('asd')
         self.assertNotEqual(text_found, None)
