@@ -58,11 +58,12 @@ class ReferralCodeCreateView(View):
         success_msg = _('New Referral Code Created')
 
         code = request.POST.get('code_new')
+        comment = request.POST.get('comment')
         old_refs = ReferralCode.objects.filter(code=code)
         if len(old_refs) > 0:
             msg = _('Referral Code {} already exists.'.format(code))
             return JsonResponse({'status': 'ERROR', 'msg': msg}, safe=False)
-        new_code = ReferralCode(user=request.user, code=code)
+        new_code = ReferralCode(user=request.user, code=code, comment=comment)
         new_code.save()
 
         redirect_url = reverse('accounts.user_profile') + '?tab=referrals'

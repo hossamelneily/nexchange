@@ -6,13 +6,17 @@
 {% block modal_body %}
 <form id="new-referral-code-form" class="card-form" enctype="multipart/form-data" action="">
     {% csrf_token %}
+    <label class="contol-label" for="code_new">{% trans "Code" %}</label>
     <div class="form-group">
         <input type="text" name="code_new" id="code_new" class="form-control" placeholder="{% trans 'Random Referral Code' %}">
+    </div>
+    <label class="contol-label" for="comment">{% trans "Name / Short Comment" %}</label>
+    <div class="form-group">
+        <input type="text" name="comment" id="comment" class="form-control">
     </div>
 
     <div class="form-group">
         <input type="submit" class="btn btn-success btn-lg" value="{% trans 'Create New Code' %}">
-      <!--button id="cancel_referral_code" class="btn btn-danger btn-lg">{% trans 'Cancel' %}</button-->
     </div>
 </form>
 {% endblock %}

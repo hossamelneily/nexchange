@@ -75,7 +75,7 @@ class TestUIProfile(BaseTestUI):
         self.click_element_by_name(
             'submit', by=By.XPATH,
             xpath_query=xpath_query)
-        self.wait_page_load(delay=0.1)
+        self.wait_page_load(delay=0.2)
         self.assertIn('tab=referrals', self.driver.current_url)
         after_codes = len(self.driver.find_elements_by_class_name('line-hr'))
         self.assertEqual(before_codes + 1, after_codes)
@@ -86,7 +86,8 @@ class TestUIProfile(BaseTestUI):
         self.click_element_by_name(
             'submit', by=By.XPATH,
             xpath_query=xpath_query)
-        self.wait_page_load(delay=0.1)
+        self.wait_page_load(delay=0.2)
         src = self.driver.page_source
         text_found = re.search(r'{}'.format(not_random_name), src)
+        self.do_screenshot('asd')
         self.assertNotEqual(text_found, None)

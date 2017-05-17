@@ -5,6 +5,7 @@ from core.models import AddressReserve
 from core.models import Currency
 from nexchange.utils import get_nexchange_logger, get_traceback
 
+
 def renew_cards_reserve():
     logger = get_nexchange_logger(__name__)
     logger.info(get_traceback())
@@ -15,7 +16,7 @@ def renew_cards_reserve():
             settings.API1_PASS
         )
 
-    currencies = Currency.objects.filter(is_crypto=True)
+    currencies = Currency.objects.filter(code__in=['BTC', 'ETH', 'LTC'])
 
     for curr in currencies:
         api = ApiClientFactory.get_api_client(curr.wallet)
