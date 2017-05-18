@@ -62,7 +62,7 @@ class Address(BtcBase, SoftDeletableModel):
 
 class Transaction(BtcBase):
     confirmations = models.IntegerField(default=0)
-    tx_id = models.CharField(max_length=65, default=None,
+    tx_id = models.CharField(max_length=100, default=None,
                              null=True, unique=True)
     tx_id_api = models.CharField(max_length=55, default=None,
                                  null=True, unique=True)
