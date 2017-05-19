@@ -16,6 +16,7 @@ class BaseTransactionImporter:
         )
 
     def get_orders(self, tx):
+        self.logger.info('get_orders start'.format())
         sell_query = Q(
             exchange=False,
             order_type=Order.SELL,
@@ -24,6 +25,8 @@ class BaseTransactionImporter:
             status=Order.INITIAL,
             user=tx['address_to'].user
         )
+        self.logger.info('get_orders sell query:{}'.format(
+            sell_query))
         buy_exchange_query = Q(
             exchange=True,
             order_type=Order.BUY,
@@ -32,6 +35,8 @@ class BaseTransactionImporter:
             status=Order.INITIAL,
             user=tx['address_to'].user
         )
+        self.logger.info('get_orders buy exchange query:{}'.format(
+            buy_exchange_query))
         sell_exchange_query = Q(
             exchange=True,
             order_type=Order.SELL,
@@ -40,6 +45,8 @@ class BaseTransactionImporter:
             status=Order.INITIAL,
             user=tx['address_to'].user
         )
+        self.logger.info('get_orders sell exchange query:{}'.format(
+            sell_exchange_query))
         orders = Order.objects.filter(
             sell_query | buy_exchange_query | sell_exchange_query
         )
@@ -75,7 +82,9 @@ class BaseTransactionImporter:
             self.api.revert_tx_mapper()
 
     def create_tx(self, tx_data):
+        self.logger.info('create_tx tx_data:{}'.format(tx_data))
         orders = self.get_orders(tx_data)
+        self.logger.info('create_tx orders:{}'.format(orders))
         if len(orders) == 1:
             order = orders[0]
 
