@@ -82,7 +82,7 @@ class BaseTransactionImporter:
             self.api.revert_tx_mapper()
 
     def create_tx(self, tx_data):
-        self.logger.info('create_tx tx_data:P{'.format(tx_data))
+        self.logger.info('create_tx tx_data:{}'.format(tx_data))
         orders = self.get_orders(tx_data)
         self.logger.info('create_tx orders:{}'.format(orders))
         if len(orders) == 1:
