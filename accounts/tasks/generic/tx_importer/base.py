@@ -112,4 +112,8 @@ class BaseTransactionImporter:
         for node in self.api.related_nodes:
             total_txs, txs = self.api.get_txs(node)
             for tx in txs:
-                self.get_or_create_tx(tx)
+                if tx['address_to'] is not None:
+                    self.get_or_create_tx(tx)
+                else:
+                    self.logger.info('Transaction has no address_to: {}'.format(
+                        tx))
