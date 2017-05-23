@@ -91,9 +91,15 @@ class UpholdApiClient(BaseApiClient):
             _currency = self.get_currency(
                 {'code': tx['destination']['currency']}
             )
-            _address = self.get_address(
-                {'reserve__card_id': tx['destination']['CardId']}
-            )
+            try:
+                _address = self.get_address(
+                    {'reserve__card_id': tx['destination']['CardId']}
+                )
+            except Address.DoesNotExist:
+                _address = None
+                self.logger.warning(
+                    'CardId:does not exist in DB. tx data:{}'.format(tx)
+                )
             # not always there
             tx_id = tx.get('params', {}).get('txid', None)
 
