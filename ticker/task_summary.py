@@ -50,10 +50,24 @@ def get_ticker_crypto_crypto(**kwargs):
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def get_all_tickers():
+    logger = get_nexchange_logger('Get Tickers')
     pairs = Pair.objects.filter(disabled=False)
     for pair in pairs:
         kwargs = {'pair_pk': pair.pk}
         if pair.is_crypto:
-            get_ticker_crypto_crypto.apply_async(kwargs=kwargs)
+            try:
+                get_ticker_crypto_crypto.apply(kwargs=kwargs)
+            except Exception as e:
+                logger.warning(
+                    'Smth is wrong with pair:{} ticker. traceback:{}'.format(
+                        pair, e)
+                )
+
         else:
-            get_ticker_crypto_fiat.apply_async(kwargs=kwargs)
+            try:
+                get_ticker_crypto_fiat.apply(kwargs=kwargs)
+            except Exception as e:
+                logger.warning(
+                    'Smth is wrong with pair:{} ticker. traceback:{}'.format(
+                        pair, e)
+                )
