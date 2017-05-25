@@ -330,7 +330,7 @@ build:
           openssl passwd -apr1 $HTTP_AUTH_PASS >> /nexchange/etc/nginx/.htpasswd
 
           adduser --disabled-password --gecos '' celery_user
-          celery worker -A nexchange --uid=celery_user -l info &
+          celery worker -A nexchange --uid=celery_user -l info -c 4 &
           celery beat -A nexchange -l info &
           echo "Gunicorn start"
           exec newrelic-admin run-program gunicorn --chdir /usr/src/app --name nexchange --bind 0.0.0.0:${GUNICORN_PORT} --workers 3 --log-level=info --access-logfile=- nexchange.wsgi:application "$@"
