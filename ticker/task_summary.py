@@ -16,7 +16,6 @@ crypto_crypto_ticker_kraken = CryptoCryptoKrakenTicker()
 crypto_crypto_ticker_cryptopia = CryptoCryptoCryptopiaTicker()
 
 
-@shared_task()
 def get_ticker_crypto_fiat(**kwargs):
     pair_pk = kwargs.get('pair_pk', None)
     logger = get_nexchange_logger(__name__, True, True)
@@ -32,7 +31,6 @@ def get_ticker_crypto_fiat(**kwargs):
         logger.warning('pair_pk is not defined in kwargs')
 
 
-@shared_task()
 def get_ticker_crypto_crypto(**kwargs):
     logger = get_nexchange_logger(__name__, True, True)
     pair_pk = kwargs.get('pair_pk', None)
