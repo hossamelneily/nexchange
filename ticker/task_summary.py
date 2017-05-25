@@ -8,6 +8,7 @@ from ticker.tasks.generic.crypto_fiat_ticker import \
 from ticker.tasks.generic.crypto_crypto_ticker import \
     CryptoCryptoKrakenTicker, CryptoCryptoCryptopiaTicker
 from nexchange.utils import get_nexchange_logger
+from time import sleep
 
 
 crypto_fiat_ticker_kraken = CryptoFiatKrakenTicker()
@@ -52,11 +53,14 @@ def get_ticker_crypto_crypto(**kwargs):
 def get_all_tickers():
     logger = get_nexchange_logger('Get Tickers')
     pairs = Pair.objects.filter(disabled=False)
-    for pair in pairs:
+    for i, pair in enumerate(pairs):
+        if i % 30 == 0:
+            # Prevent RDB failures.
+            sleep(0.1)
         kwargs = {'pair_pk': pair.pk}
         if pair.is_crypto:
             try:
-                get_ticker_crypto_crypto.apply(kwargs=kwargs)
+                get_ticker_crypto_crypto.apply_async(kwargs=kwargs)
             except Exception as e:
                 logger.warning(
                     'Smth is wrong with pair:{} ticker. traceback:{}'.format(
@@ -65,7 +69,7 @@ def get_all_tickers():
 
         else:
             try:
-                get_ticker_crypto_fiat.apply(kwargs=kwargs)
+                get_ticker_crypto_fiat.apply_async(kwargs=kwargs)
             except Exception as e:
                 logger.warning(
                     'Smth is wrong with pair:{} ticker. traceback:{}'.format(
