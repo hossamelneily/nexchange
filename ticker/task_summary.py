@@ -16,6 +16,7 @@ crypto_crypto_ticker_kraken = CryptoCryptoKrakenTicker()
 crypto_crypto_ticker_cryptopia = CryptoCryptoCryptopiaTicker()
 
 
+@shared_task()
 def get_ticker_crypto_fiat(**kwargs):
     pair_pk = kwargs.get('pair_pk', None)
     logger = get_nexchange_logger(__name__, True, True)
@@ -31,6 +32,7 @@ def get_ticker_crypto_fiat(**kwargs):
         logger.warning('pair_pk is not defined in kwargs')
 
 
+@shared_task()
 def get_ticker_crypto_crypto(**kwargs):
     logger = get_nexchange_logger(__name__, True, True)
     pair_pk = kwargs.get('pair_pk', None)
@@ -49,13 +51,12 @@ def get_ticker_crypto_crypto(**kwargs):
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def get_all_tickers():
     logger = get_nexchange_logger('Get Tickers')
-    pairs = Pair.objects.filter(disabled=False).exclude(
-        quote__ticker='cryptopia').exclude(base__ticker='cryptopia')
+    pairs = Pair.objects.filter(disabled=False)
     for pair in pairs:
         kwargs = {'pair_pk': pair.pk}
         if pair.is_crypto:
             try:
-                get_ticker_crypto_crypto(**kwargs)
+                get_ticker_crypto_crypto.apply_async(kwargs=kwargs)
             except Exception as e:
                 logger.warning(
                     'Smth is wrong with pair:{} ticker. traceback:{}'.format(
@@ -64,7 +65,7 @@ def get_all_tickers():
 
         else:
             try:
-                get_ticker_crypto_fiat(**kwargs)
+                get_ticker_crypto_fiat.apply_async(kwargs=kwargs)
             except Exception as e:
                 logger.warning(
                     'Smth is wrong with pair:{} ticker. traceback:{}'.format(

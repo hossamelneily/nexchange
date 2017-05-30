@@ -4,7 +4,6 @@ import requests_mock
 from ticker.tests.base import TickerBaseTestCase
 from core.models import Pair
 from ticker.models import Ticker
-from unittest import skip
 
 
 class TestTickerTask(TickerBaseTestCase):
@@ -18,7 +17,6 @@ class TestTickerTask(TickerBaseTestCase):
         self.disabled_ticker.disabled = True
         self.disabled_ticker.save()
 
-    @skip('celery failure bug')
     @requests_mock.mock()
     def test_create_enabled_ticker(self, m):
         enabled_pairs_count = len(Pair.objects.filter(disabled=False))
@@ -30,7 +28,6 @@ class TestTickerTask(TickerBaseTestCase):
         self.assertEqual(before + 1, after)
         self.assertEqual(before_all + enabled_pairs_count, after_all)
 
-    @skip('celery failure bug')
     @requests_mock.mock()
     def test_do_not_create_disabled_ticker(self, m):
         before = len(Price.objects.filter(pair=self.disabled_ticker))
