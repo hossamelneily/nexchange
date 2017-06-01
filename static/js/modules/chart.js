@@ -27,9 +27,13 @@ highchartsMore(highcharts);
 
     function renderChart(pair, title, hours) {
         var tickerHistoryUrl = apiRoot + pair + '/history',
-            tickerLatestUrl = apiRoot + pair + '/latest';
+            tickerLatestUrl = apiRoot + pair + '/latest',
+            data_points = window.innerWidth;
         if (hours) {
-            tickerHistoryUrl = tickerHistoryUrl + '?hours=' + hours.replace(',', '.');
+            tickerHistoryUrl = tickerHistoryUrl + '?hours=' + hours.replace(',', '.') + '&data_points=' + data_points;
+        }
+        else {
+            tickerHistoryUrl = tickerHistoryUrl + '?data_points=' + data_points;
         }
 
         if ($('body').find('#container-graph').length > 0) {

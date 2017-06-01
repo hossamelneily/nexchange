@@ -1,6 +1,7 @@
 import datetime
 
 from rest_framework import generics, viewsets
+from random import choice
 
 
 class DateFilterViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
@@ -28,3 +29,28 @@ class DateFilterViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
             return self.queryset.filter(**filters).order_by('id')
         else:
             return []
+
+
+class DataPointsFilterViewSet(DateFilterViewSet):
+
+    def get_queryset(self, filters=None):
+        params = self.request.query_params
+
+        res = super(DataPointsFilterViewSet, self).get_queryset(
+            filters=filters
+        )
+        if len(res) > 0:
+            if 'data_points' in params:
+
+                data_points = int(self.request.query_params.get('data_points'))
+                pks = []
+                step = len(res) / data_points
+                number = 0
+                while number < len(res):
+                    pks.append(res[int(number)].pk)
+                    number += step
+                if len(pks) - data_points == 1:
+                    ticker_to_remove = choice(pks)
+                    pks.remove(ticker_to_remove)
+                return self.queryset.filter(pk__in=pks).order_by('id')
+        return res
