@@ -37,7 +37,7 @@ def buy_order_release_reference_periodic():
         is_redeemed=False
     ):
         try:
-            buy_order_release_by_reference_invoke.apply_async([payment])
+            buy_order_release_by_reference_invoke.apply_async([payment.pk])
         except Exception as e:
             logger.warning(e)
 
