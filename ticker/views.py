@@ -6,6 +6,7 @@ from ticker.serializers import PriceSerializer
 from rest_framework_extensions.mixins import (
     ReadOnlyCacheResponseAndETAGMixin, ReadOnlyETAGMixin
 )
+from time import time
 
 
 class LastPricesViewSet(ReadOnlyCacheResponseAndETAGMixin,
@@ -31,4 +32,15 @@ class PriceHistoryViewSet(ReadOnlyETAGMixin,
         filters['pair__name'] = self.kwargs['pair'].upper()
         res = super(PriceHistoryViewSet, self).get_queryset(filters=filters)
 
+        return res
+
+    def list(self, request, pair=None):
+        before_list = time()
+        res = super(PriceHistoryViewSet, self).list(request, pair=pair)
+        after_list = time()
+        list_time = after_list - before_list
+        print('params request:{}. List time: {}'.format(
+            self.request.query_params,
+            list_time
+        ))
         return res
