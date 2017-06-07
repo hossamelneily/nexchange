@@ -49,24 +49,32 @@ class DataPointsFilterViewSet(DateFilterViewSet):
             original_len = len(res)
 
             data_points = int(self.request.query_params.get('data_points'))
+            a1 = a2 = a3 = 0.0
             if data_points < original_len:
                 pks = []
                 step = len(res) / data_points
                 number = 0
+                a1 = time()
                 while number < original_len:
                     pks.append(res[int(number)].pk)
                     number += step
+                a2 = time()
                 if len(pks) - data_points == 1:
                     ticker_to_remove = choice(pks)
                     pks.remove(ticker_to_remove)
+                a3 = time()
                 res = self.queryset.filter(pk__in=pks).order_by('id')
         after_points_filter = time()
         message = (
             'Data points request({}). time filter time: {}. Data points '
-            'filter time: {}'.format(
+            'filter time: {} = {} + {} + {} + {}'.format(
                 self.request.query_params,
                 after_db_query - before_db_query,
-                after_points_filter - after_db_query
+                after_points_filter - after_db_query,
+                a1 - after_db_query,
+                a2 - a1,
+                a3 - a2,
+                after_points_filter - a3
             )
         )
         print(message)
