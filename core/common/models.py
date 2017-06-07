@@ -62,6 +62,14 @@ class TimeStampedModel(models.Model):
         abstract = True
 
 
+class IndexTimeStampedModel(models.Model):
+    created_on = models.DateTimeField(auto_now_add=True, db_index=True)
+    modified_on = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
 class IpAwareModel(TimeStampedModel, SoftDeleteMixin):
 
     class Meta:
