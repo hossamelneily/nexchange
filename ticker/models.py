@@ -2,16 +2,16 @@ from django.db import models
 from django.utils.dateformat import format
 from core.models import Pair
 
-from core.common.models import TimeStampedModel
+from core.common.models import IndexTimeStampedModel
 
 
-class Ticker(TimeStampedModel):
+class Ticker(IndexTimeStampedModel):
     ask = models.DecimalField(max_digits=18, decimal_places=8)
     bid = models.DecimalField(max_digits=18, decimal_places=8)
     pair = models.ForeignKey(Pair)
 
 
-class Price(TimeStampedModel):
+class Price(IndexTimeStampedModel):
 
     ticker = models.ForeignKey(Ticker, blank=True, null=True)
     pair = models.ForeignKey(Pair, blank=True, null=True)
