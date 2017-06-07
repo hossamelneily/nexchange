@@ -125,7 +125,7 @@ class Pair(TimeStampedModel):
                                   default=Decimal('0.01'))
     fee_bid = models.DecimalField(max_digits=18, decimal_places=8,
                                   default=Decimal('0.01'))
-    name = models.CharField(max_length=8, blank=True, null=True)
+    name = models.CharField(max_length=8, blank=True, null=True, db_index=True)
     disabled = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
