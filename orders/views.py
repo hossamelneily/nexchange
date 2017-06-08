@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import activate
 from django.views.decorators.csrf import csrf_exempt
 from core.common.forms import DateSearchForm
-from core.models import Address, Pair
+from core.models import Address, Pair, Currency
 from core.views import main
 from orders.models import Order
 from payments.models import PaymentPreference, PaymentMethod, Payment
@@ -98,12 +98,14 @@ def add_order(request, pair=None):
     pairs = Pair.objects.filter(disabled=False)
     base_currencies = set(pair.base.code for pair in pairs)
     quote_currencies = set(pair.quote.code for pair in pairs)
+    crypto_currencies = Currency.objects.filter(is_crypto=True)
 
     my_action = _('Add')
 
     context = {
         'graph_ranges': settings.GRAPH_HOUR_RANGES,
         'pairs': pairs,
+        'crypto_currencies': crypto_currencies,
         'base_currencies': base_currencies,
         'quote_currencies': quote_currencies,
         'action': my_action,

@@ -1,13 +1,20 @@
 {% extends 'orders/partials/steps/step_base.html' %}
 {% load i18n %}
 {% block step_content %}
+
+<div align="left">
+    {% for curr in crypto_currencies %}
+        <button class="btn btn-primary btc-select switch-currency-pairs" value="{{ curr.code }}">{{ curr.code }}</button>
+    {% endfor %}
+    <button class="btn btn-primary btc-select switch-currency-pairs" value="crypto">CRYPTO</button>
+</div>
     <div class="chart_panel_selectbox_panel" style="width: 100%;">
         <div class="input-group-btn" style="width: 49%; text-align: center;
         margin: auto; display: inline-block">
             <select name="currency_pair"
                     class="currency-select currency-pair classic select2">
                 {% for pair in pairs %}
-                    <option value="{{ pair.name}}" class="currency-select currency-pair chart_panel_selectbox classic"
+                    <option value="{{ pair.name}}" class="currency-select currency-pair chart_panel_selectbox classic currency-{{ pair.base.code}} currency-{{ pair.quote.code}} crypto-{{ pair.is_crypto }}"
                             data-fiat="{{ pair.quote.code }}"
                             data-crypto={{ pair.base.code }}>{{ pair.base.code }}/{{pair.quote.code }}</option>
                 {% endfor %}

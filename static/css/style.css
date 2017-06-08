@@ -1531,3 +1531,7 @@ li.select2-results__option:first {
     max-width: 100%;
     padding: 2px;
 }
+
+.select2-container--default .select2-results__option[aria-disabled=true] {
+    display: none;
+}
