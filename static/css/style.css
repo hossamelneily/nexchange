@@ -643,6 +643,16 @@ body .price_box_ticker .trigger-sell, body .price_box_next_cont .sell-go{
     bottom: 0;
 }
 
+.switch-currency-pairs {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+}
+
+div.switch-pairs {
+    text-align: left;
+}
+
 /*new design end*/
 
 /*start new design responsive*/
@@ -732,6 +742,9 @@ div.payment-label {
 }
 
 @media screen and (max-width:700px) {
+    div.switch-pairs {
+        text-align: center;
+    }
 }
 
 @media screen and (max-width:667px) {

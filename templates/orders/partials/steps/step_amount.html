@@ -2,12 +2,13 @@
 {% load i18n %}
 {% block step_content %}
 
-<div align="left">
-    {% for curr in crypto_currencies %}
-        <button class="btn btn-primary btc-select switch-currency-pairs" value="{{ curr.code }}">{{ curr.code }}</button>
-    {% endfor %}
-    <button class="btn btn-primary btc-select switch-currency-pairs" value="crypto">CRYPTO</button>
-</div>
+    <div class="switch-pairs">
+        {% for curr in crypto_currencies %}
+            <button class="btn btn-primary switch-currency-pairs" value="{{ curr.code }}">{{ curr.code }}</button>
+        {% endfor %}
+        <button class="btn btn-primary switch-currency-pairs" value="crypto">CRYPTO</button>
+    </div>
+
     <div class="chart_panel_selectbox_panel" style="width: 100%;">
         <div class="input-group-btn" style="width: 49%; text-align: center;
         margin: auto; display: inline-block">
