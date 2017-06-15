@@ -69,10 +69,9 @@ class BaseTicker(BaseTask):
         self.pair = Pair.objects.get(pk=pair_pk)
         self.ask_multip = self.bid_multip = Decimal('1.0')
         if self.pair.is_crypto:
-            price = self.get_ticker_crypto()
+            self.get_ticker_crypto()
         else:
-            price = self.get_ticker_crypto_fiat()
-        self.logger.info('Price {} created'.format(price))
+            self.get_ticker_crypto_fiat()
 
     def create_ticker(self, ask, bid):
         ask = (self.ask_multip * Decimal(ask) *
