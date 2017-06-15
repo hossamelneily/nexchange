@@ -455,33 +455,44 @@ class PayeerAPIClient(BasePaymentApi):
         return content
 
 
+loggers = {}
+
+
 def get_nexchange_logger(name, with_console=True, with_email=False):
-    formatter_str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    logger = logging.getLogger(
-        name
-    )
-    logger.level = logging.DEBUG
-    formatter = logging.Formatter(formatter_str)
-    handlers = []
-    if with_console:
-        console_ch = logging.StreamHandler(sys.stdout)
-        handlers.append((console_ch, 'DEBUG',))
 
-    if with_email and not settings.DEBUG:
-        email_ch = AdminEmailHandler()
-        handlers.append((email_ch, 'WARNING',))
+    global loggers
 
-    for handler, level in handlers:
-        level_code = getattr(logging, level, logging.DEBUG)
-        handler.setLevel(level_code)
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
+    if name in loggers:
+        return loggers[name]
+    else:
+        formatter_str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        logger = logging.getLogger(
+            name
+        )
+        logger.level = logging.DEBUG
+        formatter = logging.Formatter(formatter_str)
+        handlers = []
+        if with_console:
+            console_ch = logging.StreamHandler(sys.stdout)
+            handlers.append((console_ch, 'DEBUG',))
 
-    if not handlers:
-        print('WARNING: logger with no handlers')
-        print(get_traceback())
+        if with_email and not settings.DEBUG:
+            email_ch = AdminEmailHandler()
+            handlers.append((email_ch, 'WARNING',))
 
-    return logger
+        for handler, level in handlers:
+            level_code = getattr(logging, level, logging.DEBUG)
+            handler.setLevel(level_code)
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+
+        if not handlers:
+            print('WARNING: logger with no handlers')
+            print(get_traceback())
+
+        loggers.update({'{}'.format(name): logger})
+
+        return logger
 
 
 def get_client_ip(request):
@@ -491,4 +502,3 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
-
