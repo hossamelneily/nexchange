@@ -5,6 +5,7 @@
     "fields": {
       "code": "USD",
       "name": "USD",
+      "major": true,
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }
@@ -15,6 +16,7 @@
     "fields": {
       "code": "RUB",
       "name": "RUB",
+      "major": true,
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }
@@ -25,6 +27,7 @@
     "fields": {
       "code": "EUR",
       "name": "EUR",
+      "major": true,
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }

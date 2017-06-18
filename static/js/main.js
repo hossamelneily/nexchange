@@ -627,11 +627,9 @@ import Clipboard from 'clipboard';
                 all_pairs = $('option[class*="currency-pair"]'),
                 mainCurrency = $(this).val(),
                 pairName = mainCurrency + 'EUR',
-                active_pairs = $('.currency-' + mainCurrency);
-            if (mainCurrency === 'crypto') {
-                active_pairs = $('.crypto-True');
-                pairName = 'BTCETH';
-            }
+                active_pairs = $('.currency-' + mainCurrency).filter('.major-True');
+            $('.switch-currency-pairs').removeClass('active-pair');
+            $(this).addClass('active-pair');
             if (selection.hasClass('select2')) {
                 all_pairs.prop('disabled', true);
                 active_pairs.removeProp('disabled');

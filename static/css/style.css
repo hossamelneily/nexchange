@@ -644,9 +644,17 @@ body .price_box_ticker .trigger-sell, body .price_box_next_cont .sell-go{
 }
 
 .switch-currency-pairs {
-    background-color: #4CAF50;
+    background-color: #aaaba9;
     border: none;
     color: white;
+
+}
+
+.active-pair {
+    background-color: #4CAF50;
+}
+button:focus{
+    background:black;
 }
 
 div.switch-pairs {

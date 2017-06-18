@@ -4,9 +4,14 @@
 
     <div class="switch-pairs">
         {% for curr in crypto_currencies %}
-            <button class="btn btn-primary switch-currency-pairs" value="{{ curr.code }}">{{ curr.code }}</button>
+            <button class="btn btn-primary switch-currency-pairs" value="{{ curr.code }}" title="{{curr.name}}({{ curr.code }})">
+                {% if curr.code != 'RNS' %}
+                    <i class="cc {{ curr.code }}"></i>
+                {% else %}
+                    <i class="icon-{{ curr.code }}"></i>
+                {% endif %}
+            </button>
         {% endfor %}
-        <button class="btn btn-primary switch-currency-pairs" value="crypto">CRYPTO</button>
     </div>
 
     <div class="chart_panel_selectbox_panel" style="width: 100%;">
@@ -15,7 +20,7 @@
             <select name="currency_pair"
                     class="currency-select currency-pair classic select2">
                 {% for pair in pairs %}
-                    <option value="{{ pair.name}}" class="currency-select currency-pair chart_panel_selectbox classic currency-{{ pair.base.code}} currency-{{ pair.quote.code}} crypto-{{ pair.is_crypto }}"
+                    <option value="{{ pair.name}}" class="currency-select currency-pair chart_panel_selectbox classic currency-{{ pair.base.code}} currency-{{ pair.quote.code}} crypto-{{ pair.is_crypto }} major-{{ pair.quote.major }}"
                             data-fiat="{{ pair.quote.code }}"
                             data-crypto={{ pair.base.code }}>{{ pair.base.code }}/{{pair.quote.code }}</option>
                 {% endfor %}

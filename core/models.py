@@ -119,6 +119,7 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                             blank=True, default=None)
     ticker = models.CharField(null=True, max_length=20,
                               blank=True, default=None)
+    major = models.BooleanField(default=False)
 
     def natural_key(self):
         return self.code
