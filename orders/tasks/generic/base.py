@@ -82,8 +82,12 @@ class BaseOrderRelease(BaseApiTask):
                     self.complete_missing_data(payment, order)
                     self.notify(order)
         else:
-            self.logger.info('{} match order returned None'
-                             .format(self.__class__.__name__))
+            payment = Payment.objects.get(pk=payment_id)
+            self.logger.error('{} match order returned None, Payment:{}'
+                              .format(self.__class__.__name__, payment))
+            payment.flag(val='Payment ({}) match order returned None'.format(
+                payment)
+            )
 
         super(BaseOrderRelease, self).run(payment_id)
 

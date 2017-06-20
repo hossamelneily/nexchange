@@ -6,9 +6,10 @@ from orders.task_summary import buy_order_release_by_wallet_invoke as \
     buy_order_release_by_rule_invoke as rule_release,\
     buy_order_release_reference_periodic as ref_periodic_release
 from orders.models import Order
-from core.models import Address, Currency
+from core.models import Address, Currency, Pair
+from core.common.models import Flag
 from decimal import Decimal
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, PropertyMock
 from copy import deepcopy
 from django.db import transaction
 from core.tests.utils import data_provider, get_ok_pay_mock,\
@@ -567,11 +568,40 @@ class BuyOrderReleaseFailedFlags(BaseOrderReleaseTestCase):
 
     @data_provider(
         lambda: (
-            # Flag when order.is_paid==False
-            ([{'is_default_rule': False,
-               'unique_reference': 'correct_ref123'}],
-             [{'reference': 'correct_ref123', 'is_success': True}],
+            ('Flagged when order.is_paid==False due to amount_quote changes',
+             [{'unique_reference': 'correct_ref123'}],
              {'amount_quote': 10000000},
+             ['order_paid==False'],
+             True,
+             True,
+             ),
+            ('Flagged when order.is_paid==False due to pair changes',
+             [{'unique_reference': 'correct_ref124'}],
+             {'pair': Pair.objects.get(name='BTCUSD')},
+             ['order_paid==False', 'details_match==False'],
+             True,
+             True,
+             ),
+            ('Flagged when order user changed',
+             [{'unique_reference': 'correct_ref125'}],
+             {'user': User.objects.get(username='onit')},
+             ['order.user!=payment.user'],
+             True,
+             True,
+             ),
+            ('Flagged when user is not verified for buying',
+             [{'unique_reference': 'correct_ref126'}],
+             {},
+             ['verification_passed==False'],
+             True,
+             False,
+             ),
+            ('Flagged when reference is wrong',
+             [{'unique_reference': 'incorrect_ref127'}],
+             {'unique_reference': 'correct_ref127'},
+             ['match order returned None'],
+             False,
+             True,
              ),
         )
     )
@@ -579,9 +609,12 @@ class BuyOrderReleaseFailedFlags(BaseOrderReleaseTestCase):
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
     def test_release_flags(self,
                            # data_provider args
+                           name,
                            order_modifiers,
-                           payment_modifiers,
                            order_modifiers_after_payment,
+                           expected_parts_in_flag_val,
+                           order_is_flagged,
+                           user_verified_for_buy,
                            # stabs!
                            trans_history,
                            release_coins):
@@ -592,39 +625,42 @@ class BuyOrderReleaseFailedFlags(BaseOrderReleaseTestCase):
         release_coins.return_value = \
             ('%06x' % random.randrange(16 ** 16)).upper()
 
-        self.purge_orm_objects(self.payments, self.orders)
-        # workaround to delete unpurgeble records
-        Order.objects.all().delete()
-        Payment.objects.all().delete()
-
-        self.payments += self.generate_orm_obj(
-            Payment,
-            self.base_payment_data,
-            payment_modifiers
-        )
-        self.orders += self.generate_orm_obj(
+        order = self.generate_orm_obj(
             Order,
             self.order_data,
             order_modifiers
-        )
-        order = self.orders[0]
+        )[0]
         trans_history.return_value = create_ok_payment_mock_for_order(
             order
         )
         run_okpay.apply()
         payment = Payment.objects.get(order=order)
         order.refresh_from_db()
-        self.assertEqual(order.status, Order.PAID)
+        self.assertEqual(order.status, Order.PAID, name)
         self.edit_orm_obj(order, order_modifiers_after_payment)
 
-        self.release_task.apply()
+        with patch('payments.models.PaymentPreference.user_verified_for_buy',
+                   new_callable=PropertyMock) as verified:
+            verified.return_value = user_verified_for_buy
+            self.release_task.apply()
         order.refresh_from_db()
         payment.refresh_from_db()
-        self.assertEqual(order.status, Order.PAID)
-        self.assertTrue(order.flagged)
-        self.assertTrue(payment.flagged)
+        self.assertEqual(order.status, Order.PAID, name)
+        self.assertTrue(payment.flagged, name)
+        if order_is_flagged:
+            self.assertTrue(order.flagged, name)
+
+        payment_flag = Flag.objects.filter(model_name=Payment.__name__,
+                                           flagged_id=payment.pk).first()
+        if order_is_flagged:
+            self.assertTrue(order.flagged, name)
+            order_flag = Flag.objects.filter(model_name=Order.__name__,
+                                             flagged_id=order.pk).first()
+            self.assertEqual(payment_flag.flag_val, order_flag.flag_val, name)
+        for expec in expected_parts_in_flag_val:
+            self.assertIn(expec, payment_flag.flag_val, name)
         with patch('orders.tasks.generic.buy_order_release.'
                    'BaseBuyOrderRelease.validate') as validate:
             # Check if order release is not attempted again
             self.release_task.apply()
-            self.assertEqual(0, validate.call_count)
+            self.assertEqual(0, validate.call_count, name)
