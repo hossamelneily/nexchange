@@ -177,7 +177,19 @@ class BaseBuyOrderRelease(BaseOrderRelease):
         if match:
             self.logger.info('Order {}  VALID {}'
                              .format(order, order.withdraw_address))
+        else:
+            # NOTE: Maybe it should not be flagged if ref_matches==False?
+            # (To release with different tasks)
+            msg = 'order({}) and payment{} doesn\'t match.'.format(order,
+                                                                   payment)
+            desc = \
+                'user_matches=={}, details_match=={}, ref_matches=={}, ' \
+                'order_paid=={}, verification_passed=={}'.format(
+                    user_matches, details_match, ref_matches, order_paid,
+                    verification_passed
+                )
+            order.flag(val=msg + desc)
+            payment.flag(val=msg + desc)
 
         return match and super(BaseBuyOrderRelease, self)\
             .validate(order, payment)
-

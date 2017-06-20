@@ -222,7 +222,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     def is_paid_buy(self):
         sum_all = self.success_payments_amount()
         amount_expected = (
-            self.ticker_amount -
+            self.amount_quote -
             self.payment_preference.payment_method.allowed_amount_unpaid
         )
         if sum_all >= amount_expected:
@@ -283,4 +283,3 @@ class Order(TimeStampedModel, SoftDeletableModel,
             self.amount_quote,
             self.get_status_display()
         )
-

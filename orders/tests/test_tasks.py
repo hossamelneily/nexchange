@@ -3,17 +3,20 @@ from payments.models import Payment, PaymentPreference
 from orders.task_summary import buy_order_release_by_wallet_invoke as \
     wallet_release, \
     buy_order_release_by_reference_invoke as ref_release, \
-    buy_order_release_by_rule_invoke as rule_release
+    buy_order_release_by_rule_invoke as rule_release,\
+    buy_order_release_reference_periodic as ref_periodic_release
 from orders.models import Order
 from core.models import Address, Currency
 from decimal import Decimal
 from unittest.mock import patch, MagicMock
 from copy import deepcopy
 from django.db import transaction
-from core.tests.utils import data_provider
+from core.tests.utils import data_provider, get_ok_pay_mock,\
+    create_ok_payment_mock_for_order
 from django.contrib.auth.models import User
 import random
 import requests_mock
+from payments.task_summary import run_okpay
 
 
 class BaseOrderReleaseTestCase(OrderBaseTestCase):
@@ -34,6 +37,13 @@ class BaseOrderReleaseTestCase(OrderBaseTestCase):
             while len(objs):
                 obj = objs.pop()
                 obj.delete()
+
+    def edit_orm_obj(self, object, modifiers):
+        for modifier, value in modifiers.items():
+            setattr(object, modifier, value)
+            object.save()
+            object.refresh_from_db()
+        return object
 
     def setUp(self):
         super(BaseOrderReleaseTestCase, self).setUp()
@@ -332,8 +342,8 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
                       convert_coin_to_cash):
 
         for tested_fn in tested_fns:
-            with patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins') as \
-                    release_payment:
+            with patch('nexchange.api_clients.uphold.UpholdApiClient.'
+                       'release_coins') as release_payment:
 
                 self.purge_orm_objects(self.payments, self.orders)
                 # workaround to delete unpurgeble records
@@ -361,7 +371,6 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
                     for i in range(release_count):
                         myargs = [_payment.pk]
                         res = tested_fn.apply(myargs)  # noqa
-
 
                     self.assertEqual(None, res.traceback)
                     self.assertEqual('SUCCESS', res.state)
@@ -542,3 +551,80 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
 # TODO: move to utils tests (validate_payment)
 # TODO: Tests for rule-order using the data provider
 # Todo Tests for sell release order
+
+# TODO: Those tests can be heavily optimised in length by data providers
+
+
+class BuyOrderReleaseFailedFlags(BaseOrderReleaseTestCase):
+
+    def setUp(self):
+        super(BuyOrderReleaseFailedFlags, self).setUp()
+        self.our_pref = PaymentPreference.objects.get(
+            identifier='okpay@nexchange.co.uk'
+        )
+        self.order_data['payment_preference'] = self.our_pref
+        self.release_task = ref_periodic_release
+
+    @data_provider(
+        lambda: (
+            # Flag when order.is_paid==False
+            ([{'is_default_rule': False,
+               'unique_reference': 'correct_ref123'}],
+             [{'reference': 'correct_ref123', 'is_success': True}],
+             {'amount_quote': 10000000},
+             ),
+        )
+    )
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
+    @patch('nexchange.utils.OkPayAPI._get_transaction_history')
+    def test_release_flags(self,
+                           # data_provider args
+                           order_modifiers,
+                           payment_modifiers,
+                           order_modifiers_after_payment,
+                           # stabs!
+                           trans_history,
+                           release_coins):
+
+        trans_history.return_value = get_ok_pay_mock(
+            data='transaction_history'
+        )
+        release_coins.return_value = \
+            ('%06x' % random.randrange(16 ** 16)).upper()
+
+        self.purge_orm_objects(self.payments, self.orders)
+        # workaround to delete unpurgeble records
+        Order.objects.all().delete()
+        Payment.objects.all().delete()
+
+        self.payments += self.generate_orm_obj(
+            Payment,
+            self.base_payment_data,
+            payment_modifiers
+        )
+        self.orders += self.generate_orm_obj(
+            Order,
+            self.order_data,
+            order_modifiers
+        )
+        order = self.orders[0]
+        trans_history.return_value = create_ok_payment_mock_for_order(
+            order
+        )
+        run_okpay.apply()
+        payment = Payment.objects.get(order=order)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PAID)
+        self.edit_orm_obj(order, order_modifiers_after_payment)
+
+        self.release_task.apply()
+        order.refresh_from_db()
+        payment.refresh_from_db()
+        self.assertEqual(order.status, Order.PAID)
+        self.assertTrue(order.flagged)
+        self.assertTrue(payment.flagged)
+        with patch('orders.tasks.generic.buy_order_release.'
+                   'BaseBuyOrderRelease.validate') as validate:
+            # Check if order release is not attempted again
+            self.release_task.apply()
+            self.assertEqual(0, validate.call_count)
