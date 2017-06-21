@@ -9,8 +9,12 @@ from django.core.exceptions import ValidationError
 
 from core.tests.base import OrderBaseTestCase
 from core.tests.utils import data_provider
+from core.models import Pair
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
+from core.tests.utils import get_ok_pay_mock, create_ok_payment_mock_for_order
+from payments.task_summary import run_okpay
+from unittest.mock import patch
 
 
 class OrderBasicFieldsTestCase(OrderBaseTestCase):
@@ -355,3 +359,148 @@ class OrderUniqueReferenceTestsCase(OrderBaseTestCase):
                          len(order.unique_reference))
         self.assertGreater(max_execution, delta)
         self.assertIsInstance(counter, int)
+
+
+class OrderPropertiesTestCase(OrderBaseTestCase):
+
+    def setUp(self):
+        super(OrderPropertiesTestCase, self).setUp()
+        payment_pref = PaymentPreference.objects.get(
+            identifier='okpay@nexchange.co.uk'
+        )
+        self.correct_pair = self.BTCUSD
+        self.data = {
+            'amount_base': Decimal('1.0'),
+            'pair': self.correct_pair,
+            'user': self.user,
+            'payment_preference': payment_pref,
+            'order_type': Order.BUY
+        }
+        self.order = Order(**self.data)
+        self.order.save()
+
+    def check_object_properties(self, object, properties_to_check,
+                                test_case_name='Undefined',
+                                check_property_len=False):
+        for key, value in properties_to_check.items():
+            expected = value
+            real = getattr(object, key)
+            if check_property_len:
+                real = len(real)
+            self.assertEqual(
+                expected, real,
+                '|Test Case Name:{name} | '
+                'Assertion: {length}({obj_name}.{attr}) != {value} | '
+                'Object Desc: {obj_name} == {obj_str} |'.format(
+                    name=test_case_name,
+                    obj_name=object.__class__.__name__.lower(),
+                    attr=key,
+                    value=value,
+                    obj_str=object,
+                    length='len' if check_property_len else ''
+                )
+            )
+
+    def test_ticker_amount_calculations(self):
+        ticker_amount_buy = Decimal(
+            self.order.amount_base * self.order.price.ticker.ask)
+        ticker_amount_sell = Decimal(
+            self.order.amount_base * self.order.price.ticker.bid)
+        self.assertEqual(self.order.ticker_amount, ticker_amount_buy)
+        self.order.order_type = Order.SELL
+        self.order.save()
+        self.assertEqual(self.order.ticker_amount, ticker_amount_sell)
+
+    def test_ticker_amount_equal_to_amount_quote(self):
+        self.assertEqual(self.order.amount_quote, self.order.ticker_amount)
+        # https://github.com/onitsoft/nexchange/pull/348 remove following line
+        # after this PR merge
+        self.order.status = Order.PAID
+        self.order.amount_quote = self.order.ticker_amount / Decimal('2')
+        self.order.save()
+        self.assertIn('!!! amount_quote(', self.order.__str__())
+
+    @data_provider(
+        lambda: (
+            ('Order 100% Paid, 1 payments(Standard situation).',
+             [{'paid_part': Decimal('1.0')}],
+             {'is_paid': True, 'is_paid_buy': True},
+             {'success_payments_amount': Decimal('1.0')},
+             {'success_payments_by_reference': 1,
+              'success_payments_by_wallet': 1},
+             ),
+            ('Order 120% Paid, 3 payments.',
+             [{'paid_part': Decimal('0.4')}, {'paid_part': Decimal('0.4')},
+              {'paid_part': Decimal('0.4')}],
+             {'is_paid': True, 'is_paid_buy': True},
+             {'success_payments_amount': Decimal('1.2')},
+             {'success_payments_by_reference': 3,
+              'success_payments_by_wallet': 0},
+             ),
+            ('Order 90% Paid, 2 payments.',
+             [{'paid_part': Decimal('0.4')}, {'paid_part': Decimal('0.5')}],
+             {'is_paid': False, 'is_paid_buy': False},
+             {'success_payments_amount': Decimal('0.9')},
+             {'success_payments_by_reference': 2,
+              'success_payments_by_wallet': 0},
+             ),
+            ('Order 100% Paid, wrong Payment reference.',
+             [{'paid_part': Decimal('1.0'), 'unique_reference': '12345678'}],
+             {'is_paid': True, 'is_paid_buy': True},
+             {'success_payments_amount': Decimal('1.0')},
+             {'success_payments_by_reference': 0,
+              'success_payments_by_wallet': 1},
+             ),
+            ('Order not paid, wrong currency.',
+             [{'paid_part': Decimal('1.0'),
+               'pair': Pair.objects.get(name='BTCEUR')}],
+             {'is_paid': False, 'is_paid_buy': False},
+             {'success_payments_amount': Decimal('0')},
+             {'success_payments_by_reference': 0,
+              'success_payments_by_wallet': 0},
+             ),
+        )
+    )
+    @patch('nexchange.utils.OkPayAPI._get_transaction_history')
+    def test_order_is_paid(self,
+                           # data_provider args
+                           name,
+                           payments_data,
+                           properties_to_check,
+                           properties_times_order_amount,
+                           properties_len,
+                           trans_history):
+
+        trans_history.return_value = get_ok_pay_mock(
+            data='transaction_history'
+        )
+
+        order = Order(**self.data)
+        order.save()
+        for pay_data in payments_data:
+            for key, value in pay_data.items():
+                if key == 'paid_part':
+                    order.amount_quote *= pay_data['paid_part']
+                else:
+                    setattr(order, key, value)
+            trans_history.return_value = create_ok_payment_mock_for_order(
+                order
+            )
+            order.refresh_from_db()
+            run_okpay.apply()
+            payment = Payment.objects.last()
+            # FIXME: remove following if statement after
+            # https://app.asana.com/0/363880752769079/369754864842200 is
+            # resolved
+            if 'unique_reference' in pay_data:
+                payment.user = order.user
+                payment.save()
+
+        for key, value in properties_times_order_amount.items():
+            properties_to_check.update({key: value * order.amount_quote})
+        self.check_object_properties(order, properties_to_check,
+                                     test_case_name=name)
+        self.check_object_properties(order, properties_len,
+                                     test_case_name=name,
+                                     check_property_len=True)
+        Payment.objects.all().delete()

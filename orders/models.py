@@ -190,38 +190,42 @@ class Order(TimeStampedModel, SoftDeletableModel,
     @property
     def is_paid(self):
         if self.order_type == self.BUY:
-            return self.is_paid_buy()
+            return self.is_paid_buy
         else:
             raise NotImplementedError('Exists only for BUY orders.')
 
+    @property
     def success_payments_amount(self):
-        payments = self.success_payments_by_reference()
+        payments = self.success_payments_by_reference
         if not payments:
-            payments = self.success_payments_by_wallet()
+            payments = self.success_payments_by_wallet
         sum_success = Decimal(0)
         for p in payments:
             sum_success += p.amount_cash
         return sum_success
 
+    @property
     def success_payments_by_reference(self):
         ref = self.unique_reference
         payments = Payment.objects.filter(
             is_success=True, reference=ref, currency=self.pair.quote)
         return payments
 
+    @property
     def success_payments_by_wallet(self):
         method = self.payment_preference.payment_method
         payments = Payment.objects.filter(
             is_success=True,
             user=self.user,
-            amount_cash=self.ticker_amount,
+            amount_cash=self.amount_quote,
             payment_preference__payment_method=method,
             currency=self.pair.quote
         )
         return payments
 
+    @property
     def is_paid_buy(self):
-        sum_all = self.success_payments_amount()
+        sum_all = self.success_payments_amount
         amount_expected = (
             self.amount_quote -
             self.payment_preference.payment_method.allowed_amount_unpaid
@@ -235,7 +239,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         if self.order_type != self.BUY:
             return False
         sum_all = self.success_payments_amount()
-        amount_expected = self.ticker_amount
+        amount_expected = self.amount_quote
         return sum_all / amount_expected
 
     @property
@@ -276,7 +280,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         return self.status in Order.IN_RELEASED
 
     def __str__(self):
-        return "{} {} pair:{} base:{} quote:{} status:{}".format(
+        name = "{} {} pair:{} base:{} quote:{} status:{}".format(
             self.user.username or self.user.profile.phone,
             self.get_order_type_display(),
             self.pair.name,
@@ -284,3 +288,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
             self.amount_quote,
             self.get_status_display()
         )
+        if self.amount_quote != self.ticker_amount:
+            name += ' !!! amount_quote({}) != ticker_amount({}) !!!'.format(
+                self.amount_quote, self.ticker_amount
+            )
+        return name
