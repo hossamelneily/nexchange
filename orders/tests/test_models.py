@@ -463,7 +463,6 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
     )
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
     def test_order_is_paid(self,
-                           # data_provider args
                            name,
                            payments_data,
                            properties_to_check,
