@@ -9,12 +9,19 @@ from django.core.exceptions import ValidationError
 
 from core.tests.base import OrderBaseTestCase
 from core.tests.utils import data_provider
-from core.models import Pair
+from core.models import Pair, Address
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
 from core.tests.utils import get_ok_pay_mock, create_ok_payment_mock_for_order
 from payments.task_summary import run_okpay
 from unittest.mock import patch
+from orders.task_summary import buy_order_release_reference_periodic as \
+    periodic_release, buy_order_release_by_wallet_invoke as wallet_release
+from accounts.task_summary import \
+    update_pending_transactions_invoke as update_txs
+import random
+from copy import deepcopy
+from core.tests.base import UPHOLD_ROOT
 
 
 class OrderBasicFieldsTestCase(OrderBaseTestCase):
@@ -66,7 +73,6 @@ class OrderValidatePaymentTestCase(OrderBaseTestCase):
             'pair': self.BTCRUB,
             'user': self.user,
             'admin_comment': 'tests Order',
-
         }
 
     def test_payment_deadline_calculation(self):
@@ -369,19 +375,26 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
             identifier='okpay@nexchange.co.uk'
         )
         self.correct_pair = self.BTCUSD
-        self.data = {
+        self.addr = Address(address='123456', user=self.user,
+                            currency=self.BTC, type=Address.WITHDRAW)
+        self.addr.save()
+        data = {
             'amount_base': Decimal('1.0'),
             'pair': self.correct_pair,
             'user': self.user,
             'payment_preference': payment_pref,
-            'order_type': Order.BUY
+            'order_type': Order.BUY,
+            'withdraw_address': self.addr
         }
-        self.order = Order(**self.data)
+        self.data = deepcopy(data)
+        self.data['amount_base'] = Decimal('2.0')
+        self.order = Order(**data)
         self.order.save()
 
     def check_object_properties(self, object, properties_to_check,
                                 test_case_name='Undefined',
                                 check_property_len=False):
+        object.refresh_from_db()
         for key, value in properties_to_check.items():
             expected = value
             real = getattr(object, key)
@@ -427,7 +440,10 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
              {'is_paid': True, 'is_paid_buy': True},
              {'success_payments_amount': Decimal('1.0')},
              {'success_payments_by_reference': 1,
-              'success_payments_by_wallet': 1},
+              'success_payments_by_wallet': 1,
+              'bad_currency_payments': 0},
+             True,
+             {'status': Order.COMPLETED},
              ),
             ('Order 120% Paid, 3 payments.',
              [{'paid_part': Decimal('0.4')}, {'paid_part': Decimal('0.4')},
@@ -435,21 +451,40 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
              {'is_paid': True, 'is_paid_buy': True},
              {'success_payments_amount': Decimal('1.2')},
              {'success_payments_by_reference': 3,
-              'success_payments_by_wallet': 0},
+              'success_payments_by_wallet': 0,
+              'bad_currency_payments': 0},
+             True,
+             {'status': Order.COMPLETED},
              ),
-            ('Order 90% Paid, 2 payments.',
-             [{'paid_part': Decimal('0.4')}, {'paid_part': Decimal('0.5')}],
-             {'is_paid': False, 'is_paid_buy': False},
-             {'success_payments_amount': Decimal('0.9')},
-             {'success_payments_by_reference': 2,
-              'success_payments_by_wallet': 0},
-             ),
-            ('Order 100% Paid, wrong Payment reference.',
-             [{'paid_part': Decimal('1.0'), 'unique_reference': '12345678'}],
+            ('Order 100% Paid, wrong Payment reference. First(COMPLETED)',
+             [{'paid_part': Decimal('1.0'), 'unique_reference': '11111'}],
              {'is_paid': True, 'is_paid_buy': True},
              {'success_payments_amount': Decimal('1.0')},
              {'success_payments_by_reference': 0,
-              'success_payments_by_wallet': 1},
+              'success_payments_by_wallet': 1,
+              'bad_currency_payments': 0},
+             True,
+             {'status': Order.COMPLETED},
+             ),
+            ('Order 100% Paid, wrong Payment reference. SECOND(RELEASED)',
+             [{'paid_part': Decimal('1.0'), 'unique_reference': '22222'}],
+             {'is_paid': True, 'is_paid_buy': True},
+             {'success_payments_amount': Decimal('1.0')},
+             {'success_payments_by_reference': 0,
+              'success_payments_by_wallet': 1,
+              'bad_currency_payments': 0},
+             False,
+             {'status': Order.RELEASED},
+             ),
+            ('Order 100% Paid, wrong Payment reference. THIRD(COMPLETED)',
+             [{'paid_part': Decimal('1.0'), 'unique_reference': '33333'}],
+             {'is_paid': True, 'is_paid_buy': True},
+             {'success_payments_amount': Decimal('1.0')},
+             {'success_payments_by_reference': 0,
+              'success_payments_by_wallet': 1,
+              'bad_currency_payments': 0},
+             True,
+             {'status': Order.COMPLETED},
              ),
             ('Order not paid, wrong currency.',
              [{'paid_part': Decimal('1.0'),
@@ -457,10 +492,26 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
              {'is_paid': False, 'is_paid_buy': False},
              {'success_payments_amount': Decimal('0')},
              {'success_payments_by_reference': 0,
-              'success_payments_by_wallet': 0},
+              'success_payments_by_wallet': 0,
+              'bad_currency_payments': 1},
+             True,
+             {'status': Order.INITIAL},
+             ),
+            ('Order 90% Paid, 2 payments.',
+             [{'paid_part': Decimal('0.4')}, {'paid_part': Decimal('0.5')}],
+             {'is_paid': False, 'is_paid_buy': False},
+             {'success_payments_amount': Decimal('0.9')},
+             {'success_payments_by_reference': 2,
+              'success_payments_by_wallet': 0,
+              'bad_currency_payments': 0},
+             True,
+             {'status': Order.INITIAL},
              ),
         )
     )
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'execute_txn')
+    @patch(UPHOLD_ROOT + 'prepare_txn')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
     def test_order_is_paid(self,
                            name,
@@ -468,8 +519,18 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
                            properties_to_check,
                            properties_times_order_amount,
                            properties_len,
-                           trans_history):
+                           complete_order,
+                           end_properties_to_check,
+                           trans_history,
+                           prepare_txn,
+                           execute_txn,
+                           reserve_txn):
+        prepare_txn.return_value = 'txid12345'
+        execute_txn.return_value = True
 
+        reserve_txn.return_value = {'status': 'completed'}
+        prepare_txn.return_value = (
+            '%06x' % random.randrange(16 ** 16)).upper()
         trans_history.return_value = get_ok_pay_mock(
             data='transaction_history'
         )
@@ -486,7 +547,7 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
                 order
             )
             order.refresh_from_db()
-            run_okpay.apply()
+            run_okpay()
             payment = Payment.objects.last()
             # FIXME: remove following if statement after
             # https://app.asana.com/0/363880752769079/369754864842200 is
@@ -502,4 +563,13 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
         self.check_object_properties(order, properties_len,
                                      test_case_name=name,
                                      check_property_len=True)
-        Payment.objects.all().delete()
+        expected_order_payments = max(properties_len.values())
+        real_order_payments = len(Payment.objects.filter(order=order))
+        self.assertEqual(expected_order_payments, real_order_payments, name)
+        periodic_release.apply()
+        wallet_release.apply([Payment.objects.last().pk])
+
+        if complete_order:
+            update_txs.apply()
+        self.check_object_properties(order, end_properties_to_check,
+                                     test_case_name=name)

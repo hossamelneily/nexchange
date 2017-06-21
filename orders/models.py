@@ -15,6 +15,7 @@ from payments.utils import money_format
 from payments.models import Payment
 from ticker.models import Price
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 
 class Order(TimeStampedModel, SoftDeletableModel,
@@ -212,6 +213,11 @@ class Order(TimeStampedModel, SoftDeletableModel,
         return payments
 
     @property
+    def bad_currency_payments(self):
+        payments = self.payment_set.filter(~Q(currency=self.pair.quote))
+        return payments
+
+    @property
     def success_payments_by_wallet(self):
         method = self.payment_preference.payment_method
         payments = Payment.objects.filter(
@@ -219,8 +225,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
             user=self.user,
             amount_cash=self.amount_quote,
             payment_preference__payment_method=method,
-            currency=self.pair.quote
-        )
+            currency=self.pair.quote,
+        ).filter(Q(order=self) | Q(order=None))
         return payments
 
     @property

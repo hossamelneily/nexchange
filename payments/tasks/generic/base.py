@@ -331,6 +331,13 @@ class BasePaymentChecker(BaseTask):
                 order = Order.objects.filter(
                     unique_reference=self.data['unique_ref']
                 ).last()
+                if order is None:
+                    order = Order.objects.filter(
+                        amount_quote=self.data['amount_cash'],
+                        payment_preference__payment_method__name__contains=self.name,  # noqa
+                        pair__quote=self.get_currency(),
+                        status=Order.INITIAL
+                    ).last()
                 pref = self.create_payment_preference(order)
                 payment = self.create_payment(pref, order)
 
