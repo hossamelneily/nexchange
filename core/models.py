@@ -117,7 +117,6 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                             blank=True, default=None)
     ticker = models.CharField(null=True, max_length=10,
                               blank=True, default=None)
-    decimal_places = models.IntegerField(default=2)
 
     def natural_key(self):
         return self.code

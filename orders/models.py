@@ -16,6 +16,7 @@ from payments.models import Payment
 from ticker.models import Price
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from math import log10, floor
 
 
 class Order(TimeStampedModel, SoftDeletableModel,
@@ -157,7 +158,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         price = Price.objects.filter(pair=self.pair).last()
         self.price = price
         amount_quote = self.add_payment_fee(self.ticker_amount)
-        decimal_places = self.pair.quote.decimal_places
+        decimal_places = self.recommended_quote_decimal_places
         self.amount_quote = money_format(amount_quote, places=decimal_places)
 
     @property
@@ -172,8 +173,17 @@ class Order(TimeStampedModel, SoftDeletableModel,
             res = self.amount_base * self.price.ticker.bid
         return res
 
+    @property
+    def recommended_quote_decimal_places(self):
+        decimal_places = 2
+        if self.pair.is_crypto:
+            add_places = -int(floor(log10(abs(self.ticker_amount))))
+            if add_places > 0:
+                decimal_places += add_places
+        return decimal_places
+
     def add_payment_fee(self, amount_quote):
-        if not self.payment_preference:
+        if not self.payment_preference or self.exchange:
             return amount_quote
         base = Decimal('1.0')
         fee = Decimal('0.0')
@@ -191,7 +201,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
     @property
     def is_paid(self):
-        if self.order_type == self.BUY:
+        if self.order_type == self.BUY and not self.exchange:
             return self.is_paid_buy
         else:
             raise NotImplementedError('Exists only for BUY orders.')
@@ -295,7 +305,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
             self.amount_quote,
             self.get_status_display()
         )
-        dec_pls = self.pair.quote.decimal_places
+        dec_pls = self.recommended_quote_decimal_places
         if round(self.amount_quote, dec_pls) != \
                 round(self.ticker_amount, dec_pls):
             name += ' !!! amount_quote({}) != ticker_amount({}) !!!'.format(

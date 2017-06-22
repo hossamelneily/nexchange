@@ -22,6 +22,7 @@ from accounts.task_summary import \
 import random
 from copy import deepcopy
 from core.tests.base import UPHOLD_ROOT
+from ticker.models import Ticker, Price
 
 
 class OrderBasicFieldsTestCase(OrderBaseTestCase):
@@ -573,3 +574,65 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
             update_txs.apply()
         self.check_object_properties(order, end_properties_to_check,
                                      test_case_name=name)
+
+    @data_provider(
+        lambda: (
+            ('amount_quote 1.23456789, crypto.',
+             {'pair': Pair.objects.get(name='BTCLTC')},
+             {'ask': 1.2346789, 'bid': 1.23456789},
+             {'recommended_quote_decimal_places': 2},
+             ),
+            ('amount_quote 1.23456789, fiat.',
+             {'pair': Pair.objects.get(name='BTCEUR')},
+             {'ask': 1.2346789, 'bid': 1.23456789},
+             {'recommended_quote_decimal_places': 2},
+             ),
+            ('amount_quote 0.123456789, crypto.',
+             {'pair': Pair.objects.get(name='BTCLTC')},
+             {'ask': 0.12346789, 'bid': 0.123456789},
+             {'recommended_quote_decimal_places': 3},
+             ),
+            ('amount_quote 0.123456789, fiat.',
+             {'pair': Pair.objects.get(name='BTCEUR')},
+             {'ask': 0.12346789, 'bid': 0.123456789},
+             {'recommended_quote_decimal_places': 2},
+             ),
+            ('amount_quote 0.123456789, crypto.',
+             {'pair': Pair.objects.get(name='BTCLTC')},
+             {'ask': 0.12346789, 'bid': 0.123456789},
+             {'recommended_quote_decimal_places': 3},
+             ),
+            ('amount_quote 0.123456789, fiat.',
+             {'pair': Pair.objects.get(name='BTCEUR')},
+             {'ask': 0.12346789, 'bid': 0.123456789},
+             {'recommended_quote_decimal_places': 2},
+             ),
+            ('amount_quote 0.0123456789, crypto.',
+             {'pair': Pair.objects.get(name='BTCLTC')},
+             {'ask': 0.012346789, 'bid': 0.0123456789},
+             {'recommended_quote_decimal_places': 4},
+             ),
+        )
+    )
+    def test_recommended_quote_decimal_places(self, name, order_data,
+                                              ticker_data,
+                                              properties_to_check):
+        ticker_data['pair'] = order_data['pair']
+        ticker = Ticker(**ticker_data)
+        ticker.save()
+        price = Price(pair=ticker.pair, ticker=ticker)
+        price.save()
+
+        # amount_base == 1 for simplicity
+        order_data.update({'amount_base': 1.0})
+        self.data.update(order_data)
+        order = Order(**self.data)
+        order.save()
+        self.check_object_properties(order, properties_to_check,
+                                     test_case_name=name)
+        order.refresh_from_db()
+        expected_amount = Decimal(str(round(
+            ticker.ask,
+            properties_to_check['recommended_quote_decimal_places'])))
+        real_amount = order.amount_quote
+        self.assertEqual(expected_amount, real_amount, name)
