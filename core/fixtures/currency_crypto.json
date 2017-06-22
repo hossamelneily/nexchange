@@ -13,7 +13,8 @@
       "min_confirmation_high": 6,
       "median_confirmation": 60,
       "created_on":"2016-05-20T17:41:28+00:00",
-      "modified_on":"2016-05-20T17:41:28+00:00"
+      "modified_on":"2016-05-20T17:41:28+00:00",
+      "decimal_places": 8
     }
   },
   {
@@ -29,7 +30,8 @@
       "is_crypto": 1,
       "median_confirmation": 15,
       "created_on":"2016-05-20T17:41:28+00:00",
-      "modified_on":"2016-05-20T17:41:28+00:00"
+      "modified_on":"2016-05-20T17:41:28+00:00",
+      "decimal_places": 8
     }
   },
   {
@@ -45,7 +47,8 @@
       "min_confirmations": 12,
       "median_confirmation": 15,
       "created_on":"2016-05-20T17:41:28+00:00",
-      "modified_on":"2016-05-20T17:41:28+00:00"
+      "modified_on":"2016-05-20T17:41:28+00:00",
+      "decimal_places": 8
     }
   },
   {
@@ -61,7 +64,8 @@
       "min_confirmations": 4,
       "median_confirmation": 15,
       "created_on":"2016-05-20T17:41:28+00:00",
-      "modified_on":"2016-05-20T17:41:28+00:00"
+      "modified_on":"2016-05-20T17:41:28+00:00",
+      "decimal_places": 8
     }
   }
 ]

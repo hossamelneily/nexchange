@@ -435,7 +435,7 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
 
     @data_provider(
         lambda: (
-            ('Order 100% Paid, 1 payments(Standard situation).',
+            ('Order 100% Paid, 1 payment(Standard situation).',
              [{'paid_part': Decimal('1.0')}],
              {'is_paid': True, 'is_paid_buy': True},
              {'success_payments_amount': Decimal('1.0')},

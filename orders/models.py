@@ -157,7 +157,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
         price = Price.objects.filter(pair=self.pair).last()
         self.price = price
         amount_quote = self.add_payment_fee(self.ticker_amount)
-        self.amount_quote = money_format(amount_quote)
+        decimal_places = self.pair.quote.decimal_places
+        self.amount_quote = money_format(amount_quote, places=decimal_places)
 
     @property
     def ticker_amount(self):
@@ -294,7 +295,9 @@ class Order(TimeStampedModel, SoftDeletableModel,
             self.amount_quote,
             self.get_status_display()
         )
-        if self.amount_quote != self.ticker_amount:
+        dec_pls = self.pair.quote.decimal_places
+        if round(self.amount_quote, dec_pls) != \
+                round(self.ticker_amount, dec_pls):
             name += ' !!! amount_quote({}) != ticker_amount({}) !!!'.format(
                 self.amount_quote, self.ticker_amount
             )
