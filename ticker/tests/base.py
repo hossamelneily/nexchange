@@ -3,7 +3,12 @@ import json
 from core.tests.base import OrderBaseTestCase
 from ticker.tasks.generic.base import BaseTicker
 from ticker.task_summary import get_all_tickers
-from ticker.adapters import KrakenAdapter, CryptopiaAdapter
+from ticker.adapters import KrakenAdapter, CryptopiaAdapter, \
+    CoinexchangeAdapter
+from ticker.tests.fixtures.coinexchange.markets import \
+    response as coinex_markets_resp
+from ticker.tests.fixtures.coinexchange.market_summary import \
+    response as coinex_market_summary_resp
 import requests_mock
 import re
 
@@ -49,6 +54,11 @@ class TickerBaseTestCase(OrderBaseTestCase):
         mock.get(
             matcher,
             text=self.cryptopia_ticker_resp)
+        mock.get(CoinexchangeAdapter.RESOURCE_MARKETS,
+                 text=coinex_markets_resp)
+        mock.get(CoinexchangeAdapter.RESOURCE_TICKER_PARAM.format('251'),
+                 text=coinex_market_summary_resp)
+        mock.get(KrakenAdapter.RESOURCE, text=self.kraken_resp)
         mock.get(KrakenAdapter.RESOURCE, text=self.kraken_resp)
         mock.get(BaseTicker.BITFINEX_TICKER, text=self.bitifex_resp)
         mock.get(BaseTicker.FIAT_RATE_RESOURCE, text=self.fixer_resp)

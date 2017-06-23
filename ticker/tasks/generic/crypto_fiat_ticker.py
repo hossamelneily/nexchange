@@ -4,10 +4,9 @@ import requests_cache
 
 from ticker.models import Price
 from ticker.tasks.generic.base import BaseTicker,\
-    KrakenBaseTicker, CryptopiaBaseTicker
+    KrakenBaseTicker, CryptopiaBaseTicker, CoinexchangeBaseTicker
 from django.conf import settings
-from .base import cryptopia_adapter
-
+from .base import cryptopia_adapter, coinexchange_adapter
 
 
 requests_cache.install_cache('btc_crypto_cache',
@@ -80,3 +79,9 @@ class CryptoFiatCryptopiaTicker(CryptoFiatTicker, CryptopiaBaseTicker):
     def __init__(self, *args, **kwargs):
         super(CryptoFiatCryptopiaTicker, self).__init__(*args, **kwargs)
         self.bitcoin_api_adapter = cryptopia_adapter
+
+
+class CryptoFiatCoinexchangeTicker(CryptoFiatTicker, CoinexchangeBaseTicker):
+    def __init__(self, *args, **kwargs):
+        super(CryptoFiatCoinexchangeTicker, self).__init__(*args, **kwargs)
+        self.bitcoin_api_adapter = coinexchange_adapter

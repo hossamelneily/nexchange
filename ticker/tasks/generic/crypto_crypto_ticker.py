@@ -3,7 +3,7 @@ from decimal import Decimal
 from core.models import Pair
 from ticker.models import Price
 from ticker.tasks.generic.base import BaseTicker,\
-    KrakenBaseTicker, CryptopiaBaseTicker
+    KrakenBaseTicker, CryptopiaBaseTicker, CoinexchangeBaseTicker
 
 
 class CryptoCryptoTicker(BaseTicker):
@@ -48,4 +48,8 @@ class CryptoCryptoKrakenTicker(CryptoCryptoTicker, KrakenBaseTicker):
 
 class CryptoCryptoCryptopiaTicker(CryptoCryptoTicker, CryptopiaBaseTicker):
     pass
-        
+
+
+class CryptoCryptoCoinexchangeTicker(CryptoCryptoTicker,
+                                     CoinexchangeBaseTicker):
+    pass

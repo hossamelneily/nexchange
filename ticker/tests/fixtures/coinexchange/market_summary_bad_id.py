@@ -1,0 +1,1 @@
+response = '{"success":"0","request":"\\/api\\/v1\\/getmarket","message":"Invalid market_id code"}'  # noqa
