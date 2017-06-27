@@ -101,9 +101,11 @@ class CoinexchangeAdapter(BaseApiAdapter):
     def get_ticker(self, market_id):
         res = {}
         resp = self._get_ticker(market_id).json()
-        all_info = resp.get('result', {})
-        message = resp.get('message', '')
-        if all_info == {} and message != '':
+        all_info = resp.get('result', None)
+        message = resp.get(
+            'message',
+            'Cannot get market(market_id={}) ticker.'.format(market_id))
+        if all_info is None:
             res.update({'error': message})
             return res
         ask = all_info.get('AskPrice', None)
