@@ -100,6 +100,8 @@ ALLOWED_HOSTS = [
     'nexchange.dev'
 ]
 
+ALLOWED_IMAGE_FILE_EXTENSIONS = ['.jpg', '.png', '.pdf']
+
 
 # Application definition
 
