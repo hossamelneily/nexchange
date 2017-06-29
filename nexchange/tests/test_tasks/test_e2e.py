@@ -1,6 +1,6 @@
 from core.tests.utils import get_ok_pay_mock, get_payeer_mock
 from core.tests.base import WalletBaseTestCase
-from core.models import AddressReserve, Address, Transaction
+from core.models import AddressReserve, Address, Transaction, Currency
 from orders.models import Order
 from payments.models import Payment
 from verification.models import Verification
@@ -227,7 +227,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.release_task = sell_order_release_invoke
         self.payeer_url = settings.PAYEER_API_URL
         self.order_2 = None
-        self._create_mocks()
+        self._create_mocks_uphold()
 
     def _create_second_order(self):
         self.order_2 = Order(
@@ -280,7 +280,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
             elif trans == txs_data[1]['id']:
                 return json.loads(self.pending)
         self._create_second_order()
-        self._create_mocks(amount2=self.order_2.amount_base)
+        self._create_mocks_uphold(amount2=self.order_2.amount_base)
         txs_data = json.loads(self.import_txs)
 
         # TODO: generalise
@@ -654,23 +654,32 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self.release_task_periodic = exchange_order_release_periodic
 
     @data_provider(
-        lambda: (('ETHLTC', Order.BUY, False),
-                 ('BTCETH', Order.BUY, False),
-                 ('BTCLTC', Order.BUY, True),
-                 ('ETHLTC', Order.SELL, True),
-                 ('BTCETH', Order.SELL, False),
-                 ('BTCLTC', Order.SELL, True),
-                 )
+        lambda: (
+            ('ETHLTC', Order.BUY, False),
+            ('BTCETH', Order.BUY, False),
+            ('BTCLTC', Order.BUY, True),
+            ('ETHLTC', Order.SELL, True),
+            ('BTCETH', Order.SELL, False),
+            ('BTCLTC', Order.SELL, True),
+            ('LTCRNS', Order.BUY, True),
+            ('BTCRNS', Order.SELL, True),
+        )
     )
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient.release_coins')
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
     @patch(UPHOLD_ROOT + 'execute_txn')
     @patch(UPHOLD_ROOT + 'prepare_txn')
     @patch(UPHOLD_ROOT + 'get_transactions')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
     def test_release_exchange_order(self, pair_name, order_type,
                                     release_with_periodic,
-                                    check_tx,
-                                    get_txs, prepare_txn, execute_txn):
-        Transaction.objects.all().delete()
+                                    check_tx_uphold,
+                                    get_txs_uphold,
+                                    prepare_txn_uphold,
+                                    execute_txn_uphold,
+                                    get_txs_scrypt, get_tx_scrypt,
+                                    release_coins_scrypt):
         currency_quote_code = pair_name[3:]
         currency_base_code = pair_name[0:3]
         self._create_order(order_type=order_type, pair_name=pair_name)
@@ -678,26 +687,40 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             mock_currency_code = currency_quote_code
             mock_amount = self.order.amount_quote
             withdraw_currency_code = currency_base_code
-        elif order_type == Order.SELL:
+        else:
+            # order_type == Order.SELL
             mock_currency_code = currency_base_code
             mock_amount = self.order.amount_base
             withdraw_currency_code = currency_quote_code
+        mock_currency = Currency.objects.get(code=mock_currency_code)
 
-        card_id = AddressReserve.objects.filter(
-            user=self.order.user, currency__code=mock_currency_code)[0].card_id
-        self._create_mocks(
-            currency_code=mock_currency_code,
-            amount2=mock_amount,
-            card_id=card_id
-        )
-        check_tx.return_value = True
-        prepare_txn.return_value = 'txid_{}{}'.format(time(), randint(1, 999))
-        execute_txn.return_value = True
+        cards = AddressReserve.objects.filter(
+            user=self.order.user, currency__code=mock_currency_code)
 
-        get_txs.return_value = [
-            self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
-        ]
+        if mock_currency.wallet == 'api1':
+            card_id = cards[0].card_id
+            get_txs_uphold.return_value = [
+                self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
+            ]
+        else:
+            get_txs_scrypt.return_value = [{
+                'address': cards[0].address,
+                'category': 'receive',
+                'account': '',
+                'amount': mock_amount,
+                'txid': 'txid_{}{}'.format(time(), randint(1, 999)),
+                'confirmations': 0,
+                'timereceived': 1498736269,
+                'time': 1498736269,
+                'fee': Decimal('-0.00000100')
+            }]
+        check_tx_uphold.return_value = True
+        get_tx_scrypt.return_value = {'confirmations': 249}
         self.import_txs_task.apply()
+        prepare_txn_uphold.return_value = release_coins_scrypt.return_value = \
+            'txid_{}{}'.format(time(), randint(1, 999))
+        execute_txn_uphold.return_value = True
+
         self.order.refresh_from_db()
         self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
         self.update_confirmation_task.apply()

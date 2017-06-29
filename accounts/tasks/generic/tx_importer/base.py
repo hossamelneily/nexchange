@@ -48,13 +48,20 @@ class BaseTransactionImporter:
     def get_or_create_tx(self, tx):
         existing_transaction = None
         try:
-            if tx['tx_id']:
+            if tx['tx_id'] and tx['tx_id_api']:
                 query = (
                     Q(tx_id=tx['tx_id']) |
                     Q(tx_id_api=tx['tx_id_api'])
                 )
-            else:
+            elif not tx['tx_id'] and tx['tx_id_api']:
                 query = Q(tx_id_api=tx['tx_id_api'])
+            elif tx['tx_id'] and not tx['tx_id_api']:
+                query = Q(tx_id_api=tx['tx_id'])
+            else:
+                raise ValueError(
+                    'Transaction data does not contain any information about '
+                    'transaction({}) id(tx_id) or api_id(tx_api_id)'.format(tx)
+                )
             existing_transaction = Transaction.objects.get(
                 query
             )
@@ -62,9 +69,12 @@ class BaseTransactionImporter:
             self.logger.error('more than one same transactions exists in DB {}'
                               .format(tx))
             raise e
-        except Transaction.DoesNotExist as e:
+        except Transaction.DoesNotExist:
             self.logger.info('{} transaction not found in DB, creating new...'
                              .format(tx))
+        except ValueError as e:
+            self.logger.info(e)
+            raise e
 
         if not existing_transaction:
             self.create_tx(tx)
@@ -106,5 +116,5 @@ class BaseTransactionImporter:
                 if tx['address_to'] is not None:
                     self.get_or_create_tx(tx)
                 else:
-                    self.logger.info('Transaction has no address_to: {}'.format(
-                        tx))
+                    self.logger.info(
+                        'Transaction has no address_to: {}'.format(tx))

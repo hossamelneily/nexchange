@@ -1,4 +1,3 @@
-from core.models import Currency
 from .base import BaseApiClient
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from .decorators import track_tx_mapper, log_errors
@@ -73,27 +72,35 @@ class ScryptRpcApiClient(BaseRpcClient):
             # required
             'currency': _currency,
             'address_to': _address,
-            'amount': ['amount'],
+            'amount': tx['amount'],
             # TODO: check if right type is sent by the wallet
             'time': tx['time'],
             'tx_id': tx['txid'],
+            'tx_id_api': None,
         }
 
     def filter_tx(self, tx):
         return tx['category'] == 'receive'
 
-    def check_tx(self, tx, node=None):
+    def _get_tx(self, tx_id, node):
+        tx = self.call_api(node, 'gettransaction', *[tx_id])
+        return tx
+
+    def check_tx(self, tx, currency):
         # this assumes that currency and node are one to one except uphold
-        currency = Currency.objects.get(wallet=node)
-        tx = self.call_api(node, 'gettransaction', *[tx.tx_id])
+        tx = self._get_tx(tx.tx_id, currency.wallet)
         return tx['confirmations'] > currency.min_confirmations
+
+    def _get_txs(self, node):
+        txs = self.call_api(node, 'listtransactions',
+                            *["", self.UNLIMITED, self.start])
+        return txs
 
     @log_errors
     @track_tx_mapper
     def get_txs(self, node=None, txs=None):
-        txs = self.call_api(node, 'listtransactions',
-                            *["", self.UNLIMITED, self.start])
-        return txs
+        txs = self._get_txs(node)
+        return super(ScryptRpcApiClient, self).get_txs(node, txs)
 
     def release_coins(self, currency, address, amount):
         tx_id = self.call_api(currency.wallet, 'sendtoaddress',
