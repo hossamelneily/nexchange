@@ -87,11 +87,13 @@ class BuyOrderReleaseByWallet(BaseBuyOrderRelease):
             payment_id)
 
         method = payment.payment_preference.payment_method
-        return payment, Order.objects.exclude(status=Order.RELEASED).get(
-            user=payment.user,
-            amount_quote=payment.amount_cash,
-            payment_preference__payment_method=method,
-            pair__quote=payment.currency)
+        return payment,\
+               Order.objects.exclude(status=Order.RELEASED).exclude(
+                   status=Order.COMPLETED).get(
+                   user=payment.user,
+                   amount_quote=payment.amount_cash,
+                   payment_preference__payment_method=method,
+                   pair__quote=payment.currency)
 
     def _get_order(self, payment):
         # Auto order payment
