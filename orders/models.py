@@ -78,13 +78,14 @@ class Order(TimeStampedModel, SoftDeletableModel,
     payment_window = models.IntegerField(default=settings.PAYMENT_WINDOW)
     user = models.ForeignKey(User, related_name='orders')
     unique_reference = models.CharField(
-        max_length=settings.UNIQUE_REFERENCE_MAX_LENGTH)
+        max_length=settings.UNIQUE_REFERENCE_MAX_LENGTH, blank=True)
     admin_comment = models.CharField(max_length=200)
     payment_preference = models.ForeignKey('payments.PaymentPreference',
                                            default=None,
-                                           null=True)
+                                           null=True, blank=True)
     withdraw_address = models.ForeignKey('core.Address',
                                          null=True,
+                                         blank=True,
                                          related_name='order_set',
                                          default=None)
     is_default_rule = models.BooleanField(default=False)
@@ -135,7 +136,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
                     lambda x: Order.objects.filter(unique_reference=x).count(),
                     settings.UNIQUE_REFERENCE_LENGTH
                 )
-        if self.status == self.INITIAL:
+        if not self.pk:
             self.convert_coin_to_cash()
         if self.pair.is_crypto:
             self.exchange = True
@@ -283,4 +284,3 @@ class Order(TimeStampedModel, SoftDeletableModel,
             self.amount_quote,
             self.get_status_display()
         )
-
