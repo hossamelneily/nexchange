@@ -4,16 +4,20 @@ from django.conf import settings
 
 from core.models import Pair
 from ticker.tasks.generic.crypto_fiat_ticker import \
-    CryptoFiatKrakenTicker, CryptoFiatCryptopiaTicker
+    CryptoFiatKrakenTicker, CryptoFiatCryptopiaTicker, \
+    CryptoFiatCoinexchangeTicker
 from ticker.tasks.generic.crypto_crypto_ticker import \
-    CryptoCryptoKrakenTicker, CryptoCryptoCryptopiaTicker
+    CryptoCryptoKrakenTicker, CryptoCryptoCryptopiaTicker, \
+    CryptoCryptoCoinexchangeTicker
 from nexchange.utils import get_nexchange_logger
 
 
 crypto_fiat_ticker_kraken = CryptoFiatKrakenTicker()
 crypto_fiat_ticker_cryptopia = CryptoFiatCryptopiaTicker()
+crypto_fiat_ticker_coinexchange = CryptoFiatCoinexchangeTicker()
 crypto_crypto_ticker_kraken = CryptoCryptoKrakenTicker()
 crypto_crypto_ticker_cryptopia = CryptoCryptoCryptopiaTicker()
+crypto_crypto_ticker_coinexchange = CryptoCryptoCoinexchangeTicker()
 
 
 def get_ticker_crypto_fiat(**kwargs):
@@ -25,6 +29,8 @@ def get_ticker_crypto_fiat(**kwargs):
             return crypto_fiat_ticker_kraken.run(pair_pk)
         elif pair.base.ticker == 'cryptopia':
             return crypto_fiat_ticker_cryptopia.run(pair_pk)
+        elif pair.base.ticker == 'coinexchange':
+            return crypto_fiat_ticker_coinexchange.run(pair_pk)
         else:
             logger.error('pair {} no ticker defined'.format(pair))
     else:
@@ -40,6 +46,8 @@ def get_ticker_crypto_crypto(**kwargs):
             return crypto_crypto_ticker_kraken.run(pair_pk)
         elif pair.quote.ticker == 'cryptopia':
             return crypto_crypto_ticker_cryptopia.run(pair_pk)
+        elif pair.quote.ticker == 'coinexchange':
+            return crypto_crypto_ticker_coinexchange.run(pair_pk)
         else:
             logger.error('pair {} no ticker defined'.format(pair))
     else:

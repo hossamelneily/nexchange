@@ -5,7 +5,8 @@ import requests_cache
 from core.models import Pair
 from ticker.models import Ticker
 from nexchange.tasks.base import BaseTask
-from ticker.adapters import KrakenAdapter, CryptopiaAdapter
+from ticker.adapters import KrakenAdapter, CryptopiaAdapter, \
+    CoinexchangeAdapter
 from django.conf import settings
 
 requests_cache.install_cache('ticker_cache',
@@ -14,6 +15,7 @@ requests_cache.install_cache('ticker_cache',
 
 kraken_adapter = KrakenAdapter()
 cryptopia_adapter = CryptopiaAdapter()
+coinexchange_adapter = CoinexchangeAdapter()
 
 
 class BaseTicker(BaseTask):
@@ -63,7 +65,6 @@ class BaseTicker(BaseTask):
         self.bid_multip = None
         self.quote_api_adapter = None
         self.bitcoin_api_adapter = kraken_adapter
-
 
     def run(self, pair_pk):
         self.pair = Pair.objects.get(pk=pair_pk)
@@ -189,3 +190,9 @@ class CryptopiaBaseTicker(BaseTicker):
     def __init__(self, *args, **kwargs):
         super(CryptopiaBaseTicker, self).__init__(*args, **kwargs)
         self.quote_api_adapter = cryptopia_adapter
+
+
+class CoinexchangeBaseTicker(BaseTicker):
+    def __init__(self, *args, **kwargs):
+        super(CoinexchangeBaseTicker, self).__init__(*args, **kwargs)
+        self.quote_api_adapter = coinexchange_adapter

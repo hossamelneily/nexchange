@@ -115,7 +115,7 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                               blank=True, default=None)
     algo = models.CharField(null=True, max_length=10,
                             blank=True, default=None)
-    ticker = models.CharField(null=True, max_length=10,
+    ticker = models.CharField(null=True, max_length=20,
                               blank=True, default=None)
 
     def natural_key(self):

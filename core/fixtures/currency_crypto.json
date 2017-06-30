@@ -54,7 +54,7 @@
     "fields": {
       "code": "RNS",
       "name": "renos",
-      "ticker": "cryptopia",
+      "ticker": "coinexchange",
       "wallet": "rpc1",
       "algo": "scrypt",
       "is_crypto": 1,

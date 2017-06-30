@@ -1,0 +1,1 @@
+response = '{"success":"1","request":"\\/api\\/v1\\/getmarket","message":"","result":{"MarketID":"251","LastPrice":"0.00001500","Change":"-44.20","HighPrice":"0.00002688","LowPrice":"0.00001500","Volume":"0.01661280","BTCVolume":"0.01661280","TradeCount":"2","BidPrice":"0.00001500","AskPrice":"0.00002300","BuyOrderCount":"77","SellOrderCount":"70"}}'  # noqa
