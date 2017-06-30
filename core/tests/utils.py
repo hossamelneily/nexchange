@@ -3,6 +3,8 @@ from django.conf import settings
 import os
 from collections import defaultdict
 from django.db.models.signals import *
+from datetime import datetime
+from time import time
 
 
 def data_provider(fn_data_provider):
@@ -55,14 +57,18 @@ def get_ok_pay_mock(data='transaction_history', output_type='bytes'):
     return get_mock(mock_path, output_type=output_type)
 
 
-def create_ok_payment_mock_for_order(order):
+def create_ok_payment_mock_for_order(order, payment_id=None):
+    if payment_id is None:
+        payment_id = time()
     s = get_ok_pay_mock(data='transaction_history_empty', output_type='string')
     formatted = s.format(
         amount=order.amount_quote,
         email=order.payment_preference.identifier,
         receiver_wallet=settings.OKPAY_WALLET,
         unique_reference=order.unique_reference,
-        currency=order.pair.quote.code
+        currency=order.pair.quote.code,
+        date=datetime.now().strftime('%Y-%M-%d %H:%M:%S'),
+        payment_id=payment_id
     )
     return str.encode(formatted)
 

@@ -34,7 +34,8 @@ def buy_order_release_reference_periodic():
     logger = get_nexchange_logger('Periodic Buy Order Release')
     for payment in Payment.objects.filter(
         is_success=True,
-        is_redeemed=False
+        is_redeemed=False,
+        flagged=False
     ):
         try:
             buy_order_release_by_reference_invoke.apply_async([payment.pk])

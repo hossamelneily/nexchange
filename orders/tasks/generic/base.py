@@ -82,8 +82,12 @@ class BaseOrderRelease(BaseApiTask):
                     self.complete_missing_data(payment, order)
                     self.notify(order)
         else:
-            self.logger.info('{} match order returned None'
-                             .format(self.__class__.__name__))
+            payment = Payment.objects.get(pk=payment_id)
+            self.logger.error('{} match order returned None, Payment:{}'
+                              .format(self.__class__.__name__, payment))
+            payment.flag(val='Payment ({}) match order returned None'.format(
+                payment)
+            )
 
         super(BaseOrderRelease, self).run(payment_id)
 
@@ -177,7 +181,19 @@ class BaseBuyOrderRelease(BaseOrderRelease):
         if match:
             self.logger.info('Order {}  VALID {}'
                              .format(order, order.withdraw_address))
+        else:
+            # NOTE: Maybe it should not be flagged if ref_matches==False?
+            # (To release with different tasks)
+            msg = 'order({}) and payment{} doesn\'t match.'.format(order,
+                                                                   payment)
+            desc = \
+                'user_matches=={}, details_match=={}, ref_matches=={}, ' \
+                'order_paid=={}, verification_passed=={}'.format(
+                    user_matches, details_match, ref_matches, order_paid,
+                    verification_passed
+                )
+            order.flag(val=msg + desc)
+            payment.flag(val=msg + desc)
 
         return match and super(BaseBuyOrderRelease, self)\
             .validate(order, payment)
-

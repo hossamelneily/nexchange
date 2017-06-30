@@ -9,11 +9,10 @@ from .base import BaseBuyOrderRelease
 class BuyOrderReleaseByReference(BaseBuyOrderRelease):
     @classmethod
     def get_order(cls, payment_id):
-        payment, order = super(BuyOrderReleaseByReference, cls).get_order(payment_id)
-        return payment,\
-               Order.objects.exclude(status=Order.RELEASED).\
-                exclude(status=Order.COMPLETED).\
-                get(unique_reference=payment.reference)
+        payment, order = super(BuyOrderReleaseByReference, cls).get_order(
+            payment_id)
+        return payment, Order.objects.exclude(status=Order.RELEASED).exclude(
+            status=Order.COMPLETED).get(unique_reference=payment.reference)
 
     def _get_order(self, payment):
         try:
@@ -41,9 +40,15 @@ class BuyOrderReleaseByReference(BaseBuyOrderRelease):
                     payment.save()
                     payment.payment_preference.save()
             elif payment.user != order.user:
-                self.logger.warn('payment {} user {} users don\'t match '
-                                 'is it a new user with old preference?'
-                                 .format(payment, order))
+                self.logger.error(
+                    'payment {} user {} users don\'t match is it a new user '
+                    'with old preference?'.format(payment, order)
+                )
+                msg = 'order({}) and payment{} doesn\'t match.'.format(order,
+                                                                       payment)
+                desc = 'order.user!=payment.user'
+                order.flag(val=msg + desc)
+                payment.flag(val=msg + desc)
                 return None, None
 
             if not order.withdraw_address:
@@ -78,12 +83,11 @@ class BuyOrderReleaseByReference(BaseBuyOrderRelease):
 class BuyOrderReleaseByWallet(BaseBuyOrderRelease):
     @classmethod
     def get_order(cls, payment_id):
-        payment, order = super(BuyOrderReleaseByWallet, cls).get_order(payment_id)
+        payment, order = super(BuyOrderReleaseByWallet, cls).get_order(
+            payment_id)
 
         method = payment.payment_preference.payment_method
-        return payment,\
-               Order.objects.exclude(status=Order.RELEASED) \
-            .get(
+        return payment, Order.objects.exclude(status=Order.RELEASED).get(
             user=payment.user,
             amount_quote=payment.amount_cash,
             payment_preference__payment_method=method,
@@ -121,7 +125,8 @@ class BuyOrderReleaseByWallet(BaseBuyOrderRelease):
 class BuyOrderReleaseByRule(BuyOrderReleaseByWallet):
     @classmethod
     def get_order(cls, payment_id):
-        payment, order = super(BuyOrderReleaseByRule, cls).get_order(payment_id)
+        payment, order = super(BuyOrderReleaseByRule, cls).get_order(
+            payment_id)
         method = payment.payment_preference.payment_method
         template_order = Order.objects.filter(
             order_type=Order.BUY,

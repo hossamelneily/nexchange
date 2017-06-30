@@ -97,8 +97,13 @@ class FlagableMixin(models.Model):
         abstract = True
 
     def flag(self, val=None):
+        if not self.flagged:
+            self.flagged = True
+            self.save()
         return Flag.objects.get_or_create(
             model_name=self.__class__.__name__,
             flagged_id=self.pk,
             flag_val=val
         )
+
+    flagged = models.BooleanField(default=False)
