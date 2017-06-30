@@ -1,4 +1,5 @@
 from decimal import Decimal
+from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -32,7 +33,8 @@ class AddressReserve(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.card_id
+        return 'User: {}, currency: {}, card_id: {}'.format(
+            self.user, self.currency, self.card_id)
 
     class Meta:
         verbose_name = "Card"
@@ -83,6 +85,12 @@ class Transaction(BtcBase):
     time = models.DateTimeField(null=True, blank=True, default=None)
     currency = models.ForeignKey('core.Currency', related_name='transactions',
                                  null=True, blank=True, default=None)
+
+    def save(self, *args, **kwargs):
+        if self.time:
+            if isinstance(self.time, int):
+                self.time = datetime.fromtimestamp(self.time)
+        return super(Transaction, self).save(*args, **kwargs)
 
 
 class CurrencyManager(models.Manager):

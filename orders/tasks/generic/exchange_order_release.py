@@ -3,6 +3,8 @@ from core.models import Transaction
 from orders.models import Order
 from orders.tasks.generic.base import BaseOrderRelease
 from nexchange.api_clients.mixins import UpholdBackendMixin, ScryptRpcMixin
+from nexchange.api_clients.uphold import UpholdApiClient
+from nexchange.api_clients.rpc import ScryptRpcApiClient
 
 
 class ExchangeOrderRelease(BaseOrderRelease):
@@ -44,6 +46,10 @@ class ExchangeOrderRelease(BaseOrderRelease):
                 self.logger.error('Amount and Coin are None')
                 return
 
+            if currency.wallet == 'api1':
+                self.api = UpholdApiClient()
+            elif currency.wallet == 'rpc1':
+                self.api = ScryptRpcApiClient()
             tx_id = self.api.release_coins(
                 currency,
                 order.withdraw_address,
@@ -65,8 +71,13 @@ class ExchangeOrderRelease(BaseOrderRelease):
                 order.status = Order.RELEASED
                 order.save()
 
-            t = Transaction(tx_id_api=tx_id, order=order,
-                            address_to=order.withdraw_address)
+            transaction_data = {'order': order,
+                                'address_to': order.withdraw_address}
+            if currency.wallet == 'api1':
+                transaction_data.update({'tx_id_api': tx_id})
+            elif currency.wallet == 'rpc1':
+                transaction_data.update({'tx_id': tx_id})
+            t = Transaction(**transaction_data)
             t.save()
 
             return True
@@ -83,7 +94,7 @@ class ExchangeOrderRelease(BaseOrderRelease):
                         self.UPDATE_TRANSACTIONS,
                         None,
                         {
-                            'countdown': self.traded_currency.median_confirmation * 60
+                            'countdown': self.traded_currency.median_confirmation * 60  # noqa
                         }
                     )
         else:

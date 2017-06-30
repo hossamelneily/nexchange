@@ -48,4 +48,3 @@ class AddressReserveTest(OrderBaseTestCase):
     def test_AddressReserves_creation(self):
         c = self.create_card()
         self.assertTrue(isinstance(c, AddressReserve))
-        self.assertEqual(c.__str__(), c.card_id)

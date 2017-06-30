@@ -131,15 +131,18 @@ class UserBaseTestCase(TestCase):
 
         self.rpc_mock_addr.start()
 
-        self.mock_rpc_txs = mock.patch(rpc_client_path + 'get_txs', lambda _self, *args: 0, [])
+        self.mock_rpc_txs = mock.patch(rpc_client_path + '_get_txs',
+                                       lambda _self, *args: [])
         self.mock_rpc_txs.start()
 
     def _mock_uphold(self):
         uphold_client_path = 'nexchange.api_clients.uphold.UpholdApiClient.'
-        self.new_card_mock = mock.patch(uphold_client_path + '_new_card',
-                                        new=lambda s, c: {'currency': c, 'id': self._get_id('card')})
-        self.new_addr_mock = mock.patch(uphold_client_path + '_new_address',
-                                        new=lambda s, c, n: {'id': self._get_id('addr')})
+        self.new_card_mock = mock.patch(
+            uphold_client_path + '_new_card',
+            new=lambda s, c: {'currency': c, 'id': self._get_id('card')})
+        self.new_addr_mock = mock.patch(
+            uphold_client_path + '_new_address',
+            new=lambda s, c, n: {'id': self._get_id('addr')})
 
         self.new_addr_mock.start()
         self.new_card_mock.start()
@@ -151,7 +154,7 @@ class UserBaseTestCase(TestCase):
             'https://api.uphold.com/v0/me/cards/',
             text=self._request_card
         )
-        pattern_addr = re.compile('https://api.uphold.com/v0/me/cards/.+/addresses')
+        pattern_addr = re.compile('https://api.uphold.com/v0/me/cards/.+/addresses')  # noqa
         _mock.post(pattern_addr, text=self._request_address)
 
 
@@ -212,7 +215,6 @@ class OrderBaseTestCase(UserBaseTestCase):
         # rpc
         self.rpc_mock_addr.stop()
         self.mock_rpc_txs.stop()
-
 
     @classmethod
     def setUpClass(cls):
@@ -465,15 +467,18 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.url_tx_2 = 'http://btc.blockr.io/api/v1/tx/info/{}'.format(
             self.tx_ids[1]
         )
-        self._create_mocks()
+        self._create_mocks_uphold()
         self.LTC = Currency.objects.get(code='LTC')
         self.ETH = Currency.objects.get(code='ETH')
+        self.RNS = Currency.objects.get(code='RNS')
         self.BTC_address = self._create_withdraw_adress(
             self.BTC, '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi')
         self.LTC_address = self._create_withdraw_adress(
             self.LTC, 'LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA')
         self.ETH_address = self._create_withdraw_adress(
             self.ETH, '0x8116546AaC209EB58c5B531011ec42DD28EdFb71')
+        self.RNS_address = self._create_withdraw_adress(
+            self.RNS, 'RJrEPzpgwfhsyz2tKYxVYSAEfBNWXh8W2v')
 
     def _read_fixture(self):
         path_addr_fixture = os.path.join(settings.BASE_DIR,
@@ -630,8 +635,8 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         addr.save()
         return addr
 
-    def _create_mocks(self, amount2=Decimal('0.0'), currency_code=None,
-                      card_id=None):
+    def _create_mocks_uphold(self, amount2=Decimal('0.0'), currency_code=None,
+                             card_id=None):
         self.tx_ids_api = ['12345', '54321']
         if currency_code is None:
             currency_code = self.order.pair.base.code
