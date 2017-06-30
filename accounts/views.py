@@ -15,7 +15,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from phonenumber_field.validators import validate_international_phonenumber
-from nexchange.utils import sanitize_number
+from nexchange.utils import sanitize_number, get_nexchange_logger,\
+    get_traceback
 from django.forms import modelformset_factory
 from verification.forms import VerificationUploadForm
 
@@ -273,6 +274,7 @@ def verify_user(request):
 @watch_login
 def user_get_or_create(request):
     """This is used for seemless fast login"""
+    logger = get_nexchange_logger('user_get_or_create')
     login_with_email = request.POST.get('login_with_email', False) == 'true'
     phone = request.POST.get('phone', '')
     phone = sanitize_number(phone, True)
@@ -305,10 +307,30 @@ def user_get_or_create(request):
     profile_data['user'] = user
     Profile.objects.get_or_create(**profile_data)
 
-    if not login_with_email:
-        res = send_auth_sms(user)
-    else:
-        res = send_auth_email(user)
+    try:
+        if not login_with_email:
+            res = send_auth_sms(user)
+        else:
+            res = send_auth_email(user)
+    except Exception as e:
+        logger.error(
+            'Exception: {} Traceback: {}'.format(
+                e, get_traceback()))
+        error_tmpl = 'Our {} service provider is down. Please contact ' \
+                     'administrator.'
+        if not login_with_email:
+            error_msg = _(error_tmpl.format('SMS'))
+        else:
+            error_msg = _(error_tmpl.format('EMAIL'))
+        context = {
+            'status': 'error',
+            'message': str(error_msg)
+        }
+        return HttpResponse(
+            json.dumps(context),
+            status=503,
+            content_type='application/json'
+        )
     if isinstance(res, Exception):
         return JsonResponse({'status': 'error'})
     else:

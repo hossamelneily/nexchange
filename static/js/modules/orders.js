@@ -78,8 +78,7 @@
         }
 
         var msgBase = gettext('Minimal order amount is '),
-            minOrderCoins = msgBase + minOrderCoin
-                + ' ' + gettext('Coins'),
+            minOrderCoins = msgBase + minOrderCoin + ' ' + gettext('Coins'),
             minOrderCash = msgBase + minOrderCash;
 
         if(orderSmallerThanMin(amountCoin, minOrderCoin)) {

@@ -65,14 +65,20 @@
                 400: function (data) {
                     return failureResponse(
                         data,
-                        'Invalid phone number'
+                        gettext('Invalid phone number')
+                    );
+                },
+                503: function (data) {
+                    return failureResponse(
+                        data,
+                        gettext('Service provider error')
                     );
                 },
                 403: lockoutResponse,
                 428: function (data) {
                     return failureResponse(
                         data,
-                        'Invalid phone number'
+                        gettext('Invalid phone number')
                     );
                 }
             }
