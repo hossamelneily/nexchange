@@ -7,7 +7,7 @@
             <label for="phone">{% trans 'Account Holder' %} </label>
                 <input type="text" name="iban_holder"
                        class="iban val" placeholder="{% trans 'John Smith' %}"
-                       {% if user.is_authenticated and user.first_name %}value="{{ user.first_name }} {{ user.last_namene }}"{% endif %}>
+                       {% if user.is_authenticated and user.first_name %}value="{{ user.first_name }} {{ user.last_name }}"{% endif %}>
         </div>
     </div>
     <div class="row">

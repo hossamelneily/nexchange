@@ -596,11 +596,22 @@
             }
 
             var form = $(self).closest('.modal-body'),
-                preferenceElem = form.find('.account-number.val'),
-                preferenceIdentifier = preferenceElem.val(),
-                preferenceOwner = form.find('.iban.val').val(),
-                bic = form.find('.acoount-bic').val(),
-                method = form.find('.method').val();
+                method = form.find('.method').val(),
+                preferenceElem,
+                preferenceIdentifier,
+                preferenceOwner,
+                bic = form.find('.acoount-bic').val();
+            if (method === 'qiwi') {
+                preferenceElem = form.find('.phone.val');
+                preferenceOwner = form.find('.iban.val').val();
+            } else if (method === 'c2c') {
+                preferenceElem = form.find('.account-number.val');
+                preferenceOwner = form.find('.owner.val').val();
+            } else {
+                preferenceElem = form.find('.account-number.val');
+                preferenceOwner = form.find('.iban.val').val();
+            }
+            preferenceIdentifier = preferenceElem.val();
 
             if (preferenceElem.hasClass('account-iban')) {
                 if (!IBAN.isValid(preferenceIdentifier.val())) {

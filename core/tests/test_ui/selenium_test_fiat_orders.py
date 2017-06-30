@@ -70,7 +70,7 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
 
     @data_provider(lambda: (
         (['PayPal',
-          # 'Qiwi Wallet',
+          'Qiwi Wallet',
           'OK Pay'], 'BTCRUB'),
     ))
     def test_sell1(self, payment_methods, pair_name):
@@ -78,7 +78,7 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
 
     @data_provider(lambda: (
         (['Skrill',
-          # 'Card 2 Card',
+          'Card 2 Card',
           'Sepa',
           'Swift'],),
     ))
@@ -137,7 +137,10 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
             else:
                 account = self.account
             self.fill_sell_card_data(modal, 'account-number', account)
-            self.fill_sell_card_data(modal, 'iban', self.name)
+            if self.payment_method == 'Card 2 Card':
+                self.fill_sell_card_data(modal, 'owner', self.name)
+            else:
+                self.fill_sell_card_data(modal, 'iban', self.name)
             if self.payment_method == 'Swift':
                 self.fill_sell_card_data(modal, 'account-bic', self.bic)
 

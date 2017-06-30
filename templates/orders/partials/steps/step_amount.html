@@ -72,7 +72,7 @@
 
     <div class="paymentSelectionContainer">
     </div>
-    {% include 'payments/partials/modals/sell.html' with id="c2cSellModal" form="card" legend="Get pay with card to card transfer" icon="icons/small/c2c.ico" %}
+    {% include 'payments/partials/modals/sell.html' with id="c2cSellModal" method="c2c" form="card" legend="Get pay with card to card transfer" icon="icons/small/c2c.ico" %}
     {% include 'payments/partials/modals/sell.html' with id="paypalSellModal" method="paypal" form="email" legend="Get paid with PayPal" icon="icons/small/paypal.png" %}
     {% include 'payments/partials/modals/sell.html' with id="skrillSellModal" method="skrill" form="email" legend="Get paid with Skrill" icon="icons/small/skrill.png" %}
     {% include 'payments/partials/modals/sell.html' with id="qiwiSellModal" method="qiwi" form="phone" legend="Get paid with Qiwi Wallet" icon="icons/small/qiwi.png" %}
