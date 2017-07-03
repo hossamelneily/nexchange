@@ -1,6 +1,7 @@
 from .base import BaseApiClient
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from .decorators import track_tx_mapper, log_errors
+from core.models import Address
 import os
 
 
@@ -66,7 +67,14 @@ class ScryptRpcApiClient(BaseRpcClient):
 
     def parse_tx(self, tx, node=None):
         _currency = self.get_currency({'wallet': node})
-        _address = self.get_address({'address': tx['address']})
+
+        try:
+            _address = self.get_address({'address': tx['address']})
+        except Address.DoesNotExist:
+            _address = None
+            self.logger.warning(
+                'Could not find Address {}'.format(Address)
+            )
 
         return {
             # required
