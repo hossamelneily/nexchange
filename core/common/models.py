@@ -81,8 +81,7 @@ class IpAwareModel(TimeStampedModel, SoftDeleteMixin):
 
 
 class Flag(TimeStampedModel):
-    flag_val = models.CharField(default=None, null=True, blank=True,
-                                max_length=255)
+    flag_val = models.TextField(default=None, null=True, blank=True)
     model_name = models.CharField(default=None, max_length=255)
     flagged_id = models.PositiveIntegerField(default=None)
 
