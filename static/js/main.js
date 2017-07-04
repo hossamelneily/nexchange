@@ -34,6 +34,7 @@
            email,
            username,
            login_with_email,
+           pairOption,
            paymentFormRules = {
                 'iban_holder': {
                     required: true,
@@ -103,8 +104,18 @@
         $currencyFrom = $('.currency-from');
         $currencyTo = $('.currency-to');
         $currencyPair = $("select[name='currency_pair']");
+        if ($currencyPair.val()) {
+            pairOption = $("option[value='"+ pair + "']");
+            if (pairOption.length > 0) {
+                $currencyPair.val(pair).trigger('change.select2');
+            } else {
+                //$currencyPair.val().trigger('change.select2');
+                pair = $currencyPair.val();
+                currency = pair.substring(3, 6);
+                currency_to = pair.substring(0, 3);
+            }
+        }
         $currencyFrom.val(currency);
-        $currencyPair.val(pair).trigger('change.select2');
         $currencyTo.val(currency_to);
         var timer = null,
             delay = 500,

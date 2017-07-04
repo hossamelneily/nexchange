@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import activate
 from django.views.decorators.csrf import csrf_exempt
 from core.common.forms import DateSearchForm
-from core.models import Address, Currency, Pair
+from core.models import Address, Pair
 from core.views import main
 from orders.models import Order
 from payments.models import PaymentPreference, PaymentMethod, Payment
@@ -97,6 +97,7 @@ def add_order(request, pair=None):
 
     pairs = Pair.objects.filter(disabled=False)
     base_currencies = set(pair.base.code for pair in pairs)
+    quote_currencies = set(pair.quote.code for pair in pairs)
 
     my_action = _('Add')
 
@@ -104,6 +105,7 @@ def add_order(request, pair=None):
         'graph_ranges': settings.GRAPH_HOUR_RANGES,
         'pairs': pairs,
         'base_currencies': base_currencies,
+        'quote_currencies': quote_currencies,
         'action': my_action,
         'DEFAULT_HOUR_RANGE': settings.DEFAULT_HOUR_RANGE,
     }
@@ -168,9 +170,10 @@ def ajax_order(request):
     currency_to = request.POST.get('currency_to', 'BTC')
     pair_name = currency_to + currency_from
     amount_base = Decimal(request.POST.get('amount-base'))
-    pair = Pair.objects.get(name=pair_name)
-    _currency_from = Currency.objects.get(code=currency_from)
-    _currency_to = Currency.objects.get(code=currency_to)
+    # FIXME: add bad disabled pair user erros
+    pair = Pair.objects.get(name=pair_name, disabled=False)
+    _currency_from = pair.quote
+    _currency_to = pair.base
 
     # Only for buy order right now
     exchange = False
@@ -289,7 +292,7 @@ def ajax_order(request):
         curr = order.pair.base
         if trade_type == Order.BUY:
             curr = order.pair.quote
-        
+
         countdown = curr.median_confirmation * 60
 
         update_pending_transactions_invoke.apply_async(
@@ -349,7 +352,7 @@ def update_withdraw_address(request, pk):
                         transaction.pk
                     ])
                     if order.order_type == order.BUY:
-                        curr= order.pair.base
+                        curr = order.pair.base
                     else:
                         curr = order.pair.quote
                     countdown = curr.median_confirmation * 60

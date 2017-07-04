@@ -202,6 +202,10 @@ class OrderBaseTestCase(UserBaseTestCase):
         )
         self._reserve_txn_uphold = self.patcher_uphold_reserve_txn.start()
         self._reserve_txn_uphold.return_value = {'status': 'completed'}
+        pairs = Pair.objects.filter(disabled=True)
+        for pair in pairs:
+            pair.disabled = False
+            pair.save()
 
     def tearDown(self):
         super(OrderBaseTestCase, self).tearDown()

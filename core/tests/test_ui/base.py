@@ -176,23 +176,26 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         )
         self._mock_cards_reserve(mock)
         self.do_screenshot('after check method click')
-        # FIXME: 2 phones found
-        self.wait.until(EC.element_to_be_clickable((
-            By.XPATH,
-            '//div[@id="menu2"]//div[@class="intl-tel-input allow-dropdown"]'
-        )))
+        # FIXME: try wait for smth instead of sleep
+        sleep(1)
 
-        if not with_email:
-            account_input = self.driver.find_element_by_class_name(
-                'menu2').find_element_by_class_name('phone')
-            self.username = self.phone
-        else:
-            self.click_span(class_name='switch-login',
-                            second_class='phone-verification')
+        if with_email:
             account_input = self.driver.find_element_by_class_name(
                 'menu2').find_element_by_class_name('email')
-            self.do_screenshot('switched login')
             self.username = self.email
+        else:
+            self.click_span(class_name='switch-login',
+                            second_class='email-verification')
+            self.wait.until(EC.element_to_be_clickable((
+                By.XPATH,
+                '//div[@id="menu2"]//'
+                'div[@class="intl-tel-input allow-dropdown"]'
+            )))
+            account_input = self.driver.find_element_by_class_name(
+                'menu2').find_element_by_class_name('phone')
+            self.do_screenshot('switched login')
+            self.username = self.phone
+
         account_input.clear()
         account_input.send_keys(self.username)
 

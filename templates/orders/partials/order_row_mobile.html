@@ -34,7 +34,7 @@
 
     <div class="mobile-row">
         <div class = "headers-mobile header-text">{% trans "Price" %}</div>
-        {{ order.amount_quote|floatformat:2}}
+        {{ order.amount_quote.normalize}}
     </div>
     <div class="mobile-row">
         <div class = "headers-mobile header-text">{% trans "Volume" %}</div>
