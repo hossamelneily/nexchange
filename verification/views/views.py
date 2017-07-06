@@ -16,7 +16,7 @@ from django.views.generic import CreateView
 from verification.forms import VerificationUploadForm
 from verification.models import Verification
 
-from .common import LoginRestrictedView
+from verification.views.common import LoginRestrictedView
 
 
 class Upload(LoginRestrictedView, CreateView):
@@ -31,15 +31,23 @@ class Upload(LoginRestrictedView, CreateView):
         instance.save()
         return HttpResponseRedirect(self.success_url)
 
-    def get(self, request):
+    def get(self, request, form=None):
         filters = {}
         filters['user'] = self.request.user
         verification_list = self.model.objects.filter(**filters)
-        form = self.form_class(initial=self.initial)
+        if form is None:
+            form = self.form_class(initial=self.initial)
 
         return render(request, self.template_name,
                       {'verifications': verification_list,
                        'verification_form': form})
+
+    def post(self, request):
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.get(request, form=form)
 
 
 @login_required
