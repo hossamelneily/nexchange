@@ -37,6 +37,9 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 from accounts.api_clients.auth_messages import AuthMessages
 from verification.models import Verification
+from loginurl.utils import create as create_user_key
+from loginurl.models import Key
+from loginurl.views import login as anonymous_login
 
 auth_msg_api = AuthMessages()
 send_auth_sms = auth_msg_api.send_auth_sms
@@ -94,24 +97,24 @@ class UserUpdateView(View):
     ReferralFormSet = modelformset_factory(ReferralCode,
                                            form=ReferralTokenForm, extra=0)
 
-    def get(self, request):
-        user_form = UserForm(
-            instance=self.request.user)
-        profile_form = UpdateUserProfileForm(
-            instance=self.request.user.profile)
-        all_referrals = request.user.referral_code.all()
-        referral_formset = \
-            UserUpdateView.ReferralFormSet(queryset=all_referrals)
-        verification_form = VerificationUploadForm()
-        verification_list = Verification.objects.filter(user=self.request.user)
+    def get(self, request, **kwargs):
+        if kwargs.get('user_form') is None:
+            kwargs['user_form'] = UserForm(
+                instance=self.request.user)
+        if kwargs.get('profile_form') is None:
+            kwargs['profile_form'] = UpdateUserProfileForm(
+                instance=self.request.user.profile)
+        if kwargs.get('referral_formset') is None:
+            all_referrals = request.user.referral_code.all()
+            kwargs['referral_formset'] = \
+                UserUpdateView.ReferralFormSet(queryset=all_referrals)
+        if kwargs.get('verification_form') is None:
+            kwargs['verification_form'] = VerificationUploadForm()
+        if kwargs.get('verification_list') is None:
+            kwargs['verification_list'] = Verification.objects.filter(
+                user=self.request.user)
 
-        context = {
-            'user_form': user_form,
-            'profile_form': profile_form,
-            'referral_formset': referral_formset,
-            'verification_form': verification_form,
-            'verifications': verification_list
-        }
+        context = kwargs
 
         return render(request, 'accounts/user_profile.html', context)
 
@@ -122,7 +125,6 @@ class UserUpdateView(View):
         profile_form = \
             UpdateUserProfileForm(request.POST,
                                   instance=self.request.user.profile)
-        referral_formset = UserUpdateView.ReferralFormSet(request.POST)
 
         success_message = ''
 
@@ -135,15 +137,8 @@ class UserUpdateView(View):
 
         if success_message:
             messages.success(self.request, success_message)
-            return redirect(reverse('accounts.user_profile'))
-        else:
-            ctx = {
-                'user_form': user_form,
-                'profile_form': profile_form,
-                'referral_formset': referral_formset
-            }
-
-            return render(request, 'accounts/user_profile.html', ctx, )
+        return self.get(request, user_form=user_form,
+                        profile_form=profile_form)
 
 
 @method_decorator(login_required, name='dispatch')
@@ -268,6 +263,63 @@ def verify_user(request):
         )
 
 
+@method_decorator(not_logged_in_required, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
+class AnonymousLoginView(View):
+    model = Key
+
+    def post(self, request):
+        key = request.POST.get('key')
+        context = {}
+        resp = anonymous_login(request, key)
+        if '?next=' in resp.url:
+            context.update({
+                'status': 'ERROR',
+                'message': 'Cannot login with this login key!'
+            })
+        else:
+            context.update({
+                'status': 'OK',
+                'redirect': resp.url,
+                'message': 'Successfully logged in!'
+            })
+
+        return HttpResponse(
+            json.dumps(context),
+            status=200,
+            content_type='application/json'
+        )
+
+
+@csrf_exempt
+@not_logged_in_required
+@watch_login
+def create_anonymous_user(request):
+    username = 'Anonymous{}'.format(User.objects.last().pk + 1)
+    user_data = {}
+    profile_data = {}
+    user_data['username'] = username
+    profile_data.update({
+        'disabled': True,
+        'anonymous_login': True
+    })
+
+    user = User(**user_data)
+    user.save()
+    profile_data['user'] = user
+    profile = Profile(**profile_data)
+    profile.save()
+    next = reverse('accounts.change_password')
+    key = create_user_key(user, usage_left=None, next=next)
+    user.backend = 'django.contrib.auth.backends.ModelBackend'
+    login(request, user)
+    return HttpResponse(
+        json.dumps({'key': key.key}),
+        status=200,
+        content_type='application/json'
+    )
+
+
 @csrf_exempt
 @recaptcha_required
 @not_logged_in_required
@@ -352,7 +404,7 @@ def create_withdraw_address(request, order_pk):
     order = Order.objects.get(pk=order_pk)
     if not order.user.profile.is_verified and not order.exchange:
         pm = order.payment_preference.payment_method
-        if pm.required_verification_buy:
+        if pm.required_verification_buy or order.user.profile.anonymous_login:
             resp = {
                 'status': 'ERR',
                 'msg': 'You need to be a verified user to set withdrawal '
@@ -395,6 +447,13 @@ def create_withdraw_address(request, order_pk):
 
 
 def change_password(request):
+
+    def _change_key_next_to_main(_user):
+        keys = _user.key_set.all()
+        for key in keys:
+            key.next = reverse('orders.add_order')
+            key.save()
+
     main_form = PasswordChangeForm
     if request.user.password == '':
         main_form = SetPasswordForm
@@ -402,6 +461,8 @@ def change_password(request):
         form = main_form(request.user, request.POST)
         if form.is_valid():
             user = form.save()
+            if main_form == SetPasswordForm:
+                _change_key_next_to_main(user)
             update_session_auth_hash(request, user)
             messages.success(
                 request, _('Your password was successfully updated!')

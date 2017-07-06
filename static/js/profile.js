@@ -126,5 +126,28 @@
             });
         });
 
+    $(document).on('submit', '#login-anonymous-form', function (event) {
+            event.preventDefault();
+            var verifyPayload = $(this).serialize();
+
+            $.ajax({
+                type: 'POST',
+                url: '/en/accounts/login_anonymous/',
+                dataType: 'json',
+                data: verifyPayload,
+                statusCode: {
+                    200: function (data) {
+                        var message = gettext(data.message);
+                        if (data.status === 'OK'){
+                            toastr.success(message);
+                            window.location.href = data.redirect;
+                        } else {
+                            toastr.error(message);
+                        }
+                    }
+                }
+            });
+        });
+
     window.verifyPhone = verifyPhone; //hack to allow tests to run
 }(window, window.jQuery)); //jshint ignore:line

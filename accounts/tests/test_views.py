@@ -11,6 +11,7 @@ from freezegun import freeze_time
 from accounts.models import Profile, SmsToken
 from core.tests.base import UserBaseTestCase
 from core.tests.utils import passive_authentication_helper, data_provider
+from loginurl.models import Key
 
 
 class RegistrationTestCase(TestCase):
@@ -72,7 +73,7 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         response = self.client.post(
             reverse('accounts.user_profile'), self.data)
         # Redirect after update
-        self.assertEqual(302, response.status_code)
+        self.assertEqual(200, response.status_code)
 
         # saved the User instance data
         user = User.objects.get(email=self.data['email'])
@@ -917,3 +918,70 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             )
 
             self.assertEqual(410, response.status_code)
+
+
+class AnonymousUserTestCase(UserBaseTestCase):
+    def setUp(self):
+        super(AnonymousUserTestCase, self).setUp()
+        self.create_url = reverse('accounts.create_anonymous_user')
+        self.login_anonymous_url = reverse('accounts.login_anonymous')
+
+    def test_create_key(self):
+        resp = self.client.get(self.create_url)
+        self.assertEqual(
+            403, resp.status_code,
+            'Should not be possible to create anonymous user if someone is '
+            'logged in'
+        )
+        self.client.get(self.logout_url)
+        resp = self.client.get(self.create_url)
+        self.assertEqual(
+            200, resp.status_code,
+            'Should be possible to crea anonymous user if nobody is logged in.'
+        )
+        last_key = Key.objects.last()
+        self.assertEqual(
+            last_key.key, resp.json()['key'],
+            'Response key should be equal to last key created.'
+        )
+        self.assertEqual(
+            str(last_key.user.pk), self.client.session.get('_auth_user_id'),
+            'After anonymous creation new exact user should be logged in.'
+        )
+        self.assertTrue(
+            last_key.user.profile.disabled,
+            'Anonymous user profile must be disabled.'
+        )
+        self.assertTrue(
+            last_key.user.profile.anonymous_login,
+            'Anonymous user profile.anonymous_login == True.'
+        )
+
+    def test_login_with_anonymous(self):
+        self.client.get(self.logout_url)
+        resp = self.client.get(self.create_url)
+        created_user_id = self.client.session.get('_auth_user_id')
+        data = resp.json()
+        self.client.get(self.logout_url)
+        none_user_id = self.client.session.get('_auth_user_id')
+        self.assertIsNone(none_user_id)
+        login_resp = self.client.post(self.login_anonymous_url, data)
+        logged_in_user_id = self.client.session.get('_auth_user_id')
+        self.assertEqual(
+            created_user_id, logged_in_user_id,
+            'Should log in with anonymous user (id == id)'
+        )
+        self.assertEqual(200, login_resp.status_code)
+        self.assertEqual('OK', login_resp.json().get('status'))
+        self.assertEqual(reverse('accounts.change_password'),
+                         login_resp.json().get('redirect'))
+        self.assertIn('message', login_resp.json())
+
+    def test_login_with_anonymous_fail_wrong_key(self):
+        self.client.get(self.logout_url)
+        data = {'key': 'impossible_key_3000'}
+        login_resp = self.client.post(self.login_anonymous_url, data)
+        self.assertIsNone(self.client.session.get('_auth_user_id'))
+        self.assertEqual(200, login_resp.status_code)
+        self.assertEqual('ERROR', login_resp.json().get('status'))
+        self.assertIn('message', login_resp.json())

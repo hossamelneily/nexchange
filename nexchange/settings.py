@@ -128,8 +128,15 @@ INSTALLED_APPS = [
     'session_security',
     'axes',
     'nexchange',
-    'support'
+    'support',
+    'loginurl'
 ]
+
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'loginurl.backends.LoginUrlBackend',
+)
 
 
 SITE_ID = 1

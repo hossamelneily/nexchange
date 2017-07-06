@@ -57,7 +57,7 @@ def get_ticker_crypto_crypto(**kwargs):
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def get_all_tickers():
     logger = get_nexchange_logger('Get Tickers')
-    pairs = Pair.objects.filter(disabled=False)
+    pairs = Pair.objects.filter(disable_ticker=False)
     for pair in pairs:
         kwargs = {'pair_pk': pair.pk}
         if pair.is_crypto:

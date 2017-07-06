@@ -1,6 +1,7 @@
 {% load i18n %}
 
-<div class="col-xs-10 col-xs-offset-1 center controls">
+
+<div class="col-xs-10 col-xs-offset-1 center controls user-authenticated">
     <span class="btn btn-primary create-acc send disabled phone-verification hidden">
         {% trans "Send SMS"%}
     </span>
@@ -14,7 +15,8 @@
         {% trans "Go"%}
     </span>
 </div>
-<div class="col-xs-10 col-xs-offset-1 center controls">
+
+<div class="col-xs-10 col-xs-offset-1 center controls user-authenticated">
     <span class="btn-sm btn-link switch-login phone-verification hidden">
         {% trans "Use Email for verification"%}
     </span>
@@ -22,3 +24,4 @@
         {% trans "Use Phone for verification"%}
     </span>
 </div>
+

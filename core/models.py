@@ -135,6 +135,9 @@ class Pair(TimeStampedModel):
                                   default=Decimal('0.01'))
     name = models.CharField(max_length=8, blank=True, null=True, db_index=True)
     disabled = models.BooleanField(default=False)
+    disable_ticker = models.BooleanField(
+        default=False, help_text='Opt-out this Pair ticker gathering.'
+    )
 
     def save(self, *args, **kwargs):
         self.name = '{}{}'.format(self.base, self.quote)

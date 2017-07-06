@@ -67,6 +67,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     affiliate_address = models.ForeignKey(
         'core.Address', null=True, default=None, blank=True
     )
+    anonymous_login = models.BooleanField(default=False)
 
     @property
     def partial_phone(self):

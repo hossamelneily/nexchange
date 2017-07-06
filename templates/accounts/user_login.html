@@ -9,38 +9,19 @@
   </h1>
 </div>
 
-<form method="post" class="form" id="login-form" enctype="multipart/form-data" >
-    {% csrf_token %}
-
-    {% bootstrap_form form %}
-
-    <div class="form-group">
-        <input type="submit" name="submit" class="btn btn-success btn-lg" id="submit" value="{% trans "Login" %}">
-    </div>
-
-    <div class="form-group">
-        <span class="btn btn-success btn-lg verify-acc hidden login-otp">
-            {% trans "Login with One Time Password"%}
-        </span>
-    </div>
-
-    {% include "accounts/partials/recaptcha.html" %}
-
-    <div class="form-group">
-        <span class="btn btn-primary create-acc send-otp">
-            {% trans "Send One Time Password"%}
-        </span>
-    </div>
-
-    <div class="form-group">
-        <span class="btn btn-danger create-acc resend-otp hidden">
-            {% trans "Resend One Time Password" %}
-        </span>
-    </div>
+<div class="form-group" name="tabs" id="tabs">
+    <button id="authorized_button" class="btn btn-lg btn-primary tablinks active" onclick="openProfileTab(event, 'authorized')">{% trans "Authorized" %}</button>
+    <button id="anonymous_button" class="btn btn-lg btn-primary tablinks" onclick="openProfileTab(event, 'anonymous')">{% trans "Anonymous" %}</button>
+</div>
 
 
-    <input type="hidden" name="next" value="{{ next }}" />
-</form>
+<div id="anonymous" class="tabcontent" style="display: none;">
+    {% include "accounts/partials/user_login_anonymous.html" %}
+</div>
+
+<div id="authorized" class="tabcontent" style="display: block;">
+    {% include "accounts/partials/user_login_authorized.html" %}
+</div>
 
 <div class="p-list">
     <p>{% trans "Don't have an account?" %} <a class="nav-link" href="{% url 'accounts.register' %}">{% trans "Register here" %}</a></p>

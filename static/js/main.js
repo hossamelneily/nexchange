@@ -1,3 +1,5 @@
+/*jshint esversion: 6 */
+
 !(function (window, $) {
     'use strict';
 
@@ -317,6 +319,7 @@
             if ($(this).hasClass('disabled')) {
                 return;
             }
+            $('.user-anonymous').addClass('hidden');
             $('.switch-login').addClass('hidden');
             if ($('.send-otp').is(':visible') || $('.send').is(':visible')) {
                 grecaptcha.execute();
@@ -356,6 +359,41 @@
             register.seemlessRegistration(regPayload);
         };
 
+        $('.create-anonymous-acc').on('click', function () {
+            if ($(this).hasClass('disabled')) {
+                return;
+            }
+            $('.switch-login').addClass('hidden');
+            register.createAnonymousAccount();
+        });
+
+        function sleep (time) {
+            return new Promise((resolve) => setTimeout(resolve, time));
+        }
+
+        $("#user-login-key").bind('copy', function() {
+            $('.verify-anonymous').removeClass('disabled');
+            var msg = gettext('Login key copied to your clipboard!');
+            toastr.success(msg);
+            sleep(500).then(() => {
+                $('.hide-key').click();
+            });
+        });
+
+        $('.hide-key').on('click', function () {
+            $('.show-key').removeClass('hidden');
+            $(this).addClass('hidden');
+            $('.copy-key').addClass('hidden');
+            document.getElementById('user-login-key').type = 'password';
+        });
+
+        $('.show-key').on('click', function () {
+            $('.hide-key').removeClass('hidden');
+            $(this).addClass('hidden');
+            $('.copy-key').removeClass('hidden');
+            document.getElementById('user-login-key').type = 'text';
+        });
+
         $('.verify-acc').on('click', function () {
             if ($('.email-verification').is(':visible')) {
                 email = $('.register .email').val();
@@ -388,6 +426,10 @@
                 login_with_email: login_with_email
             };
             register.verifyAccount(verifyPayload);
+        });
+
+        $('.verify-anonymous').on('click', function () {
+            register.verifyAnonymous();
         });
 
         $('.switch-login').on('click', function () {

@@ -1,8 +1,13 @@
+/*jshint esversion: 6 */
+
+import Clipboard from 'clipboard';
+
 !(function(window, $) {
     "use strict";
     var orderObject,
         apiRoot = '/en/api/v1',
         createAccEndpoint =  '/en/accounts/authenticate/',
+        createAanonymousEndpoint =  '/en/accounts/create_anonymous_user/',
         menuEndpoint = apiRoot + '/menu',
         breadcrumbsEndpoint = apiRoot + '/breadcrumbs',
         validatePhoneEndpoint = '/en/accounts/verify_user/';
@@ -32,6 +37,26 @@
         return false;
     }
 
+    function createAnonymousAccount () {
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: createAanonymousEndpoint,
+            statusCode: {
+                200: function (data) {
+                    $('.register .step2').removeClass('hidden');
+                    $('.create-anonymous-acc').addClass('hidden');
+                    $('.user-authenticated').addClass('hidden');
+                    $('.verify-anonymous').removeClass('hidden');
+                    $('.copy-key').removeClass('hidden');
+                    $('.hide-key').removeClass('hidden');
+                    $('#user-login-key').val(data.key);
+                    new Clipboard('.copy-key');
+                }
+            }
+        });
+    }
+
     function seemlessRegistration (payload) {
         $.ajax({
             type: 'POST',
@@ -43,13 +68,13 @@
                     if ($('#login-form').is(':visible')) {
                         $('.login-otp').removeClass('hidden');
                         $('.resend-otp').removeClass('hidden');
-                        $('#submit').addClass('hidden');
-                        $('#submit').addClass('disabled');
-                        $('#id_password').val('');
-                        $('#id_password').attr(
-                            'placeholder', gettext('SMS Token'));
-                        $('#id_password').attr(
-                            'type', 'text');
+                        var submit = $('#submit_auth'),
+                            password = $('#id_password');
+                        submit.addClass('hidden');
+                        submit.addClass('disabled');
+                        password.val('');
+                        password.attr('placeholder', gettext('SMS Token'));
+                        password.attr('type', 'text');
                         $('label[for="id_password"]').text(
                             gettext('One Time Password')
                         );
@@ -128,9 +153,17 @@
 
     }
 
+    function verifyAnonymous () {
+        orderObject = require('./orders.js');
+        orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
+        orderObject.changeState(null, 'next');
+    }
+
     module.exports = {
         canProceedtoRegister: canProceedtoRegister,
         seemlessRegistration: seemlessRegistration,
+        createAnonymousAccount: createAnonymousAccount,
         verifyAccount: verifyAccount,
+        verifyAnonymous: verifyAnonymous
     };
 }(window, window.jQuery)); //jshint ignore:line

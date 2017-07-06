@@ -1,0 +1,15 @@
+{% load bootstrap3 %}
+{% load i18n %}
+
+
+<form method="post" class="form" action="" id="login-anonymous-form" enctype="multipart/form-data" >
+     {% csrf_token %}
+     <div class="form-group">
+         <label class="control-label" for="id_key">{% trans 'Login Key' %}</label>
+         <input type="password" name="key" required class="form-control"
+                id="id_key" placeholder="{% trans 'Paste your login key' %}" title="">
+     </div>
+     <div class="form-group">
+         <input type="submit" name="submit" class="btn btn-success btn-lg" id="submit_anonym" value="{% trans "Login" %}">
+     </div>
+</form>

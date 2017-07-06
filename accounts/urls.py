@@ -18,6 +18,14 @@ account_urls = [
         views.verify_user,
         name='accounts.verify_user'),
 
+    url(r'^create_anonymous_user/$',
+        views.create_anonymous_user,
+        name='accounts.create_anonymous_user'),
+
+    url(r'^login_anonymous/$',
+        views.AnonymousLoginView.as_view(),
+        name='accounts.login_anonymous'),
+
     url(r'^profile$', views.UserUpdateView.as_view(),
         name='accounts.user_profile'),
 

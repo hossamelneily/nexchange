@@ -43,3 +43,4 @@ xmltodict>=0.10.2
 python-bitcoinrpc
 urllib3
 pillow
+-e git+https://github.com/SarunasAzna/django-loginurl.git#egg=loginurl

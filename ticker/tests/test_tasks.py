@@ -11,15 +11,15 @@ class TestTickerTask(TickerBaseTestCase):
     def setUp(self):
         super(TestTickerTask, self).setUp()
         self.main_ticker = self.BTCEUR
-        self.main_ticker.disabled = False
+        self.main_ticker.disable_ticker = False
         self.main_ticker.save()
         self.disabled_ticker = self.BTCUSD
-        self.disabled_ticker.disabled = True
+        self.disabled_ticker.disable_ticker = True
         self.disabled_ticker.save()
 
     @requests_mock.mock()
     def test_create_enabled_ticker(self, m):
-        enabled_pairs_count = len(Pair.objects.filter(disabled=False))
+        enabled_pairs_count = len(Pair.objects.filter(disable_ticker=False))
         before = len(Price.objects.filter(pair=self.main_ticker))
         before_all = len(Price.objects.all())
         self.get_tickers(m)
@@ -37,7 +37,7 @@ class TestTickerTask(TickerBaseTestCase):
 
     @requests_mock.mock()
     def test_ask_is_more_then_bid(self, m):
-        self.disabled_ticker.disabled = True
+        self.disabled_ticker.disable_ticker = True
         self.disabled_ticker.save()
         self.get_tickers(m)
         tickers = Ticker.objects.all()
