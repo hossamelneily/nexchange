@@ -45,7 +45,42 @@ highchartsMore(highcharts);
                     chart: {
                         type: 'arearange',
                         zoomType: 'x',
-                        backgroundColor: '#F3F3F3'
+                        backgroundColor: '#F3F3F3',
+                        events: {
+                            load: function() {
+                                // set up the updating of the chart each second
+                                $('.highcharts-credits').remove();
+                                var series = this.series[0],
+                                    interval = 20,
+                                    previous_data = 0;
+                                var intervalId = setInterval(function() {
+                                    if (pair !== $('.currency-pair option:selected').val() || hours !== $('#graph-range').val()) {
+                                        clearInterval(intervalId);
+                                    } else {
+                                        $.get(tickerLatestUrl, function(resdata) {
+                                            var lastdata = responseToChart(resdata).pair,
+                                                points = points || series.points;
+                                            if (hours < 16) {
+                                            // live mode
+                                                var _lastadata = lastdata[0];
+                                                if (previous_data === 0) {
+                                                    previous_data = _lastadata[0];
+                                                }
+                                                if (_lastadata[0] !== previous_data){
+                                                    previous_data = _lastadata[0];
+                                                    previous_data = _lastadata[0];
+                                                    series.addPoint(_lastadata, true, false, {
+                                                        duration: 500,
+                                                        easing: 'ease-in'
+                                                    });
+                                                    Array.prototype.push.apply(chartDataRaw, resdata);
+                                                }
+                                            }
+                                        });
+                                    }
+                                }, interval * 1000);
+                            }
+                        }
                     },
                     style: {
                         fontFamily: 'Gotham'
@@ -91,38 +126,6 @@ highchartsMore(highcharts);
 
                     legend: {
                         enabled: false
-                    },
-                    events: {
-                        load: function() {
-                            // set up the updating of the chart each second
-                            $('.highcharts-credits').remove();
-                            var series = this.series[0],
-                                interval = 10;
-                            var intervalId = setInterval(function() {
-                                if (pair != $('.currency-pair option:selected').val()) {
-                                    clearInterval(intervalId);
-                                } else {
-                                    $.get(tickerLatestUrl, function(resdata) {
-                                        var lastdata = responseToChart(resdata).pair,
-                                            points = points || series.points;
-                                        if (hours < 1) {
-                                            // live mode
-                                            var _lastadata = lastdata[0];
-                                            if (_lastadata[1] >= _lastadata[2]) {
-                                                var a = _lastadata[1];
-                                                _lastadata[1] = _lastadata[2];
-                                                _lastadata[2] = a;
-                                            }
-                                            series.addPoint(_lastadata, true, false, {
-                                                duration: 500,
-                                                easing: 'ease-in'
-                                            });
-                                            Array.prototype.push.apply(chartDataRaw, resdata);
-                                        }
-                                    });
-                                }
-                            }, interval * 1000);
-                        }
                     },
                     series: [{
                         name: pair,
