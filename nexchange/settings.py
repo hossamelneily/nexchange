@@ -367,7 +367,7 @@ TWILIO_PHONE_FROM_US = '+16464612858'
 LOGIN_REDIRECT_URL = reverse_lazy('orders.add_order')
 
 GRAPH_HOUR_RANGES = [
-    {'val': 0.05, 'name': 'Live'},
+    {'val': 0.1, 'name': 'Live'},
     {'val': 1, 'name': '1 Hour'},
     {'val': 4, 'name': '4 Hours'},
     {'val': 6, 'name': '6 Hours'},
