@@ -10,7 +10,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSUSD",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -24,7 +24,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSRUB",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -38,7 +38,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSEUR",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -52,7 +52,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSGBP",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -66,7 +66,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSJPY",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -80,7 +80,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSHRK",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -94,7 +94,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSCHF",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -108,7 +108,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSPLN",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -122,7 +122,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSRON",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -136,7 +136,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSBGN",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -150,7 +150,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSCZK",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -164,7 +164,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSAUD",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -178,8 +178,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSCAD",
-    
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -193,7 +192,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSNOK",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -207,7 +206,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSSEK",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -221,7 +220,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSDKK",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -235,7 +234,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSHUF",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -249,7 +248,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSTRY",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -263,7 +262,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSZAR",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -277,7 +276,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSNZD",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -291,7 +290,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSBRL",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -305,7 +304,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSIDR",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -319,7 +318,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSILS",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -333,7 +332,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSINR",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -347,7 +346,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSKRW",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -361,7 +360,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSMXN",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -375,7 +374,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSMYR",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -389,7 +388,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSPHP",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -403,7 +402,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSTHB",
-    "disabled": false
+    "disabled": true
   }
 }
 ]

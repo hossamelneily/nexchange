@@ -10,7 +10,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCUSD",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -24,7 +24,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCRUB",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -38,7 +38,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCEUR",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -52,7 +52,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCGBP",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -66,7 +66,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCJPY",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -80,7 +80,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCHRK",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -94,7 +94,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCCHF",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -108,7 +108,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCPLN",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -122,7 +122,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCRON",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -136,7 +136,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCBGN",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -150,7 +150,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCCZK",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -164,7 +164,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCAUD",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -178,8 +178,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCCAD",
-
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -193,7 +192,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCNOK",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -207,7 +206,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCSEK",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -221,7 +220,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCDKK",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -235,7 +234,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCHUF",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -249,7 +248,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCTRY",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -263,7 +262,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCZAR",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -277,7 +276,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCNZD",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -291,7 +290,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCBRL",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -305,7 +304,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCIDR",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -319,7 +318,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCILS",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -333,7 +332,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCINR",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -347,7 +346,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCKRW",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -361,7 +360,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCMXN",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -375,7 +374,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCMYR",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -389,7 +388,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCPHP",
-    "disabled": false
+    "disabled": true
   }
 },
 {
@@ -403,7 +402,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCTHB",
-    "disabled": false
+    "disabled": true
   }
 }
 ]
