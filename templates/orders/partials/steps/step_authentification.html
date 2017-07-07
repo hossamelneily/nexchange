@@ -4,14 +4,22 @@
 {% block step_content %}
 
     <div class="register">
-        <h4>
-            <p>{% trans "Verification"%}</p>
-        </h4>
+
+
         {% include "accounts/partials/recaptcha.html" %}
-        {% include "orders/partials/steps/partials/step_anonym_auth_fields.html" %}
         {% include "orders/partials/steps/partials/step_authentification_fields.html" %}
-        {% include "orders/partials/steps/partials/step_anonym_auth_buttons.html" %}
         {% include "orders/partials/steps/partials/step_authentification_buttons.html" %}
+        <div class="col-xs-10 col-xs-offset-1 center controls user-anonymous user-authenticated">
+            <span class="line green">
+                <h4 class="header">
+                    <span>
+                        {% trans 'OR' %}
+                    </span>
+                </h4>
+            </span>
+        </div>
+        {% include "orders/partials/steps/partials/step_anonym_auth_fields.html" %}
+        {% include "orders/partials/steps/partials/step_anonym_auth_buttons.html" %}
     </div>
 
 {% endblock %}

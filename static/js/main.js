@@ -1,5 +1,7 @@
 /*jshint esversion: 6 */
 
+import Clipboard from 'clipboard';
+
 !(function (window, $) {
     'use strict';
 
@@ -479,6 +481,7 @@
                         message = gettext('Sell order placed successfully');
 
                     }
+                    new Clipboard('.fa-copy');
                     toastr.success(message);
                     $('.successOrder').html($(data));
                     $('#orderSuccessModal').modal({backdrop: 'static'});

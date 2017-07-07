@@ -16,8 +16,10 @@
             <div class="col col-xs-12">
                 <span class="expand" title=
                         "{% trans 'Copy' %}">
-                    <i class="fa fa-copy"></i>
-                    <strong>{{address}}</strong>
+                    <i class="fa fa-copy" data-clipboard-target="#deposit-address-sell"></i>
+                    <strong>
+                        <span id="deposit-address-sell" class="element-to-copy">{{address}}</span>
+                    </strong>
                 </span>
             </div>
             <div class="col col-xs-12">
