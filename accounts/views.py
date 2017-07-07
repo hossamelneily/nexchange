@@ -1,4 +1,5 @@
 import json
+from django.utils.crypto import get_random_string
 
 from axes.decorators import watch_login
 from django.contrib import messages
@@ -295,7 +296,16 @@ class AnonymousLoginView(View):
 @not_logged_in_required
 @watch_login
 def create_anonymous_user(request):
-    username = 'Anonymous{}'.format(User.objects.last().pk + 1)
+
+    def _create_username():
+        _username = 'Anonymous{}'.format(User.objects.last().pk + 1)
+        exists = len(User.objects.filter(username=_username))
+        while exists == 1:
+            _username += get_random_string(length=5)
+            exists = len(User.objects.filter(username=_username))
+        return _username
+
+    username = _create_username()
     user_data = {}
     profile_data = {}
     user_data['username'] = username
@@ -309,8 +319,8 @@ def create_anonymous_user(request):
     profile_data['user'] = user
     profile = Profile(**profile_data)
     profile.save()
-    next = reverse('accounts.change_password')
-    key = create_user_key(user, usage_left=None, next=next)
+    next_uri = reverse('accounts.change_password')
+    key = create_user_key(user, usage_left=None, next=next_uri)
     user.backend = 'django.contrib.auth.backends.ModelBackend'
     login(request, user)
     return HttpResponse(

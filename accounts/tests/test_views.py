@@ -985,3 +985,17 @@ class AnonymousUserTestCase(UserBaseTestCase):
         self.assertEqual(200, login_resp.status_code)
         self.assertEqual('ERROR', login_resp.json().get('status'))
         self.assertIn('message', login_resp.json())
+
+    def test_login_anonymous_alter_name(self):
+        self.client.get(self.logout_url)
+        user_number_before = len(User.objects.all())
+        same_username = 'Anonymous{}'.format(User.objects.last().pk + 2)
+        user = User(username=same_username)
+        user.save()
+        self.client.get(self.create_url)
+        user_number_after = len(User.objects.all())
+        self.assertEqual(
+            user_number_before + 2, user_number_after,
+            'Should be 2 users more (one created directly, other with '
+            'accounts create_anonymous_user url)'
+        )
