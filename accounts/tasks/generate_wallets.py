@@ -30,4 +30,4 @@ def renew_cards_reserve():
                     curr.code, address_res['address']))
 
             count = AddressReserve.objects\
-                .filter(user=None, currency=curr).count()
+                .filter(user=None, currency=curr, disabled=False).count()

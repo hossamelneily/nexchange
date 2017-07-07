@@ -68,6 +68,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
         'core.Address', null=True, default=None, blank=True
     )
     anonymous_login = models.BooleanField(default=False)
+    cards_validity_approved = models.BooleanField(default=False)
 
     @property
     def partial_phone(self):

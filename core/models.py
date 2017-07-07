@@ -31,6 +31,8 @@ class AddressReserve(models.Model):
     currency = models.ForeignKey('core.Currency')
     user = models.ForeignKey(User, null=True, blank=True, default=None)
     created = models.DateTimeField(auto_now_add=True)
+    disabled = models.BooleanField(default=False)
+    need_balance_check = models.BooleanField(default=True)
 
     def __str__(self):
         return 'User: {}, currency: {}, card_id: {}'.format(
@@ -55,7 +57,7 @@ class Address(BtcBase, SoftDeletableModel):
     # TODO: what if two different users want to withdraw to the same address?
     address = models.CharField(max_length=42, unique=True,
                                validators=[validate_address])
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, blank=True, null=True)
     currency = models.ForeignKey('core.Currency', blank=True, null=True)
 
     def __str__(self):
