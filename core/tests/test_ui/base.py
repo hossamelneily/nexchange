@@ -68,6 +68,12 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.logged_in = False
         self.recursive_withdraw_calls = 0
         self.xpath_query_contains_text = "//*[contains(text(), '{}')]"
+        from decimal import Decimal
+        from ticker.models import Ticker
+        tickers = Ticker.objects.all()
+        for ticker in tickers:
+            ticker.ask = ticker.bid = Decimal('10000')
+            ticker.save()
 
     def tearDown(self):
         super(BaseTestUI, self).tearDown()
