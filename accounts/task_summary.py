@@ -113,8 +113,6 @@ def resend_funds_to_main_card(card_id, curr_code):
     amount_to = card_data['balance']
     if Decimal(amount_to) == 0:
         return
-    print(address_to)
-    print(amount_to)
     txn_id = uphold_client.api.prepare_txn(card_id, address_to,
                                            amount_to, curr_code)
     res = uphold_client.api.execute_txn(card_id, txn_id)
