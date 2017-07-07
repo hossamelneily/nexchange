@@ -134,12 +134,6 @@ INSTALLED_APPS = [
 ]
 
 
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'loginurl.backends.LoginUrlBackend',
-)
-
-
 SITE_ID = 1
 
 ROBOKASSA_URL = "https://auth.robokassa.ru/Merchant/Index.aspx?" \
@@ -344,6 +338,7 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.facebook.FacebookOAuth2',
     'social_core.backends.google.GoogleOAuth2',
     'django.contrib.auth.backends.ModelBackend',
+    'loginurl.backends.LoginUrlBackend',
 )
 
 
