@@ -247,6 +247,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'accounts.task_summary.check_cards',
         'schedule': timedelta(seconds=120),
     },
+    'check_cards_balances': {
+        'task': 'accounts.task_summary.check_cards_balances',
+        'schedule': timedelta(seconds=120),
+    },
 }
 
 TASKS_TIME_LIMIT = 30

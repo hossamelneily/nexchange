@@ -38,6 +38,10 @@ def _update_pending_transaction(tr, logger, next_tasks=None):
             tr.save()
             order.status = Order.PAID
             order.save()
+        card = tr.address_to.reserve
+        if card:
+            card.need_balance_check = True
+            card.save()
         if not order.exchange:
             next_tasks.add((sell_order_release_invoke, None,))
         else:

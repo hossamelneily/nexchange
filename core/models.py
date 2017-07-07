@@ -32,6 +32,7 @@ class AddressReserve(models.Model):
     user = models.ForeignKey(User, null=True, blank=True, default=None)
     created = models.DateTimeField(auto_now_add=True)
     disabled = models.BooleanField(default=False)
+    need_balance_check = models.BooleanField(default=True)
 
     def __str__(self):
         return 'User: {}, currency: {}, card_id: {}'.format(
