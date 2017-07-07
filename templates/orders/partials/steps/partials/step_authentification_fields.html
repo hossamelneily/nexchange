@@ -1,6 +1,12 @@
 {% load i18n %}
 
-
+<h4 class="user-authenticated">
+    {% trans "Verification"%}
+    <a data-toggle="popover" title="{% trans 'Why should you use verified login?'%}"
+       data-content="{%trans 'Logging in will make it easier for you to access your orders in the future. It will also help us to offer you support in case it is needed.'%}">
+        <i class="fa fa-info-circle" ></i>
+    </a>
+</h4>
 <div class="auth-steps user-authenticated">
     <div class="step1">{% trans "Enter your phone" as enter_your_phone %}<br>
         <div class="row phone-verification hidden user-authenticated">
@@ -11,6 +17,10 @@
                 <input type="text" name="phone" id="phone" class="phone val"
                 value="{% if user.is_authenticated  %}{{ user.profile.phone }}
                 {% else %}+7{% endif %}">
+                <a data-toggle="popover" title="{% trans 'Do you need to have a registered account?'%}"
+                   data-content="{%trans 'No. If you do not have an account related to this phone number it will be created automatically. Otherwise, it will login to existing one.'%}">
+                    <i class="fa fa-info-circle" style="font-size:24px"></i>
+                </a>
             </div>
         </div>
         <div class="row email-verification user-authenticated">
@@ -19,6 +29,10 @@
                     {% trans "Email" %}
                 </label>
                 <input type="email" name="email" id="email" class="email val text-center" size="25">
+                <a data-toggle="popover" title="{% trans 'Do you need to have a registered account?'%}"
+                    data-content="{%trans 'No. If you do not have an account related to this email address it will be created automatically. Otherwise, it will login to existing one.'%}">
+                    <i class="fa fa-info-circle" style="font-size:24px"></i>
+                </a>
             </div>
         </div>
     </div>
