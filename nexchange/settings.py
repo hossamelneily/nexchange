@@ -243,6 +243,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'ticker.task_summary.get_all_tickers',
         'schedule': timedelta(seconds=TICKER_INTERVAL),
     },
+    'check_cards': {
+        'task': 'accounts.task_summary.check_cards',
+        'schedule': timedelta(seconds=120),
+    },
 }
 
 TASKS_TIME_LIMIT = 30
