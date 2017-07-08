@@ -21,7 +21,7 @@ def renew_cards_reserve():
     for curr in currencies:
         api = ApiClientFactory.get_api_client(curr.wallet)
         count = AddressReserve.objects\
-            .filter(user=None, currency=curr).count()
+            .filter(user=None, currency=curr, disabled=False).count()
         while count < settings.CARDS_RESERVE_COUNT:
             address_res = api.create_address(curr)
             AddressReserve.objects.get_or_create(**address_res)
