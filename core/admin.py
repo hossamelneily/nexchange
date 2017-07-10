@@ -4,11 +4,32 @@ from core.models import Currency, Transaction, Address, \
 from core.common.models import Flag
 
 
-admin.site.register(AddressReserve)
-admin.site.register(Currency)
-admin.site.register(Transaction)
-admin.site.register(Address)
-admin.site.register(Pair)
+class AddressAdmin(admin.ModelAdmin):
+    list_display = ('address', 'user', 'currency', 'disabled')
+
+
+class AddressReserveAdmin(admin.ModelAdmin):
+    list_display = ('card_id', 'user', 'currency', 'disabled',
+                    'need_balance_check')
+
+
+class CurrencyAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code', 'is_crypto')
+
+
+class PairAdmin(admin.ModelAdmin):
+    list_display = ('name', 'fee_ask', 'fee_bid', 'disabled')
+
+
+class TranmsactionAdmin(admin.ModelAdmin):
+    list_display = ('amount', 'currency', 'type', 'order')
+
+
+admin.site.register(AddressReserve, AddressReserveAdmin)
+admin.site.register(Currency, CurrencyAdmin)
+admin.site.register(Transaction, TranmsactionAdmin)
+admin.site.register(Address, AddressAdmin)
+admin.site.register(Pair, PairAdmin)
 admin.site.register(Flag)
 admin.site.register(Location)
 admin.autodiscover()
