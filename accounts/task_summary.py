@@ -70,6 +70,8 @@ def check_cards():
     user = User.objects.filter(profile__cards_validity_approved=False,
                                is_staff=False).first()
     if user is None:
+        user = User.objects.filter(address=None, is_staff=False).first()
+    if user is None:
         return
     replace = False
     wallets = user.addressreserve_set.filter(disabled=False).exclude(
