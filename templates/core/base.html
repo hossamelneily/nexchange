@@ -21,6 +21,7 @@
     </script>
 
     {% if GOOGLE_ANALYTICS_PROPERTY_ID %} {% include "core/analitycs/ga.html" %} {% endif %} {% if YANDEX_METRICA_ID %} {% include "core/analitycs/metrica.html" %} {% endif %}
+    <script type="text/javascript"> window.$crisp=[];window.CRISP_WEBSITE_ID="6eb9ed9e-2c8b-48e8-a0ce-62c3ce81fb61";(function(){ d=document;s=d.createElement("script"); s.src="https://client.crisp.chat/l.js"; s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})(); </script>
 </head>
 
 <body style="opacity: 0;">
@@ -49,6 +50,5 @@
 
     <link rel="stylesheet" href="{% static 'bundles/bundle.css' %}">
     <script type="text/javascript" src="{% static 'bundles/bundle.js' %}"></script>
-    <script type="text/javascript" async="async" defer="defer" data-cfasync="false" src="https://mylivechat.com/chatwidget.aspx?hccid=62931500"></script>
 </body>
 </html>
