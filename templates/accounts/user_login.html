@@ -27,4 +27,18 @@
     <p>{% trans "Don't have an account?" %} <a class="nav-link" href="{% url 'accounts.register' %}">{% trans "Register here" %}</a></p>
     <p>{% trans "Forgot your password?" %} <a class="nav-link" href="{% url 'accounts.password_reset' %}">{% trans "Reset it here" %}</a></p>
 </div>
+<!--div class="p-list">
+    <p><a class="btn btn-social btn-twitter" href="{% url 'oauth.social:begin' 'twitter' %}">
+        <span class="fa fa-twitter"></span> {% trans "Sign in with Twitter" %}
+    </a></p>
+    <p><a class="btn btn-social btn-facebook" href="{% url 'oauth.social:begin' 'facebook' %}">
+        <span class="fa fa-facebook"></span> {% trans "Sign in with Facebook" %}
+    </a></p>
+    <p><a class="btn btn-social btn-github" href="{% url 'oauth.social:begin' 'github' %}">
+        <span class="fa fa-github"></span> {% trans "Sign in with Github" %}
+    </a></p>
+    <p><a class="btn btn-social btn-google" href="{% url 'oauth.social:begin' 'google-oauth2' %}">
+        <span class="fa fa-google"></span> {% trans "Sign in with Google" %}
+    </a></p>
+</div-->
 {% endblock %}
