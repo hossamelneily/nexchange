@@ -12,8 +12,8 @@ def create_user_wallet(user, currency):
     unassigned_cards = AddressReserve.objects.filter(currency=currency,
                                                      user=None, disabled=False)
     logger.warning('instance {} has no reserve cards available'
-                   'calling renew_cards_reserve()'
-                   .format(currency))
+                   ' for {} calling renew_cards_reserve()'
+                   .format(user, currency))
     if len(unassigned_cards) == 0:
         renew_cards_reserve()
         unassigned_cards = AddressReserve.objects.filter(currency=currency,
