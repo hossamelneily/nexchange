@@ -17,6 +17,15 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ['password1', 'password2']
 
 
+class BaseProfileForm(forms.ModelForm):
+
+    def clean_phone(self):
+        if self.cleaned_data['phone'] == "":
+            return None
+        else:
+            return self.cleaned_data['phone']
+
+
 class UserForm(forms.ModelForm):
 
     class Meta:
@@ -43,7 +52,7 @@ class UserProfileForm(forms.ModelForm):
         fields = ['phone', ]
 
 
-class UpdateUserProfileForm(forms.ModelForm):
+class UpdateUserProfileForm(BaseProfileForm):
 
     class Meta:
         model = Profile

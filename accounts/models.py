@@ -48,14 +48,15 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     address = models.CharField(max_length=255, default=None,
                                null=True, blank=True)
     last_visit_ip = models.CharField(max_length=39,
-                                     default=None, null=True)
+                                     default=None, null=True, blank=True)
     # Time-zone aware time (!)
-    last_visit_time = models.DateTimeField(default=None, null=True)
+    last_visit_time = models.DateTimeField(default=None, null=True, blank=True)
     notify_by_phone = models.BooleanField(default=True)
     notify_by_email = models.BooleanField(default=True)
     ip = models.CharField(max_length=39,
                           null=True,
-                          default=None)
+                          default=None,
+                          blank=True)
     lang = models.CharField(choices=settings.LANGUAGES,
                             max_length=100,
                             default='en')
