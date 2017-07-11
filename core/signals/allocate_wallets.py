@@ -11,10 +11,10 @@ logger = get_nexchange_logger('allocate_wallets', True, True)
 def create_user_wallet(user, currency):
     unassigned_cards = AddressReserve.objects.filter(currency=currency,
                                                      user=None, disabled=False)
-    logger.warning('instance {} has no reserve cards available'
-                   ' for {} calling renew_cards_reserve()'
-                   .format(user, currency))
     if len(unassigned_cards) == 0:
+        logger.warning('instance {} has no reserve cards available'
+                       ' for {} calling renew_cards_reserve()'
+                       .format(user, currency))
         renew_cards_reserve()
         unassigned_cards = AddressReserve.objects.filter(currency=currency,
                                                          user=None,
