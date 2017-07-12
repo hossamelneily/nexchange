@@ -8,7 +8,6 @@ import '../node_modules/bootstrap-toggle/css/bootstrap-toggle.min.css';
 import '../node_modules/toastr/build/toastr.css';
 import '../node_modules/bootstrap-social/bootstrap-social.css';
 import '../node_modules/cryptocoins-icons/cryptocoins.css';
-import './css/cryptoicons-nexchange-test/css/test.css';
 
 window.countryCode = document.getElementsByTagName("html")[0].getAttribute("lang");
 

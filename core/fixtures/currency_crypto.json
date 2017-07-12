@@ -12,7 +12,6 @@
       "min_confirmations": 1,
       "min_confirmation_high": 6,
       "median_confirmation": 60,
-      "major": true,
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }
@@ -29,7 +28,6 @@
       "min_confirmations": 6,
       "is_crypto": 1,
       "median_confirmation": 15,
-      "major": true,
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }
@@ -46,7 +44,6 @@
       "is_crypto": 1,
       "min_confirmations": 12,
       "median_confirmation": 15,
-      "major": true,
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }
@@ -63,7 +60,6 @@
       "is_crypto": 1,
       "min_confirmations": 4,
       "median_confirmation": 15,
-      "major": true,
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }

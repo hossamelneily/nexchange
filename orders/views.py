@@ -96,9 +96,12 @@ def add_order(request, pair=None):
         )
 
     pairs = Pair.objects.filter(disabled=False)
-    base_currencies = set(pair.base.code for pair in pairs)
-    quote_currencies = set(pair.quote.code for pair in pairs)
-    crypto_currencies = Currency.objects.filter(is_crypto=True)
+    quote_currencies = set(pair.quote for pair in pairs)
+    base_currencies = set(pair.base for pair in pairs)
+    crypto_currencies_all = Currency.objects.filter(is_crypto=True)
+    crypto_currencies = set(
+        curr for curr in crypto_currencies_all if curr.has_enabled_pairs
+    )
 
     my_action = _('Add')
 
