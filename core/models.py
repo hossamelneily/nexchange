@@ -123,6 +123,32 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     def natural_key(self):
         return self.code
 
+    @property
+    def base_pairs(self):
+        return Pair.objects.filter(base=self, disabled=False)
+
+    @property
+    def quote_pairs(self):
+        return Pair.objects.filter(quote=self, disabled=False)
+
+    @property
+    def is_base_of_enabled_pair(self):
+        enabled_pairs = self.base_pairs
+        if len(enabled_pairs) > 0:
+            return True
+        return False
+
+    @property
+    def is_quote_of_enabled_pair(self):
+        enabled_pairs = self.quote_pairs
+        if len(enabled_pairs) > 0:
+            return True
+        return False
+
+    @property
+    def has_enabled_pairs(self):
+        return self.is_base_of_enabled_pair or self.is_quote_of_enabled_pair
+
     def __str__(self):
         return self.code
 

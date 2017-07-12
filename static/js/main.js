@@ -622,6 +622,34 @@ import Clipboard from 'clipboard';
             });
         });
 
+        $('.switch-currency-pairs').click(function() {
+            var selection = $('select[class*="currency-pair"]'),
+                all_pairs = $('option[class*="currency-pair"]'),
+                mainCurrency = $(this).val(),
+                pairName,
+                active_pairs = $('.currency-' + mainCurrency);
+            if (mainCurrency === 'BTC') {
+                pairName = 'BTCLTC';
+            }
+            else {
+                pairName = 'BTC' + mainCurrency;
+            }
+            $('.switch-currency-pairs').removeClass('active-pair');
+            $(this).addClass('active-pair');
+            if (selection.hasClass('select2')) {
+                all_pairs.prop('disabled', true);
+                active_pairs.removeProp('disabled');
+                selection.select2(
+                    {'containerCssClass': 'currency-select ' + 'currency-pair chart_panel_selectbox classic'});
+            } else {
+                all_pairs.addClass('hidden');
+                active_pairs.removeClass('hidden');
+
+            }
+            $currencyPair.val(pairName).trigger('change.select2');
+            selection.trigger("change");
+        });
+
         $('.save-card').click(function() {
             var form = $(this).closest('.payment-widget').find('form'),
                 valid = $(form).valid();

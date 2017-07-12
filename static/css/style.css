@@ -643,6 +643,24 @@ body .price_box_ticker .trigger-sell, body .price_box_next_cont .sell-go{
     bottom: 0;
 }
 
+.switch-currency-pairs {
+    background-color: #aaaba9;
+    border: none;
+    color: white;
+
+}
+
+.active-pair {
+    background-color: #4CAF50;
+}
+button:focus{
+    background:black;
+}
+
+div.switch-pairs {
+    text-align: left;
+}
+
 /*new design end*/
 
 /*start new design responsive*/
@@ -732,6 +750,9 @@ div.payment-label {
 }
 
 @media screen and (max-width:700px) {
+    div.switch-pairs {
+        text-align: center;
+    }
 }
 
 @media screen and (max-width:667px) {
@@ -1530,4 +1551,8 @@ li.select2-results__option:first {
     max-height: 100%;
     max-width: 100%;
     padding: 2px;
+}
+
+.select2-container--default .select2-results__option[aria-disabled=true] {
+    display: none;
 }

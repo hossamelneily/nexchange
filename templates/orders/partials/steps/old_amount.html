@@ -61,8 +61,8 @@
                         <div class="input-group-btn">
                             <select name='currency_to'
                                     class='currency-select currency-to price_box_selectbox_cont_selectbox classic'>
-                                {% for code in base_currencies %}
-                                    <option value="{{ code }}">
+                                {% for base in base_currencies %}
+                                    <option value="{{ base.code }}">
                                         {{ code }}
                                     </option>
                                 {% endfor %}

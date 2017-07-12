@@ -1,13 +1,26 @@
 {% extends 'orders/partials/steps/step_base.html' %}
 {% load i18n %}
 {% block step_content %}
+
+    <div class="switch-pairs">
+        {% for curr in crypto_currencies %}
+            <button class="btn btn-lg btn-primary switch-currency-pairs" value="{{ curr.code }}" title="{{curr.name}}({{ curr.code }})">
+                {% if curr.code != 'RNS' %}
+                    <i class="cc {{ curr.code }}"></i>
+                {% else %}
+                    {{ curr.code }}
+                {% endif %}
+            </button>
+        {% endfor %}
+    </div>
+
     <div class="chart_panel_selectbox_panel" style="width: 100%;">
         <div class="input-group-btn" style="width: 49%; text-align: center;
         margin: auto; display: inline-block">
             <select name="currency_pair"
                     class="currency-select currency-pair classic select2">
                 {% for pair in pairs %}
-                    <option value="{{ pair.name}}" class="currency-select currency-pair chart_panel_selectbox classic"
+                    <option value="{{ pair.name}}" class="currency-select currency-pair chart_panel_selectbox classic currency-{{ pair.base.code}} currency-{{ pair.quote.code}} crypto-{{ pair.is_crypto }}"
                             data-fiat="{{ pair.quote.code }}"
                             data-crypto={{ pair.base.code }}>{{ pair.base.code }}/{{pair.quote.code }}</option>
                 {% endfor %}
@@ -46,8 +59,8 @@
                     <input type="text" class="price_box_selectbox_cont_textbox amount amount-cash" placeholder="">
                     <select name='currency_from' disabled="disabled"
                             class='currency-select currency-from price_box_selectbox_cont_selectbox classic'>
-                        {% for code in quote_currencies %}
-                            <option value="{{ code }}">{{ code }}</option>
+                        {% for quote in quote_currencies %}
+                            <option value="{{ quote.code }}">{{ quote.code }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -61,8 +74,8 @@
                     <input type="text" class="price_box_selectbox_cont_textbox amount amount-coin" placeholder="0.1">
                     <select name='currency_to' disabled="disabled"
                             class='currency-select currency-to price_box_selectbox_cont_selectbox classic'>
-                       {% for code in base_currencies %}
-                           <option value="{{ code }}">{{ code }}</option>
+                       {% for base in base_currencies %}
+                           <option value="{{ base.code }}">{{ base.code }}</option>
                        {% endfor %}
                      </select>
                 </div>
