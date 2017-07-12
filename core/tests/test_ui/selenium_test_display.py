@@ -3,7 +3,6 @@ from core.models import Currency
 from selenium.webdriver.support.select import Select
 from core.models import Pair
 from core.tests.test_ui.base import BaseTestUI
-from time import sleep
 
 
 class TestUIDisplay(BaseTestUI):
@@ -19,8 +18,6 @@ class TestUIDisplay(BaseTestUI):
         for pair_name in picked_names:
             self.screenshot_no = 1
             self.get_currency_pair_main_screen(pair_name)
-            # FIXME: remove sleep when possible
-            sleep(1)
             self.do_screenshot('main_{}'.format(pair_name))
             c_pair = Select(self.driver.find_element_by_xpath(
                 '//select[@name="currency_pair"]'))
