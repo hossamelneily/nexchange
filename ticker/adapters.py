@@ -1,4 +1,5 @@
 import requests
+from ticker.fixtures.available_kraken_pairs import kraken_pairs
 
 
 class BaseApiAdapter:
@@ -9,6 +10,10 @@ class BaseApiAdapter:
 class KrakenAdapter(BaseApiAdapter):
     RESOURCE = 'https://api.kraken.com/0/public/Ticker'
     RESOURCE_MARKET = RESOURCE + '?pair={}'
+
+    def __init__(self):
+        super(KrakenAdapter, self).__init__()
+        self.reverse_pair = True
 
     @staticmethod
     def kraken_format(code, is_crypto):
@@ -21,9 +26,21 @@ class KrakenAdapter(BaseApiAdapter):
         return res
 
     def pair_api_repr(self, pair):
-        base = self.kraken_format(pair.quote.code, pair.quote.is_crypto)
-        quote = self.kraken_format(pair.base.code, pair.base.is_crypto)
-        return '{}{}'.format(base, quote)
+        quote = self.kraken_format(pair.quote.code, pair.quote.is_crypto)
+        base = self.kraken_format(pair.base.code, pair.base.is_crypto)
+        reverse_name = '{}{}'.format(quote, base)
+        name = '{}{}'.format(base, quote)
+        if name in kraken_pairs:
+            self.reverse_pair = False
+            return name
+        elif reverse_name in kraken_pairs:
+            self.reverse_pair = True
+            return reverse_name
+        else:
+            raise ValueError(
+                'Kraken does not have nor pair {} neither its '
+                'reverse pair {}'.format(name, reverse_name)
+            )
 
     def get_quote(self, pair):
         """ Available Kraken pairs https://www.kraken.com/help/fees
@@ -39,6 +56,7 @@ class KrakenAdapter(BaseApiAdapter):
         ask = res[kraken_pair]['a'][0]
         bid = res[kraken_pair]['b'][0]
         return {
+            'reverse': self.reverse_pair,
             'ask': ask,
             'bid': bid,
         }

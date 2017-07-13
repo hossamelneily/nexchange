@@ -5,6 +5,7 @@ from unittest.mock import patch
 from core.tests.test_ui.base import BaseTestUI
 from core.tests.base import UPHOLD_ROOT
 
+
 class TestUIExchangeOrders(BaseTestUI):
 
     def setUp(self):
@@ -25,11 +26,11 @@ class TestUIExchangeOrders(BaseTestUI):
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order2(self, pair_name, order_type,
-                do_logout, get_txs, get_rtx):
+                                     do_logout, get_txs, get_rtx):
         self.base_test_release_exchange_order(pair_name, order_type, do_logout,
                                               get_txs, get_rtx)
 
-    @data_provider(lambda: (('BTCLTC', Order.BUY, False),),)
+    @data_provider(lambda: (('LTCBTC', Order.BUY, False),),)
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order3(self, pair_name, order_type,

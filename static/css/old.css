@@ -346,7 +346,7 @@ body #card-form .pay-row {
 }
 
 .successOrder .qrContainer {
-    width: 365px;
+    width: 100%;
     margin: auto;
 }
 

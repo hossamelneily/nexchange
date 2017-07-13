@@ -426,7 +426,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
 
         self.order = Order(
             order_type=Order.SELL,
-            amount_base=0,
+            amount_base=0.1,
             pair=self.BTCEUR,
             user=self.user,
             status=Order.INITIAL,
@@ -662,7 +662,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.pending = '{"status": "pending", "type": "deposit"}'
 
     def _create_order(self, order_type=Order.BUY,
-                      amount_base=0.05, pair_name='ETHLTC',
+                      amount_base=0.5, pair_name='ETHLTC',
                       payment_preference=None):
         pair = Pair.objects.get(name=pair_name)
         # order.exchange == True if pair.is_crypto

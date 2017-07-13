@@ -636,3 +636,10 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
             properties_to_check['recommended_quote_decimal_places'])))
         real_amount = order.amount_quote
         self.assertEqual(expected_amount, real_amount, name)
+
+    def test_invalid_order_than_base_amount_less_than_minimal(self):
+        self.data['amount_base'] = \
+            self.data['pair'].base.minimal_amount / Decimal('2.0')
+        with self.assertRaises(ValidationError):
+            order = Order(**self.data)
+            order.save()

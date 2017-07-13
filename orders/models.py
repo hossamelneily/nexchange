@@ -121,9 +121,18 @@ class Order(TimeStampedModel, SoftDeletableModel,
         elif field < min([i[0] for i in types]):
             raise ValidationError(_('Invalid order type choice'))
 
+    def _validate_order_base_amount(self):
+        if self.amount_base < self.pair.base.minimal_amount:
+            raise ValidationError(
+                _('Order base amount must be equal or more than {} '
+                  'for {} order.'.format(self.pair.base.minimal_amount,
+                                         self.pair.base.code))
+            )
+
     def _validate_fields(self):
         self._types_range_constraint(self.order_type, self.TYPES)
         self._types_range_constraint(self.status, self.STATUS_TYPES)
+        self._validate_order_base_amount()
 
     def clean(self, *args, **kwargs):
         self._validate_fields()

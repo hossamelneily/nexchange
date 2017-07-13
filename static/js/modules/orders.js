@@ -9,7 +9,6 @@
          currency = null,
          animationDelay = 3000,
          beamerShowDelay = 1000,
-         minOrderCoin = 0.01,
          minOrderCash = 10;
 
     $(function() {
@@ -61,6 +60,15 @@
         return val < minOrder;
     }
 
+    function getDecimalPlaces (amount) {
+        var decimalPlaces = 2,
+            invertedDecimalSize = -Math.floor(Math.log10(amount));
+        if (invertedDecimalSize > 0) {
+            decimalPlaces = decimalPlaces + invertedDecimalSize;
+        }
+        return decimalPlaces;
+    }
+
     function updateOrder (elem, isInitial, currency, cb) {
         var val,
             rate,
@@ -68,6 +76,7 @@
             amountCoin = $('.amount-coin'),
             amountCash = $('.amount-cash'),
             amountCashConfirm = 0,
+            minOrderCoin = parseFloat($('.currency-to').find('option:selected').attr('data-minimal-amount')),
                 floor = 100000000;
 
         isInitial = isInitial || !elem.val().trim();
@@ -105,10 +114,11 @@
             var ticker = data[0].ticker,
                 rawBid = Number(ticker.bid),
                 rawAsk = Number(ticker.ask),
-                cashFixed = rawBid >= 0.01 && rawAsk >= 0.01 ?
-                    2 : 8,
-                bid = rawBid.toFixed(cashFixed),
-                ask = rawAsk.toFixed(cashFixed);
+                ask,
+                bid,
+                cashFixed = getDecimalPlaces(rawBid);
+            bid = parseFloat(rawBid.toFixed(cashFixed));
+            ask = parseFloat(rawAsk.toFixed(cashFixed));
             updatePrice(ask, $('.rate-buy'));
             updatePrice(bid, $('.rate-sell'));
             rate = parseFloat(data[0].ticker.ask);
@@ -119,10 +129,10 @@
                 cashAmount,
                 cashFixedCalc;
             if (elem.hasClass('amount-coin')) {
-                btcAmount = val.toFixed(8);
+                btcAmount = parseFloat(val.toFixed(8));
                 cashAmount = rate * btcAmount;
-                cashFixedCalc = cashAmount < 0.01 ? 8 : 2;
-                cashAmount = cashAmount.toFixed(cashFixedCalc);
+                cashFixedCalc = getDecimalPlaces(cashAmount);
+                cashAmount = parseFloat(cashAmount.toFixed(cashFixedCalc));
                 amountCashConfirm = cashAmount;
                 $(this).val(btcAmount);
                 if (isInitial) {
@@ -134,7 +144,7 @@
             } else {
                 amountCashConfirm = val;
                 btcAmount = Math.floor(val / rate * floor) / floor;
-                btcAmount = btcAmount.toFixed(8);
+                btcAmount = parseFloat(btcAmount.toFixed(8));
                 if (isInitial) {
                     $('.amount-coin').attr('placeholder', btcAmount);
                 } else {

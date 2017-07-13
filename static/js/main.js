@@ -631,8 +631,11 @@ import Clipboard from 'clipboard';
             if (mainCurrency === 'BTC') {
                 pairName = 'BTCLTC';
             }
-            else {
-                pairName = 'BTC' + mainCurrency;
+            else if (mainCurrency === 'LTC'){
+                pairName = mainCurrency + 'ETH';
+            } else {
+                pairName = mainCurrency + 'BTC';
+
             }
             $('.switch-currency-pairs').removeClass('active-pair');
             $(this).addClass('active-pair');

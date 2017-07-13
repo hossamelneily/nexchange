@@ -103,7 +103,7 @@ class BaseTransactionImporter:
                 'Transaction is not created: no orders for transaction '
                 '{} found'.format(tx_data))
         elif len(orders) > 1:
-            self.logger.info(
+            self.logger.error(
                 'Transaction is not created: more then 1 order {} found'
                 ' for transaction {}'.format(orders, tx_data))
 

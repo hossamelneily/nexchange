@@ -171,7 +171,7 @@ class BaseTicker(BaseTask):
         }
 
     def get_btc_base_multiplier(self):
-        if self.pair.base.code != 'BTC':
+        if self.pair.base.code != 'BTC' and self.pair.quote.code != 'BTC':
             crypto_pair = Pair.objects.get(
                 name='BTC{}'.format(self.pair.base.code)
             )

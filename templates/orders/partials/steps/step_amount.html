@@ -71,11 +71,11 @@
             <div class="col-xs-5 price_box" id="pricebox_btc">
 
                 <div class="price_box_selectbox_cont">
-                    <input type="text" class="price_box_selectbox_cont_textbox amount amount-coin" placeholder="0.1">
+                    <input type="text" class="price_box_selectbox_cont_textbox amount amount-coin" placeholder="0.5">
                     <select name='currency_to' disabled="disabled"
                             class='currency-select currency-to price_box_selectbox_cont_selectbox classic'>
                        {% for base in base_currencies %}
-                           <option value="{{ base.code }}">{{ base.code }}</option>
+                           <option data-minimal-amount="{{ base.minimal_amount }}" value="{{ base.code }}">{{ base.code }}</option>
                        {% endfor %}
                      </select>
                 </div>

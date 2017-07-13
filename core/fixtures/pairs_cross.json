@@ -82,5 +82,47 @@
     "name": "ETHRNS",
     "disabled": true
   }
+},
+{
+  "model": "core.pair",
+  "pk": 123,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 2,
+    "quote": 1,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "LTCBTC",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 124,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 3,
+    "quote": 1,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "ETHBTC",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 125,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 2,
+    "quote": 3,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "LTCETH",
+    "disabled": false
+  }
 }
 ]

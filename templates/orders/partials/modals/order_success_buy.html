@@ -122,7 +122,7 @@
             <div class="row">
                 <div class="col col-xs-12">
                     {% trans 'Please send' %}
-                    {{ order.amount_quote}} {{ order.pair.quote }}
+                    {{ order.amount_quote.normalize}} {{ order.pair.quote }}
                     {% trans 'to the following address' %}
                 </div>
             </div>

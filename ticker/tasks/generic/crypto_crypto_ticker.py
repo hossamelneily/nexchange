@@ -7,8 +7,9 @@ from ticker.tasks.generic.base import BaseTicker,\
 
 
 class CryptoCryptoTicker(BaseTicker):
+
     def get_ticker_crypto(self):
-        if self.pair.base.code != 'BTC':
+        if self.pair.base.code != 'BTC' and self.pair.quote.code != 'BTC':
             available_pair = Pair.objects.get(
                 name='BTC{}'.format(self.pair.quote.code)
             )
@@ -17,18 +18,23 @@ class CryptoCryptoTicker(BaseTicker):
             pair = self.quote_api_adapter.get_quote(self.pair)
         ask_quote = pair['ask']
         bid_quote = pair['bid']
+        reverse = pair.get('reverse', True)
         self.get_btc_base_multiplier()
-        ticker = self.create_ticker(ask_quote, bid_quote)
+        ticker = self.create_ticker(ask_quote, bid_quote, reverse=reverse)
         price = Price(pair=self.pair, ticker=ticker)
         price.save()
         return price
 
-    def create_ticker(self, ask_quote, bid_quote):
+    def create_ticker(self, ask_quote, bid_quote, reverse=True):
         """ This method inverts ask, bid of the parents.
         Kraken resource only allows other_crypto/BTC pairs.
         """
-        ask_base = Decimal('1.0') / Decimal(bid_quote)
-        bid_base = Decimal('1.0') / Decimal(ask_quote)
+        if reverse:
+            ask_base = Decimal('1.0') / Decimal(bid_quote)
+            bid_base = Decimal('1.0') / Decimal(ask_quote)
+        else:
+            ask_base = ask_quote
+            bid_base = bid_quote
         return super(CryptoCryptoTicker, self)\
             .create_ticker(ask_base, bid_base)
 

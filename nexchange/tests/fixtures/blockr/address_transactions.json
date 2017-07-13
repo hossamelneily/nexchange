@@ -10,14 +10,14 @@
         "time_utc": "2016-08-11T16:33:24Z",
         "tx": "c653ac1e7a66117e097dd16cfd122b24b0f92060d096d8754a1e550d4c64f520",
         "confirmations": 0,
-        "amount": 0.0002,
+        "amount": 0.02,
         "amount_multisig": 0
       },
       {
         "tx": "f6bc882aae4c9bc0174f19294a1ac18fc2559086a6dca482a3ce2ae901b0a196",
         "time_utc": "2016-07-26T23:41:52Z",
         "confirmations": 0,
-        "amount": 0.0003,
+        "amount": 0.03,
         "amount_multisig": 0
       }
     ]
