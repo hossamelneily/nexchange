@@ -27,7 +27,7 @@ module.exports = {
             test: /\.scss$/,
             loader: ExtractTextPlugin.extract({
                 fallback: 'style-loader',
-                use: 'css-loader'
+                use: ['css-loader', 'sass-loader']
             })
         }, {
             test: /\.(png|jpg|svg)?(\?v=\d+.\d+.\d+)?$/,
