@@ -48,4 +48,5 @@ def allocate_wallets(sender, instance=None, created=False, **kwargs):
         return
     _currencies = Currency.objects.filter(is_crypto=True)
     for currency in _currencies:
-        create_user_wallet(instance, currency)
+        if not currency.disabled:
+            create_user_wallet(instance, currency)
