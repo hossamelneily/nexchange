@@ -44,8 +44,20 @@ class UpholdApiClient(BaseApiClient):
             raise ValueError(
                 'Card for type {} not found'.format(code))
 
-    def release_coins(self, currency, address, amount):
-        card = self.coin_card_mapper(currency.code)
+    def address_name_mapper(self, code):
+        if code == 'BTC':
+            return 'bitcoin'
+        elif code == 'LTC':
+            return 'litecoin'
+        elif code == 'ETH':
+            return 'ethereum'
+        else:
+            raise ValueError(
+                'Address name for {} not found'.format(code))
+
+    def release_coins(self, currency, address, amount, card=None):
+        if card is None:
+            card = self.coin_card_mapper(currency.code)
         try:
             txn_id = self.api.prepare_txn(card, address,
                                           amount, currency.code)

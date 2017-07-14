@@ -238,12 +238,12 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'ticker.task_summary.get_all_tickers',
         'schedule': timedelta(seconds=TICKER_INTERVAL),
     },
-    'check_cards': {
-        'task': 'accounts.task_summary.check_cards',
+    'check_cards_uphold_invoke': {
+        'task': 'accounts.task_summary.check_cards_uphold_invoke',
         'schedule': timedelta(seconds=120),
     },
-    'check_cards_balances': {
-        'task': 'accounts.task_summary.check_cards_balances',
+    'check_cards_balances_uphold_invoke': {
+        'task': 'accounts.task_summary.check_cards_uphold_invoke',
         'schedule': timedelta(seconds=120),
     },
 }
