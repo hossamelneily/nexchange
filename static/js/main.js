@@ -138,13 +138,20 @@ import Clipboard from 'clipboard';
                 $(this).intlTelInput("setCountry", window.countryCode);
             }
         });
-         var stripSpaces = function stripSpaces() {
+        var stripSpaces = function stripSpaces() {
             var val = $(this).val();
             val = val.split(' ').join('');
             $(this).val(val);
         };
+        var autoSubmit = function autoSubmit() {
+            var val = $(this).val();
+            if (val && val.length == 4) {
+                verifyPhone();
+            }
+        };
         phones.on('keyup', stripSpaces);
         verification_code.on('keyup', stripSpaces);
+        verification_code.on('keyup', autoSubmit);
 
         orderObject.updateOrder($('.amount-coin'), true, currency);
         // if not used event, isNext remove  jshint

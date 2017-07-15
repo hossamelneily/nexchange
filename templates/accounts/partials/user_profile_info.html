@@ -28,7 +28,7 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="input-group">
-                    <input type="text" aria-label={% trans "Insert SMS verification token here" %} placeholder={% trans "Insert SMS verification token here" %} class="form-control" id="verification_code">
+                    <input type="text" aria-label={% trans "Insert SMS verification token here" %} placeholder={% trans "Insert SMS verification token here" %} class="form-control" id="verification_code" autofocus>
                     <div class="input-group-btn">
                         <button data-url="{% url 'accounts.verify_user' %}" class="btn btn-default" type="button" id="verify_phone_now">{% trans "Verify phone now" %}</button>
                     </div>
