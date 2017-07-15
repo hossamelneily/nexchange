@@ -147,14 +147,6 @@ html body .ui-state-default{
     pointer-events: none;
 }
 
-.auth-steps {
-    min-height:120px;
-}
-
-.register .step1, .register .step2 {
-    margin: 20px auto;
-}
-
 .step2 input {
     text-align: center;
 }

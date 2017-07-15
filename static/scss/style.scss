@@ -1,5 +1,6 @@
-@import "fonts.scss";
-@import "general.scss";
+@import "./components/fonts.scss";
+@import "./components/general.scss";
+@import "./components/orders.scss";
 
 /*new design start*/
 .page-header + label{
@@ -787,33 +788,6 @@ div.switch-pairs {
 
 .menu1 .trigger.trigger-buy {
     opacity: 1;
-}
-
-
-.menu2 h4 {
-    font-size: 30px;
-    margin-bottom: 40px;
-}
-
-.menu2 label {
-    font-size: 25px;
-    margin: 0;
-    width: 290px;
-    text-align: left;
-}
-
-.menu2 input {
-    height: 50px;
-    font-size: 20px;
-}
-
-#verification_code {
-    width: 290px;
-}
-
-.menu2 .intl-tel-input ul.country-list {
-    max-width: 290px;
-    margin-left: -24px;
 }
 
 ul.country-list li.country {

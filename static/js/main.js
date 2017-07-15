@@ -5,6 +5,11 @@ import Clipboard from 'clipboard';
 !(function (window, $) {
     'use strict';
 
+    // Activate Bootstrap tooltips
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+
     $(document).ajaxStart(function () {
         NProgress.start();
     });
