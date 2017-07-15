@@ -1,3 +1,5 @@
 label, input { text-align: left; cursor: pointer; }
 
 .glyphicon { background-color: transparent; }
+
+#toast-container { z-index: 9999999 !important; }
