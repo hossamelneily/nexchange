@@ -12,10 +12,10 @@ class UpholdReserveMonitor(BaseReserveMonitor):
 
     def resend_funds_to_main_card(self, card_id, curr_code):
         main_card_id = self.client.coin_card_mapper(curr_code)
-        address_key = self.api.address_name_mapper(curr_code)
+        address_key = self.client.address_name_mapper(curr_code)
 
         card_data = self.client.api.get_card(card_id)
-        main_card = self.client.get_card(main_card_id)
+        main_card = self.client.api.get_card(main_card_id)
         if curr_code != card_data['currency'] or curr_code != main_card['currency']:  # noqa
             return
         address_to = main_card['address'][address_key]
