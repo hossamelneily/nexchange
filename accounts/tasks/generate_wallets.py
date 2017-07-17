@@ -16,7 +16,7 @@ def renew_cards_reserve():
             settings.API1_PASS
         )
 
-    currencies = Currency.objects.filter(is_crypto=True)
+    currencies = Currency.objects.filter(is_crypto=True, disabled=False)
 
     for curr in currencies:
         api = ApiClientFactory.get_api_client(curr.wallet)
