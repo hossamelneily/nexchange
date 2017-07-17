@@ -98,6 +98,26 @@ class AddressReserveMonitorTestCase(OrderBaseTestCase):
         self.profile.save()
 
     @requests_mock.mock()
+    def test_check_cards_when_user_has_no_cards(self, mock):
+        cards = self.user.addressreserve_set.all()
+        addresses = self.user.address_set.all()
+        for_disable = [cards, addresses]
+        for objs in for_disable:
+            for obj in objs:
+                obj.user = None
+                obj.disabled = True
+                obj.save()
+        self.profile.cards_validity_approved = True
+        self.profile.save()
+        self._mock_cards_reserve(mock)
+        self.monitor.check_cards()
+        wallets = self._get_wallets_ids()
+        for key, value in wallets.items():
+            self.assertNotEqual(
+                self.old_wallets_ids[key], value
+            )
+
+    @requests_mock.mock()
     def test_check_cards_multiple_times(self, mock):
         all_cards_len = len(AddressReserve.objects.filter(disabled=True))
         crypto_currencies_len = len(Currency.objects.filter(is_crypto=True))

@@ -453,13 +453,6 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             type=Address.DEPOSIT,
         )
         self.address.save()
-        self.card = AddressReserve(card_id='test_card',
-                                   currency=self.address.currency,
-                                   address=self.address.address,
-                                   user=self.address.user)
-        self.card.save()
-        self.address.reserve = self.card
-        self.address.save()
 
         self.url_addr = 'http://btc.blockr.io/api/v1/address/txs/{}'.format(
             self.wallet_address
@@ -645,8 +638,8 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         if currency_code is None:
             currency_code = self.order.pair.base.code
         if card_id is None:
-            card_id = AddressReserve.objects.filter(
-                user=self.order.user, currency__code=currency_code)[1].card_id
+            card_id = AddressReserve.objects.get(
+                user=self.order.user, currency__code=currency_code).card_id
         self.import_txs = self.uphold_import_transactions_empty.format(
             tx_id_api1=self.tx_ids_api[0],
             tx_id_api2=self.tx_ids_api[1],
