@@ -953,37 +953,6 @@ input.payment-icon:hover{
     vertical-align: middle;
 }
 
-.line{
-    display:block;
-    margin: 25px
-}
-.line.green .header {
-    border-color: #8BC53F;
-    border-width: 4px;
-}
-.line .header{
-    font-size:30px;
-    text-align:center;
-    border-bottom:1px solid black;
-    position:relative;
-}
-.line .header span {
-    background-color: white;
-    position: relative;
-    top: 15px;
-    padding: 0 10px;
-}
-
-.successOrder  .panel-success {
-    border: 0;
-}
-
-.withdraw_notice {
-    font-size: 14px;
-    font-weight: bold;
-    text-align: left;
-}
-
 tr th, tr td {
     margin: auto;
     text-align: center;

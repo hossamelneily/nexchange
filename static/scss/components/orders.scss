@@ -13,3 +13,46 @@
 #verification_code {
     width: 290px;
 }
+
+.line {
+    display:block;
+
+    &.green .header {
+        border-color: #8BC53F;
+        border-width: 4px;
+    }
+    .header{
+        font-size:30px;
+        text-align:center;
+        border-bottom:1px solid black;
+        position:relative;
+        margin: 0;
+    }
+    .header > span {
+        background-color: white;
+        position: relative;
+        top: 15px;
+        padding: 0 10px;
+    }
+    .checkmark {
+        color: #8cc63f;
+    }
+}
+
+.successOrder {
+    .panel-success { border: 0; }
+    .unique_ref_container { margin-top: -15px; }
+    .btn-success { width: 100%; color: #fff; }
+    .modal-body, .modal-header { padding-bottom: 0; }
+    .panel-body { padding: 0; }
+    .modal-footer, .modal-body { padding-top: 0; }
+    .exchange-terms { margin-top: 15px;
+        p { margin: 0; }
+    }
+}
+
+.withdraw_notice {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: left;
+}
