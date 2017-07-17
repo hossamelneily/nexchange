@@ -42,8 +42,8 @@ class BaseReserveMonitor:
         if user is None:
             return
         replace = False
-        wallets = user.addressreserve_set.filter(disabled=False).exclude(
-            currency__code='RNS')
+        wallets = user.addressreserve_set.filter(
+            disabled=False, currency__wallet=self.wallet_name)
         if len(related_crypto_curr) > len(wallets):
             replace = True
         else:
