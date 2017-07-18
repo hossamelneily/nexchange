@@ -50,3 +50,14 @@ def timezone_country():
         for timezone in timezones:
             timezone_country[timezone] = country_code
     return timezone_country
+
+
+def confirmation_code_length(request):
+    """ Adds confirmation code length
+    (for telephone and email authentication)    
+    """
+    return {
+        'CONFIRMATION_CODE_LENGTH':
+            getattr(settings, 'CONFIRMATION_CODE_LENGTH')
+    }
+    

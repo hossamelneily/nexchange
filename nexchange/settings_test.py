@@ -131,3 +131,6 @@ LOGGING = {
     }
 }
 BASIC_LOGGING_LEVEL = logging.WARNING
+
+# Confirmation code length (for telephone and email authentication)
+CONFIRMATION_CODE_LENGTH = 4

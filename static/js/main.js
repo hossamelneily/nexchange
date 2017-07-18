@@ -145,7 +145,7 @@ import Clipboard from 'clipboard';
         };
         var autoSubmit = function autoSubmit() {
             var val = $(this).val();
-            if (val && val.length == 4) {
+            if (val && val.length == window.confirmationCodeLength) {
                 verifyPhone();
             }
         };
