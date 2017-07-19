@@ -243,7 +243,7 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(seconds=120),
     },
     'check_cards_balances_uphold_invoke': {
-        'task': 'accounts.task_summary.check_cards_uphold_invoke',
+        'task': 'accounts.task_summary.check_cards_balances_uphold_invoke',
         'schedule': timedelta(seconds=120),
     },
 }
