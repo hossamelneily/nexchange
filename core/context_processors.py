@@ -52,12 +52,11 @@ def timezone_country():
     return timezone_country
 
 
-def confirmation_code_length(request):
+def sms_token_length(request):
     """ Adds confirmation code length
     (for telephone and email authentication)    
     """
     return {
-        'CONFIRMATION_CODE_LENGTH':
-            getattr(settings, 'CONFIRMATION_CODE_LENGTH')
+        'SMS_TOKEN_LENGTH':
+            getattr(settings, 'SMS_TOKEN_LENGTH')
     }
-    
