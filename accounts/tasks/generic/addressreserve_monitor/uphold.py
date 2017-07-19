@@ -2,6 +2,7 @@ from nexchange.api_clients.uphold import UpholdApiClient
 from decimal import Decimal
 from accounts.tasks.generic.addressreserve_monitor.base import \
     BaseReserveMonitor
+from core.models import Currency
 
 
 class UpholdReserveMonitor(BaseReserveMonitor):
@@ -22,6 +23,7 @@ class UpholdReserveMonitor(BaseReserveMonitor):
         amount_to = card_data['balance']
         if Decimal(amount_to) == 0:
             return
-        res = self.client.release_coins(curr_code, address_to, amount_to,
+        currency = Currency.objects.get(code=curr_code)
+        res = self.client.release_coins(currency, address_to, amount_to,
                                         card=card_id)
         return res
