@@ -14,7 +14,8 @@
     .btn { margin-top: 30px; }
 } 
 
-h4.phone-verification, h4.email-verification { text-align: center; margin-top: 25px;  }
+h4.phone-verification, h4.email-verification { text-align: center; margin: 25px 0 10px; }
+#verification_code { width: 290px; }
 
 .line { display:block;
     &.green .header {
