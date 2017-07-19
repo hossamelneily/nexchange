@@ -138,6 +138,38 @@ import Clipboard from 'clipboard';
                 $(this).intlTelInput("setCountry", window.countryCode);
             }
         });
+        var verifyAcc = function(token) {
+            if ($('.email-verification').is(':visible')) {
+                email = $('.register .email').val();
+                token = $('#verification_code').val();
+                login_with_email = true;
+                phone = null;
+            } else {
+                login_with_email = false;
+                email = null;
+                phone = null;
+                if ($('#login-form').is(':visible')) {
+                    token = $('#id_password').val();
+                    username = $('#id_username').val();
+                    if (username.indexOf('@') !== -1) {
+                        email = username;
+                        login_with_email = true;
+                    } else {
+                        phone = username;
+                    }
+                } else {
+                    token = $('#verification_code').val();
+                    phone = $('.register .phone').val();
+                }
+            }
+            var verifyPayload = {
+                token: token,
+                phone: phone,
+                email: email,
+                login_with_email: login_with_email
+            };
+            register.verifyAccount(verifyPayload);
+        }
         var stripSpaces = function stripSpaces() {
             var val = $(this).val();
             val = val.split(' ').join('');
@@ -146,7 +178,11 @@ import Clipboard from 'clipboard';
         var autoSubmit = function autoSubmit() {
             var val = $(this).val();
             if (val && val.length == $(this).attr('maxlength')) {
-                verifyPhone();
+                if ($(this).hasClass('authentication-step')) {
+                    verifyAcc();
+                } else {
+                    verifyPhone();
+                }
             }
         };
         phones.on('keyup', stripSpaces);
@@ -430,7 +466,6 @@ import Clipboard from 'clipboard';
                 } else {
                     token = $('#verification_code').val();
                     phone = $('.register .phone').val();
-
                 }
             }
             var verifyPayload = {

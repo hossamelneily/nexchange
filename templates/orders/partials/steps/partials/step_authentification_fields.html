@@ -47,7 +47,7 @@
                     <h4 class="phone-verification hidden">{% trans "Code from SMS" %}</h4>
                     <h4 class="email-verification">{% trans "Code from Email" %}</h4>
                 </label>
-                <input type="text" name="verification_code" id="verification_code" class="full-width">
+                <input type="text" name="verification_code" id="verification_code" class="full-width authentication-step" maxlength="{{ SMS_TOKEN_LENGTH }}">
             </div>
         </div>
     </div>
