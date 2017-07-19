@@ -1,6 +1,6 @@
 from core.tests.utils import get_ok_pay_mock, get_payeer_mock
 from core.tests.base import WalletBaseTestCase
-from core.models import AddressReserve, Address, Transaction, Currency
+from core.models import Address, Transaction, Currency
 from orders.models import Order
 from payments.models import Payment
 from verification.models import Verification
@@ -694,17 +694,18 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             withdraw_currency_code = currency_quote_code
         mock_currency = Currency.objects.get(code=mock_currency_code)
 
-        cards = AddressReserve.objects.filter(
-            user=self.order.user, currency__code=mock_currency_code)
+        card = self.order.user.addressreserve_set.get(currency=mock_currency)
+        card.need_balance_check = False
+        card.save()
 
         if mock_currency.wallet == 'api1':
-            card_id = cards[0].card_id
+            card_id = card.card_id
             get_txs_uphold.return_value = [
                 self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
             ]
         else:
             get_txs_scrypt.return_value = [{
-                'address': cards[0].address,
+                'address': card.address,
                 'category': 'receive',
                 'account': '',
                 'amount': mock_amount,
@@ -724,6 +725,9 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self.order.refresh_from_db()
         self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
         self.update_confirmation_task.apply()
+        if mock_currency.wallet == 'api1':
+            card.refresh_from_db()
+            self.assertTrue(card.need_balance_check)
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, Order.PAID, pair_name)
         tx_pk = Transaction.objects.last().pk

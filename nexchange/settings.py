@@ -238,12 +238,12 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'ticker.task_summary.get_all_tickers',
         'schedule': timedelta(seconds=TICKER_INTERVAL),
     },
-    'check_cards': {
-        'task': 'accounts.task_summary.check_cards',
+    'check_cards_uphold_invoke': {
+        'task': 'accounts.task_summary.check_cards_uphold_invoke',
         'schedule': timedelta(seconds=120),
     },
-    'check_cards_balances': {
-        'task': 'accounts.task_summary.check_cards_balances',
+    'check_cards_balances_uphold_invoke': {
+        'task': 'accounts.task_summary.check_cards_uphold_invoke',
         'schedule': timedelta(seconds=120),
     },
 }
@@ -373,8 +373,8 @@ STATICFILES_DIRS = (
 
 API1_IS_TEST = True
 API1_ID_C1 = 'a1a88f60-7473-47e4-9b78-987daf198a5d'
-API1_ID_C2 = ''
-API1_ID_C3 = ''
+API1_ID_C2 = '12345'
+API1_ID_C3 = '54321'
 CARDS_RESERVE_COUNT = 6
 
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"

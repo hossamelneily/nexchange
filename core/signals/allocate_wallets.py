@@ -33,6 +33,7 @@ def create_user_wallet(user, currency):
         )
         address.save()
         card.save()
+        return card, address
     else:
         logger.error('instance {} has no cards available'
                      .format(currency))
