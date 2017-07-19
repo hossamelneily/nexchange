@@ -5,7 +5,6 @@
 {% block modal_content %}
 <div class="panel panel-success">
     <div class="panel-body">
-        <h1>{% trans 'Order placed successfully' %}</h1>
         {% if order.payment_preference.payment_method.on_order_success_modal_checkout %}
 
             <div class="row">
@@ -87,13 +86,8 @@
                     </div>
                 {% else %}
                     <div class="row">
-                        <div class="col col-xs-12">
-                            {% trans 'Order reference:' %}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col col-xs-12 unique_ref">
-                            <p><strong>{{unique_ref}}</strong></p>
+                        <div class="col col-xs-12 unique_ref_container">
+                            <p>{% trans 'Order reference:' %} <strong class="unique_ref">{{unique_ref}}</strong></p>
                         </div>
                     </div>
                 {% endif %}
@@ -143,13 +137,8 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col col-xs-12">
-                    {% trans 'Order Reference:' %}
-                </div>
-            </div>
-            <div class="row">
-                <div class="col col-xs-12 unique_ref">
-                    <p><strong>{{unique_ref}}</strong></p>
+                <div class="col col-xs-12 unique_ref_container">
+                    <p>{% trans 'Order reference:' %} <strong class="unique_ref">{{unique_ref}}</strong></p>
                 </div>
             </div>
         {% endif %}

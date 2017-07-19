@@ -152,3 +152,6 @@ LOGGING = {
     }
 }
 CARDPMT_TEST_MODE = False
+
+# Confirmation code length (for telephone and email authentication)
+CONFIRMATION_CODE_LENGTH = 4

@@ -1,0 +1,59 @@
+.menu2 {
+    .tooltip-icon { font-size: 20px; }
+    .user-authenticated-top, .user-anonymous .register { 
+        h4 { display: inline-block; font-size: 30px; }
+        .tooltip-icon { position: relative; top: -3px; right: -3px; }
+    }
+    .user-anonymous .register h4 { margin-bottom: 25px; }
+    label { font-size: 25px; margin: 0; width: 290px; text-align: left; }
+    input { height: 50px; font-size: 20px; width: 100%; padding: 0 30px 0 15px; }
+    .intl-tel-input { width: 100%; 
+        ul.country-list { margin-left: -24px; }
+    } 
+    .auth-steps .tooltip-icon {  position: absolute; top: 13px; right: 25px; }
+    .btn { margin-top: 30px; }
+} 
+
+h4.phone-verification, h4.email-verification { text-align: center; margin: 25px 0 10px; }
+#verification_code { width: 290px; }
+
+.line { display:block;
+    &.green .header {
+        border-color: #8BC53F;
+        border-width: 4px;
+    }
+    .header{
+        font-size:30px;
+        text-align:center;
+        border-bottom:1px solid black;
+        position:relative;
+        margin: 0;
+    }
+    .header > span {
+        background-color: white;
+        position: relative;
+        top: 15px;
+        padding: 0 10px;
+    }
+    .checkmark {
+        color: #5cb85c;
+    }
+}
+
+.successOrder {
+    .panel-success { border: 0; }
+    .unique_ref_container { margin-top: -15px; }
+    .btn-success { width: 100%; color: #fff; }
+    .modal-body, .modal-header { padding-bottom: 0; }
+    .panel-body { padding: 0; }
+    .modal-footer, .modal-body { padding-top: 0; }
+    .exchange-terms { margin-top: 15px;
+        p { margin: 0; }
+    }
+}
+
+.withdraw_notice {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: left;
+}

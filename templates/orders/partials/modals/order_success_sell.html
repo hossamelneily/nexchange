@@ -4,7 +4,6 @@
 {% block modal_content %}
 <div class="panel panel-success">
     <div class="panel-body">
-        <h1>{% trans 'Order placed successfully' %}</h1>
         <div class="row">
             <div class="col col-xs-12">
                 {% trans 'Please send' %}
@@ -44,18 +43,19 @@
                     {% trans 'We will place the following reference in the comment to our payment:' %}
                 </div>
             </div>
+            <div class="row">
+                <div class="col col-xs-12 unique_ref">
+                    <p><strong>{{unique_ref}}</strong></p>
+                </div>
+            </div>
         {% else %}
             <div class="row">
-                <div class="col col-xs-12">
-                    {% trans 'Order Reference:' %}
+                <div class="col col-xs-12 unique_ref_container">
+                    <p>{% trans 'Order reference:' %} <strong class="unique_ref">{{unique_ref}}</strong></p>
                 </div>
             </div>
         {% endif %}
-        <div class="row">
-            <div class="col col-xs-12 unique_ref">
-                <p><strong>{{unique_ref}}</strong></p>
-            </div>
-        </div>
+
         {% if not order.exchange %}
             {% block options %}
                 {% include "orders/partials/modals/order_success_options.html" %}

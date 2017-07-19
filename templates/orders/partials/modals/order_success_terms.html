@@ -5,23 +5,23 @@
     <div class="row text-left">
         {% if order.payment_preference.comment %}
             <div class="col col-xs-12 text-let">
-                <label>
+                <p>
                     * {{ order.payment_preference.comment }}
-                </label>
+                </p>
             </div>
         {% endif %}
         <div class="col col-xs-12 text-let">
-           <label>
+           <p>
                * {% trans 'Please notice that you must pay until ' %}
                {% localtime on %}
                    <strong>{{pay_until |date:"H:iA (e)"}}</strong>
                {% endlocaltime %}
-           </label>
+           </p>
         </div>
         <div class="col col-xs-12 text-left">
-            <label>
+            <p>
                 * {% trans 'All exchange transactions are executed automatically by a computer regardless of the payment method' %}
-            </label>
+            </p>
         </div>
     </div>
 </div>

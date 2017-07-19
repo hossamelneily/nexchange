@@ -23,12 +23,10 @@
             <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>&nbsp;{% trans "Verifying phone now..." %}
         </div>
 
-
-
         <div class="row">
             <div class="col-md-8">
                 <div class="input-group">
-                    <input type="text" aria-label={% trans "Insert SMS verification token here" %} placeholder={% trans "Insert SMS verification token here" %} class="form-control" id="verification_code">
+                    <input type="text" aria-label={% trans "Insert SMS verification token here" %} placeholder={% trans "Insert SMS verification token here" %} class="form-control" id="verification_code" autofocus maxlength="{{ SMS_TOKEN_LENGTH }}">
                     <div class="input-group-btn">
                         <button data-url="{% url 'accounts.verify_user' %}" class="btn btn-default" type="button" id="verify_phone_now">{% trans "Verify phone now" %}</button>
                     </div>
@@ -57,7 +55,6 @@
 
 <form method="post" class="form" enctype="multipart/form-data" >
     {% csrf_token %}
-
 
     {% bootstrap_form profile_form %}
     {% bootstrap_form user_form %}

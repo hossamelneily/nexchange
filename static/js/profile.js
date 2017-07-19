@@ -8,7 +8,9 @@
         return message;
     };
 
-    var requestNewSMSToken = function() {
+    var requestNewSMSToken = function(e) {
+        e.preventDefault();
+
         var url = $("#resend_sms_button").data('url');
 
         $("#resend_sms_button").html(
@@ -21,6 +23,7 @@
             );
             var message = gettext("SMS token sent. Fill in the verification form field and click on 'Verify phone now'.");
             toastr.info(message);
+            $('#verification_code').focus();
         }).
         fail(function(data){
             $("#resend_sms_button").html(
