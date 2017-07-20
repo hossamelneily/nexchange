@@ -259,7 +259,7 @@ class BasePaymentChecker(BaseTask):
             )
         if self.data['secondary_identifier']:
             pref2_filters = deepcopy(filters)
-            pref1_filters.update(
+            pref2_filters.update(
                 {'secondary_identifier': self.data['secondary_identifier']}
             )
 
