@@ -87,7 +87,6 @@
 .confirm-order{
     background-color: #F4F4F4;
     border-radius: 5px;
-    margin-top: 25px;
 }
 
 
@@ -118,8 +117,9 @@
     margin-bottom: -15px;
 }
 
-.step-confirm div.confirmation-elem{
-    font-size: 22px;
+.step-confirm {
+    h3 { padding-bottom: 25px; }
+    div.confirmation-elem { font-size: 22px; }
 }
 
 
