@@ -72,6 +72,13 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     cards_validity_approved = models.BooleanField(default=False)
 
     @property
+    def has_withdraw_address(self):
+        user = self.user
+        if len(user.address_set.filter(type=Address.WITHDRAW)):
+            return True
+        return False
+
+    @property
     def partial_phone(self):
         phone = str(self.phone)
         phone_len = len(phone)

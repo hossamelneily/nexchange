@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="scenes-withdrawal-wrapper">
-    {% if order.requires_withdraw_address and request.GET.oid == order.unique_reference and not order.withdraw_address %}
+    {% if order.requires_withdraw_address and request.GET.oid == order.unique_reference and not order.user.profile.has_withdraw_address %}
     <div class="scenes-wrapper" {% if request.GET.is_paid %}style="display: none"{% endif %}>
         <div class="scenes">
           <div class="scene scene1">
