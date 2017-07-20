@@ -117,8 +117,9 @@
     margin-bottom: -15px;
 }
 
-.step-confirm div.confirmation-elem{
-    font-size: 22px;
+.step-confirm {
+    h3 { padding-bottom: 25px; }
+    div.confirmation-elem { font-size: 22px; }
 }
 
 
@@ -941,7 +942,7 @@ input.payment-icon:hover{
     width: 63px;
     height: 60px;
     text-align: center;
-    margin: 20px auto 0 auto;
+    margin: 10px auto;
 }
 .success-icon-container .helper {
     height: 100%;
