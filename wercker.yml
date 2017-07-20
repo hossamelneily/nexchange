@@ -473,13 +473,10 @@ tests:
         rm -fr node_modules && npm install
     - maxon/npm-run:
         script: build
-    - tcnksm/goveralls:
-        token: Y9cfC0hPig5JrjZe4zxgvgcuoZ3AmxZYo
     - script:
         name: Backend tests
         code: |
-          DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh
-
+          DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh -c
     - script:
         name: Selenium tests
         code: |
