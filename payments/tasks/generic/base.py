@@ -154,7 +154,8 @@ class BasePaymentChecker(BaseTask):
         for key in self.non_none_keys:
             if self.data[key] is None:
                 raise ValueError(
-                    'Required key on Payment {} is None'.format(key))
+                    'Required key on Payment {} is None.'
+                    'Data: {}'.format(key, self.data))
 
         if missing_required_keys or missing_essential_keys:
             debug_msg = 'Payment serialization: {} missing keys essential:' \
@@ -326,11 +327,11 @@ class BasePaymentChecker(BaseTask):
                 try:
                     self.parse_data(trans)
                 except ValueError as e:
-                    self.logger.warn(e)
+                    self.logger.info(e)
                     continue
 
                 except KeyError as e:
-                    self.logger.warn(e)
+                    self.logger.info(e)
                     continue
 
                 if not self.validate_transaction():
