@@ -12,6 +12,11 @@
 
 4. Access http://localhost:8000
 
+5. Disable Renos coin in case you are not running a local RPC node:
+http://localhost:8000/en/admin/core/currency/33/change/
+(tick disabled and save)
+You will have to repeat this action for every time you start the `wercker-dev` pipeline until we implement a more permament solution.
+
 # Tests
 Tests always run when you commit, but you may want to run them mannualy sometimes. Therefore:
 
