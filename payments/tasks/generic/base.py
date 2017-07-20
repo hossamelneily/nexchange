@@ -59,6 +59,8 @@ class BasePaymentChecker(BaseTask):
             'payment_system_id'
         ]
 
+        self.non_none_keys = ['identifier']
+
         self.transaction_optional_keys = [
             'comment',
             'is_verified'
@@ -148,6 +150,11 @@ class BasePaymentChecker(BaseTask):
              req_key in self.transaction_optional_keys
              if req_key not in
              missing_optional_keys and not self.data[req_key]]
+
+        for key in self.non_none_keys:
+            if self.data[key] is None:
+                raise ValueError(
+                    'Required key on Payment {} is None'.format(key))
 
         if missing_required_keys or missing_essential_keys:
             debug_msg = 'Payment serialization: {} missing keys essential:' \
