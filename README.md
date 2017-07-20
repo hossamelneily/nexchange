@@ -1,6 +1,6 @@
 [![wercker status](https://app.wercker.com/status/067cf790e7047fabce4a0bdcd8d0cae8/s/ "wercker status")](https://app.wercker.com/project/byKey/067cf790e7047fabce4a0bdcd8d0cae8)
 [![Code Coverage](https://scrutinizer-ci.com/g/onitsoft/nexchange/badges/coverage.png?b=release&s=09e925d0e3bb43ae9f0179ff1ccf6c42b0336fd1)](https://scrutinizer-ci.com/g/onitsoft/nexchange/?branch=release)
-[![Coveralls Status](https://coveralls.io/repos/github/onitsoft/nexchange/badge.svg?branch=HEAD)](https://coveralls.io/github/onitsoft/nexchange?branch=HEAD)
+[![Coverage Status](https://coveralls.io/repos/github/onitsoft/nexchange/badge.svg?branch=HEAD&t=bsPMc2)](https://coveralls.io/github/onitsoft/nexchange?branch=HEAD)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/onitsoft/nexchange/badges/quality-score.png?b=release&s=dea82d8c22adbb8b18ee327b9771fc5bbe08d335)](https://scrutinizer-ci.com/g/onitsoft/nexchange/?branch=release)
 [![Build Status](https://scrutinizer-ci.com/g/onitsoft/nexchange/badges/build.png?b=release&s=0e65f940af2dbaadcbea7ee9a2e0ff2bac753da0)](https://scrutinizer-ci.com/g/onitsoft/nexchange/build-status/release)
 # SETUP
