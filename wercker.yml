@@ -64,7 +64,7 @@ dev:
       code: |
         npm install
     - maxon/npm-run:
-        script: build
+        script: build-dev
     - script:
         name: Run celery
         code: |
@@ -131,6 +131,7 @@ dev:
         code: |
           echo 'Dev server running'
           npm run build-dev &
+          npm run watch &
           tail -n 50 -f /var/log/*.log &
           newrelic-admin run-program python manage.py runserver 0.0.0.0:8000
         reload: false
@@ -477,6 +478,7 @@ tests:
         name: Backend tests
         code: |
           DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh -c
+
     - script:
         name: Selenium tests
         code: |
