@@ -10,6 +10,7 @@ from accounts.tasks.generic.addressreserve_monitor.uphold import \
 from core.tests.utils import data_provider
 from unittest.mock import patch
 import random
+from django.conf import settings
 
 
 class TransactionImportTaskTestCase(TransactionImportBaseTestCase):
@@ -121,7 +122,8 @@ class AddressReserveMonitorTestCase(OrderBaseTestCase):
     def test_check_cards_multiple_times(self, mock):
         all_cards_len = len(AddressReserve.objects.filter(disabled=True))
         crypto_currencies_len = len(Currency.objects.filter(is_crypto=True))
-        for i in range(20):
+        checks_count = settings.CARDS_RESERVE_COUNT * 3
+        for i in range(checks_count):
             self._mock_cards_reserve(mock)
             wallets = self._get_wallets_ids()
             for card_id in wallets.values():

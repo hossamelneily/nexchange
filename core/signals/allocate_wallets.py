@@ -3,6 +3,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from nexchange.utils import get_nexchange_logger
 from accounts.tasks.generate_wallets import renew_cards_reserve
+from django.conf import settings
 
 ALLOWED_SENDERS = ['User', 'NexchangeUser']
 logger = get_nexchange_logger('allocate_wallets', True, True)
@@ -15,7 +16,8 @@ def create_user_wallet(user, currency):
         logger.warning('instance {} has no reserve cards available'
                        ' for {} calling renew_cards_reserve()'
                        .format(user, currency))
-        renew_cards_reserve()
+        renew_cards_reserve(
+            expected_reserve=settings.EMERGENCY_CARDS_RESERVE_COUNT)
         unassigned_cards = AddressReserve.objects.filter(currency=currency,
                                                          user=None,
                                                          disabled=False)
