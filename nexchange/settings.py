@@ -378,7 +378,9 @@ API1_IS_TEST = True
 API1_ID_C1 = 'a1a88f60-7473-47e4-9b78-987daf198a5d'
 API1_ID_C2 = '12345'
 API1_ID_C3 = '54321'
-CARDS_RESERVE_COUNT = 6
+CARDS_RESERVE_COUNT = 20
+# this is used if there is no reserve on user.create()
+EMERGENCY_CARDS_RESERVE_COUNT = 1
 
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 TWILIO_PHONE_FROM_UK = '+447481341915'

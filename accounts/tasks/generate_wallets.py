@@ -3,15 +3,14 @@ from django.conf import settings
 from nexchange.api_clients.factory import ApiClientFactory
 from core.models import AddressReserve
 from core.models import Currency
-from nexchange.utils import get_nexchange_logger, get_traceback
+from nexchange.utils import get_nexchange_logger
 
 
-def renew_cards_reserve():
+def renew_cards_reserve(expected_reserve=settings.CARDS_RESERVE_COUNT):
     logger = get_nexchange_logger(__name__)
-    logger.info(get_traceback())
     if settings.DEBUG:
         logger.info(
-            settings.CARDS_RESERVE_COUNT,
+            expected_reserve,
             settings.API1_USER,
             settings.API1_PASS
         )
@@ -22,7 +21,7 @@ def renew_cards_reserve():
         api = ApiClientFactory.get_api_client(curr.wallet)
         count = AddressReserve.objects\
             .filter(user=None, currency=curr, disabled=False).count()
-        while count < settings.CARDS_RESERVE_COUNT:
+        while count < expected_reserve:
             address_res = api.create_address(curr)
             AddressReserve.objects.get_or_create(**address_res)
             logger.info(
