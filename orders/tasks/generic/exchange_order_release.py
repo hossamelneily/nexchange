@@ -50,11 +50,15 @@ class ExchangeOrderRelease(BaseOrderRelease):
                 self.api = UpholdApiClient()
             elif currency.wallet == 'rpc1':
                 self.api = ScryptRpcApiClient()
-            tx_id = self.api.release_coins(
-                currency,
-                order.withdraw_address,
-                amount
-            )
+            tx_id = None
+            if order.status not in Order.IN_RELEASED:
+                tx_id = self.api.release_coins(
+                    currency,
+                    order.withdraw_address,
+                    amount
+                )
+                order.status = Order.RELEASED
+                order.save()
 
             if tx_id is None:
                 self.logger.error('Uphold Payment release returned None, '
@@ -67,12 +71,11 @@ class ExchangeOrderRelease(BaseOrderRelease):
                 )
             )
 
-            if order.status not in Order.IN_RELEASED:
-                order.status = Order.RELEASED
-                order.save()
-
             transaction_data = {'order': order,
-                                'address_to': order.withdraw_address}
+                                'address_to': order.withdraw_address,
+                                'amount': amount,
+                                'currency': currency,
+                                'type': Transaction.WITHDRAW}
             if currency.wallet == 'api1':
                 transaction_data.update({'tx_id_api': tx_id})
             elif currency.wallet == 'rpc1':

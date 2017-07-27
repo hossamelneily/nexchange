@@ -254,6 +254,10 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.release_task.apply()
         self.order.refresh_from_db()
         self.assertTrue(self.order.status in Order.IN_RELEASED)
+        t1 = self.order.transactions.first()
+        self.assertEqual(t1.type, Transaction.DEPOSIT)
+        self.assertEqual(t1.amount, self.order.amount_base)
+        self.assertEqual(t1.currency, self.order.pair.base)
 
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
@@ -739,6 +743,20 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             self.release_task.apply([tx_pk])
         self.order.refresh_from_db()
         self.assertIn(self.order.status, Order.IN_RELEASED, pair_name)
+        t1 = self.order.transactions.first()
+        t2 = self.order.transactions.last()
+        self.assertEqual(t1.type, Transaction.DEPOSIT, pair_name)
+        self.assertEqual(t2.type, Transaction.WITHDRAW, pair_name)
+        if order_type == Order.BUY:
+            t_quote = t1
+            t_base = t2
+        else:
+            t_quote = t2
+            t_base = t1
+        self.assertEqual(t_quote.amount, self.order.amount_quote, pair_name)
+        self.assertEqual(t_base.amount, self.order.amount_base, pair_name)
+        self.assertEqual(t_quote.currency, self.order.pair.quote, pair_name)
+        self.assertEqual(t_base.currency, self.order.pair.base, pair_name)
 
 
 class SofortEndToEndTestCase(BaseSofortAPITestCase,
@@ -803,7 +821,12 @@ class SofortEndToEndTestCase(BaseSofortAPITestCase,
 
         self.assertEqual(True, p.is_complete)
         self.assertEqual(True, p.is_redeemed)
+
         self.assertEqual(self.order.status, Order.COMPLETED)
+        t1 = self.order.transactions.first()
+        self.assertEqual(t1.type, Transaction.WITHDRAW, pair_name)
+        self.assertEqual(t1.amount, self.order.amount_base, pair_name)
+        self.assertEqual(t1.currency, self.order.pair.base, pair_name)
 
     @data_provider(lambda: (
         (buy_order_release_by_reference_invoke,),

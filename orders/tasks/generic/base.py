@@ -105,11 +105,15 @@ class BaseBuyOrderRelease(BaseOrderRelease):
             payment.is_complete = True
             payment.save()
             # type_ = order.pair.base.code
-            tx_id = self.api.release_coins(
-                order.pair.base,
-                order.withdraw_address,
-                order.amount_base
-            )
+            tx_id = None
+            if order.status not in Order.IN_RELEASED:
+                tx_id = self.api.release_coins(
+                    order.pair.base,
+                    order.withdraw_address,
+                    order.amount_base
+                )
+                order.status = Order.RELEASED
+                order.save()
 
             if tx_id is None:
                 self.logger.error('Payment release returned None, '
@@ -124,16 +128,17 @@ class BaseBuyOrderRelease(BaseOrderRelease):
                 )
             )
 
-            if order.status not in Order.IN_RELEASED:
-                order.status = Order.RELEASED
-                order.save()
-
             payment.is_redeemed = True
             payment.order = order
             payment.save()
 
-            t = Transaction(tx_id_api=tx_id, order=order,
-                            address_to=order.withdraw_address)
+            transaction_data = {'order': order,
+                                'address_to': order.withdraw_address,
+                                'amount': order.amount_base,
+                                'currency': order.pair.base,
+                                'type': Transaction.WITHDRAW,
+                                'tx_id_api': tx_id}
+            t = Transaction(**transaction_data)
             t.save()
 
             return True
