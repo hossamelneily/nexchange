@@ -5,3 +5,7 @@ label, input { text-align: left; cursor: pointer; }
 #toast-container { z-index: 9999999 !important; }
 
 .full-width { width: 100% !important; }
+
+.fa-clipboard:hover, .input-group-addon-action { cursor: pointer; }
+
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control { background-color: #fff; }

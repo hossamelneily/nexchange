@@ -518,17 +518,18 @@ import Clipboard from 'clipboard';
                 data: verifyPayload,
                 contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 success: function (data) {
-                    //if the transaction is Buy
-                      var message;
+                    var message;
                     if (window.action == window.ACTION_BUY){
                         message = gettext('Buy order placed successfully');
-                    }
-                    //if the transaction is Sell
-                    else{
+                    } else {
                         message = gettext('Sell order placed successfully');
-
                     }
-                    new Clipboard('.fa-copy');
+
+                    var clipboard = new Clipboard('.fa-clipboard');
+                    clipboard.on('success', () => {
+                        toastr.success(gettext('Wallet address copied to your clipboard!'));
+                    })
+
                     toastr.success(message);
                     $('.successOrder').html($(data));
                     $('#orderSuccessModal').modal({backdrop: 'static'});
