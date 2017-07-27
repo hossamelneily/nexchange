@@ -122,13 +122,13 @@
             </div>
             <div class="row">
                 <div class="col col-xs-12">
-                    <span class="expand" title=
-                            "{% trans 'Copy' %}">
-                        <i class="fa fa-copy" data-clipboard-target="#deposit-address-buy"></i>
-                        <strong>
-                            <span id="deposit-address-buy" class="element-to-copy">{{address}}</span>
-                        </strong>
-                    </span>
+                    <div class="input-group">
+                        <input type="text" class="form-control element-to-copy text-center" id="deposit-address-sell" readonly="readonly" value="{{address}}" />
+
+                        <span class="input-group-addon input-group-addon-action">
+                            <i class="fa fa-clipboard" aria-hidden="true" data-clipboard-target="#deposit-address-sell"></i>
+                        </span>
+                    </div>
                 </div>
                 <div class="col col-xs-12">
                     <div class="qrContainer">
