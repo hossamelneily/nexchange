@@ -525,7 +525,8 @@ import Clipboard from 'clipboard';
                         message = gettext('Sell order placed successfully');
                     }
 
-                    var clipboard = new Clipboard('.fa-clipboard');
+                    console.log('clipboard')
+                    let clipboard = new Clipboard('.copy-address');
                     clipboard.on('success', () => {
                         toastr.success(gettext('Wallet address copied to your clipboard!'));
                     })
