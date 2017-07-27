@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from core.common.models import SoftDeletableModel, \
     TimeStampedModel, FlagableMixin
-from core.models import Location
+from core.models import Location, Country
 
 
 class PaymentMethodManager(models.Manager):
@@ -64,6 +64,11 @@ class PaymentMethod(TimeStampedModel, SoftDeletableModel):
         choices=CHECKOUT_TYPES, default=MANUAL
     )
     required_verification_buy = models.BooleanField(default=False)
+    allowed_countries = models.ManyToManyField(
+        Country,
+        help_text='Specifies the countires for which this payment method is '
+                  'allowed. If there is no countries specified then it is '
+                  'allowed for all of them')
 
     @property
     def auto_checkout(self):

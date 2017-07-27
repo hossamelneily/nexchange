@@ -92,6 +92,10 @@ dev:
           python manage.py loaddata core/fixtures/currency_crypto.json
           python manage.py loaddata core/fixtures/currency_fiat.json
     - script:
+        name: Django import Country fixture
+        code: |
+          python manage.py loaddata core/fixtures/country.json
+    - script:
         name: Django import Pair fixture
         code: |
           python manage.py loaddata core/fixtures/pairs_cross.json
@@ -309,6 +313,7 @@ build:
           # Import fixtures
           python /usr/src/app/manage.py loaddata core/fixtures/currency_crypto.json
           python /usr/src/app/manage.py loaddata core/fixtures/currency_fiat.json
+          python /usr/src/app/manage.py loaddata core/fixtures/country.json
           python /usr/src/app/manage.py loaddata payments/fixtures/payment_method.json
           python /usr/src/app/manage.py loaddata payments/fixtures/payment_preference.json
           python /usr/src/app/manage.py loaddata referrals/fixtures/program.json

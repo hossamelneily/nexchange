@@ -1,0 +1,1745 @@
+[
+{
+  "model": "core.country",
+  "pk": 2,
+  "fields": {
+    "country": "SN"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 3,
+  "fields": {
+    "country": "AM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 4,
+  "fields": {
+    "country": "KH"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 5,
+  "fields": {
+    "country": "AQ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 6,
+  "fields": {
+    "country": "MU"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 7,
+  "fields": {
+    "country": "OM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 8,
+  "fields": {
+    "country": "BJ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 9,
+  "fields": {
+    "country": "BM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 10,
+  "fields": {
+    "country": "LS"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 11,
+  "fields": {
+    "country": "AR"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 12,
+  "fields": {
+    "country": "TK"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 13,
+  "fields": {
+    "country": "AF"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 14,
+  "fields": {
+    "country": "PE"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 15,
+  "fields": {
+    "country": "CH"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 16,
+  "fields": {
+    "country": "TO"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 17,
+  "fields": {
+    "country": "SE"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 18,
+  "fields": {
+    "country": "QA"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 19,
+  "fields": {
+    "country": "ZW"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 20,
+  "fields": {
+    "country": "VU"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 21,
+  "fields": {
+    "country": "AU"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 22,
+  "fields": {
+    "country": "FR"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 23,
+  "fields": {
+    "country": "UM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 24,
+  "fields": {
+    "country": "BR"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 25,
+  "fields": {
+    "country": "EE"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 26,
+  "fields": {
+    "country": "TJ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 27,
+  "fields": {
+    "country": "CZ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 28,
+  "fields": {
+    "country": "UG"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 29,
+  "fields": {
+    "country": "LR"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 30,
+  "fields": {
+    "country": "BN"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 31,
+  "fields": {
+    "country": "CG"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 32,
+  "fields": {
+    "country": "MO"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 33,
+  "fields": {
+    "country": "LA"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 34,
+  "fields": {
+    "country": "CO"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 35,
+  "fields": {
+    "country": "PG"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 36,
+  "fields": {
+    "country": "NF"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 37,
+  "fields": {
+    "country": "NC"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 38,
+  "fields": {
+    "country": "ZA"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 39,
+  "fields": {
+    "country": "PN"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 40,
+  "fields": {
+    "country": "AX"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 41,
+  "fields": {
+    "country": "VI"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 42,
+  "fields": {
+    "country": "US"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 43,
+  "fields": {
+    "country": "MT"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 44,
+  "fields": {
+    "country": "GI"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 45,
+  "fields": {
+    "country": "CU"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 46,
+  "fields": {
+    "country": "GS"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 47,
+  "fields": {
+    "country": "KY"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 48,
+  "fields": {
+    "country": "MC"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 49,
+  "fields": {
+    "country": "TH"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 50,
+  "fields": {
+    "country": "AT"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 51,
+  "fields": {
+    "country": "TZ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 52,
+  "fields": {
+    "country": "LC"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 53,
+  "fields": {
+    "country": "VC"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 54,
+  "fields": {
+    "country": "ST"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 55,
+  "fields": {
+    "country": "CV"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 56,
+  "fields": {
+    "country": "LY"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 57,
+  "fields": {
+    "country": "UY"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 58,
+  "fields": {
+    "country": "CR"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 59,
+  "fields": {
+    "country": "BF"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 60,
+  "fields": {
+    "country": "GG"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 61,
+  "fields": {
+    "country": "RW"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 62,
+  "fields": {
+    "country": "DZ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 63,
+  "fields": {
+    "country": "CM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 64,
+  "fields": {
+    "country": "RE"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 65,
+  "fields": {
+    "country": "EG"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 66,
+  "fields": {
+    "country": "KG"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 67,
+  "fields": {
+    "country": "TD"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 68,
+  "fields": {
+    "country": "BG"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 69,
+  "fields": {
+    "country": "VA"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 70,
+  "fields": {
+    "country": "MK"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 71,
+  "fields": {
+    "country": "LU"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 72,
+  "fields": {
+    "country": "PM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 73,
+  "fields": {
+    "country": "ID"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 74,
+  "fields": {
+    "country": "SO"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 75,
+  "fields": {
+    "country": "NU"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 76,
+  "fields": {
+    "country": "SZ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 77,
+  "fields": {
+    "country": "MP"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 78,
+  "fields": {
+    "country": "SG"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 79,
+  "fields": {
+    "country": "KE"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 80,
+  "fields": {
+    "country": "NZ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 81,
+  "fields": {
+    "country": "RS"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 82,
+  "fields": {
+    "country": "HN"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 83,
+  "fields": {
+    "country": "GM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 84,
+  "fields": {
+    "country": "MG"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 85,
+  "fields": {
+    "country": "CW"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 86,
+  "fields": {
+    "country": "MZ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 87,
+  "fields": {
+    "country": "AZ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 88,
+  "fields": {
+    "country": "SI"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 89,
+  "fields": {
+    "country": "KM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 90,
+  "fields": {
+    "country": "RU"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 91,
+  "fields": {
+    "country": "IN"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 92,
+  "fields": {
+    "country": "KW"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 93,
+  "fields": {
+    "country": "SY"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 94,
+  "fields": {
+    "country": "JM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 95,
+  "fields": {
+    "country": "MH"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 96,
+  "fields": {
+    "country": "PT"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 97,
+  "fields": {
+    "country": "ES"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 98,
+  "fields": {
+    "country": "GB"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 99,
+  "fields": {
+    "country": "LI"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 100,
+  "fields": {
+    "country": "FK"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 101,
+  "fields": {
+    "country": "NP"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 102,
+  "fields": {
+    "country": "GA"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 103,
+  "fields": {
+    "country": "MN"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 104,
+  "fields": {
+    "country": "HT"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 105,
+  "fields": {
+    "country": "IE"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 106,
+  "fields": {
+    "country": "ME"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 107,
+  "fields": {
+    "country": "PS"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 108,
+  "fields": {
+    "country": "NG"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 109,
+  "fields": {
+    "country": "AE"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 110,
+  "fields": {
+    "country": "CC"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 111,
+  "fields": {
+    "country": "MF"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 112,
+  "fields": {
+    "country": "DM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 113,
+  "fields": {
+    "country": "NA"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 114,
+  "fields": {
+    "country": "GY"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 115,
+  "fields": {
+    "country": "TW"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 116,
+  "fields": {
+    "country": "WF"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 117,
+  "fields": {
+    "country": "UA"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 118,
+  "fields": {
+    "country": "VN"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 119,
+  "fields": {
+    "country": "AS"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 120,
+  "fields": {
+    "country": "MR"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 121,
+  "fields": {
+    "country": "CA"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 122,
+  "fields": {
+    "country": "KR"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 123,
+  "fields": {
+    "country": "TM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 124,
+  "fields": {
+    "country": "IT"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 125,
+  "fields": {
+    "country": "MM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 126,
+  "fields": {
+    "country": "TV"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 127,
+  "fields": {
+    "country": "BA"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 128,
+  "fields": {
+    "country": "MV"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 129,
+  "fields": {
+    "country": "KZ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 130,
+  "fields": {
+    "country": "NE"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 131,
+  "fields": {
+    "country": "AI"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 132,
+  "fields": {
+    "country": "IO"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 133,
+  "fields": {
+    "country": "CN"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 134,
+  "fields": {
+    "country": "IR"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 135,
+  "fields": {
+    "country": "GF"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 136,
+  "fields": {
+    "country": "BQ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 137,
+  "fields": {
+    "country": "SK"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 138,
+  "fields": {
+    "country": "TC"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 139,
+  "fields": {
+    "country": "AG"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 140,
+  "fields": {
+    "country": "LV"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 141,
+  "fields": {
+    "country": "NR"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 142,
+  "fields": {
+    "country": "NO"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 143,
+  "fields": {
+    "country": "SC"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 144,
+  "fields": {
+    "country": "CF"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 145,
+  "fields": {
+    "country": "GL"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 146,
+  "fields": {
+    "country": "ER"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 147,
+  "fields": {
+    "country": "FJ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 148,
+  "fields": {
+    "country": "MW"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 149,
+  "fields": {
+    "country": "JP"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 150,
+  "fields": {
+    "country": "AD"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 151,
+  "fields": {
+    "country": "SX"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 152,
+  "fields": {
+    "country": "IS"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 153,
+  "fields": {
+    "country": "SD"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 154,
+  "fields": {
+    "country": "AO"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 155,
+  "fields": {
+    "country": "HK"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 156,
+  "fields": {
+    "country": "JO"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 157,
+  "fields": {
+    "country": "FM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 158,
+  "fields": {
+    "country": "PL"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 159,
+  "fields": {
+    "country": "TR"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 160,
+  "fields": {
+    "country": "AW"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 161,
+  "fields": {
+    "country": "MY"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 162,
+  "fields": {
+    "country": "BB"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 163,
+  "fields": {
+    "country": "AL"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 164,
+  "fields": {
+    "country": "RO"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 165,
+  "fields": {
+    "country": "ML"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 166,
+  "fields": {
+    "country": "IM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 167,
+  "fields": {
+    "country": "CY"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 168,
+  "fields": {
+    "country": "GW"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 169,
+  "fields": {
+    "country": "SR"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 170,
+  "fields": {
+    "country": "BH"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 171,
+  "fields": {
+    "country": "HU"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 172,
+  "fields": {
+    "country": "BD"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 173,
+  "fields": {
+    "country": "CL"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 174,
+  "fields": {
+    "country": "TL"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 175,
+  "fields": {
+    "country": "BL"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 176,
+  "fields": {
+    "country": "YE"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 177,
+  "fields": {
+    "country": "SA"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 178,
+  "fields": {
+    "country": "NL"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 179,
+  "fields": {
+    "country": "VG"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 180,
+  "fields": {
+    "country": "SJ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 181,
+  "fields": {
+    "country": "BY"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 182,
+  "fields": {
+    "country": "PH"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 183,
+  "fields": {
+    "country": "JE"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 184,
+  "fields": {
+    "country": "GT"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 185,
+  "fields": {
+    "country": "TN"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 186,
+  "fields": {
+    "country": "SM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 187,
+  "fields": {
+    "country": "PK"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 188,
+  "fields": {
+    "country": "WS"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 189,
+  "fields": {
+    "country": "GU"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 190,
+  "fields": {
+    "country": "BI"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 191,
+  "fields": {
+    "country": "BO"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 192,
+  "fields": {
+    "country": "MQ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 193,
+  "fields": {
+    "country": "BE"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 194,
+  "fields": {
+    "country": "NI"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 195,
+  "fields": {
+    "country": "MA"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 196,
+  "fields": {
+    "country": "TF"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 197,
+  "fields": {
+    "country": "SS"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 198,
+  "fields": {
+    "country": "DO"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 199,
+  "fields": {
+    "country": "MD"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 200,
+  "fields": {
+    "country": "LB"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 201,
+  "fields": {
+    "country": "ET"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 202,
+  "fields": {
+    "country": "GE"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 203,
+  "fields": {
+    "country": "LT"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 204,
+  "fields": {
+    "country": "BT"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 205,
+  "fields": {
+    "country": "GP"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 206,
+  "fields": {
+    "country": "DK"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 207,
+  "fields": {
+    "country": "YT"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 208,
+  "fields": {
+    "country": "GH"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 209,
+  "fields": {
+    "country": "KI"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 210,
+  "fields": {
+    "country": "EC"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 211,
+  "fields": {
+    "country": "PF"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 212,
+  "fields": {
+    "country": "FI"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 213,
+  "fields": {
+    "country": "PW"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 214,
+  "fields": {
+    "country": "FO"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 215,
+  "fields": {
+    "country": "GD"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 216,
+  "fields": {
+    "country": "DE"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 217,
+  "fields": {
+    "country": "KN"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 218,
+  "fields": {
+    "country": "SH"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 219,
+  "fields": {
+    "country": "BZ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 220,
+  "fields": {
+    "country": "TT"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 221,
+  "fields": {
+    "country": "IL"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 222,
+  "fields": {
+    "country": "EH"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 223,
+  "fields": {
+    "country": "KP"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 224,
+  "fields": {
+    "country": "SL"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 225,
+  "fields": {
+    "country": "GR"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 226,
+  "fields": {
+    "country": "CI"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 227,
+  "fields": {
+    "country": "DJ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 228,
+  "fields": {
+    "country": "PY"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 229,
+  "fields": {
+    "country": "UZ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 230,
+  "fields": {
+    "country": "PA"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 231,
+  "fields": {
+    "country": "GN"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 232,
+  "fields": {
+    "country": "PR"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 233,
+  "fields": {
+    "country": "CX"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 234,
+  "fields": {
+    "country": "SV"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 235,
+  "fields": {
+    "country": "ZM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 236,
+  "fields": {
+    "country": "SB"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 237,
+  "fields": {
+    "country": "LK"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 238,
+  "fields": {
+    "country": "GQ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 239,
+  "fields": {
+    "country": "TG"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 240,
+  "fields": {
+    "country": "IQ"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 241,
+  "fields": {
+    "country": "BS"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 242,
+  "fields": {
+    "country": "MS"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 243,
+  "fields": {
+    "country": "BV"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 244,
+  "fields": {
+    "country": "BW"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 245,
+  "fields": {
+    "country": "CD"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 246,
+  "fields": {
+    "country": "HM"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 247,
+  "fields": {
+    "country": "CK"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 248,
+  "fields": {
+    "country": "VE"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 249,
+  "fields": {
+    "country": "HR"
+  }
+},
+{
+  "model": "core.country",
+  "pk": 250,
+  "fields": {
+    "country": "MX"
+  }
+}
+]

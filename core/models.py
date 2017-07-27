@@ -7,6 +7,7 @@ from django.db import models
 from core.common.models import SoftDeletableModel, TimeStampedModel
 from core.common.models import FlagableMixin
 from .validators import validate_address
+from django_countries.fields import CountryField
 
 
 class BtcBase(TimeStampedModel):
@@ -187,6 +188,13 @@ class Pair(TimeStampedModel):
         if self.base.is_crypto and self.quote.is_crypto:
             return True
         return False
+
+
+class Country(models.Model):
+    country = CountryField(unique=True)
+
+    def __str__(self):
+        return '{}({})'.format(self.country.name, self.country.code)
 
 
 class Location(TimeStampedModel, SoftDeletableModel):

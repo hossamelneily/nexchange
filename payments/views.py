@@ -23,6 +23,7 @@ from payments.utils import get_payeer_sign
 from payments.task_summary import run_payeer, run_okpay, run_sofort
 from decimal import Decimal
 from payments.api_clients.card_pmt import CardPmtAPIClient
+from core.context_processors import country_code
 
 
 @login_required
@@ -181,6 +182,10 @@ def payment_info(request, provider):
 
 def payment_type(request):
     def get_pref_by_name(name, _currency):
+        c_code = country_code(request)['COUNTRY_CODE']
+        domain_code = request.META['HTTP_HOST'].split('.')[-1]
+        possible_payment_countries = [c_code, domain_code.upper()]
+
         if not _currency:
             return None
 
@@ -189,12 +194,24 @@ def payment_type(request):
             return None
         else:
             curr_obj = curr_objs[0]
-        card = \
+        cards = \
             PaymentPreference.\
             objects.filter(currency__in=[curr_obj],
                            user__is_staff=True,
                            payment_method__name__icontains=name)
-        return card[0] if len(card) else None
+        if len(cards):
+            card = cards[0]
+            allowed_countries = card.payment_method.allowed_countries.all()
+            if len(allowed_countries) > 0:
+                allowed_list = [c.country.code for c in allowed_countries]
+                for pos in possible_payment_countries:
+                    if pos in allowed_list:
+                        break
+                else:
+                    return None
+        else:
+            return None
+        return card
 
     template = get_template('payments/partials/modals/payment_type.html')
     currency = request.POST.get('currency')

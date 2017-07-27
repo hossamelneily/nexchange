@@ -162,6 +162,7 @@ class OrderBaseTestCase(UserBaseTestCase):
     fixtures = [
         'currency_crypto.json',
         'currency_fiat.json',
+        'country.json',
         'pairs_cross.json',
         'pairs_btc.json',
         'pairs_eth.json',

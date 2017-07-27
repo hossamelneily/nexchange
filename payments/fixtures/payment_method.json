@@ -6,7 +6,10 @@
       "name": "Alfa Bank Visa",
       "bin": "426101",
       "created_on":"2016-07-20T17:41:28+00:00",
-      "modified_on":"2016-07-20T17:41:28+00:00"
+      "modified_on":"2016-07-20T17:41:28+00:00",
+      "allowed_countries": [
+        90
+      ]
     }
   },
   {
@@ -16,7 +19,10 @@
       "name": "Alfa Bank Master Card",
       "bin": "555957",
       "created_on":"2016-07-20T17:41:28+00:00",
-      "modified_on":"2016-07-20T17:41:28+00:00"
+      "modified_on":"2016-07-20T17:41:28+00:00",
+      "allowed_countries": [
+        90
+      ]
     }
   },
   {
@@ -26,7 +32,10 @@
       "name": "Sberbank Mastercard",
       "bin": "555958",
       "created_on":"2016-07-20T17:41:28+00:00",
-      "modified_on":"2016-07-20T17:41:28+00:00"
+      "modified_on":"2016-07-20T17:41:28+00:00",
+      "allowed_countries": [
+        90
+      ]
     }
   },
     {
@@ -36,7 +45,10 @@
       "name": "Sberbank Visa",
       "bin": "427427",
       "created_on":"2016-07-20T17:41:28+00:00",
-      "modified_on":"2016-07-20T17:41:28+00:00"
+      "modified_on":"2016-07-20T17:41:28+00:00",
+      "allowed_countries": [
+        90
+      ]
     }
   },
     {
@@ -46,7 +58,10 @@
       "name": "Sberbank Master Card",
       "bin": "533",
       "created_on":"2016-07-20T17:41:28+00:00",
-      "modified_on":"2016-07-20T17:41:28+00:00"
+      "modified_on":"2016-07-20T17:41:28+00:00",
+      "allowed_countries": [
+        90
+      ]
     }
   },
   {
