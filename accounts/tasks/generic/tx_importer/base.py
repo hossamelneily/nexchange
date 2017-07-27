@@ -91,6 +91,7 @@ class BaseTransactionImporter:
 
             transaction = Transaction(**tx_data)
             transaction.order = order
+            transaction.type = transaction.DEPOSIT
             transaction.save()
             self.logger.info('New transaction created {}'
                              .format(transaction.__dict__))
