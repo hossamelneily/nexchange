@@ -3,6 +3,7 @@ box:
   ports:
     - "8000"
     - "65223"
+    - "5555"
 dev:
   services:
 #   - id: onitsoft/renoscoin-docker
@@ -76,6 +77,7 @@ dev:
           chown celery_user /var/log/celery*
           celery worker -A nexchange --uid=celery_user -l info -f /var/log/celeryd.log &
           celery beat -A nexchange -l info -f /var/log/celery-beat.log &
+          celery -A nexchange flower &
     - script:
         name: Django collect & compile messages
         code: |
