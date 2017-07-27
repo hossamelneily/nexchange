@@ -195,35 +195,26 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         # FIXME: try wait for smth instead of sleep
         sleep(1)
 
-        if with_email:
-            account_input = self.driver.find_element_by_class_name(
+        account_input = self.driver.find_element_by_class_name(
                 'menu2').find_element_by_class_name('email')
+
+        if with_email:
             self.username = self.email
         else:
-            self.click_span(class_name='switch-login',
-                            second_class='email-verification')
-            self.wait.until(EC.element_to_be_clickable((
-                By.XPATH,
-                '//div[@id="menu2"]//'
-                'div[@class="intl-tel-input allow-dropdown"]'
-            )))
-            account_input = self.driver.find_element_by_class_name(
-                'menu2').find_element_by_class_name('phone')
             self.do_screenshot('switched login')
             self.username = self.phone
 
         account_input.clear()
         account_input.send_keys(self.username)
 
+        sleep(2)
         self.do_screenshot('after input {}'.format(
             'email' if with_email else 'phone'
         ))
 
-        if not with_email:
-            self.click_span(class_name='create-acc')
-        else:
-            self.click_span(class_name='create-acc',
-                            second_class='email-verification')
+        self.click_span(class_name='create-acc')
+
+        self.wait_for_sms_token()
 
         self.wait.until(EC.element_to_be_clickable(
             (By.ID, 'verification_code')
@@ -251,6 +242,12 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         else:
             sleep(self.timeout / 60)
             self.wait_page_load()
+
+    def wait_for_sms_token(self):
+        tokens = SmsToken.objects.filter(user__username=self.username)
+        if len(tokens) == 0:
+            sleep(self.timeout / 60)
+            self.wait_for_sms_token()
 
     def request_order(self, order_type, click_payment_icon=True,
                       pair_name=None):

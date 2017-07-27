@@ -2,11 +2,8 @@
 
 
 <div class="col-xs-10 col-xs-offset-1 center controls user-authenticated">
-    <span class="btn btn-primary create-acc send disabled phone-verification hidden">
-        {% trans "Send SMS"%}
-    </span>
-    <span class="btn btn-primary create-acc send disabled email-verification">
-        {% trans "Send Email"%}
+    <span class="btn btn-primary create-acc send disabled">
+        {% trans "Send the code"%}
     </span>
     <span class="btn btn-danger create-acc resend hidden">
         {% trans "Send again"%}
@@ -15,13 +12,3 @@
         {% trans "Go"%}
     </span>
 </div>
-
-<div class="col-xs-10 col-xs-offset-1 center controls user-authenticated">
-    <span class="btn-sm btn-link switch-login phone-verification hidden">
-        {% trans "Use Email for verification"%}
-    </span>
-    <span class="btn-sm btn-link switch-login email-verification">
-        {% trans "Use Phone for verification"%}
-    </span>
-</div>
-

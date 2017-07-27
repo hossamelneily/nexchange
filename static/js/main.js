@@ -2,6 +2,14 @@
 
 import Clipboard from 'clipboard';
 
+import InputsHelper from './modules/helpers/InputsHelper.js';
+
+import AccountCreation from './modules/authentication/AccountCreation.js';
+import AccountVerification from './modules/authentication/AccountVerification.js';
+
+const accountCreation = new AccountCreation();
+const accountVerification = new AccountVerification();
+
 !(function (window, $) {
     'use strict';
 
@@ -13,6 +21,7 @@ import Clipboard from 'clipboard';
     $(document).ajaxStart(function () {
         NProgress.start();
     });
+    
     $(document).ajaxComplete(function () {
         setTimeout(function () {
             NProgress.done();
@@ -128,8 +137,7 @@ import Clipboard from 'clipboard';
         $currencyTo.val(currency_to);
         var timer = null,
             delay = 500,
-            phones = $('.phone'),
-            verification_code = $('#verification_code');
+            phones = $('.phone');
         //if not used idx: remove jshint
         phones.each(function () {
             if(typeof $(this).intlTelInput === 'function') {
@@ -138,60 +146,10 @@ import Clipboard from 'clipboard';
                 $(this).intlTelInput("setCountry", window.countryCode);
             }
         });
-        var verifyAcc = function(token) {
-            if ($('.email-verification').is(':visible')) {
-                email = $('.register .email').val();
-                token = $('#verification_code').val();
-                login_with_email = true;
-                phone = null;
-            } else {
-                login_with_email = false;
-                email = null;
-                phone = null;
-                if ($('#login-form').is(':visible')) {
-                    token = $('#id_password').val();
-                    username = $('#id_username').val();
-                    if (username.indexOf('@') !== -1) {
-                        email = username;
-                        login_with_email = true;
-                    } else {
-                        phone = username;
-                    }
-                } else {
-                    token = $('#verification_code').val();
-                    phone = $('.register .phone').val();
-                }
-            }
-            var verifyPayload = {
-                token: token,
-                phone: phone,
-                email: email,
-                login_with_email: login_with_email
-            };
-            register.verifyAccount(verifyPayload);
-        }
-        var stripSpaces = function stripSpaces() {
-            var val = $(this).val();
-            val = val.split(' ').join('');
-            $(this).val(val);
-        };
-        var autoSubmit = function autoSubmit() {
-            var val = $(this).val();
-            if (val && val.length == $(this).attr('maxlength')) {
-                if ($(this).hasClass('authentication-step')) {
-                    verifyAcc();
-                } else {
-                    verifyPhone();
-                }
-            }
-        };
-        phones.on('keyup', stripSpaces);
-        verification_code.on('keyup', stripSpaces);
-        verification_code.on('keyup', autoSubmit);
+        phones.on('keyup', InputsHelper.stripSpaces);
 
         orderObject.updateOrder($('.amount-coin'), true, currency);
         // if not used event, isNext remove  jshint
-
 
         $('#graph-range').on('change', function() {
             orderObject.setCurrency(false, currency, currency_to, pair);
@@ -349,65 +307,6 @@ import Clipboard from 'clipboard';
             DEFAULT_AMOUNT = 1;
 
         $('.next-step, .prev-step').on('click', orderObject.changeState);
-        $('.phone.val').on('keyup', function () {
-            if($(this).val().length) {
-                $('.create-acc')
-                    .not('.resend')
-                    .removeClass('disabled');
-            }
-        });
-
-        $('.email.val').on('keyup', function () {
-            if($(this).val().length) {
-                $('.create-acc')
-                    .not('.resend')
-                    .removeClass('disabled');
-            }
-        });
-
-        $('.create-acc').on('click', function () {
-            if ($(this).hasClass('disabled')) {
-                return;
-            }
-            $('.user-anonymous').addClass('hidden');
-            $('.switch-login').addClass('hidden');
-            if ($('.send-otp').is(':visible') || $('.send').is(':visible')) {
-                grecaptcha.execute();
-            } else {
-                window.submitCreateAcc();
-            }
-        });
-
-        window.submitCreateAcc = function() {
-            if ($('.email-verification').is(':visible')) {
-                email = $('.register .email').val();
-                login_with_email = true;
-                phone = null;
-            } else {
-                login_with_email = false;
-                email = null;
-                phone = null;
-                if ($('#login-form').is(':visible')) {
-                    username = $('#id_username').val();
-                    if (username.indexOf('@') !== -1) {
-                        email = username;
-                        login_with_email = true;
-                    } else {
-                        phone = username;
-                    }
-
-                } else {
-                    phone = $('.register .phone').val();
-                }
-            }
-            var regPayload = {
-                phone: phone,
-                email: email,
-                login_with_email: login_with_email,
-                g_recaptcha_response: grecaptcha.getResponse()
-            };
-            register.seemlessRegistration(regPayload);
-        };
 
         $('.create-anonymous-acc').on('click', function () {
             if ($(this).hasClass('disabled')) {
@@ -444,51 +343,8 @@ import Clipboard from 'clipboard';
             document.getElementById('user-login-key').type = 'text';
         });
 
-        $('.verify-acc').on('click', function () {
-            if ($('.email-verification').is(':visible')) {
-                email = $('.register .email').val();
-                token = $('#verification_code').val();
-                login_with_email = true;
-                phone = null;
-            } else {
-                login_with_email = false;
-                email = null;
-                phone = null;
-                if ($('#login-form').is(':visible')) {
-                    token = $('#id_password').val();
-                    username = $('#id_username').val();
-                    if (username.indexOf('@') !== -1) {
-                        email = username;
-                        login_with_email = true;
-                    } else {
-                        phone = username;
-                    }
-                } else {
-                    token = $('#verification_code').val();
-                    phone = $('.register .phone').val();
-                }
-            }
-            var verifyPayload = {
-                token: token,
-                phone: phone,
-                email: email,
-                login_with_email: login_with_email
-            };
-            register.verifyAccount(verifyPayload);
-        });
-
         $('.verify-anonymous').on('click', function () {
             register.verifyAnonymous();
-        });
-
-        $('.switch-login').on('click', function () {
-            if ($(this).hasClass('email-verification')) {
-                $('.phone-verification').removeClass('hidden');
-                $('.email-verification').addClass('hidden');
-            } else {
-                $('.email-verification').removeClass('hidden');
-                $('.phone-verification').addClass('hidden');
-            }
         });
 
         $('.place-order').on('click', function () {

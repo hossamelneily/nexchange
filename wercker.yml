@@ -65,7 +65,7 @@ dev:
       code: |
         npm install
     - maxon/npm-run:
-        script: build-dev
+        script: build
     - script:
         name: Run celery
         code: |

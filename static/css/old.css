@@ -155,10 +155,6 @@ html body .ui-state-default{
     text-align: center;
 }
 
-.register input {
-    margin-top: 2px;
-}
-
 @media screen and (max-device-width: 600px){
     .process-row:before{
         top: 30px;

@@ -6,6 +6,8 @@
          registerObject = require("./register.js"),
          googleObject = require('./captcha.js'),
          paymentObj = require('./payment.js'),
+         apiRoot = '/en/api/v1',
+         menuEndpoint = apiRoot + '/menu',
          currency = null,
          animationDelay = 3000,
          beamerShowDelay = 1000,
@@ -352,7 +354,7 @@
         $(window).trigger('resize');
     }
 
-    function reloadRoleRelatedElements (menuEndpoint) {
+    function reloadRoleRelatedElements () {
         $.get(menuEndpoint, function (menu) {
             $(".menuContainer").html($(menu));
         });

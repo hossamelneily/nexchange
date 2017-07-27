@@ -1,4 +1,5 @@
 label, input { text-align: left; cursor: pointer; }
+input:disabled { background: rgba(230, 230, 230, 0.44); cursor: not-allowed !important; }
 
 .glyphicon { background-color: transparent; }
 
