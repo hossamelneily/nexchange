@@ -1,8 +1,16 @@
+from rest_framework.routers import SimpleRouter
+
 import django.contrib.auth.views as auth_views
 from django.conf.urls import url
 
-from accounts import views
+from accounts import views, api_views
 from accounts.forms import LoginForm
+
+router = SimpleRouter()
+router.register(r'users/me/orders', api_views.UserOrderListViewSet,
+                base_name='orders')
+
+account_api_patterns = router.urls
 
 account_urls = [
     url(r'^register$', views.user_registration,

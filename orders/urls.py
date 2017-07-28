@@ -1,6 +1,15 @@
-from django.conf.urls import url
+from rest_framework.routers import SimpleRouter
 
+from django.conf.urls import url
+from orders.api_views import OrderListViewSet
 from orders import views
+
+router = SimpleRouter()
+
+router.register(r'orders', OrderListViewSet, base_name='orders')
+
+order_api_patterns = router.urls
+
 
 order_urls = [
     url(r'^$', views.orders_list, name='orders.orders_list'),

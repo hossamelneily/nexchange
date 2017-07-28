@@ -34,7 +34,6 @@ class DateFilterViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
 
 class DataPointsFilterViewSet(DateFilterViewSet):
 
-
     def get_queryset(self, filters=None):
         params = self.request.query_params
 

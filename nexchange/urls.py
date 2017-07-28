@@ -23,9 +23,9 @@ from django.contrib import admin
 from django.views.i18n import javascript_catalog
 
 import core.views
-from accounts.urls import account_urls
+from accounts.urls import account_urls, account_api_patterns
 from articles.urls import article_urls
-from orders.urls import order_urls
+from orders.urls import order_urls, order_api_patterns
 from payments.urls import payment_urls
 from referrals.urls import referral_urls, referrals_api_patterns
 from support.urls import support_urls
@@ -45,7 +45,8 @@ js_info_dict = {
 }
 
 
-api_patterns = ticker_api_patterns + referrals_api_patterns
+api_patterns = ticker_api_patterns + referrals_api_patterns \
+               + order_api_patterns + account_api_patterns
 
 urlpatterns = i18n_patterns(
     url(r'^admin/', admin.site.urls),

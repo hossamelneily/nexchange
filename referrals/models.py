@@ -10,6 +10,7 @@ from orders.models import Order
 from django.conf import settings
 from django.utils.translation import get_language
 from django.utils.http import urlquote
+from django.utils.translation import ugettext_lazy as _
 
 
 class Program(TimeStampedModel):
@@ -77,6 +78,8 @@ class Referral(IpAwareModel):
         self.old_referral_revenue = 0
     # TODO: ensure that one user is not referred by many Users.
     code = models.ForeignKey('ReferralCode', default=None,
+                             help_text=_('Use this link to refer users and '
+                                         'earn free Bitcoins'),
                              null=True)
     referee = models.ForeignKey(User, null=True, default=None,
                                 related_name='referrals_set')
