@@ -18,7 +18,13 @@ def validate_bc(value):
     Adapted from https://rosettacode.org/wiki/Bitcoin/address_validation#Python
     Using length 26-35, according to http://bitcoin.stackexchange.com/a/36948
     '''
-    bcbytes = decode_base58(value, 25)
+    try:
+        bcbytes = decode_base58(value, 25)
+    except ValueError:
+        raise ValidationError(
+            _('%(value)s is not a valid address'),
+            params={'value': value},
+        )
     if not bcbytes[-4:] == sha256(sha256(bcbytes[:-4]).digest()).digest()[:4]:
         raise ValidationError(
             _('%(value)s is not a valid address'),
