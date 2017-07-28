@@ -67,7 +67,7 @@ def validate_eth(value):
 def validate_address(value):
     if value[:2] == '0x':
         validate_eth(value)
-    elif value[:1] == '1' or value[:1] == 3:
+    elif value[:1] in ['1', '3']:
         validate_btc(value)
     elif value[:1] == 'L':
         validate_ltc(value)
