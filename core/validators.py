@@ -67,12 +67,9 @@ def validate_eth(value):
 def validate_address(value):
     if value[:2] == '0x':
         validate_eth(value)
-    elif value[:1] == '1':
+    elif value[:1] == '1' or value[:1] == 3:
         validate_btc(value)
     elif value[:1] == 'L':
         validate_ltc(value)
     else:
-        raise ValidationError(
-            _('%(value)s is invalid.'),
-            params={'value': value},
-        )
+        validate_bc(value)
