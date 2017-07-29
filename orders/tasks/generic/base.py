@@ -1,11 +1,8 @@
 from nexchange.tasks.base import BaseApiTask
-from django.utils.translation import activate
 from payments.models import Payment
-from nexchange.utils import send_email, send_sms
 from django.db import transaction
 from core.models import Transaction
 from orders.models import Order
-from django.utils.translation import ugettext_lazy as _
 
 
 class BaseOrderRelease(BaseApiTask):
@@ -18,9 +15,6 @@ class BaseOrderRelease(BaseApiTask):
 
     def complete_missing_data(self, payment, order):
         pass
-
-    def get_profile(self, order):
-        return order.user.profile
 
     def validate(self, order, payment):
         order_already_released = (payment.is_redeemed or
@@ -43,34 +37,6 @@ class BaseOrderRelease(BaseApiTask):
     def do_release(self, order, payment):
         raise NotImplementedError
 
-    def notify(self, order):
-        profile = self.get_profile(order)
-
-        # Activate translation
-        if any([profile.notify_by_email, profile.notify_by_phone]):
-            activate(profile.lang)
-
-        title = _(
-            'Nexchange: Order {} released'.format(
-                order.unique_reference))
-        msg = _('Your order {}: is released. Withdraw address: {}') \
-            .format(
-            order.unique_reference,
-            order.withdraw_address
-        )
-        self.logger.info('release message sent to client, title: {} | msg: {}'
-                         .format(title, msg))
-
-        # send sms depending on notification settings in profile
-        if profile.notify_by_phone and profile.phone:
-            phone_to = str(profile.phone)
-            sms_result = send_sms(msg, phone_to)
-            self.logger.info('sms res: {}'.format(str(sms_result)))
-
-        # send email
-        if profile.notify_by_email and profile.user.email:
-            send_email(profile.user.email, title, msg)
-
     def run(self, payment_id):
         ret = self._get_order(payment_id)
         if isinstance(ret, bool):
@@ -80,7 +46,7 @@ class BaseOrderRelease(BaseApiTask):
             if self.validate(order, payment):
                 if self.do_release(order, payment):
                     self.complete_missing_data(payment, order)
-                    self.notify(order)
+                    order.notify()
         else:
             payment = Payment.objects.get(pk=payment_id)
             self.logger.error('{} match order returned None, Payment:{}'
@@ -105,20 +71,24 @@ class BaseBuyOrderRelease(BaseOrderRelease):
             payment.is_complete = True
             payment.save()
             # type_ = order.pair.base.code
-            tx_id = None
+            order.refresh_from_db()
             if order.status not in Order.IN_RELEASED:
+                order.status = Order.RELEASED
+                order.save()
                 tx_id = self.api.release_coins(
                     order.pair.base,
                     order.withdraw_address,
                     order.amount_base
                 )
-                order.status = Order.RELEASED
-                order.save()
+            else:
+                self.logger.error('Order {} already released'.format(order))
+                return False
 
             if tx_id is None:
-                self.logger.error('Payment release returned None, '
-                                  'order {} payment {}'.format(order,
-                                                               payment))
+                msg = 'Payment release returned None, order {} ' \
+                      'payment {}'.format(order, payment)
+                self.logger.error(msg)
+                order.flag(val=msg)
                 return False
 
             self.logger.info(

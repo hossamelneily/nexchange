@@ -327,8 +327,8 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
         )
     )
     @patch('orders.models.Order.convert_coin_to_cash')
-    @patch('orders.tasks.generic.base.send_sms')
-    @patch('orders.tasks.generic.base.send_email')
+    @patch('orders.models.send_sms')
+    @patch('orders.models.send_email')
     def test_releases(self,
                       # data_provider args
                       tested_fns, order_modifiers,
@@ -442,11 +442,9 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
     @patch('orders.task_summary.BuyOrderReleaseByReference.validate')
     @patch('orders.task_summary.BuyOrderReleaseByWallet.validate')
     @patch('orders.task_summary.BuyOrderReleaseByRule.validate')
-    @patch('orders.task_summary.BuyOrderReleaseByReference.get_profile')
-    @patch('orders.task_summary.BuyOrderReleaseByWallet.get_profile')
-    @patch('orders.task_summary.BuyOrderReleaseByRule.get_profile')
-    @patch('orders.tasks.generic.base.send_sms')
-    @patch('orders.tasks.generic.base.send_email')
+    @patch('orders.models.Order.get_profile')
+    @patch('orders.models.send_sms')
+    @patch('orders.models.send_email')
     # @patch('orders.tasks.generic.base.Payment.objects.get')
     def test_notification(self,
                           # data provider
@@ -457,8 +455,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
                           # payment_getter,
                           send_email, send_sms,
                           # get profile mocks
-                          get_profile_wallet, get_profile_ref,
-                          get_profile_rule,
+                          get_profile,
                           # validation stabs
                           validate_order_rule, validate_order_wallet,
                           validate_order_ref,
@@ -471,8 +468,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
         release_mocks = [release_by_rule, release_by_ref, release_by_wallet]
         release_fns = [wallet_release, ref_release, rule_release]
         get_order_mocks = [get_order_wallet, get_order_ref, get_order_rule]
-        get_profile_mocks = [get_profile_wallet, get_profile_ref,
-                             get_profile_rule]
+        get_profile_mocks = [get_profile]
         validate_mocks = [validate_order_wallet, validate_order_rule,
                           validate_order_ref]
         # payment_getter.return_value = MagicMock()
@@ -529,8 +525,8 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
             )
 
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.tasks.generic.base.send_sms')
-    @patch('orders.tasks.generic.base.send_email')
+    @patch('orders.models.send_sms')
+    @patch('orders.models.send_email')
     def test_set_user_on_match(self, send_email, send_sms, release_payment):
         release_payment.return_value = 'A555B'
         self.payment = Payment(**self.base_payment_data)

@@ -1,11 +1,9 @@
 from __future__ import absolute_import
 from django.conf import settings
 from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _
 
 from core.models import Transaction, Address
 from orders.models import Order
-from nexchange.utils import send_email, send_sms
 from nexchange.utils import get_nexchange_logger
 from orders.task_summary import (sell_order_release_invoke,
                                  exchange_order_release_invoke)
@@ -17,7 +15,6 @@ def _update_pending_transaction(tr, logger, next_tasks=None):
     currency_to = tr.address_to.currency
     api = ApiClientFactory.get_api_client(currency_to.wallet)
     order = tr.order
-    profile = order.user.profile
 
     logger.info(
         'Look-up transaction with txid api {} '.format(tr.tx_id_api))
@@ -28,6 +25,7 @@ def _update_pending_transaction(tr, logger, next_tasks=None):
         tr.save()
         order.status = Order.COMPLETED
         order.save()
+        order.notify(tx_id=tr.tx_id)
 
     if tr.address_to.type == Address.DEPOSIT and \
             api.check_tx(tr, currency_to):
@@ -47,36 +45,7 @@ def _update_pending_transaction(tr, logger, next_tasks=None):
         else:
             next_tasks.add((exchange_order_release_invoke, tr.pk, ))
 
-        # trigger release
-        title = _('Nexchange: Order released')
-        if not order.exchange:
-            msg = _(
-                'Your order {}:  is PAID. '
-                '\n {} {} were sent to {} {} {}'). format(
-                order.unique_reference,
-                order.amount_quote,
-                order.pair.quote.code,
-                order.payment_preference.payment_method.name,
-                order.payment_preference.identifier,
-                '(' +
-                order.payment_preference.secondary_identifier +
-                ')' if
-                order.payment_preference.secondary_identifier else ''
-            )
-        else:
-            msg = _(
-                'Your order {}: is paid. {}'
-            ). format(order, '\n')
-
-        if profile.notify_by_phone and profile.phone:
-            phone_to = str(profile.phone)
-            sms_result = send_sms(msg, phone_to)
-
-            if settings.DEBUG:
-                logger.info(str(sms_result))
-
-        if profile.notify_by_email and order.user.email:
-            send_email(tr.order.user.email, subject=title, msg=msg)
+        order.notify()
 
         if settings.DEBUG:
             logger.info('Transaction {} is completed'.format(tr.tx_id))

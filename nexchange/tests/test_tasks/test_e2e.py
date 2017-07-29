@@ -34,8 +34,8 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.tasks.generic.base.send_sms')
-    @patch('orders.tasks.generic.base.send_email')
+    @patch('orders.models.send_sms')
+    @patch('orders.models.send_email')
     def test_fail_release_no_address(self, send_email,
                                      send_sms, release_payment,
                                      _get_transaction_history,
@@ -68,8 +68,8 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.tasks.generic.base.send_sms')
-    @patch('orders.tasks.generic.base.send_email')
+    @patch('orders.models.send_sms')
+    @patch('orders.models.send_email')
     def test_success_release(self, send_email, send_sms, release_payment,
                              _get_transaction_history,
                              convert_coin_to_cash, validate):
@@ -115,8 +115,8 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
     @patch('nexchange.utils.PayeerAPIClient.get_transaction_history')
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.tasks.generic.base.send_sms')
-    @patch('orders.tasks.generic.base.send_email')
+    @patch('orders.models.send_sms')
+    @patch('orders.models.send_email')
     def test_failure_release_no_address(self, send_email, send_sms,
                                         release_payment,
                                         convert_coin_to_cash,
@@ -163,8 +163,8 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
     @patch('nexchange.utils.PayeerAPIClient.get_transaction_history')
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.tasks.generic.base.send_sms')
-    @patch('orders.tasks.generic.base.send_email')
+    @patch('orders.models.send_sms')
+    @patch('orders.models.send_email')
     def test_success_release(self, send_email, send_sms,
                              release_payment,
                              convert_coin_to_cash,
@@ -329,8 +329,8 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.import_txs_task.apply()
         self.update_confirmation_task.apply()
 
-        with self.assertRaises(NotImplementedError):
-            self.release_task()
+        self.order.refresh_from_db()
+        self.assertTrue(self.order.flagged)
 
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
@@ -392,10 +392,8 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.update_confirmation_task.apply()
         self.release_task.apply()
 
-        with self.assertRaises(NotImplementedError):
-            self.release_task()
-
         self.order.refresh_from_db()
+        self.assertTrue(self.order.flagged)
         self.assertNotIn(self.order.status, Order.IN_RELEASED)
 
 
@@ -419,8 +417,8 @@ class SellOrderReleaseFromViewTestCase(WalletBaseTestCase):
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.tasks.generic.base.send_sms')
-    @patch('orders.tasks.generic.base.send_email')
+    @patch('orders.models.send_sms')
+    @patch('orders.models.send_email')
     def test_release_if_paid_and_withdraaw_address_set(
             self, send_email, send_sms, release_payment,
             _get_transaction_history, convert_coin_to_cash, validate):
@@ -460,8 +458,8 @@ class SellOrderReleaseFromViewTestCase(WalletBaseTestCase):
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.tasks.generic.base.send_sms')
-    @patch('orders.tasks.generic.base.send_email')
+    @patch('orders.models.send_sms')
+    @patch('orders.models.send_email')
     def test_fail_release_withdraw_address_already_set(
             self, send_email, send_sms, release_payment,
             _get_transaction_history, convert_coin_to_cash, validate):
@@ -501,8 +499,8 @@ class SellOrderReleaseFromViewTestCase(WalletBaseTestCase):
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.tasks.generic.base.send_sms')
-    @patch('orders.tasks.generic.base.send_email')
+    @patch('orders.models.send_sms')
+    @patch('orders.models.send_email')
     def test_fail_release_no_payment(self, send_email,
                                      send_sms,
                                      release_payment,
@@ -534,8 +532,8 @@ class SellOrderReleaseFromViewTestCase(WalletBaseTestCase):
     @patch('orders.models.Order.convert_coin_to_cash')
     @patch('nexchange.utils.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.tasks.generic.base.send_sms')
-    @patch('orders.tasks.generic.base.send_email')
+    @patch('orders.models.send_sms')
+    @patch('orders.models.send_email')
     def test_fail_release_withdraaw_address_set_no_payment(
             self, send_email, send_sms, release_payment,
             _get_transaction_history, convert_coin_to_cash, validate):

@@ -351,6 +351,7 @@ class BasePaymentChecker(BaseTask):
 
                 # only if new payment is created
                 if self.set_order_paid_status(order) and payment:
+                    order.notify()
                     if payment.reference:
                         task = BaseBuyOrderRelease.RELEASE_BY_REFERENCE
                     else:

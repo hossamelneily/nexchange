@@ -17,6 +17,8 @@ from ticker.models import Price
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from math import log10, floor
+from django.utils.translation import activate
+from nexchange.utils import send_email, send_sms
 
 
 class Order(TimeStampedModel, SoftDeletableModel,
@@ -313,6 +315,48 @@ class Order(TimeStampedModel, SoftDeletableModel,
         """return bool whether the withdraw address can
            be changed"""
         return self.status in Order.IN_RELEASED
+
+    def get_profile(self):
+        return self.user.profile
+
+    def notify(self, tx_id=None):
+        profile = self.get_profile()
+
+        # Activate translation
+        if any([profile.notify_by_email, profile.notify_by_phone]):
+            activate(profile.lang)
+
+        status_verb = self.get_status_display().lower()
+        if self.status == self.INITIAL:
+            status_verb = 'created'
+        elif self.status == self.PAID_UNCONFIRMED:
+            status_verb = 'paid(waiting for confirmation)'
+
+        title = _(
+            'Nexchange: Order {ref} {status_verb}'.format(
+                ref=self.unique_reference,
+                status_verb=status_verb
+            )
+        )
+        msg = _('Your order {ref}: is {status_verb}.').format(
+            ref=self.unique_reference,
+            status_verb=status_verb
+        )
+        if self.withdraw_address:
+            msg += ' Withdraw address: {withdraw_address}.'.format(
+                withdraw_address=self.withdraw_address
+            )
+        if tx_id is not None:
+            msg += ' Transaction id: {tx_id}.'.format(tx_id=tx_id)
+
+        # send sms depending on notification settings in profile
+        if profile.notify_by_phone and profile.phone:
+            phone_to = str(profile.phone)
+            send_sms(msg, phone_to)
+
+        # send email
+        if profile.notify_by_email and profile.user.email:
+            send_email(profile.user.email, title, msg)
 
     def __str__(self):
         name = "{} {} pair:{} base:{} quote:{} status:{}".format(
