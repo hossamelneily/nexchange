@@ -444,7 +444,7 @@ def create_withdraw_address(request, order_pk):
         else:
             validate_address(addr.address)
         addr.save()
-        resp = {'status': 'OK', 'pk': addr.pk}
+        resp = {'status': 'OK', 'pk': addr.pk, 'target': addr.currency.code}
 
     except ValidationError:
         resp = {'status': 'ERR', 'msg': 'The supplied address is invalid.'}

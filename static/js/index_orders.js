@@ -9,6 +9,24 @@
             }
         }
 
+        var recognize_wallet = function recognize_wallet(input) {
+            var rules = {
+                    BTC: [/^BTC: 1/, /^1/, /^BTC: 3/, /^3/],
+                    LTC: [/^LTC: L/, /^L/],
+                    ETH: [/^ETH: 0x/, /^0x/]
+            };
+            if (rules.BTC.filter(rule=>rule.test(input)).length > 0)
+              return validate_btc(input);
+            if (rules.LTC.filter(rule=>rule.test(input)).length > 0)
+              return validate_ltc(input);
+            if (rules.ETH.filter(rule=>rule.test(input)).length > 0)
+              return validate_eth(input);
+            return null;
+        };
+        // TODO: Should we make sure that we accept the address?
+        var validate_btc = function validate_btc(addr) { return "BTC"; };
+        var validate_ltc = function validate_ltc(addr) { return "LTC"; };
+        var validate_eth = function validate_eth(addr) { return "ETH"; };
 
         $('[data-toggle="popover"]').on('inserted.bs.popover', function () {
 
@@ -24,8 +42,8 @@
             var btnSetAddress = form_update.find("button[type=submit]:first");
 
             $('.scenes-wrapper').fadeOut().delay(500).queue(function (next) {
-               $(this).remove();
-               next();
+                $(this).remove();
+                next();
             });
             var close_popover = function() {
                 span.trigger("click");
@@ -47,10 +65,14 @@
             var options = $("#popover-template select:first > option").clone();
             select_addresses.empty().append(options);
 
-            // if there is one address set for this order, select it
             select_addresses.children("option").each(function(index, option){
-                if ( $.trim($(option).text()) === $.trim(span.html()) ) {
+                var text = $.trim($(option).text());
+                // if there is one address set for this order, select it
+                if ( text  === $.trim(span.html()) ) {
                     select_addresses.prop('selectedIndex', index);
+                }
+                if ( recognize_wallet( text ) !== span.data("target")) {
+                    $(option).prop('hidden', 'true');
                 }
             });
 
@@ -103,7 +125,7 @@
                 btn.button('loading');
 
                 $.post( span.data('url-create'), {'value': input_address.val()}, function( data ) {
-                    
+
                     if (data.status === 'OK') {
                         // Add this address as an option to the select
                         select_addresses

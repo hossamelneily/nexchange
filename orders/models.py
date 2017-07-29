@@ -300,6 +300,15 @@ class Order(TimeStampedModel, SoftDeletableModel,
         return self.expired or self.status in Order.IN_RELEASED
 
     @property
+    def target(self):
+        """return target currency"""
+        if self.order_type == self.BUY:
+            return self.pair.base.code
+        else:
+            return self.pair.quote.code
+
+
+    @property
     def withdrawal_address_frozen(self):
         """return bool whether the withdraw address can
            be changed"""
