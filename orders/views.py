@@ -39,29 +39,35 @@ def orders_list(request):
         if my_date:
             kwargs['created_on__date'] = my_date
 
-    order_list = model.objects.filter(**kwargs).exclude(
-        status__in=[Order.CANCELED])
+    order_list_expired = [o for o in model.objects.filter(**kwargs).all() if o.expired
+        or o.status == Order.COMPLETED
+        or o.status == Order.CANCELED]
 
-    order_list = [o for o in order_list if not o.expired]
-    paginator = Paginator(order_list, paginate_by)
+    paginator = Paginator(order_list_expired, paginate_by)
     page = request.GET.get('page')
     try:
-        orders = paginator.page(page)
-
+        order_list_expired = paginator.page(page)
     except PageNotAnInteger:
-        orders = paginator.page(1)
-
+        order_list_expired = paginator.page(1)
     except EmptyPage:
-        orders = paginator.page(paginator.num_pages)
+        order_list_expired = paginator.page(paginator.num_pages)
+
+    if 'created_on__date' in kwargs: del kwargs['created_on__date']
+    order_list = model.objects.filter(**kwargs).exclude(
+        status__in=[Order.CANCELED, Order.COMPLETED])
+    order_list = [o for o in order_list if not o.expired]
 
     my_action = _('Orders Main')
+    show_expired = request.GET.get('show_expired')
 
     addresses = []
     if not request.user.is_anonymous():
         addresses = request.user.address_set.filter(type=Address.WITHDRAW)
 
     return HttpResponse(template.render({'form': form,
-                                         'orders': orders,
+                                         'orders': order_list,
+                                         'expired_orders': order_list_expired,
+                                         'show_expired': show_expired,
                                          'action': my_action,
                                          'withdraw_addresses': addresses,
                                          },

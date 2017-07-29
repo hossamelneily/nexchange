@@ -15,21 +15,27 @@ from core.tests.test_ui.base import BaseTestUI
 from payments.tests.base import BaseSofortAPITestCase
 from core.tests.base import UPHOLD_ROOT
 
+from selenium.webdriver.common.by import By
 
 class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
 
     @data_provider(lambda: (
-       ([{'name': 'OK Pay', 'success_url': '/okpay'}, # noqa
-         {'name': 'Payeer Wallet', 'success_url': '/payeer'}], True, True),
+       ([{'name': 'OK Pay', 'success_url': '/okpay'}], True, True),
     ))
     def test_buy1(self, payment_methods, automatic_payment, do_logout):
+        self.base_test_buy(payment_methods, automatic_payment, do_logout)
+
+    @data_provider(lambda: (
+       ([{'name': 'Payeer Wallet', 'success_url': '/payeer'}], True, True),
+    ))
+    def test_buy2(self, payment_methods, automatic_payment, do_logout):
         self.base_test_buy(payment_methods, automatic_payment, do_logout)
 
     @data_provider(lambda: (
         ([{'name': 'Alfa-Bank'}, {'name': 'Sberbank'},
           {'name': 'Sepa'}, {'name': 'Swift'}], False, False),
     ))
-    def test_buy2(self, payment_methods, automatic_payment, do_logout):
+    def test_buy3(self, payment_methods, automatic_payment, do_logout):
         self.base_test_buy(payment_methods, automatic_payment, do_logout)
 
     @data_provider(lambda: (
@@ -37,13 +43,13 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
         ([{'name': 'Visa'}], False, False),
         ([{'name': 'Qiwi Wallet', 'pair_name': 'BTCRUB'}], False, False),
     ))
-    def test_buy3(self, payment_methods, automatic_payment, do_logout):
+    def test_buy4(self, payment_methods, automatic_payment, do_logout):
         self.base_test_buy(payment_methods, automatic_payment, do_logout)
 
     @data_provider(lambda: (
         ([{'name': 'Sofort', 'success_url': '/sofort'}], True, True),
     ))
-    def test_buy4(self, payment_methods, automatic_payment, do_logout):
+    def test_buy5(self, payment_methods, automatic_payment, do_logout):
         self.base_test_buy(payment_methods, automatic_payment, do_logout,
                            reject_user_verification=False)
 
@@ -60,6 +66,7 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
                     pair_name,
                     reject_user_verification=reject_user_verification
                 )
+
                 if automatic_payment:
                     success_url = '/payments/success{}'.format(
                         payment_method['success_url']
@@ -83,11 +90,16 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
 
     @data_provider(lambda: (
         (['Skrill',
-          'Card 2 Card',
-          'Sepa',
-          'Swift'],),
+          'Card 2 Card'],),
     ))
     def test_sell2(self, payment_methods):
+        self.base_test_sell(payment_methods)
+
+    @data_provider(lambda: (
+        (['Sepa',
+          'Swift'],),
+    ))
+    def test_sell3(self, payment_methods):
         self.base_test_sell(payment_methods)
 
     def base_test_sell(self, payment_methods, pair_name='BTCEUR',
@@ -188,6 +200,7 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
 
     def check_sell_order_on_list(self):
         self.click_go_to_order_list()
+        self.click_element_by_name('Show expired and released', by=By.XPATH, screenshot=True)
         self.check_paid_toggle()
         self.check_order_status_indicator('released')
         self.do_screenshot('Payment Success')
@@ -240,7 +253,9 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
         )
         # Payment success
         self.get_repeat_on_timeout(self.url + success_url)
+
         self.check_paid_toggle()
+
         self.do_screenshot('Payment Success')
         url_params = self.get_url_params(self.driver.current_url)
         self.assertEqual(
@@ -250,9 +265,12 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
             url_params['oid'], self.order.unique_reference,
             'Success call from payment provider should send'
             ' oid={self.order.unique_reference} - current order.')
+
         self.check_order_status(Order.PAID)
         # Add withdraw address
         self.add_withdraw_address_on_payment_success()
+        self.click_element_by_name('Show expired and released', by=By.XPATH, screenshot=True)
+
         # Order must be released after adding withdraw address
         self.check_order_status_indicator('released', refresh=True)
         # Order completed then transaction is completed

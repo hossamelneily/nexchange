@@ -413,6 +413,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
 
     def check_order_status_indicator(self, indicator_name, checked=True,
                                      refresh=False):
+
         self.do_screenshot(
             'Before checking status \'{}\''.format(indicator_name),
             refresh=refresh

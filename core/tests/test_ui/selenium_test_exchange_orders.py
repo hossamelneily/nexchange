@@ -5,6 +5,8 @@ from unittest.mock import patch
 from core.tests.test_ui.base import BaseTestUI
 from core.tests.base import UPHOLD_ROOT
 
+from selenium.webdriver.common.by import By
+
 
 class TestUIExchangeOrders(BaseTestUI):
 
@@ -75,10 +77,17 @@ class TestUIExchangeOrders(BaseTestUI):
         self.withdraw_address = getattr(
             self, '{}_address'.format(withdraw_currency_code)
         )
+
         self.add_withdraw_address_on_payment_success(add_new=True)
         self.do_screenshot('After add Withdraw Addrress')
+
+        # All completed orders go in the expired/completed orders list.
+        # Must open the list before checking order status indicator.
+        self.click_element_by_name('Show expired and released', by=By.XPATH, screenshot=True)
+
         # Order must be released after adding withdraw address
         self.check_order_status_indicator('released', refresh=True)
+
         # Order completed then transaction is completed
         self.do_screenshot('Order Completed')
         self.check_order_status_indicator('completed')
