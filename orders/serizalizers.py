@@ -3,13 +3,14 @@ from core.common.serializers import FlattenMixin
 from core.serializers import NestedPairSerializer
 from orders.models import Order
 
-WRITABLE_FIELDS = ('amount_base', 'is_default_rule', 'unique_reference', 'amount_quote', 'pair')
+BASE_FIELDS = ('amount_base', 'is_default_rule',
+               'unique_reference', 'amount_quote', 'pair')
 READABLE_FIELDS = ('amount_quote', 'from_default_rule', 'unique_reference',)
 
 
 class MetaOrder:
     model = Order
-    fields = WRITABLE_FIELDS
+    fields = BASE_FIELDS
     read_only_fields = READABLE_FIELDS
 
 

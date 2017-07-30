@@ -1,26 +1,22 @@
-from rest_framework import viewsets
+from core.common.serializers import UserResourceViewSet
 from orders.models import Order
 from orders.serizalizers import OrderSerializer, CreateOrderSerializer
 from rest_framework_extensions.mixins import (
     ReadOnlyCacheResponseAndETAGMixin
 )
-from nexchange.permissions import NoUpdatePermission, OwnerOnlyPermission
 
 
-class OrderListViewSet(viewsets.ModelViewSet, ReadOnlyCacheResponseAndETAGMixin):
-    serializer_class = OrderSerializer
-    permission_classes = (NoUpdatePermission, OwnerOnlyPermission,)
+class OrderListViewSet(UserResourceViewSet, ReadOnlyCacheResponseAndETAGMixin):
     model_class = Order
     lookup_field = 'unique_reference'
+    serializer_class = OrderSerializer
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return OrderSerializer
-        return CreateOrderSerializer
+        if self.request.method == 'POST':
+            return CreateOrderSerializer
+
+        return super(OrderListViewSet, self).get_serializer_class()
 
     def get_queryset(self, filters=None, **kwargs):
         self.queryset = Order.objects.all()
         return super(OrderListViewSet, self).get_queryset()
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)

@@ -129,6 +129,7 @@ INSTALLED_APPS = [
     'verification',
     'session_security',
     'axes',
+    'guardian',
     'nexchange',
     'support',
     'loginurl',

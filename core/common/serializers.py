@@ -1,3 +1,7 @@
+from rest_framework import viewsets
+from nexchange.permissions import NoUpdatePermission, OwnerOnlyPermission
+
+
 class FlattenMixin:
     """Flattens the specified related objects in this representation"""
     def to_representation(self, obj):
@@ -16,3 +20,11 @@ class FlattenMixin:
             for key in objrep:
                 rep[field + "_" + key] = objrep[key]
         return rep
+
+
+class UserResourceViewSet(viewsets.ModelViewSet):
+    permission_classes = (NoUpdatePermission, OwnerOnlyPermission,)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        super(UserResourceViewSet, self).perform_create(serializer)
