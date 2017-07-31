@@ -103,6 +103,8 @@ class CurrencyManager(models.Manager):
 
 
 class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
+    class Meta:
+        verbose_name_plural = 'currencies'
     objects = CurrencyManager()
     NATURAL_KEY = 'code'
     code = models.CharField(max_length=3)
