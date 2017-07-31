@@ -5,5 +5,4 @@ class OrdersConfig(AppConfig):
     name = 'orders'
 
     def ready(self):
-        import orders.signals.referrals
-        assert orders.signals.referrals
+        import orders.signals.notify_order  # noqa
