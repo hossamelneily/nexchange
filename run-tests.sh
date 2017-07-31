@@ -2,10 +2,10 @@
 
 coverage erase
 coverage run --source="." --omit="src/**,core/tests/test_ui/*" manage.py test -v=3 --pattern="test_*.py" --settings=nexchange.settings_test
+TEST_STATUS_CODE=$?
 while getopts ":c:" opt; do
     COVERALLS_REPO_TOKEN=Y9cfC0hPig5JrjZe4zxgvgcuoZ3AmxZYo coveralls
 done
-TEST_STATUS_CODE=$?
 coverage report
 coverage html -d cover
 
