@@ -329,18 +329,16 @@ const accountVerification = new AccountVerification();
             });
         });
 
-        $('.hide-key').on('click', function () {
-            $('.show-key').removeClass('hidden');
-            $(this).addClass('hidden');
-            $('.copy-key').addClass('hidden');
-            document.getElementById('user-login-key').type = 'password';
-        });
-
-        $('.show-key').on('click', function () {
-            $('.hide-key').removeClass('hidden');
-            $(this).addClass('hidden');
-            $('.copy-key').removeClass('hidden');
-            document.getElementById('user-login-key').type = 'text';
+        $('.show-hide-key').on('click', function () {
+            if ($(this).hasClass('fa-eye')) {
+                $(this).addClass('fa-eye-slash')
+                $(this).removeClass('fa-eye')
+                $('#user-login-key').attr('type', 'password');
+            } else {
+                $(this).addClass('fa-eye')
+                $(this).removeClass('fa-eye-slash')
+                $('#user-login-key').attr('type', 'text');
+            } 
         });
 
         $('.verify-anonymous').on('click', function () {
@@ -381,7 +379,6 @@ const accountVerification = new AccountVerification();
                         message = gettext('Sell order placed successfully');
                     }
 
-                    console.log('clipboard')
                     let clipboard = new Clipboard('.copy-address');
                     clipboard.on('success', () => {
                         toastr.success(gettext('Wallet address copied to your clipboard!'));

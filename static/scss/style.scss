@@ -1,7 +1,9 @@
+@import "./components/variables.scss";
 @import "./components/fonts.scss";
 @import "./components/general.scss";
 @import "./components/orders.scss";
 @import "./components/authentication.scss";
+@import "./components/anonymous_login.scss";
 
 /*new design start*/
 .page-header + label{
