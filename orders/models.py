@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 
 from core.common.models import (SoftDeletableModel, TimeStampedModel,
                                 UniqueFieldMixin, FlagableMixin)
-from core.models import Pair
+from core.models import Pair, Transaction
 from payments.utils import money_format
 from payments.models import Payment
 from ticker.models import Price
@@ -309,7 +309,6 @@ class Order(TimeStampedModel, SoftDeletableModel,
         else:
             return self.pair.quote.code
 
-
     @property
     def withdrawal_address_frozen(self):
         """return bool whether the withdraw address can
@@ -319,7 +318,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     def get_profile(self):
         return self.user.profile
 
-    def notify(self, tx_id=None):
+    def notify(self):
         profile = self.get_profile()
 
         # Activate translation
@@ -344,10 +343,15 @@ class Order(TimeStampedModel, SoftDeletableModel,
         )
         if self.withdraw_address:
             msg += ' Withdraw address: {withdraw_address}.'.format(
-                withdraw_address=self.withdraw_address
+                withdraw_address=self.withdraw_address.address
             )
-        if tx_id is not None:
-            msg += ' Transaction id: {tx_id}.'.format(tx_id=tx_id)
+            withdraw_transaction = self.transactions.filter(
+                type=Transaction.WITHDRAW).last()
+            if withdraw_transaction is not None:
+                tx_id = withdraw_transaction.tx_id
+                if tx_id is not None:
+                    msg += ' Transaction id: {tx_id}.'.format(
+                        tx_id=tx_id)
 
         # send sms depending on notification settings in profile
         if profile.notify_by_phone and profile.phone:
