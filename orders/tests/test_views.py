@@ -439,7 +439,7 @@ class OrderIndexOrderTestCase(OrderBaseTestCase):
         with self.assertTemplateUsed('orders/orders_list.html'):
             response = self.client.get(reverse('orders.orders_list'))
             self.assertEqual(200, response.status_code)
-            self.assertEqual(0, len(response.context['orders'].object_list))
+            self.assertEqual(0, len(response.context['orders']))
 
     @skip("causes failures, needs to be migrated")
     def test_renders_non_empty_list_of_user_orders(self):
