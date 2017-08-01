@@ -10,11 +10,12 @@
     .intl-tel-input { width: 100%; 
         ul.country-list { margin-left: -24px; }
     } 
-    .auth-steps .tooltip-icon {  position: absolute; top: 13px; right: 25px; }
+    .auth-steps .tooltip-icon {  position: absolute; top: 10px; right: 25px; }
     .btn { margin-top: 30px; }
 
 	.step2 {
-		input#verification_code { margin-top: 15px; border: 1px solid #dfdfdf; }
+        .register { margin-top: 15px; }
+		input#verification_code { border: 1px solid #dfdfdf; }
 	}
 } 
 
