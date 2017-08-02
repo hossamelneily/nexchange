@@ -46,7 +46,6 @@ class BaseOrderRelease(BaseApiTask):
             if self.validate(order, payment):
                 if self.do_release(order, payment):
                     self.complete_missing_data(payment, order)
-                    order.notify()
         else:
             payment = Payment.objects.get(pk=payment_id)
             self.logger.error('{} match order returned None, Payment:{}'

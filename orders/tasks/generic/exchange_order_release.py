@@ -97,7 +97,6 @@ class ExchangeOrderRelease(BaseOrderRelease):
         if order:
             if self.validate(order, tx):
                 if self.do_release(order):
-                    order.notify()
                     self.immediate_apply = True
                     self.add_next_task(
                         self.UPDATE_TRANSACTIONS,

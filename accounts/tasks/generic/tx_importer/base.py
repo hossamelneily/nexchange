@@ -99,7 +99,6 @@ class BaseTransactionImporter:
             order.save()
             self.logger.info('Order {} is marked as PAID_UNCONFIRMED'
                              .format(order.__dict__))
-            order.notify()
         elif len(orders) == 0:
             self.logger.info(
                 'Transaction is not created: no orders for transaction '

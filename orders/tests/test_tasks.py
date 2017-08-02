@@ -3,13 +3,12 @@ from payments.models import Payment, PaymentPreference
 from orders.task_summary import buy_order_release_by_wallet_invoke as \
     wallet_release, \
     buy_order_release_by_reference_invoke as ref_release, \
-    buy_order_release_by_rule_invoke as rule_release,\
     buy_order_release_reference_periodic as ref_periodic_release
 from orders.models import Order
 from core.models import Address, Currency, Pair
 from core.common.models import Flag
 from decimal import Decimal
-from unittest.mock import patch, MagicMock, PropertyMock
+from unittest.mock import patch, PropertyMock
 from copy import deepcopy
 from django.db import transaction
 from core.tests.utils import data_provider, get_ok_pay_mock,\
@@ -401,126 +400,69 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
 
     @data_provider(
         lambda: (
-            (True, {'username': 'u1'},
+            ({'username': 'u1'},
              {'notify_by_phone': True, 'notify_by_email': True,
               'phone': '+37068644145', 'lang': 'en'}, 1, 0),
-            (True, {'username': 'u2'},
+            ({'username': 'u2'},
              {'notify_by_phone': True, 'notify_by_email': True,
               'phone': '+37068644146', 'lang': 'en'}, 1, 0),
-            (True, {'username': 'u3', 'email': 'test@email.com'},
+            ({'username': 'u3', 'email': 'test@email.com'},
              {'notify_by_phone': True, 'notify_by_email': True,
               'phone': '+37068644147',
               'lang': 'en'}, 1, 1),
-            (True, {'username': 'u4', 'email': 'test@email.com'},
+            ({'username': 'u4', 'email': 'test@email.com'},
              {'notify_by_phone': False, 'notify_by_email': True,
               'phone': '+37068644148',
               'lang': 'en'}, 0, 1),
-            (True, {'username': 'u5', 'email': 'test@email.com'},
+            ({'username': 'u5', 'email': 'test@email.com'},
              {'notify_by_phone': True, 'notify_by_email': False,
               'phone': '+37068644149',
               'lang': 'en'}, 1, 0),
-            (True, {'username': 'u6', 'email': 'test@email.com'},
+            ({'username': 'u6', 'email': 'test@email.com'},
              {'notify_by_phone': False, 'notify_by_email': False,
               'phone': '+37068644150',
               'lang': 'en'}, 0, 0),
-            (False, {'username': 'u7', 'email': 'test@email.com'},
+            ({'username': 'u7', 'email': 'test@email.com'},
              {'notify_by_phone': False, 'notify_by_email': False,
               'phone': '+37068644151',
               'lang': 'en'}, 0, 0),
-            (False, {'username': 'u8', 'email': 'test@email.com'},
-             {'notify_by_phone': True, 'notify_by_email': True,
-              'phone': '+37068644152',
-              'lang': 'en'}, 0, 0)
         )
     )
-    @patch('orders.task_summary.BuyOrderReleaseByReference.do_release')
-    @patch('orders.task_summary.BuyOrderReleaseByWallet.do_release')
-    @patch('orders.task_summary.BuyOrderReleaseByRule.do_release')
-    @patch('orders.task_summary.BuyOrderReleaseByReference.get_order')
-    @patch('orders.task_summary.BuyOrderReleaseByWallet.get_order')
-    @patch('orders.task_summary.BuyOrderReleaseByRule.get_order')
-    @patch('orders.task_summary.BuyOrderReleaseByReference.validate')
-    @patch('orders.task_summary.BuyOrderReleaseByWallet.validate')
-    @patch('orders.task_summary.BuyOrderReleaseByRule.validate')
-    @patch('orders.models.Order.get_profile')
     @patch('orders.models.send_sms')
     @patch('orders.models.send_email')
-    # @patch('orders.tasks.generic.base.Payment.objects.get')
     def test_notification(self,
                           # data provider
-                          release_return_val,
                           user_props, profile_props, expect_notify_by_phone,
                           expect_notify_by_email,
                           # notification
-                          # payment_getter,
-                          send_email, send_sms,
-                          # get profile mocks
-                          get_profile,
-                          # validation stabs
-                          validate_order_rule, validate_order_wallet,
-                          validate_order_ref,
-                          # get order stabs
-                          get_order_wallet, get_order_ref,
-                          get_order_rule,
-                          # release stabs
-                          release_by_rule,
-                          release_by_wallet, release_by_ref):
-        release_mocks = [release_by_rule, release_by_ref, release_by_wallet]
-        release_fns = [wallet_release, ref_release, rule_release]
-        get_order_mocks = [get_order_wallet, get_order_ref, get_order_rule]
-        get_profile_mocks = [get_profile]
-        validate_mocks = [validate_order_wallet, validate_order_rule,
-                          validate_order_ref]
-        # payment_getter.return_value = MagicMock()
-        for fn in release_fns:
+                          send_email, send_sms):
 
-            send_sms.call_count, send_email.call_count = 0, 0
-            payment_id = 1
-            with requests_mock.mock() as m:
-                self._mock_cards_reserve(m)
-                user = User.objects.get_or_create(**user_props)[0]
-            order = Order(**self.order_data)
+        with requests_mock.mock() as m:
+            self._mock_cards_reserve(m)
+            user = User.objects.get_or_create(**user_props)[0]
+        order = Order(**self.order_data)
+        order.user = user
+        order.save()
+        profile = user.profile
+        for prop, value in profile_props.items():
+            setattr(profile, prop, value)
+            profile.save()
 
-            order.user = user
-            self.orders.append(order)
+        self.assertEqual(order.status, Order.INITIAL)
+        statuses = [Order.PAID_UNCONFIRMED, Order.PAID, Order.RELEASED,
+                    Order.COMPLETED]
+        for i, status in enumerate(statuses):
+            order.status = status
             order.save()
-            payment = Payment(**self.base_payment_data)
-            payment.order = order
-            # TODO: the user is required only for reference release,
-            # TODO: not wallet release
-            # TODO: other option is to mock _get_order
-            # TODO: instead of get_order (class method)
-            payment.user = user
-            payment.save()
+            # Second save with same status change
+            order.save()
 
-            profile = order.user.profile
-
-            # preps
-            for release_mock in release_mocks:
-                release_mock.return_value = release_return_val
-
-            for validate_mock in validate_mocks:
-                validate_mock.return_value = MagicMock()
-
-            for get_order_mock in get_order_mocks:
-                get_order_mock.return_value = payment, order
-
-            for get_profile in get_profile_mocks:
-                get_profile.return_value = profile
-
-            for prop, value in profile_props.items():
-                setattr(profile, prop, value)
-                profile.save()
-
-            res = fn.apply([payment_id])
-            self.assertEqual('SUCCESS', res.state)
             self.assertEqual(
-                expect_notify_by_email, send_email.call_count,
+                expect_notify_by_email * (i + 1), send_email.call_count,
                 'user:{}, profile:{}'.format(user_props, profile_props)
             )
-
             self.assertEqual(
-                expect_notify_by_phone, send_sms.call_count,
+                expect_notify_by_phone * (i + 1), send_sms.call_count,
                 'user:{}, profile:{}'.format(user_props, profile_props)
             )
 

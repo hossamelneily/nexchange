@@ -25,7 +25,6 @@ def _update_pending_transaction(tr, logger, next_tasks=None):
         tr.save()
         order.status = Order.COMPLETED
         order.save()
-        order.notify(tx_id=tr.tx_id)
 
     if tr.address_to.type == Address.DEPOSIT and \
             api.check_tx(tr, currency_to):
@@ -44,8 +43,6 @@ def _update_pending_transaction(tr, logger, next_tasks=None):
             next_tasks.add((sell_order_release_invoke, None,))
         else:
             next_tasks.add((exchange_order_release_invoke, tr.pk, ))
-
-        order.notify()
 
         if settings.DEBUG:
             logger.info('Transaction {} is completed'.format(tr.tx_id))

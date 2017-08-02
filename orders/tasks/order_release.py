@@ -22,7 +22,6 @@ def sell_order_release():
                 order.status = Order.COMPLETED
                 order.save()
                 logger.info('Order {} is released, client paid'.format(order))
-                order.notify()
             else:
                 msg = 'Order {} cannot be paid automatically.'.format(order)
                 order.flag(val=msg)
