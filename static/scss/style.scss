@@ -4,6 +4,7 @@
 @import "./components/orders.scss";
 @import "./components/authentication.scss";
 @import "./components/anonymous_login.scss";
+@import "./components/recent_orders.scss";
 
 /*new design start*/
 .page-header + label{
@@ -953,11 +954,6 @@ input.payment-icon:hover{
 .success-icon-container .fa {
     color: #FFFFFF;
     vertical-align: middle;
-}
-
-tr th, tr td {
-    margin: auto;
-    text-align: center;
 }
 
 body #nprogress .bar {

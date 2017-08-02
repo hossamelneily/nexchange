@@ -18,7 +18,7 @@ export default class AccountVerification {
                 let payload = that.getVerifyAccountPayload();
                 that.verifyAccount(payload);
             }
-        })
+        });
     }
 
     initVerifyAccountHandler() {

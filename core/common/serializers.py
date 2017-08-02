@@ -4,6 +4,7 @@ from nexchange.permissions import NoUpdatePermission, OwnerOnlyPermission
 
 class FlattenMixin:
     """Flattens the specified related objects in this representation"""
+
     def to_representation(self, obj):
         assert hasattr(self.Meta, 'flatten'), (
             'Class {serializer_class} missing "Meta.flatten" attribute'.format(

@@ -15,6 +15,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='pair',
             name='name',
-            field=models.CharField(blank=True, db_index=True, max_length=8, null=True),
+            field=models.CharField(
+                blank=True,
+                db_index=True,
+                max_length=8,
+                null=True),
         ),
     ]

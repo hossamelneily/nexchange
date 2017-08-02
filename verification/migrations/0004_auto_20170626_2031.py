@@ -16,11 +16,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='verification',
             name='identity_document',
-            field=models.FileField(upload_to=verification.models.Verification.identity_file_name),
+            field=models.FileField(
+                upload_to=verification.models.Verification.identity_file_name),
         ),
         migrations.AlterField(
             model_name='verification',
             name='utility_document',
-            field=models.FileField(upload_to=verification.models.Verification._utility_file_name),
+            field=models.FileField(
+                upload_to=verification.models.Verification._utility_file_name),
         ),
     ]

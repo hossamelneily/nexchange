@@ -8,7 +8,7 @@ if [ -n "$FILES_JS" ] || [ -n "$FILES_CACHED_JS" ] ; then
     echo "======================="
     echo "======= CHECKING FILES: \n $FILES_JS $FILES_CACHED_JS"
     echo "======================="
-    npm run lint
+    npm run lint -s
 else
     echo "======================="
     echo "======= No .js FILES TO COMMIT. SKIPPING JSHINT. "

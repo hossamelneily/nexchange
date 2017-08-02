@@ -39,9 +39,10 @@ def orders_list(request):
         if my_date:
             kwargs['created_on__date'] = my_date
 
-    order_list_expired = [o for o in model.objects.filter(**kwargs).all() if o.expired
-        or o.status == Order.COMPLETED
-        or o.status == Order.CANCELED]
+    order_list_expired = [o for o in model.objects.filter(**kwargs).all()
+                          if o.expired or
+                          o.status == Order.COMPLETED or
+                          o.status == Order.CANCELED]
 
     paginator = Paginator(order_list_expired, paginate_by)
     page = request.GET.get('page')
@@ -52,7 +53,8 @@ def orders_list(request):
     except EmptyPage:
         order_list_expired = paginator.page(paginator.num_pages)
 
-    if 'created_on__date' in kwargs: del kwargs['created_on__date']
+    if 'created_on__date' in kwargs:
+        del kwargs['created_on__date']
     order_list = model.objects.filter(**kwargs).exclude(
         status__in=[Order.CANCELED, Order.COMPLETED])
     order_list = [o for o in order_list if not o.expired]

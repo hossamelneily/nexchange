@@ -17,13 +17,13 @@ window.getLockOutText = function(data) {
     if (!data.responseJSON.cooloff_time) {
         return false;
     }
-    var refreshTimtout = 5,
+    var refreshTimeout = 5,
         countDownUnit = 1;
 
     setTimeout(
         function() {
             window.location.reload();
-        }, refreshTimtout * 1000
+        }, refreshTimeout * 1000
     )
 
     setInterval(function() {

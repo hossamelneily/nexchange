@@ -16,6 +16,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='transaction',
             name='currency',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='transactions', to='core.Currency'),
+            field=models.ForeignKey(
+                blank=True,
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='transactions',
+                to='core.Currency'),
         ),
     ]

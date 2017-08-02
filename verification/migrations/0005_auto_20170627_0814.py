@@ -15,13 +15,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='verification',
-            name='identity_document',
-            field=models.FileField(upload_to=verification.models.Verification.identity_file_name, validators=[verification.validators.validate_image_extension]),
-        ),
-        migrations.AlterField(
-            model_name='verification',
-            name='utility_document',
-            field=models.FileField(upload_to=verification.models.Verification._utility_file_name, validators=[verification.validators.validate_image_extension]),
-        ),
-    ]
+            model_name='verification', name='identity_document', field=models.FileField(
+                upload_to=verification.models.Verification.identity_file_name, validators=[
+                    verification.validators.validate_image_extension]), ), migrations.AlterField(
+            model_name='verification', name='utility_document', field=models.FileField(
+                upload_to=verification.models.Verification._utility_file_name, validators=[
+                    verification.validators.validate_image_extension]), ), ]

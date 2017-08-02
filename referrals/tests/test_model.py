@@ -34,7 +34,8 @@ class TestReferralModel(OrderBaseTestCase):
         # referee and referrer are not the same person
         self.referral = Referral(code=code, referee=self.user)
         self.referral.save()
-        get_rand_int = lambda: randint(1, self.amount_coin_multiplier)  # noqa
+
+        def get_rand_int(): return randint(1, self.amount_coin_multiplier)  # noqa
 
         for i in range(10):
             rand_coin = self.amount_coin_base * get_rand_int()

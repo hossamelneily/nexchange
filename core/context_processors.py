@@ -60,3 +60,13 @@ def sms_token_length(request):
         'SMS_TOKEN_LENGTH':
             getattr(settings, 'SMS_TOKEN_LENGTH')
     }
+
+
+def recent_orders_length(request):
+    """ Adds confirmation code length
+    (for telephone and email authentication)    
+    """
+    return {
+        'RECENT_ORDERS_LENGTH':
+            getattr(settings, 'RECENT_ORDERS_LENGTH')
+    }

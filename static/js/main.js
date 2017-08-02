@@ -6,9 +6,11 @@ import InputsHelper from './modules/helpers/InputsHelper.js';
 
 import AccountCreation from './modules/authentication/AccountCreation.js';
 import AccountVerification from './modules/authentication/AccountVerification.js';
+import RecentOrders from './modules/orders/RecentOrders.js';
 
 const accountCreation = new AccountCreation();
 const accountVerification = new AccountVerification();
+const recentOrders = new RecentOrders();
 
 !(function (window, $) {
     'use strict';
@@ -331,12 +333,12 @@ const accountVerification = new AccountVerification();
 
         $('.show-hide-key').on('click', function () {
             if ($(this).hasClass('fa-eye')) {
-                $(this).addClass('fa-eye-slash')
-                $(this).removeClass('fa-eye')
+                $(this).addClass('fa-eye-slash');
+                $(this).removeClass('fa-eye');
                 $('#user-login-key').attr('type', 'password');
             } else {
-                $(this).addClass('fa-eye')
-                $(this).removeClass('fa-eye-slash')
+                $(this).addClass('fa-eye');
+                $(this).removeClass('fa-eye-slash');
                 $('#user-login-key').attr('type', 'text');
             } 
         });
@@ -382,7 +384,7 @@ const accountVerification = new AccountVerification();
                     let clipboard = new Clipboard('.copy-address');
                     clipboard.on('success', () => {
                         toastr.success(gettext('Wallet address copied to your clipboard!'));
-                    })
+                    });
 
                     toastr.success(message);
                     $('.successOrder').html($(data));

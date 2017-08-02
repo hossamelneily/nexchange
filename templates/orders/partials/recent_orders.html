@@ -1,0 +1,28 @@
+{% load i18n %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+
+<div id="recent-orders" class="container" data-recent-orders-length="{{ RECENT_ORDERS_LENGTH }}">
+    <div class="page-header">
+        <h1>{% trans 'Recent orders' %}</h1>
+        <div class="line-order"></div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table-condensed table-striped col-lg-12">
+            <tr class="table-order">
+                <th>{% trans "Date" %}</th>
+                <th class="text-center">{% trans "Type" %}</th>
+                <th>{% trans "Sending" %}</th>
+                <th>{% trans "Receiving" %}</th>
+                <th>{% trans "Rate" %}</th>
+            </tr>
+
+            <tr class="recent-order">
+                <td colspan="10">
+                    <h3 class="text-center">{% trans "No recent orders found" %}</h3>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

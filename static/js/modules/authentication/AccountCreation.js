@@ -133,4 +133,4 @@ window.submitCreateAcc = () => {
 
     let accountCreation = new AccountCreation();
     accountCreation.seamlessRegistration(regPayload);
-}
+};

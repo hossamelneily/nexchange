@@ -1,1 +1,1 @@
-{"status":"done","chunks":{"main":[{"name":"bundle.js","path":"/pipeline/source/static/bundles/bundle.js"},{"name":"bundle.css","path":"/pipeline/source/static/bundles/bundle.css"},{"name":"bundle.js.map","path":"/pipeline/source/static/bundles/bundle.js.map"},{"name":"bundle.css.map","path":"/pipeline/source/static/bundles/bundle.css.map"}]}}
+{"status":"done","chunks":{"main":[{"name":"bundle.js","path":"/pipeline/source/static/bundles/bundle.js"},{"name":"bundle.css","path":"/pipeline/source/static/bundles/bundle.css"}]}}

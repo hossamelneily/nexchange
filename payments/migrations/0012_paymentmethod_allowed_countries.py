@@ -16,6 +16,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='paymentmethod',
             name='allowed_countries',
-            field=models.ManyToManyField(help_text='Specifies the countires for which this payment method is allowed. If there is no countries specified then it is allowed for all of them', to='core.Country'),
+            field=models.ManyToManyField(
+                help_text='Specifies the countires for which this payment method is allowed. If there is no countries specified then it is allowed for all of them',
+                to='core.Country'),
         ),
     ]

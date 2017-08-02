@@ -15,6 +15,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='pair',
             name='disable_ticker',
-            field=models.BooleanField(default=False, help_text='Opt-out this Pair ticker gathering.'),
+            field=models.BooleanField(
+                default=False,
+                help_text='Opt-out this Pair ticker gathering.'),
         ),
     ]

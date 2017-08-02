@@ -18,6 +18,7 @@ from copy import deepcopy
 from nexchange.api_clients.uphold import UpholdApiClient
 from core.tests.base import UPHOLD_ROOT
 
+
 class PayeerTestCase(OrderBaseTestCase):
 
     def _create_input_params(self, status='success', delete=None,

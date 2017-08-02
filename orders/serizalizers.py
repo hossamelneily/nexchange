@@ -4,8 +4,9 @@ from core.serializers import NestedPairSerializer
 from orders.models import Order
 
 BASE_FIELDS = ('amount_base', 'is_default_rule',
-               'unique_reference', 'amount_quote', 'pair')
-READABLE_FIELDS = ('amount_quote', 'from_default_rule', 'unique_reference',)
+               'unique_reference', 'amount_quote', 'pair',)
+READABLE_FIELDS = ('created_on', 'amount_quote', 'from_default_rule',
+                   'unique_reference', 'order_type')
 
 
 class MetaOrder:
@@ -20,10 +21,13 @@ class MetaFlatOrder(MetaOrder):
 
 
 class OrderSerializer(serializers.ModelSerializer, FlattenMixin):
+    pair_name = serializers.ReadOnlyField(source='pair.name')
+
     class Meta(MetaFlatOrder):
-        pass
+        fields = MetaFlatOrder.fields + ('pair_name',)
 
 
 class CreateOrderSerializer(OrderSerializer):
+
     class Meta(MetaOrder):
         fields = MetaOrder.fields + ('pair',)

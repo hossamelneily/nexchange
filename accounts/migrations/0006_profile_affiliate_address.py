@@ -17,6 +17,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='profile',
             name='affiliate_address',
-            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='core.Address'),
+            field=models.ForeignKey(
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='core.Address'),
         ),
     ]

@@ -16,16 +16,29 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='address',
             name='address',
-            field=models.CharField(max_length=42, unique=True, validators=[core.validators.validate_address]),
+            field=models.CharField(
+                max_length=42,
+                unique=True,
+                validators=[
+                    core.validators.validate_address]),
         ),
         migrations.AlterField(
             model_name='addressreserve',
             name='address',
-            field=models.CharField(max_length=42, unique=True, verbose_name='address_id'),
+            field=models.CharField(
+                max_length=42,
+                unique=True,
+                verbose_name='address_id'),
         ),
         migrations.AlterField(
             model_name='addressreserve',
             name='card_id',
-            field=models.CharField(blank=True, default=None, max_length=36, null=True, unique=True, verbose_name='card_id'),
+            field=models.CharField(
+                blank=True,
+                default=None,
+                max_length=36,
+                null=True,
+                unique=True,
+                verbose_name='card_id'),
         ),
     ]

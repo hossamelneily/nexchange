@@ -15,6 +15,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='transaction',
             name='tx_id',
-            field=models.CharField(default=None, max_length=100, null=True, unique=True),
+            field=models.CharField(
+                default=None,
+                max_length=100,
+                null=True,
+                unique=True),
         ),
     ]

@@ -15,6 +15,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='currency',
             name='ticker',
-            field=models.CharField(blank=True, default=None, max_length=20, null=True),
+            field=models.CharField(
+                blank=True,
+                default=None,
+                max_length=20,
+                null=True),
         ),
     ]

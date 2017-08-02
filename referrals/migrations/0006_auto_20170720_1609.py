@@ -16,6 +16,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='referral',
             name='code',
-            field=models.ForeignKey(default=None, help_text='Use this link to refer users and earn free Bitcoins', null=True, on_delete=django.db.models.deletion.CASCADE, to='referrals.ReferralCode'),
+            field=models.ForeignKey(
+                default=None,
+                help_text='Use this link to refer users and earn free Bitcoins',
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='referrals.ReferralCode'),
         ),
     ]

@@ -82,6 +82,7 @@ SMS_TOKEN_LENGTH = 4
 PAYMENT_WINDOW = 60
 MAX_EXPIRED_ORDERS_LIMIT = 3
 REFERRAL_FEE = 2
+RECENT_ORDERS_LENGTH = 20
 
 NUMERIC_INTERNATIONAL_PREFIX = '00'
 PLUS_INTERNATIONAL_PREFIX = '+'
@@ -210,7 +211,7 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(seconds=60),
     },
     'import_crypto_deposit_transactions': {
-        'task': 'accounts.task_summary.import_transaction_deposit_crypto_invoke', # noqa
+        'task': 'accounts.task_summary.import_transaction_deposit_crypto_invoke',  # noqa
         'schedule': timedelta(seconds=60),
     },
     'check_okpay_payments': {
@@ -290,6 +291,7 @@ TEMPLATES = [
                 'core.context_processors.country_code',
                 'core.context_processors.recaptcha',
                 'core.context_processors.sms_token_length',
+                'core.context_processors.recent_orders_length',
                 'articles.context_processors.cms',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
