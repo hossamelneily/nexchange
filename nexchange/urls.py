@@ -36,7 +36,6 @@ from verification.urls import verification_urls
 js_info_dict = {
     'domain': 'djangojs',
     'packages': (
-
         'nexchange',
         'core',
         'orders',
@@ -48,8 +47,8 @@ js_info_dict = {
 
 
 api_patterns = ticker_api_patterns + referrals_api_patterns \
-               + order_api_patterns + account_api_patterns + \
-               core_api_patterns
+    + order_api_patterns + account_api_patterns + \
+    core_api_patterns
 
 urlpatterns = i18n_patterns(
     url(r'^admin/', admin.site.urls),

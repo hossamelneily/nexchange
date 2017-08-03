@@ -99,10 +99,12 @@ class Transaction(BtcBase):
 class CurrencyManager(models.Manager):
 
     def get_by_natural_key(self, code):
+
         return self.get(code=code)
 
 
 class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
+
     class Meta:
         verbose_name_plural = 'currencies'
     objects = CurrencyManager()
@@ -182,7 +184,7 @@ class Pair(TimeStampedModel):
         if self.disabled:
             able = 'Disabled'
         else:
-            able = 'Ebabled'
+            able = 'Enabled'
         return '{}, {}'.format(self.name, able)
 
     @property

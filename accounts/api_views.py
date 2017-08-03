@@ -11,7 +11,7 @@ import django_filters.rest_framework
 
 class UserOrderListViewSet(OrderListViewSet):
     permission_classes = OrderListViewSet.permission_classes + \
-                         (permissions.IsAuthenticated,)
+        (permissions.IsAuthenticated,)
     serializer_class = UserOrderSerializer
 
     def get_queryset(self, filters=None, **kwargs):
@@ -26,7 +26,7 @@ class UserOrderListViewSet(OrderListViewSet):
 
 class UserAddressViewSet(UserResourceViewSet):
     permission_classes = UserResourceViewSet.permission_classes + \
-                         (permissions.IsAuthenticated,)
+        (permissions.IsAuthenticated,)
     filter_fields = ('type', 'currency')
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     model_class = Address
@@ -46,7 +46,7 @@ class UserAddressViewSet(UserResourceViewSet):
         # super needs to be called to filter backends to be applied
         queryset = super().filter_queryset(queryset)
         return queryset
-    
+
     def perform_create(self, serializer):
         # the user can only create WITHDRAW addresses, as deposit are internal
         serializer.save(user=self.request.user, type=Address.WITHDRAW)
