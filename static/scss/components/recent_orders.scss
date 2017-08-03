@@ -1,9 +1,8 @@
 #recent-orders {
 	.page-header { float: left; }
 	table { width: 100%;
-		td, th { width: 21.66%; text-align: left; }
+		td, th { text-align: left; }
 		tr:first-child { background-color: #fff; }
-		td:first-child, th:first-child { width: 20%; }
-		td:nth-child(2), th:nth-child(2) { width: 15%; text-align: center; }
+		i { margin-right: 5px; }
 	}
 }

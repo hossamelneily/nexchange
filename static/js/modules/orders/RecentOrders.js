@@ -7,23 +7,37 @@ const ORDER_TYPE = {
 
 export default class RecentOrders {
     constructor() {
-        this.recentOrdersEndpoint = '/en/api/v1/orders/';
+        this.recentOrdersEndpoint = '/en/api/v1/orders/?page=1';
         this.updateInterval = 10000;
         this.recentOrdersLength = parseInt($('#recent-orders').data('recent-orders-length'));
         this.updateOrders();
     }
 
     updateOrders() {
-        $.get(this.recentOrdersEndpoint, orders => {
+        let request = $.get(this.recentOrdersEndpoint);
+
+        request.success(orders => {
             setTimeout(this.updateOrders.bind(this), this.updateInterval);
-            if (!orders.length) return;
+            if (!orders.results.length) return;
 
             let updatedOrders = ``;
-            for (let order of orders.slice(0, this.recentOrdersLength)) {
+            for (let order of orders.results.slice(0, this.recentOrdersLength)) {
                 updatedOrders += this.constructOrderRow(order);
             }
             $('.recent-order').remove();
             $('#recent-orders .table-order').after(updatedOrders);
+        });
+
+        request.error((jqXHR, textStatus, errorThrown) => {
+            setTimeout(this.updateOrders.bind(this), this.updateInterval);
+
+            if (textStatus == 'timeout') {
+                console.log('The server is not responding');
+            }
+
+            if (textStatus == 'error') {
+                console.log(errorThrown);
+            }
         });
     }
 
@@ -35,7 +49,7 @@ export default class RecentOrders {
 
     constructOrderRow(order) {
         let currencies = this.extractCurrencies(order.pair_name),
-            created_on = new moment(order.created_on).format('MMM Do, h:mm a'),
+            created_on = new moment(order.created_on).fromNow(),
             sendingAmount,
             receivingAmount,
             sendingCurrency,
@@ -57,11 +71,10 @@ export default class RecentOrders {
         let icon = order.from_default_rule ? 'fa-cogs' : 'fa-user';
 
         return `<tr class="recent-order" data-ref="${order.unique_reference}">
-            <td>${created_on}</td>
-            <td class="text-center"><i class="fa ${icon}" aria-hidden="true"></i></td>
+            <td><i class="fa ${icon}" aria-hidden="true"></i> ${created_on}</td>
             <td>${parseFloat(sendingAmount).toFixed(2)} ${sendingCurrency}</td>
             <td>${parseFloat(receivingAmount).toFixed(2)} ${receivingCurrency}</td>
-            <td>${rate}</td>
+            <td>${rate} ${receivingCurrency}</td>
         </tr>`;
     }
 }
