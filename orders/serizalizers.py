@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from core.common.serializers import FlattenMixin
 from core.serializers import NestedPairSerializer
 from orders.models import Order
 
@@ -17,10 +16,9 @@ class MetaOrder:
 
 class MetaFlatOrder(MetaOrder):
     fields = MetaOrder.fields + READABLE_FIELDS
-    flatten = [('pair', NestedPairSerializer)]
 
 
-class OrderSerializer(serializers.ModelSerializer, FlattenMixin):
+class OrderSerializer(serializers.ModelSerializer):
     pair_name = serializers.ReadOnlyField(source='pair.name')
 
     class Meta(MetaFlatOrder):
