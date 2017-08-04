@@ -6,10 +6,6 @@ from .tasks.generic.tx_importer.uphold import UpholdTransactionImporter
 from .tasks.generic.tx_importer.scrypt import ScryptTransactionImporter
 from django.conf import settings
 from celery import shared_task
-from django.contrib.auth.models import User
-from core.signals.allocate_wallets import create_user_wallet
-from core.models import Currency, AddressReserve
-from decimal import Decimal
 from accounts.tasks.generic.addressreserve_monitor.uphold import \
     UpholdReserveMonitor
 
@@ -55,5 +51,5 @@ def check_cards_uphold_invoke():
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def check_cards_balances_uphold_invoke():
-    uphold_reserve_monitor.check_cards_balances()
+    uphold_reserve_monitor.client.check_cards_balances()
 

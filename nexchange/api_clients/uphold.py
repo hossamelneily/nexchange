@@ -2,7 +2,8 @@ from .base import BaseApiClient
 from uphold import Uphold
 from nexchange.utils import get_traceback
 from django.conf import settings
-from core.models import Address, AddressReserve
+from core.models import Address, AddressReserve, Currency
+from decimal import Decimal
 from .decorators import track_tx_mapper, log_errors
 
 
@@ -150,3 +151,26 @@ class UpholdApiClient(BaseApiClient):
                 tx.save()
         self.logger.info("status: {}".format(res.get('status')))
         return res.get('status') == 'completed'
+
+    def resend_funds_to_main_card(self, card_id, curr_code):
+        main_card_id = self.coin_card_mapper(curr_code)
+        address_key = self.address_name_mapper(curr_code)
+
+        card_data = self.api.get_card(card_id)
+        main_card = self.api.get_card(main_card_id)
+        if curr_code != card_data['currency'] or curr_code != main_card['currency']:  # noqa
+            return
+        address_to = main_card['address'][address_key]
+        amount_to = card_data['balance']
+        if Decimal(amount_to) == 0:
+            return
+        currency = Currency.objects.get(code=curr_code)
+        res = self.release_coins(currency, address_to, amount_to,
+                                 card=card_id)
+        return res
+
+    def get_card_validity(self, wallet):
+        resp = self.api.get_card(wallet.card_id)
+        if resp.get('message') == 'Not Found':
+            return False
+        return True

@@ -1,5 +1,5 @@
 from core.tests.base import OrderBaseTestCase
-from core.signals.allocate_wallets import renew_cards_reserve
+from accounts.tasks.generate_wallets import renew_cards_reserve
 from django.contrib.auth.models import User
 import requests_mock
 from core.models import AddressReserve as Cards
@@ -47,10 +47,10 @@ class RenewReserveTestCase(OrderBaseTestCase):
     @requests_mock.mock()
     def test_2_users_1_card(self, mock):
         with patch(
-                'core.signals.allocate_wallets.'
+                'nexchange.api_clients.uphold.'
                 'AddressReserve.objects.filter') as filter:
             with patch(
-                    'core.signals.allocate_wallets.'
+                    'nexchange.api_clients.base.BaseApiClient.'
                     'renew_cards_reserve') as allocate_reserver:
                 filter.return_value = []
                 allocate_reserver.return_value = True
