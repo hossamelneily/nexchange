@@ -348,7 +348,6 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.twitter.TwitterOAuth',
     'social_core.backends.facebook.FacebookOAuth2',
     'social_core.backends.google.GoogleOAuth2',
-    'guardian.backends.ObjectPermissionBackend',
     'django.contrib.auth.backends.ModelBackend',
     'loginurl.backends.LoginUrlBackend',
 )
@@ -430,9 +429,13 @@ SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 12
 # https://docs.djangoproject.com/en/1.9/ref/settings/#secure-proxy-ssl-header
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-SOCIAL = {
+CONTACT = {
     'twitter': 'https://twitter.com/cryptoNexchange',
-    'facebook': 'https://facebook.com/cryptoNexchange'
+    'twitter_handle': 'CryptoNexchange',
+    'facebook': 'https://facebook.com/cryptoNexchange',
+    'facebook_handle': 'CryptoNexchange',
+    'support_number': '+442081442192',
+    'support_number_us': '+16464612858'
 }
 
 # NEW security measures

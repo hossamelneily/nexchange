@@ -27,34 +27,47 @@
     </div>
 
     <div class="col-sm-6 info-support">
-    	<div class="info-address">
-	        <p class="support-arddress">Email</p>
+        <div class="info-address">
+            <p class="support-arddress">Email</p>
             <p class="support-link">
                 <a href="mailto:{% trans "support@nexchange.co.uk" %}" target="_blank">
                     {% trans "support@nexchange.co.uk" %}
                 </a>
             </p>
-	    </div>
-{#	    <div class="info-address">#}
-{#	        <p class="support-arddress">Phone</p>#}
-{#	        <p>+000 000 00 00</p>#}
-{#	    </div>#}
-	    <div class="info-address">
-	        <p class="support-arddress">Twitter</p>
+        </div>
+
+        <div class="info-address">
+            <p class="support-arddress">Phone</p>
+            <p>{{ contact.support_number }}</p>
+            <p>{{ contact.support_number_us }} (US)</p>
+        </div>
+
+        <div class="info-address">
+            <p class="support-arddress">Twitter</p>
             <p class="support-link">
-                <a href="https://twitter.com/NexchangeBTC" target="_blank">
-                    @NexchangeBTC
+                <a href="{{ contact.twitter }}" target="_blank">
+                    {{ contact.twitter_handle }}
                 </a>
             </p>
-	    </div>
-	    <div class="info-address">
-	        <p class="support-arddress">Telegram</p>
-	        <p class="support-link">
-                <a href="https://telegram.me/NexchangeBTC" target="_blank">
-                    @NexchangeBTC
+        </div>
+
+        <div class="info-address">
+            <p class="support-arddress">Twitter</p>
+            <p class="support-link">
+                <a href="{{ contact.twitter }}" target="_blank">
+                    {{ contact.facebook_handle }}
                 </a>
             </p>
-	    </div>
+        </div>
+
+{#      <div class="info-address"> #}
+{#          <p class="support-arddress">Telegram</p> #}
+{#             <p class="support-link"> #}
+{#              <a href="https://telegram.me/NexchangeBTC" target="_blank"> #}
+{#                  @NexchangeBTC #}
+{#              </a> #}
+{#          </p> #}
+{#      </div> #}
     </div>
 
 </div>
