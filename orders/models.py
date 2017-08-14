@@ -315,6 +315,12 @@ class Order(TimeStampedModel, SoftDeletableModel,
            be changed"""
         return self.status in Order.IN_RELEASED
 
+    @property
+    def rate(self):
+        """return bool whether the withdraw address can
+           be changed"""
+        return self.amount_base / self.amount_quote
+
     def get_profile(self):
         return self.user.profile
 

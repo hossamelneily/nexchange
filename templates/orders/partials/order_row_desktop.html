@@ -1,21 +1,15 @@
 {% load i18n %}
     <tr>
-        <td>
-           {% if order.is_buy %}
-                <span class="btn btn-success btn-small">
-                    {% trans 'Buying' %}
-                </span>
-            {% else %}
-                <span class="btn btn-danger btn-small">
-                    {% trans 'Selling' %}
-                </span>
-            {% endif %}
-        </td>
         <td>{{ order.created_on |date:"D d M"}}</td>
+
+        <td>{{ order.amount_quote.normalize }} {{ order.pair.quote }}</td>
+
+        <td>{{ order.amount_base.normalize }} {{ order.pair.base }}</td>
+        
+        <td>{{ order.rate | floatformat:2 }}</td>
+
         <td>{{ order.unique_reference }}</td>
-        <td>{{ order.pair.name }}</td>
-        <td>{{ order.amount_quote.normalize}}</td>
-        <td>{{ order.amount_base.normalize }}</td>
+        
         <td>
         {% include 'orders/partials/forms/payment_toggle.html' %}
         </td>

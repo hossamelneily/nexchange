@@ -8,7 +8,7 @@ from core.models import Pair
 
 
 def main(request):
-    local_currency = 'RUB' if get_language() == 'ru' else 'EUR'
+    local_currency = 'RUB' if get_language() == 'ru' else 'LTC'
     pair_name = 'BTC' + local_currency
     pairs = Pair.objects.filter(name=pair_name, disabled=False)
     if len(pairs) < 0:

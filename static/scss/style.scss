@@ -6,6 +6,7 @@
 @import "./components/anonymous_login.scss";
 @import "./components/recent_orders.scss";
 
+
 /*new design start*/
 .page-header + label{
     display: block !important;
@@ -214,10 +215,6 @@
     margin-bottom: 0;
 }
 
-.hide-body{
-
-}
-
 @-webkit-keyframes spin1 {
     0% { -webkit-transform: rotate(0deg);}
     100% { -webkit-transform: rotate(360deg);}
@@ -252,18 +249,18 @@ textarea, input, select { outline: none !important; }
     border-radius: 1em;
 }
 
-.exchange-sign
+#exchange-sign
 {
     color: #8cc63f;
     cursor: pointer;
 }
 
-.exchange-sign.loading {
-    -webkit-animation: spin1 2s infinite linear;
-    -moz-animation: spin1 2s infinite linear;
-    -o-animation: spin1 2s infinite linear;
-    -ms-animation: spin1 2s infinite linear;
-    animation: spin1 2s infinite linear;
+#exchange-sign.loading {
+    -webkit-animation: spin1 0.85s linear;
+    -moz-animation: spin1 0.85s linear;
+    -o-animation: spin1 0.85s linear;
+    -ms-animation: spin1 0.85s linear;
+    animation: spin1 0.85s linear;
     display: block;
 }
 
@@ -521,46 +518,9 @@ span.select2-selection.chart_panel_selectbox,
     position:relative; z-index:2;  width: 200px;
 }
 
-.price_box{text-align:center; font-size:35px; font-family: 'Montserrat-Light', 'Gotham'; margin:12px 0;}
-
-.price_box_ticker{margin:40px 0;}
-
-.price_box span{font-family: 'Montserrat-Bold', 'Gotham';}
-
-.price_box a{width:210px; max-width: 100%; color:#FFF; font-size:30px; padding:5px 0; background-color:#8cc63f; border-radius:8px; display:inline-block;}
-
-.price_box a:hover{background-color:#000 !important;}
-
-body .price_box_ticker .trigger-sell, body .price_box_next_cont .sell-go{
-    background-color:#ee1d25;
-}
-.exchange-sign.sell {
-    color: #ee1d25;
-}
-
-.price_box_selectbox_cont{display:inline-block; width:100%; border:2px solid #8cc63f; border-radius: 4px;}
-
-.price_box_selectbox_cont_textbox{float:left; margin: 0px; text-align: center; width:65%; background-color:transparent; border:solid #8cc63f; font-size:18px; padding:8px 10px;border-width:0 2px 0 0; }
-
-.price_box_selectbox_cont_selectbox{
-    float:left;
-    width:33%;
-    margin:0px 0 0 0;
-    font-size:18px;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    line-height: 26px;
-    border:none;
-    padding:8px 10px;
-    font-family: 'Montserrat-Regular', 'Gotham';
-    }
-
-
-.price_box_next_cont{text-align:center;}
-
-.price_box_next{cursor:pointer; width:250px; color:#FFF; font-size:30px; padding:5px 0; background-color:#8cc63f; border-radius:8px; display:inline-block; text-align:center;}
-
-.price_box_next:hover{background-color:#000; color:#FFF;}
+/* Breaks if I put it at the top.
+Woudl be great to fix. */
+@import "./components/ticker.scss";
 
 .greypanel{background-color:#f4f5f5; padding:30px 0; margin-top: 40px; visibility: hidden;}
 

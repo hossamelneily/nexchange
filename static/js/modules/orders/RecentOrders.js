@@ -1,11 +1,12 @@
 import moment from 'moment';
+import Extractor from '../helpers/Extractor.js';
 
 const ORDER_TYPE = {
     0: 'SELL',
     1: 'BUY'
 };
 
-export default class RecentOrders {
+class RecentOrders {
     constructor() {
         this.recentOrdersEndpoint = '/en/api/v1/orders/?page=1';
         this.updateInterval = 10000;
@@ -27,7 +28,7 @@ export default class RecentOrders {
             $('.recent-order').remove();
             $('#recent-orders .table-order').after(updatedOrders);
         });
-
+      
         request.error((jqXHR, textStatus, errorThrown) => {
             setTimeout(this.updateOrders.bind(this), this.updateInterval);
 
@@ -41,14 +42,8 @@ export default class RecentOrders {
         });
     }
 
-    extractCurrencies(pair) {
-        let first = pair.slice(0,3);
-        let second = pair.slice(3,6);
-        return [first, second];
-    }
-
     constructOrderRow(order) {
-        let currencies = this.extractCurrencies(order.pair_name),
+        let currencies = Extractor.getCurrenciesFromPair(order.pair_name),
             created_on = new moment(order.created_on).fromNow(),
             sendingAmount,
             receivingAmount,
@@ -78,3 +73,5 @@ export default class RecentOrders {
         </tr>`;
     }
 }
+
+export default new RecentOrders();

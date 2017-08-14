@@ -16,60 +16,51 @@ class TestUIExchangeOrders(BaseTestUI):
         self.LTC_address = 'LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4'
         self.ETH_address = '0x77454e832261aeed81422348efee52d5bd3a3684'
 
-    @data_provider(lambda: (('ETHLTC', Order.BUY, True),),)
+    @data_provider(lambda: (('ETHLTC', True),),)
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
-    def test_release_exchange_order1(self, pair_name, order_type,
-                                     do_logout, get_txs, get_rtx):
-        self.base_test_release_exchange_order(pair_name, order_type, do_logout,
-                                              get_txs, get_rtx)
+    def test_release_exchange_order1(self, pair_name, do_logout, get_txs,
+                                     get_rtx):
+        self.base_test_release_exchange_order(pair_name, do_logout, get_txs,
+                                              get_rtx)
 
-    @data_provider(lambda: (('BTCETH', Order.SELL, False),),)
+    @data_provider(lambda: (('BTCETH', False),),)
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
-    def test_release_exchange_order2(self, pair_name, order_type,
-                                     do_logout, get_txs, get_rtx):
-        self.base_test_release_exchange_order(pair_name, order_type, do_logout,
-                                              get_txs, get_rtx)
+    def test_release_exchange_order2(self, pair_name, do_logout, get_txs,
+                                     get_rtx):
+        self.base_test_release_exchange_order(pair_name, do_logout, get_txs,
+                                              get_rtx)
 
-    @data_provider(lambda: (('LTCBTC', Order.BUY, False),),)
+    @data_provider(lambda: (('LTCBTC', False),),)
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
-    def test_release_exchange_order3(self, pair_name, order_type,
-                                     do_logout, reserve_txs, import_txs):
-        self.base_test_release_exchange_order(pair_name, order_type, do_logout,
+    def test_release_exchange_order3(self, pair_name, do_logout, reserve_txs,
+                                     import_txs):
+        self.base_test_release_exchange_order(pair_name, do_logout,
                                               reserve_txs, import_txs)
 
-    def base_test_release_exchange_order(self, pair_name, order_type,
-                                         do_logout, get_txs, get_rtx):
+    def base_test_release_exchange_order(self, pair_name, do_logout, get_txs,
+                                         get_rtx):
+        pair_name = pair_name
         self.workflow = '{}'.format(pair_name)
-        order_type_display = 'BUY' if order_type == Order.BUY else 'SELL'
-        self.screenpath2 = order_type_display
-        self.payment_method = '{}-{}'.format(
-            pair_name, order_type_display
-        )
+        self.payment_method = '{}'.format(pair_name)
         self.screenshot_no = 1
-        self.request_order(order_type_display, click_payment_icon=False,
-                           pair_name=pair_name)
+        self.request_order(click_payment_icon=False, pair_name=pair_name)
         self.do_screenshot('After order request')
         if not self.logged_in:
             self.login_email()
+
         order_data = self.check_confirm_amounts(pair_name=pair_name)
-        amount_base = order_data['amount_base']
         amount_quote = order_data['amount_quote']
         currency_quote_code = order_data['currency_quote']
         currency_base_code = order_data['currency_base']
-        if order_type == Order.BUY:
-            mock_currency_code = currency_quote_code
-            mock_amount = amount_quote
-            withdraw_currency_code = currency_base_code
-        elif order_type == Order.SELL:
-            mock_currency_code = currency_base_code
-            mock_amount = amount_base
-            withdraw_currency_code = currency_quote_code
+        mock_currency_code = currency_quote_code
+        mock_amount = amount_quote
+        withdraw_currency_code = currency_base_code
         self.mock_import_transaction(mock_amount, mock_currency_code,
                                      get_txs, get_rtx)
-        self.place_order(order_type_display)
+        self.place_order()
         self.click_go_to_order_list()
         self.do_screenshot('After pres GO/GET coins')
         self.check_order_status(Order.PAID)
@@ -83,7 +74,8 @@ class TestUIExchangeOrders(BaseTestUI):
 
         # All completed orders go in the expired/completed orders list.
         # Must open the list before checking order status indicator.
-        self.click_element_by_name('Show expired and released', by=By.XPATH, screenshot=True)
+        self.click_element_by_name('Show expired and released',
+                                   by=By.XPATH, screenshot=True)
 
         # Order must be released after adding withdraw address
         self.check_order_status_indicator('released', refresh=True)

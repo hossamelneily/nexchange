@@ -1,7 +1,10 @@
 import Notifier from '../helpers/Notifier.js';
 import InputsHelper from '../helpers/InputsHelper.js';
+import MenuReloader from '../helpers/MenuReloader.js';
 
-export default class AccountVerification {
+import flipSendWidget from '../exchange/FlipSendWidget.js';
+
+class AccountVerification {
     constructor() {
         this.verificationEndpoint = '/en/accounts/verify_user/';
         this.verificationField = $('#verification_code');
@@ -78,9 +81,8 @@ export default class AccountVerification {
                     if ($('#login-form').is(':visible')) {
                         window.location.href = '/';
                     } else {
-                        let orderObject = require('../orders.js');
-                        orderObject.reloadRoleRelatedElements();
-                        orderObject.changeState(null, 'next');
+                        MenuReloader.reloadRoleRelatedElements();
+                        flipSendWidget.changeState(null, 'next');
                     }
                 },
                 400: function(data) {
@@ -106,4 +108,11 @@ export default class AccountVerification {
             }
         });
     }
+
+    verifyAnonymous() {
+        MenuReloader.reloadRoleRelatedElements();
+        flipSendWidget.changeState(null, 'next');
+    }
 }
+
+export default new AccountVerification();

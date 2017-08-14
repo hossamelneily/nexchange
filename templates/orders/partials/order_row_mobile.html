@@ -1,44 +1,38 @@
 {% load i18n %}
 <a data-toggle="collapse" data-parent="{{ order.unique_reference}}" href="#body-{{ order.unique_reference}}">
     <div id="{{ order.unique_reference}}" class="headers-mobile panel-heading">
+        <span class="btn btn-success btn-small mobile-trade-indicator">
+            {% trans 'Buying' %}
+        </span>
 
-            {% if order.is_buy %}
-                <span class="btn btn-success btn-small mobile-trade-indicator">
-                    {% trans 'Buying' %}
-                </span>
-            {% else %}
-                <span class="btn btn-danger btn-small mobile-trade-indicator">
-                    {% trans 'Selling' %}
-                </span>
-            {% endif %}
-            {{ order.amount_base.normalize }} {{ order.pair.base.code }}
-            <span class="pull-right mobile-date">
-             {{ order.created_on |date:"D d M Y"}}
-            </span>
+        {{ order.amount_base.normalize }} {{ order.pair.base.code }}
+        <span class="pull-right mobile-date">
+         {{ order.created_on |date:"D d M Y"}}
+        </span>
     </div>
 </a>
 
 <div id="body-{{ order.unique_reference}}"
      class="panel-body panel-collapse collapse">
+
     <div class="mobile-row">
-      <div class = "headers-mobile header-text">
-        {% trans "Reference" %}
-      </div>
+        <div class="headers-mobile header-text">{% trans "Sending" %}</div>
+        {{ order.amount_quote.normalize }} {{ order.pair.quote }}
+    </div>
+
+    <div class="mobile-row">
+        <div class="headers-mobile header-text">{% trans "Receiving" %}</div>
+        {{ order.amount_base.normalize }} {{ order.pair.base }}
+    </div>
+
+    <div class="mobile-row">
+        <div class="headers-mobile header-text">{% trans "Rate" %}</div>
+        {{ order.rate | floatformat:2 }}
+    </div>
+
+    <div class="mobile-row">
+        <div class="headers-mobile header-text">{% trans "Reference" %}</div>
         {{ order.unique_reference }}
-    </div>
-
-    <div class="mobile-row">
-        <div class = "headers-mobile header-text">{% trans "Pair" %}</div>
-        {{ order.pair.name }}
-    </div>
-
-    <div class="mobile-row">
-        <div class = "headers-mobile header-text">{% trans "Price" %}</div>
-        {{ order.amount_quote.normalize}}
-    </div>
-    <div class="mobile-row">
-        <div class = "headers-mobile header-text">{% trans "Volume" %}</div>
-        {{ order.amount_base.normalize }}
     </div>
 
     <div class="mobile-row">
@@ -47,14 +41,14 @@
                {% trans "Setting as paid..." %}
           </span>
 
-        <div class = "headers-mobile header-text">
+        <div class="headers-mobile header-text">
             {% trans "Paid" %}
         </div>
         {% include 'orders/partials/forms/payment_toggle.html' %}
     </div>
 
     <div class="mobile-row">
-        <div class = "headers-mobile header-text">
+        <div class="headers-mobile header-text">
             {% trans "Released" %}
         </div>
         <div class="header-text">
@@ -63,7 +57,7 @@
     </div>
 
     <div class="mobile-row">
-        <div class = "headers-mobile header-text">
+        <div class="headers-mobile header-text">
             {% trans "Completed" %}
         </div>
         <div class="header-text">
@@ -71,7 +65,7 @@
         </div>
     </div>
     <div class="mobile-row">
-        <div class = "headers-mobile header-text">
+        <div class="headers-mobile header-text">
         {% trans "Withdraw Address" %}
         </div>
 

@@ -4,8 +4,11 @@ export default class Notifier {
     }
 
     static failureResponse(data, defaultMsg) {
-        let _defaultMsg = gettext(defaultMsg),
-            message = data.responseJSON.message || _defaultMsg;
+        let message = gettext(defaultMsg);
+
+        if (data != null)
+        	message = data.responseJSON.message || defaultMsg;
+
         toastr.error(message);
     }
 }

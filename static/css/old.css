@@ -16,11 +16,6 @@ html, body{
     padding: 0;
 }
 
-.btc-amount-confirm, .cash-amount-confirm {
-    font-weight: bold;
-    font-size: 20px;
-}
-
 body .ui-widget-header {
     border: 0;
     background: none;

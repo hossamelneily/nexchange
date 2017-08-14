@@ -4,18 +4,13 @@
     <div class="row step-confirm">
         <h3>{% trans "Your Order" %}</h3>
         <div class="col-sm-12 center confirm-order">
-            <div class="col-sm-5 col-md-5">
-                <div class="col-lg-12 confirmation-elem">
-                    <span class="amount btc-amount-confirm"></span> <span class="currency_base"></span>
-                </div>
+            <div class="col-sm-6">
+                <h3 class="confirm-title">Deposit:</h3 class="confirm-title">
+                <h2 id="deposit-amount-confirm" class="amount"></h2>
             </div>
-            <div class="col-sm-2 col-md-2 confirmation-elem for">
-                <span>{% trans "for" %}</span>
-            </div>
-            <div class="col-sm-5 col-md-5 confirmation-elem">
-                <div class="col-lg-12">
-                    <span class="amount cash-amount-confirm"></span> <span class="currency"></span>
-                </div>
+            <div class="col-sm-6">
+                <h3 class="confirm-title">Receive:</h3 class="confirm-title">
+                <h2 id="receive-amount-confirm" class="amount"></h2>
             </div>
 
             <div class="col-lg-11 confirmation-elem payment-confirm hidden">
@@ -46,8 +41,7 @@
             <input type="hidden" name="payment-preference" value="" class="payment-preference-actual">
             <input type="hidden" name="payment-preference-identifier" value="" class="payment-preference-identifier">
             <input type="hidden" name="payment-preference-owner" value="" class="payment-preference-owner">
-            <button  class="sell-go btn btn-danger btn-lg place-order hidden">{% trans "Sell" %}</button>
-            <button  class="buy-go btn btn-success btn-lg place-order ">{% trans "Buy" %}</button>
+            <button  class="sell-buy btn btn-success btn-lg place-order">{% trans "Confirm" %}</button>
             <a href="/" class="btn place-cancel btn-lg">{% trans "Cancel" %}</a>
         </div>
     </div>

@@ -196,7 +196,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         sleep(1)
 
         account_input = self.driver.find_element_by_class_name(
-                'menu2').find_element_by_class_name('email')
+            'menu2').find_element_by_class_name('email')
 
         if with_email:
             self.username = self.email
@@ -249,31 +249,21 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             sleep(self.timeout / 60)
             self.wait_for_sms_token()
 
-    def request_order(self, order_type, click_payment_icon=True,
-                      pair_name=None):
+    def request_order(self, click_payment_icon=True, pair_name=None):
         print(self.payment_method)
-        order_type = order_type.lower()
         if pair_name is None:
             self.get_repeat_on_timeout(self.url)
         else:
             self.get_currency_pair_main_screen(pair_name)
         self.do_screenshot('main_')
         self.wait.until(EC.element_to_be_clickable((
-            By.CLASS_NAME, 'trigger-{}'.format(order_type)))).click()
-        self.do_screenshot('after {} click'.format(order_type))
+            By.CLASS_NAME, 'trigger-buy'))).click()
+        self.do_screenshot('after trigger-buy click')
         if click_payment_icon:
             self.click_on_payment_icon()
 
-    def place_order(self, order_type):
-        order_type = order_type.lower()
-        bt_buys = self.driver.find_elements_by_class_name('{}-go'.format(
-            order_type
-        ))
-        for b in bt_buys:
-            if b.get_attribute('class') \
-                    .find('place-order') > -1:
-                b.click()
-                break
+    def place_order(self):
+        self.click_element_by_name('place-order')
         self.wait.until(EC.element_to_be_clickable((
             By.CLASS_NAME, 'unique_ref')))
         ref = self.driver.find_element_by_class_name('unique_ref').text
@@ -446,19 +436,19 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
     def check_confirm_amounts(self, pair_name=None):
         try:
             self.wait.until(EC.element_to_be_clickable((
-                By.CLASS_NAME, 'btc-amount-confirm')))
+                By.CLASS_NAME, 'base-amount-confirm')))
         except TimeoutException:
             # FIXME: sometimes unclickable is clicked (if you get there and
             # tests are still passing)
             self.do_screenshot(
-                'TIMEOUT btc-amount-confirm is not clickable (tests should not'
-                ' PASS cause you should not be abble to click unclickable '
+                'TIMEOUT base-amount-confirm is not clickable (tests should '
+                'not PASS cause you should not be abble to click unclickable '
                 'element)'
             )
         amount_base = self.driver.find_element_by_class_name(
-            'btc-amount-confirm').text
+            'base-amount-confirm').text
         amount_quote = self.driver.find_element_by_class_name(
-            'cash-amount-confirm').text
+            'quote-amount-confirm').text
         currency_base = self.driver.find_element_by_class_name(
             'currency_base').text
         # FIXME: legacy on frontend, class should be called

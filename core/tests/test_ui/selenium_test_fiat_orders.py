@@ -14,19 +14,22 @@ import json
 from core.tests.test_ui.base import BaseTestUI
 from payments.tests.base import BaseSofortAPITestCase
 from core.tests.base import UPHOLD_ROOT
+from unittest import skip
 
 from selenium.webdriver.common.by import By
 
+
+@skip('Skipped untill fiat task logic refactoring')
 class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
 
     @data_provider(lambda: (
-       ([{'name': 'OK Pay', 'success_url': '/okpay'}], True, True),
+        ([{'name': 'OK Pay', 'success_url': '/okpay'}], True, True),
     ))
     def test_buy1(self, payment_methods, automatic_payment, do_logout):
         self.base_test_buy(payment_methods, automatic_payment, do_logout)
 
     @data_provider(lambda: (
-       ([{'name': 'Payeer Wallet', 'success_url': '/payeer'}], True, True),
+        ([{'name': 'Payeer Wallet', 'success_url': '/payeer'}], True, True),
     ))
     def test_buy2(self, payment_methods, automatic_payment, do_logout):
         self.base_test_buy(payment_methods, automatic_payment, do_logout)
@@ -200,7 +203,8 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
 
     def check_sell_order_on_list(self):
         self.click_go_to_order_list()
-        self.click_element_by_name('Show expired and released', by=By.XPATH, screenshot=True)
+        self.click_element_by_name('Show expired and released',
+                                   by=By.XPATH, screenshot=True)
         self.check_paid_toggle()
         self.check_order_status_indicator('released')
         self.do_screenshot('Payment Success')
@@ -269,7 +273,8 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
         self.check_order_status(Order.PAID)
         # Add withdraw address
         self.add_withdraw_address_on_payment_success()
-        self.click_element_by_name('Show expired and released', by=By.XPATH, screenshot=True)
+        self.click_element_by_name('Show expired and released',
+                                   by=By.XPATH, screenshot=True)
 
         # Order must be released after adding withdraw address
         self.check_order_status_indicator('released', refresh=True)

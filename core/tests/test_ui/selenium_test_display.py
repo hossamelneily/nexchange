@@ -19,14 +19,10 @@ class TestUIDisplay(BaseTestUI):
             self.screenshot_no = 1
             self.get_currency_pair_main_screen(pair_name)
             self.do_screenshot('main_{}'.format(pair_name))
-            c_pair = Select(self.driver.find_element_by_xpath(
-                '//select[@name="currency_pair"]'))
             c_from = Select(self.driver.find_element_by_xpath(
                 '//select[@name="currency_from"]'))
             c_to = Select(self.driver.find_element_by_xpath(
                 '//select[@name="currency_to"]'))
             from_text = c_to.first_selected_option.text
             to_text = c_from.first_selected_option.text
-            pair_text = c_pair.first_selected_option.text
             self.assertEqual(pair_name, from_text + to_text)
-            self.assertEqual(pair_text, '{}/{}'.format(from_text, to_text))

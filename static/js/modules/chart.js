@@ -31,8 +31,7 @@ highchartsMore(highcharts);
             data_points = window.innerWidth;
         if (hours) {
             tickerHistoryUrl = tickerHistoryUrl + '?hours=' + hours.replace(',', '.') + '&data_points=' + data_points;
-        }
-        else {
+        } else {
             tickerHistoryUrl = tickerHistoryUrl + '?data_points=' + data_points;
         }
 
@@ -61,12 +60,12 @@ highchartsMore(highcharts);
                                             var lastdata = responseToChart(resdata).pair,
                                                 points = points || series.points;
                                             if (hours < 16) {
-                                            // live mode
+                                                // live mode
                                                 var _lastadata = lastdata[0];
                                                 if (previous_data === 0) {
                                                     previous_data = _lastadata[0];
                                                 }
-                                                if (_lastadata[0] !== previous_data){
+                                                if (_lastadata[0] !== previous_data) {
                                                     previous_data = _lastadata[0];
                                                     previous_data = _lastadata[0];
                                                     series.addPoint(_lastadata, true, false, {
@@ -87,7 +86,7 @@ highchartsMore(highcharts);
                     },
                     credits: {
                         enabled: false
-                   },
+                    },
                     backgroundColor: {
                         linearGradient: {
                             x1: 0,

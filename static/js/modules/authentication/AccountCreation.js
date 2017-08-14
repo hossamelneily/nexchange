@@ -1,11 +1,11 @@
-import register from '../register.js';
+import Clipboard from 'clipboard';
 import Notifier from '../helpers/Notifier.js';
 import RegexChecker from '../helpers/RegexChecker.js';
-import AccountVerification from './AccountVerification.js';
 
-export default class AccountCreation {
+class AccountCreation {
     constructor() {
         this.createAccEndpoint = '/en/accounts/authenticate/';
+        this.createAanonymousEndpoint = '/en/accounts/create_anonymous_user/';
 
         this.initCreateAccButtonHandler();
         this.initEmailOrSmsInput();
@@ -40,6 +40,26 @@ export default class AccountCreation {
                 $('.create-acc').not('.resend').addClass('disabled');
                 $('#phone-verification').addClass('hidden');
                 $('#email-verification').removeClass('hidden').find('input').focus();
+            }
+        });
+    }
+
+    createAnonymousAccount() {
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: this.createAanonymousEndpoint,
+            statusCode: {
+                200: function(data) {
+                    $('.register .step2').removeClass('hidden');
+                    $('.create-anonymous-acc').addClass('hidden');
+                    $('.user-authenticated').addClass('hidden');
+                    $('.verify-anonymous').removeClass('hidden');
+                    $('.copy-key').removeClass('hidden');
+                    $('.hide-key').removeClass('hidden');
+                    $('#user-login-key').val(data.key);
+                    new Clipboard('.copy-key');
+                }
             }
         });
     }
@@ -102,6 +122,8 @@ export default class AccountCreation {
     }
 }
 
+let accountCreation = new AccountCreation();
+
 window.submitCreateAcc = () => {
     let email = null,
         phone = null,
@@ -131,6 +153,7 @@ window.submitCreateAcc = () => {
         g_recaptcha_response: grecaptcha.getResponse()
     };
 
-    let accountCreation = new AccountCreation();
     accountCreation.seamlessRegistration(regPayload);
 };
+
+export default accountCreation;
