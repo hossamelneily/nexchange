@@ -1,3 +1,6 @@
+import config from './configs/config.js';
+import debounce from 'lodash/debounce';
+
 !(function (window, $) {
     "use strict";
 
@@ -53,7 +56,7 @@
             toastr.error(get_msg(data));
          });
     };
-    $("#verify_phone_now").on("click", verifyPhone);
+    $("#verify_phone_now").on("click", debounce(verifyPhone, config.DEBOUNCE_DURATION));
 
     function getParameterByName(name, url) {
         if (!url) {url = window.location.href;}

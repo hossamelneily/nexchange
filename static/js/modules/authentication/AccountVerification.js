@@ -1,7 +1,9 @@
+import config from '../../configs/config.js';
+import debounce from 'lodash/debounce';
+
 import Notifier from '../helpers/Notifier.js';
 import InputsHelper from '../helpers/InputsHelper.js';
 import MenuReloader from '../helpers/MenuReloader.js';
-
 import flipSendWidget from '../exchange/FlipSendWidget.js';
 
 class AccountVerification {
@@ -15,13 +17,13 @@ class AccountVerification {
 
     initVerifyAutoSubmit(that) {
         this.verificationField.on('keyup', InputsHelper.stripSpaces);
-        this.verificationField.on('keyup', function() {
+        this.verificationField.on('keyup', debounce(function() {
             let val = $(this).val();
             if (val && val.length == $(this).attr('maxlength')) {
                 let payload = that.getVerifyAccountPayload();
                 that.verifyAccount(payload);
             }
-        });
+        }, config.DEBOUNCE_DURATION));
     }
 
     initVerifyAccountHandler() {
