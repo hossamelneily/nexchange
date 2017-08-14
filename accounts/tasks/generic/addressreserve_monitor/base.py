@@ -14,6 +14,8 @@ class BaseReserveMonitor:
         self.client = self.api_factory.get_api_client(self.wallet_name)
 
     def check_cards(self):
+        # FIXME: must be redesigned to check one card at the time
+        return
         all_crypto_curr = Currency.objects.filter(
             is_crypto=True, disabled=False)
         related_crypto_curr = all_crypto_curr.filter(

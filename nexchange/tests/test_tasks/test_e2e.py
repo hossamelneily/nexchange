@@ -793,9 +793,12 @@ class SofortEndToEndTestCase(BaseSofortAPITestCase,
     def test_success_release(self, pair_name, mock, prepare_txn, execute_txn,
                              get_txs, get_rtx):
         # Less then 1.0 fiat payments is blocked by PaymentChecker validator
-        get_rtx.return_value = json.loads(self.completed)
+        self._mock_cards_reserve(mock)
         self._create_order(amount_base=2.0, pair_name=pair_name,
                            payment_preference=self.sofort_pref)
+
+        self._create_mocks_uphold()
+        get_rtx.return_value = json.loads(self.completed)
 
         self.transaction_data.update({
             'order_id': self.order.unique_reference,
@@ -897,21 +900,26 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
         self.update_confirmation_task = update_pending_transactions_invoke
         self.user.email = "Sir@test.alot"
         self.user.save()
+        self.completed = '{"status": "completed", "type": "deposit"}'
 
     @data_provider(lambda: (
         ('BUY BTCEUR', 'BTCEUR', Order.BUY),
     ))
+    @requests_mock.mock()
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
     @patch(UPHOLD_ROOT + 'execute_txn')
     @patch(UPHOLD_ROOT + 'prepare_txn')
     @patch('payments.api_clients.adv_cash.AdvCashAPIClient.history')
-    def test_success_release(self, name, pair_name, order_type, history_patch,
-                             prepare_txn, execute_txn, get_txs, get_rtx):
-        get_rtx.return_value = json.loads(self.completed)
+    def test_success_release(self, name, pair_name, order_type, mock,
+                             history_patch, prepare_txn, execute_txn, get_txs,
+                             get_rtx):
+        self._mock_cards_reserve(mock)
         self._create_order(amount_base=2.0, pair_name=pair_name,
                            payment_preference=self.adv_cash_pref,
                            order_type=order_type)
+        self._create_mocks_uphold()
+        get_rtx.return_value = json.loads(self.completed)
 
         txs_resp = self.mock_advcash_transaction_response(**{
             'unique_ref': self.order.unique_reference,

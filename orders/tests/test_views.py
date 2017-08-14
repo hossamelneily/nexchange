@@ -10,12 +10,15 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 
+from accounts.models import Profile
 from core.models import Address
 from core.tests.base import OrderBaseTestCase
+from ticker.tests.base import TickerBaseTestCase
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
 from verification.models import Verification
 from core.tests.utils import data_provider
+import requests_mock
 
 
 class OrderSetAsPaidTestCase(OrderBaseTestCase):
@@ -132,7 +135,7 @@ class OrderPayUntilTestCase(OrderBaseTestCase):
             }
         )
 
-        order = Order.objects.last()
+        order = Order.objects.filter(amount_base=1, pair__name='BTCRUB').last()
         pay_until = order.created_on + timedelta(minutes=order.payment_window)
 
         # Should be saved if HTTP200re
@@ -162,7 +165,7 @@ class OrderPayUntilTestCase(OrderBaseTestCase):
             }
         )
 
-        order = Order.objects.last()
+        order = Order.objects.filter(amount_base=1, pair__name='BTCEUR').last()
         pay_until = order.created_on + timedelta(minutes=order.payment_window)
 
         # Should be saved if HTTP200re
@@ -196,7 +199,7 @@ class OrderPayUntilTestCase(OrderBaseTestCase):
                     'currency_to': 'BTC'}
             )
 
-        order = Order.objects.last()
+        order = Order.objects.filter(amount_base=1, pair__name='BTCRUB').last()
         pay_until = order.created_on + timedelta(minutes=order.payment_window)
 
         # Should be saved if HTTP200re
@@ -215,7 +218,7 @@ class OrderPayUntilTestCase(OrderBaseTestCase):
                             .strftime("%H:%M%p (%Z)"))
 
 
-class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
+class UpdateWithdrawAddressTestCase(TickerBaseTestCase):
 
     def setUp(self):
         super(UpdateWithdrawAddressTestCase, self).setUp()
@@ -281,11 +284,19 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
         self.addr.save()
 
         # The 'other' address for the Transaction
-        with mock.patch('core.signals.allocate_wallets.allocate_wallets'):
+        with requests_mock.mock() as m:
+            self.get_tickers(m)
+            self.user, created = \
+                User.objects.get_or_create(username='Address von Monitor')
+            self.user.save()
+            self.profile = Profile(user=self.user)
+            self.profile.save()
+            self._mock_cards_reserve(m)
             user, created = User.objects.get_or_create(
                 username='onit',
                 email='weare@onit.ws',
             )
+            self._create_order(user=user)
         addr2 = Address(**self.addr_data2)
         addr2.user = user
         addr2.save()
@@ -294,8 +305,7 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
         username = '+555190909100'
         password = '321Changed'
 
-        with mock.patch('core.signals.allocate_wallets.allocate_wallets'):
-            User.objects.create_user(username=username, password=password)
+        User.objects.create_user(username=username, password=password)
 
         client = self.client
         client.login(username=username, password=password)
@@ -307,6 +317,8 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
         self.client.logout()
 
     def test_sucess_to_update_withdraw_adrress(self):
+        self.order = Order.objects.filter(
+            pair__base__code='BTC', withdraw_address__isnull=True).first()
         self.client.login(username=self.user.username, password='password')
         response = self.client.post(self.url, {
             'pk': self.order.pk,
@@ -331,21 +343,24 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
         (False,),
     ))
     def test_throw_error_not_verified_user(self, required_verification):
-        pm = self.order.payment_preference.payment_method
+        order = Order.objects.filter(
+            payment_preference__isnull=False).first()
+        user = order.user
+        pm = order.payment_preference.payment_method
         pm.required_verification_buy = required_verification
         pm.save()
-        verifications = self.user.verification_set.all()
+        verifications = user.verification_set.all()
         status_keys = ['id_status', 'util_status']
         for key in status_keys:
             for ver in verifications:
                 setattr(ver, key, Verification.REJECTED)
                 ver.save()
             response = self.client.post(
-                self.url, {'pk': self.order.pk, 'value': self.addr.pk})
+                self.url, {'pk': order.pk, 'value': self.addr.pk})
             if required_verification:
                 response_create = self.client.post(
                     self.url_create_withdraw,
-                    {'order_pk': self.order.pk, 'value': self.addr.address}
+                    {'order_pk': order.pk, 'value': self.addr.address}
                 )
 
                 expected_msg = \
@@ -356,8 +371,8 @@ class UpdateWithdrawAddressTestCase(OrderBaseTestCase):
             self.assertIn(expected_msg, response.content)
             setattr(ver, key, Verification.OK)
             ver.save()
-            self.order.withdraw_address = None
-            self.order.save()
+            order.withdraw_address = None
+            order.save()
             if not required_verification:
                 break
 

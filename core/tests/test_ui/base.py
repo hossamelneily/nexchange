@@ -1,6 +1,7 @@
 import os
 from time import sleep
 
+from accounts.task_summary import renew_cards_reserve_invoke
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
@@ -12,7 +13,7 @@ from core.tests.base import TransactionImportBaseTestCase
 from ticker.tests.base import TickerBaseTestCase
 from selenium.webdriver.common.keys import Keys
 from orders.models import Order
-from core.models import AddressReserve
+from core.models import AddressReserve, Currency
 from verification.models import Verification
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -24,6 +25,8 @@ from time import time
 import json
 from random import randint
 from core.tests.base import UPHOLD_ROOT
+from nexchange.api_clients.rpc import ScryptRpcApiClient
+from nexchange.api_clients.uphold import UpholdApiClient
 
 
 class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
@@ -68,6 +71,9 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         self.logged_in = False
         self.recursive_withdraw_calls = 0
         self.xpath_query_contains_text = "//*[contains(text(), '{}')]"
+        with requests_mock.mock() as mock:
+            self._mock_cards_reserve(mock)
+            renew_cards_reserve_invoke.apply()
 
     def tearDown(self):
         super(BaseTestUI, self).tearDown()
@@ -190,7 +196,6 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             'https://www.google.com/recaptcha/api/siteverify',
             text='{\n "success": true\n}'
         )
-        self._mock_cards_reserve(mock)
         self.do_screenshot('after check method click')
         # FIXME: try wait for smth instead of sleep
         sleep(1)
@@ -231,6 +236,21 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         sleep(self.timeout / 60)
         self.do_screenshot('After Login')
         self.logged_in = True
+        # hack to create cards
+        # FIXME: cards should be created on order.create but - transaction
+        # mocks are created before place_order and this withdraw_address
+        # should be unique per order(will be fixed soon)
+        self.hack_cards_for_user(self.selenium_user)
+
+    def hack_cards_for_user(self, user):
+        self.completed = '{"status": "completed", "type": "deposit"}'
+        crypto_curr = Currency.objects.filter(is_crypto=True)
+        scrypt_client = ScryptRpcApiClient()
+        uphold_client = UpholdApiClient()
+        clients = {scrypt_client.related_nodes[0]: scrypt_client,
+                   uphold_client.related_nodes[0]: uphold_client}
+        for curr in crypto_curr:
+            clients[curr.wallet].create_user_wallet(user, curr)
 
     def wait_page_load(self, delay=None):
         if delay is not None:

@@ -1,4 +1,5 @@
-from core.tests.base import OrderBaseTestCase
+from core.tests.base import OrderBaseTestCase, TransactionImportBaseTestCase
+from ticker.tests.base import TickerBaseTestCase
 from django.contrib.auth.models import User
 from core.models import Address, Currency
 from accounts.models import Profile
@@ -26,7 +27,12 @@ class ProfileAttributeTestCase(OrderBaseTestCase):
         self.assertTrue(self.user.profile.has_withdraw_address)
 
 
-class UserCreationTestCase(OrderBaseTestCase):
+class UserCreationTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
+
+    def setUp(self):
+        super(UserCreationTestCase, self).setUp()
+        with requests_mock.mock() as mock:
+            self.get_tickers(mock)
 
     @requests_mock.mock()
     def test_user_count_exceeds_reserve_cards(self, mock):
@@ -37,6 +43,7 @@ class UserCreationTestCase(OrderBaseTestCase):
             user.save()
             profile = Profile(user=user)
             profile.save()
+            self._create_an_order_for_every_crypto_currency_card(user)
             user_cards_len = len(user.addressreserve_set.all())
             len_crypto_curr = len(
                 Currency.objects.filter(is_crypto=True, disabled=False))

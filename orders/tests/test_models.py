@@ -141,7 +141,7 @@ class OrderValidatePaymentTestCase(OrderBaseTestCase):
         order.status = Order.RELEASED
         order.save()
 
-        order = Order.objects.last()
+        order.refresh_from_db()
         # it's paid
         self.assertTrue(order.status == Order.RELEASED)
 
@@ -158,7 +158,7 @@ class OrderValidatePaymentTestCase(OrderBaseTestCase):
         order.status = Order.COMPLETED
         order.save()
 
-        order = Order.objects.last()
+        order.refresh_from_db()
         # it's paid
         self.assertTrue(order.status == Order.COMPLETED)
 
@@ -175,7 +175,7 @@ class OrderValidatePaymentTestCase(OrderBaseTestCase):
         order.status = Order.PAID
         order.save()
 
-        order = Order.objects.last()
+        order.refresh_from_db()
         # it's paid
         self.assertTrue(order.status == Order.PAID)
 
@@ -211,7 +211,7 @@ class OrderValidatePaymentTestCase(OrderBaseTestCase):
             currency=order.pair.quote
         )
         payment.save()
-        order = Order.objects.last()
+        order.refresh_from_db()
         # it's paid
         self.assertTrue(order.status == Order.PAID)
 

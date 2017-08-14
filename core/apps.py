@@ -5,4 +5,4 @@ class CoreConfig(AppConfig):
     name = 'core'
 
     def ready(self):
-        import core.signals.allocate_wallets  # noqa
+        pass

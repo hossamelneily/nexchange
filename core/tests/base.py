@@ -65,15 +65,8 @@ class UserBaseTestCase(TestCase):
         self.address_id_pattern = 'addr_id_'
         self._mock_rpc()
         self._mock_uphold()
-        with requests_mock.mock() as m:
-            self._mock_cards_reserve(m)
-            self.user, created = \
-                User.objects.get_or_create(username=self.username)
-            self.user.set_password(self.password)
-            self.user.save()
-            Verification(user=self.user,
-                         id_status=Verification.OK,
-                         util_status=Verification.OK).save()
+        self.create_main_user()
+
         assert isinstance(self.user, User)
         token = SmsToken(user=self.user)
         token.save()
@@ -83,8 +76,22 @@ class UserBaseTestCase(TestCase):
         assert success
         super(UserBaseTestCase, self).setUp()
 
+    @patch('orders.models.Order.convert_coin_to_cash')
+    def create_main_user(self, convert_cash):
+        with requests_mock.mock() as m:
+            self._mock_cards_reserve(m)
+            self.user, created = \
+                User.objects.get_or_create(username=self.username)
+            self.user.set_password(self.password)
+            self.user.save()
+            Verification(user=self.user,
+                         id_status=Verification.OK,
+                         util_status=Verification.OK).save()
+            convert_cash.return_value = True
+            self._create_an_order_for_every_crypto_currency_card(
+                self.user, amount_quote='1.1')
     # deprecated
-    def _request_card(self, request, context):
+    def _request_card(self, request, context):  # noqa
         post_params = {}
         params = request._request.body.split('&')
         for param in params:
@@ -156,6 +163,33 @@ class UserBaseTestCase(TestCase):
         )
         pattern_addr = re.compile('https://api.uphold.com/v0/me/cards/.+/addresses')  # noqa
         _mock.post(pattern_addr, text=self._request_address)
+
+    def _create_order(self, order_type=Order.BUY,
+                      amount_base=0.5, pair_name='ETHLTC',
+                      payment_preference=None, user=None, amount_quote=None):
+        pair = Pair.objects.get(name=pair_name)
+        if user is None:
+            user = self.user
+        self.order = Order(
+            order_type=order_type,
+            amount_base=Decimal(str(amount_base)),
+            pair=pair,
+            user=user,
+            status=Order.INITIAL,
+            amount_quote=amount_quote
+        )
+        if payment_preference is not None:
+            self.order.payment_preference = payment_preference
+        self.order.save()
+
+    def _create_an_order_for_every_crypto_currency_card(self, user,
+                                                        amount_quote=None):
+        crypto_currencies = Currency.objects.filter(is_crypto=True)
+        crypto_codes = [curr.code for curr in crypto_currencies]
+        for code in crypto_codes:
+            pair_name = Pair.objects.filter(quote__code=code).first().name
+            self._create_order(user=user, pair_name=pair_name,
+                               amount_quote=amount_quote)
 
 
 class OrderBaseTestCase(UserBaseTestCase):
@@ -335,16 +369,6 @@ class OrderBaseTestCase(UserBaseTestCase):
 
 
 class WalletBaseTestCase(OrderBaseTestCase):
-    fixtures = [
-        'currency_crypto.json',
-        'currency_fiat.json',
-        'pairs_btc.json',
-        'pairs_ltc.json',
-        'pairs_rns.json',
-        'pairs_eth.json',
-        'payment_method.json',
-        'payment_preference.json',
-    ]
 
     @classmethod
     def setUpClass(cls):
@@ -465,7 +489,6 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.url_tx_2 = 'http://btc.blockr.io/api/v1/tx/info/{}'.format(
             self.tx_ids[1]
         )
-        self._create_mocks_uphold()
         self.LTC = Currency.objects.get(code='LTC')
         self.ETH = Currency.objects.get(code='ETH')
         self.RNS = Currency.objects.get(code='RNS')
@@ -574,23 +597,29 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     def base_test_create_transactions_with_task(self, run_method, reserve_txs,
                                                 import_txs):
+
+        pair_name = 'BTCLTC'
+        order = Order.objects.filter(pair__name=pair_name).first()
+        self._create_mocks_uphold(
+            amount2=order.amount_quote, currency_code=order.pair.quote.code,
+        )
         reserve_txs.return_value = json.loads(self.completed)
         import_txs.return_value = json.loads(self.import_txs)
         run_method()
         tx_ok = Transaction.objects.filter(
-            tx_id_api=json.loads(self.import_txs)[0]['id']
+            tx_id_api=json.loads(self.import_txs)[1]['id']
         )
         self.assertEqual(
             len(tx_ok), 1,
             'Transaction must be created if order is found!'
         )
-        self.order.refresh_from_db()
+        order.refresh_from_db()
         self.assertEquals(
-            self.order.status, Order.PAID_UNCONFIRMED,
+            order.status, Order.PAID_UNCONFIRMED,
             'Order should be marked as paid after pipeline'
         )
         tx_bad = Transaction.objects.filter(
-            tx_id_api=json.loads(self.import_txs)[1]['id']
+            tx_id_api=json.loads(self.import_txs)[0]['id']
         )
         self.assertEqual(
             len(tx_bad), 0,
@@ -598,7 +627,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         )
         run_method()
         tx_ok = Transaction.objects.filter(
-            tx_id_api=json.loads(self.import_txs)[0]['id']
+            tx_id_api=json.loads(self.import_txs)[1]['id']
         )
         self.assertEqual(
             len(tx_ok), 1,
@@ -635,6 +664,10 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
 
     def _create_mocks_uphold(self, amount2=Decimal('0.0'), currency_code=None,
                              card_id=None):
+        if len(self.order.user.addressreserve_set.all()) == 0:
+            with requests_mock.mock() as mock:
+                self._mock_cards_reserve(mock)
+                self._create_an_order_for_every_crypto_currency_card()
         self.tx_ids_api = ['12345', '54321']
         if currency_code is None:
             currency_code = self.order.pair.base.code
@@ -654,19 +687,3 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.reverse_url2 = reserve_url.format(self.tx_ids_api[1])
         self.completed = '{"status": "completed", "type": "deposit"}'
         self.pending = '{"status": "pending", "type": "deposit"}'
-
-    def _create_order(self, order_type=Order.BUY,
-                      amount_base=0.5, pair_name='ETHLTC',
-                      payment_preference=None):
-        pair = Pair.objects.get(name=pair_name)
-        # order.exchange == True if pair.is_crypto
-        self.order = Order(
-            order_type=order_type,
-            amount_base=Decimal(str(amount_base)),
-            pair=pair,
-            user=self.user,
-            status=Order.INITIAL
-        )
-        if payment_preference is not None:
-            self.order.payment_preference = payment_preference
-        self.order.save()

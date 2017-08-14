@@ -1,10 +1,9 @@
-from core.models import Currency
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from nexchange.api_clients.rpc import ScryptRpcApiClient
 from nexchange.api_clients.uphold import UpholdApiClient
 
-ALLOWED_SENDERS = ['User', 'NexchangeUser']
+ALLOWED_SENDERS = ['Order']
 
 scrypt_client = ScryptRpcApiClient()
 uphold_client = UpholdApiClient()
@@ -17,10 +16,16 @@ def allocate_wallets(sender, instance=None, created=False, **kwargs):
     if sender.__name__ not in ALLOWED_SENDERS:
         # Only run on users
         return
-    if not created:
-        # run only once
+    user = instance.user
+    currency = instance.pair.quote
+    if user is None:
         return
-    _currencies = Currency.objects.filter(is_crypto=True)
-    for currency in _currencies:
-        if not currency.disabled:
-            clients[currency.wallet].create_user_wallet(instance, currency)
+    if currency.disabled or not currency.is_crypto:
+        # FIXME: Here we can add some message to our customer. Uphold is doing
+        # that. It is something like - 'Sorry, our payment provider
+        # currently is dealing with some technical issues/We do not support
+        # this currency at the time.'
+        return
+    if len(user.address_set.filter(currency=currency)) > 0:
+        return
+    clients[currency.wallet].create_user_wallet(user, currency)
