@@ -544,7 +544,7 @@ class BuyOrderReleaseFailedFlags(BaseOrderReleaseTestCase):
         )
     )
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('nexchange.utils.OkPayAPI._get_transaction_history')
+    @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     def test_release_flags(self,
                            # data_provider args
                            name,

@@ -64,6 +64,13 @@ PAYEER_ACCOUNT = os.getenv('PAYEER_ACCOUNT',
 PAYEER_API_ID = ''
 PAYEER_API_KEY = ''
 
+
+# ADV CASH
+ADV_CASH_API_NAME = ''
+ADV_CASH_ACCOUNT_EMAIL = ''
+ADV_CASH_API_PASSWORD = ''
+
+
 # API1
 API1_USER = os.getenv('API1_USER',
                       settings_dev.API1_USER)

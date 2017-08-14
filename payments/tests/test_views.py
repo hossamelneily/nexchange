@@ -1,22 +1,24 @@
+from copy import deepcopy
 from decimal import Decimal
+from time import time
 from unittest import skip
-from unittest.mock import patch
+
+import requests_mock
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import Client
-from django.conf import settings
+from unittest.mock import patch
 
 from core.models import Address, Transaction
 from core.tests.base import OrderBaseTestCase, UserBaseTestCase
+from core.tests.base import UPHOLD_ROOT
 from core.tests.utils import data_provider
-from payments.tests.base import BaseCardPmtAPITestCase
+from nexchange.api_clients.uphold import UpholdApiClient
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
-from payments.utils import get_payeer_sign, get_payeer_desc
-import requests_mock
-from time import time
-from copy import deepcopy
-from nexchange.api_clients.uphold import UpholdApiClient
-from core.tests.base import UPHOLD_ROOT
+from payments.tests.test_api_clients.base import BaseCardPmtAPITestCase
+from payments.utils import get_sha256_sign, get_payeer_desc
+
 
 
 class PayeerTestCase(OrderBaseTestCase):
@@ -47,7 +49,7 @@ class PayeerTestCase(OrderBaseTestCase):
             'm_curr': input_list[7],
             'm_desc': input_list[8],
             'm_status': input_list[9],
-            'm_sign': get_payeer_sign(ar_hash=(i for i in input_list))
+            'm_sign': get_sha256_sign(ar_hash=(i for i in input_list))
         }
         if delete is not None:
             del self.input_params[delete]

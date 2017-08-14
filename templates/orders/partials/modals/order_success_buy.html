@@ -104,6 +104,8 @@
                             {% include "payments/partials/forms/payeer_form.html" %}
                         {% elif order.payment_preference.payment_method.name == 'Sofort' %}
                             {% include "payments/partials/forms/sofort_form.html" %}
+                        {% elif order.payment_preference.payment_method.name == 'Advanced Cash(advcash)' %}
+                            {% include "payments/partials/forms/adv_cash_form.html" %}
                         {% endif %}
                     </div>
                     </div>

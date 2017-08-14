@@ -1,22 +1,23 @@
-import sys
-
-from core.tests.utils import data_provider
-from core.tests.utils import (create_payeer_mock_for_order,
-                              get_payeer_mock, get_ok_pay_mock,
-                              create_ok_payment_mock_for_order)
-from orders.models import Order
-from core.models import AddressReserve
-
-from unittest.mock import patch
-import requests_mock
-from time import time
 import json
-from core.tests.test_ui.base import BaseTestUI
-from payments.tests.base import BaseSofortAPITestCase
-from core.tests.base import UPHOLD_ROOT
-from unittest import skip
+import sys
+from time import time
 
+import requests_mock
 from selenium.webdriver.common.by import By
+from unittest.mock import patch
+from django.conf import settings
+
+from core.models import AddressReserve
+from core.tests.base import UPHOLD_ROOT
+from core.tests.test_ui.base import BaseTestUI
+from core.tests.utils import create_payeer_mock_for_order, get_payeer_mock, \
+    create_ok_payment_mock_for_order
+from core.tests.utils import data_provider
+from orders.models import Order
+from payments.tests.test_api_clients.base import BaseSofortAPITestCase
+from payments.tests.test_api_clients.test_adv_cash import \
+    BaseAdvCashAPIClientTestCase
+from unittest import skip
 
 
 @skip('Skipped untill fiat task logic refactoring')
@@ -55,6 +56,13 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
     def test_buy5(self, payment_methods, automatic_payment, do_logout):
         self.base_test_buy(payment_methods, automatic_payment, do_logout,
                            reject_user_verification=False)
+
+    @data_provider(lambda: (
+        ([{'name': 'Advanced Cash(advcash)', 'success_url': '/advcash'}], True,
+         True),
+    ))
+    def test_buy6(self, payment_methods, automatic_payment, do_logout):
+        self.base_test_buy(payment_methods, automatic_payment, do_logout)
 
     def base_test_buy(self, payment_methods, automatic_payment, do_logout,
                       reject_user_verification=True):
@@ -105,6 +113,12 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
     def test_sell3(self, payment_methods):
         self.base_test_sell(payment_methods)
 
+    @data_provider(lambda: (
+        (['Advanced Cash(advcash)'],),
+    ))
+    def test_sell4(self, payment_methods):
+        self.base_test_sell(payment_methods)
+
     def base_test_sell(self, payment_methods, pair_name='BTCEUR',
                        do_logout=False):
         self.workflow = 'SELL'
@@ -146,7 +160,8 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
         )
         if self.payment_method == 'Qiwi Wallet':
             self.fill_sell_card_data(modal, 'phone', self.phone)
-        elif self.payment_method in ['OK Pay', 'PayPal', 'Skrill']:
+        elif self.payment_method in ['OK Pay', 'PayPal', 'Skrill',
+                                     'Advanced Cash(advcash)']:
             self.fill_sell_card_data(modal, 'iban', self.name)
             self.fill_sell_card_data(modal, 'account-number', self.email)
         elif self.payment_method in ['Card 2 Card', 'Sepa', 'Swift']:
@@ -216,21 +231,18 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
         key.send_keys(value)
 
     @requests_mock.mock()
+    @patch('payments.api_clients.adv_cash.AdvCashAPIClient.history')
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
-    @patch('nexchange.utils.OkPayAPI._get_transaction_history')
-    def automatic_checkout(self, mock, trans_history, reserve_txn,
-                           success_url=None):
-        trans_history.return_value = get_ok_pay_mock(
-            data='transaction_history'
-        )
+    @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
+    def automatic_checkout(self, mock, trans_history_okpay, reserve_txn,
+                           trans_history_advcash, success_url=None):
         reserve_txn.return_value = {'status': 'completed'}
         mock.post('https://payeer.com/ajax/api/api.php',
                   text=get_payeer_mock('transaction_history'))
         method = self.order.payment_preference.payment_method
         if 'okpay' in method.name.lower():
-            trans_history.return_value = create_ok_payment_mock_for_order(
-                self.order
-            )
+            trans_history_okpay.return_value = \
+                create_ok_payment_mock_for_order(self.order)
         elif 'payeer' in method.name.lower():
             mock.post('https://payeer.com/ajax/api/api.php',
                       text=create_payeer_mock_for_order(self.order))
@@ -245,6 +257,20 @@ class TestUIFiatOrders(BaseTestUI, BaseSofortAPITestCase):
                 **transaction_data
             )
             self.mock_transaction_history(mock, transaction_xml)
+        elif 'advcash' in method.name.lower():
+            txs_resp = self.mock_advcash_transaction_response(**{
+                'unique_ref': self.order.unique_reference,
+                'amount': self.order.amount_quote,
+                'currency': self.order.pair.quote.code,
+                'tx_id': str(time()),
+                'dest_wallet_id': settings.ADV_CASH_WALLET_EUR,
+                'receiver_email': self.order.payment_preference.identifier,
+                'sender_email': self.email,
+                'comment': self.order.unique_reference,
+            })
+            trans_history_advcash.return_value = \
+                self.mock_advcash_transaction_history_response(
+                    transactions=txs_resp)
         self.do_screenshot('Before push auto-checkout')
         auto_checkout = self.driver.find_elements_by_class_name(
             'automatic-checkout'

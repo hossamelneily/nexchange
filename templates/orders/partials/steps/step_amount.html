@@ -87,6 +87,7 @@
     {% include 'payments/partials/modals/sell.html' with id="swiftSellModal" form="swift" method="swift" legend="Get paid using a SWIFT transfer" icon="icons/small/swift.png" %}
     {% include 'payments/partials/modals/sell.html' with id="okpaySellModal" method="okpay" form="email" legend="Get paid to your OkPay wallet" icon="icons/small/okpay.png" %}
     {% include 'payments/partials/modals/sell.html' with id="payeerSellModal" method="payeer" form="email" legend="Get paid to your Payeer wallet" icon="icons/small/payeer.png" %}
-    
+    {% include 'payments/partials/modals/sell.html' with id="advcashSellModal" method="advcash" form="email" legend="Get paid to your Advanced Cash wallet" icon="icons/small/adv_cash.png" %}
     {% include 'orders/partials/recent_orders.html' with id="recent-orders" %}
+
 {% endblock %}

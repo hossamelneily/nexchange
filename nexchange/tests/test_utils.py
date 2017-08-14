@@ -1,7 +1,9 @@
 from unittest import TestCase
 from unittest.mock import patch
 from decimal import Decimal
-from nexchange.utils import PayeerAPIClient, OkPayAPI, check_address_blockchain
+from nexchange.utils import check_address_blockchain
+from payments.api_clients.ok_pay import OkPayAPI
+from payments.api_clients.payeer import PayeerAPIClient
 import requests_mock
 from core.models import Address
 from core.tests.base import OrderBaseTestCase
@@ -68,7 +70,7 @@ class OkPayAPIClientTestCase(TestCase):
         for key in expected_keys:
             self.assertIn(key, sender_receiver)
 
-    @patch('nexchange.utils.OkPayAPI._send_money')
+    @patch('payments.api_clients.ok_pay.OkPayAPI._send_money')
     def test_send_money_keys(self, send_money):
         send_money.return_value = get_ok_pay_mock(
             data='transaction_send_money'

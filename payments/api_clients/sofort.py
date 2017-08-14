@@ -1,4 +1,4 @@
-from nexchange.utils import BasePaymentApi
+from payments.api_clients.base import BasePaymentApi
 from django.conf import settings
 import requests
 import base64

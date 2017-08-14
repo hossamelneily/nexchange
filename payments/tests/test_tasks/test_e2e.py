@@ -14,7 +14,7 @@ class WalletAPITestCase(WalletBaseTestCase):
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
     @patch('orders.models.Order.convert_coin_to_cash')
-    @patch('nexchange.utils.OkPayAPI._get_transaction_history')
+    @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     def test_confirm_order_payment_with_okpay_celery(self,
                                                      history,
                                                      convert_to_cash,
@@ -54,7 +54,8 @@ class WalletAPITestCase(WalletBaseTestCase):
         self.assertEqual(pref[0].secondary_identifier, 'OK487565544')
         self.assertIn(order.status, Order.IN_PAID)
 
-    @patch('nexchange.utils.PayeerAPIClient.get_transaction_history')
+    @patch('payments.api_clients.payeer.PayeerAPIClient.'
+           'get_transaction_history')
     @patch('orders.models.Order.convert_coin_to_cash')
     def test_import_payeer_invalid_wallet(self,
                                           convert_to_cash, trans_hist):
@@ -86,7 +87,8 @@ class WalletAPITestCase(WalletBaseTestCase):
         self.assertEqual(0, len(p))
         # assert payment pref is created correctly
 
-    @patch('nexchange.utils.PayeerAPIClient.get_transaction_history')
+    @patch('payments.api_clients.payeer.PayeerAPIClient.'
+           'get_transaction_history')
     @patch('orders.models.Order.convert_coin_to_cash')
     def test_import_payeer_invalid_status(self, convert_to_cash, trans_hist):
         convert_to_cash.return_value = None
@@ -119,7 +121,8 @@ class WalletAPITestCase(WalletBaseTestCase):
 
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
-    @patch('nexchange.utils.PayeerAPIClient.get_transaction_history')
+    @patch('payments.api_clients.payeer.PayeerAPIClient.'
+           'get_transaction_history')
     @patch('orders.models.Order.convert_coin_to_cash')
     def test_confirm_order_payment_with_payeer_celery(self, convert_to_cash,
                                                       trans_hist, validate):

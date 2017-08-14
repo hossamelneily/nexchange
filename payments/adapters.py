@@ -43,6 +43,12 @@ def sofort_adapter(request):
     }
 
 
+def adv_cash_adapter(request):
+    return {
+        'valid': True,
+    }
+
+
 def leupay_adapter(request):
     return {
         'valid': True,

@@ -20,6 +20,7 @@
     </div>
     {% include 'payments/partials/modals/card.html' with card_type='qiwi' label='Qiwi Wallet' icon='icons/small/qiwi.png' card=categories.wallets.qiwi %}
     {% include 'payments/partials/modals/card.html' with card_type='okpay' label='OK Pay' icon='icons/small/okpay.png' card=categories.wallets.okpay %}
+    {% include 'payments/partials/modals/card.html' with card_type='advcash' label='Advanced Cash(advcash)' icon='icons/small/adv_cash.png' card=categories.wallets.adv_cash %}
     {% if is_buy %}
         {% include 'payments/partials/modals/card.html' with card_type='payeer' label='Payeer Wallet' icon='icons/small/payeer.png' card=categories.wallets.payeer %}
         {% include 'payments/partials/modals/card.html' with card_type='robokassa' icon='icons/small/robokass.png' card=categories.wallets.robokassa %}

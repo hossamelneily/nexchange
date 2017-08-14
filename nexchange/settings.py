@@ -154,6 +154,19 @@ SOFORT_USER_ID = '141789'
 SOFORT_PROJECT_ID = '344411'
 SOFORT_API_KEY = 'some_id'
 
+# ADV CASH
+ADV_CASH_API_NAME = 'test_api'
+ADV_CASH_ACCOUNT_EMAIL = 'sarunas@onit.ws'
+ADV_CASH_API_PASSWORD = 'HgkL1hcUhwUdx0V0Y1HOR7'
+ADV_CASH_SCI_NAME = 'Test Sci'
+ADV_CASH_SCI_PASSWORD = 'TLuY2zgQoZoy1TDW23tup3'
+ADV_CASH_WALLET_USD = 'U481612001049'
+ADV_CASH_WALLET_EUR = 'E116938354831'
+ADV_CASH_WALLET_GBP = 'G858614605772'
+ADV_CASH_WALLET_RUB = 'R093095975471'
+ADV_CASH_WALLETS = [ADV_CASH_WALLET_USD, ADV_CASH_WALLET_EUR,
+                    ADV_CASH_WALLET_GBP, ADV_CASH_WALLET_RUB]
+
 
 CARDPMT_API_URL = 'https://gateway.cardpmt.com/api.cgi'
 CARDPMT_API_ID = 'user'
@@ -221,6 +234,10 @@ CELERY_BEAT_SCHEDULE = {
     },
     'check_sofort_payments': {
         'task': 'payments.task_summary.run_sofort',
+        'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
+    },
+    'check_adv_cash_payments': {
+        'task': 'payments.task_summary.run_adv_cash',
         'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
     },
     'buy_order_release_reference_periodic': {

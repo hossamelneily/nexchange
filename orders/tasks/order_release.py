@@ -17,6 +17,8 @@ def sell_order_release():
     for order in orders[::-1]:
         order.refresh_from_db()
         if order.status not in Order.IN_RELEASED:
+            order.status = Order.FAILED_RELEASE
+            order.save()
             send_money_status = utils.send_money(order.pk)
             if send_money_status:
                 order.status = Order.COMPLETED
@@ -24,7 +26,6 @@ def sell_order_release():
                 logger.info('Order {} is released, client paid'.format(order))
             else:
                 msg = 'Order {} cannot be paid automatically.'.format(order)
-                order.flag(val=msg)
                 raise NotImplementedError(msg)
         else:
             msg = 'Order {} already released'.format(order)

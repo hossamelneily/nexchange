@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from .base import BasePaymentChecker
 from django.conf import settings
 from decimal import Decimal
-from nexchange.utils import PayeerAPIClient
+from payments.api_clients.payeer import PayeerAPIClient
 import re
 
 

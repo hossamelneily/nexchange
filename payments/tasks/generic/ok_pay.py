@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from .base import BasePaymentChecker
 from django.conf import settings
 from decimal import Decimal
-from nexchange.utils import OkPayAPI
+from payments.api_clients.ok_pay import OkPayAPI
 
 
 class OkPayPaymentChecker(BasePaymentChecker):

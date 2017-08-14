@@ -42,6 +42,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     )
 
     PAID_UNCONFIRMED = -1
+    FAILED_RELEASE = -2
     CANCELED = 0
     INITIAL = 1
     PAID = 2
@@ -49,6 +50,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     COMPLETED = 4
     STATUS_TYPES = (
         (PAID_UNCONFIRMED, 'UNCONFIRMED PAYMENT'),
+        (FAILED_RELEASE, 'FAILED RELEASE'),
         (CANCELED, 'CANCELED'),
         (INITIAL, 'INITIAL'),
         (PAID, 'PAID'),
@@ -56,7 +58,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
         (COMPLETED, 'COMPLETED'),
     )
     IN_PAID = [PAID, RELEASED, COMPLETED]
-    IN_RELEASED = [RELEASED, COMPLETED]
+    IN_RELEASED = [RELEASED, COMPLETED, FAILED_RELEASE]
+    IN_SUCCESS_RELEASED = [RELEASED, COMPLETED]
     _could_be_paid_msg = 'Could be paid by crypto transaction or fiat ' \
                          'payment, depending on order_type.'
     _order_status_help = (6 * '{} - {}<br/>').format(
@@ -67,7 +70,9 @@ class Order(TimeStampedModel, SoftDeletableModel,
                             'cover the order.)',
         'RELEASED', 'Order is paid by service provider. ' + _could_be_paid_msg,
         'COMPLETED', 'All statuses of the order is completed',
-        'CANCELED', 'Order is canceled.'
+        'CANCELED', 'Order is canceled.',
+        'FAILED_RELEASE', 'Order is not released due to unexpected error i.e. '
+                          'third party api error'
     )
 
     # Todo: inherit from BTC base?, move lengths to settings?

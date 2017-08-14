@@ -17,17 +17,19 @@ from core.models import Currency
 from orders.models import Order
 from payments.adapters import (leupay_adapter, robokassa_adapter,
                                unitpay_adapter, okpay_adapter,
-                               payeer_adapter, sofort_adapter)
+                               payeer_adapter, sofort_adapter,
+                               adv_cash_adapter)
 from payments.models import Payment, PaymentPreference
-from payments.utils import get_payeer_sign
-from payments.task_summary import run_payeer, run_okpay, run_sofort
+from payments.utils import get_sha256_sign
+from payments.task_summary import run_payeer, run_okpay, run_sofort, \
+    run_adv_cash
 from decimal import Decimal
 from payments.api_clients.card_pmt import CardPmtAPIClient
 from core.context_processors import country_code
 
 
 @login_required
-def payment_failure(request):
+def payment_failure(request, provider):
     get_template('orders/partials/steps/step_retry_payment.html')
     # TODO: Better logic
     last_order = Order.objects.filter(user=request.user).latest('id')
@@ -100,9 +102,11 @@ def payment_success(request, provider):
         received_order = payeer_adapter(request)
     elif provider == 'sofort':
         received_order = sofort_adapter(request)
+    elif provider == 'advcash':
+        received_order = adv_cash_adapter(request)
 
     # hacky hack
-    supporterd = ['okpay', 'payeer', 'sofort']
+    supporterd = ['okpay', 'payeer', 'sofort', 'advcash']
 
     if provider not in supporterd:
         logger.error('Success view provider '
@@ -113,12 +117,16 @@ def payment_success(request, provider):
             res = run_payeer.apply_async(
                 countdown=settings.GATEWAY_RESOLVE_TIME
             )
-        if provider == 'okpay':
+        elif provider == 'okpay':
             res = run_okpay.apply_async(
                 countdown=settings.GATEWAY_RESOLVE_TIME
             )
-        if provider == 'sofort':
+        elif provider == 'sofort':
             res = run_sofort.apply_async(
+                countdown=settings.GATEWAY_RESOLVE_TIME
+            )
+        elif provider == 'advcash':
+            res = run_adv_cash.apply_async(
                 countdown=settings.GATEWAY_RESOLVE_TIME
             )
         logger.info('Triggered payeer payment import for {}'.format(provider))
@@ -238,6 +246,7 @@ def payment_type(request):
             'paypal': get_pref_by_name('PayPal', currency),
             'okpay': get_pref_by_name('Okpay', currency),
             'payeer': get_pref_by_name('Payeer', currency),
+            'adv_cash': get_pref_by_name('Advanced', currency),
         },
     }
 
@@ -298,7 +307,7 @@ def payeer_status(request):
             request.POST['m_status'],
             settings.PAYEER_IPN_KEY
         )
-        sign = get_payeer_sign(ar_hash=ar_hash)
+        sign = get_sha256_sign(ar_hash=ar_hash)
         if (request.POST.get('m_sign') == sign and
                 request.POST.get('m_status') == 'success'):
             retval = request.POST['m_orderid'] + '|success'

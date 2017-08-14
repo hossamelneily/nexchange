@@ -72,7 +72,7 @@ class BaseBuyOrderRelease(BaseOrderRelease):
             # type_ = order.pair.base.code
             order.refresh_from_db()
             if order.status not in Order.IN_RELEASED:
-                order.status = Order.RELEASED
+                order.status = Order.FAILED_RELEASE
                 order.save()
                 tx_id = self.api.release_coins(
                     order.pair.base,
@@ -89,6 +89,10 @@ class BaseBuyOrderRelease(BaseOrderRelease):
                 self.logger.error(msg)
                 order.flag(val=msg)
                 return False
+
+            order.refresh_from_db()
+            order.status = Order.RELEASED
+            order.save()
 
             self.logger.info(
                 'RELEASED order: {} with payment {} '

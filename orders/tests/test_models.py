@@ -513,7 +513,7 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'execute_txn')
     @patch(UPHOLD_ROOT + 'prepare_txn')
-    @patch('nexchange.utils.OkPayAPI._get_transaction_history')
+    @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     def test_order_is_paid(self,
                            name,
                            payments_data,

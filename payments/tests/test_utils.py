@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from payments.utils import (get_payeer_sign, get_payeer_desc,
+from payments.utils import (get_sha256_sign, get_payeer_desc,
                             credit_card_number_validator)
 
 
@@ -18,7 +18,7 @@ class UtilsTestCase(TestCase):
         m_desc = get_payeer_desc('BUY 0.1BTC')
         m_shop = '287402376'
         m_key = '12345'
-        sign = get_payeer_sign(ar_hash=(m_shop, m_orderid, m_amount, m_curr,
+        sign = get_sha256_sign(ar_hash=(m_shop, m_orderid, m_amount, m_curr,
                                         m_desc, m_key))
         expected = ('0266597A232B49167A9551E015FECF0BC20D3D5185B31F81B02159E3'
                     '86E393BD')

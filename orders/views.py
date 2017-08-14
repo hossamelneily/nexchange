@@ -15,7 +15,7 @@ from core.models import Address, Pair, Currency
 from core.views import main
 from orders.models import Order
 from payments.models import PaymentPreference, PaymentMethod, Payment
-from payments.utils import geturl_robokassa, get_payeer_sign, get_payeer_desc
+from payments.utils import geturl_robokassa, get_sha256_sign, get_payeer_desc
 from nexchange.utils import send_email
 from orders.task_summary import buy_order_release_by_reference_invoke, \
     buy_order_release_by_wallet_invoke, exchange_order_release_invoke
@@ -211,7 +211,6 @@ def ajax_order(request):
                 _currency_from,
                 request.user
             )
-
         else:
             payment_pref = PaymentPreference.objects.get(
                 user__is_staff=True,
@@ -255,9 +254,7 @@ def ajax_order(request):
         'action': my_action,
         'pay_until': pay_until,
         'address': address,
-        'payment_method': payment_method,
-        'okpay_wallet': settings.OKPAY_WALLET
-
+        'payment_method': payment_method
     }
 
     if payment_method == 'Robokassa':
@@ -276,7 +273,7 @@ def ajax_order(request):
             desc,
             settings.PAYEER_IPN_KEY,
         )
-        payeer_sign = get_payeer_sign(ar_hash=ar_hash)
+        payeer_sign = get_sha256_sign(ar_hash=ar_hash)
         context.update({
             'payeer_sign': payeer_sign,
             'payeer_shop': settings.PAYEER_WALLET,
@@ -290,6 +287,22 @@ def ajax_order(request):
         context.update({
             'sofort_user_id': settings.SOFORT_USER_ID,
             'sofort_project_id': settings.SOFORT_PROJECT_ID
+        })
+
+    elif payment_method == 'advcash':
+        ar_hash = (
+            settings.ADV_CASH_ACCOUNT_EMAIL,
+            settings.ADV_CASH_SCI_NAME,
+            '%.2f' % order.amount_quote,
+            order.pair.quote.code,
+            settings.ADV_CASH_SCI_PASSWORD,
+            order.unique_reference
+        )
+        adv_cash_sign = get_sha256_sign(ar_hash=ar_hash, upper=False)
+        context.update({
+            'adv_cash_email': settings.ADV_CASH_ACCOUNT_EMAIL,
+            'adv_cash_sci_name': settings.ADV_CASH_SCI_NAME,
+            'adv_cash_sign': adv_cash_sign
         })
 
     try:

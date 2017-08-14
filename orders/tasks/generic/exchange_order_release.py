@@ -52,7 +52,7 @@ class ExchangeOrderRelease(BaseOrderRelease):
                 self.api = ScryptRpcApiClient()
             order.refresh_from_db()
             if order.status not in Order.IN_RELEASED:
-                order.status = Order.RELEASED
+                order.status = Order.FAILED_RELEASE
                 order.save()
                 tx_id = self.api.release_coins(
                     currency,
@@ -70,6 +70,9 @@ class ExchangeOrderRelease(BaseOrderRelease):
                 self.logger.error(msg)
                 order.flag(val=msg)
                 return False
+
+            order.status = Order.RELEASED
+            order.save()
 
             self.logger.info(
                 'RELEASED order: {}, released tx_id: {}'.format(

@@ -1,6 +1,7 @@
 from payments.tasks.generic.ok_pay import OkPayPaymentChecker
 from payments.tasks.generic.payeer import PayeerPaymentChecker
 from payments.tasks.generic.sofort import SofortPaymentChecker
+from payments.tasks.generic.adv_cash import AdvCashPaymentChecker
 from django.conf import settings
 from celery import shared_task
 
@@ -24,3 +25,10 @@ def run_sofort():
     # TODO: migrate to single instance
     sofort_checker = SofortPaymentChecker()
     return sofort_checker.run()
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def run_adv_cash():
+    # TODO: migrate to single instance
+    adv_cash_checker = AdvCashPaymentChecker()
+    return adv_cash_checker.run()
