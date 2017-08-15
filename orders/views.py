@@ -186,7 +186,6 @@ def ajax_order(request):
     # FIXME: add bad disabled pair user erros
     pair = Pair.objects.get(name=pair_name, disabled=False)
     _currency_from = pair.quote
-    _currency_to = pair.base
 
     # Only for buy order right now
     exchange = False
@@ -231,21 +230,10 @@ def ajax_order(request):
     activate(request.POST.get('_locale'))
 
     my_action = _('Result')
-    address = ''
-    if trade_type == Order.SELL:
-        addresses = Address.objects.filter(
-            user=request.user,
-            currency=_currency_to,
-            type=Address.DEPOSIT
-        )
-        address = addresses[0].address
-    elif trade_type == Order.BUY and order.exchange:
-        addresses = Address.objects.filter(
-            user=request.user,
-            currency=_currency_from,
-            type=Address.DEPOSIT
-        )
-        address = addresses[0].address
+    if trade_type == Order.BUY and not order.exchange:
+        address = ''
+    else:
+        address = order.deposit_address.address
 
     context = {
         'order': order,

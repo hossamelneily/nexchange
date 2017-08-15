@@ -16,8 +16,11 @@ def allocate_wallets(sender, instance=None, created=False, **kwargs):
     if sender.__name__ not in ALLOWED_SENDERS:
         # Only run on users
         return
-    user = instance.user
-    currency = instance.pair.quote
+    if not created:
+        return
+    order = instance
+    user = order.user
+    currency = order.pair.quote
     if user is None:
         return
     if currency.disabled or not currency.is_crypto:
@@ -26,6 +29,6 @@ def allocate_wallets(sender, instance=None, created=False, **kwargs):
         # currently is dealing with some technical issues/We do not support
         # this currency at the time.'
         return
-    if len(user.address_set.filter(currency=currency)) > 0:
-        return
-    clients[currency.wallet].create_user_wallet(user, currency)
+    card, address = clients[currency.wallet].create_user_wallet(user, currency)
+    order.deposit_address = address
+    order.save()

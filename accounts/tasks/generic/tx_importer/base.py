@@ -22,7 +22,8 @@ class BaseTransactionImporter:
             amount_base=Decimal(str(tx['amount'])),
             pair__base=tx['currency'],
             status=Order.INITIAL,
-            user=tx['address_to'].user
+            user=tx['address_to'].user,
+            deposit_address=tx['address_to']
         )
         buy_exchange_query = Q(
             exchange=True,
@@ -30,7 +31,8 @@ class BaseTransactionImporter:
             amount_quote=Decimal(str(tx['amount'])),
             pair__quote=tx['currency'],
             status=Order.INITIAL,
-            user=tx['address_to'].user
+            user=tx['address_to'].user,
+            deposit_address=tx['address_to']
         )
         sell_exchange_query = Q(
             exchange=True,
@@ -38,7 +40,8 @@ class BaseTransactionImporter:
             amount_base=Decimal(str(tx['amount'])),
             pair__base=tx['currency'],
             status=Order.INITIAL,
-            user=tx['address_to'].user
+            user=tx['address_to'].user,
+            deposit_address=tx['address_to']
         )
         orders = Order.objects.filter(
             sell_query | buy_exchange_query | sell_exchange_query

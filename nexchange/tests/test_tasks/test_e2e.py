@@ -31,6 +31,7 @@ from ticker.tests.base import TickerBaseTestCase
 from verification.models import Verification
 from payments.tests.test_api_clients.test_adv_cash import \
     BaseAdvCashAPIClientTestCase
+from unittest import skip
 
 
 class OKPayEndToEndTestCase(WalletBaseTestCase):
@@ -247,6 +248,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         )
         self.order_2.save()
 
+    @skip('Sell order depreciated')
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
     @patch('orders.utils.send_money')
@@ -278,6 +280,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.release_task.apply()
         self.assertNotIn(self.order.status, Order.IN_RELEASED)
 
+    @skip('Sell order depreciated')
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
     @patch('orders.utils.send_money')
@@ -323,6 +326,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.release_task.apply()
         self.assertNotIn(self.order.status, Order.IN_RELEASED)
 
+    @skip('Sell order depreciated')
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
     @patch('payments.api_clients.ok_pay.OkPayAPI.send_money')
@@ -340,6 +344,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.order.refresh_from_db()
         self.assertTrue(self.order.flagged)
 
+    @skip('Sell order depreciated')
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
     @patch('payments.api_clients.ok_pay.OkPayAPI._send_money')
@@ -362,6 +367,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.assertEqual(1, send_money.call_count)
         self.assertIn(self.order.status, Order.IN_RELEASED)
 
+    @skip('Sell order depreciated')
     @requests_mock.mock()
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
@@ -384,6 +390,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
         self.assertEqual(1, send_money.call_count)
         self.assertIn(self.order.status, Order.IN_RELEASED)
 
+    @skip('Sell order depreciated')
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
     def test_unknown_method_do_not_send_money_sell_order(self,
@@ -672,8 +679,8 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             ('ETHLTC', Order.SELL, True),
             ('BTCETH', Order.SELL, False),
             ('BTCLTC', Order.SELL, True),
+            ('BTCRNS', Order.BUY, True),
             ('LTCRNS', Order.BUY, True),
-            ('BTCRNS', Order.SELL, True),
         )
     )
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient.release_coins')
@@ -705,7 +712,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             withdraw_currency_code = currency_quote_code
         mock_currency = Currency.objects.get(code=mock_currency_code)
 
-        card = self.order.user.addressreserve_set.get(currency=mock_currency)
+        card = self.order.deposit_address.reserve
         card.need_balance_check = False
         card.save()
 
@@ -963,6 +970,7 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
         self.assertEqual(t1.amount, self.order.amount_base, name)
         self.assertEqual(t1.currency, self.order.pair.base, name)
 
+    @skip('Sell order depreciated')
     @data_provider(lambda: (
         ('SELL BTCEUR', 'BTCEUR', Order.SELL),
     ))
@@ -1022,6 +1030,7 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
 
         self.assertEqual(self.order.status, Order.COMPLETED, name)
 
+    @skip('Sell order depreciated')
     @data_provider(lambda: (
         ('SELL BTCEUR flaged', 'BTCEUR', Order.SELL),
     ))

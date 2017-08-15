@@ -13,7 +13,7 @@ from core.tests.base import TransactionImportBaseTestCase
 from ticker.tests.base import TickerBaseTestCase
 from selenium.webdriver.common.keys import Keys
 from orders.models import Order
-from core.models import AddressReserve, Currency
+from core.models import AddressReserve
 from verification.models import Verification
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -25,8 +25,6 @@ from time import time
 import json
 from random import randint
 from core.tests.base import UPHOLD_ROOT
-from nexchange.api_clients.rpc import ScryptRpcApiClient
-from nexchange.api_clients.uphold import UpholdApiClient
 
 
 class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
@@ -236,21 +234,6 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         sleep(self.timeout / 60)
         self.do_screenshot('After Login')
         self.logged_in = True
-        # hack to create cards
-        # FIXME: cards should be created on order.create but - transaction
-        # mocks are created before place_order and this withdraw_address
-        # should be unique per order(will be fixed soon)
-        self.hack_cards_for_user(self.selenium_user)
-
-    def hack_cards_for_user(self, user):
-        self.completed = '{"status": "completed", "type": "deposit"}'
-        crypto_curr = Currency.objects.filter(is_crypto=True)
-        scrypt_client = ScryptRpcApiClient()
-        uphold_client = UpholdApiClient()
-        clients = {scrypt_client.related_nodes[0]: scrypt_client,
-                   uphold_client.related_nodes[0]: uphold_client}
-        for curr in crypto_curr:
-            clients[curr.wallet].create_user_wallet(user, curr)
 
     def wait_page_load(self, delay=None):
         if delay is not None:
@@ -500,11 +483,13 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
 
     def mock_import_transaction(self, amount, currency_code, get_txs,
                                 get_rtx):
+        self.completed = '{"status": "completed", "type": "deposit"}'
         tx_id_api1 = 'tx_customer{}{}'.format(str(time()), randint(0, 999))
         tx_id_api2 = 'tx_customer{}{}'.format(str(time()), randint(0, 999))
         card_id = AddressReserve.objects.filter(
-            user__username=self.username,
-            currency__code=currency_code)[0].card_id
+            currency__code=currency_code,
+            user__isnull=True
+        ).last().card_id
         get_txs_response = self.uphold_import_transactions_empty.format(
             tx_id_api1=tx_id_api1,
             tx_id_api2=tx_id_api2,

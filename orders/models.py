@@ -95,8 +95,13 @@ class Order(TimeStampedModel, SoftDeletableModel,
     withdraw_address = models.ForeignKey('core.Address',
                                          null=True,
                                          blank=True,
-                                         related_name='order_set',
+                                         related_name='order_set_withdraw',
                                          default=None)
+    deposit_address = models.ForeignKey('core.Address',
+                                        null=True,
+                                        blank=True,
+                                        related_name='order_set_deposit',
+                                        default=None)
     is_default_rule = models.BooleanField(default=False)
     from_default_rule = models.BooleanField(default=False)
     pair = models.ForeignKey(Pair)

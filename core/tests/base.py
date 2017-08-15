@@ -7,7 +7,7 @@ from django.test import Client, TestCase
 from django.utils.translation import activate
 
 from accounts.models import SmsToken
-from core.models import Currency, AddressReserve, Address, Transaction, Pair
+from core.models import Currency, Address, Transaction, Pair
 from core.tests.utils import get_ok_pay_mock, split_ok_pay_mock
 from orders.models import Order
 from payments.models import PaymentMethod, PaymentPreference
@@ -457,7 +457,9 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             status=Order.INITIAL,
             payment_preference=self.main_pref
         )
-        self.order.save()
+        with requests_mock.mock() as mock:
+            self._mock_cards_reserve(mock)
+            self.order.save()
 
         self.order_modifiers = [
             {'confirmations': self.order.pair.base.min_confirmations},
@@ -602,6 +604,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         order = Order.objects.filter(pair__name=pair_name).first()
         self._create_mocks_uphold(
             amount2=order.amount_quote, currency_code=order.pair.quote.code,
+            order=order
         )
         reserve_txs.return_value = json.loads(self.completed)
         import_txs.return_value = json.loads(self.import_txs)
@@ -663,7 +666,9 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         return addr
 
     def _create_mocks_uphold(self, amount2=Decimal('0.0'), currency_code=None,
-                             card_id=None):
+                             card_id=None, order=None):
+        if order is not None:
+            self.order = order
         if len(self.order.user.addressreserve_set.all()) == 0:
             with requests_mock.mock() as mock:
                 self._mock_cards_reserve(mock)
@@ -671,9 +676,10 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.tx_ids_api = ['12345', '54321']
         if currency_code is None:
             currency_code = self.order.pair.base.code
-        if card_id is None:
-            card_id = AddressReserve.objects.get(
-                user=self.order.user, currency__code=currency_code).card_id
+        if card_id is None and self.order.pair.quote.is_crypto:
+            card_id = self.order.deposit_address.reserve.card_id
+        else:
+            card_id = time()
         self.import_txs = self.uphold_import_transactions_empty.format(
             tx_id_api1=self.tx_ids_api[0],
             tx_id_api2=self.tx_ids_api[1],
