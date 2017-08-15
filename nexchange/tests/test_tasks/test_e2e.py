@@ -772,6 +772,71 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self.assertEqual(t_quote.currency, self.order.pair.quote, pair_name)
         self.assertEqual(t_base.currency, self.order.pair.base, pair_name)
 
+    @data_provider(
+        lambda: (
+            ('ETHLTC',),
+            ('ETHRNS',),
+            ('BTCLTC',),
+            ('BTCETH',),
+        )
+    )
+    @patch('orders.models.Order.expired')
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient.release_coins')
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
+    @patch(UPHOLD_ROOT + 'execute_txn')
+    @patch(UPHOLD_ROOT + 'prepare_txn')
+    @patch(UPHOLD_ROOT + 'get_transactions')
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
+    def test_not_released_expired_exchange_order(self, pair_name,
+                                                 check_tx_uphold,
+                                                 get_txs_uphold,
+                                                 prepare_txn_uphold,
+                                                 execute_txn_uphold,
+                                                 get_txs_scrypt, get_tx_scrypt,
+                                                 release_coins_scrypt,
+                                                 order_expired):
+        order_expired.return_value = True
+        currency_quote_code = pair_name[3:]
+        self._create_order(pair_name=pair_name)
+        mock_currency_code = currency_quote_code
+        mock_amount = self.order.amount_quote
+        mock_currency = Currency.objects.get(code=mock_currency_code)
+
+        card = self.order.deposit_address.reserve
+        card.need_balance_check = False
+        card.save()
+
+        if mock_currency.wallet == 'api1':
+            card_id = card.card_id
+            get_txs_uphold.return_value = [
+                self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
+            ]
+        else:
+            get_txs_scrypt.return_value = [{
+                'address': card.address,
+                'category': 'receive',
+                'account': '',
+                'amount': mock_amount,
+                'txid': 'txid_{}{}'.format(time(), randint(1, 999)),
+                'confirmations': 0,
+                'timereceived': 1498736269,
+                'time': 1498736269,
+                'fee': Decimal('-0.00000100')
+            }]
+        check_tx_uphold.return_value = True
+        get_tx_scrypt.return_value = {'confirmations': 249}
+        self.import_txs_task.apply()
+        prepare_txn_uphold.return_value = release_coins_scrypt.return_value = \
+            'txid_{}{}'.format(time(), randint(1, 999))
+        execute_txn_uphold.return_value = True
+
+        self.order.refresh_from_db()
+        self.assertTrue(self.order.expired)
+        self.assertNotEquals(self.order.status, Order.PAID_UNCONFIRMED,
+                             pair_name)
+        self.assertEqual(self.order.status, Order.INITIAL, pair_name)
+
 
 class SofortEndToEndTestCase(BaseSofortAPITestCase,
                              TransactionImportBaseTestCase,
@@ -1061,9 +1126,8 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
 
         mock_currency_code = self.order.pair.base.code
         mock_amount = self.order.amount_base
-        mock_currency = Currency.objects.get(code=mock_currency_code)
 
-        card = self.order.user.addressreserve_set.get(currency=mock_currency)
+        card = self.order.despoit_address.reserve
         card.need_balance_check = False
         card.save()
 

@@ -2,15 +2,10 @@ box:
   id: onitsoft/wercker:latest
   ports:
     - "8000"
-    - "65223"
     - "5555"
+    - "5432"
 dev:
   services:
-#   - id: onitsoft/renoscoin-docker
-#     ports:
-#       - "65223"
-#     cmd: /bin/bash -c "/root/renoscoin/app/start.sh"
-
    - id: mdillon/postgis
      ports:
        - "5432"

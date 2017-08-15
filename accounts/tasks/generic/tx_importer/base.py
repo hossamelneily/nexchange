@@ -46,6 +46,7 @@ class BaseTransactionImporter:
         orders = Order.objects.filter(
             sell_query | buy_exchange_query | sell_exchange_query
         )
+        orders = [order for order in orders if not order.expired]
         return orders
 
     def get_or_create_tx(self, tx):
