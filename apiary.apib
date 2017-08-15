@@ -1,0 +1,62 @@
+FORMAT: 1A
+HOST: https://nexchange.co.uk/
+# nexchange
+
+API for crypto currency exchange.
+
+
+## Latest Ticker [/en/api/v1/price/{pair_name}/latest/]
+
++ Parameters
+    + pair_name (required, string, `BTCLTC`) - Name of exchange pair i.e. BTCLTC, LTCBTC, ETHBTC...
+
+
+### Get Latest Ticker [GET]
+ Gets latests price of selected pair.
+
++ Response 200 (application/json)
+    + Body
+
+            [
+              {
+                "created_on":"2017-08-15T12:45:01.443265Z",
+                "unix_time":"1502801101",
+                "ticker":{
+                  "ask":"97.06196063",
+                  "bid":"96.33558341"
+                }
+              }
+            ]
+
+
+## Ticker History [/en/api/v1/price/{pair_name}/history/{?hours,data_points}]
+
++ Parameters
+    + pair_name (required, string, `BTCLTC`) - Name of exchange pair i.e. BTCLTC, LTCBTC, ETHBTC...
+    + hours (double, `0.1`) - Amount of hours to check i.e. 0.3 means 18 min, 2 - 2 hours.
+    + data_points (int, `3`) - Data points in selected hour range.
+
+### Get Ticker History [GET]
+ Gets latests price of selected pair.
+
++ Response 200 (application/json)
+    + Body
+
+            [
+              {
+                "created_on": "2017-08-15T13:37:05.746301Z",
+                "unix_time": "1502804225",
+                "ticker": {
+                  "ask": "93.50770668",
+                  "bid": "93.01675978"
+                }
+              },
+              {
+                "created_on": "2017-08-15T13:38:05.877523Z",
+                "unix_time": "1502804285",
+                "ticker": {
+                  "ask": "92.71952575",
+                  "bid": "91.87051683"
+                }
+              }
+            ]

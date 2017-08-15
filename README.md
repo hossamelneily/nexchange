@@ -45,7 +45,7 @@ Tests always run when you commit, but you may want to run them mannualy sometime
 * To manually run backend tests   `./run-tests.sh`
 * To manually run backend tests and send coverage report to coveralls.io   `./run-tests.sh -c`
 * To manually run Selenium UI  `./run-selenium-tests.sh`. Screenshots of the tests can be found in `nexchange/core/tests/test_ui/Screenshots`
-
+* To manually run API tests(apiary)  `./node_modules/.bin/dredd`. More info [here](https://app.apiary.io/nexchange2/tests/runs#tutorial). Local runs can be found [here](https://app.apiary.io/nexchange2/tests/runs#local)
 
 
 # Commiting

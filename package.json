@@ -40,7 +40,9 @@
     "url-loader": "^0.5.8",
     "webpack": "^2.2.1",
     "webpack-bundle-tracker": "^0.2.0",
-    "x-editable": "^1.5.1"
+    "x-editable": "^1.5.1",
+    "watchify": "3.9.0",
+    "dredd": "4.2.1"
   },
   "devDependencies": {
     "babel-cli": "^6.23.0",

@@ -487,6 +487,10 @@ tests:
     - maxon/npm-run:
         script: build
     - script:
+        name: API tests
+        code: |
+          ./node_modules/.bin/dredd
+    - script:
         name: Backend tests
         code: |
           DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh -c
