@@ -4,8 +4,8 @@ from core.common.serializers import UserResourceViewSet
 
 from accounts.serializers import UserOrderSerializer
 from orders.models import Order
-from accounts.models import Address
-from accounts.serializers import AddressSerializer, AddressUpdateSerializer
+from core.models import Address
+from core.serializers import AddressSerializer, AddressUpdateSerializer
 import django_filters.rest_framework
 
 

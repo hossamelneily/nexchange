@@ -2,6 +2,7 @@ from django.conf import settings
 from core.common.serializers import UserResourceViewSet
 from orders.models import Order
 from orders.serizalizers import OrderSerializer, CreateOrderSerializer
+from accounts.utils import _create_anonymous_user
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_extensions.mixins import (
     ReadOnlyCacheResponseAndETAGMixin
@@ -28,3 +29,10 @@ class OrderListViewSet(UserResourceViewSet, ReadOnlyCacheResponseAndETAGMixin):
     def get_queryset(self, filters=None, **kwargs):
         self.queryset = Order.objects.all()
         return super(OrderListViewSet, self).get_queryset()
+
+    def perform_create(self, serializer):
+        if not self.request.user.is_authenticated:
+            _create_anonymous_user(self.request)
+        serializer.save(user=self.request.user)
+
+        return super(OrderListViewSet, self).perform_create(serializer)

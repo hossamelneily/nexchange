@@ -28,4 +28,4 @@ class UserResourceViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-        super(UserResourceViewSet, self).perform_create(serializer)
+        return super(UserResourceViewSet, self).perform_create(serializer)

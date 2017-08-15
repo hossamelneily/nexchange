@@ -158,7 +158,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
                     lambda x: get_random_string(x),
                     lambda x: Order.objects.filter(unique_reference=x).count(),
                     settings.UNIQUE_REFERENCE_LENGTH
-                )
+                ).upper()
         if not self.pk:
             self.convert_coin_to_cash()
         if self.pair.is_crypto:

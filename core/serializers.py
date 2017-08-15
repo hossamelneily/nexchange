@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import Pair, Currency
+from core.models import Pair, Currency, Address
 
 
 # todo: change to ReadOnlyViewSet
@@ -39,3 +39,38 @@ class NestedPairSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pair
         fields = ('name', 'base', 'quote', 'fee_ask', 'fee_bid',)
+
+
+class MetaAddress:
+    model = Address
+    fields = ('type', 'name', 'address', 'currency_code',)
+
+
+class AddressSerializer(serializers.ModelSerializer):
+    currency_code = serializers.ReadOnlyField(source='currency.code')
+
+    class Meta(MetaAddress):
+        fields = MetaAddress.fields
+        read_only_fields = ('type',)
+
+
+class AddressUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = ('name', 'address',)
+        # to make PATCH update possible
+        read_only_fields = ('address',)
+
+
+class NestedReadOnlyAddressSerializer(AddressSerializer):
+    class Meta(MetaAddress):
+        fields = MetaAddress.fields
+        read_only_fields = fields
+
+
+class NestedAddressSerializer(AddressSerializer):
+    class Meta(MetaAddress):
+        read_only_fields = ('type',)
+        extra_kwargs = {
+            'address': {'validators': []},
+        }
