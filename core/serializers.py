@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from core.models import Pair, Currency, Address
+from .validators import validate_address
 
 
-# todo: change to ReadOnlyViewSet
 class CurrencySerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -14,7 +14,6 @@ class CurrencySerializer(serializers.ModelSerializer):
 
 
 class CurrencyNameSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Currency
         fields = ('code',)
@@ -35,6 +34,10 @@ class PairSerializer(serializers.ModelSerializer):
 
 
 class NestedPairSerializer(serializers.ModelSerializer):
+    base = CurrencySerializer(many=False, read_only=True)
+    quote = CurrencySerializer(many=False, read_only=True)
+    fee_ask = serializers.ReadOnlyField()
+    fee_bid = serializers.ReadOnlyField()
 
     class Meta:
         model = Pair
@@ -52,6 +55,11 @@ class AddressSerializer(serializers.ModelSerializer):
     class Meta(MetaAddress):
         fields = MetaAddress.fields
         read_only_fields = ('type',)
+
+    def validate(self, data):
+        # TODO: custom validation based on order.pair.base
+        validate_address(data['address'])
+        return super(AddressSerializer, self).validate(data)
 
 
 class AddressUpdateSerializer(serializers.ModelSerializer):

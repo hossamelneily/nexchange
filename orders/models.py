@@ -23,11 +23,6 @@ from nexchange.utils import send_email, send_sms
 
 class Order(TimeStampedModel, SoftDeletableModel,
             UniqueFieldMixin, FlagableMixin):
-    USD = "USD"
-    RUB = "RUB"
-    EUR = "EUR"
-    BTC = "BTC"
-
     BUY = 1
     SELL = 0
     TYPES = (
@@ -35,10 +30,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
         (BUY, 'BUY'),
     )
     _order_type_help = (3 * '{} - {}<br/>').format(
-        'BUY', 'Customer is giving fiat, and getting crypto money.',
-        'SELL', 'Customer is giving crypto and getting fiat money',
-        'EXCHANGE', 'Customer is exchanging different kinds of crypto '
-                    'currencies'
+        _('BUY'), _('Customer is giving fiat, and getting crypto money.'),
+        _('SELL'), _('Customer is giving crypto and getting fiat money'),
+        _('EXCHANGE'), _('Customer is exchanging different kinds of crypto '
+                         'currencies')
     )
 
     PAID_UNCONFIRMED = -1
@@ -49,13 +44,13 @@ class Order(TimeStampedModel, SoftDeletableModel,
     RELEASED = 3
     COMPLETED = 4
     STATUS_TYPES = (
-        (PAID_UNCONFIRMED, 'UNCONFIRMED PAYMENT'),
-        (FAILED_RELEASE, 'FAILED RELEASE'),
-        (CANCELED, 'CANCELED'),
-        (INITIAL, 'INITIAL'),
-        (PAID, 'PAID'),
-        (RELEASED, 'RELEASED'),
-        (COMPLETED, 'COMPLETED'),
+        (PAID_UNCONFIRMED, _('UNCONFIRMED PAYMENT')),
+        (FAILED_RELEASE, _('FAILED RELEASE')),
+        (CANCELED, _('CANCELED')),
+        (INITIAL, _('INITIAL')),
+        (PAID, _('PAID')),
+        (RELEASED, _('RELEASED')),
+        (COMPLETED, _('COMPLETED')),
     )
     IN_PAID = [PAID, RELEASED, COMPLETED]
     IN_RELEASED = [RELEASED, COMPLETED, FAILED_RELEASE]
@@ -330,6 +325,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
         """return bool whether the withdraw address can
            be changed"""
         return self.amount_base / self.amount_quote
+
+    @property
+    def status_name(self):
+        return [status for status in Order.STATUS_TYPES if status[0] == self.status]
 
     def get_profile(self):
         return self.user.profile

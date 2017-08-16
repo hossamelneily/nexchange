@@ -41,6 +41,11 @@ API1_PASS = ''
 
 ADMINS = [
     ('Nexchange', 'nexchange@nexchange.co.uk'),
+    ('Oleg', 'oleg@nexchange.co.uk'),
+    ('Sarunas', 'sarunas@nexchange.co.uk'),
+    ('Karolis', 'karolis@nexchange.co.uk'),
+    ('Daniel', 'daniel@nexchange.co.uk'),
+    ('Mantas', 'daniel@nexchange.co.uk'),
 ]
 
 LOCALE_PATHS = (
@@ -98,6 +103,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '10.133.23.149',
     'localhost',
+    'nexchange.io',
+    'www.nexchange.io'
 ]
 
 ALLOWED_IMAGE_FILE_EXTENSIONS = ['.jpg', '.png', '.pdf']
@@ -366,6 +373,7 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.facebook.FacebookOAuth2',
     'social_core.backends.google.GoogleOAuth2',
     'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
     'loginurl.backends.LoginUrlBackend',
 )
 
@@ -436,7 +444,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        'nexchange.authentication.SessionAuthenticationNoCSRF',
     )
 }
 # 12 months

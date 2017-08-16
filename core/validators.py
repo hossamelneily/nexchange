@@ -79,3 +79,14 @@ def validate_address(value):
         validate_ltc(value)
     else:
         validate_bc(value)
+
+
+def get_validator(code):
+    if code == 'ETH':
+        return validate_eth
+    elif code == 'BTC':
+        return validate_btc
+    elif code == 'LTC':
+        return validate_ltc
+
+    raise NotImplementedError('{} validation is not implemented'.format(code))
