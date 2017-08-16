@@ -76,7 +76,7 @@ UNIQUE_REFERENCE_LENGTH = 5
 UNIQUE_REFERENCE_MAX_LENGTH = 16
 REFERENCE_LOOKUP_ATTEMPTS = 5
 SMS_TOKEN_LENGTH = 4
-PAYMENT_WINDOW = 60
+PAYMENT_WINDOW = 15
 MAX_EXPIRED_ORDERS_LIMIT = 3
 REFERRAL_FEE = 2
 RECENT_ORDERS_LENGTH = 20
@@ -268,7 +268,7 @@ CELERY_BEAT_SCHEDULE = {
 
 TASKS_TIME_LIMIT = 30
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -426,7 +426,7 @@ DEFAULT_HOUR_RANGE = 4
 CORS_ORIGIN_WHITELIST = (
     'nexchange.dev',
     'nexchange.co.uk',
-    'nexchange.ru'
+    'www.nexchange.io',
 )
 
 
