@@ -1,9 +1,10 @@
 from django.conf import settings
-from core.common.serializers import UserResourceViewSet
+from nexchange.permissions import NoUpdatePermission
 from orders.models import Order
 from orders.serizalizers import OrderSerializer, CreateOrderSerializer
 from accounts.utils import _create_anonymous_user
 from rest_framework.pagination import PageNumberPagination
+from rest_framework import viewsets
 from rest_framework_extensions.mixins import (
     ReadOnlyCacheResponseAndETAGMixin
 )
@@ -14,7 +15,8 @@ class OrderPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
 
 
-class OrderListViewSet(UserResourceViewSet, ReadOnlyCacheResponseAndETAGMixin):
+class OrderListViewSet(viewsets.ModelViewSet, ReadOnlyCacheResponseAndETAGMixin):
+    permission_classes = (NoUpdatePermission,)
     model_class = Order
     lookup_field = 'unique_reference'
     serializer_class = OrderSerializer

@@ -101,6 +101,7 @@ REFERRAL_TOKEN_CHARS = REFERRAL_CODE_CHARS
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
+    '10.133.23.149',
     'localhost',
     'nexchange.io',
     'www.nexchange.io'
@@ -372,6 +373,7 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.facebook.FacebookOAuth2',
     'social_core.backends.google.GoogleOAuth2',
     'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
     'loginurl.backends.LoginUrlBackend',
 )
 

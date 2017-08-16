@@ -19,3 +19,13 @@ class NoUpdatePermission(permissions.BasePermission):
         if request.method in NoUpdatePermission.SAFE_METHODS:
             return True
         return False
+
+
+class GetOnlyPermission(permissions.BasePermission):
+    SAFE_METHODS = ['GET']
+    message = _('DELETE/UPDATE/POST requests are not allowed for this resource')
+
+    def has_permission(self, request, view):
+        if request.method in NoUpdatePermission.SAFE_METHODS:
+            return True
+        return False
