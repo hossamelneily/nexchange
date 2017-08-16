@@ -43,8 +43,9 @@ ADMINS = [
     ('Nexchange', 'nexchange@nexchange.co.uk'),
     ('Oleg', 'oleg@nexchange.co.uk'),
     ('Sarunas', 'sarunas@nexchange.co.uk'),
-    ('Karolis', 'Karolis@nexchange.co.uk'),
-    ('Mantas', 'Mantas@nexchange.co.uk'),
+    ('Karolis', 'karolis@nexchange.co.uk'),
+    ('Daniel', 'daniel@nexchange.co.uk'),
+    ('Mantas', 'daniel@nexchange.co.uk'),
 ]
 
 LOCALE_PATHS = (
