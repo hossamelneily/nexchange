@@ -102,7 +102,8 @@ REFERRAL_TOKEN_CHARS = REFERRAL_CODE_CHARS
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    'nexchange.dev'
+    'nexchange.io',
+    'www.nexchange.io'
 ]
 
 ALLOWED_IMAGE_FILE_EXTENSIONS = ['.jpg', '.png', '.pdf']
