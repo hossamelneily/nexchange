@@ -41,6 +41,10 @@ API1_PASS = ''
 
 ADMINS = [
     ('Nexchange', 'nexchange@nexchange.co.uk'),
+    ('Oleg', 'oleg@nexchange.co.uk'),
+    ('Sarunas', 'sarunas@nexchange.co.uk'),
+    ('Karolis', 'Karolis@nexchange.co.uk'),
+    ('Mantas', 'Mantas@nexchange.co.uk'),
 ]
 
 LOCALE_PATHS = (
@@ -436,7 +440,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        'nexchange.authentication.SessionAuthenticationNoCSRF',
     )
 }
 # 12 months
