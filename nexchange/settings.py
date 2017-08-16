@@ -76,7 +76,7 @@ UNIQUE_REFERENCE_LENGTH = 5
 UNIQUE_REFERENCE_MAX_LENGTH = 16
 REFERENCE_LOOKUP_ATTEMPTS = 5
 SMS_TOKEN_LENGTH = 4
-PAYMENT_WINDOW = 60
+PAYMENT_WINDOW = 15
 MAX_EXPIRED_ORDERS_LIMIT = 3
 REFERRAL_FEE = 2
 RECENT_ORDERS_LENGTH = 20
@@ -96,8 +96,8 @@ REFERRAL_TOKEN_CHARS = REFERRAL_CODE_CHARS
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
+    '10.133.23.149',
     'localhost',
-    'nexchange.dev'
 ]
 
 ALLOWED_IMAGE_FILE_EXTENSIONS = ['.jpg', '.png', '.pdf']
@@ -426,7 +426,7 @@ DEFAULT_HOUR_RANGE = 4
 CORS_ORIGIN_WHITELIST = (
     'nexchange.dev',
     'nexchange.co.uk',
-    'nexchange.ru'
+    'www.nexchange.io',
 )
 
 
