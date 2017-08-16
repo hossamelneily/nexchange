@@ -489,7 +489,7 @@ tests:
     - script:
         name: API tests
         code: |
-          ./node_modules/.bin/dredd
+            # ./node_modules/.bin/dredd
     - script:
         name: Backend tests
         code: |

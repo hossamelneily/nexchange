@@ -60,3 +60,331 @@ API for crypto currency exchange.
                 }
               }
             ]
+
+
+## Get Orders [/en/api/v1/orders/{?page,page_size}]
+
++ Parameter
+    + page (int, `1`) - page number.
+    + page_size (int, `3`) - number of orders in one page.
+
+
+### Get Orders [GET]
+   Gets list of orders.
+
++ Response 200 (application/json)
+    + Attributes (Orders)
+    + Body
+
+            {
+              "count": 21,
+              "next": "http://localhost:8000/en/api/v1/orders/?page=2&page_size=3",
+              "previous": null,
+              "results": [
+                {
+                  "amount_base": "0.50000000",
+                  "is_default_rule": false,
+                  "unique_reference": "LOUA3",
+                  "amount_quote": "7.17000000",
+                  "pair": 2,
+                  "withdraw_address": {
+                    "type": "W",
+                    "name": "",
+                    "address": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+                    "currency_code": "BTC"
+                  },
+                  "created_on": "2017-08-16T07:27:04.964665Z",
+                  "from_default_rule": false,
+                  "order_type": 1,
+                  "deposit_address": {
+                    "type": "D",
+                    "name": "",
+                    "address": "0xF00667496B353d77492e0f7167843d5d5802030b",
+                    "currency_code": "ETH"
+                  },
+                  "pair_name": "BTCETH"
+                },
+                {
+                  "amount_base": "0.50000000",
+                  "is_default_rule": false,
+                  "unique_reference": "OMTE7",
+                  "amount_quote": "7.17000000",
+                  "pair": 2,
+                  "withdraw_address": null,
+                  "created_on": "2017-08-16T07:27:01.099226Z",
+                  "from_default_rule": false,
+                  "order_type": 1,
+                  "deposit_address": {
+                    "type": "D",
+                    "name": "",
+                    "address": "0x7b92910B52DAE980702d4EDc270B031b60359904",
+                    "currency_code": "ETH"
+                  },
+                  "pair_name": "BTCETH"
+                },
+                {
+                  "amount_base": "0.50000000",
+                  "is_default_rule": false,
+                  "unique_reference": "57KJB",
+                  "amount_quote": "7.17000000",
+                  "pair": 2,
+                  "withdraw_address": null,
+                  "created_on": "2017-08-16T07:26:57.076292Z",
+                  "from_default_rule": false,
+                  "order_type": 1,
+                  "deposit_address": {
+                    "type": "D",
+                    "name": "",
+                    "address": "0x408a05c9F62E8eaECd258BB27213ee6e59d2E7Ef",
+                    "currency_code": "ETH"
+                  },
+                  "pair_name": "BTCETH"
+                }
+              ]
+            }
+
+## Get Order [/en/api/v1/orders/{unique_reference}/]
+
++ Parameter
+    + unique_reference (`BDBVI`) - unique reference of the order.
+
+
+### Get Order [GET]
+   Get order data.
+
++ Request
+
+    + Headers
+
+            Authorization: Basic ZGVtbzpEZW1vNFRoZWJlc3Q=
+
+
++ Response 200 (application/json)
+    + Attributes (Order)
+
+    + Body
+
+            {
+              "amount_base":"0.50000000",
+              "is_default_rule":false,
+              "unique_reference":"1CPL5",
+              "amount_quote":"48.00000000",
+              "pair":1,"withdraw_address":null,
+              "created_on":"2017-08-16T10:36:02.248639Z",
+              "from_default_rule":false,"order_type":1,
+              "deposit_address":{
+                "type":"D",
+                "name":"",
+                "address":"LewxThDasEA2JTDVDdGMot92kG6XYNFNQN",
+                "currency_code":"LTC"
+              },
+              "pair_name":"BTCLTC"
+            }
+
+
+## Get User Orders [/en/api/v1/users/me/orders/{?page,page_size}]
+
++ Parameter
+    + page (int, `1`) - page number.
+    + page_size (int, `3`) - number of orders in one page.
+
+
+### Get User Orders [GET]
+   Get user orders.
+
++ Request
+
+    + Headers
+
+            Authorization: Basic ZGVtbzpEZW1vNFRoZWJlc3Q=
+
+
++ Response 200 (application/json)
+    + Attributes (Orders)
+
+    + Body
+
+            {
+              "count": 1,
+              "next": {},
+              "previous": {},
+              "results": [
+                {
+                  "amount_base": "0.50000000",
+                  "is_default_rule": false,
+                  "unique_reference": "1CPL5",
+                  "amount_quote": "48.00000000",
+                  "pair": 1,
+                  "withdraw_address": {},
+                  "created_on": "2017-08-16T10:36:02.248639Z",
+                  "from_default_rule": false,
+                  "order_type": 1,
+                  "deposit_address": {
+                    "type": "D",
+                    "name": "",
+                    "address": "LewxThDasEA2JTDVDdGMot92kG6XYNFNQN",
+                    "currency_code": "LTC"
+                  },
+                  "status": 1,
+                  "payment_window": 60,
+                  "payment_deadline": "2017-08-16T11:36:02.248639Z"
+                }
+              ]
+            }
+
+
+## Get User Order [/en/api/v1/users/me/orders/{unique_reference}/]
+
++ Parameter
+    + unique_reference (`BDBVI`) - unique reference of the order.
+
+
+### Get User Order [GET]
+   Get user order.
+
++ Request
+
+    + Headers
+
+            Authorization: Basic ZGVtbzpEZW1vNFRoZWJlc3Q=
+
+
++ Response 200 (application/json)
+    + Attributes (PrivateOrder)
+
+    + Body
+
+            {
+              "amount_base": "0.50000000",
+              "is_default_rule": false,
+              "unique_reference": "1CPL5",
+              "amount_quote": "48.00000000",
+              "pair": 1,
+              "withdraw_address": {},
+              "created_on": "2017-08-16T10:36:02.248639Z",
+              "from_default_rule": false,
+              "order_type": 1,
+              "deposit_address": {
+                "type": "D",
+                "name": "",
+                "address": "LewxThDasEA2JTDVDdGMot92kG6XYNFNQN",
+                "currency_code": "LTC"
+              },
+              "status": 1,
+              "payment_window": 60,
+              "payment_deadline": "2017-08-16T11:36:02.248639Z"
+            }
+
+## Create User Order [/en/api/v1/users/me/orders/]
+
+
+### Create User Order [POST]
+   Create order.
+
++ Request (application/json)
+
+    + Body
+
+            {
+                "amount_base": 3,
+                "is_default_rule": false,
+                "pair": 123,
+                "withdraw_address": {
+                    "address": "LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA"
+                }
+            }
+    + Headers
+
+            Authorization: Basic ZGVtbzpEZW1vNFRoZWJlc3Q=
+
++ Response 201 (application/json)
+    + Attributes (MinimalOrder)
+
+    + Body
+
+            {
+              "amount_base": "3.00000000",
+              "is_default_rule": false,
+              "unique_reference": "L18XD",
+              "amount_quote": "0.03110000",
+              "pair": 123,
+              "withdraw_address": {
+                "type": "W",
+                "name": "",
+                "address": "LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA",
+                "currency_code": "LTC"
+              }
+            }
+
+## Create Anonymous Order [/en/api/v1/orders/]
+
+
+### Create Anonymous Order [POST]
+   Create order.
+
++ Request (application/json)
+
+    + Body
+
+            {
+                "amount_base": 3,
+                "is_default_rule": false,
+                "pair": 123,
+                "withdraw_address": {
+                    "address": "LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA"
+                }
+            }
+
++ Response 201 (application/json)
+    + Attributes (MinimalOrder)
+
+    + Body
+
+            {
+              "amount_base": "3.00000000",
+              "is_default_rule": false,
+              "unique_reference": "L18XD",
+              "amount_quote": "0.03110000",
+              "pair": 123,
+              "withdraw_address": {
+                "type": "W",
+                "name": "",
+                "address": "LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA",
+                "currency_code": "LTC"
+              }
+            }
+
+
+# Data Structures
+
+
+## Address
++ `type` (required) - "W" for withdraw and "D" for Deposit.
++ `name` (optional, nullable) - name of the address.
++ `address` (required) - crypto currency address i.e. 0x408a05c9F62E8eaECd258BB27213ee6e59d2E7Ef
++ `currency_code` (required) - currency code i.e. ETH.
+
+## MinimalOrder
++ `amount_base` (required) - amount of base currency which user gets.
++ `is_default_rule` (boolean, required)
++ `unique_reference` (required) - unique ID of an order.
++ `amount_quote` (required) - amount of base currency which user sends.
++ `pair` (number, required) - order pair ID on the system.
++ `withdraw_address` (Address, nullable) - address where user gets his funds.
+
+## BaseOrder (MinimalOrder)
++ `created_on` (required) - time of order creation(timestamp)
++ `deposit_address` (Address, required) - address where user sends his funds.
++ `from_default_rule` (boolean, required)
+
+## Order (BaseOrder)
++ `pair_name` (required) - order pair name i.e. if pair_name is ETHLTC ETH(ethereum) ios base(currency which user gets) currency and LTC(litecoin) is quote(currency which user sends) currency.
+
+## PrivateOrder (BaseOrder)
++ `status` (number, required) - order status 1 - Initial, 2 - Paid...
+
+## Orders
++ `count` (number, required) - number of orders.
++ `next` (string, nullable) - link to the next page.
++ `previous` (string, nullable) - link to previous page.
++ `results` (array[Order])
