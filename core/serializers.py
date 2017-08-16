@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import Pair, Currency, Address
+from core.models import Pair, Currency, Address, Transaction
 from .validators import validate_address
 
 
@@ -82,3 +82,16 @@ class NestedAddressSerializer(AddressSerializer):
         extra_kwargs = {
             'address': {'validators': []},
         }
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+
+    currency = serializers.ReadOnlyField(source='currency.code')
+
+    class Meta:
+        model = Transaction
+        fields = ('created_on', 'modified_on', 'type',
+                  'address_to', 'tx_id', 'confirmations',
+                  'amount', 'is_verified', 'is_completed',
+                  'time', 'currency')
+        read_only_fields = fields
