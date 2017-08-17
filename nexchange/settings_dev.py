@@ -1,5 +1,4 @@
 from nexchange.settings_prod import *
-from nexchange import settings
 
 DEBUG = True
 
@@ -143,7 +142,6 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '_W2HnofO7Y_Xt4KKo4vey8Cj'
 SOCIAL_AUTH_GITHUB_KEY = 'a3cfc6bebb2131c822eb'
 SOCIAL_AUTH_GITHUB_SECRET = '2c5058a22a71f6b235f71d8dc3c461dd72596a02'
 
-
 LOGGING = {
     'version': 1,
     'handlers': {
@@ -162,6 +160,7 @@ LOGGING = {
         }
     }
 }
+
 CARDPMT_TEST_MODE = False
 
 # Confirmation code length (for telephone and email authentication)

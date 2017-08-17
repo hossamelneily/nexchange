@@ -8,6 +8,7 @@ from core.models import Address, Pair
 
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from core.validators import get_validator
 
 
 BASE_FIELDS = ('amount_base', 'is_default_rule',
@@ -46,20 +47,31 @@ class CreateOrderSerializer(OrderSerializer):
         # response from post (lines 47:51)
         fields = BASE_FIELDS + READABLE_FIELDS
 
+    def validate(self, data):
+        # TODO: custom validation based on order.pair.base
+        pair = data['pair']['name']
+        try:
+            pair_obj = Pair.objects.get(name=pair, disabled=False)
+            self.pair = pair_obj
+        except Pair.DoesNotExist:
+            raise ValidationError(_('%(value)s is not'
+                                    ' currently a supported Pair'),
+                                  params={'value': pair})
+
+        currency = data['pair']['name'][:3]
+        validate_address = get_validator(currency)
+        validate_address(data['withdraw_address']['address'])
+
+        return super(CreateOrderSerializer, self).validate(data)
+
     def create(self, validated_data):
         for field in READABLE_FIELDS:
             validated_data.pop(field, None)
         withdraw_address = validated_data.pop('withdraw_address')
         pair = validated_data.pop('pair')
-        try:
-            pair_obj = Pair.objects.get(name=pair.get('name'))
-        except Pair.DoesNotExist:
-            raise ValidationError(_('The pair you have entered is'
-                                    ' currently not supported'))
-
         # Just making sure
         addr_list = Address.objects.filter(address=withdraw_address['address'])
-        order = Order(pair=pair_obj, **validated_data)
+        order = Order(pair=self.pair, **validated_data)
         if not addr_list:
             address = Address(**withdraw_address)
             address.type = Address.WITHDRAW

@@ -15,6 +15,7 @@ import sys
 from datetime import timedelta
 
 from django.core.urlresolvers import reverse_lazy
+from corsheaders.defaults import default_headers
 from django.utils.translation import ugettext_lazy as _
 import dj_database_url
 import logging
@@ -96,6 +97,7 @@ PHONE_END_SHOW = 4
 PHONE_HIDE_PLACEHOLDER = '*'
 
 REFERRER_GET_PARAMETER = 'ref'
+REFERRER_HEADER_NAME = 'x-referral-token'
 REFERRAL_SESSION_KEY = REFERRER_GET_PARAMETER
 REFERRAL_TOKEN_CHARS = REFERRAL_CODE_CHARS
 
@@ -430,11 +432,10 @@ GRAPH_HOUR_RANGES = [
 ]
 DEFAULT_HOUR_RANGE = 4
 
-# to tests the API with localhost
-CORS_ORIGIN_WHITELIST = (
-    'nexchange.dev',
-    'nexchange.co.uk',
-    'www.nexchange.io',
+# public api
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_HEADERS = default_headers + (
+    REFERRER_HEADER_NAME,
 )
 
 

@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from core.models import Pair, Currency, Address, Transaction
-from .validators import validate_address
 
 
 class CurrencySerializer(serializers.ModelSerializer):
@@ -55,11 +54,6 @@ class AddressSerializer(serializers.ModelSerializer):
     class Meta(MetaAddress):
         fields = MetaAddress.fields
         read_only_fields = ('type',)
-
-    def validate(self, data):
-        # TODO: custom validation based on order.pair.base
-        validate_address(data['address'])
-        return super(AddressSerializer, self).validate(data)
 
 
 class AddressUpdateSerializer(serializers.ModelSerializer):
