@@ -14,7 +14,7 @@ services:
            POSTGRES_PASSWORD: ${POSTGIS_ENV_POSTGRES_PASSWORD}
            POSTGRES_DB: ${POSTGIS_ENV_POSTGRES_DB}
         volumes:
-            - /nexchange/database:/var/lib/postgresql/data
+            - /mnt/${DB_VOL}/nexchange/database:/var/lib/postgresql/data
         restart: always
         logging:
             driver: gelf
