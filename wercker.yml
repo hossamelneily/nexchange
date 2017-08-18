@@ -201,7 +201,7 @@ build:
         #
         # PEM_FILE_CONTENT - the key to SSH into server (create key par via wercker web interface. remeber to install public key on server)
         # SSH_USER - the user to SSH into server
-        # DEST_HOST_ADDR - server where to deploy
+        # DEST_HOST_ADDR - server where to 
         #
         # DOCKER_HUB_USER - dockerhub username
         # DOCKER_HUB_PASSWORD - dockerhub password (defined as a protectd var)
@@ -446,6 +446,7 @@ deploy:
           export DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
           export LOGSTASH_ADDRESS=${LOGSTASH_ADDRESS}
           export LOGSTASH_PORT=${LOGSTASH_PORT}
+          export VOL=${VOL}
           if [ -z "$DEBUG" ]; then
               echo "DOCKER-COMPOSE CONFIG: \n"
               docker-compose config

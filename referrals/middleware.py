@@ -8,8 +8,15 @@ class ReferralMiddleWare(object):
     logger = get_nexchange_logger(__name__, True, True)
 
     def process_request(self, request):
+        # get from HEADER
         str_code = \
-            request.GET.get(settings.REFERRER_GET_PARAMETER, '').strip()
+            request.META.get(settings.REFERRER_HEADER_NAME, '').strip()
+
+        # get from GET parameter
+        if not str_code:
+            str_code = \
+                request.GET.get(settings.REFERRER_GET_PARAMETER, '').strip()
+
         str_code = str_code if str_code \
             else request.session.get(settings.REFERRAL_SESSION_KEY)
 

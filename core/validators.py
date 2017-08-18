@@ -81,6 +81,13 @@ def validate_address(value):
         validate_bc(value)
 
 
+def validate_non_address(value):
+    raise ValidationError(
+        _('%(value)s is an invalid address'),
+        params={'value': value},
+    )
+
+
 def get_validator(code):
     if code == 'ETH':
         return validate_eth
@@ -89,4 +96,5 @@ def get_validator(code):
     elif code == 'LTC':
         return validate_ltc
 
-    raise NotImplementedError('{} validation is not implemented'.format(code))
+    return validate_non_address
+

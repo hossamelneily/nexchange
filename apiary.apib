@@ -4,6 +4,65 @@ HOST: https://nexchange.co.uk/
 
 API for crypto currency exchange.
 
+## Get Currencies [/en/api/v1/currency/]
+
+
+### Get Currencies [GET]
+ Get pairs.
+
++ Response 200 (application/json)
+    + Attributes (array[Currency])
+    + Body
+
+            [
+              {
+                "code": "BTC",
+                "name": "bitcoin",
+                "min_confirmations": 1,
+                "is_crypto": true,
+                "minimal_amount": "0.01000000",
+                "is_base_of_enabled_pair": true,
+                "is_quote_of_enabled_pair": true,
+                "has_enabled_pairs": true
+              },
+              {
+                "code": "LTC",
+                "name": "litecoin",
+                "min_confirmations": 6,
+                "is_crypto": true,
+                "minimal_amount": "0.50000000",
+                "is_base_of_enabled_pair": true,
+                "is_quote_of_enabled_pair": true,
+                "has_enabled_pairs": true
+              }
+            ]
+
+## Get Pairs [/en/api/v1/pair/]
+
+
+### Get Pairs [GET]
+ Get pairs.
+
++ Response 200 (application/json)
+    + Attributes (array[PairSimple])
+    + Body
+
+            [
+              {
+                "name": "BTCLTC",
+                "base": "BTC",
+                "quote": "LTC",
+                "fee_ask": "0.00100000",
+                "fee_bid": "0.00100000"
+              },
+              {
+                "name": "BTCETH",
+                "base": "BTC",
+                "quote": "ETH",
+                "fee_ask": "0.00100000",
+                "fee_bid": "0.00100000"
+              }
+            ]
 
 ## Latest Ticker [/en/api/v1/price/{pair_name}/latest/]
 
@@ -15,6 +74,7 @@ API for crypto currency exchange.
  Gets latests price of selected pair.
 
 + Response 200 (application/json)
+    + Attributes (array[Price])
     + Body
 
             [
@@ -40,6 +100,7 @@ API for crypto currency exchange.
  Gets latests price of selected pair.
 
 + Response 200 (application/json)
+    + Attributes (array[Price])
     + Body
 
             [
@@ -146,7 +207,7 @@ API for crypto currency exchange.
 ## Get Order [/en/api/v1/orders/{unique_reference}/]
 
 + Parameter
-    + unique_reference (`BDBVI`) - unique reference of the order.
+    + unique_reference (`JN0UR`) - unique reference of the order.
 
 
 ### Get Order [GET]
@@ -160,7 +221,7 @@ API for crypto currency exchange.
 
 
 + Response 200 (application/json)
-    + Attributes (Order)
+    + Attributes (BaseOrder)
 
     + Body
 
@@ -228,6 +289,25 @@ API for crypto currency exchange.
                   "status": 1,
                   "payment_window": 60,
                   "payment_deadline": "2017-08-16T11:36:02.248639Z"
+                  "status_name":[
+                    [
+                      1,
+                      "INITIAL"
+                    ]
+                  ],
+                  "transactions":[{
+                    "created_on":"2017-08-16T22:14:46.680082Z",
+                    "modified_on":"2017-08-16T22:14:46.680105Z",
+                    "type":"W",
+                    "address_to":1,
+                    "tx_id":"asdfsadfsadf",
+                    "confirmations":0,
+                    "amount":"0.01000000",
+                    "is_verified":false,
+                    "is_completed":false,
+                    "time":null,
+                    "currency":null
+                  }]
                 }
               ]
             }
@@ -236,7 +316,7 @@ API for crypto currency exchange.
 ## Get User Order [/en/api/v1/users/me/orders/{unique_reference}/]
 
 + Parameter
-    + unique_reference (`BDBVI`) - unique reference of the order.
+    + unique_reference (`JN0UR`) - unique reference of the order.
 
 
 ### Get User Order [GET]
@@ -273,6 +353,25 @@ API for crypto currency exchange.
               "status": 1,
               "payment_window": 60,
               "payment_deadline": "2017-08-16T11:36:02.248639Z"
+              "status_name":[
+                [
+                  1,
+                  "INITIAL"
+                ]
+              ],
+              "transactions":[{
+                "created_on":"2017-08-16T22:14:46.680082Z",
+                "modified_on":"2017-08-16T22:14:46.680105Z",
+                "type":"W",
+                "address_to":1,
+                "tx_id":"asdfsadfsadf",
+                "confirmations":0,
+                "amount":"0.01000000",
+                "is_verified":false,
+                "is_completed":false,
+                "time":null,
+                "currency":null
+              }]
             }
 
 ## Create User Order [/en/api/v1/users/me/orders/]
@@ -288,7 +387,9 @@ API for crypto currency exchange.
             {
                 "amount_base": 3,
                 "is_default_rule": false,
-                "pair": 123,
+                "pair": {
+                  "name": "LTCBTC"
+                },
                 "withdraw_address": {
                     "address": "LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA"
                 }
@@ -307,13 +408,34 @@ API for crypto currency exchange.
               "is_default_rule": false,
               "unique_reference": "L18XD",
               "amount_quote": "0.03110000",
-              "pair": 123,
+              "pair": {
+                  "name": "LTCBTC"
+                },
               "withdraw_address": {
                 "type": "W",
                 "name": "",
                 "address": "LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA",
                 "currency_code": "LTC"
-              }
+              },
+              "status_name":[
+                [
+                  1,
+                  "INITIAL"
+                ]
+              ],
+              "transactions":[{
+                "created_on":"2017-08-16T22:14:46.680082Z",
+                "modified_on":"2017-08-16T22:14:46.680105Z",
+                "type":"W",
+                "address_to":1,
+                "tx_id":"asdfsadfsadf",
+                "confirmations":0,
+                "amount":"0.01000000",
+                "is_verified":false,
+                "is_completed":false,
+                "time":null,
+                "currency":null
+              }]
             }
 
 ## Create Anonymous Order [/en/api/v1/orders/]
@@ -329,7 +451,9 @@ API for crypto currency exchange.
             {
                 "amount_base": 3,
                 "is_default_rule": false,
-                "pair": 123,
+                "pair": {
+                  "name": "LTCBTC"
+                },
                 "withdraw_address": {
                     "address": "LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA"
                 }
@@ -357,6 +481,38 @@ API for crypto currency exchange.
 
 # Data Structures
 
+## Currency
++ `code` (required) - currency code.
++ `name` - currency name.
++ `min_confirmations` (number) - minimum number of confirmationss to approve this currency transaction.
++ `is_crypto` (boolean, required) - if true this is currency is a crypto currency else it is a fiat currency.
++ `minimal_amount` -  minimal amount allowed on this currency transaction.
++ `is_base_of_enabled_pair` (boolean) - true if where is pair with this currency as base.
++ `is_quote_of_enabled_pair` (boolean) - true if exists a pair with this currency as quote.
++ `has_enabled_pairs` (boolean) -  true if pair with this currency as base or quote and enabled exchange exists.
+
+## PairSimple
++ `name` (required) - name of the pair. i.e. BTCLTC for base BTC(bitcoin) and quote LTC(litecoin) pair.
++ `base` (required) - base currency code.
++ `quote` (required) - quote currency code.
++ `fee_ask` (required) - asking fee, 0.001 means 0.1%.
++ `fee_bid` (required) - biding fee, 0.001 means 0.1% (depreciated).
+
+## Pair
++ `name` (required) - name of the pair. i.e. BTCLTC for base BTC(bitcoin) and quote LTC(litecoin) pair.
++ `base` (Currency, required) - base currency.
++ `quote` (Currency, required) - quote currency.
++ `fee_ask` (number, required) - asking fee, 0.001 means 0.1%.
++ `fee_bid` (number, required) - biding fee, 0.001 means 0.1% (depreciated).
+
+## Ticker
++ `ask` (required) - ask price.
++ `bid` (required) - bid price.
+
+## Price
++ `created_on` (required) -  price creation UTC time.
++ `unix_time` (required) - price creation unix timestamp.
++ `ticker` (Ticker, required) - ticker.
 
 ## Address
 + `type` (required) - "W" for withdraw and "D" for Deposit.
@@ -364,27 +520,39 @@ API for crypto currency exchange.
 + `address` (required) - crypto currency address i.e. 0x408a05c9F62E8eaECd258BB27213ee6e59d2E7Ef
 + `currency_code` (required) - currency code i.e. ETH.
 
+## Transaction
++ `created_on` (required) - UTC time of creation.
++ `modified_on` (required) - UTC time of last modification.
++ `type` (required) - "W" for withdraw and "D" for Deposit.
++ `address_to` (number, required) - address ID.
++ `tx_id` (nullable) - transaction ID.
++ `confirmations` (number, required) - transaction confirmations.
++ `amount` (required) - transaction amount.
++ `is_verified` (boolean, required) - verification status.
++ `is_completed` (boolean, required) - completion status.
++ `time` (nullable) - UTC time of transaction.
++ `currency` (nullable) - currency code.
+
+
 ## MinimalOrder
 + `amount_base` (required) - amount of base currency which user gets.
-+ `is_default_rule` (boolean, required)
++ `is_default_rule` (boolean, required) - convert any incoming funds comming to the addres automatically (to the withdraw_address defined on the same order).
 + `unique_reference` (required) - unique ID of an order.
 + `amount_quote` (required) - amount of base currency which user sends.
-+ `pair` (number, required) - order pair ID on the system.
 + `withdraw_address` (Address, nullable) - address where user gets his funds.
++ `transactions` (array[Transaction]) - order transactions.
 
 ## BaseOrder (MinimalOrder)
 + `created_on` (required) - time of order creation(timestamp)
 + `deposit_address` (Address, required) - address where user sends his funds.
-+ `from_default_rule` (boolean, required)
-
-## Order (BaseOrder)
-+ `pair_name` (required) - order pair name i.e. if pair_name is ETHLTC ETH(ethereum) ios base(currency which user gets) currency and LTC(litecoin) is quote(currency which user sends) currency.
++ `from_default_rule` (boolean, required) - indicates that the order was created as a result of `is_default_rule` as described above.
++ 'pair' (Pair) - exchange pair.
 
 ## PrivateOrder (BaseOrder)
-+ `status` (number, required) - order status 1 - Initial, 2 - Paid...
++ `status` (number, required) - order status 2 - Initial, 2 - Paid...
 
 ## Orders
 + `count` (number, required) - number of orders.
 + `next` (string, nullable) - link to the next page.
 + `previous` (string, nullable) - link to previous page.
-+ `results` (array[Order])
++ `results` (array[BaseOrder])
