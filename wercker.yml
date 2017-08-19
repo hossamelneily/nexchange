@@ -3,7 +3,6 @@ box:
   ports:
     - "8000"
     - "5555"
-#    - "5432"
 dev:
   services:
    - id: mdillon/postgis
@@ -446,7 +445,7 @@ deploy:
           export DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
           export LOGSTASH_ADDRESS=${LOGSTASH_ADDRESS}
           export LOGSTASH_PORT=${LOGSTASH_PORT}
-          export VOL=${VOL}
+          export DB_VOL=${DB_VOL}
           if [ -z "$DEBUG" ]; then
               echo "DOCKER-COMPOSE CONFIG: \n"
               docker-compose config
