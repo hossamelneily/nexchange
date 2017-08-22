@@ -8,7 +8,7 @@ API for crypto currency exchange.
 
 
 ### Get Currencies [GET]
- Get pairs.
+ Get all supported currencies.
 
 + Response 200 (application/json)
     + Attributes (array[Currency])
@@ -41,7 +41,7 @@ API for crypto currency exchange.
 
 
 ### Get Pairs [GET]
- Get pairs.
+ Get all supported currency pairs.
 
 + Response 200 (application/json)
     + Attributes (array[PairSimple])
@@ -67,11 +67,11 @@ API for crypto currency exchange.
 ## Latest Ticker [/en/api/v1/price/{pair_name}/latest/]
 
 + Parameters
-    + pair_name (required, string, `BTCLTC`) - Name of exchange pair i.e. BTCLTC, LTCBTC, ETHBTC...
+    + pair_name (required, string, `BTCLTC`) - Name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC...
 
 
 ### Get Latest Ticker [GET]
- Gets latests price of selected pair.
+ Gets BTC/LTC latest price
 
 + Response 200 (application/json)
     + Attributes (array[Price])
@@ -92,12 +92,12 @@ API for crypto currency exchange.
 ## Ticker History [/en/api/v1/price/{pair_name}/history/{?hours,data_points}]
 
 + Parameters
-    + pair_name (required, string, `BTCLTC`) - Name of exchange pair i.e. BTCLTC, LTCBTC, ETHBTC...
-    + hours (double, `0.1`) - Amount of hours to check i.e. 0.3 means 18 min, 2 - 2 hours.
-    + data_points (int, `3`) - Data points in selected hour range.
+    + pair_name (required, string, `BTCLTC`) - Name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC...
+    + hours (double, `0.1`) - How many hours back would you like to get prices for. Amount of hours to check i.e. 0.3 means 18 min, 2 - 2 hours.
+    + data_points (int, `3`) - How many data points in the selected hour range would you like to get. For example, If you pass 1 hour and data_points=60, you will get 1 data point per minute (our max supported resolution), if you pass hour=1 and data_points=30 you will get one point per 2 minutes.
 
 ### Get Ticker History [GET]
- Gets latests price of selected pair.
+ Returns price history for selected pair.
 
 + Response 200 (application/json)
     + Attributes (array[Price])
@@ -131,7 +131,7 @@ API for crypto currency exchange.
 
 
 ### Get Orders [GET]
-   Gets list of orders.
+   Returns orders.
 
 + Response 200 (application/json)
     + Attributes (Orders)
@@ -484,8 +484,8 @@ API for crypto currency exchange.
 ## Currency
 + `code` (required) - currency code.
 + `name` - currency name.
-+ `min_confirmations` (number) - minimum number of confirmationss to approve this currency transaction.
-+ `is_crypto` (boolean, required) - if true this is currency is a crypto currency else it is a fiat currency.
++ `min_confirmations` (number) - minimum number of confirmations required to approve a transaction on this currency's blockchain. Only relevant for currencies that have 'is_crypto' = true
++ `is_crypto` (boolean) - if true, this is a crypto currency, else it is a fiat currency.
 + `minimal_amount` -  minimal amount allowed on this currency transaction.
 + `is_base_of_enabled_pair` (boolean) - true if where is pair with this currency as base.
 + `is_quote_of_enabled_pair` (boolean) - true if exists a pair with this currency as quote.
@@ -495,15 +495,15 @@ API for crypto currency exchange.
 + `name` (required) - name of the pair. i.e. BTCLTC for base BTC(bitcoin) and quote LTC(litecoin) pair.
 + `base` (required) - base currency code.
 + `quote` (required) - quote currency code.
-+ `fee_ask` (required) - asking fee, 0.001 means 0.1%.
-+ `fee_bid` (required) - biding fee, 0.001 means 0.1% (depreciated).
++ `fee_ask` (required) - asking fee, 0.001 equals 0.1%.
++ `fee_bid` (required) - biding fee, 0.001 equals 0.1% (depreciated).
 
 ## Pair
 + `name` (required) - name of the pair. i.e. BTCLTC for base BTC(bitcoin) and quote LTC(litecoin) pair.
 + `base` (Currency, required) - base currency.
 + `quote` (Currency, required) - quote currency.
-+ `fee_ask` (number, required) - asking fee, 0.001 means 0.1%.
-+ `fee_bid` (number, required) - biding fee, 0.001 means 0.1% (depreciated).
++ `fee_ask` (number, required) - asking fee, 0.001 equals 0.1%.
++ `fee_bid` (number, required) - biding fee, 0.001 equals 0.1% (depreciated).
 
 ## Ticker
 + `ask` (required) - ask price.
@@ -524,7 +524,7 @@ API for crypto currency exchange.
 + `created_on` (required) - UTC time of creation.
 + `modified_on` (required) - UTC time of last modification.
 + `type` (required) - "W" for withdraw and "D" for Deposit.
-+ `address_to` (number, required) - address ID.
++ `address_to` (number, required) - recepient address ID.
 + `tx_id` (nullable) - transaction ID.
 + `confirmations` (number, required) - transaction confirmations.
 + `amount` (required) - transaction amount.
@@ -536,14 +536,15 @@ API for crypto currency exchange.
 
 ## MinimalOrder
 + `amount_base` (required) - amount of base currency which user gets.
-+ `is_default_rule` (boolean, required) - convert any incoming funds comming to the addres automatically (to the withdraw_address defined on the same order).
++ `is_default_rule` (boolean, required) - convert any incoming funds to this address automatically (the withdraw_address defined on the same order).
 + `unique_reference` (required) - unique ID of an order.
 + `amount_quote` (required) - amount of base currency which user sends.
 + `withdraw_address` (Address, nullable) - address where user gets his funds.
 + `transactions` (array[Transaction]) - order transactions.
 
 ## BaseOrder (MinimalOrder)
-+ `created_on` (required) - time of order creation(timestamp)
++ `created_on` (fixed) - time of order creation (timestamp)
++ `modified_on` (fixed) - Latest time on which this order was updated
 + `deposit_address` (Address, required) - address where user sends his funds.
 + `from_default_rule` (boolean, required) - indicates that the order was created as a result of `is_default_rule` as described above.
 + 'pair' (Pair) - exchange pair.
