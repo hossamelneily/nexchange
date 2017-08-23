@@ -35,7 +35,6 @@ DEBUG_TOOLBAR_PANELS = [
 DATABASES = {
     'default': dj_database_url.config(default='postgis://{}:{}@{}:{}/{}'
                                       .format(user, password, host, port, db))
-
 }
 
 

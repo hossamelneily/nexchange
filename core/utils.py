@@ -4,6 +4,7 @@ from nexchange.api_clients.uphold import UpholdApiClient
 scrypt_client = ScryptRpcApiClient()
 uphold_client = UpholdApiClient()
 clients = {scrypt_client.related_nodes[0]: scrypt_client,
+           scrypt_client.related_nodes[1]: scrypt_client,
            uphold_client.related_nodes[0]: uphold_client}
 
 

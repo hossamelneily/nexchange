@@ -25,7 +25,7 @@ class BaseApiClient:
             )
 
         currencies = Currency.objects.filter(is_crypto=True, disabled=False,
-                                             wallet=self.related_nodes[0])
+                                             wallet__in=self.related_nodes)
 
         for curr in currencies:
             count = AddressReserve.objects \
@@ -48,6 +48,7 @@ class BaseApiClient:
             self.logger.warning('instance {} has no reserve cards available'
                                 ' for {} calling renew_cards_reserve()'
                                 .format(user, currency))
+
             self.renew_cards_reserve(
                 expected_reserve=settings.EMERGENCY_CARDS_RESERVE_COUNT)
             unassigned_cards = AddressReserve.objects.filter(currency=currency,
@@ -126,7 +127,7 @@ class BaseApiClient:
             [self.parse_tx(tx, node)
                 for tx in txs if self.filter_tx(tx)]
 
-    def check_tx(self, tx, node=None):
+    def check_tx(self, tx, node):
         raise NotImplementedError()
 
     def release_coins(self, currency, address, amount):

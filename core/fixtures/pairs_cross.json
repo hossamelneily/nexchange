@@ -124,5 +124,89 @@
     "name": "LTCETH",
     "disabled": false
   }
+},
+{
+  "model": "core.pair",
+  "pk": 126,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 34,
+    "quote": 1,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "DOGEBTC",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 127,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 34,
+    "quote": 2,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "DOGELTC",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 128,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 34,
+    "quote": 3,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "DOGEETH",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 129,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 1,
+    "quote": 34,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "BTCDOGE",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 130,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 2,
+    "quote": 34,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "LTCDOGE",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 131,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 3,
+    "quote": 34,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "ETHDOGE",
+    "disabled": false
+  }
 }
 ]

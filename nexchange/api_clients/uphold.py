@@ -13,7 +13,7 @@ class UpholdApiClient(BaseApiClient):
         super(UpholdApiClient, self).__init__()
         # Usually coins and nodes are one-to-one
         # but uphold provide all transactions as one
-        self.related_coins = ['BTC', 'ETH', 'LTC']
+        self.related_coins = settings.API1_COINS
         self.related_nodes = ['api1']
         self.api = self.get_api()
 
@@ -150,7 +150,7 @@ class UpholdApiClient(BaseApiClient):
                 tx.tx_id = tx_id
                 tx.save()
         self.logger.info("status: {}".format(res.get('status')))
-        return res.get('status') == 'completed'
+        return res.get('status') == 'completed', res.get('params', {}).get('progress', 0)  # noqa
 
     def resend_funds_to_main_card(self, card_id, curr_code):
         main_card_id = self.coin_card_mapper(curr_code)

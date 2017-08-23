@@ -1,6 +1,6 @@
 from django.test import TestCase
 from core.tests.base import OrderBaseTestCase
-from core.models import AddressReserve, Currency
+from core.models import AddressReserve, Currency, Pair
 from core.common.models import UniqueFieldMixin
 
 
@@ -48,3 +48,19 @@ class AddressReserveTest(OrderBaseTestCase):
     def test_AddressReserves_creation(self):
         c = self.create_card()
         self.assertTrue(isinstance(c, AddressReserve))
+
+
+class PairFixtureTestCase(OrderBaseTestCase):
+
+    def setUp(self):
+        super(PairFixtureTestCase, self).setUp()
+        self.pairs = Pair.objects.all()
+
+    def test_pair_names(self):
+        for pair in self.pairs:
+            pair_name_by_code = pair.base.code + pair.quote.code
+            pair_name_on_fixture = pair.name
+            self.assertEqual(
+                pair_name_by_code, pair_name_on_fixture,
+                'pair_name on pair {} fixture .json file is bad'.format(pair)
+            )

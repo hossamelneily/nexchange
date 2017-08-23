@@ -1,17 +1,17 @@
 export default class Extractor {
-    static getCurrenciesFromPair(pair) {
-        let first = pair.slice(0,3);
-        let second = pair.slice(3,6);
+    static getCurrenciesFromPair(pair, baseLength) {
+        let first = pair.slice(0,baseLength);
+        let second = pair.slice(baseLength);
         return [first, second];
     }
 
-    static getTitleFromPair(pair) {
-    	let currencies = this.getCurrenciesFromPair(pair);
+    static getTitleFromPair(pair, baseLength) {
+    	let currencies = this.getCurrenciesFromPair(pair, baseLength);
     	return `${currencies[0]}/${currencies[1]}`;
     }
 
-    static reversePair(pair) {
-    	let currencies = this.getCurrenciesFromPair(pair);    	
+    static reversePair(pair, baseLength) {
+    	let currencies = this.getCurrenciesFromPair(pair, baseLength);
     	return `${currencies[1]}${currencies[0]}`;
     }
 }
