@@ -494,6 +494,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.LTC = Currency.objects.get(code='LTC')
         self.ETH = Currency.objects.get(code='ETH')
         self.RNS = Currency.objects.get(code='RNS')
+        self.DOGE = Currency.objects.get(code='DOGE')
         self.BTC_address = self._create_withdraw_adress(
             self.BTC, '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi')
         self.LTC_address = self._create_withdraw_adress(
@@ -502,6 +503,8 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             self.ETH, '0x8116546AaC209EB58c5B531011ec42DD28EdFb71')
         self.RNS_address = self._create_withdraw_adress(
             self.RNS, 'RJrEPzpgwfhsyz2tKYxVYSAEfBNWXh8W2v')
+        self.DOGE_address = self._create_withdraw_adress(
+            self.DOGE, 'DPjMRpkNKEfnYVHqmAan4FbriqP4DyUt2u')
 
     def _read_fixture(self):
         path_addr_fixture = os.path.join(settings.BASE_DIR,

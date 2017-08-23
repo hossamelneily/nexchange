@@ -2,6 +2,7 @@ from .base import BaseApiClient
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from .decorators import track_tx_mapper, log_errors
 from core.models import Address
+from django.conf import settings
 import os
 
 
@@ -17,10 +18,10 @@ class RpcMapper:
         port_env = '{}_{}_{}'.format(prefix, node.upper(), 'PORT')
         kwargs = {
             'protocol': protocol,
-            'user': os.getenv(user_env, 'user'),
-            'passwd': os.getenv(pass_env, 'userpass'),
-            'host': os.getenv(host_env, '192.168.8.7'),
-            'port': os.getenv(port_env, '65223'),
+            'user': os.getenv(user_env, settings.DEFAULT_RPC_USER),
+            'passwd': os.getenv(pass_env, settings.DEFAULT_RPC_PASS),
+            'host': os.getenv(host_env, settings.DEFAULT_RPC_HOST),
+            'port': os.getenv(port_env, None),
         }
         return '{protocol}://{user}:{passwd}@{host}:{port}'.format(**kwargs)
 
@@ -55,8 +56,8 @@ class ScryptRpcApiClient(BaseRpcClient):
 
     def __init__(self):
         super(ScryptRpcApiClient, self).__init__()
-        self.related_nodes = ['rpc1']
-        self.related_coins = ['RNS']
+        self.related_nodes = ['rpc1', 'rpc2']
+        self.related_coins = ['RNS', 'DOGE']
 
     def create_address(self, currency):
         address = self.call_api(currency.wallet, 'getnewaddress')

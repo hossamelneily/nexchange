@@ -15,33 +15,71 @@ class TestUIExchangeOrders(BaseTestUI):
         self.BTC_address = '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2'
         self.LTC_address = 'LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4'
         self.ETH_address = '0x77454e832261aeed81422348efee52d5bd3a3684'
+        self.DOGE_address = 'D6BpZ4pP17JDsjpSWVrB2Hpa4oCi5mLfua'
 
     @data_provider(lambda: (('ETHLTC', True),),)
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
-    def test_release_exchange_order1(self, pair_name, do_logout, get_txs,
-                                     get_rtx):
-        self.base_test_release_exchange_order(pair_name, do_logout, get_txs,
-                                              get_rtx)
+    def test_release_exchange_order1(self, pair_name, do_logout, reserve_txs,
+                                     import_txs, get_txs_scrypt,
+                                     get_tx_scrypt):
+        self.base_test_release_exchange_order(pair_name, do_logout,
+                                              reserve_txs, import_txs,
+                                              get_txs_scrypt, get_tx_scrypt)
 
     @data_provider(lambda: (('BTCETH', False),),)
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
-    def test_release_exchange_order2(self, pair_name, do_logout, get_txs,
-                                     get_rtx):
-        self.base_test_release_exchange_order(pair_name, do_logout, get_txs,
-                                              get_rtx)
+    def test_release_exchange_order2(self, pair_name, do_logout, reserve_txs,
+                                     import_txs, get_txs_scrypt,
+                                     get_tx_scrypt):
+        self.base_test_release_exchange_order(pair_name, do_logout,
+                                              reserve_txs, import_txs,
+                                              get_txs_scrypt, get_tx_scrypt)
 
     @data_provider(lambda: (('LTCBTC', False),),)
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order3(self, pair_name, do_logout, reserve_txs,
-                                     import_txs):
+                                     import_txs, get_txs_scrypt,
+                                     get_tx_scrypt):
         self.base_test_release_exchange_order(pair_name, do_logout,
-                                              reserve_txs, import_txs)
+                                              reserve_txs, import_txs,
+                                              get_txs_scrypt, get_tx_scrypt)
+
+    @data_provider(lambda: (('LTCDOGE', False),),)
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
+    def test_release_exchange_order4(self, pair_name, do_logout, reserve_txs,
+                                     import_txs, get_txs_scrypt,
+                                     get_tx_scrypt):
+        self.base_test_release_exchange_order(pair_name, do_logout,
+                                              reserve_txs, import_txs,
+                                              get_txs_scrypt, get_tx_scrypt)
+
+    @data_provider(lambda: (('DOGEBTC', False),),)
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
+    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
+    @patch(UPHOLD_ROOT + 'get_transactions')
+    def test_release_exchange_order5(self, pair_name, do_logout, reserve_txs,
+                                     import_txs, get_txs_scrypt,
+                                     get_tx_scrypt):
+        self.base_test_release_exchange_order(pair_name, do_logout,
+                                              reserve_txs, import_txs,
+                                              get_txs_scrypt, get_tx_scrypt)
 
     def base_test_release_exchange_order(self, pair_name, do_logout, get_txs,
-                                         get_rtx):
+                                         get_rtx, get_txs_scrypt,
+                                         get_tx_scrypt):
         pair_name = pair_name
         self.workflow = '{}'.format(pair_name)
         self.payment_method = '{}'.format(pair_name)
@@ -59,7 +97,8 @@ class TestUIExchangeOrders(BaseTestUI):
         mock_amount = amount_quote
         withdraw_currency_code = currency_base_code
         self.mock_import_transaction(mock_amount, mock_currency_code,
-                                     get_txs, get_rtx)
+                                     get_txs, get_rtx, get_txs_scrypt,
+                                     get_tx_scrypt)
         self.place_order()
         self.click_go_to_order_list()
         self.do_screenshot('After pres GO/GET coins')

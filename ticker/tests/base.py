@@ -59,7 +59,6 @@ class TickerBaseTestCase(OrderBaseTestCase):
         mock.get(CoinexchangeAdapter.RESOURCE_TICKER_PARAM.format('251'),
                  text=coinex_market_summary_resp)
         mock.get(KrakenAdapter.RESOURCE, text=self.kraken_resp)
-        mock.get(KrakenAdapter.RESOURCE, text=self.kraken_resp)
         mock.get(BaseTicker.BITFINEX_TICKER, text=self.bitifex_resp)
         mock.get(BaseTicker.FIAT_RATE_RESOURCE, text=self.fixer_resp)
         mock.get(BaseTicker.LOCALBTC_URL.format(BaseTicker.ACTION_SELL),

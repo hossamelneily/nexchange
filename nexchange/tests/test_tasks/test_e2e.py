@@ -673,14 +673,16 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
 
     @data_provider(
         lambda: (
-            ('ETHLTC', Order.BUY, False),
-            ('BTCETH', Order.BUY, False),
-            ('BTCLTC', Order.BUY, True),
-            ('ETHLTC', Order.SELL, True),
-            ('BTCETH', Order.SELL, False),
-            ('BTCLTC', Order.SELL, True),
-            ('BTCRNS', Order.BUY, True),
-            ('LTCRNS', Order.BUY, True),
+            ('ETHLTC', Order.BUY, False, 3),
+            ('BTCETH', Order.BUY, False, 3),
+            ('BTCLTC', Order.BUY, True, 3),
+            ('ETHLTC', Order.SELL, True, 3),
+            ('BTCETH', Order.SELL, False, 3),
+            ('BTCLTC', Order.SELL, True, 3),
+            ('BTCRNS', Order.BUY, True, 3),
+            ('LTCRNS', Order.BUY, True, 3),
+            ('ETHDOGE', Order.BUY, True, 3),
+            ('DOGELTC', Order.BUY, True, 4),
         )
     )
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient.release_coins')
@@ -691,16 +693,21 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
     @patch(UPHOLD_ROOT + 'get_transactions')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
     def test_release_exchange_order(self, pair_name, order_type,
-                                    release_with_periodic,
+                                    release_with_periodic, base_curr_code_len,
                                     check_tx_uphold,
                                     get_txs_uphold,
                                     prepare_txn_uphold,
                                     execute_txn_uphold,
                                     get_txs_scrypt, get_tx_scrypt,
                                     release_coins_scrypt):
-        currency_quote_code = pair_name[3:]
-        currency_base_code = pair_name[0:3]
-        self._create_order(order_type=order_type, pair_name=pair_name)
+        currency_quote_code = pair_name[base_curr_code_len:]
+        currency_base_code = pair_name[0:base_curr_code_len]
+        if currency_base_code == 'DOGE':
+            amount_base = 1001
+        else:
+            amount_base = 0.5
+        self._create_order(order_type=order_type, pair_name=pair_name,
+                           amount_base=amount_base)
         if order_type == Order.BUY:
             mock_currency_code = currency_quote_code
             mock_amount = self.order.amount_quote

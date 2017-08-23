@@ -109,7 +109,7 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         verbose_name_plural = 'currencies'
     objects = CurrencyManager()
     NATURAL_KEY = 'code'
-    code = models.CharField(max_length=3)
+    code = models.CharField(max_length=4)
     name = models.CharField(max_length=10)
     min_confirmations = \
         models.IntegerField(blank=True, null=True)

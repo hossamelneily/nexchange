@@ -13,10 +13,11 @@ from core.tests.base import TransactionImportBaseTestCase
 from ticker.tests.base import TickerBaseTestCase
 from selenium.webdriver.common.keys import Keys
 from orders.models import Order
-from core.models import AddressReserve
+from core.models import AddressReserve, Currency
 from verification.models import Verification
 from django.conf import settings
 from django.contrib.auth.models import User
+from decimal import Decimal
 
 from accounts.models import SmsToken
 from unittest.mock import patch
@@ -364,11 +365,18 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             options[1].click()
             submit.click()
 
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
+    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient.release_coins')
     @patch(UPHOLD_ROOT + 'execute_txn')
     @patch(UPHOLD_ROOT + 'prepare_txn')
     def add_withdraw_address_on_payment_success(self, prepare_txn,
-                                                execute_txn, add_new=False):
-        prepare_txn.return_value = 'txid{}'.format(self.order.unique_reference)
+                                                execute_txn,
+                                                release_coins_scrypt,
+                                                get_tx_scrypt,
+                                                add_new=False):
+        prepare_txn.return_value = release_coins_scrypt.return_value = \
+            'txid{}'.format(self.order.unique_reference)
+        get_tx_scrypt.return_value = {'confirmations': 249}
         execute_txn.return_value = True
         address_id = 'span-withdraw-{}'.format(self.order.pk)
 
@@ -460,9 +468,13 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             '//div[@id="menu3"]//span[@class="currency"]').text
         self.assertNotEqual(amount_base, '')
         self.assertNotEqual(amount_quote, '')
+        if pair_name[:4] == 'DOGE':
+            base_code_len = 4
+        else:
+            base_code_len = 3
         if pair_name is not None:
-            self.assertEqual(currency_base, pair_name[:3])
-            self.assertEqual(currency_quote, pair_name[3:])
+            self.assertEqual(currency_base, pair_name[:base_code_len])
+            self.assertEqual(currency_quote, pair_name[base_code_len:])
         res = {'currency_base': currency_base,
                'currency_quote': currency_quote,
                'amount_base': amount_base,
@@ -481,26 +493,34 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
                                ' PASS cause you should not be abble to click '
                                'unclickable element)')
 
-    def mock_import_transaction(self, amount, currency_code, get_txs,
-                                get_rtx):
+    def mock_import_transaction(self, amount, currency_code, get_txs_uphold,
+                                get_rtx, get_txs_scrypt, get_tx_scrypt):
         self.completed = '{"status": "completed", "type": "deposit"}'
-        tx_id_api1 = 'tx_customer{}{}'.format(str(time()), randint(0, 999))
-        tx_id_api2 = 'tx_customer{}{}'.format(str(time()), randint(0, 999))
-        card_id = AddressReserve.objects.filter(
+        mock_currency = Currency.objects.get(code=currency_code)
+        card = AddressReserve.objects.filter(
             currency__code=currency_code,
             user__isnull=True
-        ).last().card_id
-        get_txs_response = self.uphold_import_transactions_empty.format(
-            tx_id_api1=tx_id_api1,
-            tx_id_api2=tx_id_api2,
-            amount1=amount,
-            amount2='0.0',
-            currency=currency_code,
-            card_id=card_id,
-        )
+        ).last()
+        if mock_currency.wallet == 'api1':
+            card_id = card.card_id
+            get_txs_uphold.return_value = [
+                self.get_uphold_tx(currency_code, amount, card_id)
+            ]
 
-        get_txs.return_value = json.loads(get_txs_response)
+        else:
+            get_txs_scrypt.return_value = [{
+                'address': card.address,
+                'category': 'receive',
+                'account': '',
+                'amount': amount,
+                'txid': 'txid_{}{}'.format(time(), randint(1, 999)),
+                'confirmations': 0,
+                'timereceived': 1498736269,
+                'time': 1498736269,
+                'fee': Decimal('-0.00000100')
+            }]
         get_rtx.return_value = json.loads(self.completed)
+        get_tx_scrypt.return_value = {'confirmations': 249}
 
     def do_screenshot(self, filename, refresh=False):
         now = time()

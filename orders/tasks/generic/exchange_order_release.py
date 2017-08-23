@@ -48,7 +48,7 @@ class ExchangeOrderRelease(BaseOrderRelease):
 
             if currency.wallet == 'api1':
                 self.api = UpholdApiClient()
-            elif currency.wallet == 'rpc1':
+            elif currency.wallet in ['rpc1', 'rpc2']:
                 self.api = ScryptRpcApiClient()
             order.refresh_from_db()
             if order.status not in Order.IN_RELEASED:
@@ -87,7 +87,7 @@ class ExchangeOrderRelease(BaseOrderRelease):
                                 'type': Transaction.WITHDRAW}
             if currency.wallet == 'api1':
                 transaction_data.update({'tx_id_api': tx_id})
-            elif currency.wallet == 'rpc1':
+            elif currency.wallet in ['rpc1', 'rpc2']:
                 transaction_data.update({'tx_id': tx_id})
             t = Transaction(**transaction_data)
             t.save()

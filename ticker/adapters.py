@@ -17,6 +17,8 @@ class KrakenAdapter(BaseApiAdapter):
 
     @staticmethod
     def kraken_format(code, is_crypto):
+        if code == 'DOGE':
+            code = 'XDG'
         if code == 'BTC':
             code = 'XBT'
         if is_crypto:

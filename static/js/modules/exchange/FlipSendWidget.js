@@ -17,8 +17,15 @@ class FlipSendWidget {
 			urlFragments = url.split('/'),
 			pairPos = urlFragments.length - 2,
 			pair = urlFragments[pairPos],
-			currencyFrom = pair.substring(3, 6),
-			currencyTo = pair.substring(0, 3);
+			startOfFrom = 3,
+            currencyTo = pair.substring(0, startOfFrom),
+            currencyFrom = pair.substring(startOfFrom);
+        // FIXME: hardcoded DOGE coin selector
+        if (currencyTo.toUpperCase() === 'DOG') {
+            startOfFrom = 4;
+            currencyTo = pair.substring(0, startOfFrom);
+            currencyFrom = pair.substring(startOfFrom);
+		}
 
         $('.currency-from').val(currencyFrom); 
         $('.currency-to').val(currencyTo);
@@ -139,8 +146,17 @@ class FlipSendWidget {
 	}
 
     setCurrency(pair) {
-		let reversePair = Extractor.reversePair(pair),
-			title = Extractor.getTitleFromPair(reversePair);
+		// FIXME: hardcoded DOGE coin selector
+        let baseCodeLength = 3,
+		    quoteCodeLength = 3;
+		if (pair.substring(0, 4).toUpperCase() === 'DOGE') {
+			baseCodeLength = 4;
+		}
+        if (pair.substring(3).toUpperCase() === 'DOGE') {
+            quoteCodeLength = 4;
+        }
+		let reversePair = Extractor.reversePair(pair, baseCodeLength),
+			title = Extractor.getTitleFromPair(reversePair, quoteCodeLength);
 
 		this.chartObject.renderChart(reversePair, title, $("#graph-range").val());
 		this.updateOrder($('#amount-receive'));
