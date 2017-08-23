@@ -127,7 +127,7 @@ class BaseApiClient:
             [self.parse_tx(tx, node)
                 for tx in txs if self.filter_tx(tx)]
 
-    def check_tx(self, tx, node=None):
+    def check_tx(self, tx, node):
         raise NotImplementedError()
 
     def release_coins(self, currency, address, amount):

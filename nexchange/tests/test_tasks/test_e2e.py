@@ -740,7 +740,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                 'time': 1498736269,
                 'fee': Decimal('-0.00000100')
             }]
-        check_tx_uphold.return_value = True
+        check_tx_uphold.return_value = True, 999
         get_tx_scrypt.return_value = {'confirmations': 249}
         self.import_txs_task.apply()
         prepare_txn_uphold.return_value = release_coins_scrypt.return_value = \
@@ -831,7 +831,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                 'time': 1498736269,
                 'fee': Decimal('-0.00000100')
             }]
-        check_tx_uphold.return_value = True
+        check_tx_uphold.return_value = True, 999
         get_tx_scrypt.return_value = {'confirmations': 249}
         self.import_txs_task.apply()
         prepare_txn_uphold.return_value = release_coins_scrypt.return_value = \
@@ -1054,7 +1054,7 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
     @patch('payments.api_clients.adv_cash.AdvCashAPIClient._send_money')
     def test_success_release_sell(self, name, pair_name, order_type,
                                   send_money, prepare_txn, execute_txn,
-                                  get_txs, get_rtx, check_txn):
+                                  get_txs, get_rtx, check_tx_uphold):
         get_rtx.return_value = json.loads(self.completed)
         fiat_currency_code = pair_name[3:]
         fiat_currency = Currency.objects.get(code=fiat_currency_code)
@@ -1083,7 +1083,7 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
         get_txs.return_value = [
             self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
         ]
-        check_txn.return_value = True
+        check_tx_uphold.return_value = True, 999
         self.import_txs_task.apply()
         tx_id = 'txid_{}{}'.format(time(), randint(1, 999))
         prepare_txn.return_value = tx_id
@@ -1114,7 +1114,7 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
     @patch('payments.api_clients.adv_cash.AdvCashAPIClient.send_money')
     def test_success_release_sell_fail(self, name, pair_name, order_type,
                                        send_money, prepare_txn, execute_txn,
-                                       get_txs, get_rtx, check_txn):
+                                       get_txs, get_rtx, check_tx_uphold):
         get_rtx.return_value = json.loads(self.completed)
         fiat_currency_code = pair_name[3:]
         fiat_currency = Currency.objects.get(code=fiat_currency_code)
@@ -1142,7 +1142,7 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
         get_txs.return_value = [
             self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
         ]
-        check_txn.return_value = True
+        check_tx_uphold.return_value = True, 999
         self.import_txs_task.apply()
         tx_id = 'txid_{}{}'.format(time(), randint(1, 999))
         prepare_txn.return_value = tx_id

@@ -125,33 +125,40 @@ def check_address_blockchain(address):
     return transactions
 
 
-def get_transaction_blockchain(network, tx_id):
-    btc_blockr = 'http://{}.blockr.io/api/v1/tx/info/{}'. \
-        format(network, tx_id)
-    return get(btc_blockr)
+def get_transaction_blockchain(_curr, tx_id):
+    resource = ''
+    logger = get_nexchange_logger(__name__)
+    get_confirmations = lambda x: x
+    if _curr.upepr() in ['LTC', 'BTC']:
+        resource = 'http://{}.blockr.io/api/v1/tx/info/{}'.\
+            format(_curr, tx_id)
+        get_confirmations = lambda x: x['data']['confirmations']
+    elif _curr.upper() == 'ETH':
+        resource = 'https://api.blockcypher.com/v1/eth/main/txs/{}'\
+            .format(tx_id)
+        get_confirmations = lambda x: x['confirmations']
+
+    if resource:
+        logger.warning('get_transaction_blockchain does not support {}'
+                       .format(_curr))
+        return None, 0
+    else:
+        res = get(resource)
+        return res, get_confirmations(res)
 
 
 def check_transaction_blockchain(tx):
+    logger = get_nexchange_logger(__name__)
     if not tx or not tx.tx_id:
         return False
     currency = 'btc'
     if tx.address_to.currency:
         currency = tx.address_to.currency.code.lower()
-    network = '{}'.format(currency)
-    if settings.DEBUG:
-        network = 't{}'.format(currency)
-    info = get_transaction_blockchain(network, str(tx.tx_id))
-    if info.status_code != 200:
+    info, num_confirmations = get_transaction_blockchain(currency, str(tx.tx_id))
+    if info and info.status_code != 200:
         return False
-    num_confirmations = int(info.json()['data']['confirmations'])
 
-    tx.confirmations = num_confirmations
-    tx.save()
-
-    if num_confirmations > tx.address_to.currency.min_confirmations:
-        return True
-    else:
-        return False
+    return num_confirmations
 
 
 loggers = {}
