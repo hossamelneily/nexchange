@@ -20,7 +20,7 @@ class UpholdApiClient(BaseApiClient):
     def get_api(self, currency=None):
         if not self.api:
             self.api = Uphold(settings.API1_IS_TEST)
-            self.api.auth_basic(settings.API1_USER, settings.API1_PASS)
+            self.api.auth_pat(settings.API1_PAT)
         return self.api
 
     def create_address(self, currency):
