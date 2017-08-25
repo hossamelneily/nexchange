@@ -158,6 +158,8 @@ class UpholdApiClient(BaseApiClient):
 
         card_data = self.api.get_card(card_id)
         main_card = self.api.get_card(main_card_id)
+        # prevent unwanted conversions
+        # TODO: add logging!
         if curr_code != card_data['currency'] or curr_code != main_card['currency']:  # noqa
             return
         address_to = main_card['address'][address_key]

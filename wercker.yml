@@ -257,8 +257,7 @@ build:
           export OKPAY_WALLET=${OKPAY_WALLET}
           export OKPAY_API_KEY=${OKPAY_API_KEY}
           # API1
-          export API1_USER=${API1_USER}
-          export API1_PASS='${API1_PASS}'
+          export API1_PAT=${API1_PAT}
           # API2
           export API2_KEY=${API2_KEY}
           export API2_SECRET=${API2_SECRET}
