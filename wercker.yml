@@ -488,7 +488,7 @@ tests:
     - script:
         name: API tests
         code: |
-            # ./node_modules/.bin/dredd
+          DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-api-tests.sh
     - script:
         name: Backend tests
         code: |

@@ -1,5 +1,5 @@
 FORMAT: 1A
-HOST: https://nexchange.co.uk/
+HOST: https://nexchange.io/
 # nexchange
 
 API for crypto currency exchange.
@@ -67,7 +67,7 @@ API for crypto currency exchange.
 ## Latest Ticker [/en/api/v1/price/{pair_name}/latest/]
 
 + Parameters
-    + pair_name (required, string, `BTCLTC`) - Name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC...
+    + `pair_name`: BTCLTC (required, string) - name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC.
 
 
 ### Get Latest Ticker [GET]
@@ -92,9 +92,9 @@ API for crypto currency exchange.
 ## Ticker History [/en/api/v1/price/{pair_name}/history/{?hours,data_points}]
 
 + Parameters
-    + pair_name (required, string, `BTCLTC`) - Name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC...
-    + hours (double, `0.1`) - How many hours back would you like to get prices for. Amount of hours to check i.e. 0.3 means 18 min, 2 - 2 hours.
-    + data_points (int, `3`) - How many data points in the selected hour range would you like to get. For example, If you pass 1 hour and data_points=60, you will get 1 data point per minute (our max supported resolution), if you pass hour=1 and data_points=30 you will get one point per 2 minutes.
+    + `pair_name`: BTCLTC (required, string) - name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC.
+    + `hours`: 0.1 (optional, double) - how many hours back would you like to get prices for. Amount of hours to check i.e. 0.3 means 18 min, 2 - 2 hours.
+    + `data_points`: 3 (optional, int) - how many data points in the selected hour range would you like to get. For example, If you pass 1 hour and data\_points=60, you will get 1 data point per minute (our max supported resolution), if you pass hour=1 and data\_points=30 you will get one point per 2 minutes.
 
 ### Get Ticker History [GET]
  Returns price history for selected pair.
@@ -125,9 +125,9 @@ API for crypto currency exchange.
 
 ## Get Orders [/en/api/v1/orders/{?page,page_size}]
 
-+ Parameter
-    + page (int, `1`) - page number.
-    + page_size (int, `3`) - number of orders in one page.
++ Parameters
+    + `page`: 1 (optional, int) - page number.
+    + `page_size`: 3 (optional, int) - number of orders in one page.
 
 
 ### Get Orders [GET]
@@ -206,8 +206,8 @@ API for crypto currency exchange.
 
 ## Get Order [/en/api/v1/orders/{unique_reference}/]
 
-+ Parameter
-    + unique_reference (`JN0UR`) - unique reference of the order.
++ Parameters
+    + `unique_reference`: V08PD (required, string) - unique reference of the order.
 
 
 ### Get Order [GET]
@@ -215,9 +215,11 @@ API for crypto currency exchange.
 
 + Request
 
+    + Attributes
+        + Headers (BaseAuthHeaders)
     + Headers
 
-            Authorization: Basic ZGVtbzpEZW1vNFRoZWJlc3Q=
+            Authorization: Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=
 
 
 + Response 200 (application/json)
@@ -245,9 +247,9 @@ API for crypto currency exchange.
 
 ## Get User Orders [/en/api/v1/users/me/orders/{?page,page_size}]
 
-+ Parameter
-    + page (int, `1`) - page number.
-    + page_size (int, `3`) - number of orders in one page.
++ Parameters
+    + `page`: 1 (optional, int) - page number.
+    + `page_size`: 3 (optional, int) - number of orders in one page.
 
 
 ### Get User Orders [GET]
@@ -255,9 +257,11 @@ API for crypto currency exchange.
 
 + Request
 
+    + Attributes
+        + Headers (BaseAuthHeaders)
     + Headers
 
-            Authorization: Basic ZGVtbzpEZW1vNFRoZWJlc3Q=
+            Authorization: Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=
 
 
 + Response 200 (application/json)
@@ -315,8 +319,8 @@ API for crypto currency exchange.
 
 ## Get User Order [/en/api/v1/users/me/orders/{unique_reference}/]
 
-+ Parameter
-    + unique_reference (`JN0UR`) - unique reference of the order.
++ Parameters
+    + `unique_reference`: V08PD (required, string) - unique reference of the order.
 
 
 ### Get User Order [GET]
@@ -324,9 +328,11 @@ API for crypto currency exchange.
 
 + Request
 
+    + Attributes
+        + Headers (BaseAuthHeaders)
     + Headers
 
-            Authorization: Basic ZGVtbzpEZW1vNFRoZWJlc3Q=
+            Authorization: Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=
 
 
 + Response 200 (application/json)
@@ -382,6 +388,9 @@ API for crypto currency exchange.
 
 + Request (application/json)
 
+    + Attributes
+        + Payload (RequestOrderPayload)
+        + Headers (BaseAuthJsonHeaders)
     + Body
 
             {
@@ -396,7 +405,7 @@ API for crypto currency exchange.
             }
     + Headers
 
-            Authorization: Basic ZGVtbzpEZW1vNFRoZWJlc3Q=
+            Authorization: Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=
 
 + Response 201 (application/json)
     + Attributes (MinimalOrder)
@@ -446,6 +455,9 @@ API for crypto currency exchange.
 
 + Request (application/json)
 
+    + Attributes
+        + Payload (RequestOrderPayload)
+        + Headers (JsonHeaders)
     + Body
 
             {
@@ -479,7 +491,79 @@ API for crypto currency exchange.
             }
 
 
+## Referrals [/en/api/v1/referrals/]
+
+
+### Get Referrals [GET]
+   Ger referrals.
+
++ Request (aplication/json)
+
+    + Attributes
+        + Headers (BaseAuthHeaders)
+    + Headers
+
+            Authorization: Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=
+
++ Response 200 (application/json)
+    + Attributes (Referrals)
+
+    + Body
+
+            [
+              {
+                "confirmed_orders_count": 1,
+                "turnover": 3.04308297,
+                "revenue": 0.06086166,
+                "referee": {
+                  "profile": {
+                    "partial_phone": "None",
+                    "last_visit_time": "2017-08-25T09:45:55.629455Z",
+                    "id": 11,
+                    "time_zone": "UTC",
+                    "created_on": "2017-08-25T09:45:55.475356Z",
+                    "modified_on": "2017-08-25T09:45:55.475379Z"
+                  }
+                },
+                "code": {
+                  "code": "Vt6v8BiHzW",
+                  "created_on": "2017-08-25T15:30:32.181597Z",
+                  "modified_on": "2017-08-25T15:30:40.620273Z"
+                },
+                "created_on": "2017-08-25T15:36:26.346474Z",
+                "modified_on": "2017-08-25T15:36:26.346496Z"
+              }
+            ]
+
+
 # Data Structures
+
+# Profile
++ `partial_phone` (required) - partial phone of the profile.
++ `last_visit_time` (optional) - time of last vist (ISO 8601).
++ `id` (required) - profile ID.
++ `time_zone` time zone of the profile.
++ `created_on` (required) - time of profile creation (ISO 8601).
++ `modified_on` (optional) - latest time on which this profile was updated (ISO 8601).
+
+# ReferralCode
++ `code`: unique referral code
++ `created_on` (required) - time of code creation (ISO 8601).
++ `modified_on` (optional) - latest time on which this code was updated (ISO 8601).
+
+# Referee
++ `profile` (Profile)
+
+# Referrals (array[Referral])
+
+# Referral
++ `confirmed_orders_count` (number, nullable) - COMPLETED by referee orders count.
++ `turnover` (number, nullable) - sum of COMPLETED orders amount_base in BTC(bitcoin).
++ `revenue` (number, nullable) - revenue of the referral in BTC(bitcoin).
++ `referee` (Referee)
++ `code` (ReferralCode)
++ `created_on` (required) - time of referral creation (ISO 8601).
++ `modified_on` (optional) - latest time on which this referral was updated (ISO 8601).
 
 ## Currency
 + `code` (required) - currency code.
@@ -510,7 +594,7 @@ API for crypto currency exchange.
 + `bid` (required) - bid price.
 
 ## Price
-+ `created_on` (required) -  price creation UTC time.
++ `created_on` (required) - time of price creation (ISO 8601).
 + `unix_time` (required) - price creation unix timestamp.
 + `ticker` (Ticker, required) - ticker.
 
@@ -521,10 +605,10 @@ API for crypto currency exchange.
 + `currency_code` (required) - currency code i.e. ETH.
 
 ## Transaction
-+ `created_on` (required) - UTC time of creation.
-+ `modified_on` (required) - UTC time of last modification.
++ `created_on` (required) - time of transaction creation (ISO 8601).
++ `modified_on` (optional) - latest time on which this transaction was updated (ISO 8601).
 + `type` (required) - "W" for withdraw and "D" for Deposit.
-+ `address_to` (number, required) - recepient address ID.
++ `address_to` (number, required) - recipient address ID.
 + `tx_id` (nullable) - transaction ID.
 + `confirmations` (number, required) - transaction confirmations.
 + `amount` (required) - transaction amount.
@@ -536,18 +620,18 @@ API for crypto currency exchange.
 
 ## MinimalOrder
 + `amount_base` (required) - amount of base currency which user gets.
-+ `is_default_rule` (boolean, required) - convert any incoming funds to this address automatically (the withdraw_address defined on the same order).
++ `is_default_rule` (boolean, required) - if True any incoming funds will be converted automatically (**To** the withdraw_address defined on the same order).
 + `unique_reference` (required) - unique ID of an order.
 + `amount_quote` (required) - amount of base currency which user sends.
-+ `withdraw_address` (Address, nullable) - address where user gets his funds.
++ `withdraw_address` (Address, nullable) - a destination address to which the funds will be dispatched upon the successful completion of the Order.
 + `transactions` (array[Transaction]) - order transactions.
 
 ## BaseOrder (MinimalOrder)
-+ `created_on` (fixed) - time of order creation (timestamp)
-+ `modified_on` (fixed) - Latest time on which this order was updated
-+ `deposit_address` (Address, required) - address where user sends his funds.
++ `created_on` (required) - time of order creation (ISO 8601).
++ `modified_on` (optional) - latest time on which this order was updated (ISO 8601).
++ `deposit_address` (Address, required) - the destination address to which the user is ought to deposit his fund in order for the trade to execute.
 + `from_default_rule` (boolean, required) - indicates that the order was created as a result of `is_default_rule` as described above.
-+ 'pair' (Pair) - exchange pair.
++ `pair` (Pair, required) - exchanged pair.
 
 ## PrivateOrder (BaseOrder)
 + `status` (number, required) - order status 2 - Initial, 2 - Paid...
@@ -557,3 +641,18 @@ API for crypto currency exchange.
 + `next` (string, nullable) - link to the next page.
 + `previous` (string, nullable) - link to previous page.
 + `results` (array[BaseOrder])
+
+## RequestOrderPayload
++ `amount_base` (required) - amount of base currency which user gets.
++ `is_default_rule` (boolean, required) - if True any incoming funds will be converted automatically (**To** the withdraw_address defined on the same order).
++ `pair` (Pair, required) - exchanged pair.
++ `withdraw_address` (Address, required) - a destination address to which the funds will be dispatched upon the successful completion of the Order.
+
+## JsonHeaders
++ `Content-Type` (required) - application/json.
+
+## BaseAuthHeaders
++ `Authorization` (required) - basic auth headers i.e. "Authorization:Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=".
+
+## BaseAuthJsonHeaders (JsonHeaders)
++ `Authorization` (required) - basic auth headers i.e. "Authorization:Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=".

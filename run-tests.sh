@@ -1,7 +1,7 @@
 #!/bin/bash
 
 coverage erase
-coverage run --source="." --omit="src/**,core/tests/test_ui/*" manage.py test -v=3 --pattern="test_*.py" --settings=nexchange.settings_test
+coverage run --source="." --omit="src/**,core/tests/test_api/*,core/tests/test_api_external/*" manage.py test --failfast --failfast -v=3 --pattern="test_*.py" --settings=nexchange.settings_test
 TEST_STATUS_CODE=$?
 while getopts ":c:" opt; do
     COVERALLS_REPO_TOKEN=Y9cfC0hPig5JrjZe4zxgvgcuoZ3AmxZYo coveralls
