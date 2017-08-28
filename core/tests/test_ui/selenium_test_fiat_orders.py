@@ -15,8 +15,6 @@ from core.tests.utils import create_payeer_mock_for_order, get_payeer_mock, \
 from core.tests.utils import data_provider
 from orders.models import Order
 from payments.tests.test_api_clients.base import BaseSofortAPITestCase
-from payments.tests.test_api_clients.test_adv_cash import \
-    BaseAdvCashAPIClientTestCase
 from unittest import skip
 
 
