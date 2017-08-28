@@ -1,13 +1,17 @@
 from random import randint
 from decimal import Decimal
+import requests_mock
 
-from core.tests.base import OrderBaseTestCase
+from core.models import Pair
 from orders.models import Order
 from referrals.models import ReferralCode, Referral, Program
+from core.tests.base import OrderBaseTestCase
+from ticker.tests.base import TickerBaseTestCase
+from ticker.models import Price
 from accounts.models import Balance
 
 
-class TestReferralModel(OrderBaseTestCase):
+class TestReferralModel(TickerBaseTestCase):
     fixtures = OrderBaseTestCase.fixtures + [
         'program.json'
     ]
@@ -83,6 +87,29 @@ class TestReferralModel(OrderBaseTestCase):
     def test_turnover(self):
         self.assertEqual(round(self.turnover, 8),
                          self.referral.turnover)
+
+    @requests_mock.mock()
+    def test_partial_turnover(self, mock):
+        self.get_tickers(mock)
+        amount_base = Decimal('11.11')
+        pair = Pair.objects.get(name='LTCBTC')
+        rate = Price.objects.filter(pair__name='BTCLTC').last().ticker.rate
+        other_turnover = amount_base / rate
+        self.assertEqual(0, self.referral.turnover_other_currencies_in_btc)
+        order = Order(
+            user=self.user,
+            amount_base=amount_base,
+            pair=pair,
+            status=Order.COMPLETED
+        )
+        order.save()
+        self.assertEqual(round(self.turnover, 8),
+                         self.referral.turnover_btc)
+        self.assertEqual(round(other_turnover, 8),
+                         self.referral.turnover_other_currencies_in_btc)
+        self.assertEqual(self.referral.turnover,
+                         self.referral.turnover_other_currencies_in_btc +
+                         self.referral.turnover_btc)
 
     def test_correct_balance(self):
         balance = Balance.objects.get(user=self.user)

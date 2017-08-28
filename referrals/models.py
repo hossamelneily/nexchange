@@ -7,6 +7,7 @@ from django.utils.crypto import get_random_string
 from core.common.models import (IpAwareModel, TimeStampedModel,
                                 UniqueFieldMixin)
 from orders.models import Order
+from ticker.models import Price
 from django.conf import settings
 from django.utils.translation import get_language
 from django.utils.http import urlquote
@@ -98,15 +99,34 @@ class Referral(IpAwareModel):
         return self.orders.count()
 
     @property
-    def turnover(self):
-        if not self.orders:
-            return None
-        res = self.\
-            orders.aggregate(models.Sum('amount_base'))
+    def turnover_btc(self):
+        turnover = 0
+        btc_orders = self.orders.filter(pair__base__code='BTC')
+        if not btc_orders:
+            return turnover
+        res = btc_orders.aggregate(models.Sum('amount_base'))
         if res['amount_base__sum']:
-            res = res['amount_base__sum']
+            turnover = res['amount_base__sum']
         else:
-            res = 0
+            turnover = 0
+        return round(turnover, 8)
+
+    @property
+    def turnover_other_currencies_in_btc(self):
+        turnover = 0
+        other_orders = self.orders.exclude(pair__base__code='BTC')
+        if not other_orders:
+            return turnover
+        for order in other_orders:
+            currency_base_code = order.pair.base.code
+            rate = Price.objects.filter(pair__name='BTC{}'.format(
+                currency_base_code)).last().ticker.rate
+            turnover += order.amount_base / rate
+        return round(turnover, 8)
+
+    @property
+    def turnover(self):
+        res = self.turnover_btc + self.turnover_other_currencies_in_btc
         return round(res, 8)
 
     @property

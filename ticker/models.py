@@ -10,6 +10,10 @@ class Ticker(IndexTimeStampedModel):
     bid = models.DecimalField(max_digits=18, decimal_places=8)
     pair = models.ForeignKey(Pair)
 
+    @property
+    def rate(self):
+        return (self.ask + self.bid) / 2
+
 
 class Price(IndexTimeStampedModel):
 

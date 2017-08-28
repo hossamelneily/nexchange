@@ -146,5 +146,5 @@ class BaseApiClient:
         card.need_balance_check = False
         card.save()
 
-    def get_card_validity(self):
+    def get_card_validity(self, wallet):
         raise NotImplementedError()
