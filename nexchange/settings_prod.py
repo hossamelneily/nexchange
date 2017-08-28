@@ -4,10 +4,8 @@ from nexchange.settings import *
 DEBUG = bool(os.getenv('DEBUG', False))
 CELERY_TASK_ALWAYS_EAGER = bool(os.getenv('CELERY_TASK_ALWAYS_EAGER', False))
 ALLOWED_HOSTS = [
-    'nexchange.co.uk',
+    'api.nexchange.io',
     'nexchange.io',
-    'staging.nexchange.io',
-    'www.nexchange.co.uk',
     'www.nexchange.io',
 ]
 
