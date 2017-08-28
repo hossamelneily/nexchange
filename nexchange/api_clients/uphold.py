@@ -20,7 +20,7 @@ class UpholdApiClient(BaseApiClient):
     def get_api(self, currency=None):
         if not self.api:
             self.api = Uphold(settings.API1_IS_TEST)
-            self.api.auth_basic(settings.API1_USER, settings.API1_PASS)
+            self.api.auth_pat(settings.API1_PAT)
         return self.api
 
     def create_address(self, currency):
@@ -158,6 +158,8 @@ class UpholdApiClient(BaseApiClient):
 
         card_data = self.api.get_card(card_id)
         main_card = self.api.get_card(main_card_id)
+        # prevent unwanted conversions
+        # TODO: add logging!
         if curr_code != card_data['currency'] or curr_code != main_card['currency']:  # noqa
             return
         address_to = main_card['address'][address_key]

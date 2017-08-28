@@ -56,8 +56,7 @@ ADV_CASH_WALLETS = [ADV_CASH_WALLET_USD, ADV_CASH_WALLET_EUR,
                     ADV_CASH_WALLET_GBP, ADV_CASH_WALLET_RUB]
 
 # API1
-API1_USER = os.getenv('API1_USER')
-API1_PASS = os.getenv('API1_PASS')
+API1_PAT = os.getenv('API1_PAT')
 API1_ID_C1 = os.getenv('API1_ID_C1')
 API1_ID_C2 = os.getenv('API1_ID_C2')
 API1_ID_C3 = os.getenv('API1_ID_C3')
