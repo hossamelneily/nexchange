@@ -17,6 +17,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='order',
             name='deposit_address',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='order_set_deposit', to='core.Address'),
+            field=models.ForeignKey(
+                blank=True,
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='order_set_deposit',
+                to='core.Address'),
         ),
     ]

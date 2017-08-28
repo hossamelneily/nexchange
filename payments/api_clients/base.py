@@ -5,6 +5,7 @@ import datetime
 
 
 class BasePaymentApi:
+
     def __init__(self):
         self.logger = get_nexchange_logger(
             self.__class__.__name__,

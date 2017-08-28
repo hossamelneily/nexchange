@@ -16,6 +16,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='order',
             name='withdraw_address',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='order_set_withdraw', to='core.Address'),
+            field=models.ForeignKey(
+                blank=True,
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='order_set_withdraw',
+                to='core.Address'),
         ),
     ]

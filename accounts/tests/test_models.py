@@ -8,6 +8,7 @@ from django.conf import settings
 
 
 class ProfileAttributeTestCase(OrderBaseTestCase):
+
     def setUp(self):
         super(ProfileAttributeTestCase, self).setUp()
         with requests_mock.mock() as m:

@@ -921,6 +921,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
 
 class AnonymousUserTestCase(UserBaseTestCase):
+
     def setUp(self):
         super(AnonymousUserTestCase, self).setUp()
         self.create_url = reverse('accounts.create_anonymous_user')

@@ -91,6 +91,7 @@ class UserBaseTestCase(TestCase):
             self._create_an_order_for_every_crypto_currency_card(
                 self.user, amount_quote='1.1')
     # deprecated
+
     def _request_card(self, request, context):  # noqa
         post_params = {}
         params = request._request.body.split('&')

@@ -71,6 +71,13 @@ USER_SETS_WITHDRAW_ADDRESS_MEDIAN_TIME = 30
 TICKER_INTERVAL = 60
 PAYMENT_IMPORT_INTERVAL = 60
 TICKER_CACHE_BACKEND = 'memory'
+
+ORDER_CACHE_LIFETIME = 60
+PRICE_CACHE_LIFETIME = 30
+# ONE HOUR, AS IT CONTAINS RESERVES
+CURRENCY_CACHE_LIFETIME = 3600
+PAIR_CACHE_LIFETIME = 3600
+
 PAYMENT_WINDOW_SAFETY_INTERVAL = timedelta(seconds=60)
 PAYMENT_DEFAULT_SEEK_INTERVAL = timedelta(hours=12)
 SMS_TOKEN_VALIDITY = timedelta(minutes=5)
@@ -445,7 +452,15 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'nexchange.authentication.SessionAuthenticationNoCSRF',
-    )
+    ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '30/min',
+        'user': '30/min'
+    }
 }
 # 12 months
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 12

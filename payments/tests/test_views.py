@@ -20,7 +20,6 @@ from payments.tests.test_api_clients.base import BaseCardPmtAPITestCase
 from payments.utils import get_sha256_sign, get_payeer_desc
 
 
-
 class PayeerTestCase(OrderBaseTestCase):
 
     def _create_input_params(self, status='success', delete=None,
