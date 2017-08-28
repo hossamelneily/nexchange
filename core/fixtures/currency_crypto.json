@@ -9,9 +9,9 @@
       "wallet": "api1",
       "algo": "sha256",
       "is_crypto": 1,
-      "min_confirmations": 1,
+      "min_confirmations": 2,
       "min_confirmation_high": 6,
-      "median_confirmation": 60,
+      "median_confirmation": 6,
       "minimal_amount": "0.002",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
@@ -28,7 +28,7 @@
       "algo": "scrypt",
       "min_confirmations": 6,
       "is_crypto": 1,
-      "median_confirmation": 15,
+      "median_confirmation": 12,
       "minimal_amount": "0.25",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
@@ -45,7 +45,7 @@
       "algo": "ethash",
       "is_crypto": 1,
       "min_confirmations": 12,
-      "median_confirmation": 15,
+      "median_confirmation": 16,
       "minimal_amount": "0.1",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"

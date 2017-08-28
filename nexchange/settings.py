@@ -290,8 +290,7 @@ MIDDLEWARE_CLASSES = [
     'referrals.middleware.ReferralMiddleWare',
     'core.middleware.TimezoneMiddleware',
     'core.middleware.LastSeenMiddleware',
-    'social_django.middleware.SocialAuthExceptionMiddleware'
-
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'nexchange.urls'

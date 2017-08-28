@@ -38,11 +38,17 @@ def _update_pending_transaction(tr, logger, next_tasks=None):
     )
     tx_completed, num_confirmations = api.check_tx(tr, currency_to)
 
-    if not num_confirmations and tr.address_to.currency in settings.API1_COINS:
+    # Uphold is shit, fall back to external source to confirm tx
+    # num_confirmations < 2 is to fix the uphold bug that returns 1 for any amount
+    # of confirmations
+    # TODO: remove, if and when Uphold API gets better
+    if not num_confirmations < 2 and tr.address_to.currency \
+            in settings.API1_COINS:
         logger.warning('UPHOLD did not return confirmations count,'
                        ' falling back to 3rd party API')
-
         num_confirmations = check_transaction_blockchain(tr)
+        tx_completed = tx_completed or num_confirmations >=\
+            tr.currency.min_confirmations
 
     tr.confirmations = num_confirmations
     with transaction.atomic():
