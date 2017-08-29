@@ -23,7 +23,8 @@ import logging
 # SECRET KEY TEST
 SECRET_KEY = 'zsl4+4%(%=0@f*tkf0f2u%dt&v&h_-g5mw*o25i$480=3qcb2k'
 
-DEFAULT_FROM_EMAIL = 'support@nexchange.co.uk'
+DEFAULT_FROM_EMAIL = 'support@nexchange.io'
+SUPPORT_EMAIL = DEFAULT_FROM_EMAIL
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SETTINGS_DIR = os.path.dirname(__file__)

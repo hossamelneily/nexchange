@@ -1,6 +1,6 @@
 from orders.api_views import OrderListViewSet
 from rest_framework import permissions
-from core.common.serializers import UserResourceViewSet
+from core.common.api_views import UserResourceViewSet
 
 from accounts.serializers import UserOrderSerializer
 from orders.models import Order

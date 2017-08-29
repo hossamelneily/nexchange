@@ -22,15 +22,13 @@ class NexchangeModel(models.Model):
     objects = NexchangeManager()
 
 
-class UniqueFieldMixin(models.Model):
+class UniqueFieldMixin:
 
-    class Meta:
-        abstract = True
-
-    @staticmethod
-    def gen_unique_value(val_gen, set_len_gen, start_len):
+    def gen_unique_value(self, val_gen,
+                         set_len_gen, start_len):
         failed_count = 0
         max_len = start_len
+        prefix = self.__class__.__name__[:1]
         while True:
             if failed_count >= \
                     settings.REFERENCE_LOOKUP_ATTEMPTS:
@@ -40,7 +38,7 @@ class UniqueFieldMixin(models.Model):
             val = val_gen(max_len)
             cnt_unq = set_len_gen(val)
             if cnt_unq == 0:
-                return val
+                return prefix + val
             else:
                 failed_count += 1
 
