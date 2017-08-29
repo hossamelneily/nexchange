@@ -230,15 +230,18 @@ CELERY_RESULT_SERIALIZER = 'pickle'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 
 
-CELERY_BEAT_SCHEDULE = {
+CORE_TASKS = {
+    'get_all_enabled_tickers': {
+        'task': 'ticker.task_summary.get_all_tickers',
+        'schedule': timedelta(seconds=TICKER_INTERVAL),
+    },
     'renew_cards_reserve': {
         'task': 'accounts.task_summary.renew_cards_reserve_invoke',
         'schedule': timedelta(seconds=60),
     },
-    'import_crypto_deposit_transactions': {
-        'task': 'accounts.task_summary.import_transaction_deposit_crypto_invoke',  # noqa
-        'schedule': timedelta(seconds=60),
-    },
+}
+
+PAYMENT_CHECKER_TASKS = {
     'check_okpay_payments': {
         'task': 'payments.task_summary.run_okpay',
         'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
@@ -255,6 +258,9 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'payments.task_summary.run_adv_cash',
         'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
     },
+}
+
+ORDER_RELEASE_TASKS = {
     'buy_order_release_reference_periodic': {
         'task': 'orders.task_summary.buy_order_release_reference_periodic',
         'schedule': timedelta(seconds=30),
@@ -263,14 +269,20 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'orders.task_summary.exchange_order_release_periodic',
         'schedule': timedelta(seconds=30),
     },
+}
+
+
+TRANSACTION_CHECKER_TASKS = {
+    'import_crypto_deposit_transactions': {
+        'task': 'accounts.task_summary.import_transaction_deposit_crypto_invoke',  # noqa
+        'schedule': timedelta(seconds=60),
+    },
+
     'checker_transactions': {
         'task': 'accounts.task_summary.update_pending_transactions_invoke',
         'schedule': timedelta(seconds=60),
     },
-    'get_all_enabled_tickers': {
-        'task': 'ticker.task_summary.get_all_tickers',
-        'schedule': timedelta(seconds=TICKER_INTERVAL),
-    },
+
     'check_cards_uphold_invoke': {
         'task': 'accounts.task_summary.check_cards_uphold_invoke',
         'schedule': timedelta(seconds=120),
@@ -280,6 +292,14 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(seconds=120),
     },
 }
+
+CELERY_BEAT_SCHEDULE = {}
+
+CELERY_BEAT_SCHEDULE.update(CORE_TASKS)
+# Disabled while we do not support Fiat
+# CELERY_BEAT_SCHEDULE.update(PAYMENT_CHECKER_TASKS)
+CELERY_BEAT_SCHEDULE.update(TRANSACTION_CHECKER_TASKS)
+CELERY_BEAT_SCHEDULE.update(ORDER_RELEASE_TASKS)
 
 TASKS_TIME_LIMIT = 30
 
