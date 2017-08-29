@@ -3,7 +3,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.http import HttpResponse, JsonResponse
 from django.template.loader import get_template
 
-from core.common.views import DateFilterViewSet
+from core.common.api_views import DateFilterViewSet
 from referrals.models import ReferralCode
 from django.utils.decorators import method_decorator
 from django.views.generic import View

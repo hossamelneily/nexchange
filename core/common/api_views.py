@@ -1,8 +1,9 @@
 import datetime
 
-from rest_framework import generics, viewsets
+from rest_framework import generics
 from random import choice
-from nexchange.utils import get_nexchange_logger
+from rest_framework import viewsets
+from nexchange.permissions import NoUpdatePermission, OwnerOnlyPermission
 
 
 class DateFilterViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
@@ -58,3 +59,12 @@ class DataPointsFilterViewSet(DateFilterViewSet):
                     pks.remove(ticker_to_remove)
                 res = self.queryset.filter(pk__in=pks).order_by('id')
         return res
+
+
+class UserResourceViewSet(viewsets.ModelViewSet):
+    permission_classes = (NoUpdatePermission, OwnerOnlyPermission,)
+
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        return super(UserResourceViewSet, self).perform_create(serializer)

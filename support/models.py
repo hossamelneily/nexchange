@@ -1,10 +1,13 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from core.common.models import IndexTimeStampedModel, UniqueFieldMixin
 from django.utils.translation import ugettext_lazy as _
 from orders.models import Order
+from django.utils.crypto import get_random_string
 
 
-class Support(models.Model):
+class Support(IndexTimeStampedModel, UniqueFieldMixin):
     user = models.ForeignKey(User, verbose_name='user', null=True, blank=True)
     order = models.OneToOneField(Order, verbose_name='order',
                                  null=True, blank=True)
@@ -16,12 +19,23 @@ class Support(models.Model):
                                null=True, blank=True)
     message = models.TextField(_('Message*'))
     is_resolved = models.BooleanField(default=False)
-    created = models.DateTimeField(auto_now_add=True)
+    unique_reference = models.CharField(
+        max_length=settings.UNIQUE_REFERENCE_MAX_LENGTH)
 
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        if not self.unique_reference:
+            self.unique_reference = \
+                self.gen_unique_value(
+                    lambda x: get_random_string(x),
+                    lambda x: Order.objects.filter(unique_reference=x).count(),
+                    settings.UNIQUE_REFERENCE_LENGTH
+                ).upper()
+        super(Support, self).save(*args, **kwargs)
+
     class Meta:
-        verbose_name = "Support"
-        verbose_name_plural = "Support"
-        ordering = ['-created']
+        verbose_name = 'Support'
+        verbose_name_plural = 'Support'
+        ordering = ['-created_on']

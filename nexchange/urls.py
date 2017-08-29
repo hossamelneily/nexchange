@@ -29,7 +29,7 @@ from articles.urls import article_urls
 from orders.urls import order_urls, order_api_patterns
 from payments.urls import payment_urls
 from referrals.urls import referral_urls, referrals_api_patterns
-from support.urls import support_urls
+from support.urls import support_urls, support_api_patterns
 from ticker.urls import ticker_api_patterns
 from verification.urls import verification_urls
 
@@ -48,7 +48,8 @@ js_info_dict = {
 
 api_patterns = ticker_api_patterns + referrals_api_patterns \
     + order_api_patterns + account_api_patterns + \
-    core_api_patterns
+    core_api_patterns + support_api_patterns
+
 
 urlpatterns = i18n_patterns(
     url(r'^admin/', admin.site.urls),

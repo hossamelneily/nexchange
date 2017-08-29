@@ -7,14 +7,16 @@ from core.common.models import UniqueFieldMixin
 class ValidateUniqueFieldMixinTestCase(TestCase):
 
     def test_detects_uniqe_value_colision(self):
+        class UnlikelyModel(UniqueFieldMixin):
+            pass
 
-        unq = UniqueFieldMixin.gen_unique_value(
+        model = UnlikelyModel()
+        unq = model.gen_unique_value(
             lambda x: 'A' * x,
             lambda x: 1 if x == 'A' else 0,
             1
         )
-
-        self.assertEqual(unq, 'AA')
+        self.assertEqual(unq, 'UAA')
 
 
 class CurrencyTestCase(OrderBaseTestCase):

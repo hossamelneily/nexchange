@@ -362,7 +362,8 @@ class OrderUniqueReferenceTestsCase(OrderBaseTestCase):
         order.save()
         end = time.time()
         delta = end - start
-        self.assertEqual(settings.UNIQUE_REFERENCE_LENGTH,
+        # plus one here is for prefix (first letter of the Class)
+        self.assertEqual(settings.UNIQUE_REFERENCE_LENGTH + 1,
                          len(order.unique_reference))
         self.assertGreater(max_execution, delta)
         self.assertIsInstance(counter, int)

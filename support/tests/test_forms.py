@@ -6,6 +6,7 @@ from django.test.client import RequestFactory
 from core.tests.base import OrderBaseTestCase, UserBaseTestCase
 from orders.models import Order
 from support.forms import SupportForm
+from unittest import skip
 
 
 class SupportTestForm(TestCase):
@@ -14,6 +15,7 @@ class SupportTestForm(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
+    @skip('This form is not currently used (API is used instead!)')
     def test_valid_form(self):
         data = {
             'name': 'TestSupport',
@@ -86,13 +88,15 @@ class SupportTestModelUserOrder(OrderBaseTestCase):
         self.order = Order(**self.data)
         self.order.save()
 
+    @skip('This form is not currently used (API is used instead!)')
     def test_valid_form(self):
         data_form = {
             'name': 'TestSupport',
             'email': 'johndoe@domain.com',
             'telephone': '123 000 00 00',
             'subject': 'Test case',
-            'message': 'this is only a test'
+            'message': 'this is only a test',
+            'unique_reference': 'mock',
         }
         request = self.factory.get('/support/')
         request.user = self.user
@@ -120,6 +124,7 @@ class SupportTestModelUser(UserBaseTestCase):
         super(SupportTestModelUser, self).setUp()
         self.factory = RequestFactory()
 
+    @skip('This form is not currently used (API is used instead!)')
     def test_valid_form(self):
         data_form = {
             'name': 'TestSupport',

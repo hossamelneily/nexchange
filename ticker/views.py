@@ -1,7 +1,7 @@
 from django.conf import settings
 from rest_framework.response import Response
 
-from core.common.views import DateFilterViewSet, DataPointsFilterViewSet
+from core.common.api_views import DateFilterViewSet, DataPointsFilterViewSet
 from ticker.models import Price
 from ticker.serializers import PriceSerializer
 from django.utils.decorators import method_decorator
