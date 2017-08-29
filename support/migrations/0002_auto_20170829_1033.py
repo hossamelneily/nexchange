@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
             model_name='support',
             name='unique_reference',
             field=models.CharField(
-                default=None,
+                default='placeholder',
                 max_length=16),
             preserve_default=False,
         ),
