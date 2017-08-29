@@ -25,4 +25,3 @@ def allocate_wallets(sender, instance=None, created=False, **kwargs):
         return
     if not order.deposit_address:
         create_deposit_address(user, order)
-

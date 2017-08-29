@@ -98,7 +98,8 @@ class ScryptRpcApiClient(BaseRpcClient):
     def check_tx(self, tx, currency):
         # this assumes that currency and node are one to one except uphold
         tx = self._get_tx(tx.tx_id, currency.wallet)
-        return tx['confirmations'] > currency.min_confirmations, tx['confirmations']
+        return tx['confirmations'] > currency.min_confirmations, tx[
+            'confirmations']
 
     def _get_txs(self, node):
         txs = self.call_api(node, 'listtransactions',

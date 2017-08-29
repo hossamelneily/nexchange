@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 
 
 class OkPayAPI(BasePaymentApi):
+
     def __init__(self, api_password=None, wallet_id=None, url=None):
         ''' Set up your API Access Information
             https://www.okpay.com/en/developers/interfaces/setup.html '''

@@ -4,10 +4,8 @@ from nexchange.settings import *
 DEBUG = bool(os.getenv('DEBUG', False))
 CELERY_TASK_ALWAYS_EAGER = bool(os.getenv('CELERY_TASK_ALWAYS_EAGER', False))
 ALLOWED_HOSTS = [
-    'nexchange.co.uk',
+    'api.nexchange.io',
     'nexchange.io',
-    'staging.nexchange.io',
-    'www.nexchange.co.uk',
     'www.nexchange.io',
 ]
 
@@ -109,8 +107,13 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv(
 SOCIAL_AUTH_GITHUB_KEY = os.getenv('SOCIAL_AUTH_GITHUB_KEY')
 SOCIAL_AUTH_GITHUB_SECRET = os.getenv('SOCIAL_AUTH_GITHUB_SECRET')
 
-# statics
+# Caching
+ORDER_CACHE_LIFETIME = os.getenv('ORDER_CACHE_LIFETIME', 60)
+PRICE_CACHE_LIFETIME = os.getenv('PRICE_CACHE_LIFETIME', 30)
+CURRENCY_CACHE_LIFETIME = os.getenv('CURRENCY_CACHE_LIFETIME', 3600)
+PAIR_CACHE_LIFETIME = os.getenv('PAIR_CACHE_LIFETIME', 3600)
 
+# statics
 STATIC_ROOT = '/usr/share/nginx/html/static'
 MEDIA_ROOT = '/usr/share/nginx/html/media'
 MEDIA_URL = '/media/'

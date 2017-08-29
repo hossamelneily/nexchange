@@ -42,6 +42,7 @@ class BaseTask(app.Task):
 
 
 class BaseApiTask(BaseTask):
+
     def __init__(self, api, *args, **kwargs):
         self.api = api
         super(BaseApiTask, self).__init__(*args, **kwargs)

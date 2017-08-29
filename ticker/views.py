@@ -1,8 +1,11 @@
+from django.conf import settings
 from rest_framework.response import Response
 
 from core.common.views import DateFilterViewSet, DataPointsFilterViewSet
 from ticker.models import Price
 from ticker.serializers import PriceSerializer
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework_extensions.mixins import (
     ReadOnlyCacheResponseAndETAGMixin, ReadOnlyETAGMixin
 )
@@ -10,6 +13,11 @@ from rest_framework_extensions.mixins import (
 
 class LastPricesViewSet(ReadOnlyCacheResponseAndETAGMixin,
                         DateFilterViewSet):
+
+    @method_decorator(cache_page(settings.PRICE_CACHE_LIFETIME))
+    def dispatch(self, *args, **kwargs):
+        return super(LastPricesViewSet, self).dispatch(*args, **kwargs)
+
     def list(self, request, pair=None):
         if pair is not None:
             pair = pair.upper()
