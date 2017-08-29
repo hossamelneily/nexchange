@@ -303,7 +303,7 @@ CELERY_BEAT_SCHEDULE.update(ORDER_RELEASE_TASKS)
 
 TASKS_TIME_LIMIT = 30
 
-MIDDLEWARE = [
+MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
