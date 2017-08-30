@@ -130,11 +130,14 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
     def _validate_order_base_amount(self):
         if self.amount_base < self.pair.base.minimal_amount:
-            raise ValidationError(
-                _('Order base amount must be equal or more than {} '
-                  'for {} order.'.format(self.pair.base.minimal_amount,
-                                         self.pair.base.code))
-            )
+            # Temporary solution
+            # TODO: Add logging handler filters
+            pass
+            # raise ValidationError(
+            #     _('Order base amount must be equal or more than {} '
+            #       'for {} order.'.format(self.pair.base.minimal_amount,
+            #                              self.pair.base.code))
+            # )
 
     def _validate_fields(self):
         self._types_range_constraint(self.order_type, self.TYPES)
