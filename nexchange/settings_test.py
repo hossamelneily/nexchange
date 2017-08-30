@@ -1,7 +1,6 @@
 from .settings import *
 from nexchange import settings_dev
 import logging
-from celery import current_app
 
 # fix send task always eager
 # https://github.com/celery/celery/issues/581
@@ -11,6 +10,7 @@ from celery import current_app
 #
 # if 'test' in sys.argv:
 #     current_app.send_task = send_task
+CELERY_BEAT_SCHEDULE.update(PAYMENT_CHECKER_TASKS)
 
 
 DATABASES = {
