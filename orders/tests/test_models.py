@@ -530,7 +530,11 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
         prepare_txn.return_value = 'txid12345'
         execute_txn.return_value = True
 
-        reserve_txn.return_value = {'status': 'completed'}
+        reserve_txn.return_value = {
+            "status": "completed",
+            "type": "deposit",
+            "params": {"progress": 999}
+        }
         prepare_txn.return_value = (
             '%06x' % random.randrange(16 ** 16)).upper()
         trans_history.return_value = get_ok_pay_mock(

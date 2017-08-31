@@ -636,7 +636,11 @@ class BuyOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         )
 
         # Check transaction status (Completed)
-        reserve_txn.return_value = {'status': 'completed'}
+        reserve_txn.return_value = {
+            "status": "completed",
+            "type": "deposit",
+            "params": {"progress": 999}
+        }
         self.update_confirmation_task.apply()
         order.refresh_from_db()
         self.assertEqual(order.status, Order.COMPLETED)
