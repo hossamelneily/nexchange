@@ -33,19 +33,22 @@ def check_uphold_txn_status_with_blockchain(tr, tx_completed,
                                             num_confirmations, logger):
     is_uphold_coin = tr.address_to.currency.code in settings.API1_COINS
     if not is_uphold_coin:
-        return tx_completed
-    if num_confirmations < 2:
+        return tx_completed, num_confirmations
+    if num_confirmations is None or num_confirmations < 2:
         logger.warning('UPHOLD did not return confirmations count,'
                        ' falling back to 3rd party API')
     elif tx_completed:
-        return tx_completed
+        return tx_completed, num_confirmations
     num_confirmations = check_transaction_blockchain(tr)
+    # FIXME: different return types on check_transaction_blockchain
+    if isinstance(num_confirmations, tuple):
+        num_confirmations = num_confirmations[1]
     tx_completed = num_confirmations >= tr.currency.min_confirmations
     if tx_completed:
         logger.warning('UPHOLD did not return status="completed" when it is '
                        'more when minimal amount of confirmations on '
                        'blockchain response')
-    return tx_completed
+    return tx_completed, num_confirmations
 
 
 def _update_pending_transaction(tr, logger, next_tasks=None):
@@ -62,7 +65,7 @@ def _update_pending_transaction(tr, logger, next_tasks=None):
     # num_confirmations < 2 is to fix the uphold bug that returns 1 for any amount
     # of confirmations
     # TODO: remove, if and when Uphold API gets better
-    tx_completed = check_uphold_txn_status_with_blockchain(
+    tx_completed, num_confirmations = check_uphold_txn_status_with_blockchain(
         tr, tx_completed, num_confirmations, logger)
 
     tr.confirmations = num_confirmations

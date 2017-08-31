@@ -34,7 +34,8 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
              Order.PAID),
             ('4.Uphold OK, cnfs+', 'BTCLTC', True, (True, 99), Order.PAID),
             ('5.Uphold OK, cnfs-', 'BTCETH', False, (True, 99), Order.PAID),
-            ('5.Uphold None, cnfs+', 'BTCETH', False, (True, 99), Order.PAID),
+            ('6.Uphold None, cnfs+', 'BTCETH', False, (None, None),
+             Order.PAID_UNCONFIRMED),
         )
     )
     @patch('accounts.tasks.monitor_wallets.check_transaction_blockchain')
@@ -77,3 +78,6 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         self.update_confirmation_task.apply()
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, last_order_status, name)
+        if last_order_status == Order.PAID and 'Uphold OK' not in name:
+            txn = self.order.transactions.first()
+            self.assertEqual(txn.confirmations, blockchain_confirmations, name)
