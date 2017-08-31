@@ -35,8 +35,8 @@ def check_uphold_txn_status_with_blockchain(tr, tx_completed,
     if not is_uphold_coin:
         return tx_completed, num_confirmations
     if num_confirmations is None or num_confirmations < 2:
-        logger.warning('UPHOLD did not return confirmations count,'
-                       ' falling back to 3rd party API')
+        logger.info('UPHOLD did not return confirmations count,'
+                    ' falling back to 3rd party API')
     elif tx_completed:
         return tx_completed, num_confirmations
     num_confirmations = check_transaction_blockchain(tr)
@@ -45,9 +45,9 @@ def check_uphold_txn_status_with_blockchain(tr, tx_completed,
         num_confirmations = num_confirmations[1]
     tx_completed = num_confirmations >= tr.currency.min_confirmations
     if tx_completed:
-        logger.warning('UPHOLD did not return status="completed" when it is '
-                       'more when minimal amount of confirmations on '
-                       'blockchain response')
+        logger.info('UPHOLD did not return status="completed" when it is '
+                    'more when minimal amount of confirmations on '
+                    'blockchain response')
     return tx_completed, num_confirmations
 
 
