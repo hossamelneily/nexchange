@@ -154,6 +154,48 @@ def check_transaction_blockchain(tx):
     return get_transaction_blockchain(currency, str(tx.tx_id))
 
 
+def get_address_transaction_ids_blockchain(_curr, address_hash):
+    resource = ''
+    tx_ids = []
+    curr = _curr.lower()
+    network = _curr.upper()
+    txn_prefix = ''
+    if network == 'ETH':
+        txn_prefix = '0x'
+
+    logger = get_nexchange_logger(__name__)
+    if _curr.upper() in ['BTC', 'ETH', 'LTC']:
+        resource = 'https://api.blockcypher.com/v1/{}/main/addrs/{}'.format(
+            curr, address_hash)
+
+    if not resource:
+        logger.warning(
+            'get_address_transaction_ids_blockchain does not support '
+            '{}'.format(_curr)
+        )
+        return None, tx_ids
+    else:
+        res = get(resource)
+        parsed_res = res.json()
+        txns = parsed_res.get('txrefs', [])
+        for txn in txns:
+            txn_hash = txn.get('tx_hash', None)
+            income = txn.get('tx_input_n', 0) == -1
+            if txn_hash is not None and income:
+                tx_ids.append(txn_prefix + txn_hash)
+
+        return res, tx_ids
+
+
+def check_address_transaction_ids_blockchain(address):
+    if not address or not address.address:
+        return None, []
+    currency = address.currency
+
+    return get_address_transaction_ids_blockchain(currency.code,
+                                                  address.address)
+
+
 loggers = {}
 
 
