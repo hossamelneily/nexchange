@@ -495,7 +495,8 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
 
     def mock_import_transaction(self, amount, currency_code, get_txs_uphold,
                                 get_rtx, get_txs_scrypt, get_tx_scrypt):
-        self.completed = '{"status": "completed", "type": "deposit"}'
+        self.completed = '{"status": "completed", "type": "deposit",' \
+                         '"params": {"progress": 999}}'
         mock_currency = Currency.objects.get(code=currency_code)
         card = AddressReserve.objects.filter(
             currency__code=currency_code,

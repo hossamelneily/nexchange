@@ -695,5 +695,6 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         reserve_url = 'https://api.uphold.com/v0/reserve/transactions/{}'
         self.reverse_url1 = reserve_url.format(self.tx_ids_api[0])
         self.reverse_url2 = reserve_url.format(self.tx_ids_api[1])
-        self.completed = '{"status": "completed", "type": "deposit"}'
+        self.completed = '{"status": "completed", "type": "deposit",' \
+                         '"params": {"progress": 999}}'
         self.pending = '{"status": "pending", "type": "deposit"}'

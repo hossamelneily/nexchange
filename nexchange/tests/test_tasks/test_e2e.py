@@ -979,7 +979,8 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
         self.update_confirmation_task = update_pending_transactions_invoke
         self.user.email = "Sir@test.alot"
         self.user.save()
-        self.completed = '{"status": "completed", "type": "deposit"}'
+        self.completed = '{"status": "completed", "type": "deposit",' \
+                         '"params": {"progress": 999}}'
 
     @data_provider(lambda: (
         ('BUY BTCEUR', 'BTCEUR', Order.BUY),
