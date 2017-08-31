@@ -108,7 +108,7 @@ def update_pending_transactions():
         except ValidationError as e:
             logger.info(e)
         except Exception as e:
-            logger.warning(e)
+            logger.info(e)
     for task, args in next_tasks:
         if args is not None:
             res = task.apply([args])
