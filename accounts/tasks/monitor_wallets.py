@@ -10,6 +10,7 @@ from orders.task_summary import (sell_order_release_invoke,
 from django.db import transaction
 from nexchange.api_clients.factory import ApiClientFactory
 from nexchange.utils import check_transaction_blockchain
+from django.core.exceptions import ValidationError
 
 
 def mark_card_for_balance_check(tr, logger, next_tasks):
@@ -87,6 +88,8 @@ def update_pending_transactions():
             filter(Q(is_completed=False) | Q(is_verified=False)):
         try:
             _update_pending_transaction(tr, logger, next_tasks=next_tasks)
+        except ValidationError:
+            logger.info(e)
         except Exception as e:
             logger.warning(e)
     for task, args in next_tasks:
