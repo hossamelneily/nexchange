@@ -8,6 +8,7 @@ from twilio.exceptions import TwilioException
 from twilio.rest import TwilioRestClient
 from django.utils.log import AdminEmailHandler
 import string
+from decimal import Decimal
 
 
 class Del:
@@ -155,8 +156,11 @@ def check_transaction_blockchain(tx):
 
 
 def get_address_transaction_ids_blockchain(_curr, address_hash):
+    def convert_value_int_to_decimal(_network, _value_int):
+        if _network == 'ETH':
+            return Decimal(_value_int) / Decimal(1e18)
     resource = ''
-    tx_ids = []
+    txs = []
     curr = _curr.lower()
     network = _curr.upper()
     txn_prefix = ''
@@ -173,7 +177,7 @@ def get_address_transaction_ids_blockchain(_curr, address_hash):
             'get_address_transaction_ids_blockchain does not support '
             '{}'.format(_curr)
         )
-        return None, tx_ids
+        return None, txs
     else:
         res = get(resource)
         parsed_res = res.json()
@@ -182,9 +186,14 @@ def get_address_transaction_ids_blockchain(_curr, address_hash):
             txn_hash = txn.get('tx_hash', None)
             income = txn.get('tx_input_n', 0) == -1
             if txn_hash is not None and income:
-                tx_ids.append(txn_prefix + txn_hash)
+                value_int = txn['value']
+                amount = convert_value_int_to_decimal(network, value_int)
+                txs.append({
+                    'tx_id': txn_prefix + txn_hash,
+                    'amount': amount
+                })
 
-        return res, tx_ids
+        return res, txs
 
 
 def check_address_transaction_ids_blockchain(address):
