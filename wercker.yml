@@ -294,6 +294,13 @@ build:
           export RPC_RPC1_PASSWORD=${RPC_RPC1_PASSWORD}
           export RPC_RPC1_PORT=${RPC_RPC1_PORT}
           export RPC_RPC1_HOST=${RPC_RPC1_HOST}
+
+          #RPC2
+          export RPC_RPC2_USER=${RPC_RPC2_USER}
+          export RPC_RPC2_PASSWORD=${RPC_RPC2_PASSWORD}
+          export RPC_RPC2_PORT=${RPC_RPC2_PORT}
+          export RPC_RPC2_HOST=${RPC_RPC2_HOST}
+
           # SOCIAL login
           export SOCIAL_AUTH_TWITTER_KEY=${SOCIAL_AUTH_TWITTER_KEY}
           export SOCIAL_AUTH_TWITTER_SECRET=${SOCIAL_AUTH_TWITTER_SECRET}
