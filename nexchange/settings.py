@@ -278,6 +278,11 @@ TRANSACTION_CHECKER_TASKS = {
         'schedule': timedelta(seconds=60),
     },
 
+    'import_crypto_deposit_transactions_uphold_blockchain': {
+        'task': 'accounts.task_summary.import_transaction_deposit_uphold_blockchain_invoke',  # noqa
+        'schedule': timedelta(seconds=60),
+    },
+
     'checker_transactions': {
         'task': 'accounts.task_summary.update_pending_transactions_invoke',
         'schedule': timedelta(seconds=60),

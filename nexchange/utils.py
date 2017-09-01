@@ -159,6 +159,9 @@ def get_address_transaction_ids_blockchain(_curr, address_hash):
     def convert_value_int_to_decimal(_network, _value_int):
         if _network == 'ETH':
             return Decimal(_value_int) / Decimal(1e18)
+        if _network in ['BTC', 'LTC']:
+            return Decimal(_value_int) / Decimal(1e8)
+
     resource = ''
     txs = []
     curr = _curr.lower()
