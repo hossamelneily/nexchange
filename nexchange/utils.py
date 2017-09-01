@@ -8,6 +8,7 @@ from twilio.exceptions import TwilioException
 from twilio.rest import TwilioRestClient
 from django.utils.log import AdminEmailHandler
 import string
+from decimal import Decimal
 
 
 class Del:
@@ -152,6 +153,59 @@ def check_transaction_blockchain(tx):
     currency = tx.address_to.currency.code.lower()
 
     return get_transaction_blockchain(currency, str(tx.tx_id))
+
+
+def get_address_transaction_ids_blockchain(_curr, address_hash):
+    def convert_value_int_to_decimal(_network, _value_int):
+        if _network == 'ETH':
+            return Decimal(_value_int) / Decimal(1e18)
+        if _network in ['BTC', 'LTC']:
+            return Decimal(_value_int) / Decimal(1e8)
+
+    resource = ''
+    txs = []
+    curr = _curr.lower()
+    network = _curr.upper()
+    txn_prefix = ''
+    if network == 'ETH':
+        txn_prefix = '0x'
+
+    logger = get_nexchange_logger(__name__)
+    if _curr.upper() in ['BTC', 'ETH', 'LTC']:
+        resource = 'https://api.blockcypher.com/v1/{}/main/addrs/{}'.format(
+            curr, address_hash)
+
+    if not resource:
+        logger.warning(
+            'get_address_transaction_ids_blockchain does not support '
+            '{}'.format(_curr)
+        )
+        return None, txs
+    else:
+        res = get(resource)
+        parsed_res = res.json()
+        txns = parsed_res.get('txrefs', [])
+        for txn in txns:
+            txn_hash = txn.get('tx_hash', None)
+            income = txn.get('tx_input_n', 0) == -1
+            if txn_hash is not None and income:
+                value_int = txn['value']
+                amount = convert_value_int_to_decimal(network, value_int)
+                txs.append({
+                    'tx_id': txn_prefix + txn_hash,
+                    'amount': amount
+                })
+
+        return res, txs
+
+
+def check_address_transaction_ids_blockchain(address):
+    if not address or not address.address:
+        return None, []
+    currency = address.currency
+
+    return get_address_transaction_ids_blockchain(currency.code,
+                                                  address.address)
 
 
 loggers = {}

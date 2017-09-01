@@ -3,6 +3,8 @@ from .tasks.generate_wallets import renew_cards_reserve
 from .tasks.monitor_wallets import update_pending_transactions
 from .tasks.monitor_wallets import import_transaction_deposit_crypto
 from .tasks.generic.tx_importer.uphold import UpholdTransactionImporter
+from .tasks.generic.tx_importer.uphold_blockchain import \
+    UpholdBlockchainTransactionImporter
 from .tasks.generic.tx_importer.scrypt import ScryptTransactionImporter
 from django.conf import settings
 from celery import shared_task
@@ -53,3 +55,7 @@ def check_cards_uphold_invoke():
 def check_cards_balances_uphold_invoke():
     uphold_reserve_monitor.client.check_cards_balances()
 
+
+@shared_task(time_limit=settings.TRANSACTION_IMPORT_TIME_LIMIT)
+def import_transaction_deposit_uphold_blockchain_invoke():
+    return import_transaction_deposit_crypto(UpholdBlockchainTransactionImporter)
