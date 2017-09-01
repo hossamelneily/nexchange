@@ -11,6 +11,7 @@ class UpholdBlockchainTransactionImporter(BaseTransactionImporter):
     def get_orders(self):
         orders = Order.objects.filter(
             status=Order.INITIAL, pair__quote__code__in=settings.API1_COINS)
+        orders = [o for o in orders if not o.expired]
         return orders
 
     def get_or_create_tx(self, tx):

@@ -56,6 +56,6 @@ def check_cards_balances_uphold_invoke():
     uphold_reserve_monitor.client.check_cards_balances()
 
 
-@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+@shared_task(time_limit=settings.TRANSACTION_IMPORT_TIME_LIMIT)
 def import_transaction_deposit_uphold_blockchain_invoke():
     return import_transaction_deposit_crypto(UpholdBlockchainTransactionImporter)
