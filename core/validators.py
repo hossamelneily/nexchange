@@ -57,6 +57,18 @@ def validate_ltc(value):
         )
     validate_bc(value)
 
+def validate_doge(value):
+    p = re.compile(
+        "^D[1-9A-Za-z]{25,34}$"
+    )
+
+    if not p.match(value):
+        raise ValidationError(
+            _('%(value)s has invalid characters for a valid Doge address'),
+            params={'value': value},
+        )
+    validate_bc(value)
+
 
 def validate_eth(value):
     p = re.compile('^0x[0-9a-fA-F]{40}$')
@@ -77,6 +89,8 @@ def validate_address(value):
         validate_btc(value)
     elif value[:1] == 'L':
         validate_ltc(value)
+    elif value[:1] == 'D':
+        validate_doge(value)
     else:
         validate_bc(value)
 
