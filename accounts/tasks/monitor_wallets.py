@@ -52,7 +52,7 @@ def check_uphold_txn_status_with_blockchain(tr, tx_completed,
 
 
 def _update_pending_transaction(tr, logger, next_tasks=None):
-    currency_to = tr.currency
+    currency_to = tr.address_to.currency
     api = ApiClientFactory.get_api_client(currency_to.wallet)
     order = tr.order
 
@@ -98,28 +98,26 @@ def _update_pending_transaction(tr, logger, next_tasks=None):
             mark_card_for_balance_check(tr, logger, next_tasks)
 
 
-def update_pending_transactions(completed_txs=False):
+def update_pending_transactions():
     logger = get_nexchange_logger(__name__, True, True)
     next_tasks = set()
     for tr in Transaction.objects. \
-            filter(Q(is_completed=completed_txs) | Q(is_verified=completed_txs)):
+            filter(Q(is_completed=False) | Q(is_verified=False)):
         try:
             _update_pending_transaction(tr, logger, next_tasks=next_tasks)
         except ValidationError as e:
             logger.info(e)
         except Exception as e:
             logger.info(e)
-
-    if not completed_txs:
-        for task, args in next_tasks:
-            if args is not None:
-                res = task.apply([args])
-            else:
-                res = task.apply()
-            if res.state != 'SUCCESS':
-                logger.error(
-                    'Task {} returned error traceback: {}'.format(
-                        task.name, res.traceback))
+    for task, args in next_tasks:
+        if args is not None:
+            res = task.apply([args])
+        else:
+            res = task.apply()
+        if res.state != 'SUCCESS':
+            logger.error(
+                'Task {} returned error traceback: {}'.format(
+                    task.name, res.traceback))
 
 
 def import_transaction_deposit_crypto(Importer):
