@@ -277,17 +277,18 @@ TRANSACTION_CHECKER_TASKS = {
         'task': 'accounts.task_summary.import_transaction_deposit_crypto_invoke',  # noqa
         'schedule': timedelta(seconds=60),
     },
-
     'import_crypto_deposit_transactions_uphold_blockchain': {
         'task': 'accounts.task_summary.import_transaction_deposit_uphold_blockchain_invoke',  # noqa
         'schedule': timedelta(seconds=10),
     },
-
     'checker_transactions': {
         'task': 'accounts.task_summary.update_pending_transactions_invoke',
         'schedule': timedelta(seconds=60),
     },
-
+    'checker_transactions_completed': {
+        'task': 'accounts.task_summary.update_completed_transactions_invoke',
+        'schedule': timedelta(seconds=7200),
+    },
     'check_cards_uphold_invoke': {
         'task': 'accounts.task_summary.check_cards_uphold_invoke',
         'schedule': timedelta(seconds=120),
