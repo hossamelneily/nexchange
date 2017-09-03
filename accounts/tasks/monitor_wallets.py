@@ -102,7 +102,7 @@ def update_pending_transactions():
     logger = get_nexchange_logger(__name__, True, True)
     next_tasks = set()
     for tr in Transaction.objects. \
-            filter(Q(is_completed=False) | Q(is_verified=False)):
+            filter(Q(is_completed=False) | Q(is_verified=False), flagged=False):  # noqa
         try:
             _update_pending_transaction(tr, logger, next_tasks=next_tasks)
         except ValidationError as e:
