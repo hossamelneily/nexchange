@@ -147,8 +147,11 @@ class UpholdApiClient(BaseApiClient):
         if not tx.tx_id:
             tx_id = res.get('params', {}).get('txid')
             if tx_id is not None:
-                tx.tx_id = tx_id
-                tx.save()
+                try:
+                    tx.tx_id = tx_id
+                    tx.save()
+                except Exception:
+                    self.logger.info('Bad txid {} on tx {}'.format(tx_id, tx))
         self.logger.info("status: {}".format(res.get('status')))
         return res.get('status') == 'completed', res.get('params', {}).get('progress', 0)  # noqa
 
