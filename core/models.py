@@ -65,17 +65,17 @@ class Address(BtcBase, SoftDeletableModel):
         return '{} {}'.format(self.address, self.name)
 
 
-class Transaction(BtcBase):
+class Transaction(BtcBase, FlagableMixin):
     confirmations = models.IntegerField(default=0)
     tx_id = models.CharField(max_length=100, default=None,
-                             null=True, unique=True)
+                             null=True, blank=True, unique=True)
     tx_id_api = models.CharField(max_length=55, default=None,
-                                 null=True, unique=True)
+                                 null=True, blank=True, unique=True)
     address_from = models.ForeignKey(
         'core.Address',
         related_name='txs_from',
         default=None,
-        null=True)
+        null=True, blank=True)
     address_to = models.ForeignKey('core.Address',
                                    related_name='txs_to')
     # TODO: how to handle cancellation?
