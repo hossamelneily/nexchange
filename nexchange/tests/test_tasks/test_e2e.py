@@ -762,10 +762,6 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         tx_pk = Transaction.objects.last().pk
         address = getattr(self, '{}_address'.format(withdraw_currency_code))
         self._update_withdraw_address(self.order, address)
-        if release_with_periodic:
-            self.release_task_periodic.apply()
-        else:
-            self.release_task.apply([tx_pk])
         self.order.refresh_from_db()
         self.assertIn(self.order.status, Order.IN_RELEASED, pair_name)
         t1 = self.order.transactions.first()
