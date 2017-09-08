@@ -2,6 +2,7 @@ from rest_framework import serializers
 from core.serializers import NestedAddressSerializer,\
     NestedReadOnlyAddressSerializer, NestedPairSerializer, \
     TransactionSerializer
+from referrals.serializers import ReferralCodeSerializer
 
 from orders.models import Order
 from core.models import Address, Pair
@@ -16,7 +17,7 @@ BASE_FIELDS = ('amount_base', 'is_default_rule',
 READABLE_FIELDS = ('deposit_address', 'created_on', 'amount_quote', 'from_default_rule',
                    'unique_reference', 'deposit_address',
                    'payment_window', 'payment_deadline',
-                   'status_name', 'transactions')
+                   'status_name', 'transactions', 'referral_code')
 
 
 class MetaOrder:
@@ -30,6 +31,8 @@ class MetaFlatOrder(MetaOrder):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    referral_code = ReferralCodeSerializer(many=True, read_only=True,
+                                           source='user.referral_code')
     pair = NestedPairSerializer(many=False, read_only=False)
     deposit_address = NestedReadOnlyAddressSerializer(many=False,
                                                       read_only=True)

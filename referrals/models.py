@@ -9,7 +9,6 @@ from core.common.models import (IpAwareModel, TimeStampedModel,
 from orders.models import Order
 from ticker.models import Price
 from django.conf import settings
-from django.utils.translation import get_language
 from django.utils.http import urlquote
 from django.utils.translation import ugettext_lazy as _
 
@@ -54,17 +53,13 @@ class ReferralCode(TimeStampedModel, UniqueFieldMixin):
                 lambda x: get_random_string(x),
                 lambda x: ReferralCode.objects.filter(code=x).count(),
                 settings.REFERRAL_CODE_LENGTH
-            )
+            ).upper()
         else:
             self.code = urlquote(self.code)
         if not self.program:
             self.program = Program.objects.first()
 
-        if get_language() == 'ru':
-            prefix = 'https://nexchange.ru/'
-        else:
-            prefix = 'https://nexchange.co.uk/'
-
+        prefix = 'https://nexchange.io/'
         self.link = '{}?{}={}'.format(prefix, settings.REFERRER_GET_PARAMETER, self.code)
 
         super(ReferralCode, self).save(*args, **kwargs)
@@ -101,9 +96,15 @@ class Referral(IpAwareModel):
     @property
     def turnover_btc(self):
         turnover = 0
+
+        if not self.orders:
+            return turnover
+
         btc_orders = self.orders.filter(pair__base__code='BTC')
+
         if not btc_orders:
             return turnover
+
         res = btc_orders.aggregate(models.Sum('amount_base'))
         if res['amount_base__sum']:
             turnover = res['amount_base__sum']
@@ -114,6 +115,10 @@ class Referral(IpAwareModel):
     @property
     def turnover_other_currencies_in_btc(self):
         turnover = 0
+
+        if not self.orders:
+            return turnover
+
         other_orders = self.orders.exclude(pair__base__code='BTC')
         if not other_orders:
             return turnover
