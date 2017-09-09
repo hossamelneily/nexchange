@@ -683,8 +683,8 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             ('ETHLTC', Order.SELL, True, 3),
             ('BTCETH', Order.SELL, False, 3),
             ('BTCLTC', Order.SELL, True, 3),
-            ('BTCRNS', Order.BUY, True, 3),
-            ('LTCRNS', Order.BUY, True, 3),
+            # ('BTCRNS', Order.BUY, True, 3),
+            # ('LTCRNS', Order.BUY, True, 3),
             ('ETHDOGE', Order.BUY, True, 3),
             ('DOGELTC', Order.BUY, True, 4),
         )
@@ -782,7 +782,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
     @data_provider(
         lambda: (
             ('ETHLTC',),
-            ('ETHRNS',),
+            # ('ETHRNS',),
             ('BTCLTC',),
             ('BTCETH',),
         )

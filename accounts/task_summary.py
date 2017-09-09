@@ -26,7 +26,7 @@ def update_pending_transactions_invoke():
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def import_transaction_deposit_renos_invoke():
+def import_transaction_deposit_scrypt_invoke():
     return import_transaction_deposit_crypto(ScryptTransactionImporter)
 
 
@@ -36,7 +36,7 @@ def import_transaction_deposit_uphold_invoke():
 
 all_importers = [
     import_transaction_deposit_uphold_invoke,
-    import_transaction_deposit_renos_invoke
+    import_transaction_deposit_scrypt_invoke
 ]
 
 

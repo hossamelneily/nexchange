@@ -17,7 +17,11 @@ def allocate_wallets(sender, instance=None, created=False, **kwargs):
     currency = order.pair.quote
     if user is None:
         return
-    if currency.disabled or not currency.is_crypto:
+    if not all([
+        currency.is_crypto,
+        not currency.disabled,
+        currency.is_quote_of_enabled_pair,
+    ]):
         # FIXME: Here we can add some message to our customer. Uphold is doing
         # that. It is something like - 'Sorry, our payment provider
         # currently is dealing with some technical issues/We do not support

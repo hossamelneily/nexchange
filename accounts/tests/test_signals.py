@@ -18,7 +18,7 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
         super(RenewReserveTestCase, self).setUp()
         Cards.objects.all().delete()
         self.len_crypto_curencies = len(Currency.objects.filter(
-            disabled=False, is_crypto=True)
+            disabled=False, is_crypto=True).exclude(code='RNS')
         )
         with requests_mock.mock() as mock:
             self.get_tickers(mock)
@@ -41,9 +41,9 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
         profile.save()
         self._create_an_order_for_every_crypto_currency_card(user)
         len_user_cards = len(Cards.objects.filter(
-            disabled=False, user__isnull=False))
+            disabled=False, user__isnull=False).exclude(currency__code='RNS'))
         len_reserve_cards = len(Cards.objects.filter(
-            disabled=False, user__isnull=True))
+            disabled=False, user__isnull=True).exclude(currency__code='RNS'))
         len_expected = \
             self.len_crypto_curencies * settings.EMERGENCY_CARDS_RESERVE_COUNT
         self.assertEqual(len_user_cards, len_expected)

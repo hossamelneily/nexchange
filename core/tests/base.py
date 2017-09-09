@@ -185,7 +185,8 @@ class UserBaseTestCase(TestCase):
 
     def _create_an_order_for_every_crypto_currency_card(self, user,
                                                         amount_quote=None):
-        crypto_currencies = Currency.objects.filter(is_crypto=True)
+        crypto_currencies = Currency.objects.filter(is_crypto=True).exclude(
+            code='RNS')
         crypto_codes = [curr.code for curr in crypto_currencies]
         for code in crypto_codes:
             pair_name = Pair.objects.filter(quote__code=code).first().name
