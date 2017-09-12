@@ -109,7 +109,7 @@ def get_validator(code):
         return validate_btc
     elif code == 'LTC':
         return validate_ltc
-    elif code == 'DOGE':
+    elif code == 'DOG':
         return validate_doge
 
     return validate_non_address
