@@ -464,6 +464,117 @@ API for crypto currency exchange.
                 "amount_base": 3,
                 "is_default_rule": false,
                 "pair": {
+                  "name": "BTCLTC"
+                },
+                "withdraw_address": {
+                    "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ"
+                }
+            }
+
++ Response 201 (application/json)
+    + Attributes (MinimalOrder)
+
+    + Body
+
+            {
+              "amount_base": "3.00000000",
+              "is_default_rule": false,
+              "unique_reference": "L18XD",
+              "amount_quote": "0.03110000",
+              "pair": 123,
+              "withdraw_address": {
+                "type": "W",
+                "name": "",
+                "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ",
+                "currency_code": "BTC"
+              }
+            }
+
++ Request (application/json)
+
+    + Attributes
+        + Payload (RequestOrderPayload)
+        + Headers (JsonHeaders)
+    + Body
+
+            {
+                "amount_base": 3,
+                "is_default_rule": false,
+                "pair": {
+                  "name": "ETHDOGE"
+                },
+                "withdraw_address": {
+                    "address": "0xf0c6902F5B929716c35603f9765808DE08475BF8"
+                }
+            }
+
++ Response 201 (application/json)
+    + Attributes (MinimalOrder)
+
+    + Body
+
+            {
+              "amount_base": "3.00000000",
+              "is_default_rule": false,
+              "unique_reference": "L18XD",
+              "amount_quote": "0.03110000",
+              "pair": 123,
+              "withdraw_address": {
+                "type": "W",
+                "name": "",
+                "address": "0xf0c6902F5B929716c35603f9765808DE08475BF8",
+                "currency_code": "ETH"
+              }
+            }
+
++ Request (application/json)
+
+    + Attributes
+        + Payload (RequestOrderPayload)
+        + Headers (JsonHeaders)
+    + Body
+
+            {
+                "amount_base": 11000,
+                "is_default_rule": false,
+                "pair": {
+                  "name": "DOGEBTC"
+                },
+                "withdraw_address": {
+                    "address": "DGWesaJ1PtZU8BiXYMSomyYQbvN2LLfnx2"
+                }
+            }
+
++ Response 201 (application/json)
+    + Attributes (MinimalOrder)
+
+    + Body
+
+            {
+              "amount_base": "11000",
+              "is_default_rule": false,
+              "unique_reference": "L18XD",
+              "amount_quote": "0.03110000",
+              "pair": 123,
+              "withdraw_address": {
+                "type": "W",
+                "name": "",
+                "address": "DGWesaJ1PtZU8BiXYMSomyYQbvN2LLfnx2",
+                "currency_code": "DOGE"
+              }
+            }
+
++ Request (application/json)
+
+    + Attributes
+        + Payload (RequestOrderPayload)
+        + Headers (JsonHeaders)
+    + Body
+
+            {
+                "amount_base": 3,
+                "is_default_rule": false,
+                "pair": {
                   "name": "LTCBTC"
                 },
                 "withdraw_address": {
