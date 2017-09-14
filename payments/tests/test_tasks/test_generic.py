@@ -48,7 +48,9 @@ class SofortGenericTaskTestCase(BaseSofortAPITestCase):
         self.assertEqual(self.sender_name, pref.identifier)
         self.assertEqual(self.iban, pref.secondary_identifier)
         self.order.refresh_from_db()
-        self.assertEqual(self.order.status, Order.PAID)
+        # self.assertEqual(self.order.status, Order.PAID)
+        # FIXME: CANCEL because fiat needs refactoring
+        self.assertEqual(self.order.status, Order.CANCELED)
 
     @data_provider(lambda: (
         ('currency', 'USD'),
@@ -123,7 +125,9 @@ class AdvCashGenericTaskTestCase(BaseAdvCashAPIClientTestCase):
         self.assertEqual(self.sender_email, pref.identifier)
         self.assertEqual(self.sender_wallet, pref.secondary_identifier)
         self.order.refresh_from_db()
-        self.assertEqual(self.order.status, Order.PAID)
+        # self.assertEqual(self.order.status, Order.PAID)
+        # FIXME: CANCEL because fiat needs refactoring
+        self.assertEqual(self.order.status, Order.CANCELED)
 
     @patch('payments.api_clients.adv_cash.AdvCashAPIClient.history')
     def test_order_paid_with_adv_cash_only_comment(self, history_patch):
@@ -135,7 +139,9 @@ class AdvCashGenericTaskTestCase(BaseAdvCashAPIClientTestCase):
             self.mock_advcash_transaction_history_response(transactions=txn)
         self.importer.run()
         self.order.refresh_from_db()
-        self.assertEqual(self.order.status, Order.PAID)
+        # self.assertEqual(self.order.status, Order.PAID)
+        # FIXME: CANCEL because fiat needs refactoring
+        self.assertEqual(self.order.status, Order.CANCELED)
 
     @patch('payments.api_clients.adv_cash.AdvCashAPIClient.history')
     def test_order_not_paid_with_adv_cash_no_ref_bad_comment(self,

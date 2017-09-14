@@ -179,6 +179,8 @@ def ajax_order(request):
         return pref
 
     trade_type = int(request.POST.get('trade-type', Order.BUY))
+    if trade_type != Order.BUY:
+        raise ValidationError(_('Forbidden order type'))
     currency_from = request.POST.get('currency_from', 'RUB')
     currency_to = request.POST.get('currency_to', 'BTC')
     pair_name = currency_to + currency_from
@@ -299,13 +301,11 @@ def ajax_order(request):
                        "{} {}".format(order, payment_pref))
     except:
         pass
-    if trade_type == Order.SELL or order.exchange:
+    if trade_type == Order.BUY and order.exchange:
         import_transaction_deposit_crypto_invoke.apply_async(
             countdown=settings.TRANSACTION_IMPORT_TIME
         )
-        curr = order.pair.base
-        if trade_type == Order.BUY:
-            curr = order.pair.quote
+        curr = order.pair.quote
 
         countdown = curr.median_confirmation * 60
 

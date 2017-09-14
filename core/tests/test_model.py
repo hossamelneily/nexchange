@@ -1,7 +1,10 @@
 from django.test import TestCase
 from core.tests.base import OrderBaseTestCase
-from core.models import AddressReserve, Currency, Pair
+from core.models import AddressReserve, Currency, Pair, Transaction
 from core.common.models import UniqueFieldMixin
+from ticker.tests.base import TickerBaseTestCase
+from django.core.exceptions import ValidationError
+from core.tests.utils import data_provider
 
 
 class ValidateUniqueFieldMixinTestCase(TestCase):
@@ -66,3 +69,38 @@ class PairFixtureTestCase(OrderBaseTestCase):
                 pair_name_by_code, pair_name_on_fixture,
                 'pair_name on pair {} fixture .json file is bad'.format(pair)
             )
+
+
+class TransactionTestCase(TickerBaseTestCase):
+
+    def setUp(self):
+        super(TransactionTestCase, self).setUp()
+        self._create_order()
+
+    def create_withdraw_txn(self, txn_type=Transaction.WITHDRAW):
+        deposit_tx_id = self.generate_txn_id()
+        txn_with1 = Transaction(
+            amount=self.order.amount_quote,
+            tx_id_api=deposit_tx_id, order=self.order,
+            address_to=self.order.deposit_address,
+            is_completed=True,
+            is_verified=True
+        )
+        if txn_type is not None:
+            txn_with1.type = Transaction.WITHDRAW
+        txn_with1.save()
+        self.order.save()
+
+    @data_provider(lambda: (
+        ('Type None', None),
+    ))
+    def test_do_not_save_second_withdraw_transaction(self, name, txn_type):
+        self.create_withdraw_txn(txn_type=txn_type)
+        with self.assertRaises(ValidationError):
+            self.create_withdraw_txn(txn_type=Transaction.WITHDRAW)
+        self.assertTrue(self.order.flagged, name)
+        self.order.flagged = False
+        self.order.save()
+        with self.assertRaises(ValidationError):
+            self.create_withdraw_txn(txn_type=None)
+        self.assertTrue(self.order.flagged, name)

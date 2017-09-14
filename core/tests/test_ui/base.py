@@ -374,10 +374,10 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
                                                 release_coins_scrypt,
                                                 get_tx_scrypt,
                                                 add_new=False):
-        prepare_txn.return_value = release_coins_scrypt.return_value = \
-            'txid{}'.format(self.order.unique_reference)
+        prepare_txn.return_value = 'txid{}'.format(self.order.unique_reference)
+        release_coins_scrypt.return_value = prepare_txn.return_value, True
         get_tx_scrypt.return_value = {'confirmations': 249}
-        execute_txn.return_value = True
+        execute_txn.return_value = {'code': 'OK'}
         address_id = 'span-withdraw-{}'.format(self.order.pk)
 
         try:

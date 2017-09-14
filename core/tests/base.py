@@ -24,6 +24,8 @@ from unittest.mock import patch
 from random import randint
 
 UPHOLD_ROOT = 'nexchange.api_clients.uphold.Uphold.'
+EXCHANGE_ORDER_RELEASE_ROOT = 'orders.tasks.generic.exchange_order_release.' \
+                              'ExchangeOrderRelease.'
 
 
 class UserBaseTestCase(TestCase):
@@ -368,6 +370,10 @@ class OrderBaseTestCase(UserBaseTestCase):
                 'CardId': card_id
             }
         }
+
+    def generate_txn_id(self):
+        txn_id = 'txid_{}{}'.format(time(), randint(1, 999))
+        return txn_id
 
 
 class WalletBaseTestCase(OrderBaseTestCase):

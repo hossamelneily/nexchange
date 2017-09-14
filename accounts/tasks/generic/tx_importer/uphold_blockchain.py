@@ -41,15 +41,19 @@ class UpholdBlockchainTransactionImporter(BaseTransactionImporter):
         if self.order.status != Order.INITIAL:
             return
 
-        transaction = Transaction(**tx_data)
-        transaction.type = transaction.DEPOSIT
-        transaction.save()
-        self.logger.info('New transaction created {}'
-                         .format(transaction.__dict__))
-        self.order.status = Order.PAID_UNCONFIRMED
-        self.order.save()
-        self.logger.info('Order {} is marked as PAID_UNCONFIRMED'
-                         .format(self.order.__dict__))
+        tx_data.update({
+            'order': self.order,
+            'type': Transaction.DEPOSIT
+        })
+
+        register_res = self.order.register_deposit(tx_data)
+
+        if register_res.get('status') == 'OK':
+            txn = register_res.get('tx')
+            self.logger.info('New transaction created {}'
+                             .format(txn.__dict__))
+            self.logger.info('Order {} is marked as PAID_UNCONFIRMED'
+                             .format(self.order.__dict__))
 
     def import_income_transactions(self):
         orders = self.get_orders()

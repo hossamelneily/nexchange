@@ -1,5 +1,5 @@
 from decimal import Decimal
-from datetime import datetime
+from datetime import datetime, timezone
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -8,6 +8,7 @@ from core.common.models import SoftDeletableModel, TimeStampedModel
 from core.common.models import FlagableMixin
 from .validators import validate_address
 from django_countries.fields import CountryField
+from django.core.exceptions import ValidationError
 
 
 class BtcBase(TimeStampedModel):
@@ -66,11 +67,16 @@ class Address(BtcBase, SoftDeletableModel):
 
 
 class Transaction(BtcBase, FlagableMixin):
+
+    #class Meta:
+    #    unique_together = (('amount', 'order', 'type', 'admin_comment'),)
+
     confirmations = models.IntegerField(default=0)
     tx_id = models.CharField(max_length=100, default=None,
-                             null=True, blank=True, unique=True)
+                             null=True, blank=True, unique=True, db_index=True)
     tx_id_api = models.CharField(max_length=55, default=None,
-                                 null=True, blank=True, unique=True)
+                                 null=True, blank=True, unique=True,
+                                 db_index=True)
     address_from = models.ForeignKey(
         'core.Address',
         related_name='txs_from',
@@ -83,16 +89,49 @@ class Transaction(BtcBase, FlagableMixin):
     is_verified = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
     amount = models.DecimalField(null=False, max_digits=18, decimal_places=8,
-                                 default=Decimal('0.01'))
+                                 default=Decimal('0'), db_index=True)
     # TODO: check if right type is sent by the APIs
     time = models.DateTimeField(null=True, blank=True, default=None)
     currency = models.ForeignKey('core.Currency', related_name='transactions',
                                  null=True, blank=True, default=None)
+    admin_comment = models.CharField(max_length=200, null=True, blank=False)
+
+    def _validate_withdraw_txn(self):
+        if self.order:
+            old_withdraw_txns = self.order.transactions.exclude(
+                type=self.DEPOSIT)
+            if len(old_withdraw_txns) != 0:
+                msg = 'Order {} already has WITHDRAW or None type' \
+                      'transactions {}'.format(self.order, old_withdraw_txns)
+                self.order.flag(val=msg)
+                raise ValidationError(msg)
+
+    def _validate_if_transaction_is_unique(self):
+        old_txns = Transaction.objects.filter(
+            amount=self.amount, order=self.order, type=self.type,
+            admin_comment=self.admin_comment
+        )
+        if len(old_txns) > 0:
+            raise ValidationError(
+                'Transaction {} {} {} {} already exists'.format(
+                    self.amount, self.type, self.order, self.admin_comment
+                )
+            )
+
+    def _validate_fields(self):
+        if not self.pk:
+            # FIXME: remove this after adding unique_together constraint
+            if self.type != Transaction.DEPOSIT:
+                self._validate_withdraw_txn()
+            self._validate_if_transaction_is_unique()
 
     def save(self, *args, **kwargs):
+        self._validate_fields()
         if self.time:
             if isinstance(self.time, int):
                 self.time = datetime.fromtimestamp(self.time)
+        else:
+            self.time = datetime.now(timezone.utc)
         return super(Transaction, self).save(*args, **kwargs)
 
 

@@ -5,8 +5,7 @@ from django.db.models import Q
 from core.models import Transaction, Address
 from orders.models import Order
 from nexchange.utils import get_nexchange_logger
-from orders.task_summary import (sell_order_release_invoke,
-                                 exchange_order_release_invoke)
+from orders.task_summary import exchange_order_release_invoke
 from django.db import transaction
 from nexchange.api_clients.factory import ApiClientFactory
 from nexchange.utils import check_transaction_blockchain
@@ -14,16 +13,12 @@ from django.core.exceptions import ValidationError
 
 
 def mark_card_for_balance_check(tr, logger, next_tasks):
-    order = tr.order
     card = tr.address_to.reserve
 
     if card:
         card.need_balance_check = True
         card.save()
-    if not order.exchange:
-        next_tasks.add((sell_order_release_invoke, None,))
-    else:
-        next_tasks.add((exchange_order_release_invoke, tr.pk,))
+    next_tasks.add((exchange_order_release_invoke, tr.pk,))
 
     if settings.DEBUG:
         logger.info('Transaction {} is completed'.format(tr.tx_id))
@@ -71,31 +66,22 @@ def _update_pending_transaction(tr, logger, next_tasks=None):
     tr.confirmations = num_confirmations
     with transaction.atomic():
         withdrawal_completed = tr.address_to.type == Address.WITHDRAW and \
-            tx_completed
+            tx_completed and order.status != Order.COMPLETED
         deposit_completed = tr.address_to.type == Address.DEPOSIT and \
-            tx_completed
+            tx_completed and order.status not in Order.IN_PAID
 
         if withdrawal_completed:
-            tr.is_completed = True
-            tr.is_verified = True
-            order.status = Order.COMPLETED
+            order.complete(tr)
 
         if deposit_completed:
-            tr.is_completed = True
-            tr.is_verified = True
-            order.status = Order.PAID
-        tr.save()
-        order.save()
+            confirm_res = order.confirm_deposit(tr)
+            order.refresh_from_db()
+            confirm_status_ok = confirm_res.get('status') == 'OK'
 
-        # TODO: change me to add_next_task()
-        if deposit_completed:
-            if order.exchange:
-                next_tasks.add((exchange_order_release_invoke, tr.pk,))
-            else:
-                next_tasks.add((sell_order_release_invoke, None,))
-
-            # TODO: implement me as next task
-            mark_card_for_balance_check(tr, logger, next_tasks)
+            # TODO: change me to add_next_task()
+            if confirm_status_ok and order.status == Order.PAID:
+                # TODO: implement me as next task
+                mark_card_for_balance_check(tr, logger, next_tasks)
 
 
 def update_pending_transactions():

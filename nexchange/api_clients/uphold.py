@@ -9,6 +9,8 @@ from .decorators import track_tx_mapper, log_errors
 
 class UpholdApiClient(BaseApiClient):
 
+    TX_ID_FIELD_NAME = 'tx_id_api'
+
     def __init__(self):
         super(UpholdApiClient, self).__init__()
         # Usually coins and nodes are one-to-one
@@ -64,9 +66,14 @@ class UpholdApiClient(BaseApiClient):
                                           amount, currency.code)
             res = self.api.execute_txn(card, txn_id)
             self.logger.info('uphold res: {}'.format(res))
-            return txn_id
+            success = res.get('code') != 'validation_failed'
+            if not success:
+                self.logger.warning('Cannot execute Uphold txn, Check Funds '
+                                    '(need {} {})'.format(currency, amount))
+            return txn_id, success
         except Exception as e:
             self.logger.error('error {} tb {}'.format(e, get_traceback()))
+            return None, False
 
     def _new_card(self, currency):
         """
@@ -179,3 +186,18 @@ class UpholdApiClient(BaseApiClient):
         if resp.get('message') == 'Not Found':
             return False
         return True
+
+    def retry(self, tx):
+        tx_id_api = tx.tx_id_api
+        if not tx_id_api:
+            return {'success': False, 'retry': False}
+        card_id = self.coin_card_mapper(tx.currency.code)
+        self.logger.info('Retry tx release execute tx_api_id: {}'.format(
+            tx_id_api))
+        res = self.api.execute_txn(card_id, tx_id_api)
+        success = res.get('code') != 'validation_failed'
+        retry = not success
+        if success:
+            tx.is_verified = True
+            tx.save()
+        return {'success': success, 'retry': retry}

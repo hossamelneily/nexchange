@@ -169,7 +169,7 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
                                      amount, release_call_count, release_coins,
                                      mock):
         release_coins.return_value = (
-            '%06x' % random.randrange(16 ** 16)).upper()
+            '%06x' % random.randrange(16 ** 16)).upper(), True
         card = self.user.addressreserve_set.get(currency__code=curr_code)
         card_url = self.url_base + card.card_id
         main_card_id = self.monitor.client.coin_card_mapper(curr_code)
@@ -193,7 +193,7 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
     @requests_mock.mock()
     def test_check_card_balances(self, release_coins, mock):
         release_coins.return_value = (
-            '%06x' % random.randrange(16 ** 16)).upper()
+            '%06x' % random.randrange(16 ** 16)).upper(), True
         cards = self.user.addressreserve_set.filter(currency__wallet='api1')
         for card in cards:
             card.refresh_from_db()

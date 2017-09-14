@@ -208,12 +208,10 @@ class BasePaymentChecker(BaseTask):
 
         if order.is_paid:
             if order.status not in Order.IN_PAID:
-                order.status = Order.PAID
-                order.save()
+                order.cancel()
                 return True
         elif order.part_paid_buy > 0:
-            order.status = Order.PAID_UNCONFIRMED
-            order.save()
+            order.cancel()
 
         return False
 

@@ -19,10 +19,15 @@ from django.db.models import Q
 from math import log10, floor
 from django.utils.translation import activate
 from nexchange.utils import send_email, send_sms
+from django_fsm import FSMIntegerField, transition
+from nexchange.celery import app
 
 
 class Order(TimeStampedModel, SoftDeletableModel,
             UniqueFieldMixin, FlagableMixin):
+
+    RETRY_RELEASE = 'orders.task_summary.release_retry_invoke'
+
     BUY = 1
     SELL = 0
     TYPES = (
@@ -36,25 +41,26 @@ class Order(TimeStampedModel, SoftDeletableModel,
                          'currencies')
     )
 
-    PAID_UNCONFIRMED = -1
-    FAILED_RELEASE = -2
     CANCELED = 0
-    INITIAL = 1
-    PAID = 2
-    RELEASED = 3
-    COMPLETED = 4
+    INITIAL = 11
+    PAID_UNCONFIRMED = 12
+    PAID = 13
+    PRE_RELEASE = 14
+    RELEASED = 15
+    COMPLETED = 16
     STATUS_TYPES = (
         (PAID_UNCONFIRMED, _('UNCONFIRMED PAYMENT')),
-        (FAILED_RELEASE, _('FAILED RELEASE')),
+        (PRE_RELEASE, _('PRE-RELEASE')),
         (CANCELED, _('CANCELED')),
         (INITIAL, _('INITIAL')),
         (PAID, _('PAID')),
         (RELEASED, _('RELEASED')),
         (COMPLETED, _('COMPLETED')),
     )
-    IN_PAID = [PAID, RELEASED, COMPLETED]
-    IN_RELEASED = [RELEASED, COMPLETED, FAILED_RELEASE]
+    IN_PAID = [PAID, RELEASED, COMPLETED, PRE_RELEASE]
+    IN_RELEASED = [RELEASED, COMPLETED, PRE_RELEASE]
     IN_SUCCESS_RELEASED = [RELEASED, COMPLETED]
+    IN_COMPLETED = [COMPLETED]
     _could_be_paid_msg = 'Could be paid by crypto transaction or fiat ' \
                          'payment, depending on order_type.'
     _order_status_help = (6 * '{} - {}<br/>').format(
@@ -63,11 +69,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
         'PAID_UNCONFIRMED', 'Order is possibly paid (unconfirmed crypto '
                             'transaction or fiat payment is to small to '
                             'cover the order.)',
+        'PRE_RELEASE', 'Order is prepared for RELEASE.',
         'RELEASED', 'Order is paid by service provider. ' + _could_be_paid_msg,
         'COMPLETED', 'All statuses of the order is completed',
-        'CANCELED', 'Order is canceled.',
-        'FAILED_RELEASE', 'Order is not released due to unexpected error i.e. '
-                          'third party api error'
+        'CANCELED', 'Order is canceled.'
     )
 
     # Todo: inherit from BTC base?, move lengths to settings?
@@ -75,8 +80,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
         choices=TYPES, default=BUY, help_text=_order_type_help
     )
     exchange = models.BooleanField(default=False)
-    status = models.IntegerField(choices=STATUS_TYPES, default=INITIAL,
-                                 help_text=_order_status_help)
+    status = FSMIntegerField(choices=STATUS_TYPES, default=INITIAL,
+                             help_text=_order_status_help)
     amount_base = models.DecimalField(max_digits=18, decimal_places=8)
     amount_quote = models.DecimalField(max_digits=18, decimal_places=8)
     payment_window = models.IntegerField(default=settings.PAYMENT_WINDOW)
@@ -136,10 +141,32 @@ class Order(TimeStampedModel, SoftDeletableModel,
                                          self.pair.base.code))
             )
 
+    def _validate_status(self, status):
+        if not self.pk:
+            return
+        old_status = Order.objects.get(pk=self.pk).status
+        if old_status == Order.CANCELED and status != Order.CANCELED:
+            raise ValidationError(
+                _('Cannot set order status to {} when it is CANCELED'.format(
+                    status)))
+        elif status == Order.CANCELED:
+            if old_status in [Order.INITIAL, Order.CANCELED]:
+                return
+            else:
+                raise ValidationError(
+                    _('Cannot CANCEL order which is status is not INITIAL'))
+        elif status < old_status:
+            raise ValidationError(
+                _('Cannot set order status from {} to {}'
+                  '(must be incremential)'.format(old_status, status)))
+        else:
+            return
+
     def _validate_fields(self):
         self._types_range_constraint(self.order_type, self.TYPES)
         self._types_range_constraint(self.status, self.STATUS_TYPES)
         self._validate_order_base_amount()
+        self._validate_status(self.status)
 
     def clean(self, *args, **kwargs):
         self._validate_fields()
@@ -393,3 +420,160 @@ class Order(TimeStampedModel, SoftDeletableModel,
                 self.amount_quote, self.ticker_amount
             )
         return name
+
+    @transition(field=status, source=INITIAL, target=PAID_UNCONFIRMED)
+    def _register_deposit(self, tx_data):
+        order = tx_data.get('order')
+        tx_type = tx_data.get('type')
+        if order != self:
+            raise ValidationError(
+                'Bad order {} on the deposit tx. Should be {}'.format(
+                    order, self
+                )
+            )
+        if tx_type != Transaction.DEPOSIT:
+            raise ValidationError(
+                'Order {}. Cannot register DEPOSIT - wrong transaction '
+                'type {}'.format(self, tx_type))
+
+        tx = Transaction(**tx_data)
+        tx.save()
+
+        return tx
+
+    def register_deposit(self, tx_data):
+        res = {'status': 'OK'}
+        try:
+            tx = self._register_deposit(tx_data)
+            res.update({'tx': tx})
+        except Exception as e:
+            res = {'status': 'ERROR', 'message': '{}'.format(e)}
+        self.save()
+        return res
+
+    @transition(field=status, source=PAID_UNCONFIRMED, target=PAID)
+    def _confirm_deposit(self, tx):
+        if tx.type != Transaction.DEPOSIT:
+            raise ValidationError(
+                'Order {}. Cannot confirm DEPOSIT - wrong transaction '
+                'type {}'.format(self, tx.type))
+        if tx.is_completed or tx.is_verified:
+            raise ValidationError(
+                'Order {}.Cannot confirm DEPOSIT - already confirmed.'.format(
+                    self))
+        tx.is_completed = True
+        tx.is_verified = True
+        tx.save()
+
+    def confirm_deposit(self, tx):
+        res = {'status': 'OK'}
+        try:
+            self._confirm_deposit(tx)
+        except Exception as e:
+            res = {'status': 'ERROR', 'message': '{}'.format(e)}
+        self.save()
+        return res
+
+    @transition(field=status, source=PAID, target=PRE_RELEASE)
+    def _pre_release(self):
+        pass
+
+    def pre_release(self):
+        res = {'status': 'OK'}
+        try:
+            self._pre_release()
+        except Exception as e:
+            res = {'status': 'ERROR', 'message': '{}'.format(e)}
+        self.save()
+        return res
+
+    @transition(field=status, source=PRE_RELEASE, target=RELEASED)
+    def _release(self, tx_data, api=None, currency=None, amount=None):
+        if currency != self.pair.base or amount != self.amount_base:
+            raise ValidationError(
+                'Wrong amount {} or currency {} for order {} release'.format(
+                    amount, currency, self.unique_reference
+                )
+            )
+        old_withdraw_txs = self.transactions.exclude(
+            type=Transaction.DEPOSIT)
+        tx_type = tx_data.get('type')
+        if tx_type != Transaction.WITHDRAW:
+            msg = 'Bad Transaction type'
+            raise ValidationError(msg)
+        if len(old_withdraw_txs) == 0:
+            tx = Transaction(**tx_data)
+            tx.save()
+
+            tx_id, success = api.release_coins(currency, self.withdraw_address,
+                                               amount)
+            setattr(tx, api.TX_ID_FIELD_NAME, tx_id)
+            tx.save()
+        else:
+            msg = 'Order {} already has WITHDRAW or None type ' \
+                  'transactions {}'.format(self, old_withdraw_txs)
+            self.flag(val=msg)
+            raise ValidationError(msg)
+
+        if not tx_id:
+            msg = 'Payment release returned None, order {}'.format(self)
+            self.flag(val=msg)
+            raise ValidationError(msg)
+
+        if success:
+            tx.is_verified = True
+            tx.save()
+        else:
+            app.send_task(self.RETRY_RELEASE, [tx.pk],
+                          countdown=settings.RETRY_RELEASE_TIME)
+
+        return tx
+
+    def release(self, tx_data, api=None):
+        res = {'status': 'OK'}
+        try:
+            currency = tx_data.get('currency')
+            amount = tx_data.get('amount')
+            tx = self._release(tx_data, api=api, currency=currency,
+                               amount=amount)
+            res.update({'tx': tx})
+        except Exception as e:
+            res = {'status': 'ERROR', 'message': '{}'.format(e)}
+        self.save()
+        return res
+
+    @transition(field=status, source=RELEASED, target=COMPLETED)
+    def _complete(self, tx):
+        if tx.type != Transaction.WITHDRAW:
+            raise ValidationError(
+                'Order {}. Cannot confirm WITHDRAW - wrong transaction '
+                'type'.format(self))
+        if tx.is_completed:
+            raise ValidationError(
+                'Order {}.Cannot confirm DEPOSIT - already confirmed.'.format(
+                    self))
+        tx.is_completed = True
+        tx.is_verified = True
+        tx.save()
+
+    def complete(self, tx):
+        res = {'status': 'OK'}
+        try:
+            self._complete(tx)
+        except Exception as e:
+            res = {'status': 'ERROR', 'message': '{}'.format(e)}
+        self.save()
+        return res
+
+    @transition(field=status, source=INITIAL, target=CANCELED)
+    def _cancel(self):
+        pass
+
+    def cancel(self):
+        res = {'status': 'OK'}
+        try:
+            self._cancel()
+        except Exception as e:
+            res = {'status': 'ERROR', 'message': '{}'.format(e)}
+        self.save()
+        return res

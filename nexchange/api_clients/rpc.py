@@ -115,4 +115,5 @@ class ScryptRpcApiClient(BaseRpcClient):
     def release_coins(self, currency, address, amount):
         tx_id = self.call_api(currency.wallet, 'sendtoaddress',
                               *[address, amount])
-        return tx_id
+        success = True
+        return tx_id, success

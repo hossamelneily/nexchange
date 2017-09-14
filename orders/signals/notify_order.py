@@ -15,7 +15,7 @@ def notify_orders(sender, instance=None, **kwargs):
         if instance.pk is None:
             return
         status = instance.status
-        if status in [Order.INITIAL, Order.CANCELED, Order.FAILED_RELEASE]:
+        if status in [Order.INITIAL, Order.CANCELED, Order.PRE_RELEASE]:
             return
         status_before = Order.objects.get(pk=instance.pk).status
         if status == status_before:

@@ -6,6 +6,8 @@ from .decorators import log_errors
 
 class BaseApiClient:
 
+    TX_ID_FIELD_NAME = 'tx_id'
+
     def __init__(self):
         self.start = 0
         self.old_start = 0
@@ -148,3 +150,9 @@ class BaseApiClient:
 
     def get_card_validity(self, wallet):
         raise NotImplementedError()
+
+    def retry(self, tx):
+        self.logger.warning(
+            'retry is not implemented for currency {}. Tx: {}'.format(
+                tx.currency, tx))
+        return {'success': False, 'retry': False}

@@ -9,6 +9,7 @@ from core.tests.utils import data_provider
 from orders.models import Order
 from payments.models import Payment, FailedRequest
 from payments.tests.test_api_clients.base import BaseCardPmtAPITestCase
+from unittest.mock import patch
 
 
 class CardPmtAPIClientTestCase(BaseCardPmtAPITestCase):
@@ -117,7 +118,8 @@ class CardPmtAPIClientTestCase(BaseCardPmtAPITestCase):
         mock.get(self.pmt_client.url, text=transaction_success)
         self.pmt_client.pay_for_the_order(**self.required_params_dict)
         self.order.refresh_from_db()
-        self.assertEqual(self.order.status, Order.PAID)
+        # FIXME: CANCEL CARDPMT because it doesnt work
+        self.assertEqual(self.order.status, Order.CANCELED)
         payments = Payment.objects.filter(
             reference=self.order.unique_reference,
             amount_cash=self.order.amount_quote,
@@ -143,11 +145,13 @@ class CardPmtAPIClientTestCase(BaseCardPmtAPITestCase):
         mock.get(self.pmt_client.url, text=transaction_success)
         self.pmt_client.pay_for_the_order(**self.required_params_dict)
         self.order.refresh_from_db()
-        self.assertEqual(self.order.status, Order.PAID)
+        # FIXME: CANCEL CARDPMT because it doesnt work
+        self.assertEqual(self.order.status, Order.CANCELED)
         self.required_params_dict['orderid'] = order_2.unique_reference
         self.pmt_client.pay_for_the_order(**self.required_params_dict)
         order_2.refresh_from_db()
-        self.assertEqual(order_2.status, Order.PAID_UNCONFIRMED)
+        # FIXME: CANCEL CARDPMT because it doesnt work
+        self.assertEqual(order_2.status, Order.CANCELED)
 
     @requests_mock.mock()
     def test_do_not_pay_for_the_order_bad_pmt_status(self, mock):
@@ -184,14 +188,17 @@ class CardPmtAPIClientTestCase(BaseCardPmtAPITestCase):
          '</td></tr>',),
     ))
     @requests_mock.mock()
+    @patch('orders.models.Order._validate_status')
     def test_paid_unconfirmed_if_partialy_bad_response(self,
                                                        transaction_success,
-                                                       mock):
+                                                       mock, _validate_status):
+        _validate_status.return_value = True
         failed_requests_before = len(FailedRequest.objects.all())
         mock.get(self.pmt_client.url, text=transaction_success)
         self.pmt_client.pay_for_the_order(**self.required_params_dict)
         self.order.refresh_from_db()
-        self.assertEqual(self.order.status, Order.PAID_UNCONFIRMED)
+        # FIXME: CANCEL CARDPMT because it doesnt work
+        self.assertEqual(self.order.status, Order.CANCELED)
         payments = Payment.objects.filter(
             reference=self.order.unique_reference,
             amount_cash=self.order.amount_quote,

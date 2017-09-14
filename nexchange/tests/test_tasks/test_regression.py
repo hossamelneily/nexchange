@@ -1,17 +1,15 @@
-from random import randint
-from time import time
-
 from unittest.mock import patch
 
 from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
     update_pending_transactions_invoke
 from core.tests.base import TransactionImportBaseTestCase
-from core.tests.base import UPHOLD_ROOT
+from core.tests.base import UPHOLD_ROOT, EXCHANGE_ORDER_RELEASE_ROOT
 from core.tests.utils import data_provider
+from core.models import Transaction
 from orders.models import Order
-from orders.task_summary import exchange_order_release_invoke, \
-    exchange_order_release_periodic
+from orders.task_summary import exchange_order_release_invoke
 from ticker.tests.base import TickerBaseTestCase
+from core.models import Address
 
 
 class RegressionTaskTestCase(TransactionImportBaseTestCase,
@@ -21,8 +19,26 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         super(RegressionTaskTestCase, self).setUp()
         self.import_txs_task = import_transaction_deposit_crypto_invoke
         self.update_confirmation_task = update_pending_transactions_invoke
-        self.release_task = exchange_order_release_invoke
-        self.release_task_periodic = exchange_order_release_periodic
+
+    def _create_PAID_order(self, txn_type=Transaction.DEPOSIT):
+        self._create_order()
+        deposit_tx_id = self.generate_txn_id()
+        txn_dep = Transaction(
+            amount=self.order.amount_quote,
+            tx_id_api=deposit_tx_id, order=self.order,
+            address_to=self.order.deposit_address,
+            is_completed=True,
+            is_verified=True
+        )
+        if txn_type is not None:
+            txn_dep.type = txn_type
+        txn_dep.save()
+        withdraw_address = Address.objects.filter(
+            type=Address.WITHDRAW, currency=self.order.pair.base).first()
+        self.order.status = Order.PAID
+        self.order.withdraw_address = withdraw_address
+        self.order.save()
+        return self.order, txn_dep
 
     @data_provider(
         lambda: (
@@ -69,9 +85,8 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
             blockchain_confirmations -= 1
         check_transaction_blockchain.return_value = blockchain_confirmations
         self.import_txs_task.apply()
-        prepare_txn_uphold.return_value = 'txid_{}{}'.format(
-            time(), randint(1, 999))
-        execute_txn_uphold.return_value = True
+        prepare_txn_uphold.return_value = self.generate_txn_id()
+        execute_txn_uphold.return_value = {'code': 'OK'}
 
         self.order.refresh_from_db()
         self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED, name)
@@ -81,3 +96,74 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         if last_order_status == Order.PAID and 'Uphold OK' not in name:
             txn = self.order.transactions.first()
             self.assertEqual(txn.confirmations, blockchain_confirmations, name)
+
+    @patch('orders.models.Order._validate_status')
+    @patch(UPHOLD_ROOT + 'execute_txn')
+    @patch(UPHOLD_ROOT + 'prepare_txn')
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
+    def test_release_order_only_once(self, check_tx_uphold,
+                                     prepare_txn_uphold,
+                                     execute_txn_uphold, _validate_status):
+        _validate_status.return_value = True
+        # Create order and prepare it for first release
+        order, txn_dep = self._create_PAID_order()
+        check_tx_uphold.return_value = True, 999
+        prepare_txn_uphold.return_value = self.generate_txn_id()
+        execute_txn_uphold.return_value = {'code': 'OK'}
+        # Do first release
+        exchange_order_release_invoke.apply_async([txn_dep.pk])
+        self.order.refresh_from_db()
+        # Check things after first release
+        self.assertEqual(prepare_txn_uphold.call_count, 1)
+        self.assertIn(self.order.status, Order.IN_RELEASED)
+        all_with_txn = self.order.transactions.filter(
+            type=Transaction.WITHDRAW)
+        self.assertEqual(len(all_with_txn), 1)
+        # Prepare order for second release
+        self.order.status = Order.PAID
+        self.order.save()
+        prepare_txn_uphold.return_value = self.generate_txn_id()
+        exchange_order_release_invoke.apply_async([txn_dep.pk])
+        # check things after second release
+        all_with_txn = self.order.transactions.filter(
+            type=Transaction.WITHDRAW)
+        self.assertEqual(prepare_txn_uphold.call_count, 1)
+        self.order.refresh_from_db()
+        self.assertIn(self.order.status, Order.IN_RELEASED)
+        self.assertTrue(self.order.flagged)
+        self.assertEqual(len(all_with_txn), 1)
+
+    @patch(UPHOLD_ROOT + 'execute_txn')
+    @patch(UPHOLD_ROOT + 'prepare_txn')
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
+    def test_do_not_release_if_order_has_txn_without_type(self,
+                                                          check_tx_uphold,
+                                                          prepare_txn_uphold,
+                                                          execute_txn_uphold):
+        order, txn_dep = self._create_PAID_order(txn_type=None)
+        check_tx_uphold.return_value = True, 999
+        prepare_txn_uphold.return_value = self.generate_txn_id()
+        execute_txn_uphold.return_value = {'code': 'OK'}
+        exchange_order_release_invoke.apply_async([txn_dep.pk])
+        self.order.refresh_from_db()
+        # Check things after first release
+        self.assertEqual(prepare_txn_uphold.call_count, 0)
+        self.assertIn(self.order.status, Order.IN_RELEASED)
+        all_with_txn = self.order.transactions.filter(
+            type=Transaction.WITHDRAW)
+        self.assertEqual(len(all_with_txn), 0)
+        self.assertTrue(self.order.flagged)
+
+    @patch(EXCHANGE_ORDER_RELEASE_ROOT + 'run')
+    @patch(EXCHANGE_ORDER_RELEASE_ROOT + 'do_release')
+    @patch(EXCHANGE_ORDER_RELEASE_ROOT + 'validate')
+    def test_do_not_release_flagged_order(self, validate, do_release,
+                                          run_release):
+        order, txn_dep = self._create_PAID_order()
+        order.flagged = True
+        order.save()
+        exchange_order_release_invoke.apply_async([txn_dep.pk])
+        self.assertEqual(validate.call_count, 0)
+        self.assertEqual(do_release.call_count, 0)
+        self.assertEqual(run_release.call_count, 1)
+        self.order.refresh_from_db()

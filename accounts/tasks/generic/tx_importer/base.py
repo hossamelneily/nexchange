@@ -16,36 +16,16 @@ class BaseTransactionImporter:
         )
 
     def get_orders(self, tx):
-        sell_query = Q(
-            exchange=False,
-            order_type=Order.SELL,
-            amount_base=Decimal(str(tx['amount'])),
-            pair__base=tx['currency'],
-            status=Order.INITIAL,
-            user=tx['address_to'].user,
-            deposit_address=tx['address_to']
-        )
-        buy_exchange_query = Q(
-            exchange=True,
-            order_type=Order.BUY,
-            amount_quote=Decimal(str(tx['amount'])),
-            pair__quote=tx['currency'],
-            status=Order.INITIAL,
-            user=tx['address_to'].user,
-            deposit_address=tx['address_to']
-        )
-        sell_exchange_query = Q(
-            exchange=True,
-            order_type=Order.SELL,
-            amount_base=Decimal(str(tx['amount'])),
-            pair__base=tx['currency'],
-            status=Order.INITIAL,
-            user=tx['address_to'].user,
-            deposit_address=tx['address_to']
-        )
-        orders = Order.objects.filter(
-            sell_query | buy_exchange_query | sell_exchange_query
-        )
+        buy_exchange_query = {
+            'exchange': True,
+            'order_type': Order.BUY,
+            'amount_quote': Decimal(str(tx['amount'])),
+            'pair__quote': tx['currency'],
+            'status': Order.INITIAL,
+            'user': tx['address_to'].user,
+            'deposit_address': tx['address_to']
+        }
+        orders = Order.objects.filter(**buy_exchange_query)
         orders = [order for order in orders if not order.expired]
         return orders
 
@@ -93,16 +73,19 @@ class BaseTransactionImporter:
         if len(orders) == 1:
             order = orders[0]
 
-            transaction = Transaction(**tx_data)
-            transaction.order = order
-            transaction.type = transaction.DEPOSIT
-            transaction.save()
-            self.logger.info('New transaction created {}'
-                             .format(transaction.__dict__))
-            order.status = Order.PAID_UNCONFIRMED
-            order.save()
-            self.logger.info('Order {} is marked as PAID_UNCONFIRMED'
-                             .format(order.__dict__))
+            tx_data.update({
+                'order': order,
+                'type': Transaction.DEPOSIT
+            })
+
+            register_res = order.register_deposit(tx_data)
+
+            if register_res.get('status') == 'OK':
+                txn = register_res.get('tx')
+                self.logger.info('New transaction created {}'
+                                 .format(txn.__dict__))
+                self.logger.info('Order {} is marked as PAID_UNCONFIRMED'
+                                 .format(order.__dict__))
         elif len(orders) == 0:
             self.logger.info(
                 'Transaction is not created: no orders for transaction '

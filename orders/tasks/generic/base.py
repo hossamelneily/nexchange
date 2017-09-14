@@ -72,47 +72,37 @@ class BaseBuyOrderRelease(BaseOrderRelease):
             # type_ = order.pair.base.code
             order.refresh_from_db()
             if order.status not in Order.IN_RELEASED:
-                order.status = Order.FAILED_RELEASE
-                order.save()
-                tx_id = self.api.release_coins(
-                    order.pair.base,
-                    order.withdraw_address,
-                    order.amount_base
-                )
-            else:
-                self.logger.error('Order {} already released'.format(order))
-                return False
+                order.pre_release()
+                currency = order.pair.base
+                tx_data = {'order': order,
+                           'address_to': order.withdraw_address,
+                           'amount': order.amount_base,
+                           'currency': currency,
+                           'type': Transaction.WITHDRAW}
+                release_res = order.release(tx_data, api=self.api)
+                release_status_ok = release_res.get('status') == 'OK'
+                if not release_status_ok:
+                    error_msg = release_res.get('message')
+                    msg = 'Order {} is not RELEASED. Msg: {}'.format(
+                        order.unique_reference, error_msg)
+                    self.logger.error(msg)
+                    return False
 
-            if tx_id is None:
-                msg = 'Payment release returned None, order {} ' \
-                      'payment {}'.format(order, payment)
+            else:
+                msg = 'Order {} already released'.format(order)
                 self.logger.error(msg)
                 order.flag(val=msg)
                 return False
 
-            order.refresh_from_db()
-            order.status = Order.RELEASED
-            order.save()
-
+            txn = release_res.get('txn')
             self.logger.info(
-                'RELEASED order: {} with payment {} '
-                'released tx id: {}'.format(
-                    order, payment, tx_id
-                )
+                'RELEASED order: {}, Payment: {}, released '
+                'transaction: {}'.format(order, payment, txn)
             )
 
             payment.is_redeemed = True
             payment.order = order
             payment.save()
-
-            transaction_data = {'order': order,
-                                'address_to': order.withdraw_address,
-                                'amount': order.amount_base,
-                                'currency': order.pair.base,
-                                'type': Transaction.WITHDRAW,
-                                'tx_id_api': tx_id}
-            t = Transaction(**transaction_data)
-            t.save()
 
             return True
 

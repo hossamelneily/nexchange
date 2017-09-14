@@ -349,6 +349,9 @@ build:
           #
           # Start Cron Process
           cron
+          # Fix orders and transactions
+          python manage.py migrate_order_statuses
+          python manage.py fix_replay_transactions
           # Start celery stuff
 
           # Protect staging by password from ENV

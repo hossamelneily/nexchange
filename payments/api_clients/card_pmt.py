@@ -298,8 +298,9 @@ class CardPmtAPIClient:
                 error_msg = _('Bad Credit Card credentials')
                 return {'status': 0, 'msg': error_msg}
             if res['status'] == '1':
-                self.order.status = Order.PAID_UNCONFIRMED
-                self.order.save()
+                # FIXME: CANCEL CARDPMT because it doesnt work
+                self.order.cancel()
+                self.order.refresh_from_db()
                 if res['transaction_id'] == '0' or res['transaction_id'] is \
                         None:
                     error_msg = _('Order payment status is unclear, please '
@@ -307,8 +308,9 @@ class CardPmtAPIClient:
                     return {'status': 0, 'msg': error_msg}
                 if not self.check_unique_transaction_id(res['transaction_id']):
                     return {'status': 0, 'msg': error_msg}
-                self.order.status = Order.PAID
-                self.order.save()
+                # FIXME: CANCEL CARDPMT because it doesnt work
+                self.order.cancel()
+                self.order.refresh_from_db()
                 pref = self.create_payment_preference(self.order, **kwargs)
                 currency = Currency.objects.get(code=kwargs['currency'])
                 payment = Payment(

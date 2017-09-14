@@ -147,6 +147,7 @@ INSTALLED_APPS = [
     'support',
     'loginurl',
     'social_django',
+    'django_fsm',
 ]
 
 
@@ -308,6 +309,8 @@ CELERY_BEAT_SCHEDULE.update(TRANSACTION_CHECKER_TASKS)
 
 TASKS_TIME_LIMIT = 30
 TRANSACTION_IMPORT_TIME_LIMIT = 9
+RETRY_RELEASE_TIME = 120
+RETRY_RELEASE_MAX_RETRIES = 50
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',

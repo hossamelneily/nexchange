@@ -1,7 +1,7 @@
-from orders.tasks.order_release import sell_order_release
 from .tasks.generic.buy_order_release import BuyOrderReleaseByRule,\
     BuyOrderReleaseByWallet, BuyOrderReleaseByReference
 from .tasks.generic.exchange_order_release import ExchangeOrderRelease
+from orders.tasks.generic.retry_release import RetryOrderRelease
 from django.conf import settings
 from celery import shared_task
 from payments.models import Payment
@@ -9,6 +9,7 @@ from orders.models import Order
 from core.models import Transaction
 from .decorators import get_task
 from nexchange.utils import get_nexchange_logger
+from nexchange.celery import app
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
@@ -44,11 +45,6 @@ def buy_order_release_reference_periodic():
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def sell_order_release_invoke():
-    return sell_order_release()
-
-
-@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 @get_task(task_cls=ExchangeOrderRelease, key='transactions__in')
 def exchange_order_release_invoke(transaction_id, task=None):
     task.run(transaction_id)
@@ -66,3 +62,19 @@ def exchange_order_release_periodic():
             exchange_order_release_invoke.apply_async([tx.pk])
         except Exception as e:
             logger.warning(e)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+@get_task(task_cls=RetryOrderRelease, key='transactions__in')
+def release_retry(transaction_id, task=None):
+    res = task.run(transaction_id)
+    return res
+
+
+@app.task(bind=True)
+def release_retry_invoke(self, transaction_id):
+    task_info = release_retry.apply([transaction_id])
+    res = task_info.result
+    if res.get('retry'):
+        self.retry(countdown=settings.RETRY_RELEASE_TIME,
+                   max_retries=settings.RETRY_RELEASE_MAX_RETRIES)
