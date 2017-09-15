@@ -567,6 +567,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             ('DOGELTC', Order.BUY, True, 4),
         )
     )
+    @patch('accounts.tasks.monitor_wallets.app.send_task')
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient.release_coins')
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
@@ -581,7 +582,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                     prepare_txn_uphold,
                                     execute_txn_uphold,
                                     get_txs_scrypt, get_tx_scrypt,
-                                    release_coins_scrypt):
+                                    release_coins_scrypt, send_task):
         currency_quote_code = pair_name[base_curr_code_len:]
         currency_base_code = pair_name[0:base_curr_code_len]
         if currency_base_code == 'DOGE':
@@ -626,9 +627,9 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self.order.refresh_from_db()
         self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
         self.update_confirmation_task.apply()
-        if mock_currency.wallet == 'api1':
-            card.refresh_from_db()
-            self.assertTrue(card.need_balance_check)
+
+        self.assertEqual(1, send_task.call_count, pair_name)
+
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, Order.PAID, pair_name)
         address = getattr(self, '{}_address'.format(withdraw_currency_code))

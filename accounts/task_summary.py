@@ -8,11 +8,10 @@ from .tasks.generic.tx_importer.uphold_blockchain import \
 from .tasks.generic.tx_importer.scrypt import ScryptTransactionImporter
 from django.conf import settings
 from celery import shared_task
-from accounts.tasks.generic.addressreserve_monitor.uphold import \
-    UpholdReserveMonitor
-
-
-uphold_reserve_monitor = UpholdReserveMonitor()
+from core.models import AddressReserve
+from core.models import Transaction
+from accounts.decoratos import get_task
+from accounts.tasks.generic.addressreserve_monitor.base import ReserveMonitor
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
@@ -47,13 +46,30 @@ def import_transaction_deposit_crypto_invoke():
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def check_cards_uphold_invoke():
-    uphold_reserve_monitor.check_cards()
+@get_task(task_cls=ReserveMonitor, key='pk__in')
+def check_cards_balances_invoke(card_id, task=None):
+    task.client.check_cards_balances(card_id)
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def check_cards_balances_uphold_invoke():
-    uphold_reserve_monitor.client.check_cards_balances()
+def check_transaction_card_balance_invoke(tx_id):
+    tx = Transaction.objects.get(pk=tx_id)
+    card = tx.address_to.reserve
+    if card:
+        check_cards_balances_invoke.apply_async([card.pk])
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def check_cards_balances_uphold_periodic():
+    wallet = 'api1'
+    card = AddressReserve.objects.filter(
+        user__isnull=False, need_balance_check=True, disabled=False,
+        currency__wallet=wallet).first()
+    if card is None:
+        return
+    check_cards_balances_invoke.apply([card.pk])
+    card.need_balance_check = False
+    card.save()
 
 
 @shared_task(time_limit=settings.TRANSACTION_IMPORT_TIME_LIMIT)

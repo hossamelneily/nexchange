@@ -1,18 +1,18 @@
 from core.tests.base import TransactionImportBaseTestCase
 from core.models import Address, Currency, AddressReserve
 from accounts.task_summary import import_transaction_deposit_crypto_invoke,\
-    check_cards_balances_uphold_invoke, check_cards_uphold_invoke
+    check_cards_balances_uphold_periodic
 from ticker.tests.base import TickerBaseTestCase
 import requests_mock
 from django.contrib.auth.models import User
 from accounts.models import Profile
-from accounts.tasks.generic.addressreserve_monitor.uphold import \
-    UpholdReserveMonitor
+from accounts.tasks.generic.addressreserve_monitor.base import ReserveMonitor
 from core.tests.utils import data_provider
 from unittest.mock import patch
 import random
 from django.conf import settings
 from unittest import skip
+from nexchange.api_clients.uphold import UpholdApiClient
 
 
 class TransactionImportTaskTestCase(TransactionImportBaseTestCase,
@@ -59,7 +59,8 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
             card.need_balance_check = False
             card.save()
         self.currency = Currency.objects.get(code='ETH')
-        self.monitor = UpholdReserveMonitor()
+        self.client = UpholdApiClient()
+        self.monitor = ReserveMonitor(self.client, wallet='api1')
         self.url_base = 'https://api.uphold.com/v0/me/cards/'
         with requests_mock.mock() as mock:
             self.get_tickers(mock)
@@ -215,18 +216,22 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
                 )
             )
         for _ in range(len(cards)):
-            self.monitor.client.check_cards_balances()
+            check_cards_balances_uphold_periodic.apply_async()
         for card in cards:
             card.refresh_from_db()
             self.assertFalse(card.need_balance_check)
 
     @patch('nexchange.api_clients.uphold.UpholdApiClient.check_cards_balances')
     def test_check_balances_task(self, check_balances):
-        check_cards_balances_uphold_invoke.apply()
+        card = AddressReserve(currency=self.BTC, need_balance_check=True,
+                              card_id='123', user=self.user)
+        card.save()
+        check_cards_balances_uphold_periodic.apply()
         self.assertEqual(1, check_balances.call_count)
 
-    @patch('accounts.tasks.generic.addressreserve_monitor.uphold.'
-           'UpholdReserveMonitor.check_cards')
+    @skip('Cards must be checked card by card')
+    @patch('accounts.tasks.generic.addressreserve_monitor.base.'
+           'ReserveMonitor.check_cards')
     def test_check_cards_task(self, check_cards):
-        check_cards_uphold_invoke.apply()
+        # check_cards_uphold_invoke.apply()
         self.assertEqual(1, check_cards.call_count)

@@ -6,6 +6,11 @@ import requests
 from django.conf import settings
 from django.http.response import HttpResponse
 from django.utils.translation import gettext_lazy as _
+from nexchange.api_clients.factory import ApiClientFactory
+from core.models import AddressReserve
+
+
+factory = ApiClientFactory()
 
 
 def not_logged_in_required(view_fn):
@@ -61,3 +66,24 @@ def recaptcha_required(view_fn):
                 )
         return view_fn(request, *args, **kwargs)
     return wrapper
+
+
+def get_task(**kwargs):
+    def _get_task(task_fn):
+        @wraps(task_fn)
+        def _wrapped_fn(search_val):
+            Task = kwargs.get('task_cls')
+            key = kwargs.get('key')
+            lookup = {key: [search_val]}
+            try:
+                card = AddressReserve.objects.get(**lookup)
+            except AddressReserve.DoesNotExist:
+                return
+
+            wallet = card.currency.wallet
+            api = factory.get_api_client(wallet)
+            task = Task(api, wallet=wallet)
+            return task_fn(search_val, task)
+
+        return _wrapped_fn
+    return _get_task

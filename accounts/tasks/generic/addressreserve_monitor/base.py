@@ -1,17 +1,15 @@
 from nexchange.utils import get_nexchange_logger
 from django.contrib.auth.models import User
 from core.models import Currency
-from nexchange.api_clients.factory import ApiClientFactory
 
 
-class BaseReserveMonitor:
-    def __init__(self):
+class ReserveMonitor:
+    def __init__(self, api, wallet=None):
         self.logger = get_nexchange_logger(
             self.__class__.__name__
         )
-        self.wallet_name = None
-        self.api_factory = ApiClientFactory()
-        self.client = self.api_factory.get_api_client(self.wallet_name)
+        self.wallet_name = wallet
+        self.client = api
 
     def check_cards(self):
         # FIXME: must be redesigned to check one card at the time

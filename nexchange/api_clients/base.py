@@ -138,12 +138,8 @@ class BaseApiClient:
     def resend_funds_to_main_card(self, card_id, curr_code):
         raise NotImplementedError
 
-    def check_cards_balances(self):
-        card = AddressReserve.objects.filter(
-            user__isnull=False, need_balance_check=True, disabled=False,
-            currency__wallet=self.related_nodes[0]).first()
-        if card is None:
-            return
+    def check_cards_balances(self, card_pk):
+        card = AddressReserve.objects.get(pk=card_pk)
         self.resend_funds_to_main_card(card.card_id, card.currency.code)
         card.need_balance_check = False
         card.save()
