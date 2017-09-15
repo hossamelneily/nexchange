@@ -14,6 +14,8 @@ from rest_framework_extensions.mixins import (
 class LastPricesViewSet(ReadOnlyCacheResponseAndETAGMixin,
                         DateFilterViewSet):
 
+    model_class = Price
+
     @method_decorator(cache_page(settings.PRICE_CACHE_LIFETIME))
     def dispatch(self, *args, **kwargs):
         return super(LastPricesViewSet, self).dispatch(*args, **kwargs)
@@ -31,6 +33,7 @@ class LastPricesViewSet(ReadOnlyCacheResponseAndETAGMixin,
 class PriceHistoryViewSet(ReadOnlyETAGMixin,
                           DataPointsFilterViewSet):
     serializer_class = PriceSerializer
+    model_class = Price
 
     def get_queryset(self, filters=None, **kwargs):
         self.queryset = Price.objects

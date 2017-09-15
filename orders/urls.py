@@ -1,12 +1,13 @@
 from rest_framework.routers import SimpleRouter
 
 from django.conf.urls import url
-from orders.api_views import OrderListViewSet
+from orders.api_views import OrderListViewSet, VolumeViewSet
 from orders import views
 
 router = SimpleRouter()
 
 router.register(r'orders', OrderListViewSet, base_name='orders')
+router.register(r'volume', VolumeViewSet, base_name='orders')
 
 order_api_patterns = router.urls
 

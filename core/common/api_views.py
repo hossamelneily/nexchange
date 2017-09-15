@@ -12,13 +12,14 @@ class DateFilterViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
         self.queryset = None
         super(DateFilterViewSet, self).__init__(*args, **kwargs)
 
-    def get_queryset(self, filters=None):
+    def get_queryset(self, filters=None, hours=None):
         if filters is None:
             filters = {}
         params = self.request.query_params
 
-        if 'hours' in params:
-            hours = self.request.query_params.get('hours')
+        if any(['hours' in params, hours]):
+            if not hours:
+                hours = self.request.query_params.get('hours')
             seconds = float(hours) * 3600
             relevant = datetime.datetime.now() - \
                 datetime.timedelta(seconds=seconds)
@@ -30,7 +31,7 @@ class DateFilterViewSet(viewsets.ViewSetMixin, generics.ListAPIView):
         if self.queryset is not None:
             return self.queryset.filter(**filters).order_by('id')
         else:
-            return []
+            return self.model_class.objects.filter(**filters).order_by('id')
 
 
 class DataPointsFilterViewSet(DateFilterViewSet):
