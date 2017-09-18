@@ -446,6 +446,10 @@ CARDS_RESERVE_COUNT = 20
 # this is used if there is no reserve on user.create()
 EMERGENCY_CARDS_RESERVE_COUNT = 1
 
+# RPC
+RPC_IMPORT_TRANSACTIONS_COUNT = 10
+
+
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 TWILIO_PHONE_FROM_UK = '+447481341915'
 TWILIO_PHONE_FROM_US = '+16464612858'

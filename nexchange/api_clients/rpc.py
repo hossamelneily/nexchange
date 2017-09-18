@@ -27,7 +27,6 @@ class RpcMapper:
 
 
 class BaseRpcClient(BaseApiClient):
-    UNLIMITED = 999
 
     def __init__(self):
         super(BaseRpcClient, self).__init__()
@@ -103,7 +102,7 @@ class ScryptRpcApiClient(BaseRpcClient):
 
     def _get_txs(self, node):
         txs = self.call_api(node, 'listtransactions',
-                            *["", self.UNLIMITED, self.start])
+                            *["", settings.RPC_IMPORT_TRANSACTIONS_COUNT])
         return txs
 
     @log_errors
@@ -114,6 +113,14 @@ class ScryptRpcApiClient(BaseRpcClient):
 
     def release_coins(self, currency, address, amount):
         tx_id = self.call_api(currency.wallet, 'sendtoaddress',
-                              *[address, amount])
+                              *[address.address, amount])
         success = True
         return tx_id, success
+
+    def get_balance(self, currency):
+        balance = self.call_api(currency.wallet, 'getbalance')
+        return balance
+
+    def get_info(self, currency):
+        info = self.call_api(currency.wallet, 'getinfo')
+        return info

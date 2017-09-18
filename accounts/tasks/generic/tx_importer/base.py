@@ -22,7 +22,6 @@ class BaseTransactionImporter:
             'amount_quote': Decimal(str(tx['amount'])),
             'pair__quote': tx['currency'],
             'status': Order.INITIAL,
-            'user': tx['address_to'].user,
             'deposit_address': tx['address_to']
         }
         orders = Order.objects.filter(**buy_exchange_query)
