@@ -200,7 +200,7 @@ build:
         #
         # PEM_FILE_CONTENT - the key to SSH into server (create key par via wercker web interface. remeber to install public key on server)
         # SSH_USER - the user to SSH into server
-        # DEST_HOST_ADDR - server where to 
+        # DEST_HOST_ADDR - server where to
         #
         # DOCKER_HUB_USER - dockerhub username
         # DOCKER_HUB_PASSWORD - dockerhub password (defined as a protectd var)
@@ -300,6 +300,12 @@ build:
           export RPC_RPC2_PASSWORD=${RPC_RPC2_PASSWORD}
           export RPC_RPC2_PORT=${RPC_RPC2_PORT}
           export RPC_RPC2_HOST=${RPC_RPC2_HOST}
+
+          #RPC3
+          export RPC_RPC3_USER=${RPC_RPC3_USER}
+          export RPC_RPC3_PASSWORD=${RPC_RPC3_PASSWORD}
+          export RPC_RPC3_PORT=${RPC_RPC3_PORT}
+          export RPC_RPC3_HOST=${RPC_RPC3_HOST}
 
           # SOCIAL login
           export SOCIAL_AUTH_TWITTER_KEY=${SOCIAL_AUTH_TWITTER_KEY}

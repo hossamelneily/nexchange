@@ -75,15 +75,26 @@ class CryptopiaAdapter(BaseApiAdapter):
         pair_name = '{}/{}'.format(
             pair.quote.code.upper(),
             pair.base.code.upper()
-
         )
-        desired_market = [market for market in markets
-                          if market['Label'] == pair_name].pop()
+        self.reverse_pair = True
+        reverse_pair_name = '{}/{}'.format(
+            pair.base.code.upper(),
+            pair.quote.code.upper(),
+        )
+        try:
+            desired_market = [market for market in markets
+                              if market['Label'] == pair_name].pop()
+        except IndexError:
+            desired_market = [market for market in markets
+                              if market['Label'] == reverse_pair_name].pop()
+            self.reverse_pair = False
+
         res = requests.get(
             self.RESOURCE_TICKER_PARAM.format(desired_market['TradePairId'])
         ).json()['Data']
 
         return {
+            'reverse': self.reverse_pair,
             'ask': res['AskPrice'],
             'bid': res['BidPrice'],
         }

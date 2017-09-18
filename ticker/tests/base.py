@@ -10,7 +10,9 @@ from ticker.tests.fixtures.coinexchange.markets import \
 from ticker.tests.fixtures.coinexchange.market_summary import \
     response as coinex_market_summary_resp
 import requests_mock
-import re
+from core.models import Pair
+from ticker.tests.fixtures.cryptopia_ticker import res as \
+    cryptopia_ticker_resp_empty
 
 
 class TickerBaseTestCase(OrderBaseTestCase):
@@ -23,7 +25,6 @@ class TickerBaseTestCase(OrderBaseTestCase):
 
     def _read_fixtures_ticker(self):
         cryptopia_markets_path = 'ticker/tests/fixtures/cryptopia_markets.json'
-        cryptopia_ticker_path = 'ticker/tests/fixtures/cryptopia_ticker.json'
         kraken_ticker_path = 'ticker/tests/fixtures/kraken_ticker.json'
         fixer_path = 'ticker/tests/fixtures/fixer.json'
         bitifex_path = 'ticker/tests/fixtures/bitifex.json'
@@ -31,8 +32,7 @@ class TickerBaseTestCase(OrderBaseTestCase):
         localbtc_sell_path = 'ticker/tests/fixtures/localbtc/sell.json'
         with open(cryptopia_markets_path) as f:
             self.cryptopia_markets_resp = f.read().replace('\n', '')
-        with open(cryptopia_ticker_path) as f:
-            self.cryptopia_ticker_resp = f.read().replace('\n', '')
+        self.cryptopia_ticker_resp = cryptopia_ticker_resp_empty
         with open(kraken_ticker_path) as f:
             self.kraken_resp = f.read().replace('\n', '')
         self.kraken_info = json.loads(self.kraken_resp)['result']
@@ -45,15 +45,28 @@ class TickerBaseTestCase(OrderBaseTestCase):
         with open(localbtc_sell_path) as f:
             self.localbtc_sell_resp = f.read().replace('\n', '')
 
+    def cryptopia_market_mapper(self, pair):
+        mapper = {
+            'XVG/BTC': 1376,
+            'DOGE/BTC': 102,
+            'XVG/DOGE': 1378
+        }
+        return mapper[pair]
+
     def mock_resources(self, mock):
         mock.get(
             CryptopiaAdapter.RESOURCE_MARKETS,
             text=self.cryptopia_markets_resp)
 
-        matcher = re.compile(CryptopiaAdapter.RESOURCE_TICKER + '\d+$')
-        mock.get(
-            matcher,
-            text=self.cryptopia_ticker_resp)
+        cryptopia_pairs = Pair.objects.filter(quote__code__in=['XVG', 'DOGE'],
+                                              base__code__in=['BTC', 'DOGE'])
+        for pair in cryptopia_pairs:
+            pair_name = '{}/{}'.format(pair.quote.code, pair.base.code)
+            market_id = self.cryptopia_market_mapper(pair_name)
+            url = CryptopiaAdapter.RESOURCE_TICKER_PARAM.format(market_id)
+            mock.get(
+                url,
+                text=self.cryptopia_ticker_resp.format(pair_name))
         mock.get(CoinexchangeAdapter.RESOURCE_MARKETS,
                  text=coinex_markets_resp)
         mock.get(CoinexchangeAdapter.RESOURCE_TICKER_PARAM.format('251'),

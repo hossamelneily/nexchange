@@ -78,7 +78,24 @@
       "wallet": "rpc2",
       "algo": "scrypt",
       "is_crypto": 1,
-      "min_confirmations": 4,
+      "min_confirmations": 6,
+      "median_confirmation": 15,
+      "minimal_amount": "1000",
+      "created_on":"2016-05-20T17:41:28+00:00",
+      "modified_on":"2016-05-20T17:41:28+00:00"
+    }
+  },
+    {
+    "model": "core.currency",
+    "pk": 35,
+    "fields": {
+      "code": "XVG",
+      "name": "verge",
+      "ticker": "cryptopia",
+      "wallet": "rpc3",
+      "algo": "scrypt",
+      "is_crypto": 1,
+      "min_confirmations": 6,
       "median_confirmation": 15,
       "minimal_amount": "1000",
       "created_on":"2016-05-20T17:41:28+00:00",

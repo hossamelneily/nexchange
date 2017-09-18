@@ -8,18 +8,29 @@ from ticker.tasks.generic.base import BaseTicker,\
 
 class CryptoCryptoTicker(BaseTicker):
 
+    def __init__(self):
+        super(CryptoCryptoTicker, self).__init__()
+        self.native_ticker = False
+
     def get_ticker_crypto(self):
-        if self.pair.base.code != 'BTC' and self.pair.quote.code != 'BTC':
+        self.native_ticker = any([
+            self.pair.base.code == 'BTC',
+            self.pair.quote.code == 'BTC',
+            self.pair.name in ['XVGDOGE', 'DOGEXVG']])
+
+        if not self.native_ticker:
             available_pair = Pair.objects.get(
                 name='BTC{}'.format(self.pair.quote.code)
             )
-            pair = self.quote_api_adapter.get_quote(available_pair)
+            api_adapter = self.get_api_adapter(available_pair)
+            pair = api_adapter.get_quote(available_pair)
+            self.get_btc_base_multiplier()
         else:
-            pair = self.quote_api_adapter.get_quote(self.pair)
+            api_adapter = self.get_api_adapter(self.pair)
+            pair = api_adapter.get_quote(self.pair)
         ask_quote = pair['ask']
         bid_quote = pair['bid']
         reverse = pair.get('reverse', True)
-        self.get_btc_base_multiplier()
         ticker = self.create_ticker(ask_quote, bid_quote, reverse=reverse)
         price = Price(pair=self.pair, ticker=ticker)
         price.save()

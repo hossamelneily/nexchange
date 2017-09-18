@@ -208,5 +208,117 @@
     "name": "ETHDOGE",
     "disabled": false
   }
+},
+{
+  "model": "core.pair",
+  "pk": 132,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 35,
+    "quote": 1,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "XVGBTC",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 133,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 35,
+    "quote": 2,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "XVGLTC",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 134,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 35,
+    "quote": 3,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "XVGETH",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 135,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 1,
+    "quote": 35,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "BTCXVG",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 136,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 2,
+    "quote": 35,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "LTCXVG",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 137,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 3,
+    "quote": 35,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "ETHXVG",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 138,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 34,
+    "quote": 35,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "DOGEXVG",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 139,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 35,
+    "quote": 34,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "XVGDOGE",
+    "disabled": false
+  }
 }
 ]

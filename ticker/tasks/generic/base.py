@@ -66,6 +66,17 @@ class BaseTicker(BaseTask):
         self.quote_api_adapter = None
         self.bitcoin_api_adapter = kraken_adapter
 
+    def get_api_adapter(self, pair):
+        currency = pair.quote if pair.base.code == 'BTC' else pair.base
+        if currency.ticker == 'kraken':
+            return kraken_adapter
+        elif currency.ticker == 'cryptopia':
+            return cryptopia_adapter
+        elif currency.ticker == 'coinexchange':
+            return coinexchange_adapter
+        else:
+            return self.bitcoin_api_adapter
+
     def run(self, pair_pk):
         self.pair = Pair.objects.get(pk=pair_pk)
         self.ask_multip = self.bid_multip = Decimal('1.0')
@@ -175,7 +186,8 @@ class BaseTicker(BaseTask):
             crypto_pair = Pair.objects.get(
                 name='BTC{}'.format(self.pair.base.code)
             )
-            ticker = self.bitcoin_api_adapter.get_quote(crypto_pair)
+            api_adapter = self.get_api_adapter(self.pair)
+            ticker = api_adapter.get_quote(crypto_pair)
             self.ask_multip = Decimal(ticker['ask'])
             self.bid_multip = Decimal(ticker['bid'])
 
