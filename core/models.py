@@ -68,7 +68,7 @@ class Address(BtcBase, SoftDeletableModel):
 
 class Transaction(BtcBase, FlagableMixin):
 
-    #class Meta:
+    # class Meta:
     #    unique_together = (('amount', 'order', 'type', 'admin_comment'),)
 
     confirmations = models.IntegerField(default=0)
@@ -149,7 +149,7 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     objects = CurrencyManager()
     NATURAL_KEY = 'code'
     code = models.CharField(max_length=4)
-    name = models.CharField(max_length=10)
+    name = models.CharField(max_length=20)
     min_confirmations = \
         models.IntegerField(blank=True, null=True)
     min_confirmation_high = \

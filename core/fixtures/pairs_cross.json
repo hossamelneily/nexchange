@@ -320,5 +320,145 @@
     "name": "XVGDOGE",
     "disabled": false
   }
+},
+{
+  "model": "core.pair",
+  "pk": 140,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 36,
+    "quote": 1,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "BCHBTC",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 141,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 36,
+    "quote": 2,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "BCHLTC",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 142,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 36,
+    "quote": 3,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "BCHETH",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 143,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 1,
+    "quote": 36,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "BTCBCH",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 144,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 2,
+    "quote": 36,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "LTCBCH",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 145,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 3,
+    "quote": 36,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "ETHBCH",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 146,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 34,
+    "quote": 36,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "DOGEBCH",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 147,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 36,
+    "quote": 34,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "BCHDOGE",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 148,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 35,
+    "quote": 36,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "XVGBCH",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 149,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 36,
+    "quote": 35,
+    "fee_ask": "0.00100000",
+    "fee_bid": "0.00100000",
+    "name": "BCHXVG",
+    "disabled": false
+  }
 }
 ]
