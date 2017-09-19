@@ -57,6 +57,20 @@ def validate_ltc(value):
         )
     validate_bc(value)
 
+
+def validate_rns(value):
+    p = re.compile(
+        "^R[1-9A-Za-z]{25,34}$"
+    )
+
+    if not p.match(value):
+        raise ValidationError(
+            _('%(value)s has invalid characters for a valid Renos address'),
+            params={'value': value},
+        )
+    validate_bc(value)
+
+
 def validate_doge(value):
     p = re.compile(
         "^D[1-9A-Za-z]{25,34}$"
@@ -65,6 +79,19 @@ def validate_doge(value):
     if not p.match(value):
         raise ValidationError(
             _('%(value)s has invalid characters for a valid Doge address'),
+            params={'value': value},
+        )
+    validate_bc(value)
+
+
+def validate_xvg(value):
+    p = re.compile(
+        "^D[1-9A-Za-z]{25,34}$"
+    )
+
+    if not p.match(value):
+        raise ValidationError(
+            _('%(value)s has invalid characters for a valid Verge address'),
             params={'value': value},
         )
     validate_bc(value)
@@ -109,8 +136,11 @@ def get_validator(code):
         return validate_btc
     elif code == 'LTC':
         return validate_ltc
-    elif code == 'DOG':
+    elif code == 'RNS':
+        return validate_rns
+    elif code == 'DOGE':
         return validate_doge
+    elif code == 'XVG':
+        return validate_xvg
 
     return validate_non_address
-

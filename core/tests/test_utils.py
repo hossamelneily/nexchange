@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 from django.test import TestCase
 
 from core.tests.utils import data_provider
+from core.utils import clients_lookup, uphold_client, scrypt_client
 
 
 class DataProviderDecoratorTestCase(TestCase):
@@ -43,3 +44,14 @@ class DataProviderDecoratorTestCase(TestCase):
 
         with self.assertRaises(AssertionError):
             decorated(None)
+
+
+class CreateDepositAddressTestCase(TestCase):
+
+    def test_client_lookups(self):
+        all_related_nodes = \
+            uphold_client.related_nodes + scrypt_client.related_nodes
+        for node in all_related_nodes:
+            self.assertIn(
+                node, clients_lookup, 'No lookup for node {}'.format(node)
+            )

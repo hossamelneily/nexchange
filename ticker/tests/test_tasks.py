@@ -4,6 +4,7 @@ import requests_mock
 from ticker.tests.base import TickerBaseTestCase
 from core.models import Pair
 from ticker.models import Ticker
+from decimal import Decimal
 
 
 class TestTickerTask(TickerBaseTestCase):
@@ -37,7 +38,7 @@ class TestTickerTask(TickerBaseTestCase):
 
     @requests_mock.mock()
     def test_ask_is_more_then_bid(self, m):
-        self.disabled_ticker.disable_ticker = True
+        self.disabled_ticker.disable_ticker = False
         self.disabled_ticker.save()
         self.get_tickers(m)
         tickers = Ticker.objects.all()
@@ -46,5 +47,44 @@ class TestTickerTask(TickerBaseTestCase):
                 ticker.ask > ticker.bid,
                 'ask({}) is not bigger then bid({}) on {}'.format(
                     ticker.ask, ticker.bid, ticker.pair
+                )
+            )
+
+    @requests_mock.mock()
+    def test_tickers_are_not_inverted(self, m):
+        ''' This test case assumes that BTC is the most expensive currency '''
+        self.disabled_ticker.disable_ticker = False
+        self.disabled_ticker.save()
+        self.get_tickers(m)
+        tickers_base_btc = Ticker.objects.filter(pair__base=self.BTC)
+        for ticker in tickers_base_btc:
+            self.assertTrue(
+                ticker.ask > Decimal('1.0'),
+                'ask {} for {} less then 1.0. Check, if ticker is '
+                'not inverted!!!!'.format(
+                    ticker.ask, ticker.pair.name
+                )
+            )
+            self.assertTrue(
+                ticker.bid > Decimal('1.0'),
+                'bid {} for {} less then 1.0. Check, if ticker is '
+                'not inverted!!!!'.format(
+                    ticker.bid, ticker.pair.name
+                )
+            )
+        tickers_quote_btc = Ticker.objects.filter(pair__quote=self.BTC)
+        for ticker in tickers_quote_btc:
+            self.assertTrue(
+                ticker.ask < Decimal('1.0'),
+                'ask {} for {} more then 1.0. Check, if ticker is '
+                'not inverted!!!!'.format(
+                    ticker.ask, ticker.pair.name
+                )
+            )
+            self.assertTrue(
+                ticker.bid < Decimal('1.0'),
+                'bid {} for {} more then 1.0. Check, if ticker is '
+                'not inverted!!!!'.format(
+                    ticker.bid, ticker.pair.name
                 )
             )

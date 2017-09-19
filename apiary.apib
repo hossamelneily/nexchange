@@ -1,5 +1,5 @@
 FORMAT: 1A
-HOST: https://nexchange.io/
+HOST: https://api.nexchange.io/
 # nexchange
 
 API for crypto currency exchange.
@@ -475,20 +475,68 @@ API for crypto currency exchange.
     + Attributes (MinimalOrder)
 
     + Body
-
             {
               "amount_base": "3.00000000",
               "is_default_rule": false,
-              "unique_reference": "L18XD",
-              "amount_quote": "0.03110000",
-              "pair": 123,
+              "unique_reference": "OTVVXE",
+              "amount_quote": "251.89000000",
+              "pair": {
+                "name": "BTCLTC",
+                "base": {
+                  "code": "BTC",
+                  "name": "bitcoin",
+                  "min_confirmations": 2,
+                  "is_crypto": true,
+                  "minimal_amount": "0.00200000",
+                  "is_base_of_enabled_pair": true,
+                  "is_quote_of_enabled_pair": true,
+                  "has_enabled_pairs": true
+                },
+                "quote": {
+                  "code": "LTC",
+                  "name": "litecoin",
+                  "min_confirmations": 6,
+                  "is_crypto": true,
+                  "minimal_amount": "0.25000000",
+                  "is_base_of_enabled_pair": true,
+                  "is_quote_of_enabled_pair": true,
+                  "has_enabled_pairs": true
+                },
+                "fee_ask": 0.001,
+                "fee_bid": 0.001
+              },
               "withdraw_address": {
                 "type": "W",
                 "name": "",
                 "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ",
                 "currency_code": "BTC"
-              }
+              },
+              "deposit_address": {
+                "type": "D",
+                "name": "",
+                "address": "addr_addr_id_5005841120",
+                "currency_code": "LTC"
+              },
+              "created_on": "2017-09-19T09:20:11.491815Z",
+              "from_default_rule": false,
+              "payment_window": 15,
+              "payment_deadline": "2017-09-19T09:35:11.491815Z",
+              "status_name": [
+                [
+                  11,
+                  "INITIAL"
+                ]
+              ],
+              "transactions": [],
+              "referral_code": [
+                {
+                  "code": "RKXXJET29PG",
+                  "created_on": "2017-09-19T09:20:11.448359Z",
+                  "modified_on": "2017-09-19T09:20:11.448420Z"
+                }
+              ]
             }
+
 
 + Request (application/json)
 
@@ -511,21 +559,6 @@ API for crypto currency exchange.
 + Response 201 (application/json)
     + Attributes (MinimalOrder)
 
-    + Body
-
-            {
-              "amount_base": "3.00000000",
-              "is_default_rule": false,
-              "unique_reference": "L18XD",
-              "amount_quote": "0.03110000",
-              "pair": 123,
-              "withdraw_address": {
-                "type": "W",
-                "name": "",
-                "address": "0xf0c6902F5B929716c35603f9765808DE08475BF8",
-                "currency_code": "ETH"
-              }
-            }
 
 + Request (application/json)
 
@@ -548,21 +581,6 @@ API for crypto currency exchange.
 + Response 201 (application/json)
     + Attributes (MinimalOrder)
 
-    + Body
-
-            {
-              "amount_base": "11000",
-              "is_default_rule": false,
-              "unique_reference": "L18XD",
-              "amount_quote": "0.03110000",
-              "pair": 123,
-              "withdraw_address": {
-                "type": "W",
-                "name": "",
-                "address": "DGWesaJ1PtZU8BiXYMSomyYQbvN2LLfnx2",
-                "currency_code": "DOGE"
-              }
-            }
 
 + Request (application/json)
 
@@ -585,21 +603,27 @@ API for crypto currency exchange.
 + Response 201 (application/json)
     + Attributes (MinimalOrder)
 
+
++ Request (application/json)
+
+    + Attributes
+        + Payload (RequestOrderPayload)
+        + Headers (JsonHeaders)
     + Body
 
             {
-              "amount_base": "3.00000000",
-              "is_default_rule": false,
-              "unique_reference": "L18XD",
-              "amount_quote": "0.03110000",
-              "pair": 123,
-              "withdraw_address": {
-                "type": "W",
-                "name": "",
-                "address": "LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA",
-                "currency_code": "LTC"
-              }
+                "amount_base": 11000,
+                "is_default_rule": false,
+                "pair": {
+                  "name": "XVGBTC"
+                },
+                "withdraw_address": {
+                    "address": "DR14c9j2ZdiUxqdas5xGYcgfiU1GnVF9DJ"
+                }
             }
+
++ Response 201 (application/json)
+    + Attributes (MinimalOrder)
 
 
 ## Referrals [/en/api/v1/referrals/]

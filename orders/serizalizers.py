@@ -61,7 +61,8 @@ class CreateOrderSerializer(OrderSerializer):
                                     ' currently a supported Pair'),
                                   params={'value': pair})
 
-        currency = data['pair']['name'][:3]
+        pair = Pair.objects.get(name=data['pair']['name'])
+        currency = pair.base.code
         validate_address = get_validator(currency)
         validate_address(data['withdraw_address']['address'])
 
