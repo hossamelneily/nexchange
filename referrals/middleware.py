@@ -10,7 +10,7 @@ class ReferralMiddleWare(object):
     def process_request(self, request):
         # get from HEADER
         str_code = \
-            request.META.get(settings.REFERRER_HEADER_NAME, '').strip()
+            request.META.get(settings.REFERRER_HEADER_INDEX, '').strip()
 
         # get from GET parameter
         if not str_code:
