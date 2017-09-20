@@ -69,6 +69,10 @@ class ReferralCode(TimeStampedModel, UniqueFieldMixin):
 
 
 class Referral(IpAwareModel):
+
+    class Meta:
+       unique_together = (('ip', 'code'),)
+
     def __init__(self, *args, **kwargs):
         super(Referral, self).__init__(*args, **kwargs)
         self.old_referral_revenue = 0
