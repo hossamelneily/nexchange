@@ -132,7 +132,7 @@ def validate_non_address(value):
 def get_validator(code):
     if code == 'ETH':
         return validate_eth
-    elif code == 'BTC':
+    elif code in ['BTC', 'BCH']:
         return validate_btc
     elif code == 'LTC':
         return validate_ltc

@@ -49,7 +49,8 @@ class TickerBaseTestCase(OrderBaseTestCase):
         mapper = {
             'XVG/BTC': 1376,
             'DOGE/BTC': 102,
-            'XVG/DOGE': 1378
+            'XVG/DOGE': 1378,
+            'BCH/BTC': 5355
         }
         return mapper[pair]
 
@@ -58,8 +59,8 @@ class TickerBaseTestCase(OrderBaseTestCase):
             CryptopiaAdapter.RESOURCE_MARKETS,
             text=self.cryptopia_markets_resp)
 
-        cryptopia_pairs = Pair.objects.filter(quote__code__in=['XVG', 'DOGE'],
-                                              base__code__in=['BTC', 'DOGE'])
+        cryptopia_pairs = Pair.objects.filter(
+            name__in=['BTCXVG', 'BTCDOGE', 'DOGEXVG', 'BTCBCH'])
         for pair in cryptopia_pairs:
             pair_name = '{}/{}'.format(pair.quote.code, pair.base.code)
             market_id = self.cryptopia_market_mapper(pair_name)

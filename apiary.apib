@@ -626,6 +626,28 @@ API for crypto currency exchange.
     + Attributes (MinimalOrder)
 
 
++ Request (application/json)
+
+    + Attributes
+        + Payload (RequestOrderPayload)
+        + Headers (JsonHeaders)
+    + Body
+
+            {
+                "amount_base": 1,
+                "is_default_rule": false,
+                "pair": {
+                  "name": "BCHBTC"
+                },
+                "withdraw_address": {
+                    "address": "1GFB4x4Tn4jMgxnKbzWsAUmLfmpz6VNtUW"
+                }
+            }
+
++ Response 201 (application/json)
+    + Attributes (MinimalOrder)
+
+
 ## Referrals [/en/api/v1/referrals/]
 
 

@@ -114,7 +114,7 @@
       "is_crypto": 1,
       "min_confirmations": 6,
       "median_confirmation": 15,
-      "minimal_amount": "1000",
+      "minimal_amount": "0.05",
       "created_on":"2017-09-19T19:21:42+00:00",
       "modified_on":"2017-09-19T19:21:42+00:00"
     }
