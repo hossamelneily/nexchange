@@ -12,6 +12,7 @@ from core.models import AddressReserve
 from core.models import Transaction
 from accounts.decoratos import get_task
 from accounts.tasks.generic.addressreserve_monitor.base import ReserveMonitor
+from nexchange.celery import app
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
@@ -47,29 +48,21 @@ def import_transaction_deposit_crypto_invoke():
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 @get_task(task_cls=ReserveMonitor, key='pk__in')
-def check_cards_balances_invoke(card_id, task=None):
-    task.client.check_cards_balances(card_id)
+def check_card_balance_invoke(card_id, task=None):
+    res = task.client.check_card_balance(card_id)
+    return res
 
 
-@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def check_transaction_card_balance_invoke(tx_id):
+@app.task(bind=True)
+def check_transaction_card_balance_invoke(self, tx_id):
     tx = Transaction.objects.get(pk=tx_id)
     card = tx.address_to.reserve
     if card:
-        check_cards_balances_invoke.apply_async([card.pk])
-
-
-@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def check_cards_balances_uphold_periodic():
-    wallet = 'api1'
-    card = AddressReserve.objects.filter(
-        user__isnull=False, need_balance_check=True, disabled=False,
-        currency__wallet=wallet).first()
-    if card is None:
-        return
-    check_cards_balances_invoke.apply([card.pk])
-    card.need_balance_check = False
-    card.save()
+        task_info = check_card_balance_invoke.apply([card.pk])
+        res = task_info.result
+        if res.get('retry'):
+            self.retry(countdown=settings.CARD_CHECK_TIME,
+                       max_retries=settings.RETRY_CARD_CHECK_MAX_RETRIES)
 
 
 @shared_task(time_limit=settings.TRANSACTION_IMPORT_TIME_LIMIT)

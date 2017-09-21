@@ -597,8 +597,6 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         mock_currency = Currency.objects.get(code=mock_currency_code)
 
         card = self.order.deposit_address.reserve
-        card.need_balance_check = False
-        card.save()
 
         if mock_currency.wallet == 'api1':
             card_id = card.card_id
@@ -679,8 +677,6 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         mock_currency = Currency.objects.get(code=mock_currency_code)
 
         card = self.order.deposit_address.reserve
-        card.need_balance_check = False
-        card.save()
 
         if mock_currency.wallet == 'api1':
             card_id = card.card_id
@@ -955,8 +951,6 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
         mock_currency = Currency.objects.get(code=mock_currency_code)
 
         card = self.order.user.addressreserve_set.get(currency=mock_currency)
-        card.need_balance_check = False
-        card.save()
 
         card_id = card.card_id
         get_txs.return_value = [
@@ -973,8 +967,6 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
         self.order.refresh_from_db()
         self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
         self.update_confirmation_task.apply()
-        card.refresh_from_db()
-        self.assertTrue(card.need_balance_check)
         self.order.refresh_from_db()
 
         self.order.refresh_from_db()
@@ -1015,8 +1007,6 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
         mock_amount = self.order.amount_base
 
         card = self.order.despoit_address.reserve
-        card.need_balance_check = False
-        card.save()
 
         card_id = card.card_id
         get_txs.return_value = [

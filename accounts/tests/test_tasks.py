@@ -1,7 +1,7 @@
 from core.tests.base import TransactionImportBaseTestCase
-from core.models import Address, Currency, AddressReserve
+from core.models import Address, Currency, AddressReserve, Transaction
 from accounts.task_summary import import_transaction_deposit_crypto_invoke,\
-    check_cards_balances_uphold_periodic
+    check_transaction_card_balance_invoke
 from ticker.tests.base import TickerBaseTestCase
 import requests_mock
 from django.contrib.auth.models import User
@@ -13,6 +13,7 @@ import random
 from django.conf import settings
 from unittest import skip
 from nexchange.api_clients.uphold import UpholdApiClient
+from accounts.task_summary import update_pending_transactions_invoke
 
 
 class TransactionImportTaskTestCase(TransactionImportBaseTestCase,
@@ -54,10 +55,6 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
             self.user.save()
             self.profile = Profile(user=self.user)
             self.profile.save()
-        cards = AddressReserve.objects.filter().exclude(user=self.user)
-        for card in cards:
-            card.need_balance_check = False
-            card.save()
         self.currency = Currency.objects.get(code='ETH')
         self.client = UpholdApiClient()
         self.monitor = ReserveMonitor(self.client, wallet='api1')
@@ -160,15 +157,18 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
             self.profile.save()
 
     @data_provider(lambda: (
-        ('Send funds, currency ok, balance more than 0', 'ETH', 'ETH', '1.1', 1),  # noqa
-        ('Do not release, bad currency', 'BTC', 'ETH', '2.0', 0),
-        ('Do not release, balance == 0', 'LTC', 'LTC', '0.0', 0),
+        ('Send funds, currency ok, balance more than 0', 'ETH', 'ETH', '1.1',
+         1, {'retry': False, 'success': True}),
+        ('Do not release, bad currency', 'BTC', 'ETH', '2.0', 0,
+         {'retry': False, 'success': False}),
+        ('Do not release, balance == 0', 'LTC', 'LTC', '0.0', 0,
+         {'retry': True, 'success': False}),
     ),)
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @requests_mock.mock()
     def test_send_funds_to_main_card(self, name, curr_code, main_curr_code,
-                                     amount, release_call_count, release_coins,
-                                     mock):
+                                     amount, release_call_count,
+                                     resend_funds_res, release_coins, mock):
         release_coins.return_value = (
             '%06x' % random.randrange(16 ** 16)).upper(), True
         card = self.user.addressreserve_set.get(currency__code=curr_code)
@@ -187,47 +187,15 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
                 main_curr_code, main_address_name
             )
         )
-        self.monitor.client.resend_funds_to_main_card(card.card_id, curr_code)
-        self.assertEqual(release_coins.call_count, release_call_count, name)
+        res1 = self.monitor.client.resend_funds_to_main_card(card.card_id,
+                                                             curr_code)
+        res2 = self.monitor.client.check_card_balance(card.pk)
+        self.assertEqual(release_coins.call_count, release_call_count * 2,
+                         name)
+        for key, value in resend_funds_res.items():
+            self.assertEqual(res1[key], value, name)
+            self.assertEqual(res2[key], value, name)
 
-    @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @requests_mock.mock()
-    def test_check_card_balances(self, release_coins, mock):
-        release_coins.return_value = (
-            '%06x' % random.randrange(16 ** 16)).upper(), True
-        cards = self.user.addressreserve_set.filter(currency__wallet='api1')
-        for card in cards:
-            card.refresh_from_db()
-            self.assertTrue(card.need_balance_check)
-            curr_code = card.currency.code
-            card_url = self.url_base + card.card_id
-            main_card_id = self.monitor.client.coin_card_mapper(curr_code)
-            main_address_name = self.monitor.client.address_name_mapper(
-                curr_code)
-            main_card_url = self.url_base + main_card_id
-            mock.get(
-                card_url,
-                text='{{"currency":"{}","balance": "1.1"}}'.format(curr_code)
-            )
-            mock.get(
-                main_card_url,
-                text='{{"currency":"{}","address":{{"{}":"dfasf"}}}}'.format(
-                    curr_code, main_address_name
-                )
-            )
-        for _ in range(len(cards)):
-            check_cards_balances_uphold_periodic.apply_async()
-        for card in cards:
-            card.refresh_from_db()
-            self.assertFalse(card.need_balance_check)
-
-    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_cards_balances')
-    def test_check_balances_task(self, check_balances):
-        card = AddressReserve(currency=self.BTC, need_balance_check=True,
-                              card_id='123', user=self.user)
-        card.save()
-        check_cards_balances_uphold_periodic.apply()
-        self.assertEqual(1, check_balances.call_count)
 
     @skip('Cards must be checked card by card')
     @patch('accounts.tasks.generic.addressreserve_monitor.base.'
@@ -235,3 +203,33 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
     def test_check_cards_task(self, check_cards):
         # check_cards_uphold_invoke.apply()
         self.assertEqual(1, check_cards.call_count)
+
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_card_balance')
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
+    def test_retry_balance_check_x_times(self, check_tx, check_card):
+        check_card.return_value = {'retry': True}
+        check_tx.return_value = True, 999
+        self._create_order()
+        self.order.register_deposit(
+            {'order': self.order, 'address_to': self.order.deposit_address,
+             'type': Transaction.DEPOSIT, 'tx_id_api': self.generate_txn_id()})
+        update_pending_transactions_invoke.apply()
+        tx = self.order.transactions.last()
+        check_transaction_card_balance_invoke.apply([tx.pk])
+        self.assertEqual(check_card.call_count,
+                         settings.RETRY_CARD_CHECK_MAX_RETRIES + 1)
+
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_card_balance')
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
+    def test_retry_balance_check_success(self, check_tx, check_card):
+        check_card.return_value = {'retry': True}
+        check_tx.return_value = True, 999
+        self._create_order()
+        self.order.register_deposit(
+            {'order': self.order, 'address_to': self.order.deposit_address,
+             'type': Transaction.DEPOSIT, 'tx_id_api': self.generate_txn_id()})
+        update_pending_transactions_invoke.apply()
+        tx = self.order.transactions.last()
+        check_card.return_value = {'retry': False}
+        check_transaction_card_balance_invoke.apply([tx.pk])
+        self.assertEqual(check_card.call_count, 1)

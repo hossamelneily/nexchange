@@ -9,8 +9,7 @@ class AddressAdmin(admin.ModelAdmin):
 
 
 class AddressReserveAdmin(admin.ModelAdmin):
-    list_display = ('card_id', 'user', 'currency', 'disabled',
-                    'need_balance_check')
+    list_display = ('card_id', 'user', 'currency', 'disabled')
 
 
 class CurrencyAdmin(admin.ModelAdmin):

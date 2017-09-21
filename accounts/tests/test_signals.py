@@ -8,7 +8,6 @@ from core.models import Currency
 from accounts.models import Profile
 from django.conf import settings
 from unittest.mock import patch
-from accounts.task_summary import check_cards_balances_uphold_periodic
 from unittest import skip
 
 
@@ -76,6 +75,5 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
         self.assertEqual(len(user2.addressreserve_set.all()),
                          self.len_crypto_curencies)
         self._mock_cards_reserve(mock)
-        check_cards_balances_uphold_periodic.apply()
         self.assertEqual(len(user1.addressreserve_set.all()),
                          self.len_crypto_curencies)

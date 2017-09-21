@@ -8,7 +8,7 @@ class OrderAdmin(admin.ModelAdmin):
     readonly_fields = (
         'is_paid_buy', 'ticker_amount', 'success_payments_amount',
         'success_payments_by_reference', 'success_payments_by_wallet',
-        'bad_currency_payments')
+        'bad_currency_payments', 'order_type')
     search_fields = ('unique_reference', 'pair__base__code',
                      'pair__quote__code', 'pair__name', 'user__username')
 

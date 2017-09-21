@@ -289,15 +289,6 @@ TRANSACTION_CHECKER_TASKS = {
         'task': 'accounts.task_summary.update_pending_transactions_invoke',
         'schedule': timedelta(seconds=60),
     },
-
-    'check_cards_uphold_invoke': {
-        'task': 'accounts.task_summary.check_cards_uphold_invoke',
-        'schedule': timedelta(seconds=120),
-    },
-    'check_cards_balances_uphold_periodic': {
-        'task': 'accounts.task_summary.check_cards_balances_uphold_periodic',
-        'schedule': timedelta(seconds=120),
-    },
 }
 
 CELERY_BEAT_SCHEDULE = {}
@@ -312,7 +303,9 @@ TASKS_TIME_LIMIT = 30
 TRANSACTION_IMPORT_TIME_LIMIT = 9
 RETRY_RELEASE_TIME = 120
 RETRY_RELEASE_MAX_RETRIES = 50
-CARD_CHECK_TIME = 2000
+CARD_CHECK_TIME = 300
+RETRY_CARD_CHECK_MAX_RETRIES = 18
+
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',

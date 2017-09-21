@@ -171,15 +171,16 @@ class UpholdApiClient(BaseApiClient):
         # prevent unwanted conversions
         # TODO: add logging!
         if curr_code != card_data['currency'] or curr_code != main_card['currency']:  # noqa
-            return
+            return {'success': False, 'retry': False}
         address_to = main_card['address'][address_key]
         amount_to = card_data['balance']
         if Decimal(amount_to) == 0:
-            return
+            return {'success': False, 'retry': True}
         currency = Currency.objects.get(code=curr_code)
-        res = self.release_coins(currency, address_to, amount_to,
-                                 card=card_id)
-        return res
+        tx_id, success = self.release_coins(currency, address_to, amount_to,
+                                            card=card_id)
+        retry = not success
+        return {'success': success, 'retry': retry, 'tx_id': tx_id}
 
     def get_card_validity(self, wallet):
         resp = self.api.get_card(wallet.card_id)
