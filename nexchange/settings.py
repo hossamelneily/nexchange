@@ -277,7 +277,7 @@ ORDER_RELEASE_TASKS = {
 TRANSACTION_CHECKER_TASKS = {
     'import_crypto_deposit_transactions': {
         'task': 'accounts.task_summary.import_transaction_deposit_crypto_invoke',  # noqa
-        'schedule': timedelta(seconds=60),
+        'schedule': timedelta(seconds=10),
     },
 
     'import_crypto_deposit_transactions_uphold_blockchain': {
