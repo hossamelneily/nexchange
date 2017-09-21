@@ -92,9 +92,9 @@ def update_pending_transactions():
             logger.info(e)
     for task, args in next_tasks:
         if args is not None:
-            res = task.apply([args])
+            res = task.apply_async([args])
         else:
-            res = task.apply()
+            res = task.apply_async()
         if res.state != 'SUCCESS':
             logger.error(
                 'Task {} returned error traceback: {}'.format(
