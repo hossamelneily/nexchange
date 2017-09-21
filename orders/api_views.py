@@ -1,7 +1,8 @@
 from django.conf import settings
 from nexchange.permissions import NoUpdatePermission
 from orders.models import Order
-from orders.serizalizers import OrderSerializer, CreateOrderSerializer
+from orders.serizalizers import OrderSerializer, CreateOrderSerializer, \
+    NestedPairSerializer
 from accounts.utils import _create_anonymous_user
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import viewsets
@@ -12,7 +13,7 @@ from rest_framework_extensions.mixins import (
 )
 from rest_framework.response import Response
 from collections import OrderedDict
-from core.models import Currency
+from core.models import Currency, Pair
 from django.db.models import Sum
 from decimal import Decimal
 from ticker.models import Ticker
@@ -89,23 +90,41 @@ class VolumeViewSet(ReadOnlyCacheResponseAndETAGMixin, DateFilterViewSet):
             hours = 24
         queryset = self.get_queryset(hours=hours)
         data = OrderedDict({'hours': hours})
-        volume_data = OrderedDict({})
-        currs = Currency.objects.all()
-        bases = [curr for curr in currs if curr.is_base_of_enabled_pair]
-        total = 0
-        for base in bases:
-            rate = self.get_rate(base)
-            volume = queryset.filter(pair__base=base).aggregate(
-                Sum('amount_base'))
-            base_sum = volume['amount_base__sum']
-            if base_sum is None:
-                volume['amount_base__sum'] = base_sum = Decimal('0.0')
-            volume['amount_base__sum__btc'] = btc_sum = round(
-                base_sum / rate, 8)
-            total += btc_sum
-            volume_data.update({base.code: volume})
-        volume_data.update({'total': {'amount_base__sum__btc': total}})
-        data.update({'volume': volume_data})
+        volume_data = []
+        pairs = Pair.objects.filter(disabled=False)
+        total_base = total_quote = 0
+        for pair in pairs:
+            rate_base = self.get_rate(pair.base)
+            rate_quote = self.get_rate(pair.quote)
+            last_ask = Ticker.objects.filter(pair=pair).last().ask
+            volume = queryset.filter(pair=pair).aggregate(
+                Sum('amount_base'), Sum('amount_quote'))
+            base_volume = volume['amount_base__sum']
+            quote_volume = volume['amount_quote__sum']
+            if base_volume is None:
+                base_volume = Decimal('0.0')
+            if quote_volume is None:
+                quote_volume = Decimal('0.0')
+            base_volume_btc = round(base_volume / rate_base, 8)
+            quote_volume_btc = round(quote_volume / rate_quote, 8)
+            total_base += base_volume_btc
+            total_quote += quote_volume_btc
+            pair_data = NestedPairSerializer(pair).data
+            pair_data = OrderedDict({
+                'base_volume': base_volume,
+                'quote_volume': quote_volume,
+                'base_volume_btc': base_volume_btc,
+                'quote_volume_btc': quote_volume_btc,
+                'last_ask': last_ask,
+                'pair': pair_data
+            })
+            volume_data.append(pair_data)
+        data.update({
+            'total_volume': {
+                'base_volume_btc': total_base,
+                'quote_volume_btc': total_quote,
+            }})
+        data.update({'tradable_pairs': volume_data})
 
         data = OrderedDict(data)
         return Response(data)

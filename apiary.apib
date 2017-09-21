@@ -693,11 +693,135 @@ API for crypto currency exchange.
             ]
 
 
+## Trade Volume [/en/api/v1/volume/{?hours}]
+
++ Parameters
+    + `hours`: 24 (optional, double) - how many hours back would you like to get trade Volume for.
+
+
+
+### Get Volume [GET]
+   Get trade Volume.
+
++ Request (aplication/json)
+
++ Response 200 (application/json)
+    + Attributes (Volume)
+
+    + Body
+
+            {
+                "hours": 24.0,
+                "total_volume": {
+                    "base_volume_btc": 0.53614493,
+                    "quote_volume_btc": 0.54074154
+                },
+                "tradable_pairs": [
+                    {
+                        "pair": {
+                            "name": "BTCLTC",
+                            "base": {
+                                "code": "BTC",
+                                "name": "bitcoin",
+                                "min_confirmations": 2,
+                                "is_crypto": true,
+                                "minimal_amount": "0.00200000",
+                                "is_base_of_enabled_pair": true,
+                                "is_quote_of_enabled_pair": true,
+                                "has_enabled_pairs": true
+                            },
+                            "quote": {
+                                "code": "LTC",
+                                "name": "litecoin",
+                                "min_confirmations": 6,
+                                "is_crypto": true,
+                                "minimal_amount": "0.25000000",
+                                "is_base_of_enabled_pair": true,
+                                "is_quote_of_enabled_pair": true,
+                                "has_enabled_pairs": true
+                            },
+                            "fee_ask": 0.001,
+                            "fee_bid": 0.001
+                        },
+                        "base_volume_btc": 0.5,
+                        "base_volume": 0.5,
+                        "quote_volume": 36.69,
+                        "last_ask": 73.05502846,
+                        "quote_volume_btc": 0.50418824
+                    },
+                    {
+                        "pair": {
+                            "name": "BTCETH",
+                            "base": {
+                                "code": "BTC",
+                                "name": "bitcoin",
+                                "min_confirmations": 2,
+                                "is_crypto": true,
+                                "minimal_amount": "0.00200000",
+                                "is_base_of_enabled_pair": true,
+                                "is_quote_of_enabled_pair": true,
+                                "has_enabled_pairs": true
+                            },
+                            "quote": {
+                                "code": "ETH",
+                                "name": "ethereum",
+                                "min_confirmations": 12,
+                                "is_crypto": true,
+                                "minimal_amount": "0.10000000",
+                                "is_base_of_enabled_pair": true,
+                                "is_quote_of_enabled_pair": true,
+                                "has_enabled_pairs": true
+                            },
+                            "fee_ask": 0.001,
+                            "fee_bid": 0.001
+                        },
+                        "base_volume_btc": 0.0,
+                        "base_volume": 0.0,
+                        "quote_volume": 0.0,
+                        "last_ask": 13.86042647,
+                        "quote_volume_btc": 0.0
+                    },
+                    {
+                        "pair": {
+                            "name": "ETHLTC",
+                            "base": {
+                                "code": "ETH",
+                                "name": "ethereum",
+                                "min_confirmations": 12,
+                                "is_crypto": true,
+                                "minimal_amount": "0.10000000",
+                                "is_base_of_enabled_pair": true,
+                                "is_quote_of_enabled_pair": true,
+                                "has_enabled_pairs": true
+                            },
+                            "quote": {
+                                "code": "LTC",
+                                "name": "litecoin",
+                                "min_confirmations": 6,
+                                "is_crypto": true,
+                                "minimal_amount": "0.25000000",
+                                "is_base_of_enabled_pair": true,
+                                "is_quote_of_enabled_pair": true,
+                                "has_enabled_pairs": true
+                            },
+                            "fee_ask": 0.001,
+                            "fee_bid": 0.001
+                        },
+                        "base_volume_btc": 0.03614493,
+                        "base_volume": 0.5,
+                        "quote_volume": 2.66,
+                        "last_ask": 5.28626186,
+                        "quote_volume_btc": 0.0365533
+                    }
+                ]
+            }
+
+
 # Data Structures
 
 # Profile
 + `partial_phone` (required) - partial phone of the profile.
-+ `last_visit_time` (optional) - time of last vist (ISO 8601).
++ `last_visit_time` (optional) - time of last visit (ISO 8601).
 + `id` (required) - profile ID.
 + `time_zone` time zone of the profile.
 + `created_on` (required) - time of profile creation (ISO 8601).
@@ -798,6 +922,25 @@ API for crypto currency exchange.
 + `next` (string, nullable) - link to the next page.
 + `previous` (string, nullable) - link to previous page.
 + `results` (array[BaseOrder])
+
+## TotalVolume
++ `base_volume_btc` (number, required) - sum of all tradable pairs base volume in BTC(Bitcoin). Current rate is used.
++ `quote_volume_btc` (number, required) - sum of all tradable pairs quote volume in BTC(Bitcoin). Current rate is used.
+
+
+## PairVolume
++ `pair` (Pair, required) - tradable pair.
++ `base_volume` (number, required) - base volume.
++ `quote_volume` (number, required) - quote volume.
++ `base_volume_btc` (number, required) - base volume in BTC(Bitcoin). Current rate is used.
++ `quote_volume_btc` (number, required) - quote volume in BTC(Bitcoin). Current rate is used.
++ `last_ask` (number, required) - last ask price.
+
+
+## Volume
++ `hours` (number, required) - trade volume time. If hours=24 it means that response contains data of last 24h trade volumes.
++ `total_volume` (TotalVolume, required) - sum of all tradable pairs trade volume.
++ `tradable_pairs` (array[PairVolume])
 
 ## RequestOrderPayload
 + `amount_base` (required) - amount of base currency which user gets.
