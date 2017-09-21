@@ -493,7 +493,8 @@ REST_FRAMEWORK = {
 }
 # 12 months
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 30 * 12
-
+SESSION_COOKIE_DOMAIN = '.nexchange.io'
+SESSION_COOKIE_NAME = 'nexchangesessionid'
 
 # https://docs.djangoproject.com/en/1.9/ref/settings/#secure-proxy-ssl-header
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
