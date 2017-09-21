@@ -17,6 +17,9 @@ from django.db.models import Sum
 from decimal import Decimal
 from ticker.models import Ticker
 from core.common.api_views import DateFilterViewSet
+from referrals.middleware import ReferralMiddleWare
+
+referral_middleware = ReferralMiddleWare()
 
 
 class OrderPagination(PageNumberPagination):
@@ -49,6 +52,7 @@ class OrderListViewSet(viewsets.ModelViewSet,
     def perform_create(self, serializer):
         if not self.request.user.is_authenticated:
             _create_anonymous_user(self.request)
+            referral_middleware.process_request(self.request)
         serializer.save(user=self.request.user)
 
         return super(OrderListViewSet, self).perform_create(serializer)

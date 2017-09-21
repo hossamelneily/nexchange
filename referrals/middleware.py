@@ -41,10 +41,13 @@ class ReferralMiddleWare(object):
                     with transaction.atomic():
                         Referral.objects.get_or_create(ip=ip, code=code)
                 except MultipleObjectsReturned as e:
-                    self.logger.warning('Multiple refferrals. :{}'.format(e))
+                    self.logger.warning(
+                        'Multiple refferrals.ip:{} code {}: :{}'.format(
+                            ip, code.code, e))
                 except IntegrityError as e:
                     self.logger.warning(
-                        'Unique referral constraint. :{}'.format(e))
+                        'Unique referral constraint ip {} code . :{}'.format(
+                            ip, code.code, e))
                 finally:
                     ref = Referral.objects.filter(ip=ip, code=code).last()
                     # allow referral only if the user has no orders
@@ -52,6 +55,7 @@ class ReferralMiddleWare(object):
                     if all([ref, request.user.is_authenticated(),
                             not ref.confirmed_orders_count]):
                         # avoid executing this middleware on every request
-                        request.session.pop(settings.REFERRAL_SESSION_KEY, None)
+                        request.session.pop(settings.REFERRAL_SESSION_KEY,
+                                            None)
                         ref.referee = request.user
                         ref.save()
