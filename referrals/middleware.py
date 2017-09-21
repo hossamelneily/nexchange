@@ -2,6 +2,8 @@ from django.conf import settings
 
 from referrals.models import Referral, ReferralCode
 from nexchange.utils import get_client_ip, get_nexchange_logger
+from django.core.exceptions import MultipleObjectsReturned
+from django.db import transaction, IntegrityError
 
 
 class ReferralMiddleWare(object):
@@ -35,14 +37,21 @@ class ReferralMiddleWare(object):
                     code.user != request.user:
                 request.session[settings.REFERRAL_SESSION_KEY] = str_code
                 ip = get_client_ip(request)
-                ref, created = \
-                    Referral.objects.get_or_create(ip=ip, code=code)
-
-                # allow referral only if the user has no orders
-                # todo use confirmed_orders_count (?)
-                if request.user.is_authenticated() \
-                        and not ref.confirmed_orders_count:
-                    # avoid executing this middleware on every request
-                    request.session.pop(settings.REFERRAL_SESSION_KEY, None)
-                    ref.referee = request.user
-                    ref.save()
+                try:
+                    with transaction.atomic():
+                        Referral.objects.get_or_create(ip=ip, code=code)
+                except MultipleObjectsReturned as e:
+                    self.logger.warning('Multiple refferrals. :{}'.format(e))
+                except IntegrityError as e:
+                    self.logger.warning(
+                        'Unique referral constraint. :{}'.format(e))
+                finally:
+                    ref = Referral.objects.filter(ip=ip, code=code).last()
+                    # allow referral only if the user has no orders
+                    # todo use confirmed_orders_count (?)
+                    if all([ref, request.user.is_authenticated(),
+                            not ref.confirmed_orders_count]):
+                        # avoid executing this middleware on every request
+                        request.session.pop(settings.REFERRAL_SESSION_KEY, None)
+                        ref.referee = request.user
+                        ref.save()
