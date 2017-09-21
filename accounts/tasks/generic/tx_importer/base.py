@@ -15,13 +15,13 @@ class BaseTransactionImporter:
             self.__class__.__name__
         )
 
-    def get_orders(self, tx):
+    def get_orders(self, tx, status=Order.INITIAL):
         buy_exchange_query = {
             'exchange': True,
             'order_type': Order.BUY,
             'amount_quote': Decimal(str(tx['amount'])),
             'pair__quote': tx['currency'],
-            'status': Order.INITIAL,
+            'status': status,
             'deposit_address': tx['address_to']
         }
         orders = Order.objects.filter(**buy_exchange_query)
@@ -67,6 +67,23 @@ class BaseTransactionImporter:
             )
             self.api.revert_tx_mapper()
 
+    def update_unconfirmed_order(self, tx_data):
+        if 'tx_id_api' not in tx_data:
+            return
+        orders = self.get_orders(tx_data, status=Order.PAID_UNCONFIRMED)
+        if len(orders) != 1:
+            return
+        order = orders[0]
+        filters = {}
+        for key, value in tx_data.items():
+            if value and key != 'tx_id_api':
+                filters.update({key: value})
+            filters.update({'tx_id_api': None})
+        tx = order.transactions.filter(**filters).last()
+        if tx:
+            tx.tx_id_api = tx_data.get('tx_id_api')
+            tx.save()
+
     def create_tx(self, tx_data):
         orders = self.get_orders(tx_data)
         if len(orders) == 1:
@@ -89,6 +106,7 @@ class BaseTransactionImporter:
             self.logger.info(
                 'Transaction is not created: no orders for transaction '
                 '{} found'.format(tx_data))
+            self.update_unconfirmed_order(tx_data)
         elif len(orders) > 1:
             self.logger.error(
                 'Transaction is not created: more then 1 order {} found'

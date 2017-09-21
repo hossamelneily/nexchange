@@ -1,7 +1,8 @@
 from unittest.mock import patch
 
 from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
-    update_pending_transactions_invoke
+    update_pending_transactions_invoke, \
+    import_transaction_deposit_uphold_blockchain_invoke
 from core.tests.base import TransactionImportBaseTestCase
 from core.tests.base import UPHOLD_ROOT, EXCHANGE_ORDER_RELEASE_ROOT
 from core.tests.utils import data_provider
@@ -9,7 +10,7 @@ from core.models import Transaction
 from orders.models import Order
 from orders.task_summary import exchange_order_release_invoke
 from ticker.tests.base import TickerBaseTestCase
-from core.models import Address
+from core.models import Address, Pair
 
 
 class RegressionTaskTestCase(TransactionImportBaseTestCase,
@@ -18,6 +19,8 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
     def setUp(self):
         super(RegressionTaskTestCase, self).setUp()
         self.import_txs_task = import_transaction_deposit_crypto_invoke
+        self.import_txs_blockchain_task = \
+            import_transaction_deposit_uphold_blockchain_invoke
         self.update_confirmation_task = update_pending_transactions_invoke
 
     def _create_PAID_order(self, txn_type=Transaction.DEPOSIT):
@@ -66,7 +69,7 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
                                           prepare_txn_uphold,
                                           execute_txn_uphold,
                                           check_transaction_blockchain):
-        currency_quote_code = pair_name[3:]
+        currency_quote_code = Pair.objects.get(name=pair_name).quote.code
         amount_base = 11.11
         self._create_order(pair_name=pair_name,
                            amount_base=amount_base)
@@ -167,3 +170,69 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         self.assertEqual(do_release.call_count, 0)
         self.assertEqual(run_release.call_count, 1)
         self.order.refresh_from_db()
+
+    @patch('nexchange.utils.get_address_transaction_ids_blockchain')
+    @patch('accounts.tasks.monitor_wallets.check_transaction_blockchain')
+    @patch(UPHOLD_ROOT + 'execute_txn')
+    @patch(UPHOLD_ROOT + 'prepare_txn')
+    @patch(UPHOLD_ROOT + 'get_transactions')
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
+    def test_halt_deposit_tx_till_uphold_resp(self, check_tx_uphold,
+                                              get_txs_uphold,
+                                              prepare_txn_uphold,
+                                              execute_txn_uphold,
+                                              check_transaction_blockchain,
+                                              get_addr_txn):
+        pair_name = 'BTCLTC'
+        currency_quote_code = Pair.objects.get(name=pair_name).quote.code
+        amount_base = 11.11
+        self._create_order(pair_name=pair_name,
+                           amount_base=amount_base)
+        mock_currency_code = currency_quote_code
+        mock_amount = self.order.amount_quote
+
+        card = self.order.deposit_address.reserve
+
+        card_id = card.card_id
+        get_txs_uphold.return_value = [
+            self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
+        ]
+        get_addr_txn.return_value = [
+            'response 200',
+            [{'tx_id': self.generate_txn_id(), 'amount': mock_amount}]
+        ]
+        check_tx_uphold.return_value = False, 0
+        blockchain_confirmations = self.order.pair.quote.min_confirmations
+        check_transaction_blockchain.return_value = blockchain_confirmations
+        prepare_txn_uphold.return_value = self.generate_txn_id()
+        execute_txn_uphold.return_value = {'code': 'OK'}
+
+        # Blockchain import
+        self.import_txs_blockchain_task.apply()
+        self.order.refresh_from_db()
+        self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED)
+        txs = self.order.transactions.all()
+        self.assertEqual(len(txs), 1)
+        tx = txs.last()
+        self.assertIsNone(tx.tx_id_api)
+        self.assertIsNotNone(tx.tx_id)
+
+        # First update
+        self.update_confirmation_task.apply()
+        self.order.refresh_from_db()
+        self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED)
+
+        # Import Uphold
+        self.import_txs_task.apply()
+        self.order.refresh_from_db()
+        txs = self.order.transactions.all()
+        self.assertEqual(len(txs), 1)
+        tx = txs.last()
+        self.assertIsNotNone(tx.tx_id_api)
+        self.assertIsNotNone(tx.tx_id)
+        self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED)
+
+        # Second Update
+        self.update_confirmation_task.apply()
+        self.order.refresh_from_db()
+        self.assertEquals(self.order.status, Order.PAID)
