@@ -22,8 +22,10 @@ def check_uphold_txn_status_with_blockchain(tx, tx_completed,
     is_uphold_coin = tx.address_to.currency.code in settings.API1_COINS
     if not is_uphold_coin:
         return tx_completed, num_confirmations
-    if tx.tx_id_api is None:
-        return tx_completed, num_confirmations
+    # FIXME: tx_id_api is not updated with Uphold transaction importer.
+    # Check transaction Mapper, do real test on localhost
+    # if tx.tx_id_api is None:
+    #     return tx_completed, num_confirmations
     if num_confirmations is None or num_confirmations < 2:
         logger.info('UPHOLD did not return confirmations count,'
                     ' falling back to 3rd party API')
