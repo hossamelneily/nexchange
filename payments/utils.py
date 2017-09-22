@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from hashlib import md5
 import base64
 from hashlib import sha256
@@ -10,8 +10,8 @@ def money_format(value, is_numeric=True, places=2, curr='', sep=',', dp='.',
                  pos='', neg='-', trailneg=''):
     q = Decimal(10) ** -places  # 2 places --> '0.01'
     if is_numeric:
-        return value.quantize(q)
-    sign, digits, exp = value.quantize(q).as_tuple()
+        return value.quantize(q, ROUND_HALF_UP)
+    sign, digits, exp = value.quantize(q, ROUND_HALF_UP).as_tuple()
     result = []
     digits = list(map(str, digits))
     build, next = result.append, digits.pop

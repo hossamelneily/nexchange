@@ -13,7 +13,7 @@ from core.tests.utils import get_ok_pay_mock
 class WalletAPITestCase(WalletBaseTestCase):
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
-    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('orders.models.Order.calculate_quote_from_base')
     @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     def test_confirm_order_payment_with_okpay_celery(self,
                                                      history,
@@ -58,7 +58,7 @@ class WalletAPITestCase(WalletBaseTestCase):
 
     @patch('payments.api_clients.payeer.PayeerAPIClient.'
            'get_transaction_history')
-    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('orders.models.Order.calculate_quote_from_base')
     def test_import_payeer_invalid_wallet(self,
                                           convert_to_cash, trans_hist):
         convert_to_cash.return_value = None
@@ -91,7 +91,7 @@ class WalletAPITestCase(WalletBaseTestCase):
 
     @patch('payments.api_clients.payeer.PayeerAPIClient.'
            'get_transaction_history')
-    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('orders.models.Order.calculate_quote_from_base')
     def test_import_payeer_invalid_status(self, convert_to_cash, trans_hist):
         convert_to_cash.return_value = None
         sender = 'zaza'
@@ -125,7 +125,7 @@ class WalletAPITestCase(WalletBaseTestCase):
            '.validate_beneficiary')
     @patch('payments.api_clients.payeer.PayeerAPIClient.'
            'get_transaction_history')
-    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('orders.models.Order.calculate_quote_from_base')
     def test_confirm_order_payment_with_payeer_celery(self, convert_to_cash,
                                                       trans_hist, validate):
         convert_to_cash.return_value = None

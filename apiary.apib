@@ -546,7 +546,7 @@ API for crypto currency exchange.
     + Body
 
             {
-                "amount_base": 3,
+                "amount_quote": 12000,
                 "is_default_rule": false,
                 "pair": {
                   "name": "ETHDOGE"
@@ -943,7 +943,8 @@ API for crypto currency exchange.
 + `tradable_pairs` (array[PairVolume])
 
 ## RequestOrderPayload
-+ `amount_base` (required) - amount of base currency which user gets.
++ `amount_base` (number, optional) - amount of base currency which user gets.
++ `amount_quote` (number, optional) - amount of quote currency which user gives.
 + `is_default_rule` (boolean, required) - if True any incoming funds will be converted automatically (**To** the withdraw_address defined on the same order).
 + `pair` (Pair, required) - exchanged pair.
 + `withdraw_address` (Address, required) - a destination address to which the funds will be dispatched upon the successful completion of the Order.

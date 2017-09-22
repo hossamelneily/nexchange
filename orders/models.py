@@ -75,6 +75,15 @@ class Order(TimeStampedModel, SoftDeletableModel,
         'CANCELED', 'Order is canceled.'
     )
 
+    PROVIDED_BASE = 0
+    PROVIDED_QUOTE = 1
+    PROVIDED_BOTH = 2
+    PROVIDED_AMOUNT_OPTIONS = (
+        (PROVIDED_BASE, _('amount_base')),
+        (PROVIDED_QUOTE, _('amount_quote')),
+        (PROVIDED_BOTH, _('amount_quote and amount_base')),
+    )
+
     # Todo: inherit from BTC base?, move lengths to settings?
     order_type = models.IntegerField(
         choices=TYPES, default=BUY, help_text=_order_type_help
@@ -82,8 +91,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
     exchange = models.BooleanField(default=False)
     status = FSMIntegerField(choices=STATUS_TYPES, default=INITIAL,
                              help_text=_order_status_help)
-    amount_base = models.DecimalField(max_digits=18, decimal_places=8)
-    amount_quote = models.DecimalField(max_digits=18, decimal_places=8)
+    amount_base = models.DecimalField(max_digits=18, decimal_places=8,
+                                      blank=True)
+    amount_quote = models.DecimalField(max_digits=18, decimal_places=8,
+                                       blank=True)
     payment_window = models.IntegerField(default=settings.PAYMENT_WINDOW)
     user = models.ForeignKey(User, related_name='orders')
     unique_reference = models.CharField(
@@ -108,6 +119,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
     price = models.ForeignKey(Price, null=True, blank=True)
     user_marked_as_paid = models.BooleanField(default=False)
     system_marked_as_paid = models.BooleanField(default=False)
+    user_provided_amount = models.IntegerField(
+        choices=PROVIDED_AMOUNT_OPTIONS, default=PROVIDED_BASE)
 
     class Meta:
         ordering = ['-created_on']
@@ -165,12 +178,22 @@ class Order(TimeStampedModel, SoftDeletableModel,
     def _validate_fields(self):
         self._types_range_constraint(self.order_type, self.TYPES)
         self._types_range_constraint(self.status, self.STATUS_TYPES)
-        self._validate_order_base_amount()
         self._validate_status(self.status)
+        if all([not self.amount_base, not self.amount_quote]):
+            raise ValidationError(
+                _('One of amount_quote and amount_base is required.'))
 
     def clean(self, *args, **kwargs):
         self._validate_fields()
         super(Order, self).clean(*args, **kwargs)
+
+    def get_provided_amount_option(self):
+        if all([self.amount_quote, self.amount_base]):
+            return self.PROVIDED_BOTH
+        elif self.amount_base:
+            return self.PROVIDED_BASE
+        elif self.amount_quote:
+            return self.PROVIDED_QUOTE
 
     def save(self, *args, **kwargs):
         self._validate_fields()
@@ -182,7 +205,13 @@ class Order(TimeStampedModel, SoftDeletableModel,
                     settings.UNIQUE_REFERENCE_LENGTH
                 ).upper()
         if not self.pk:
-            self.convert_coin_to_cash()
+            self.user_provided_amount = self.get_provided_amount_option()
+            if self.amount_base:
+                self.calculate_quote_from_base()
+            elif self.amount_quote:
+                self.calculate_base_from_quote()
+
+        self._validate_order_base_amount()
         if self.pair.is_crypto:
             self.exchange = True
         else:
@@ -196,16 +225,35 @@ class Order(TimeStampedModel, SoftDeletableModel,
         ))
         return msg
 
-    def convert_coin_to_cash(self):
-        self.amount_base = Decimal(self.amount_base)
-        price = Price.objects.filter(pair=self.pair).last()
-        self.price = price
-        amount_quote = self.add_payment_fee(self.ticker_amount)
-        decimal_places = self.recommended_quote_decimal_places
-        self.amount_quote = money_format(amount_quote, places=decimal_places)
+    def calculate_quote_from_base(self, new_price=True):
+        self.calculate_from(_from='base', new_price=new_price)
+
+    def calculate_base_from_quote(self, new_price=True):
+        self.calculate_from(_from='quote', new_price=new_price)
+
+    def calculate_from(self, _from='base', new_price=True):
+        if _from == 'base':
+            _to = 'quote'
+        elif _from == 'quote':
+            _to = 'base'
+        else:
+            raise NotImplementedError('Not implemented conversion')
+        amount_input = Decimal(getattr(self, 'amount_{}'.format(_from)))
+        setattr(self, 'amount_{}'.format(_from), amount_input)
+        if new_price:
+            price = Price.objects.filter(pair=self.pair).last()
+            self.price = price
+        ticker_amount_output = getattr(self, 'ticker_amount_{}'.format(_to))
+        fee_adder = getattr(self, 'add_payment_fee_to_amount_{}'.format(_to))
+        amount_output = fee_adder(ticker_amount_output)
+        decimal_places = getattr(
+            self, 'recommended_{}_decimal_places'.format(_to))
+        amount_output_formatted = money_format(amount_output,
+                                               places=decimal_places)
+        setattr(self, 'amount_{}'.format(_to), amount_output_formatted)
 
     @property
-    def ticker_amount(self):
+    def ticker_amount_quote(self):
         if not self.price:
             return self.amount_quote
         # For annotations
@@ -217,15 +265,48 @@ class Order(TimeStampedModel, SoftDeletableModel,
         return res
 
     @property
+    def ticker_amount_base(self):
+        if not self.price:
+            return self.amount_base
+        # For annotations
+        res = None
+        if self.order_type == Order.BUY:
+            res = self.amount_quote / self.price.ticker.ask
+        elif self.order_type == Order.SELL:
+            res = self.amount_quote / self.price.ticker.bid
+        return res
+
+    @property
+    def dynamic_decimal_places(self):
+        return False
+
+    @property
     def recommended_quote_decimal_places(self):
+        return self.recommended_decimal_places(self.ticker_amount_quote,
+                                               dynamic=self.dynamic_decimal_places)  # noqa
+
+    @property
+    def recommended_base_decimal_places(self):
+        return self.recommended_decimal_places(self.ticker_amount_base,
+                                               dynamic=self.dynamic_decimal_places)  # noqa
+
+    def recommended_decimal_places(self, amount, dynamic=False):
         decimal_places = 2
         if self.pair.is_crypto:
-            add_places = -int(floor(log10(abs(self.ticker_amount))))
-            if add_places > 0:
-                decimal_places += add_places
+            if dynamic:
+                add_places = -int(floor(log10(abs(amount))))
+                if add_places > 0:
+                    decimal_places += add_places
+            else:
+                decimal_places = 8
         return decimal_places
 
-    def add_payment_fee(self, amount_quote):
+    def add_payment_fee_to_amount_base(self, amount_base):
+        if not self.payment_preference or self.exchange:
+            return amount_base
+        raise NotImplementedError('Cannot add fee to amount_base')
+
+    def add_payment_fee_to_amount_quote(self, amount_quote):
         if not self.payment_preference or self.exchange:
             return amount_quote
         base = Decimal('1.0')
@@ -355,7 +436,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
     @property
     def status_name(self):
-        return [status for status in Order.STATUS_TYPES if status[0] == self.status]
+        return [status for status in Order.STATUS_TYPES if status[0] == self.status]  # noqa
 
     def get_profile(self):
         return self.user.profile
@@ -415,9 +496,9 @@ class Order(TimeStampedModel, SoftDeletableModel,
         )
         dec_pls = self.recommended_quote_decimal_places
         if round(self.amount_quote, dec_pls) != \
-                round(self.ticker_amount, dec_pls):
-            name += ' !!! amount_quote({}) != ticker_amount({}) !!!'.format(
-                self.amount_quote, self.ticker_amount
+                round(self.ticker_amount_quote, dec_pls):
+            name += ' !!! amount_quote({}) != ticker_amount_quote({}) !!!'.format(  # noqa
+                self.amount_quote, self.ticker_amount_quote
             )
         return name
 

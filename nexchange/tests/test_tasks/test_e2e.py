@@ -37,7 +37,7 @@ from unittest import skip
 class OKPayEndToEndTestCase(WalletBaseTestCase):
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
-    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('orders.models.Order.calculate_quote_from_base')
     @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.models.send_sms')
@@ -45,11 +45,11 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
     def test_fail_release_no_address(self, send_email,
                                      send_sms, release_payment,
                                      _get_transaction_history,
-                                     convert_coin_to_cash, validate):
+                                     calculate_quote_from_base, validate):
         # Purge
         Payment.objects.all().delete()
         release_payment.return_value = 'TX123'
-        convert_coin_to_cash.return_value = None
+        calculate_quote_from_base.return_value = None
         validate.return_value = True
         _get_transaction_history.return_value = get_ok_pay_mock()
         order = Order(**self.okpay_order_data)
@@ -73,18 +73,18 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
 
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
-    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('orders.models.Order.calculate_quote_from_base')
     @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.models.send_sms')
     @patch('orders.models.send_email')
     def test_success_release(self, send_email, send_sms, release_payment,
                              _get_transaction_history,
-                             convert_coin_to_cash, validate):
+                             calculate_quote_from_base, validate):
         # Purge
         release_payment.return_value = 'TX123'
         Payment.objects.all().delete()
-        convert_coin_to_cash.return_value = None
+        calculate_quote_from_base.return_value = None
         validate.return_value = True
         _get_transaction_history.return_value = get_ok_pay_mock()
         order = Order(**self.okpay_order_data_address)
@@ -124,16 +124,16 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
            '.validate_beneficiary')
     @patch('payments.api_clients.payeer.PayeerAPIClient.'
            'get_transaction_history')
-    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('orders.models.Order.calculate_quote_from_base')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.models.send_sms')
     @patch('orders.models.send_email')
     def test_failure_release_no_address(self, send_email, send_sms,
                                         release_payment,
-                                        convert_coin_to_cash,
+                                        calculate_quote_from_base,
                                         transaction_history, validate):
         release_payment.return_value = 'TX123'
-        convert_coin_to_cash.return_value = None
+        calculate_quote_from_base.return_value = None
         sender = 'zaza'
         # TODO: get fixutre
         transaction_history.return_value = {
@@ -175,16 +175,16 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
            '.validate_beneficiary')
     @patch('payments.api_clients.payeer.PayeerAPIClient.'
            'get_transaction_history')
-    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('orders.models.Order.calculate_quote_from_base')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.models.send_sms')
     @patch('orders.models.send_email')
     def test_success_release(self, send_email, send_sms,
                              release_payment,
-                             convert_coin_to_cash,
+                             calculate_quote_from_base,
                              transaction_history, validate):
         release_payment.return_value = 'TX123'
-        convert_coin_to_cash.return_value = None
+        calculate_quote_from_base.return_value = None
         sender = 'zaza'
         # TODO: get fixutre
         transaction_history.return_value = {
@@ -296,18 +296,18 @@ class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
 
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
-    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('orders.models.Order.calculate_quote_from_base')
     @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.models.send_sms')
     @patch('orders.models.send_email')
     def test_release_if_paid_and_withdraaw_address_set(
             self, send_email, send_sms, release_payment,
-            _get_transaction_history, convert_coin_to_cash, validate):
+            _get_transaction_history, calculate_quote_from_base, validate):
         # Purge
         release_payment.return_value = 'TX123'
         Payment.objects.all().delete()
-        convert_coin_to_cash.return_value = None
+        calculate_quote_from_base.return_value = None
         validate.return_value = True
         _get_transaction_history.return_value = get_ok_pay_mock()
         order = Order(**self.okpay_order_data)
@@ -340,18 +340,18 @@ class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
 
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
-    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('orders.models.Order.calculate_quote_from_base')
     @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.models.send_sms')
     @patch('orders.models.send_email')
     def test_fail_release_withdraw_address_already_set(
             self, send_email, send_sms, release_payment,
-            _get_transaction_history, convert_coin_to_cash, validate):
+            _get_transaction_history, calculate_quote_from_base, validate):
         # Purge
         release_payment.return_value = 'TX123'
         Payment.objects.all().delete()
-        convert_coin_to_cash.return_value = None
+        calculate_quote_from_base.return_value = None
         validate.return_value = True
         _get_transaction_history.return_value = get_ok_pay_mock()
         order = Order(**self.okpay_order_data_address)
@@ -383,7 +383,7 @@ class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
 
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
-    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('orders.models.Order.calculate_quote_from_base')
     @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.models.send_sms')
@@ -392,12 +392,12 @@ class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
                                      send_sms,
                                      release_payment,
                                      _get_transaction_history,
-                                     convert_coin_to_cash,
+                                     calculate_quote_from_base,
                                      validate):
         # Purge
         release_payment.return_value = 'TX123'
         Payment.objects.all().delete()
-        convert_coin_to_cash.return_value = None
+        calculate_quote_from_base.return_value = None
         validate.return_value = True
         _get_transaction_history.return_value = get_ok_pay_mock()
         order = Order(**self.okpay_order_data)
@@ -416,18 +416,18 @@ class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
 
     @patch('payments.tasks.generic.base.BasePaymentChecker'
            '.validate_beneficiary')
-    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('orders.models.Order.calculate_quote_from_base')
     @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('orders.models.send_sms')
     @patch('orders.models.send_email')
     def test_fail_release_withdraaw_address_set_no_payment(
             self, send_email, send_sms, release_payment,
-            _get_transaction_history, convert_coin_to_cash, validate):
+            _get_transaction_history, calculate_quote_from_base, validate):
         # Purge
         release_payment.return_value = 'TX123'
         Payment.objects.all().delete()
-        convert_coin_to_cash.return_value = None
+        calculate_quote_from_base.return_value = None
         validate.return_value = True
         _get_transaction_history.return_value = get_ok_pay_mock()
         order = Order(**self.okpay_order_data_address)

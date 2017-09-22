@@ -78,7 +78,7 @@ class UserBaseTestCase(TestCase):
         assert success
         super(UserBaseTestCase, self).setUp()
 
-    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('orders.models.Order.calculate_quote_from_base')
     def create_main_user(self, convert_cash):
         with requests_mock.mock() as m:
             self._mock_cards_reserve(m)

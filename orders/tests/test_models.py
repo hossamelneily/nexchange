@@ -423,17 +423,18 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
             self.order.amount_base * self.order.price.ticker.ask)
         ticker_amount_sell = Decimal(
             self.order.amount_base * self.order.price.ticker.bid)
-        self.assertEqual(self.order.ticker_amount, ticker_amount_buy)
+        self.assertEqual(self.order.ticker_amount_quote, ticker_amount_buy)
         self.order.order_type = Order.SELL
         self.order.save()
-        self.assertEqual(self.order.ticker_amount, ticker_amount_sell)
+        self.assertEqual(self.order.ticker_amount_quote, ticker_amount_sell)
 
     def test_ticker_amount_equal_to_amount_quote(self):
-        self.assertEqual(self.order.amount_quote, self.order.ticker_amount)
+        self.assertEqual(self.order.amount_quote,
+                         self.order.ticker_amount_quote)
         # https://github.com/onitsoft/nexchange/pull/348 remove following line
         # after this PR merge
         self.order.status = Order.PAID
-        self.order.amount_quote = self.order.ticker_amount / Decimal('2')
+        self.order.amount_quote = self.order.ticker_amount_quote / Decimal('2')
         self.order.save()
         self.assertIn('!!! amount_quote(', self.order.__str__())
 
@@ -631,9 +632,12 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
              ),
         )
     )
+    @patch('orders.models.Order.dynamic_decimal_places')
     def test_recommended_quote_decimal_places(self, name, order_data,
                                               ticker_data,
-                                              properties_to_check):
+                                              properties_to_check,
+                                              dynamic_decimal_places):
+        dynamic_decimal_places.return_value = True
         ticker_data['pair'] = order_data['pair']
         ticker = Ticker(**ticker_data)
         ticker.save()
@@ -822,3 +826,26 @@ class OrderStateMachineTestCase(TickerBaseTestCase):
         self.assertTrue(self.order.flagged)
         txns_after = self.order.transactions.filter(type=Transaction.WITHDRAW)
         self.assertEqual(len(txns_after), 1)
+
+
+class TestSymmetricalOrder(TickerBaseTestCase):
+
+    def test_demo(self):
+        pair = Pair.objects.get(name='BTCLTC')
+        amount_base = Decimal('0.12345678')
+        order1 = Order(amount_base=amount_base, pair=pair, user=self.user)
+        order1.save()
+        amount_quote = order1.amount_quote
+        order2 = Order(amount_quote=amount_quote, pair=pair, user=self.user)
+        order2.save()
+        self.assertEqual(order1.amount_quote, order2.amount_quote)
+        self.assertEqual(order1.amount_base, order2.amount_base)
+        order3 = Order(amount_quote=amount_quote, amount_base=amount_base,
+                       pair=pair, user=self.user)
+        order3.save()
+        self.assertEqual(order1.amount_quote, order3.amount_quote)
+        self.assertEqual(order1.amount_base, order3.amount_base)
+
+        self.assertEqual(order1.user_provided_amount, Order.PROVIDED_BASE)
+        self.assertEqual(order2.user_provided_amount, Order.PROVIDED_QUOTE)
+        self.assertEqual(order3.user_provided_amount, Order.PROVIDED_BOTH)

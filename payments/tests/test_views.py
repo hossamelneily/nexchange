@@ -88,7 +88,7 @@ class PayeerTestCase(OrderBaseTestCase):
         content = response.content.decode('utf8')
         self.assertEqual('error', content)
 
-    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('orders.models.Order.calculate_quote_from_base')
     def test_payeer_payment_after_success(self, convert_coin):
         convert_coin.return_value = None
         order_data = {

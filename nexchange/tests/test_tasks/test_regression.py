@@ -6,11 +6,11 @@ from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
 from core.tests.base import TransactionImportBaseTestCase
 from core.tests.base import UPHOLD_ROOT, EXCHANGE_ORDER_RELEASE_ROOT
 from core.tests.utils import data_provider
-from core.models import Transaction
+from core.models import Transaction, Pair, Address
 from orders.models import Order
 from orders.task_summary import exchange_order_release_invoke
 from ticker.tests.base import TickerBaseTestCase
-from core.models import Address, Pair
+from decimal import Decimal
 from unittest import skip
 
 
@@ -171,6 +171,32 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         self.assertEqual(do_release.call_count, 0)
         self.assertEqual(run_release.call_count, 1)
         self.order.refresh_from_db()
+
+    @patch(UPHOLD_ROOT + 'get_transactions')
+    def test_do_not_import_txn_less_bad_data(self, get_txs_uphold):
+        pair_name = 'BTCLTC'
+        pair = Pair.objects.get(name=pair_name)
+        currency_quote_code = pair.quote.code
+        amount_base = 11.11
+        self._create_order(pair_name=pair_name,
+                           amount_base=amount_base)
+        mock_currency_code = currency_quote_code
+        mock_amount = self.order.amount_quote
+        card = self.order.deposit_address.reserve
+        card_id = card.card_id
+        bad_datas = {
+            'bad amount': {'amount': mock_amount - Decimal('0.2'),
+                           'currency': mock_currency_code},
+            'bad currency': {'amount': mock_amount,
+                             'currency': pair.base.code}
+        }
+        for key, value in bad_datas.items():
+            get_txs_uphold.return_value = [
+                self.get_uphold_tx(value['currency'], value['amount'], card_id)
+            ]
+            self.import_txs_task.apply()
+            txns = self.order.transactions.all()
+            self.assertEqual(len(txns), 0, key)
 
     @skip('FIXME: Uphold importer doesnt work that way on prod')
     @patch('nexchange.utils.get_address_transaction_ids_blockchain')

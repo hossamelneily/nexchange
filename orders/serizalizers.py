@@ -14,7 +14,7 @@ from core.validators import get_validator
 
 BASE_FIELDS = ('amount_base', 'is_default_rule',
                'unique_reference', 'amount_quote', 'pair', 'withdraw_address')
-READABLE_FIELDS = ('deposit_address', 'created_on', 'amount_quote', 'from_default_rule',
+READABLE_FIELDS = ('deposit_address', 'created_on', 'from_default_rule',
                    'unique_reference', 'deposit_address',
                    'payment_window', 'payment_deadline',
                    'status_name', 'transactions', 'referral_code')
@@ -60,6 +60,9 @@ class CreateOrderSerializer(OrderSerializer):
             raise ValidationError(_('%(value)s is not'
                                     ' currently a supported Pair'),
                                   params={'value': pair})
+        if all(['amount_base' not in data, 'amount_quote' not in data]):
+            raise ValidationError(
+                _('One of amount_quote and amount_base is required.'))
 
         pair = Pair.objects.get(name=data['pair']['name'])
         currency = pair.base.code

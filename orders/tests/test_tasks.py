@@ -334,7 +334,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
             ),
         )
     )
-    @patch('orders.models.Order.convert_coin_to_cash')
+    @patch('orders.models.Order.calculate_quote_from_base')
     @patch('orders.models.send_sms')
     @patch('orders.models.send_email')
     def test_releases(self,
@@ -348,7 +348,7 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
                       order_count,
                       # stabs!
                       send_email, send_sms,
-                      convert_coin_to_cash):
+                      calculate_quote_from_base):
 
         for tested_fn in tested_fns:
             with patch('nexchange.api_clients.uphold.UpholdApiClient.'

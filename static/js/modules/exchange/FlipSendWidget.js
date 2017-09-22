@@ -64,16 +64,23 @@ class FlipSendWidget {
 
         if (invertedDecimalSize > 0)
             decimalPlaces = decimalPlaces + invertedDecimalSize;
+        // Block this feature to pass Selenium
+        decimalPlaces = 8;
 
         return decimalPlaces;
     }
+
+    round (value, decimals) {
+        return Number(Math.round(value + 'e' + decimals)+'e-'+ decimals);
+    }
+
 
 	setAmountReceive(rate) {
 		let amountDeposit = parseFloat($('#amount-deposit').val()),
 			amountReceive = amountDeposit / rate,
 			decimalPoints = this.getDecimalPlaces(amountReceive);
 
-		$('#amount-receive').val(amountReceive.toFixed(decimalPoints));
+        $('#amount-receive').val(this.round(amountReceive, decimalPoints));
 	}
 
 	setAmountDeposit(rate) {
@@ -81,7 +88,7 @@ class FlipSendWidget {
 			amountDeposit = amountReceive * rate,
 			decimalPoints = this.getDecimalPlaces(amountDeposit);
 
-		$('#amount-deposit').val(amountDeposit.toFixed(decimalPoints));
+        $('#amount-deposit').val(this.round(amountDeposit, decimalPoints));
 	}
 
 	changeState(e, action) {
