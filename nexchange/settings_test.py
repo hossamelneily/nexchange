@@ -13,6 +13,8 @@ import logging
 CELERY_BEAT_SCHEDULE.update(PAYMENT_CHECKER_TASKS)
 
 
+SESSION_COOKIE_DOMAIN = None
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
