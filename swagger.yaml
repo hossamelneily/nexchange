@@ -1,0 +1,1361 @@
+swagger: '2.0'
+info:
+  version: '1.0'
+  title: nexchange
+  description: 'API for crypto currency exchange.'
+host: api.nexchange.io
+basePath: /en/api/v1/
+schemes:
+  - https
+securityDefinitions:
+  BasicAuth:
+    type: basic
+consumes:
+  - application/json
+produces:
+  - application/json
+
+paths:
+  /currency/:
+    get:
+      description: Get all supported currencies.
+      summary: Get Currencies
+      operationId: Get Currencies
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Currency'
+          examples:
+            application/json:
+              - code: BTC
+                name: bitcoin
+                min_confirmations: 1
+                is_crypto: true
+                minimal_amount: '0.01000000'
+                is_base_of_enabled_pair: true
+                is_quote_of_enabled_pair: true
+                has_enabled_pairs: true
+              - code: LTC
+                name: litecoin
+                min_confirmations: 6
+                is_crypto: true
+                minimal_amount: '0.50000000'
+                is_base_of_enabled_pair: true
+                is_quote_of_enabled_pair: true
+                has_enabled_pairs: true
+      x-unitTests:
+        - request:
+            method: GET
+            uri: /en/api/v1/currency/
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: RAW
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers:
+              Content-Type: application/json
+            body: '[  {    "code": "BTC",    "name": "bitcoin",    "min_confirmations": 1,    "is_crypto": true,    "minimal_amount": "0.01000000",    "is_base_of_enabled_pair": true,    "is_quote_of_enabled_pair": true,    "has_enabled_pairs": true  },  {    "code": "LTC",    "name": "litecoin",    "min_confirmations": 6,    "is_crypto": true,    "minimal_amount": "0.50000000",    "is_base_of_enabled_pair": true,    "is_quote_of_enabled_pair": true,    "has_enabled_pairs": true  }]'
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: Get Currencies1
+          x-testDescription: Get all supported currencies.
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  /pair/:
+    get:
+      description: Get all supported currency pairs.
+      summary: Get Pairs
+      operationId: Get Pairs
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/PairSimple'
+          examples:
+            application/json:
+              - name: BTCLTC
+                base: BTC
+                quote: LTC
+                fee_ask: '0.00100000'
+                fee_bid: '0.00100000'
+              - name: BTCETH
+                base: BTC
+                quote: ETH
+                fee_ask: '0.00100000'
+                fee_bid: '0.00100000'
+      x-unitTests:
+        - request:
+            method: GET
+            uri: /en/api/v1/pair/
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: RAW
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers:
+              Content-Type: application/json
+            body: '[  {    "name": "BTCLTC",    "base": "BTC",    "quote": "LTC",    "fee_ask": "0.00100000",    "fee_bid": "0.00100000"  },  {    "name": "BTCETH",    "base": "BTC",    "quote": "ETH",    "fee_ask": "0.00100000",    "fee_bid": "0.00100000"  }]'
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: Get Pairs1
+          x-testDescription: Get all supported currency pairs.
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  '/price/{pair_name}/latest/':
+    get:
+      description: Gets BTC/LTC latest price
+      summary: Get Latest Ticker
+      operationId: Get Latest Ticker
+      produces:
+        - application/json
+      parameters:
+        - name: pair_name
+          in: path
+          required: true
+          type: string
+          description: 'name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC.'
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Price'
+          examples:
+            application/json:
+              - created_on: '2017-08-15T12:45:01.443265Z'
+                unix_time: '1502801101'
+                ticker:
+                  ask: '97.06196063'
+                  bid: '96.33558341'
+      x-unitTests:
+        - request:
+            method: GET
+            uri: /en/api/v1/price/BTCLTC/latest/
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: RAW
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers:
+              Content-Type: application/json
+            body: '[  {    "created_on":"2017-08-15T12:45:01.443265Z",    "unix_time":"1502801101",    "ticker":{      "ask":"97.06196063",      "bid":"96.33558341"    }  }]'
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: Get Latest Ticker1
+          x-testDescription: Gets BTC/LTC latest price
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  '/price/{pair_name}/history/':
+    get:
+      description: Returns price history for selected pair.
+      summary: Get Ticker History
+      operationId: Get Ticker History
+      produces:
+        - application/json
+      parameters:
+        - name: pair_name
+          in: path
+          required: true
+          type: string
+          description: 'name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC.'
+        - name: hours
+          in: query
+          required: false
+          type: number
+          format: double
+          description: 'how many hours back would you like to get prices for. Amount of hours to check i.e. 0.3 means 18 min, 2 - 2 hours.'
+        - name: data_points
+          in: query
+          required: false
+          type: integer
+          format: int32
+          description: 'how many data points in the selected hour range would you like to get. For example, If you pass 1 hour and data_points=60, you will get 1 data point per minute (our max supported resolution), if you pass hour=1 and data_points=30 you will get one point per 2 minutes.'
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Price'
+          examples:
+            application/json:
+              - created_on: '2017-08-15T13:37:05.746301Z'
+                unix_time: '1502804225'
+                ticker:
+                  ask: '93.50770668'
+                  bid: '93.01675978'
+              - created_on: '2017-08-15T13:38:05.877523Z'
+                unix_time: '1502804285'
+                ticker:
+                  ask: '92.71952575'
+                  bid: '91.87051683'
+      x-unitTests:
+        - request:
+            method: GET
+            uri: /en/api/v1/price/BTCLTC/history/?hours=0.1&data_points=3
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: RAW
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers:
+              Content-Type: application/json
+            body: '[  {    "created_on": "2017-08-15T13:37:05.746301Z",    "unix_time": "1502804225",    "ticker": {      "ask": "93.50770668",      "bid": "93.01675978"    }  },  {    "created_on": "2017-08-15T13:38:05.877523Z",    "unix_time": "1502804285",    "ticker": {      "ask": "92.71952575",      "bid": "91.87051683"    }  }]'
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: Get Ticker History1
+          x-testDescription: Returns price history for selected pair.
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  /orders/:
+    get:
+      description: Returns orders.
+      summary: Get Orders
+      operationId: Get Orders
+      produces:
+        - application/json
+      parameters:
+        - name: page
+          in: query
+          required: false
+          type: integer
+          format: int32
+          description: page number.
+        - name: page_size
+          in: query
+          required: false
+          type: integer
+          format: int32
+          description: number of orders in one page.
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Orders'
+          examples: {}
+      x-unitTests: []
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+    post:
+      description: Create order.
+      summary: Create Anonymous Order
+      operationId: Create Anonymous Order
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: ''
+          schema:
+            $ref: '#/definitions/CreateAnonymousOrderRequest'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/MinimalOrder'
+          examples:
+            application/json:
+              amount_base: '3.00000000'
+              is_default_rule: false
+              unique_reference: OTVVXE
+              amount_quote: '251.89000000'
+              pair:
+                name: BTCLTC
+                base:
+                  code: BTC
+                  name: bitcoin
+                  min_confirmations: 2
+                  is_crypto: true
+                  minimal_amount: '0.00200000'
+                  is_base_of_enabled_pair: true
+                  is_quote_of_enabled_pair: true
+                  has_enabled_pairs: true
+                quote:
+                  code: LTC
+                  name: litecoin
+                  min_confirmations: 6
+                  is_crypto: true
+                  minimal_amount: '0.25000000'
+                  is_base_of_enabled_pair: true
+                  is_quote_of_enabled_pair: true
+                  has_enabled_pairs: true
+                fee_ask: 0.001
+                fee_bid: 0.001
+              withdraw_address:
+                type: W
+                name: ''
+                address: 17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ
+                currency_code: BTC
+              deposit_address:
+                type: D
+                name: ''
+                address: addr_addr_id_5005841120
+                currency_code: LTC
+              created_on: '2017-09-19T09:20:11.491815Z'
+              from_default_rule: false
+              payment_window: 15
+              payment_deadline: '2017-09-19T09:35:11.491815Z'
+              status_name:
+                - - 11
+                  - INITIAL
+              transactions: []
+              referral_code:
+                - code: RKXXJET29PG
+                  created_on: '2017-09-19T09:20:11.448359Z'
+                  modified_on: '2017-09-19T09:20:11.44842Z'
+      x-unitTests:
+        - request:
+            method: POST
+            uri: /en/api/v1/orders/
+            headers:
+              Content-Type: application/json
+            body: '{    "amount_base": 3,    "is_default_rule": false,    "pair": {      "name": "BTCLTC"    },    "withdraw_address": {        "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ"    }}'
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: RAW
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers:
+              Content-Type: application/json
+            body: '    {      "amount_base": "3.00000000",      "is_default_rule": false,      "unique_reference": "OTVVXE",      "amount_quote": "251.89000000",      "pair": {        "name": "BTCLTC",        "base": {          "code": "BTC",          "name": "bitcoin",          "min_confirmations": 2,          "is_crypto": true,          "minimal_amount": "0.00200000",          "is_base_of_enabled_pair": true,          "is_quote_of_enabled_pair": true,          "has_enabled_pairs": true        },        "quote": {          "code": "LTC",          "name": "litecoin",          "min_confirmations": 6,          "is_crypto": true,          "minimal_amount": "0.25000000",          "is_base_of_enabled_pair": true,          "is_quote_of_enabled_pair": true,          "has_enabled_pairs": true        },        "fee_ask": 0.001,        "fee_bid": 0.001      },      "withdraw_address": {        "type": "W",        "name": "",        "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ",        "currency_code": "BTC"      },      "deposit_address": {        "type": "D",        "name": "",        "address": "addr_addr_id_5005841120",        "currency_code": "LTC"      },      "created_on": "2017-09-19T09:20:11.491815Z",      "from_default_rule": false,      "payment_window": 15,      "payment_deadline": "2017-09-19T09:35:11.491815Z",      "status_name": [        [          11,          "INITIAL"        ]      ],      "transactions": [],      "referral_code": [        {          "code": "RKXXJET29PG",          "created_on": "2017-09-19T09:20:11.448359Z",          "modified_on": "2017-09-19T09:20:11.448420Z"        }      ]    }'
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: Create Anonymous Order1
+          x-testDescription: Create order.
+        - request:
+            method: POST
+            uri: /en/api/v1/orders/
+            headers:
+              Content-Type: application/json
+            body: '{    "amount_quote": 12000,    "is_default_rule": false,    "pair": {      "name": "ETHDOGE"    },    "withdraw_address": {        "address": "0xf0c6902F5B929716c35603f9765808DE08475BF8"    }}'
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: RAW
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers:
+              Content-Type: application/json
+            body: '    {      "amount_base": "3.00000000",      "is_default_rule": false,      "unique_reference": "OTVVXE",      "amount_quote": "251.89000000",      "pair": {        "name": "BTCLTC",        "base": {          "code": "BTC",          "name": "bitcoin",          "min_confirmations": 2,          "is_crypto": true,          "minimal_amount": "0.00200000",          "is_base_of_enabled_pair": true,          "is_quote_of_enabled_pair": true,          "has_enabled_pairs": true        },        "quote": {          "code": "LTC",          "name": "litecoin",          "min_confirmations": 6,          "is_crypto": true,          "minimal_amount": "0.25000000",          "is_base_of_enabled_pair": true,          "is_quote_of_enabled_pair": true,          "has_enabled_pairs": true        },        "fee_ask": 0.001,        "fee_bid": 0.001      },      "withdraw_address": {        "type": "W",        "name": "",        "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ",        "currency_code": "BTC"      },      "deposit_address": {        "type": "D",        "name": "",        "address": "addr_addr_id_5005841120",        "currency_code": "LTC"      },      "created_on": "2017-09-19T09:20:11.491815Z",      "from_default_rule": false,      "payment_window": 15,      "payment_deadline": "2017-09-19T09:35:11.491815Z",      "status_name": [        [          11,          "INITIAL"        ]      ],      "transactions": [],      "referral_code": [        {          "code": "RKXXJET29PG",          "created_on": "2017-09-19T09:20:11.448359Z",          "modified_on": "2017-09-19T09:20:11.448420Z"        }      ]    }'
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: Create Anonymous Order2
+          x-testDescription: Create order.
+        - request:
+            method: POST
+            uri: /en/api/v1/orders/
+            headers:
+              Content-Type: application/json
+            body: '{    "amount_base": 11000,    "is_default_rule": false,    "pair": {      "name": "DOGEBTC"    },    "withdraw_address": {        "address": "DGWesaJ1PtZU8BiXYMSomyYQbvN2LLfnx2"    }}'
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: RAW
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers:
+              Content-Type: application/json
+            body: '    {      "amount_base": "3.00000000",      "is_default_rule": false,      "unique_reference": "OTVVXE",      "amount_quote": "251.89000000",      "pair": {        "name": "BTCLTC",        "base": {          "code": "BTC",          "name": "bitcoin",          "min_confirmations": 2,          "is_crypto": true,          "minimal_amount": "0.00200000",          "is_base_of_enabled_pair": true,          "is_quote_of_enabled_pair": true,          "has_enabled_pairs": true        },        "quote": {          "code": "LTC",          "name": "litecoin",          "min_confirmations": 6,          "is_crypto": true,          "minimal_amount": "0.25000000",          "is_base_of_enabled_pair": true,          "is_quote_of_enabled_pair": true,          "has_enabled_pairs": true        },        "fee_ask": 0.001,        "fee_bid": 0.001      },      "withdraw_address": {        "type": "W",        "name": "",        "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ",        "currency_code": "BTC"      },      "deposit_address": {        "type": "D",        "name": "",        "address": "addr_addr_id_5005841120",        "currency_code": "LTC"      },      "created_on": "2017-09-19T09:20:11.491815Z",      "from_default_rule": false,      "payment_window": 15,      "payment_deadline": "2017-09-19T09:35:11.491815Z",      "status_name": [        [          11,          "INITIAL"        ]      ],      "transactions": [],      "referral_code": [        {          "code": "RKXXJET29PG",          "created_on": "2017-09-19T09:20:11.448359Z",          "modified_on": "2017-09-19T09:20:11.448420Z"        }      ]    }'
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: Create Anonymous Order3
+          x-testDescription: Create order.
+        - request:
+            method: POST
+            uri: /en/api/v1/orders/
+            headers:
+              Content-Type: application/json
+            body: '{    "amount_base": 3,    "is_default_rule": false,    "pair": {      "name": "LTCBTC"    },    "withdraw_address": {        "address": "LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA"    }}'
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: RAW
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers:
+              Content-Type: application/json
+            body: '    {      "amount_base": "3.00000000",      "is_default_rule": false,      "unique_reference": "OTVVXE",      "amount_quote": "251.89000000",      "pair": {        "name": "BTCLTC",        "base": {          "code": "BTC",          "name": "bitcoin",          "min_confirmations": 2,          "is_crypto": true,          "minimal_amount": "0.00200000",          "is_base_of_enabled_pair": true,          "is_quote_of_enabled_pair": true,          "has_enabled_pairs": true        },        "quote": {          "code": "LTC",          "name": "litecoin",          "min_confirmations": 6,          "is_crypto": true,          "minimal_amount": "0.25000000",          "is_base_of_enabled_pair": true,          "is_quote_of_enabled_pair": true,          "has_enabled_pairs": true        },        "fee_ask": 0.001,        "fee_bid": 0.001      },      "withdraw_address": {        "type": "W",        "name": "",        "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ",        "currency_code": "BTC"      },      "deposit_address": {        "type": "D",        "name": "",        "address": "addr_addr_id_5005841120",        "currency_code": "LTC"      },      "created_on": "2017-09-19T09:20:11.491815Z",      "from_default_rule": false,      "payment_window": 15,      "payment_deadline": "2017-09-19T09:35:11.491815Z",      "status_name": [        [          11,          "INITIAL"        ]      ],      "transactions": [],      "referral_code": [        {          "code": "RKXXJET29PG",          "created_on": "2017-09-19T09:20:11.448359Z",          "modified_on": "2017-09-19T09:20:11.448420Z"        }      ]    }'
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: Create Anonymous Order4
+          x-testDescription: Create order.
+        - request:
+            method: POST
+            uri: /en/api/v1/orders/
+            headers:
+              Content-Type: application/json
+            body: '{    "amount_base": 11000,    "is_default_rule": false,    "pair": {      "name": "XVGBTC"    },    "withdraw_address": {        "address": "DR14c9j2ZdiUxqdas5xGYcgfiU1GnVF9DJ"    }}'
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: RAW
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers:
+              Content-Type: application/json
+            body: '    {      "amount_base": "3.00000000",      "is_default_rule": false,      "unique_reference": "OTVVXE",      "amount_quote": "251.89000000",      "pair": {        "name": "BTCLTC",        "base": {          "code": "BTC",          "name": "bitcoin",          "min_confirmations": 2,          "is_crypto": true,          "minimal_amount": "0.00200000",          "is_base_of_enabled_pair": true,          "is_quote_of_enabled_pair": true,          "has_enabled_pairs": true        },        "quote": {          "code": "LTC",          "name": "litecoin",          "min_confirmations": 6,          "is_crypto": true,          "minimal_amount": "0.25000000",          "is_base_of_enabled_pair": true,          "is_quote_of_enabled_pair": true,          "has_enabled_pairs": true        },        "fee_ask": 0.001,        "fee_bid": 0.001      },      "withdraw_address": {        "type": "W",        "name": "",        "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ",        "currency_code": "BTC"      },      "deposit_address": {        "type": "D",        "name": "",        "address": "addr_addr_id_5005841120",        "currency_code": "LTC"      },      "created_on": "2017-09-19T09:20:11.491815Z",      "from_default_rule": false,      "payment_window": 15,      "payment_deadline": "2017-09-19T09:35:11.491815Z",      "status_name": [        [          11,          "INITIAL"        ]      ],      "transactions": [],      "referral_code": [        {          "code": "RKXXJET29PG",          "created_on": "2017-09-19T09:20:11.448359Z",          "modified_on": "2017-09-19T09:20:11.448420Z"        }      ]    }'
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: Create Anonymous Order5
+          x-testDescription: Create order.
+        - request:
+            method: POST
+            uri: /en/api/v1/orders/
+            headers:
+              Content-Type: application/json
+            body: '{    "amount_base": 1,    "is_default_rule": false,    "pair": {      "name": "BCHBTC"    },    "withdraw_address": {        "address": "1GFB4x4Tn4jMgxnKbzWsAUmLfmpz6VNtUW"    }}'
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: RAW
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers:
+              Content-Type: application/json
+            body: '    {      "amount_base": "3.00000000",      "is_default_rule": false,      "unique_reference": "OTVVXE",      "amount_quote": "251.89000000",      "pair": {        "name": "BTCLTC",        "base": {          "code": "BTC",          "name": "bitcoin",          "min_confirmations": 2,          "is_crypto": true,          "minimal_amount": "0.00200000",          "is_base_of_enabled_pair": true,          "is_quote_of_enabled_pair": true,          "has_enabled_pairs": true        },        "quote": {          "code": "LTC",          "name": "litecoin",          "min_confirmations": 6,          "is_crypto": true,          "minimal_amount": "0.25000000",          "is_base_of_enabled_pair": true,          "is_quote_of_enabled_pair": true,          "has_enabled_pairs": true        },        "fee_ask": 0.001,        "fee_bid": 0.001      },      "withdraw_address": {        "type": "W",        "name": "",        "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ",        "currency_code": "BTC"      },      "deposit_address": {        "type": "D",        "name": "",        "address": "addr_addr_id_5005841120",        "currency_code": "LTC"      },      "created_on": "2017-09-19T09:20:11.491815Z",      "from_default_rule": false,      "payment_window": 15,      "payment_deadline": "2017-09-19T09:35:11.491815Z",      "status_name": [        [          11,          "INITIAL"        ]      ],      "transactions": [],      "referral_code": [        {          "code": "RKXXJET29PG",          "created_on": "2017-09-19T09:20:11.448359Z",          "modified_on": "2017-09-19T09:20:11.448420Z"        }      ]    }'
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: Create Anonymous Order6
+          x-testDescription: Create order.
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  '/orders/{unique_reference}/':
+    get:
+      description: Get order data.
+      summary: Get Order
+      operationId: Get Order
+      produces:
+        - application/json
+      parameters:
+        - name: unique_reference
+          in: path
+          required: true
+          type: string
+          description: unique reference of the order.
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/BaseOrder'
+          examples: {}
+      x-unitTests: []
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  /users/me/orders/:
+
+    get:
+      security:
+        - BasicAuth: []
+      description: Get user orders.
+      summary: Get User Orders
+      operationId: Get User Orders
+      produces:
+        - application/json
+      parameters:
+        - name: page
+          in: query
+          required: false
+          type: integer
+          format: int32
+          description: page number.
+        - name: page_size
+          in: query
+          required: false
+          type: integer
+          format: int32
+          description: number of orders in one page.
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Orders'
+          examples: {}
+      x-unitTests: []
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+    post:
+      security:
+        - BasicAuth: []
+      description: Create order.
+      summary: Create User Order
+      operationId: Create User Order
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: ''
+          schema:
+            $ref: '#/definitions/CreateUserOrderRequest'
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/MinimalOrder'
+          examples: {}
+      x-unitTests: []
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  '/users/me/orders/{unique_reference}/':
+    get:
+      security:
+        - BasicAuth: []
+      description: Get user order.
+      summary: Get User Order
+      operationId: Get User Order
+      produces:
+        - application/json
+      parameters:
+        - name: unique_reference
+          in: path
+          required: true
+          type: string
+          description: unique reference of the order.
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/PrivateOrder'
+          examples: {}
+      x-unitTests: []
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  /referrals/:
+    get:
+      security:
+        - BasicAuth: []
+      description: Ger referrals.
+      summary: Get Referrals
+      operationId: Get Referrals
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Referral'
+          examples: {}
+      x-unitTests: []
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  /volume/:
+    get:
+      description: Get trade Volume.
+      summary: Get Volume
+      operationId: Get Volume
+      produces:
+        - application/json
+      parameters:
+        - name: hours
+          in: query
+          required: false
+          type: number
+          format: double
+          description: how many hours back would you like to get trade Volume for.
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/Volume'
+          examples:
+            application/json:
+              hours: 24
+              total_volume:
+                base_volume_btc: 0.53614493
+                quote_volume_btc: 0.54074154
+              tradable_pairs:
+                - pair:
+                    name: BTCLTC
+                    base:
+                      code: BTC
+                      name: bitcoin
+                      min_confirmations: 2
+                      is_crypto: true
+                      minimal_amount: '0.00200000'
+                      is_base_of_enabled_pair: true
+                      is_quote_of_enabled_pair: true
+                      has_enabled_pairs: true
+                    quote:
+                      code: LTC
+                      name: litecoin
+                      min_confirmations: 6
+                      is_crypto: true
+                      minimal_amount: '0.25000000'
+                      is_base_of_enabled_pair: true
+                      is_quote_of_enabled_pair: true
+                      has_enabled_pairs: true
+                    fee_ask: 0.001
+                    fee_bid: 0.001
+                  base_volume_btc: 0.5
+                  base_volume: 0.5
+                  quote_volume: 36.69
+                  last_ask: 73.05502846
+                  quote_volume_btc: 0.50418824
+                - pair:
+                    name: BTCETH
+                    base:
+                      code: BTC
+                      name: bitcoin
+                      min_confirmations: 2
+                      is_crypto: true
+                      minimal_amount: '0.00200000'
+                      is_base_of_enabled_pair: true
+                      is_quote_of_enabled_pair: true
+                      has_enabled_pairs: true
+                    quote:
+                      code: ETH
+                      name: ethereum
+                      min_confirmations: 12
+                      is_crypto: true
+                      minimal_amount: '0.10000000'
+                      is_base_of_enabled_pair: true
+                      is_quote_of_enabled_pair: true
+                      has_enabled_pairs: true
+                    fee_ask: 0.001
+                    fee_bid: 0.001
+                  base_volume_btc: 0
+                  base_volume: 0
+                  quote_volume: 0
+                  last_ask: 13.86042647
+                  quote_volume_btc: 0
+                - pair:
+                    name: ETHLTC
+                    base:
+                      code: ETH
+                      name: ethereum
+                      min_confirmations: 12
+                      is_crypto: true
+                      minimal_amount: '0.10000000'
+                      is_base_of_enabled_pair: true
+                      is_quote_of_enabled_pair: true
+                      has_enabled_pairs: true
+                    quote:
+                      code: LTC
+                      name: litecoin
+                      min_confirmations: 6
+                      is_crypto: true
+                      minimal_amount: '0.25000000'
+                      is_base_of_enabled_pair: true
+                      is_quote_of_enabled_pair: true
+                      has_enabled_pairs: true
+                    fee_ask: 0.001
+                    fee_bid: 0.001
+                  base_volume_btc: 0.03614493
+                  base_volume: 0.5
+                  quote_volume: 2.66
+                  last_ask: 5.28626186
+                  quote_volume_btc: 0.0365533
+      x-unitTests:
+        - request:
+            method: GET
+            uri: /en/api/v1/volume/?hours=24
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: RAW
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers:
+              Content-Type: application/json
+            body: '{    "hours": 24.0,    "total_volume": {        "base_volume_btc": 0.53614493,        "quote_volume_btc": 0.54074154    },    "tradable_pairs": [        {            "pair": {                "name": "BTCLTC",                "base": {                    "code": "BTC",                    "name": "bitcoin",                    "min_confirmations": 2,                    "is_crypto": true,                    "minimal_amount": "0.00200000",                    "is_base_of_enabled_pair": true,                    "is_quote_of_enabled_pair": true,                    "has_enabled_pairs": true                },                "quote": {                    "code": "LTC",                    "name": "litecoin",                    "min_confirmations": 6,                    "is_crypto": true,                    "minimal_amount": "0.25000000",                    "is_base_of_enabled_pair": true,                    "is_quote_of_enabled_pair": true,                    "has_enabled_pairs": true                },                "fee_ask": 0.001,                "fee_bid": 0.001            },            "base_volume_btc": 0.5,            "base_volume": 0.5,            "quote_volume": 36.69,            "last_ask": 73.05502846,            "quote_volume_btc": 0.50418824        },        {            "pair": {                "name": "BTCETH",                "base": {                    "code": "BTC",                    "name": "bitcoin",                    "min_confirmations": 2,                    "is_crypto": true,                    "minimal_amount": "0.00200000",                    "is_base_of_enabled_pair": true,                    "is_quote_of_enabled_pair": true,                    "has_enabled_pairs": true                },                "quote": {                    "code": "ETH",                    "name": "ethereum",                    "min_confirmations": 12,                    "is_crypto": true,                    "minimal_amount": "0.10000000",                    "is_base_of_enabled_pair": true,                    "is_quote_of_enabled_pair": true,                    "has_enabled_pairs": true                },                "fee_ask": 0.001,                "fee_bid": 0.001            },            "base_volume_btc": 0.0,            "base_volume": 0.0,            "quote_volume": 0.0,            "last_ask": 13.86042647,            "quote_volume_btc": 0.0        },        {            "pair": {                "name": "ETHLTC",                "base": {                    "code": "ETH",                    "name": "ethereum",                    "min_confirmations": 12,                    "is_crypto": true,                    "minimal_amount": "0.10000000",                    "is_base_of_enabled_pair": true,                    "is_quote_of_enabled_pair": true,                    "has_enabled_pairs": true                },                "quote": {                    "code": "LTC",                    "name": "litecoin",                    "min_confirmations": 6,                    "is_crypto": true,                    "minimal_amount": "0.25000000",                    "is_base_of_enabled_pair": true,                    "is_quote_of_enabled_pair": true,                    "has_enabled_pairs": true                },                "fee_ask": 0.001,                "fee_bid": 0.001            },            "base_volume_btc": 0.03614493,            "base_volume": 0.5,            "quote_volume": 2.66,            "last_ask": 5.28626186,            "quote_volume_btc": 0.0365533        }    ]}'
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: Get Volume1
+          x-testDescription: Get trade Volume.
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+definitions:
+  Profile:
+    title: Profile
+    type: object
+    properties:
+      partial_phone:
+        description: partial phone of the profile.
+        type: string
+      id:
+        description: profile ID.
+        type: string
+      created_on:
+        description: time of profile creation (ISO 8601).
+        type: string
+      last_visit_time:
+        description: time of last visit (ISO 8601).
+        type: string
+      time_zone:
+        description: time zone of the profile.'
+        type: string
+      modified_on:
+        description: latest time on which this profile was updated (ISO 8601).
+        type: string
+    required:
+      - partial_phone
+      - id
+      - created_on
+  ReferralCode:
+    title: ReferralCode
+    type: object
+    properties:
+      created_on:
+        description: time of code creation (ISO 8601).
+        type: string
+      code:
+        description: ''
+        example: unique referral code
+        type: string
+      modified_on:
+        description: latest time on which this code was updated (ISO 8601).
+        type: string
+    required:
+      - created_on
+  Referee:
+    title: Referee
+    type: object
+    properties:
+      profile:
+        $ref: '#/definitions/Profile'
+  Referral:
+    title: Referral
+    type: object
+    properties:
+      created_on:
+        description: time of referral creation (ISO 8601).
+        type: string
+      confirmed_orders_count:
+        description: COMPLETED by referee orders count.
+        type: number
+        format: double
+      turnover:
+        description: sum of COMPLETED orders amount_base in BTC(bitcoin).
+        type: number
+        format: double
+      revenue:
+        description: revenue of the referral in BTC(bitcoin).
+        type: number
+        format: double
+      referee:
+        $ref: '#/definitions/Referee'
+      code:
+        $ref: '#/definitions/ReferralCode'
+      modified_on:
+        description: latest time on which this referral was updated (ISO 8601).
+        type: string
+    required:
+      - created_on
+  Currency:
+    title: Currency
+    example:
+      code: BTC
+      name: bitcoin
+      min_confirmations: 1
+      is_crypto: true
+      minimal_amount: '0.01000000'
+      is_base_of_enabled_pair: true
+      is_quote_of_enabled_pair: true
+      has_enabled_pairs: true
+    type: object
+    properties:
+      code:
+        description: currency code.
+        type: string
+      name:
+        description: currency name.
+        type: string
+      min_confirmations:
+        description: minimum number of confirmations required to approve a transaction on this currency's blockchain. Only relevant for currencies that have 'is_crypto' = true
+        type: number
+        format: double
+      is_crypto:
+        description: 'if true, this is a crypto currency, else it is a fiat currency.'
+        type: boolean
+      minimal_amount:
+        description: minimal amount allowed on this currency transaction.
+        type: string
+      is_base_of_enabled_pair:
+        description: true if where is pair with this currency as base.
+        type: boolean
+      is_quote_of_enabled_pair:
+        description: true if exists a pair with this currency as quote.
+        type: boolean
+      has_enabled_pairs:
+        description: true if pair with this currency as base or quote and enabled exchange exists.
+        type: boolean
+    required:
+      - code
+  PairSimple:
+    title: PairSimple
+    example:
+      name: BTCLTC
+      base: BTC
+      quote: LTC
+      fee_ask: '0.00100000'
+      fee_bid: '0.00100000'
+    type: object
+    properties:
+      name:
+        description: name of the pair. i.e. BTCLTC for base BTC(bitcoin) and quote LTC(litecoin) pair.
+        type: string
+      base:
+        description: base currency code.
+        type: string
+      quote:
+        description: quote currency code.
+        type: string
+      fee_ask:
+        description: 'asking fee, 0.001 equals 0.1%.'
+        type: string
+      fee_bid:
+        description: 'biding fee, 0.001 equals 0.1% (depreciated).'
+        type: string
+    required:
+      - name
+      - base
+      - quote
+      - fee_ask
+      - fee_bid
+  Pair:
+    title: Pair
+    type: object
+    properties:
+      name:
+        description: name of the pair. i.e. BTCLTC for base BTC(bitcoin) and quote LTC(litecoin) pair.
+        type: string
+      base:
+        $ref: '#/definitions/Currency'
+      quote:
+        $ref: '#/definitions/Currency'
+      fee_ask:
+        description: 'asking fee, 0.001 equals 0.1%.'
+        type: number
+        format: double
+      fee_bid:
+        description: 'biding fee, 0.001 equals 0.1% (depreciated).'
+        type: number
+        format: double
+    required:
+      - name
+      - base
+      - quote
+      - fee_ask
+      - fee_bid
+  Ticker:
+    title: Ticker
+    type: object
+    properties:
+      ask:
+        description: ask price.
+        type: string
+      bid:
+        description: bid price.
+        type: string
+    required:
+      - ask
+      - bid
+  Price:
+    title: Price
+    example:
+      created_on: '2017-08-15T12:45:01.443265Z'
+      unix_time: '1502801101'
+      ticker:
+        ask: '97.06196063'
+        bid: '96.33558341'
+    type: object
+    properties:
+      created_on:
+        description: time of price creation (ISO 8601).
+        type: string
+      unix_time:
+        description: price creation unix timestamp.
+        type: string
+      ticker:
+        $ref: '#/definitions/Ticker'
+    required:
+      - created_on
+      - unix_time
+      - ticker
+  Address:
+    title: Address
+    type: object
+    properties:
+      type:
+        description: '"W" for withdraw and "D" for Deposit.'
+        type: string
+      address:
+        description: crypto currency address i.e. 0x408a05c9F62E8eaECd258BB27213ee6e59d2E7Ef
+        type: string
+      currency_code:
+        description: currency code i.e. ETH.
+        type: string
+      name:
+        description: name of the address.
+        type: string
+    required:
+      - type
+      - address
+      - currency_code
+  Transaction:
+    title: Transaction
+    type: object
+    properties:
+      created_on:
+        description: time of transaction creation (ISO 8601).
+        type: string
+      type:
+        description: '"W" for withdraw and "D" for Deposit.'
+        type: string
+      address_to:
+        description: recipient address ID.
+        type: number
+        format: double
+      confirmations:
+        description: transaction confirmations.
+        type: number
+        format: double
+      amount:
+        description: transaction amount.
+        type: string
+      is_verified:
+        description: verification status.
+        type: boolean
+      is_completed:
+        description: completion status.
+        type: boolean
+      modified_on:
+        description: latest time on which this transaction was updated (ISO 8601).
+        type: string
+      tx_id:
+        description: transaction ID.
+        type: string
+      time:
+        description: UTC time of transaction.
+        type: string
+      currency:
+        description: currency code.
+        type: string
+    required:
+      - created_on
+      - type
+      - address_to
+      - confirmations
+      - amount
+      - is_verified
+      - is_completed
+  MinimalOrder:
+    title: MinimalOrder
+    example:
+      amount_base: '3.00000000'
+      is_default_rule: false
+      unique_reference: OTVVXE
+      amount_quote: '251.89000000'
+      pair:
+        name: BTCLTC
+        base:
+          code: BTC
+          name: bitcoin
+          min_confirmations: 2
+          is_crypto: true
+          minimal_amount: '0.00200000'
+          is_base_of_enabled_pair: true
+          is_quote_of_enabled_pair: true
+          has_enabled_pairs: true
+        quote:
+          code: LTC
+          name: litecoin
+          min_confirmations: 6
+          is_crypto: true
+          minimal_amount: '0.25000000'
+          is_base_of_enabled_pair: true
+          is_quote_of_enabled_pair: true
+          has_enabled_pairs: true
+        fee_ask: 0.001
+        fee_bid: 0.001
+      withdraw_address:
+        type: W
+        name: ''
+        address: 17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ
+        currency_code: BTC
+      deposit_address:
+        type: D
+        name: ''
+        address: addr_addr_id_5005841120
+        currency_code: LTC
+      created_on: '2017-09-19T09:20:11.491815Z'
+      from_default_rule: false
+      payment_window: 15
+      payment_deadline: '2017-09-19T09:35:11.491815Z'
+      status_name:
+        - - 11
+          - INITIAL
+      transactions: []
+      referral_code:
+        - code: RKXXJET29PG
+          created_on: '2017-09-19T09:20:11.448359Z'
+          modified_on: '2017-09-19T09:20:11.44842Z'
+    type: object
+    properties:
+      amount_base:
+        description: amount of base currency which user gets.
+        type: string
+      is_default_rule:
+        description: if True any incoming funds will be converted automatically (**To** the withdraw_address defined on the same order).
+        type: boolean
+      unique_reference:
+        description: unique ID of an order.
+        type: string
+      amount_quote:
+        description: amount of base currency which user sends.
+        type: string
+      withdraw_address:
+        $ref: '#/definitions/Address'
+      transactions:
+        description: order transactions.
+        type: array
+        items:
+          $ref: '#/definitions/Transaction'
+    required:
+      - amount_base
+      - is_default_rule
+      - unique_reference
+      - amount_quote
+  BaseOrder:
+    title: BaseOrder
+    allOf:
+      - $ref: '#/definitions/MinimalOrder'
+      - type: object
+        properties:
+          created_on:
+            description: time of order creation (ISO 8601).
+            type: string
+          deposit_address:
+            $ref: '#/definitions/Address'
+          from_default_rule:
+            description: indicates that the order was created as a result of `is_default_rule` as described above.
+            type: boolean
+          pair:
+            $ref: '#/definitions/Pair'
+          modified_on:
+            description: latest time on which this order was updated (ISO 8601).
+            type: string
+        required:
+          - created_on
+          - deposit_address
+          - from_default_rule
+          - pair
+  PrivateOrder:
+    title: PrivateOrder
+    allOf:
+      - $ref: '#/definitions/BaseOrder'
+      - type: object
+        properties:
+          status:
+            description: 'order status 2 - Initial, 2 - Paid...'
+            type: number
+            format: double
+        required:
+          - status
+  Orders:
+    title: Orders
+    type: object
+    properties:
+      count:
+        description: number of orders.
+        type: number
+        format: double
+      next:
+        description: link to the next page.
+        type: string
+      previous:
+        description: link to previous page.
+        type: string
+      results:
+        description: ''
+        type: array
+        items:
+          $ref: '#/definitions/BaseOrder'
+    required:
+      - count
+  TotalVolume:
+    title: TotalVolume
+    type: object
+    properties:
+      base_volume_btc:
+        description: sum of all tradable pairs base volume in BTC(Bitcoin). Current rate is used.
+        type: number
+        format: double
+      quote_volume_btc:
+        description: sum of all tradable pairs quote volume in BTC(Bitcoin). Current rate is used.
+        type: number
+        format: double
+    required:
+      - base_volume_btc
+      - quote_volume_btc
+  PairVolume:
+    title: PairVolume
+    type: object
+    properties:
+      pair:
+        $ref: '#/definitions/Pair'
+      base_volume:
+        description: base volume.
+        type: number
+        format: double
+      quote_volume:
+        description: quote volume.
+        type: number
+        format: double
+      base_volume_btc:
+        description: base volume in BTC(Bitcoin). Current rate is used.
+        type: number
+        format: double
+      quote_volume_btc:
+        description: quote volume in BTC(Bitcoin). Current rate is used.
+        type: number
+        format: double
+      last_ask:
+        description: last ask price.
+        type: number
+        format: double
+    required:
+      - pair
+      - base_volume
+      - quote_volume
+      - base_volume_btc
+      - quote_volume_btc
+      - last_ask
+  Volume:
+    title: Volume
+    example:
+      hours: 24
+      total_volume:
+        base_volume_btc: 0.53614493
+        quote_volume_btc: 0.54074154
+      tradable_pairs:
+        - pair:
+            name: BTCLTC
+            base:
+              code: BTC
+              name: bitcoin
+              min_confirmations: 2
+              is_crypto: true
+              minimal_amount: '0.00200000'
+              is_base_of_enabled_pair: true
+              is_quote_of_enabled_pair: true
+              has_enabled_pairs: true
+            quote:
+              code: LTC
+              name: litecoin
+              min_confirmations: 6
+              is_crypto: true
+              minimal_amount: '0.25000000'
+              is_base_of_enabled_pair: true
+              is_quote_of_enabled_pair: true
+              has_enabled_pairs: true
+            fee_ask: 0.001
+            fee_bid: 0.001
+          base_volume_btc: 0.5
+          base_volume: 0.5
+          quote_volume: 36.69
+          last_ask: 73.05502846
+          quote_volume_btc: 0.50418824
+        - pair:
+            name: BTCETH
+            base:
+              code: BTC
+              name: bitcoin
+              min_confirmations: 2
+              is_crypto: true
+              minimal_amount: '0.00200000'
+              is_base_of_enabled_pair: true
+              is_quote_of_enabled_pair: true
+              has_enabled_pairs: true
+            quote:
+              code: ETH
+              name: ethereum
+              min_confirmations: 12
+              is_crypto: true
+              minimal_amount: '0.10000000'
+              is_base_of_enabled_pair: true
+              is_quote_of_enabled_pair: true
+              has_enabled_pairs: true
+            fee_ask: 0.001
+            fee_bid: 0.001
+          base_volume_btc: 0
+          base_volume: 0
+          quote_volume: 0
+          last_ask: 13.86042647
+          quote_volume_btc: 0
+        - pair:
+            name: ETHLTC
+            base:
+              code: ETH
+              name: ethereum
+              min_confirmations: 12
+              is_crypto: true
+              minimal_amount: '0.10000000'
+              is_base_of_enabled_pair: true
+              is_quote_of_enabled_pair: true
+              has_enabled_pairs: true
+            quote:
+              code: LTC
+              name: litecoin
+              min_confirmations: 6
+              is_crypto: true
+              minimal_amount: '0.25000000'
+              is_base_of_enabled_pair: true
+              is_quote_of_enabled_pair: true
+              has_enabled_pairs: true
+            fee_ask: 0.001
+            fee_bid: 0.001
+          base_volume_btc: 0.03614493
+          base_volume: 0.5
+          quote_volume: 2.66
+          last_ask: 5.28626186
+          quote_volume_btc: 0.0365533
+    type: object
+    properties:
+      hours:
+        description: trade volume time. If hours=24 it means that response contains data of last 24h trade volumes.
+        type: number
+        format: double
+      total_volume:
+        $ref: '#/definitions/TotalVolume'
+      tradable_pairs:
+        description: ''
+        type: array
+        items:
+          $ref: '#/definitions/PairVolume'
+    required:
+      - hours
+      - total_volume
+  RequestOrderPayload:
+    title: RequestOrderPayload
+    type: object
+    properties:
+      is_default_rule:
+        description: if True any incoming funds will be converted automatically (**To** the withdraw_address defined on the same order).
+        type: boolean
+      pair:
+        $ref: '#/definitions/Pair'
+      withdraw_address:
+        $ref: '#/definitions/Address'
+      amount_base:
+        description: amount of base currency which user gets.
+        type: number
+        format: double
+      amount_quote:
+        description: amount of quote currency which user gives.
+        type: number
+        format: double
+    required:
+      - is_default_rule
+      - pair
+      - withdraw_address
+  JsonHeaders:
+    title: JsonHeaders
+    type: object
+    properties:
+      Content-Type:
+        description: application/json.
+        type: string
+    required:
+      - Content-Type
+  BaseAuthHeaders:
+    title: BaseAuthHeaders
+    type: object
+    properties:
+      Authorization:
+        description: 'basic auth headers i.e. "Authorization:Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=".'
+        type: string
+    required:
+      - Authorization
+  BaseAuthJsonHeaders:
+    title: BaseAuthJsonHeaders
+    allOf:
+      - $ref: '#/definitions/JsonHeaders'
+      - type: object
+        properties:
+          Authorization:
+            description: 'basic auth headers i.e. "Authorization:Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=".'
+            type: string
+        required:
+          - Authorization
+  CreateUserOrderRequest:
+    title: Create User Order request
+    type: object
+    properties:
+      Payload:
+        $ref: '#/definitions/RequestOrderPayload'
+      Headers:
+        $ref: '#/definitions/BaseAuthJsonHeaders'
+  CreateAnonymousOrderRequest:
+    title: Create Anonymous Order request
+    example:
+      amount_base: 3
+      is_default_rule: false
+      pair:
+        name: BTCLTC
+      withdraw_address:
+        address: 17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ
+    type: object
+    properties:
+      Payload:
+        $ref: '#/definitions/RequestOrderPayload'
+      Headers:
+        $ref: '#/definitions/JsonHeaders'
