@@ -30,28 +30,26 @@ class CryptoFiatTicker(BaseTicker):
     def convert_fiat(self, price):
         code = self.pair.quote.code
         prices = {}
-        price_rub_ask = price['ask']['price_rub']
-        price_rub_bid = price['bid']['price_rub']
+        # price_rub_ask = price['ask']['price_rub']
+        # price_rub_bid = price['bid']['price_rub']
         price_usd_ask = price['ask']['price_usd']
-        rate_usd_ask = price['ask']['rate_usd']
+        # rate_usd_ask = price['ask']['rate_usd']
         price_usd_bid = price['bid']['price_usd']
-        rate_usd_bid = price['bid']['rate_usd']
-        if code == 'RUB':
-            prices.update({
-                'ask': price_rub_ask,
-                'bid': price_rub_bid
-            })
-        elif code == 'USD':
+        # rate_usd_bid = price['bid']['rate_usd']
+        # if code == 'RUB':
+        #     prices.update({
+        #         'ask': price_rub_ask,
+        #         'bid': price_rub_bid
+        #     })
+        if code == 'USD':
             prices.update({
                 'ask': price_usd_ask,
                 'bid': price_usd_bid
             })
         else:
             fixer_info = self.get_fixer_info()
-            rate_ask = self.get_rate(code, rate_usd_ask, fixer_info)
-            rate_bid = self.get_rate(code, rate_usd_bid, fixer_info)
-            price_ask = Decimal(price_rub_ask / rate_ask)
-            price_bid = Decimal(price_rub_bid / rate_bid)
+            price_ask = self.get_rate(code, price_usd_ask, fixer_info)
+            price_bid = self.get_rate(code, price_usd_bid, fixer_info)
             prices.update({
                 'ask': price_ask,
                 'bid': price_bid
@@ -67,7 +65,7 @@ class CryptoFiatTicker(BaseTicker):
             eur_base = Decimal('1.0')
         else:
             eur_base = Decimal(rate_info['rates'][code])
-        rate = Decimal(rate_info['rates']['USD']) * rate_usd / eur_base
+        rate = rate_usd * eur_base / Decimal(rate_info['rates']['USD'])
         return rate
 
 

@@ -7,8 +7,8 @@
     "modified_on": "2017-03-01T12:49:28.970Z",
     "base": 2,
     "quote": 4,
-    "fee_ask": "0.01000000",
-    "fee_bid": "0.01000000",
+    "fee_ask": "0.00000000",
+    "fee_bid": "0.00000000",
     "name": "LTCUSD",
     "disabled": true
   }
@@ -21,8 +21,8 @@
     "modified_on": "2017-03-01T12:49:28.974Z",
     "base": 2,
     "quote": 5,
-    "fee_ask": "0.01000000",
-    "fee_bid": "0.01000000",
+    "fee_ask": "0.00000000",
+    "fee_bid": "0.00000000",
     "name": "LTCRUB",
     "disabled": true
   }

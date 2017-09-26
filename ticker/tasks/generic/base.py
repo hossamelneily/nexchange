@@ -95,12 +95,31 @@ class BaseTicker(BaseTask):
         ticker.save()
         return ticker
 
-    def handle(self):
+    def handle(self, use_local_btc=False):
         spot_data = requests.get(self.BITFINEX_TICKER).json()
-        sell_spot_price = Decimal(spot_data.get('ask', 0))
-        sell_price = self.get_price(sell_spot_price, self.ACTION_BUY)
-        buy_spot_price = Decimal(spot_data.get('bid', 0))
-        buy_price = self.get_price(buy_spot_price, self.ACTION_SELL)
+        ask = Decimal(str(spot_data.get('ask', 0)))
+        bid = Decimal(str(spot_data.get('bid', 0)))
+        if use_local_btc:
+            sell_spot_price = bid
+            sell_price = self.get_price(sell_spot_price, self.ACTION_BUY)
+            buy_spot_price = ask
+            buy_price = self.get_price(buy_spot_price, self.ACTION_SELL)
+        else:
+            sell_price = {
+                'better_adds_count': 0,
+                'price_rub': Decimal('0'),
+                'price_usd': ask,
+                'rate_usd': Decimal('0'),
+                'type': 'sell'
+            }
+            buy_price = {
+                'better_adds_count': 0,
+                'price_rub': Decimal('0'),
+                'price_usd': bid,
+                'rate_usd': Decimal('0'),
+                'type': 'buy'
+            }
+
         return {'ask': sell_price, 'bid': buy_price}
 
     def get_price(self, spot_price, action):

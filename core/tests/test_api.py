@@ -18,8 +18,8 @@ class PairsTestCase(OrderBaseTestCase):
 
     def check_pair_data(self, pair):
         self.assertEqual(pair['base'] + pair['quote'], pair['name'])
-        self.assertGreater(float(pair['fee_ask']), 0)
-        self.assertGreater(float(pair['fee_bid']), 0)
+        self.assertGreaterEqual(float(pair['fee_ask']), 0)
+        self.assertGreaterEqual(float(pair['fee_bid']), 0)
 
         for key in pair:
             self.assertIsNotNone(pair[key])
