@@ -626,7 +626,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
         self.update_confirmation_task.apply()
 
-        self.assertEqual(2, send_task.call_count, pair_name)
+        self.assertEqual(1, send_task.call_count, pair_name)
 
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, Order.PAID, pair_name)

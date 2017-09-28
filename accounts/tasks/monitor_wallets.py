@@ -5,6 +5,7 @@ from django.db.models import Q
 from core.models import Transaction, Address
 from orders.models import Order
 from nexchange.utils import get_nexchange_logger
+from orders.task_summary import exchange_order_release_invoke
 from django.db import transaction
 from nexchange.api_clients.factory import ApiClientFactory
 from nexchange.utils import check_transaction_blockchain
@@ -14,7 +15,6 @@ from nexchange.celery import app
 
 CHECK_CARD_BALANCE_TASK = 'accounts.task_summary.' \
                           'check_transaction_card_balance_invoke'
-EXCHANGE_ORDER_RELEASE_TASK = 'orders.task_summary.exchange_order_release'
 
 
 def check_uphold_txn_status_with_blockchain(tx, tx_completed,
@@ -75,17 +75,12 @@ def _update_pending_transaction(tx, logger, next_tasks=None):
             order.refresh_from_db()
             confirm_status_ok = confirm_res.get('status') == 'OK'
 
+            # TODO: change me to add_next_task()
             if confirm_status_ok and order.status == Order.PAID:
                 # TODO: implement me as next task
-                app.send_task(EXCHANGE_ORDER_RELEASE_TASK, [tx.pk])
+                next_tasks.add((exchange_order_release_invoke, tx.pk,))
                 app.send_task(CHECK_CARD_BALANCE_TASK, [tx.pk],
                               countdown=settings.CARD_CHECK_TIME)
-            else:
-                logger.error(
-                    'Cannot Release order {} status {}. '
-                    'confirm_res: {}'.format(order.unique_reference,
-                                             order.status, confirm_res)
-                )
 
 
 def update_pending_transactions():
@@ -104,10 +99,10 @@ def update_pending_transactions():
             res = task.apply_async([args])
         else:
             res = task.apply_async()
-        if res.state == 'FAILURE':
+        if res.state != 'SUCCESS':
             logger.error(
-                'Task: {} args: {} returned error traceback: {}'.format(
-                    task.name, args, res.traceback))
+                'Task {} returned error traceback: {}'.format(
+                    task.name, res.traceback))
 
 
 def import_transaction_deposit_crypto(Importer):
