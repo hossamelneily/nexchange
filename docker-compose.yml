@@ -4,9 +4,9 @@ services:
       image: redis:2.8.19
       hostname: redis
       logging:
-          driver: gelf
+          driver: syslog
           options:
-            gelf-address: udp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
+            syslog-address: tcp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
     postgis:
         image: mdillon/postgis
         environment:
@@ -17,9 +17,9 @@ services:
             - /mnt/${DB_VOL}/nexchange/database:/var/lib/postgresql/data
         restart: always
         logging:
-            driver: gelf
+            driver: syslog
             options:
-              gelf-address: udp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
+              syslog-address: tcp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
     app:
         image: onitsoft/nexchange:${DOCKER_IMAGE_TAG}
         volumes:
@@ -34,9 +34,9 @@ services:
           - "65223:65223"
         restart: always
         logging:
-            driver: gelf
+            driver: syslog
             options:
-              gelf-address: udp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
+              syslog-address: tcp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
     web:
         image: onitsoft/nginx
         volumes:
@@ -53,6 +53,6 @@ services:
             - app
         restart: always
         logging:
-            driver: gelf
+            driver: syslog
             options:
-              gelf-address: udp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
+              syslog-address: tcp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
