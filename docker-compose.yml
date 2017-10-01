@@ -6,7 +6,7 @@ services:
       logging:
           driver: syslog
           options:
-            syslog-address: tcp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
+            syslog-address: ${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
     postgis:
         image: mdillon/postgis
         environment:
@@ -36,7 +36,7 @@ services:
         logging:
             driver: syslog
             options:
-              syslog-address: tcp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
+              syslog-address: ${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
     web:
         image: onitsoft/nginx
         volumes:
@@ -55,4 +55,4 @@ services:
         logging:
             driver: syslog
             options:
-              syslog-address: tcp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
+              syslog-address: ${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
