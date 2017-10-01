@@ -19,7 +19,7 @@ services:
         logging:
             driver: syslog
             options:
-              syslog-address: tcp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
+              syslog-address: ${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
     app:
         image: onitsoft/nexchange:${DOCKER_IMAGE_TAG}
         volumes:
