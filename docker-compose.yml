@@ -16,10 +16,10 @@ services:
         volumes:
             - /mnt/${DB_VOL}/nexchange/database:/var/lib/postgresql/data
         restart: always
-#        logging:
-#            driver: syslog
-#            options:
-#              syslog-address: tcp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
+        logging:
+            driver: syslog
+            options:
+              syslog-address: tcp://${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
     app:
         image: onitsoft/nexchange:${DOCKER_IMAGE_TAG}
         volumes:
@@ -33,10 +33,10 @@ services:
         ports:
           - "65223:65223"
         restart: always
-#        logging:
-#            driver: syslog
-#            options:
-#              syslog-address: ${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
+        logging:
+            driver: syslog
+            options:
+              syslog-address: ${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
     web:
         image: onitsoft/nginx
         volumes:
@@ -52,7 +52,7 @@ services:
         links:
             - app
         restart: always
-#        logging:
-#            driver: syslog
-#            options:
-#              syslog-address: ${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
+        logging:
+            driver: syslog
+            options:
+              syslog-address: ${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
