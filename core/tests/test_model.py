@@ -5,6 +5,7 @@ from core.common.models import UniqueFieldMixin
 from ticker.tests.base import TickerBaseTestCase
 from django.core.exceptions import ValidationError
 from core.tests.utils import data_provider
+from decimal import Decimal
 
 
 class ValidateUniqueFieldMixinTestCase(TestCase):
@@ -69,6 +70,18 @@ class PairFixtureTestCase(OrderBaseTestCase):
                 pair_name_by_code, pair_name_on_fixture,
                 'pair_name on pair {} fixture .json file is bad'.format(pair)
             )
+
+    def test_crypto_pairs_fees(self):
+        major_pair_fee = Decimal('0.005')  # 0.5%
+        minor_pair_fee = Decimal('0.01')  # 1.0%
+        pairs = [p for p in Pair.objects.all() if p.is_crypto]
+        for p in pairs:
+            if all([p.quote.wallet == 'api1' and p.base.wallet == 'api1']):
+                fee = major_pair_fee
+            else:
+                fee = minor_pair_fee
+            self.assertEqual(p.fee_ask, fee, 'Bad fee_ask on {}'.format(p))
+            self.assertEqual(p.fee_bid, fee, 'Bad fee_bid on {}'.format(p))
 
 
 class TransactionTestCase(TickerBaseTestCase):
