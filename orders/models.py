@@ -16,7 +16,7 @@ from payments.models import Payment
 from ticker.models import Price
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from math import log10, floor
+from math import log10, floor, ceil
 from django.utils.translation import activate
 from nexchange.utils import send_email, send_sms
 from django_fsm import FSMIntegerField, transition
@@ -219,19 +219,13 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
         super(Order, self).save(*args, **kwargs)
 
-    def _not_supported_exchange_msg(self):
-        msg = _('Sorry, we cannot convert {} to {}'.format(
-            self.currency_from.code, self.currency_to.code
-        ))
-        return msg
+    def calculate_quote_from_base(self, price=None):
+        self.calculate_from(_from='base', price=price)
 
-    def calculate_quote_from_base(self, new_price=True):
-        self.calculate_from(_from='base', new_price=new_price)
+    def calculate_base_from_quote(self, price=None):
+        self.calculate_from(_from='quote', price=price)
 
-    def calculate_base_from_quote(self, new_price=True):
-        self.calculate_from(_from='quote', new_price=new_price)
-
-    def calculate_from(self, _from='base', new_price=True):
+    def calculate_from(self, _from='base', price=None):
         if _from == 'base':
             _to = 'quote'
         elif _from == 'quote':
@@ -240,9 +234,9 @@ class Order(TimeStampedModel, SoftDeletableModel,
             raise NotImplementedError('Not implemented conversion')
         amount_input = Decimal(getattr(self, 'amount_{}'.format(_from)))
         setattr(self, 'amount_{}'.format(_from), amount_input)
-        if new_price:
-            price = Price.objects.filter(pair=self.pair).last()
-            self.price = price
+        if not price:
+            price = Price.objects.filter(pair=self.pair).latest('id')
+        self.price = price
         ticker_amount_output = getattr(self, 'ticker_amount_{}'.format(_to))
         fee_adder = getattr(self, 'add_payment_fee_to_amount_{}'.format(_to))
         amount_output = fee_adder(ticker_amount_output)
@@ -494,7 +488,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
             self.amount_quote,
             self.get_status_display()
         )
-        dec_pls = self.recommended_quote_decimal_places
+        dec_pls = self.recommended_decimal_places(self.ticker_amount_quote,
+                                                  dynamic=True)
         if round(self.amount_quote, dec_pls) != \
                 round(self.ticker_amount_quote, dec_pls):
             name += ' !!! amount_quote({}) != ticker_amount_quote({}) !!!'.format(  # noqa
@@ -502,10 +497,28 @@ class Order(TimeStampedModel, SoftDeletableModel,
             )
         return name
 
+    def calculate_order(self, amount_quote):
+        if self.expired:
+            price = Price.objects.filter(pair=self.pair).latest('id')
+            now = timezone.now()
+            if now > self.payment_deadline:
+                expired_minutes = ceil(
+                    (now - self.payment_deadline).seconds / 60)
+            else:
+                expired_minutes = 0
+            self.payment_window += settings.PAYMENT_WINDOW + expired_minutes
+        else:
+            price = self.price
+        if any([self.expired, self.amount_quote != amount_quote]):
+            self.amount_quote = amount_quote
+            self.calculate_base_from_quote(price=price)
+            self.save()
+
     @transition(field=status, source=INITIAL, target=PAID_UNCONFIRMED)
     def _register_deposit(self, tx_data):
         order = tx_data.get('order')
         tx_type = tx_data.get('type')
+        tx_amount = tx_data.get('amount')
         if order != self:
             raise ValidationError(
                 'Bad order {} on the deposit tx. Should be {}'.format(
@@ -517,8 +530,17 @@ class Order(TimeStampedModel, SoftDeletableModel,
                 'Order {}. Cannot register DEPOSIT - wrong transaction '
                 'type {}'.format(self, tx_type))
 
+        if not tx_amount:
+            raise ValidationError(
+                'Order {}. Cannot register DEPOSIT - bad amount - {}'.format(
+                    self, tx_amount))
+
+        # Transaction is created before calculate_order to assure that
+        # it will not be hanging (waiting for better rate).
         tx = Transaction(**tx_data)
         tx.save()
+
+        self.calculate_order(tx_amount)
 
         return tx
 
@@ -529,6 +551,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
             res.update({'tx': tx})
         except Exception as e:
             res = {'status': 'ERROR', 'message': '{}'.format(e)}
+            self.refresh_from_db()
         self.save()
         return res
 

@@ -14,6 +14,7 @@ from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
 from core.tests.utils import get_ok_pay_mock, create_ok_payment_mock_for_order
 from payments.task_summary import run_okpay
+from payments.utils import money_format
 from ticker.tests.base import TickerBaseTestCase
 from unittest.mock import patch
 from orders.task_summary import buy_order_release_reference_periodic as \
@@ -25,6 +26,8 @@ from copy import deepcopy
 from core.tests.base import UPHOLD_ROOT
 from ticker.models import Ticker, Price
 from nexchange.api_clients.uphold import UpholdApiClient
+import requests_mock
+from freezegun import freeze_time
 
 
 class OrderBasicFieldsTestCase(OrderBaseTestCase):
@@ -849,3 +852,80 @@ class TestSymmetricalOrder(TickerBaseTestCase):
         self.assertEqual(order1.user_provided_amount, Order.PROVIDED_BASE)
         self.assertEqual(order2.user_provided_amount, Order.PROVIDED_QUOTE)
         self.assertEqual(order3.user_provided_amount, Order.PROVIDED_BOTH)
+
+
+class CalculateOrderTestCase(TickerBaseTestCase):
+
+    def setUp(self):
+        super(CalculateOrderTestCase, self).setUp()
+        self._create_order()
+        with requests_mock.mock() as mock:
+            self.get_tickers(mock)
+
+    def test_calculate_on_time(self):
+        amount_quote = self.order.amount_quote
+        amount_base = self.order.amount_base
+        price = self.order.price
+        times = Decimal('1.2')
+        self.order.calculate_order(amount_quote * Decimal('1.2'))
+        self.order.refresh_from_db()
+        self.assertEqual(amount_base * times, self.order.amount_base)
+        self.assertAlmostEqual(
+            amount_quote * times, self.order.amount_quote, 8)
+        self.assertEqual(price, self.order.price)
+
+    @patch('orders.models.Order.expired')
+    def test_calculate_expired(self, expired):
+        expired.return_value = True
+        price = self.order.price
+        latest_price = Price.objects.filter(pair=self.order.pair).last()
+        ticker = latest_price.ticker
+        ticker.ask = times = Decimal('1.2')
+        ticker.save()
+        amount_quote = self.order.amount_quote
+        self.order.calculate_order(amount_quote)
+        self.order.refresh_from_db()
+        self.assertNotEquals(price, self.order.price)
+        self.assertEqual(latest_price, self.order.price)
+        self.assertEqual(amount_quote, self.order.amount_quote)
+        self.assertAlmostEqual(
+            self.order.amount_quote, self.order.amount_base * times, 8)
+
+    def test_adjust_payment_window(self):
+        default_window = self.order.payment_window
+        skip_minutes = default_window + 1
+        now = self.order.created_on + timedelta(minutes=skip_minutes)
+        amount_quote = self.order.amount_quote
+        with freeze_time(now):
+            self.assertTrue(self.order.expired)
+            self.order.calculate_order(amount_quote)
+            self.assertFalse(self.order.expired)
+            self.assertEqual(
+                self.order.payment_window,
+                skip_minutes + settings.PAYMENT_WINDOW)
+
+    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
+    def test_do_not_register_small_amount(self, check_tx):
+        confirmations = 999
+        check_tx.return_value = True, confirmations
+        self._create_order()
+        amount_quote = self.order.amount_quote
+        amount_base = self.order.amount_base
+        minimal_quote_amount = \
+            self.order.pair.base.minimal_amount * self.order.price.ticker.ask
+        tx_amount = minimal_quote_amount / Decimal('2.0')
+        res = self.order.register_deposit(
+            {'order': self.order, 'address_to': self.order.deposit_address,
+             'type': Transaction.DEPOSIT, 'tx_id_api': self.generate_txn_id(),
+             'amount': tx_amount})
+        self.assertEqual('ERROR', res['status'])
+        self.assertEqual(self.order.status, Order.INITIAL)
+        self.assertEqual(self.order.amount_base, amount_base)
+        self.assertEqual(self.order.amount_quote, amount_quote)
+        tx = self.order.transactions.last()
+        self.assertEqual(tx.amount, money_format(tx_amount, places=8))
+        update_txs()
+        tx.refresh_from_db()
+        self.order.refresh_from_db()
+        self.assertEqual(confirmations, tx.confirmations)
+        self.assertEqual(self.order.status, Order.INITIAL)

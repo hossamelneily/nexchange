@@ -445,27 +445,31 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         )
 
     def check_confirm_amounts(self, pair_name=None):
-        try:
-            self.wait.until(EC.element_to_be_clickable((
-                By.CLASS_NAME, 'base-amount-confirm')))
-        except TimeoutException:
-            # FIXME: sometimes unclickable is clicked (if you get there and
-            # tests are still passing)
-            self.do_screenshot(
-                'TIMEOUT base-amount-confirm is not clickable (tests should '
-                'not PASS cause you should not be abble to click unclickable '
-                'element)'
-            )
-        amount_base = self.driver.find_element_by_class_name(
-            'base-amount-confirm').text
-        amount_quote = self.driver.find_element_by_class_name(
-            'quote-amount-confirm').text
-        currency_base = self.driver.find_element_by_class_name(
-            'currency_base').text
-        # FIXME: legacy on frontend, class should be called
-        # 'currency_quote'. Therefore XPATH is used here.
-        currency_quote = self.driver.find_element_by_xpath(
-            '//div[@id="menu3"]//span[@class="currency"]').text
+        # FIXME: retry on random failure
+        for _ in range(0, 3):
+            try:
+                self.wait.until(EC.element_to_be_clickable((
+                    By.CLASS_NAME, 'base-amount-confirm')))
+            except TimeoutException:
+                # FIXME: sometimes unclickable is clicked (if you get there and
+                # tests are still passing)
+                self.do_screenshot(
+                    'TIMEOUT base-amount-confirm is not clickable (tests '
+                    'should not PASS cause you should not be abble to click '
+                    'unclickable element)'
+                )
+            amount_base = self.driver.find_element_by_class_name(
+                'base-amount-confirm').text
+            amount_quote = self.driver.find_element_by_class_name(
+                'quote-amount-confirm').text
+            currency_base = self.driver.find_element_by_class_name(
+                'currency_base').text
+            # FIXME: legacy on frontend, class should be called
+            # 'currency_quote'. Therefore XPATH is used here.
+            currency_quote = self.driver.find_element_by_xpath(
+                '//div[@id="menu3"]//span[@class="currency"]').text
+            if all([amount_quote, amount_base]):
+                break
         self.assertNotEqual(amount_base, '')
         self.assertNotEqual(amount_quote, '')
         if pair_name[:4] == 'DOGE':

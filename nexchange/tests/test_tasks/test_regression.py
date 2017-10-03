@@ -12,6 +12,10 @@ from orders.task_summary import exchange_order_release_invoke
 from ticker.tests.base import TickerBaseTestCase
 from decimal import Decimal
 from unittest import skip
+from freezegun import freeze_time
+from django.conf import settings
+from datetime import timedelta
+from payments.utils import money_format
 
 
 class RegressionTaskTestCase(TransactionImportBaseTestCase,
@@ -173,20 +177,16 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         self.order.refresh_from_db()
 
     @patch(UPHOLD_ROOT + 'get_transactions')
-    def test_do_not_import_txn_less_bad_data(self, get_txs_uphold):
+    def test_do_not_import_tx_bad_data(self, get_txs_uphold):
         pair_name = 'BTCLTC'
         pair = Pair.objects.get(name=pair_name)
-        currency_quote_code = pair.quote.code
         amount_base = 11.11
         self._create_order(pair_name=pair_name,
                            amount_base=amount_base)
-        mock_currency_code = currency_quote_code
         mock_amount = self.order.amount_quote
         card = self.order.deposit_address.reserve
         card_id = card.card_id
         bad_datas = {
-            'bad amount': {'amount': mock_amount - Decimal('0.2'),
-                           'currency': mock_currency_code},
             'bad currency': {'amount': mock_amount,
                              'currency': pair.base.code}
         }
@@ -195,8 +195,65 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
                 self.get_uphold_tx(value['currency'], value['amount'], card_id)
             ]
             self.import_txs_task.apply()
-            txns = self.order.transactions.all()
-            self.assertEqual(len(txns), 0, key)
+            txs = self.order.transactions.all()
+            self.assertEqual(len(txs), 0, key)
+
+    @data_provider(
+        lambda: (
+            ('Less amount',
+             {'pair_name': 'LTCETH', 'times': Decimal('0.89'),
+              'minutes_after_expire': -4}),
+            ('More amount',
+             {'pair_name': 'ETHLTC', 'times': Decimal('1.23'),
+              'minutes_after_expire': -4}),
+            ('Expired',
+             {'pair_name': 'LTCETH', 'times': Decimal('1.00'),
+              'minutes_after_expire': 12}),
+        ))
+    @patch(UPHOLD_ROOT + 'get_transactions')
+    def test_dynamically_change_order_with_tx_import(self, name, test_data,
+                                                     get_txs_uphold):
+        pair_name = test_data['pair_name']
+        times = test_data['times']
+        pair = Pair.objects.get(name=pair_name)
+        mock_currency_code = pair.quote.code
+        self._create_order(pair_name=pair_name, amount_base=None,
+                           amount_quote=11.11)
+        amount_base = self.order.amount_base
+        card = self.order.deposit_address.reserve
+        card_id = card.card_id
+        amount_quote = self.order.amount_quote
+        mock_amount = money_format(amount_quote * times, places=8)
+        minutes_after_expire = test_data['minutes_after_expire']
+        skip_minutes = settings.PAYMENT_WINDOW + minutes_after_expire
+        now = self.order.created_on + timedelta(minutes=skip_minutes)
+        with freeze_time(now):
+            if minutes_after_expire >= 0:
+                self.assertTrue(self.order.expired, name)
+            get_txs_uphold.return_value = [
+                self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
+            ]
+            self.import_txs_task.apply()
+            txs = self.order.transactions.all()
+            self.assertEqual(len(txs), 1, name)
+            tx = txs.last()
+            self.assertAlmostEqual(tx.amount, mock_amount, 7, name)
+            self.order.refresh_from_db()
+            self.assertEqual(self.order.status, Order.PAID_UNCONFIRMED)
+            self.assertAlmostEqual(
+                self.order.amount_quote, mock_amount, 7, name)
+            expected_base = money_format(amount_base * times, places=8)
+            self.assertAlmostEqual(
+                self.order.amount_base, expected_base, 7, name)
+            self.assertFalse(self.order.expired, name)
+            if minutes_after_expire < 0:
+                self.assertEqual(
+                    self.order.payment_window, settings.PAYMENT_WINDOW, name)
+            else:
+                self.assertEqual(
+                    self.order.payment_window,
+                    settings.PAYMENT_WINDOW * 2 + minutes_after_expire,
+                    name)
 
     @skip('FIXME: Uphold importer doesnt work that way on prod')
     @patch('nexchange.utils.get_address_transaction_ids_blockchain')

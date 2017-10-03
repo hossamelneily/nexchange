@@ -196,7 +196,6 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
             self.assertEqual(res1[key], value, name)
             self.assertEqual(res2[key], value, name)
 
-
     @skip('Cards must be checked card by card')
     @patch('accounts.tasks.generic.addressreserve_monitor.base.'
            'ReserveMonitor.check_cards')
@@ -212,7 +211,8 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
         self._create_order()
         self.order.register_deposit(
             {'order': self.order, 'address_to': self.order.deposit_address,
-             'type': Transaction.DEPOSIT, 'tx_id_api': self.generate_txn_id()})
+             'type': Transaction.DEPOSIT, 'tx_id_api': self.generate_txn_id(),
+             'amount': self.order.amount_quote})
         update_pending_transactions_invoke.apply()
         tx = self.order.transactions.last()
         check_transaction_card_balance_invoke.apply([tx.pk])
@@ -227,7 +227,8 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
         self._create_order()
         self.order.register_deposit(
             {'order': self.order, 'address_to': self.order.deposit_address,
-             'type': Transaction.DEPOSIT, 'tx_id_api': self.generate_txn_id()})
+             'type': Transaction.DEPOSIT, 'tx_id_api': self.generate_txn_id(),
+             'amount': self.order.amount_quote})
         update_pending_transactions_invoke.apply()
         tx = self.order.transactions.last()
         check_card.return_value = {'retry': False}

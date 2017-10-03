@@ -4,7 +4,6 @@ from django.db.models import Q
 
 from core.models import Transaction
 from orders.models import Order
-from decimal import Decimal
 from nexchange.utils import get_nexchange_logger
 
 
@@ -15,17 +14,15 @@ class BaseTransactionImporter:
             self.__class__.__name__
         )
 
-    def get_orders(self, tx, status=Order.INITIAL):
+    def get_orders(self, tx_data, status=Order.INITIAL):
         buy_exchange_query = {
             'exchange': True,
             'order_type': Order.BUY,
-            'amount_quote': Decimal(str(tx['amount'])),
-            'pair__quote': tx['currency'],
+            'pair__quote': tx_data['currency'],
             'status': status,
-            'deposit_address': tx['address_to']
+            'deposit_address': tx_data['address_to']
         }
         orders = Order.objects.filter(**buy_exchange_query)
-        orders = [order for order in orders if not order.expired]
         return orders
 
     def get_or_create_tx(self, tx):
@@ -59,32 +56,19 @@ class BaseTransactionImporter:
             self.logger.info(e)
             raise e
 
-        if not existing_transaction:
-            self.create_tx(tx)
-        else:
+        if existing_transaction:
             self.logger.info('Transaction with ID {} already exists'.format(
                 tx['tx_id'])
             )
             self.api.revert_tx_mapper()
+        else:
+            self.create_tx(tx)
 
-    def update_unconfirmed_order(self, tx_data):
-        if 'tx_id_api' not in tx_data:
-            return
-        orders = self.get_orders(tx_data, status=Order.PAID_UNCONFIRMED)
-        if len(orders) != 1:
-            return
-        order = orders[0]
-        filters = {}
-        for key, value in tx_data.items():
-            if value and key != 'tx_id_api':
-                filters.update({key: value})
-            filters.update({'tx_id_api': None})
-        tx = order.transactions.filter(**filters).last()
-        if tx:
-            tx.tx_id_api = tx_data.get('tx_id_api')
-            tx.save()
+    def update_unconfirmed_order(self, orders, tx_data):
+        pass
 
     def create_tx(self, tx_data):
+        tx = None
         orders = self.get_orders(tx_data)
         if len(orders) == 1:
             order = orders[0]
@@ -97,16 +81,20 @@ class BaseTransactionImporter:
             register_res = order.register_deposit(tx_data)
 
             if register_res.get('status') == 'OK':
-                txn = register_res.get('tx')
+                tx = register_res.get('tx')
                 self.logger.info('New transaction created {}'
-                                 .format(txn.__dict__))
+                                 .format(tx.__dict__))
                 self.logger.info('Order {} is marked as PAID_UNCONFIRMED'
                                  .format(order.__dict__))
         elif len(orders) == 0:
             self.logger.info(
                 'Transaction is not created: no orders for transaction '
                 '{} found'.format(tx_data))
-            self.update_unconfirmed_order(tx_data)
+            unconfirmed_orders = self.get_orders(tx_data,
+                                                 status=Order.PAID_UNCONFIRMED)
+            if len(unconfirmed_orders) == 1:
+                self.update_unconfirmed_order(unconfirmed_orders[0],
+                                              tx_data)
         elif len(orders) > 1:
             self.logger.error(
                 'Transaction is not created: more then 1 order {} found'

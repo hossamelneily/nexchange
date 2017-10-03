@@ -62,6 +62,7 @@ def _update_pending_transaction(tx, logger, next_tasks=None):
 
     tx.confirmations = num_confirmations
     with transaction.atomic():
+        tx.save()
         withdrawal_completed = tx.address_to.type == Address.WITHDRAW and \
             tx_completed and order.status != Order.COMPLETED
         deposit_completed = tx.address_to.type == Address.DEPOSIT and \

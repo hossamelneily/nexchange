@@ -93,13 +93,17 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         sms_token = SmsToken.objects.filter(user=user).latest('id')
         token = sms_token.sms_token
 
-        response = passive_authentication_helper(
-            self.client,
-            self.user,
-            token,
-            self.user.username,
-            True
-        )
+        # FIXME: this loop is to retry request in case of random failure
+        for _ in range(0, 3):
+            response = passive_authentication_helper(
+                self.client,
+                self.user,
+                token,
+                self.user.username,
+                True
+            )
+            if response.status_code != 400:
+                break
 
         # Ensure the token was correctly received
         self.assertEqual(200, response.status_code)
@@ -219,13 +223,17 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         token = '{}{}'.format(sms_token.sms_token,
                               token_addition)
 
-        response = passive_authentication_helper(
-            self.client,
-            self.user,
-            token,
-            self.username,
-            False
-        )
+        # FIXME: this loop is to retry request in case of random failure
+        for _ in range(0, 3):
+            response = passive_authentication_helper(
+                self.client,
+                self.user,
+                token,
+                self.username,
+                False
+            )
+            if response.status_code != 400:
+                break
 
         # Ensure the token was correctly received
         self.assertEqual(status_code, response.status_code)
@@ -243,13 +251,17 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         sms_token = SmsToken.objects.filter(user=user).latest('id')
         token = ' {} '.format(sms_token.sms_token)
 
-        response = passive_authentication_helper(
-            self.client,
-            self.user,
-            token,
-            self.user.username,
-            False
-        )
+        # FIXME: this loop is to retry request in case of random failure
+        for _ in range(0, 3):
+            response = passive_authentication_helper(
+                self.client,
+                self.user,
+                token,
+                self.user.username,
+                False
+            )
+            if response.status_code != 400:
+                break
 
         # Ensure the token was correctly received
         self.assertEqual(201, response.status_code)

@@ -704,9 +704,10 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
 
         self.order.refresh_from_db()
         self.assertTrue(self.order.expired)
-        self.assertNotEquals(self.order.status, Order.PAID_UNCONFIRMED,
-                             pair_name)
-        self.assertEqual(self.order.status, Order.INITIAL, pair_name)
+        self.assertEqual(self.order.status, Order.PAID_UNCONFIRMED,
+                         pair_name)
+        self.assertEqual(
+            self.order.payment_window, settings.PAYMENT_WINDOW * 2, pair_name)
 
 
 class SofortEndToEndTestCase(BaseSofortAPITestCase,

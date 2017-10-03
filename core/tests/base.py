@@ -175,11 +175,11 @@ class UserBaseTestCase(TestCase):
             user = self.user
         self.order = Order(
             order_type=order_type,
-            amount_base=Decimal(str(amount_base)),
+            amount_base=Decimal(str(amount_base)) if amount_base else None,
             pair=pair,
             user=user,
             status=Order.INITIAL,
-            amount_quote=amount_quote
+            amount_quote=Decimal(str(amount_quote)) if amount_quote else None
         )
         if payment_preference is not None:
             self.order.payment_preference = payment_preference
@@ -606,17 +606,27 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.status_ok_list_index = 0
         self.status_bad_list_index = 1
 
+    def _create_price_for_pair(self, pair):
+        ticker = Ticker(
+            pair=pair,
+            ask=OrderBaseTestCase.PRICE_BUY_EUR,
+            bid=OrderBaseTestCase.PRICE_SELL_EUR
+        )
+        ticker.save()
+        price = Price(pair=pair, ticker=ticker)
+        price.save()
+        return price
+
     @patch(UPHOLD_ROOT + 'get_transactions')
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     def base_test_create_transactions_with_task(self, run_method, reserve_txs,
                                                 import_txs):
 
         pair_name = 'BTCLTC'
+        pair = Pair.objects.get(name=pair_name)
+        self._create_price_for_pair(pair)
         order = Order.objects.filter(pair__name=pair_name).first()
-        self._create_mocks_uphold(
-            amount2=order.amount_quote, currency_code=order.pair.quote.code,
-            order=order
-        )
+        self._create_mocks_uphold(amount2=order.amount_quote, order=order)
         reserve_txs.return_value = json.loads(self.completed)
         import_txs.return_value = json.loads(self.import_txs)
         run_method()
@@ -676,8 +686,8 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         addr.save()
         return addr
 
-    def _create_mocks_uphold(self, amount2=Decimal('0.0'), currency_code=None,
-                             card_id=None, order=None):
+    def _create_mocks_uphold(self, amount2=Decimal('0.0'), currency1=None,
+                             currency2=None, card_id=None, order=None):
         if order is not None:
             self.order = order
         if len(self.order.user.addressreserve_set.all()) == 0:
@@ -685,8 +695,10 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
                 self._mock_cards_reserve(mock)
                 self._create_an_order_for_every_crypto_currency_card()
         self.tx_ids_api = ['12345', '54321']
-        if currency_code is None:
-            currency_code = self.order.pair.base.code
+        if not currency1:
+            currency1 = self.order.pair.base.code
+        if not currency2:
+            currency2 = self.order.pair.quote.code
         if card_id is None and self.order.pair.quote.is_crypto:
             card_id = self.order.deposit_address.reserve.card_id
         else:
@@ -696,7 +708,8 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             tx_id_api2=self.tx_ids_api[1],
             amount1=self.order.amount_base,
             amount2=amount2,
-            currency=currency_code,
+            currency1=currency1,
+            currency2=currency2,
             card_id=card_id,
         )
         reserve_url = 'https://api.uphold.com/v0/reserve/transactions/{}'

@@ -6,7 +6,7 @@
     "destination": {{
       "CardId": "{card_id}",
       "amount": "{amount1}",
-      "currency": "{currency}"
+      "currency": "{currency1}"
     }}
   }},
   {{
@@ -16,7 +16,7 @@
     "destination": {{
       "CardId": "{card_id}",
       "amount": "{amount2}",
-      "currency": "{currency}"
+      "currency": "{currency2}"
     }}
   }}
 ]
