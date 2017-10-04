@@ -11,7 +11,8 @@ router.register(r'users/me/orders', api_views.UserOrderListViewSet,
                 base_name='orders')
 router.register(r'users/me/addresses', api_views.UserAddressViewSet,
                 base_name='addresses')
-
+router.register(r'users', api_views.UserViewSet,
+                base_name='users')
 account_api_patterns = router.urls
 
 account_urls = [

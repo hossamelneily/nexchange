@@ -1,12 +1,15 @@
 from rest_framework import permissions
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
 
 
 class OwnerOnlyPermission(permissions.BasePermission):
     message = _('You do not have permission to view this resource')
 
     def has_object_permission(self, request, view, obj):
-        if getattr(obj, 'user') == request.user:
+        # raise Exception(obj)
+        user = obj if isinstance(obj, User) else getattr(obj, 'user')
+        if user == request.user:
             return True
         return False
 
