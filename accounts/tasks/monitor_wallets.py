@@ -5,7 +5,6 @@ from django.db.models import Q
 from core.models import Transaction, Address
 from orders.models import Order
 from nexchange.utils import get_nexchange_logger
-from orders.task_summary import exchange_order_release_invoke
 from django.db import transaction
 from nexchange.api_clients.factory import ApiClientFactory
 from nexchange.utils import check_transaction_blockchain
@@ -79,7 +78,8 @@ def _update_pending_transaction(tx, logger, next_tasks=None):
             # TODO: change me to add_next_task()
             if confirm_status_ok and order.status == Order.PAID:
                 # TODO: implement me as next task
-                next_tasks.add((exchange_order_release_invoke, tx.pk,))
+                # Orders are released by periodic release
+                # next_tasks.add((exchange_order_release_invoke, tx.pk,))
                 app.send_task(CHECK_CARD_BALANCE_TASK, [tx.pk],
                               countdown=settings.CARD_CHECK_TIME)
 

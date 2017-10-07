@@ -263,10 +263,10 @@ PAYMENT_CHECKER_TASKS = {
 }
 
 ORDER_RELEASE_TASKS = {
-    'buy_order_release_reference_periodic': {
-        'task': 'orders.task_summary.buy_order_release_reference_periodic',
-        'schedule': timedelta(seconds=30),
-    },
+    # 'buy_order_release_reference_periodic': {
+    #     'task': 'orders.task_summary.buy_order_release_reference_periodic',
+    #     'schedule': timedelta(seconds=30),
+    # },
     'exchange_order_release_periodic': {
         'task': 'orders.task_summary.exchange_order_release_periodic',
         'schedule': timedelta(seconds=30),
@@ -297,7 +297,7 @@ CELERY_BEAT_SCHEDULE.update(CORE_TASKS)
 # Disabled while we do not support Fiat
 # CELERY_BEAT_SCHEDULE.update(PAYMENT_CHECKER_TASKS)
 CELERY_BEAT_SCHEDULE.update(TRANSACTION_CHECKER_TASKS)
-#CELERY_BEAT_SCHEDULE.update(ORDER_RELEASE_TASKS)
+CELERY_BEAT_SCHEDULE.update(ORDER_RELEASE_TASKS)
 
 TASKS_TIME_LIMIT = 30
 TRANSACTION_IMPORT_TIME_LIMIT = 9
@@ -476,7 +476,7 @@ CORS_ALLOW_HEADERS = default_headers + (
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework.filters.DjangoFilterBackend',
+        'django_filters.rest_framework.DjangoFilterBackend',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',

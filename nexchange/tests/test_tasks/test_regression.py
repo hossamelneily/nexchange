@@ -8,7 +8,8 @@ from core.tests.base import UPHOLD_ROOT, EXCHANGE_ORDER_RELEASE_ROOT
 from core.tests.utils import data_provider
 from core.models import Transaction, Pair, Address
 from orders.models import Order
-from orders.task_summary import exchange_order_release_invoke
+from orders.task_summary import exchange_order_release_invoke,\
+    exchange_order_release_periodic
 from ticker.tests.base import TickerBaseTestCase
 from decimal import Decimal
 from unittest import skip
@@ -321,3 +322,19 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         self.update_confirmation_task.apply()
         self.order.refresh_from_db()
         self.assertEquals(self.order.status, Order.PAID)
+
+    def test_exchange_release_periodic(self):
+        self._create_PAID_order()
+        exchange_order_release_periodic.apply_async()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PRE_RELEASE)
+
+    def test_exchange_release_periodic_do_not_flagged_tx(self):
+        self._create_PAID_order()
+        tx = self.order.transactions.last()
+        tx.flag(val='something')
+        tx.refresh_from_db()
+        self.assertTrue(tx.flagged)
+        exchange_order_release_periodic.apply_async()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PAID)

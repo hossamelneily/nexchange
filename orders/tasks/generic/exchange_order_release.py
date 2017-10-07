@@ -79,6 +79,7 @@ class ExchangeOrderRelease(BaseOrderRelease, ApiClientFactory):
         tx = Transaction.objects.get(pk=transaction_id)
         tx, order = self._get_order(tx)
         if order:
+            self.logger.info('Release order {}'.format(order.unique_reference))
             if self.validate(order, tx):
                 if self.do_release(order):
                     self.immediate_apply = True

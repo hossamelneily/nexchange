@@ -55,7 +55,8 @@ def exchange_order_release_periodic():
     logger = get_nexchange_logger('Periodic Exchange Order Release')
     txs = Transaction.objects.filter(
         order__exchange=True, order__status=Order.PAID,
-        order__withdraw_address__isnull=False
+        order__withdraw_address__isnull=False, type=Transaction.DEPOSIT,
+        flagged=False
     )
     for tx in txs:
         try:
