@@ -412,7 +412,7 @@ build:
     - internal/docker-push:
         username: $DOCKER_HUB_USER
         password: $DOCKER_HUB_PASSWORD
-        tag: ${WERCKER_GIT_COMMIT:0:9}
+        tag: ${DOCKER_IMAGE_TAG}
         repository: $DOCKER_HUB_REPO
         registry: https://registry.hub.docker.com
         entrypoint: /entrypoint.sh
@@ -441,6 +441,7 @@ deploy:
       code: |
         SSH_OPTIONS="-o StrictHostKeyChecking=no -i $PRIVATEKEY_PATH"
         SSH_DEST="$SSH_USER@$DEST_HOST_ADDR"
+        SUBSTR=${WERCKER_GIT_COMMIT:0:9}
         echo 'knocking port open'
         for port in ${KNOCK_PORT_SEQUENCE}; do
           knock $DEST_HOST_ADDR $port
@@ -450,12 +451,19 @@ deploy:
         scp ${SSH_OPTIONS} nginx.conf ${SSH_DEST}:/nexchange/etc/nginx/nginx.conf
         scp ${SSH_OPTIONS} docker-compose.yml ${SSH_DEST}:/nexchange/docker-compose.yml
         ssh ${SSH_OPTIONS} ${SSH_DEST} << EOF
+          ## Steps to stop docker from eating all the space in the drive ##
+          # remove exited containers
+          docker rm -v $(docker ps -a -q -f status=exited)
+          # remove dangling images
+          docker rmi $(docker images -f "dangling=true" -q)
+          # remove dangling voluemes
+          docker volume rm $(docker volume ls -qf dangling=true)
 
           # export the variables that docker-compose will inject into DB container
           export POSTGIS_ENV_POSTGRES_USER=${POSTGIS_ENV_POSTGRES_USER}
           export POSTGIS_ENV_POSTGRES_PASSWORD=${POSTGIS_ENV_POSTGRES_PASSWORD}
           export POSTGIS_ENV_POSTGRES_DB=${POSTGIS_ENV_POSTGRES_DB}
-          export DOCKER_IMAGE_TAG=${WERCKER_GIT_COMMIT:0:9}
+          export DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}
           export LOGSTASH_ADDRESS=${LOGSTASH_ADDRESS}
           export LOGSTASH_PORT=${LOGSTASH_PORT}
           export DB_VOL=${DB_VOL}
