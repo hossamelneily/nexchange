@@ -149,6 +149,7 @@ INSTALLED_APPS = [
     'loginurl',
     'social_django',
     'django_fsm',
+    'risk_management'
 ]
 
 
@@ -291,6 +292,14 @@ TRANSACTION_CHECKER_TASKS = {
     },
 }
 
+TRADING_TASKS = {
+    'reserves_balance_checker_periodic': {
+        'task': 'risk_management.task_summary.'
+                'reserves_balance_checker_periodic',
+        'schedule': timedelta(seconds=300),
+    },
+}
+
 CELERY_BEAT_SCHEDULE = {}
 
 CELERY_BEAT_SCHEDULE.update(CORE_TASKS)
@@ -298,6 +307,7 @@ CELERY_BEAT_SCHEDULE.update(CORE_TASKS)
 # CELERY_BEAT_SCHEDULE.update(PAYMENT_CHECKER_TASKS)
 CELERY_BEAT_SCHEDULE.update(TRANSACTION_CHECKER_TASKS)
 CELERY_BEAT_SCHEDULE.update(ORDER_RELEASE_TASKS)
+CELERY_BEAT_SCHEDULE.update(TRADING_TASKS)
 
 TASKS_TIME_LIMIT = 30
 TRANSACTION_IMPORT_TIME_LIMIT = 9
@@ -440,8 +450,17 @@ CARDS_RESERVE_COUNT = 20
 # this is used if there is no reserve on user.create()
 EMERGENCY_CARDS_RESERVE_COUNT = 1
 
+# API3 TEST
+API3_KEY = ''
+API3_SECRET = ''
+API3_ADDR_XVG = ''
+
 # RPC
 RPC_IMPORT_TRANSACTIONS_COUNT = 10
+# RPC
+DEFAULT_RPC_USER = ''
+DEFAULT_RPC_PASS = ''
+DEFAULT_RPC_HOST = ''
 
 
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"

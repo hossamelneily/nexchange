@@ -114,6 +114,11 @@ dev:
         code: |
           python manage.py loaddata referrals/fixtures/program.json
     - script:
+        name: Django import risk_management fixtures
+        code: |
+          python manage.py loaddata risk_management/fixtures/reserve.json
+          python manage.py loaddata risk_management/fixtures/account.json
+    - script:
         name: Django import Articles fixtures
         code: |
           if [ ! -z $LOCAL_CMS] && [ ${LOCAL_CMS} -eq 1 ]
@@ -261,6 +266,10 @@ build:
           # API2
           export API2_KEY=${API2_KEY}
           export API2_SECRET=${API2_SECRET}
+          # API3
+          export API3_KEY=${API3_KEY}
+          export API3_SECRET=${API3_SECRET}
+          export API3_ADDR_XVG=${API3_ADDR_XVG}
           # CARDPMT
           export CARDPMT_API_ID=${CARDPMT_API_ID}
           export CARDPMT_API_PASS=${CARDPMT_API_PASS}
@@ -339,6 +348,8 @@ build:
           python /usr/src/app/manage.py loaddata payments/fixtures/payment_method.json
           python /usr/src/app/manage.py loaddata payments/fixtures/payment_preference.json
           python /usr/src/app/manage.py loaddata referrals/fixtures/program.json
+          python /usr/src/app/manage.py loaddata risk_management/fixtures/reserve.json
+          python /usr/src/app/manage.py loaddata risk_management/fixtures/account.json
           echo "To load the 'withdraw_address' fixture, uncomment the next line"
           # python manage.py loaddata core/fixtures/withdraw_address.json
           python manage.py loaddata core/fixtures/pairs_cross.json

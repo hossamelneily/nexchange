@@ -482,7 +482,10 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             'phone': self.user.username,
             'login_with_email': 'true' if login_with_email else 'false',
         }
-        res = self.client.post(url, data=payload)
+        for _ in range(0, 3):
+            res = self.client.post(url, data=payload)
+            if res.status_code != 400:
+                break
         # make attacker think phone is always created
         self.assertEqual(201, res.status_code)
         self.assertTrue(self.user.is_authenticated())

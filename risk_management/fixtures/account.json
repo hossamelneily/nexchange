@@ -1,0 +1,24 @@
+[
+{
+  "model": "risk_management.account",
+  "pk": 1,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 1,
+    "wallet": "api3",
+    "trading_allowed": true
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 2,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 1,
+    "wallet": "rpc3",
+    "trading_allowed": false
+  }
+}
+]
