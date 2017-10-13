@@ -17,6 +17,7 @@ from freezegun import freeze_time
 from django.conf import settings
 from datetime import timedelta
 from payments.utils import money_format
+import requests_mock
 
 
 class RegressionTaskTestCase(TransactionImportBaseTestCase,
@@ -49,13 +50,25 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         self.order.save()
         return self.order, txn_dep
 
+    def mock_blockchain_tx_checker(self, tx, confirmations, mock):
+        currency = tx.currency.code
+        if currency in ['BTC', 'LTC', 'ETH']:
+            url = 'https://api.blockcypher.com/v1/{}/main/txs/{}'.format(
+                currency.lower(), tx.tx_id)
+        elif currency in ['BCH']:
+            url = 'https://bitcoincash.blockexplorer.com/api/tx/{}'.format(
+                tx.tx_id
+            )
+        response = '{{"confirmations": {}}}'.format(confirmations)
+        mock.get(url, text=response)
+
     @data_provider(
         lambda: (
             ('1.Bad status and confs uphold, cnfs+', 'BTCETH', True,
              (False, 0), Order.PAID),
             ('2.Bad status and confs uphold, cnfs-', 'ETHBTC', False,
              (False, 1), Order.PAID_UNCONFIRMED),
-            ('3.Bad status uphold, cnfs+', 'LTCETH', True, (False, 99),
+            ('3.Bad status uphold, cnfs+', 'LTCBCH', True, (False, 99),
              Order.PAID),
             ('4.Uphold OK, cnfs+', 'BTCLTC', True, (True, 99), Order.PAID),
             ('5.Uphold OK, cnfs-', 'BTCETH', False, (True, 99), Order.PAID),
@@ -63,18 +76,17 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
              Order.PAID_UNCONFIRMED),
         )
     )
-    @patch('accounts.tasks.monitor_wallets.check_transaction_blockchain')
+    @requests_mock.mock()
     @patch(UPHOLD_ROOT + 'execute_txn')
     @patch(UPHOLD_ROOT + 'prepare_txn')
     @patch(UPHOLD_ROOT + 'get_transactions')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
     def test_confirmation_with_blockchain(self, name, pair_name, enough_confs,
                                           uphold_checker, last_order_status,
-                                          check_tx_uphold,
+                                          mock, check_tx_uphold,
                                           get_txs_uphold,
                                           prepare_txn_uphold,
-                                          execute_txn_uphold,
-                                          check_transaction_blockchain):
+                                          execute_txn_uphold):
         currency_quote_code = Pair.objects.get(name=pair_name).quote.code
         amount_base = 11.11
         self._create_order(pair_name=pair_name,
@@ -92,13 +104,14 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         blockchain_confirmations = self.order.pair.quote.min_confirmations
         if not enough_confs:
             blockchain_confirmations -= 1
-        check_transaction_blockchain.return_value = blockchain_confirmations
         self.import_txs_task.apply()
         prepare_txn_uphold.return_value = self.generate_txn_id()
         execute_txn_uphold.return_value = {'code': 'OK'}
 
         self.order.refresh_from_db()
         self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED, name)
+        tx = self.order.transactions.last()
+        self.mock_blockchain_tx_checker(tx, blockchain_confirmations, mock)
         self.update_confirmation_task.apply()
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, last_order_status, name)

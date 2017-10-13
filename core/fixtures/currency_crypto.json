@@ -107,9 +107,9 @@
     "pk": 36,
     "fields": {
       "code": "BCH",
-      "name": "bitcoin cash",
+      "name": "bitcoin-cash",
       "ticker": "cryptopia",
-      "wallet": "rpc4",
+      "wallet": "api1",
       "algo": "sha256",
       "is_crypto": 1,
       "min_confirmations": 6,

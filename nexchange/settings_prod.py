@@ -58,6 +58,7 @@ API1_PAT = os.getenv('API1_PAT')
 API1_ID_C1 = os.getenv('API1_ID_C1')
 API1_ID_C2 = os.getenv('API1_ID_C2')
 API1_ID_C3 = os.getenv('API1_ID_C3')
+API1_ID_C4 = os.getenv('API1_ID_C4')
 API1_IS_TEST = bool(os.getenv('API1_IS_TEST', False))
 
 

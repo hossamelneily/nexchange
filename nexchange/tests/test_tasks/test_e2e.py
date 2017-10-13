@@ -9,13 +9,13 @@ from django.core.urlresolvers import reverse
 from unittest.mock import patch
 
 from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
-    update_pending_transactions_invoke
+    update_pending_transactions_invoke, \
+    import_transaction_deposit_uphold_blockchain_invoke
 from core.models import Address, Transaction, Currency
 from core.tests.base import TransactionImportBaseTestCase
 from core.tests.base import UPHOLD_ROOT
 from core.tests.base import WalletBaseTestCase
-from core.tests.utils import data_provider
-from core.tests.utils import get_ok_pay_mock
+from core.tests.utils import data_provider, get_ok_pay_mock
 from orders.models import Order
 from orders.task_summary import buy_order_release_by_reference_invoke,\
     exchange_order_release_invoke, \
@@ -565,6 +565,8 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             # ('LTCRNS', Order.BUY, True, 3),
             ('ETHDOGE', Order.BUY, True, 3),
             ('DOGELTC', Order.BUY, True, 4),
+            ('ETHBCH', Order.BUY, True, 3),
+            ('BCHDOGE', Order.BUY, True, 3),
         )
     )
     @patch('accounts.tasks.monitor_wallets.app.send_task')
@@ -1025,3 +1027,52 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, Order.PRE_RELEASE, name)
         self.assertTrue(self.order.flagged, name)
+
+
+class BlockchainImporterTaskTestCase(TickerBaseTestCase):
+
+    def setUp(self):
+        super(BlockchainImporterTaskTestCase, self).setUp()
+        self.import_txs_task = \
+            import_transaction_deposit_uphold_blockchain_invoke
+        old_orders = Order.objects.all()
+        for order in old_orders:
+            order.cancel()
+
+    def mock_order_blockchain_tx_import(self, order, mock):
+        currency = order.pair.quote.code
+        if currency in ['BTC', 'LTC', 'ETH']:
+            url = 'https://api.blockcypher.com/v1/{}/main/addrs/{}'.format(
+                currency.lower(),
+                order.deposit_address.address)
+            times_satoshi = 1e18 if currency == 'ETH' else 1e8
+            response = \
+                '{{"txrefs":[{{"tx_input_n": -1, "tx_hash": "{}", ' \
+                '"value": {}}}]}}'.format(
+                    self.generate_txn_id(),
+                    int(order.amount_quote * Decimal(times_satoshi))
+                )
+            mock.get(url, text=response)
+        if currency in ['BCH']:
+            url = 'https://bitcoincash.blockexplorer.com/api/addr/{}/utxo'.\
+                format(order.deposit_address.address)
+            response = \
+                '[{{"txid": "{}", "amount": {}}}]'.format(
+                    self.generate_txn_id(),
+                    order.amount_quote
+                )
+            mock.get(url, text=response)
+
+    @data_provider(
+        lambda: (('ETHLTC',), ('BTCETH',), ('BCHBTC',), ('LTCBCH',),)
+    )
+    @requests_mock.mock()
+    def test_import_tx_with_blockchain(self, pair_name, mock):
+        amount_base = 0.5
+        self._create_order(pair_name=pair_name, amount_base=amount_base)
+
+        self.mock_order_blockchain_tx_import(self.order, mock)
+        self.import_txs_task()
+
+        self.order.refresh_from_db()
+        self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED, pair_name)

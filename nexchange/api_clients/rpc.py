@@ -55,8 +55,8 @@ class ScryptRpcApiClient(BaseRpcClient):
 
     def __init__(self):
         super(ScryptRpcApiClient, self).__init__()
-        self.related_nodes = ['rpc2', 'rpc3', 'rpc4']
-        self.related_coins = ['DOGE', 'XVG', 'BCH']
+        self.related_nodes = ['rpc2', 'rpc3']  # removed rpc4 - BCH
+        self.related_coins = ['DOGE', 'XVG']  # removed roc4 - BCH
 
     def create_address(self, currency):
         address = self.call_api(currency.wallet, 'getnewaddress')

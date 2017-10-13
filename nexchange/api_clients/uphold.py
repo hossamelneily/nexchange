@@ -43,6 +43,8 @@ class UpholdApiClient(BaseApiClient):
             return settings.API1_ID_C2
         elif code == 'ETH':
             return settings.API1_ID_C3
+        elif code == 'BCH':
+            return settings.API1_ID_C4
         else:
             raise ValueError(
                 'Card for type {} not found'.format(code))
@@ -54,6 +56,8 @@ class UpholdApiClient(BaseApiClient):
             return 'litecoin'
         elif code == 'ETH':
             return 'ethereum'
+        elif code == 'BCH':
+            return 'bitcoin-cash'
         else:
             raise ValueError(
                 'Address name for {} not found'.format(code))

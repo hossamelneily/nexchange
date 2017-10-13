@@ -133,6 +133,9 @@ def get_transaction_blockchain(_curr, tx_id):
     if _curr.upper() == 'BTC':
         resource = 'https://blockexplorer.com/api/tx/{}'.\
             format(tx_id)
+    elif _curr.upper() == 'BCH':
+        resource = 'https://bitcoincash.blockexplorer.com/api/tx/{}'.format(
+            tx_id)
     elif _curr.upper() in ['ETH', 'LTC']:
         resource = 'https://api.blockcypher.com/v1/{}/main/txs/{}'\
             .format(curr, tx_id)
@@ -157,12 +160,11 @@ def check_transaction_blockchain(tx):
 
 def get_address_transaction_ids_blockchain(_curr, address_hash):
     def convert_value_int_to_decimal(_network, _value_int):
-        if _network == 'ETH':
+        if _network in ['ETH']:
             return Decimal(_value_int) / Decimal(1e18)
-        if _network in ['BTC', 'LTC']:
+        elif _network in ['BTC', 'LTC']:
             return Decimal(_value_int) / Decimal(1e8)
 
-    resource = ''
     txs = []
     curr = _curr.lower()
     network = _curr.upper()
@@ -174,14 +176,6 @@ def get_address_transaction_ids_blockchain(_curr, address_hash):
     if _curr.upper() in ['BTC', 'ETH', 'LTC']:
         resource = 'https://api.blockcypher.com/v1/{}/main/addrs/{}'.format(
             curr, address_hash)
-
-    if not resource:
-        logger.warning(
-            'get_address_transaction_ids_blockchain does not support '
-            '{}'.format(_curr)
-        )
-        return None, txs
-    else:
         res = get(resource)
         parsed_res = res.json()
         txns = parsed_res.get('txrefs', [])
@@ -195,8 +189,27 @@ def get_address_transaction_ids_blockchain(_curr, address_hash):
                     'tx_id': txn_prefix + txn_hash,
                     'amount': amount
                 })
-
-        return res, txs
+            return res, txs
+    elif _curr.upper() in ['BCH']:
+        resource = 'https://bitcoincash.blockexplorer.com/api/addr/{}/utxo'.\
+            format(address_hash)
+        res = get(resource)
+        txns = res.json()
+        for txn in txns:
+            txn_hash = txn.get('txid', None)
+            if txn_hash is not None:
+                amount = Decimal(str(txn.get('amount', 0)))
+                txs.append({
+                    'tx_id': txn_prefix + txn_hash,
+                    'amount': amount
+                })
+            return res, txs
+    else:
+        logger.warning(
+            'get_address_transaction_ids_blockchain does not support '
+            '{}'.format(_curr)
+        )
+        return None, txs
 
 
 def check_address_transaction_ids_blockchain(address):

@@ -243,6 +243,7 @@ build:
           export API1_ID_C1=${API1_ID_C1}
           export API1_ID_C2=${API1_ID_C2}
           export API1_ID_C3=${API1_ID_C3}
+          export API1_ID_C4=${API1_ID_C4}
           # YANDEX
           export YANDEX_METRICA_ID_UK=${YANDEX_METRICA_ID_UK}
           export YANDEX_METRICA_ID_RU=${YANDEX_METRICA_ID_RU}
