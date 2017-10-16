@@ -170,7 +170,7 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
         withdraw.assert_called_with(
             self.reserve.currency.code,
             amount,
-            settings.API3_ADDR_XVG
+            settings.API3_PUBLIC_KEY_C1
         )
 
     @patch('risk_management.tasks.generic.base.BaseAccountManagerTask.'

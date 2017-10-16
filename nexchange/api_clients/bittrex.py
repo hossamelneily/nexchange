@@ -87,4 +87,4 @@ class BittrexApiClient(BaseApiClient):
 
     def coin_address_mapper(self, code):
         if code == 'XVG':
-            return settings.API3_ADDR_XVG
+            return settings.API3_PUBLIC_KEY_C1
