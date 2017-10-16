@@ -200,6 +200,28 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         return self.code
 
 
+class Market(TimeStampedModel):
+
+    name = models.CharField(null=False, max_length=50, unique=True)
+    code = models.CharField(null=False, max_length=10, unique=True)
+    is_main_market = models.BooleanField(default=False, max_length=10)
+
+    def save(self, *args, **kwargs):
+        if self.is_main_market:
+            old_mains = Market.objects.filter(is_main_market=True)
+            for old_main in old_mains:
+                if self != old_main:
+                    old_main.is_main_market = False
+                    old_main.save()
+        super(Market, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return '{}'.format(self.name)
+
+
+DEFAULT_MARKET_PK = 1
+
+
 class Pair(TimeStampedModel):
 
     base = models.ForeignKey(Currency, related_name='base_prices')

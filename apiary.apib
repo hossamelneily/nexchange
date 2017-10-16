@@ -64,14 +64,15 @@ API for crypto currency exchange.
               }
             ]
 
-## Latest Ticker [/en/api/v1/price/{pair_name}/latest/]
+## Latest Ticker [/en/api/v1/price/{pair_name}/latest/{?market_code}]
 
 + Parameters
     + `pair_name`: BTCLTC (required, string) - name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC.
+    + `market_code`: nex (optional, string) - price market code. Default market is Nexchange(nex) - prices of this market are used for calculations of orders amounts.
 
 
 ### Get Latest Ticker [GET]
- Gets BTC/LTC latest price
+ Gets latest price of the pair.
 
 + Response 200 (application/json)
     + Attributes (array[Price])
@@ -84,17 +85,22 @@ API for crypto currency exchange.
                 "ticker":{
                   "ask":"97.06196063",
                   "bid":"96.33558341"
+                },
+                "market": {
+                    "name": "Nexchange",
+                    "code": "nex"
                 }
               }
             ]
 
 
-## Ticker History [/en/api/v1/price/{pair_name}/history/{?hours,data_points}]
+## Ticker History [/en/api/v1/price/{pair_name}/history/{?hours,data_points,market_code}]
 
 + Parameters
     + `pair_name`: BTCLTC (required, string) - name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC.
     + `hours`: 0.1 (optional, double) - how many hours back would you like to get prices for. Amount of hours to check i.e. 0.3 means 18 min, 2 - 2 hours.
     + `data_points`: 3 (optional, int) - how many data points in the selected hour range would you like to get. For example, If you pass 1 hour and data\_points=60, you will get 1 data point per minute (our max supported resolution), if you pass hour=1 and data\_points=30 you will get one point per 2 minutes.
+    + `market_code`: nex (optional, string) - price market code. Default market is Nexchange(nex) - prices of this market are used for calculations of orders amounts.
 
 ### Get Ticker History [GET]
  Returns price history for selected pair.
@@ -110,6 +116,10 @@ API for crypto currency exchange.
                 "ticker": {
                   "ask": "93.50770668",
                   "bid": "93.01675978"
+                },
+                "market": {
+                    "name": "Nexchange",
+                    "code": "nex"
                 }
               },
               {
@@ -118,6 +128,10 @@ API for crypto currency exchange.
                 "ticker": {
                   "ask": "92.71952575",
                   "bid": "91.87051683"
+                },
+                "market": {
+                    "name": "Nexchange",
+                    "code": "nex"
                 }
               }
             ]
@@ -475,6 +489,7 @@ API for crypto currency exchange.
     + Attributes (MinimalOrder)
 
     + Body
+
             {
               "amount_base": "3.00000000",
               "is_default_rule": false,
@@ -874,10 +889,15 @@ API for crypto currency exchange.
 + `ask` (required) - ask price.
 + `bid` (required) - bid price.
 
+## Market
++ `name` (required) - market name.
++ `code` (required) - market code on Nexchange.
+
 ## Price
 + `created_on` (required) - time of price creation (ISO 8601).
 + `unix_time` (required) - price creation unix timestamp.
 + `ticker` (Ticker, required) - ticker.
++ `market` (Market, required) - market.
 
 ## Address
 + `type` (required) - "W" for withdraw and "D" for Deposit.

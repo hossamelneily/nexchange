@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.dateformat import format
-from core.models import Pair
+from core.models import Pair, Market
 
 from core.common.models import IndexTimeStampedModel
 
@@ -15,11 +15,15 @@ class Ticker(IndexTimeStampedModel):
         return (self.ask + self.bid) / 2
 
 
+DEFAULT_MARKET_PK = 1
+
+
 class Price(IndexTimeStampedModel):
 
     ticker = models.ForeignKey(Ticker, blank=True, null=True)
     pair = models.ForeignKey(Pair, blank=True, null=True)
     better_adds_count = models.IntegerField(default=0)
+    market = models.ForeignKey(Market, default=DEFAULT_MARKET_PK)
 
     @property
     def unix_time(self):
