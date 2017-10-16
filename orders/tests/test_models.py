@@ -26,7 +26,6 @@ from copy import deepcopy
 from core.tests.base import UPHOLD_ROOT
 from ticker.models import Ticker, Price
 from nexchange.api_clients.uphold import UpholdApiClient
-from ticker.tasks.generic.crypto_fiat_ticker import CryptoFiatTicker
 import requests_mock
 from freezegun import freeze_time
 
@@ -853,22 +852,6 @@ class TestSymmetricalOrder(TickerBaseTestCase):
         self.assertEqual(order1.user_provided_amount, Order.PROVIDED_BASE)
         self.assertEqual(order2.user_provided_amount, Order.PROVIDED_QUOTE)
         self.assertEqual(order3.user_provided_amount, Order.PROVIDED_BOTH)
-
-
-class OrderPriceTestCase(TickerBaseTestCase):
-
-    def test_pick_main_ticker(self):
-        pair_name = 'BTCUSD'
-        pair = Pair.objects.get(name=pair_name)
-        ticker_api = CryptoFiatTicker()
-        ticker_api.run(pair.pk, market_code='locbit')
-        last_price = Price.objects.filter(pair=pair).last()
-        self.assertFalse(last_price.market.is_main_market)
-        last_main_price = Price.objects.filter(
-            pair=pair, market__is_main_market=True).last()
-        self._create_order(pair_name=pair_name)
-        order_price = self.order.price
-        self.assertEqual(order_price, last_main_price)
 
 
 class CalculateOrderTestCase(TickerBaseTestCase):

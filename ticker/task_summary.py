@@ -26,17 +26,13 @@ def get_ticker_crypto_fiat(**kwargs):
     if pair_pk:
         pair = Pair.objects.get(pk=pair_pk)
         if pair.base.ticker == 'kraken':
-            ticker_api = crypto_fiat_ticker_kraken
+            return crypto_fiat_ticker_kraken.run(pair_pk)
         elif pair.base.ticker == 'cryptopia':
-            ticker_api = crypto_fiat_ticker_cryptopia
+            return crypto_fiat_ticker_cryptopia.run(pair_pk)
         elif pair.base.ticker == 'coinexchange':
-            ticker_api = crypto_fiat_ticker_coinexchange
+            return crypto_fiat_ticker_coinexchange.run(pair_pk)
         else:
-            ticker_api = None
             logger.error('pair {} no ticker defined'.format(pair))
-        ticker_api.run(pair_pk)
-        if pair.name in settings.LOCALBTC_PAIRS:
-            ticker_api.run(pair_pk, market_code='locbit')
     else:
         logger.warning('pair_pk is not defined in kwargs')
 

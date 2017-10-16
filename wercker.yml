@@ -83,7 +83,6 @@ dev:
     - script:
         name: Django import Currency fixture
         code: |
-          python manage.py loaddata core/fixtures/market.json
           python manage.py loaddata core/fixtures/currency_crypto.json
           python manage.py loaddata core/fixtures/currency_fiat.json
     - script:
@@ -344,7 +343,6 @@ build:
           # Apply migrations
           python /usr/src/app/manage.py migrate
           # Import fixtures
-          python /usr/src/app/manage.py loaddata core/fixtures/market.json
           python /usr/src/app/manage.py loaddata core/fixtures/currency_crypto.json
           python /usr/src/app/manage.py loaddata core/fixtures/currency_fiat.json
           python /usr/src/app/manage.py loaddata core/fixtures/country.json

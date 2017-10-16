@@ -64,7 +64,8 @@ class CreateOrderSerializer(OrderSerializer):
             raise ValidationError(
                 _('One of amount_quote and amount_base is required.'))
 
-        currency = pair_obj.base.code
+        pair = Pair.objects.get(name=data['pair']['name'])
+        currency = pair.base.code
         validate_address = get_validator(currency)
         validate_address(data['withdraw_address']['address'])
 

@@ -32,7 +32,7 @@ class CryptoCryptoTicker(BaseTicker):
         bid_quote = pair['bid']
         reverse = pair.get('reverse', True)
         ticker = self.create_ticker(ask_quote, bid_quote, reverse=reverse)
-        price = Price(pair=self.pair, ticker=ticker, market=self.market)
+        price = Price(pair=self.pair, ticker=ticker)
         price.save()
         return price
 
@@ -48,6 +48,15 @@ class CryptoCryptoTicker(BaseTicker):
             bid_base = bid_quote
         return super(CryptoCryptoTicker, self)\
             .create_ticker(ask_base, bid_base)
+
+    def get_ticker_crypto_fiat(self):
+        # todo: why is fiat method in crypto to crypto class?
+        price = self.handle()
+        prices = self.convert_fiat(price)
+        if prices:
+            ticker = self.create_ticker(prices['ask'], prices['bid'])
+            price = Price(pair=self.pair, ticker=ticker)
+            price.save()
 
 
 class CryptoCryptoKrakenTicker(CryptoCryptoTicker, KrakenBaseTicker):

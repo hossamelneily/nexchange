@@ -469,8 +469,6 @@ TWILIO_PHONE_FROM_US = '+16464612858'
 
 LOGIN_REDIRECT_URL = reverse_lazy('orders.add_order')
 
-LOCALBTC_PAIRS = ['BTCUSD']
-
 GRAPH_HOUR_RANGES = [
     {'val': 0.1, 'name': 'Live'},
     {'val': 1, 'name': '1 Hour'},

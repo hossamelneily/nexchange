@@ -1,6 +1,6 @@
 from django.contrib import admin
 from core.models import Currency, Transaction, Address, \
-    Pair, Location, AddressReserve, TransactionApiMapper, Market
+    Pair, Location, AddressReserve, TransactionApiMapper
 from core.common.models import Flag
 
 
@@ -25,11 +25,6 @@ class TranmsactionAdmin(admin.ModelAdmin):
     raw_id_fields = ('order', 'address_from', 'address_to')
 
 
-class MarketAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'is_main_market')
-    readonly_fields = ('name', 'code', 'is_main_market')
-
-
 admin.site.register(AddressReserve, AddressReserveAdmin)
 admin.site.register(Currency, CurrencyAdmin)
 admin.site.register(Transaction, TranmsactionAdmin)
@@ -38,5 +33,4 @@ admin.site.register(Pair, PairAdmin)
 admin.site.register(Flag)
 admin.site.register(Location)
 admin.site.register(TransactionApiMapper)
-admin.site.register(Market, MarketAdmin)
 admin.autodiscover()
