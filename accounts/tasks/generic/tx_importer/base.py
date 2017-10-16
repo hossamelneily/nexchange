@@ -36,7 +36,7 @@ class BaseTransactionImporter:
             elif not tx['tx_id'] and tx['tx_id_api']:
                 query = Q(tx_id_api=tx['tx_id_api'])
             elif tx['tx_id'] and not tx['tx_id_api']:
-                query = Q(tx_id_api=tx['tx_id'])
+                query = Q(tx_id=tx['tx_id'])
             else:
                 raise ValueError(
                     'Transaction data does not contain any information about '
@@ -86,6 +86,11 @@ class BaseTransactionImporter:
                                  .format(tx.__dict__))
                 self.logger.info('Order {} is marked as PAID_UNCONFIRMED'
                                  .format(order.__dict__))
+            else:
+                self.logger.error(
+                    'Failed transaction register. response: {} order: {}. '
+                    'tx_data: {}.'.format(
+                        register_res, order.unique_reference, tx_data))
         elif len(orders) == 0:
             self.logger.info(
                 'Transaction is not created: no orders for transaction '
