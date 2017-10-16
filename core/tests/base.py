@@ -244,6 +244,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         pairs = Pair.objects.filter(disabled=True)
         for pair in pairs:
             pair.disabled = False
+            pair.disable_ticker = False
             pair.save()
 
     def tearDown(self):

@@ -52,7 +52,8 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "BTCRNS",
-    "disabled": true
+    "disabled": true,
+    "disable_ticker": true
   }
 },
 {
@@ -66,7 +67,8 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCRNS",
-    "disabled": true
+    "disabled": true,
+    "disable_ticker": true
   }
 },
 {
@@ -80,7 +82,8 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "ETHRNS",
-    "disabled": true
+    "disabled": true,
+    "disable_ticker": true
   }
 },
 {
