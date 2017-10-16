@@ -21,10 +21,11 @@ class LastPricesViewSet(ReadOnlyCacheResponseAndETAGMixin,
         return super(LastPricesViewSet, self).dispatch(*args, **kwargs)
 
     def list(self, request, pair=None):
+        market_code = self.request.query_params.get('market_code', 'nex')
         if pair is not None:
             pair = pair.upper()
         queryset = Price.objects.filter(
-            pair__name=pair,
+            pair__name=pair, market__code=market_code
         ).order_by('-id')[:1]
         serializer = PriceSerializer(queryset, many=True)
         return Response(serializer.data)
@@ -40,6 +41,8 @@ class PriceHistoryViewSet(ReadOnlyETAGMixin,
         if filters is None:
             filters = {}
         filters['pair__name'] = self.kwargs['pair'].upper()
+        market_code = self.request.query_params.get('market_code', 'nex')
+        filters['market__code'] = market_code
         res = super(PriceHistoryViewSet, self).get_queryset(filters=filters)
 
         return res

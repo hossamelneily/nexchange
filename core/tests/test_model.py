@@ -1,6 +1,6 @@
 from django.test import TestCase
 from core.tests.base import OrderBaseTestCase
-from core.models import AddressReserve, Currency, Pair, Transaction
+from core.models import AddressReserve, Currency, Pair, Transaction, Market
 from core.common.models import UniqueFieldMixin
 from ticker.tests.base import TickerBaseTestCase
 from django.core.exceptions import ValidationError
@@ -117,3 +117,23 @@ class TransactionTestCase(TickerBaseTestCase):
         with self.assertRaises(ValidationError):
             self.create_withdraw_txn(txn_type=None)
         self.assertTrue(self.order.flagged, name)
+
+
+class MarketTestCase(OrderBaseTestCase):
+
+    def test_only_one_main_market(self):
+        main_market = Market.objects.get(is_main_market=True)
+        other_markets = Market.objects.filter(is_main_market=False)
+        for market in other_markets:
+            market.is_main_market = True
+            market.save()
+            main_market.refresh_from_db()
+            self.assertFalse(main_market.is_main_market)
+            main_market = Market.objects.get(is_main_market=True)
+            self.assertEqual(market, main_market)
+
+    def test_market_str(self):
+        markets = Market.objects.all()
+        for market in markets:
+            str = market.__str__
+            self.assertTrue(str)

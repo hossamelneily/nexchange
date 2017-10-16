@@ -2,7 +2,7 @@ from decimal import Decimal
 import requests
 import requests_cache
 
-from core.models import Pair
+from core.models import Pair, Market
 from ticker.models import Ticker
 from nexchange.tasks.base import BaseTask
 from ticker.adapters import KrakenAdapter, CryptopiaAdapter, \
@@ -61,6 +61,7 @@ class BaseTicker(BaseTask):
     def __init__(self):
         super(BaseTicker, self).__init__()
         self.pair = None
+        self.market = None
         self.ask_multip = None
         self.bid_multip = None
         self.quote_api_adapter = None
@@ -77,7 +78,8 @@ class BaseTicker(BaseTask):
         else:
             return self.bitcoin_api_adapter
 
-    def run(self, pair_pk):
+    def run(self, pair_pk, market_code='nex'):
+        self.market = Market.objects.get(code=market_code)
         self.pair = Pair.objects.get(pk=pair_pk)
         self.ask_multip = self.bid_multip = Decimal('1.0')
         if self.pair.is_crypto:
@@ -95,8 +97,13 @@ class BaseTicker(BaseTask):
         ticker.save()
         return ticker
 
-    def handle(self, use_local_btc=False):
-        spot_data = requests.get(self.BITFINEX_TICKER).json()
+    def _get_bitfinex_usd_ticker(self):
+        res = requests.get(self.BITFINEX_TICKER).json()
+        return res
+
+    def handle(self):
+        use_local_btc = self.market.code == 'locbit'
+        spot_data = self._get_bitfinex_usd_ticker()
         ask = Decimal(str(spot_data.get('ask', 0)))
         bid = Decimal(str(spot_data.get('bid', 0)))
         if use_local_btc:
@@ -106,18 +113,10 @@ class BaseTicker(BaseTask):
             buy_price = self.get_price(buy_spot_price, self.ACTION_SELL)
         else:
             sell_price = {
-                'better_adds_count': 0,
-                'price_rub': Decimal('0'),
                 'price_usd': ask,
-                'rate_usd': Decimal('0'),
-                'type': 'sell'
             }
             buy_price = {
-                'better_adds_count': 0,
-                'price_rub': Decimal('0'),
                 'price_usd': bid,
-                'rate_usd': Decimal('0'),
-                'type': 'buy'
             }
 
         return {'ask': sell_price, 'bid': buy_price}

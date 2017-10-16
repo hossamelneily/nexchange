@@ -17,7 +17,8 @@ class PairsTestCase(OrderBaseTestCase):
         self.assertGreater(len(self.pairs), 0)
 
     def check_pair_data(self, pair):
-        self.assertEqual(pair['base'] + pair['quote'], pair['name'])
+        expected_name = pair['base'] + pair['quote']
+        self.assertEqual(expected_name, pair['name'])
         self.assertGreaterEqual(float(pair['fee_ask']), 0)
         self.assertGreaterEqual(float(pair['fee_bid']), 0)
 

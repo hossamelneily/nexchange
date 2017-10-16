@@ -235,7 +235,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
         amount_input = Decimal(getattr(self, 'amount_{}'.format(_from)))
         setattr(self, 'amount_{}'.format(_from), amount_input)
         if not price:
-            price = Price.objects.filter(pair=self.pair).latest('id')
+            price = Price.objects.filter(
+                pair=self.pair, market__is_main_market=True).latest('id')
         self.price = price
         ticker_amount_output = getattr(self, 'ticker_amount_{}'.format(_to))
         fee_adder = getattr(self, 'add_payment_fee_to_amount_{}'.format(_to))
@@ -499,7 +500,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
     def calculate_order(self, amount_quote):
         if self.expired:
-            price = Price.objects.filter(pair=self.pair).latest('id')
+            price = Price.objects.filter(
+                pair=self.pair, market__is_main_market=True).latest('id')
             now = timezone.now()
             if now > self.payment_deadline:
                 expired_minutes = ceil(
