@@ -4,6 +4,8 @@ from accounts.models import SmsToken
 from core.tests.utils import data_provider
 from selenium.webdriver.common.by import By
 import re
+from core.tests.utils import retry
+from selenium.common.exceptions import TimeoutException
 
 
 class TestUILogin(BaseTestUI):
@@ -12,14 +14,17 @@ class TestUILogin(BaseTestUI):
         super(TestUILogin, self).setUp()
         self.workflow = 'LOGIN'
 
+    @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: ((False,), (True,)), )
     def test_otm_login_phone(self, push_resend):
         self.base_otp_login(self.phone, push_resend)
 
+    @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: ((False,), (True,)), )
     def test_otm_login_email(self, push_resend):
         self.base_otp_login(self.email, push_resend)
 
+    @retry(TimeoutException, tries=2, delay=1)
     @requests_mock.mock()
     def base_otp_login(self, username, push_resend, mock):
         mock.post(
@@ -60,6 +65,7 @@ class TestUIProfile(BaseTestUI):
         self.username = self.email
         self.otp_login(self.username)
 
+    @retry(TimeoutException, tries=2, delay=1)
     def test_profile_referrals(self):
         self.do_screenshot('main')
 

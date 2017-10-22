@@ -12,6 +12,7 @@ from accounts.models import Profile, SmsToken
 from core.tests.base import UserBaseTestCase
 from core.tests.utils import passive_authentication_helper, data_provider
 from loginurl.models import Key
+from core.tests.utils import retry
 
 
 class RegistrationTestCase(TestCase):
@@ -83,6 +84,7 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         )  # saved the profile too
         self.assertEqual(user.profile.last_name, self.data['last_name'])
 
+    @retry(AssertionError, tries=2, delay=1)
     def test_phone_verification_with_success(self, phone=None):
         user = self.user
         # Ensure profile is disabled
@@ -93,17 +95,13 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         sms_token = SmsToken.objects.filter(user=user).latest('id')
         token = sms_token.sms_token
 
-        # FIXME: this loop is to retry request in case of random failure
-        for _ in range(0, 3):
-            response = passive_authentication_helper(
-                self.client,
-                self.user,
-                token,
-                self.user.username,
-                True
-            )
-            if response.status_code != 400:
-                break
+        response = passive_authentication_helper(
+            self.client,
+            self.user,
+            token,
+            self.user.username,
+            True
+        )
 
         # Ensure the token was correctly received
         self.assertEqual(200, response.status_code)
@@ -210,6 +208,7 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         # Ensure profile was not enabled
         self.assertTrue(user.profile.disabled)
 
+    @retry(AssertionError, tries=2, delay=1)
     @data_provider(lambda: (('xx', 201, False), ('12', 400, True),))
     def test_phone_verification_token_logged_out_with_phone(
             self, token_addition, status_code, profile_disabled):
@@ -223,17 +222,13 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         token = '{}{}'.format(sms_token.sms_token,
                               token_addition)
 
-        # FIXME: this loop is to retry request in case of random failure
-        for _ in range(0, 3):
-            response = passive_authentication_helper(
-                self.client,
-                self.user,
-                token,
-                self.username,
-                False
-            )
-            if response.status_code != 400:
-                break
+        response = passive_authentication_helper(
+            self.client,
+            self.user,
+            token,
+            self.username,
+            False
+        )
 
         # Ensure the token was correctly received
         self.assertEqual(status_code, response.status_code)
@@ -241,6 +236,7 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         # Ensure profile was not enabled
         self.assertEqual(profile_disabled, user.profile.disabled)
 
+    @retry(AssertionError, tries=2, delay=1)
     def test_phone_verification_success_with_spaces_in_token(self):
         user = self.user
         # Ensure profile is disabled
@@ -251,17 +247,13 @@ class ProfileUpdateTestCase(UserBaseTestCase):
         sms_token = SmsToken.objects.filter(user=user).latest('id')
         token = ' {} '.format(sms_token.sms_token)
 
-        # FIXME: this loop is to retry request in case of random failure
-        for _ in range(0, 3):
-            response = passive_authentication_helper(
-                self.client,
-                self.user,
-                token,
-                self.user.username,
-                False
-            )
-            if response.status_code != 400:
-                break
+        response = passive_authentication_helper(
+            self.client,
+            self.user,
+            token,
+            self.user.username,
+            False
+        )
 
         # Ensure the token was correctly received
         self.assertEqual(201, response.status_code)
@@ -432,7 +424,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
         self.assertEqual(2, patch.call_count)
 
-    # regression!
+    @retry(AssertionError, tries=2, delay=1)
     @data_provider(lambda: (
         (False,),
         (True,),
@@ -482,10 +474,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             'phone': self.user.username,
             'login_with_email': 'true' if login_with_email else 'false',
         }
-        for _ in range(0, 3):
-            res = self.client.post(url, data=payload)
-            if res.status_code != 400:
-                break
+        res = self.client.post(url, data=payload)
         # make attacker think phone is always created
         self.assertEqual(201, res.status_code)
         self.assertTrue(self.user.is_authenticated())
