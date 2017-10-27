@@ -34,11 +34,8 @@ def check_uphold_txn_status_with_blockchain(tx, tx_completed,
     # FIXME: different return types on check_transaction_blockchain
     if isinstance(num_confirmations, tuple):
         num_confirmations = num_confirmations[1]
-    tx_completed = num_confirmations >= tx.currency.min_confirmations
-    if tx_completed:
-        logger.info('UPHOLD did not return status="completed" when it is '
-                    'more when minimal amount of confirmations on '
-                    'blockchain response')
+    if not tx_completed:
+        tx_completed = num_confirmations >= tx.currency.min_confirmations
     return tx_completed, num_confirmations
 
 
