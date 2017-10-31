@@ -17,11 +17,25 @@ from ticker.tests.fixtures.cryptopia_ticker import res as \
 
 class TickerBaseTestCase(OrderBaseTestCase):
 
+    DISABLE_NON_MAIN_PAIRS = True
+    ENABLE_FIAT = []
+
     def setUp(self):
+        self.ENABLE_FIAT = ['EUR']
         super(TickerBaseTestCase, self).setUp()
         self._read_fixtures_ticker()
+        if self.DISABLE_NON_MAIN_PAIRS:
+            self._disable_non_crypto_tickers()
         with requests_mock.mock() as mock:
             self.get_tickers(mock)
+
+    def _disable_non_crypto_tickers(self):
+        pairs = Pair.objects.all()
+        for pair in pairs:
+            if all([not pair.is_crypto,
+                    pair.quote.code not in self.ENABLE_FIAT]):
+                pair.disable_ticker = True
+                pair.save()
 
     def _read_fixtures_ticker(self):
         cryptopia_markets_path = 'ticker/tests/fixtures/cryptopia_markets.json'

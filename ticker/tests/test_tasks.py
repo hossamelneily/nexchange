@@ -12,6 +12,7 @@ from unittest.mock import patch
 class TestTickerTask(TickerBaseTestCase):
 
     def setUp(self):
+        self.DISABLE_NON_MAIN_PAIRS = False
         super(TestTickerTask, self).setUp()
         self.main_ticker = self.BTCUSD
         self.main_ticker.disable_ticker = False

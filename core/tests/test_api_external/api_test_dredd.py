@@ -21,6 +21,7 @@ class DreddTestAPI(LiveServerTestCase, TransactionImportBaseTestCase,
     ]
 
     def setUp(self):
+        self.DISABLE_NON_MAIN_PAIRS = False
         super(DreddTestAPI, self).setUp()
         self.url = self.live_server_url
         with requests_mock.mock() as mock:

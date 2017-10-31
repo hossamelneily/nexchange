@@ -876,6 +876,10 @@ class TestSymmetricalOrder(TickerBaseTestCase):
 
 class OrderPriceTestCase(TickerBaseTestCase):
 
+    def setUp(self):
+        self.ENABLE_FIAT = ['USD']
+        super(OrderPriceTestCase, self).setUp()
+
     def test_pick_main_ticker(self):
         pair_name = 'BTCUSD'
         pair = Pair.objects.get(name=pair_name)

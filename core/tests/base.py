@@ -10,7 +10,7 @@ from accounts.models import SmsToken
 from core.models import Currency, Address, Transaction, Pair
 from core.tests.utils import get_ok_pay_mock, split_ok_pay_mock
 from orders.models import Order
-from payments.models import PaymentMethod, PaymentPreference
+from payments.models import PaymentPreference
 from ticker.models import Price, Ticker
 from verification.models import Verification
 from copy import deepcopy
@@ -312,55 +312,6 @@ class OrderBaseTestCase(UserBaseTestCase):
 
         cls.price_eur = Price(pair=cls.BTCEUR, ticker=ticker_eur)
         cls.price_eur.save()
-
-    @classmethod
-    def create_order(cls, user):
-        cls.setUpClass()
-
-        payment_method = PaymentMethod.objects.first()
-
-        if payment_method is None:
-            method_data = {
-                'bin': 426101,
-                'fee': 0.0,
-                'is_slow': 0,
-                'name': 'Alpha Bank Visa'
-            }
-            payment_method = PaymentMethod(**method_data)
-            payment_method.save()
-
-        pref_data = {
-            'user': user,
-            'identifier': str(payment_method.bin),
-            'comment': 'Just testing'
-        }
-        pref = PaymentPreference(**pref_data)
-        pref.save()
-        pref.currency.add(cls.USD)
-
-        address = Address(
-            address='17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j',
-            user=user
-        )
-        address.save()
-
-        """Creates an order"""
-        data = {
-            'amount_cash': Decimal(306.85),
-            'amount_btc': Decimal(1.00),
-            'currency': cls.USD,
-            'user': user,
-            'admin_comment': 'tests Order',
-            'unique_reference': '12345',
-            'withdraw_address': address,
-            'payment_preference': pref
-        }
-
-        order = Order(**data)
-        order.full_clean()  # ensure is initially correct
-        order.save()
-
-        return order
 
     def get_uphold_tx(self, currency_code, amount, card_id):
         return {
