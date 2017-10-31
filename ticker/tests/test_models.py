@@ -14,6 +14,7 @@ from ticker.models import Price
 class PriceTestCaseTask(TickerBaseTestCase):
 
     def setUp(self):
+        self.DISABLE_NON_MAIN_PAIRS = False
         super(PriceTestCaseTask, self).setUp()
         self.factory = Price
 
