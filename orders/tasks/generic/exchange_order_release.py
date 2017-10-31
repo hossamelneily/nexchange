@@ -10,6 +10,9 @@ class ExchangeOrderRelease(BaseOrderRelease, ApiClientFactory):
     UPDATE_TRANSACTIONS = \
         'accounts.task_summary.update_pending_transactions_invoke'
 
+    BALANCE_UPDATE = \
+        'risk_management.task_summary.currency_reserve_balance_checker_invoke'
+
     def _get_order(self, tx):
         order = tx.order
         # TODO: move this logic to validate?
@@ -89,6 +92,9 @@ class ExchangeOrderRelease(BaseOrderRelease, ApiClientFactory):
                         {
                             'countdown': self.traded_currency.median_confirmation * 60  # noqa
                         }
+                    )
+                    self.add_next_task(
+                        self.BALANCE_UPDATE, [order.pair.base.code]
                     )
         else:
             self.logger.info('{} match order returned None'

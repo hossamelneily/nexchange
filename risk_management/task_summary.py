@@ -25,6 +25,12 @@ def reserve_balance_checker_invoke(reserve_id, task=None):
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def currency_reserve_balance_checker_invoke(currency_code):
+    reserve = Reserve.objects.get(currency__code=currency_code)
+    reserve_balance_checker_invoke.apply([reserve.pk])
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def reserves_balance_checker_periodic():
     reserves = Reserve.objects.all()
     for reserve in reserves:

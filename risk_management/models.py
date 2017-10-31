@@ -17,8 +17,12 @@ class Reserve(TimeStampedModel):
         return '{} reserve'.format(self.currency.code)
 
     def sum_account_field(self, field_name):
-        res = self.account_set.all().aggregate(models.Sum(field_name))
-        sum = res.get('{}__sum'.format(field_name))
+        accounts = self.account_set.all()
+        if accounts:
+            res = accounts.aggregate(models.Sum(field_name))
+            sum = res.get('{}__sum'.format(field_name))
+        else:
+            sum = Decimal('0.0')
         return sum
 
     @property
@@ -55,7 +59,7 @@ class Reserve(TimeStampedModel):
     def needed_trade_move(self):
         diff = self.diff_from_expected_balance
         trade_type = None
-        if not self.has_expected_balance:
+        if not self.has_expected_balance and self.is_limit_reserve:
             if diff > Decimal('0.0'):
                 trade_type = 'SELL'
             else:
@@ -74,6 +78,17 @@ class Account(TimeStampedModel):
     pending = models.DecimalField(max_digits=18, decimal_places=8,
                                   default=Decimal('0'))
     trading_allowed = models.BooleanField(default=False)
+    is_main_account = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if self.is_main_account:
+            old_mains = Account.objects.filter(is_main_account=True,
+                                               reserve=self.reserve)
+            for old_main in old_mains:
+                if self != old_main:
+                    old_main.is_main_account = False
+                    old_main.save()
+        super(Account, self).save(*args, **kwargs)
 
     def __str__(self):
         return '{} {} account'.format(self.reserve.currency.code, self.wallet)

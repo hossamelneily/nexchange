@@ -311,6 +311,7 @@ build:
           export RPC_RPC2_PASSWORD=${RPC_RPC2_PASSWORD}
           export RPC_RPC2_PORT=${RPC_RPC2_PORT}
           export RPC_RPC2_HOST=${RPC_RPC2_HOST}
+          export RPC2_PUBLIC_KEY_C1=${RPC2_PUBLIC_KEY_C1}
 
           #RPC3
           export RPC_RPC3_USER=${RPC_RPC3_USER}

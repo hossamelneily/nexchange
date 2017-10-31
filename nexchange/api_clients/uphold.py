@@ -206,3 +206,16 @@ class UpholdApiClient(BaseApiClient):
             tx.is_verified = True
             tx.save()
         return {'success': success, 'retry': retry}
+
+    def get_balance(self, currency):
+        card_id = self.coin_card_mapper(currency.code)
+        card_data = self.api.get_card(card_id)
+        balance = Decimal(str(card_data.get('balance')))
+        available = Decimal(str(card_data.get('available')))
+        pending = balance - available
+        account_data = {
+            'balance': balance,
+            'available': available,
+            'pending': pending
+        }
+        return account_data

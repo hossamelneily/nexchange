@@ -208,7 +208,9 @@ class OrderBaseTestCase(UserBaseTestCase):
         'pairs_ltc.json',
         'pairs_rns.json',
         'payment_method.json',
-        'payment_preference.json'
+        'payment_preference.json',
+        'reserve.json',
+        'account.json'
     ]
     PRICE_BUY_RUB = 36000
     PRICE_BUY_USD = 600

@@ -63,8 +63,8 @@ API1_IS_TEST = bool(os.getenv('API1_IS_TEST', False))
 
 
 # API2
-API2_KEY = os.getenv('KRAKEN_API_KEY')
-API2_SECRET = os.getenv('KRAKEN_API_SECRET')
+API2_KEY = os.getenv('API2_KEY')
+API2_SECRET = os.getenv('API2_SECRET')
 
 # API3 TEST
 API3_KEY = os.getenv('API3_KEY')
@@ -75,6 +75,7 @@ API3_PUBLIC_KEY_C1 = os.getenv('API3_PUBLIC_KEY_C1')
 DEFAULT_RPC_USER = os.getenv('DEFAULT_RPC_USER')
 DEFAULT_RPC_PASS = os.getenv('DEFAULT_RPC_PASS')
 DEFAULT_RPC_HOST = os.getenv('DEFAULT_RPC_HOST')
+RPC2_PUBLIC_KEY_C1 = os.getenv('RPC2_PUBLIC_KEY_C1')
 
 
 # CARDPMT

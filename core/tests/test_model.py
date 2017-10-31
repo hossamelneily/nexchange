@@ -37,6 +37,14 @@ class CurrencyTestCase(OrderBaseTestCase):
     def test_print_currency_name(self):
         self.assertEqual(str(self.currency), 'USD')
 
+    def test_available_reserves(self):
+        currencies = Currency.objects.all()
+        for currency in currencies:
+            all_r = currency.available_reserves
+            self.assertTrue(isinstance(all_r, Decimal), '{}'.format(currency))
+            main_r = currency.available_main_reserves
+            self.assertTrue(isinstance(main_r, Decimal), '{}'.format(currency))
+
 
 class AddressReserveTest(OrderBaseTestCase):
 

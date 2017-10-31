@@ -335,6 +335,13 @@ class Order(TimeStampedModel, SoftDeletableModel,
         return amount_quote
 
     @property
+    def coverable(self):
+        if self.status not in self.IN_SUCCESS_RELEASED:
+            if self.amount_base >= self.pair.base.available_main_reserves:
+                return False
+        return True
+
+    @property
     def is_paid(self):
         if self.order_type == self.BUY and not self.exchange:
             return self.is_paid_buy

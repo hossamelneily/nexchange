@@ -84,10 +84,8 @@ CARDS_RESERVE_COUNT = os.getenv('CARDS_RESERVE_COUNT',
 
 
 # API2
-API2_KEY = os.getenv('API2__KEY',
-                     settings_dev.API2_KEY)
-API2_SECRET = os.getenv('API2__SECRET',
-                        settings_dev.API2_SECRET)
+API2_KEY = ''
+API2_SECRET = ''
 
 
 # ROBOKASSA

@@ -60,7 +60,12 @@ def exchange_order_release_periodic():
     )
     for tx in txs:
         try:
-            exchange_order_release_invoke.apply_async([tx.pk])
+            order = tx.order
+            if order.coverable:
+                exchange_order_release_invoke.apply_async([tx.pk])
+            else:
+                logger.warning('Not enough funds to release order {}'.format(
+                    order.unique_reference))
         except Exception as e:
             logger.warning(e)
 

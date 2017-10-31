@@ -17,7 +17,7 @@ class OrderAdmin(admin.ModelAdmin):
 
     list_display = ('unique_reference', 'user', 'pair', 'amount_base',
                     'amount_quote', 'withdraw_address', 'deposit_address',
-                    'status_name', 'created_on', 'flagged', 'expired')
+                    'status', 'created_on', 'flagged', 'expired')
 
 
 admin.site.register(Order, OrderAdmin)

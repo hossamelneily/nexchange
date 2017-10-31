@@ -1,11 +1,11 @@
-from .base import BaseApiClient
+from .base import BaseTradeApiClient
 from bittrex.bittrex import Bittrex
 from django.conf import settings
 from decimal import Decimal
 from core.models import Address, Currency
 
 
-class BittrexApiClient(BaseApiClient):
+class BittrexApiClient(BaseTradeApiClient):
 
     PAIR_NAME_TEMPLATE = '{quote}-{base}'
 
@@ -14,7 +14,7 @@ class BittrexApiClient(BaseApiClient):
         self.related_nodes = ['api3']
         self.api = self.get_api()
 
-    def get_api(self, currency=None):
+    def get_api(self):
         if not self.api:
             self.api = Bittrex(settings.API3_KEY, settings.API3_SECRET)
         return self.api
@@ -35,12 +35,6 @@ class BittrexApiClient(BaseApiClient):
         )
         res = self.api.get_ticker(market)
         return res
-
-    def trade_type_rate_type_mapper(self, trade_type):
-        if trade_type.upper() == 'SELL':
-            return 'Bid'
-        if trade_type.upper() == 'BUY':
-            return 'Ask'
 
     def get_rate(self, pair, rate_type='Ask'):
         ticker = self.get_ticker(pair)
@@ -67,24 +61,15 @@ class BittrexApiClient(BaseApiClient):
         res = self.api.sell_limit(market, amount, rate)
         return res
 
-    def trade_limit(self, pair, amount, trade_type, rate=None):
-        trade_fn = getattr(self, '{}_limit'.format(trade_type.lower()))
-        res = trade_fn(pair, amount, rate=rate)
-        return res
-
     def release_coins(self, currency, address, amount):
         tx_id = None
         if isinstance(currency, Currency):
-            currency = Currency.code
+            currency = currency.code
         if isinstance(address, Address):
-            currency = address.address
+            address = address.address
         res = self.api.withdraw(currency, amount, address)
         self.logger.info('Response from Bittrex withdraw: {}'.format(res))
         success = res.get('success', False)
         if success:
             tx_id = res.get('result', {}).get('uuid')
         return tx_id, success
-
-    def coin_address_mapper(self, code):
-        if code == 'XVG':
-            return settings.API3_PUBLIC_KEY_C1

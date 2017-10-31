@@ -8,7 +8,7 @@ from core.common.models import SoftDeletableModel, TimeStampedModel
 from core.common.models import FlagableMixin
 from .validators import validate_address
 from django_countries.fields import CountryField
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 
 class BtcBase(TimeStampedModel):
@@ -195,6 +195,21 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     @property
     def has_enabled_pairs(self):
         return self.is_base_of_enabled_pair or self.is_quote_of_enabled_pair
+
+    @property
+    def available_reserves(self):
+        try:
+            return self.reserve_set.get().available
+        except ObjectDoesNotExist:
+            return Decimal('0.0')
+
+    @property
+    def available_main_reserves(self):
+        try:
+            return self.reserve_set.get().account_set.\
+                get(is_main_account=True).available
+        except ObjectDoesNotExist:
+            return Decimal('0.0')
 
     def __str__(self):
         return self.code

@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import patch, PropertyMock
 
 from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
     update_pending_transactions_invoke, \
@@ -336,8 +336,17 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         self.order.refresh_from_db()
         self.assertEquals(self.order.status, Order.PAID)
 
-    def test_exchange_release_periodic(self):
+    @patch('core.models.Currency.available_main_reserves',
+           new_callable=PropertyMock)
+    def test_exchange_release_periodic(self, main_reserves):
         self._create_PAID_order()
+        # Do not release not enough funds
+        main_reserves.return_value = self.order.amount_base - Decimal('0.1')
+        exchange_order_release_periodic.apply_async()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PAID)
+        # Release
+        main_reserves.return_value = self.order.amount_base + Decimal('0.1')
         exchange_order_release_periodic.apply_async()
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, self.order.PRE_RELEASE)

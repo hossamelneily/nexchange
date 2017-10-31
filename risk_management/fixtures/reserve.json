@@ -10,5 +10,57 @@
     "expected_balance": "1000.0",
     "margin_balance": "200.0"
   }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 2,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 1,
+    "is_limit_reserve": false
+  }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 3,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 2,
+    "is_limit_reserve": false
+  }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 4,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 3,
+    "is_limit_reserve": false
+  }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 5,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 36,
+    "is_limit_reserve": false
+  }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 6,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 34,
+    "expected_balance": "3500.0",
+    "margin_balance": "500.0",
+    "is_limit_reserve": true
+  }
 }
 ]

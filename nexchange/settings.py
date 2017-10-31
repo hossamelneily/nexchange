@@ -297,7 +297,7 @@ TRADING_TASKS = {
     'reserves_balance_checker_periodic': {
         'task': 'risk_management.task_summary.'
                 'reserves_balance_checker_periodic',
-        'schedule': timedelta(seconds=300),
+        'schedule': timedelta(seconds=30),
     },
 }
 
@@ -445,6 +445,7 @@ API1_IS_TEST = True
 API1_ID_C1 = 'a1a88f60-7473-47e4-9b78-987daf198a5d'
 API1_ID_C2 = '12345'
 API1_ID_C3 = '54321'
+API1_ID_C4 = '543216'
 API1_COINS = ['BTC', 'ETH', 'LTC', 'BCH']
 API1_PAT = 'None'
 CARDS_RESERVE_COUNT = 20
@@ -458,6 +459,7 @@ API3_PUBLIC_KEY_C1 = ''
 
 # RPC
 RPC_IMPORT_TRANSACTIONS_COUNT = 10
+RPC2_PUBLIC_KEY_C1 = '123'
 # RPC
 DEFAULT_RPC_USER = ''
 DEFAULT_RPC_PASS = ''
