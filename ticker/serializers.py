@@ -24,3 +24,10 @@ class PriceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Price
         fields = ('created_on', 'unix_time', 'ticker', 'market')
+
+
+class RateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Price
+        fields = ('rate', 'rate_usd', 'rate_btc', 'rate_eur')

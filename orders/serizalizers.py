@@ -3,6 +3,7 @@ from core.serializers import NestedAddressSerializer,\
     NestedReadOnlyAddressSerializer, NestedPairSerializer, \
     TransactionSerializer
 from referrals.serializers import ReferralCodeSerializer
+from ticker.serializers import RateSerializer
 
 from orders.models import Order
 from core.models import Address, Pair
@@ -18,6 +19,7 @@ READABLE_FIELDS = ('deposit_address', 'created_on', 'from_default_rule',
                    'unique_reference', 'deposit_address',
                    'payment_window', 'payment_deadline',
                    'status_name', 'transactions', 'referral_code')
+RATE_FIELDS = ('amount_usd', 'amount_btc', 'amount_eur', 'price')
 
 
 class MetaOrder:
@@ -42,6 +44,14 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta(MetaFlatOrder):
         fields = MetaFlatOrder.fields
+
+
+class OrderDetailSerializer(OrderSerializer):
+
+    price = RateSerializer(many=False, read_only=True)
+
+    class Meta(MetaFlatOrder):
+        fields = MetaFlatOrder.fields + RATE_FIELDS
 
 
 class CreateOrderSerializer(OrderSerializer):

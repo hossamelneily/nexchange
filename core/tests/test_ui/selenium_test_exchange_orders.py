@@ -6,6 +6,8 @@ from core.tests.test_ui.base import BaseTestUI
 from core.tests.base import UPHOLD_ROOT
 
 from selenium.webdriver.common.by import By
+from core.tests.utils import retry
+from selenium.common.exceptions import TimeoutException
 
 
 class TestUIExchangeOrders(BaseTestUI):
@@ -17,6 +19,8 @@ class TestUIExchangeOrders(BaseTestUI):
         self.ETH_address = '0x77454e832261aeed81422348efee52d5bd3a3684'
         self.DOGE_address = 'D6BpZ4pP17JDsjpSWVrB2Hpa4oCi5mLfua'
 
+    @retry(AssertionError, tries=3, delay=1)
+    @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: (('ETHLTC', True),),)
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
@@ -29,6 +33,8 @@ class TestUIExchangeOrders(BaseTestUI):
                                               reserve_txs, import_txs,
                                               get_txs_scrypt, get_tx_scrypt)
 
+    @retry(AssertionError, tries=3, delay=1)
+    @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: (('BTCETH', False),),)
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
@@ -41,6 +47,8 @@ class TestUIExchangeOrders(BaseTestUI):
                                               reserve_txs, import_txs,
                                               get_txs_scrypt, get_tx_scrypt)
 
+    @retry(AssertionError, tries=3, delay=1)
+    @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: (('LTCBTC', False),),)
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
@@ -53,6 +61,8 @@ class TestUIExchangeOrders(BaseTestUI):
                                               reserve_txs, import_txs,
                                               get_txs_scrypt, get_tx_scrypt)
 
+    @retry(AssertionError, tries=3, delay=1)
+    @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: (('LTCDOGE', False),),)
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
@@ -65,6 +75,8 @@ class TestUIExchangeOrders(BaseTestUI):
                                               reserve_txs, import_txs,
                                               get_txs_scrypt, get_tx_scrypt)
 
+    @retry(AssertionError, tries=3, delay=1)
+    @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: (('DOGEBTC', False),),)
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')

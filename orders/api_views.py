@@ -2,7 +2,7 @@ from django.conf import settings
 from nexchange.permissions import NoUpdatePermission
 from orders.models import Order
 from orders.serizalizers import OrderSerializer, CreateOrderSerializer, \
-    NestedPairSerializer
+    NestedPairSerializer, OrderDetailSerializer
 from accounts.utils import _create_anonymous_user
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import viewsets
@@ -13,10 +13,10 @@ from rest_framework_extensions.mixins import (
 )
 from rest_framework.response import Response
 from collections import OrderedDict
-from core.models import Currency, Pair
+from core.models import Pair
 from django.db.models import Sum
 from decimal import Decimal
-from ticker.models import Ticker
+from ticker.models import Price
 from core.common.api_views import DateFilterViewSet
 from referrals.middleware import ReferralMiddleWare
 
@@ -42,6 +42,7 @@ class OrderListViewSet(viewsets.ModelViewSet,
 
     @never_cache
     def retrieve(self, request, *args, **kwargs):
+        self.serializer_class = OrderDetailSerializer
         return super(OrderListViewSet, self).retrieve(request, *args, **kwargs)
 
     def get_serializer_class(self):
@@ -67,6 +68,7 @@ class VolumeViewSet(ReadOnlyCacheResponseAndETAGMixin, DateFilterViewSet):
 
     model_class = Order
 
+    @method_decorator(cache_page(settings.VOLUME_CACHE_LIFETIME))
     def dispatch(self, *args, **kwargs):
         return super(VolumeViewSet, self).dispatch(*args, **kwargs)
 
@@ -78,13 +80,7 @@ class VolumeViewSet(ReadOnlyCacheResponseAndETAGMixin, DateFilterViewSet):
                                                        **kwargs)
 
     def get_rate(self, currency):
-        BTC = Currency.objects.get(code='BTC')
-        if currency == BTC:
-            return Decimal('1')
-        else:
-            ticker = Ticker.objects.filter(
-                pair__base=BTC, pair__quote=currency).last()
-            return ticker.rate
+        return Price.get_rate('BTC', currency)
 
     def list(self, request):
         params = self.request.query_params
@@ -100,7 +96,9 @@ class VolumeViewSet(ReadOnlyCacheResponseAndETAGMixin, DateFilterViewSet):
         for pair in pairs:
             rate_base = self.get_rate(pair.base)
             rate_quote = self.get_rate(pair.quote)
-            last_ask = Ticker.objects.filter(pair=pair).last().ask
+            last_ask = Price.objects.filter(
+                pair=pair, market__is_main_market=True
+            ).latest('id').rate
             volume = queryset.filter(pair=pair).aggregate(
                 Sum('amount_base'), Sum('amount_quote'))
             base_volume = volume['amount_base__sum']

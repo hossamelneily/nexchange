@@ -1,5 +1,5 @@
 import time
-from datetime import timedelta
+from datetime import timedelta, datetime
 from unittest import skip
 from decimal import Decimal
 
@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 
 from core.tests.base import OrderBaseTestCase
 from core.tests.utils import data_provider
-from core.models import Pair, Address, Transaction
+from core.models import Pair, Address, Transaction, Currency
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
 from core.tests.utils import get_ok_pay_mock, create_ok_payment_mock_for_order
@@ -29,6 +29,7 @@ from nexchange.api_clients.uphold import UpholdApiClient
 from ticker.tasks.generic.crypto_fiat_ticker import CryptoFiatTicker
 import requests_mock
 from freezegun import freeze_time
+from core.tests.utils import retry
 
 
 class OrderBasicFieldsTestCase(OrderBaseTestCase):
@@ -352,6 +353,7 @@ class OrderUniqueReferenceTestsCase(OrderBaseTestCase):
         return lambda:\
             ((lambda data: Order(**data), i) for i in range(x))
 
+    @retry(AssertionError, tries=3, delay=1)
     @data_provider(get_data_provider(None, 1000))
     def test_unique_token_creation(self, order_gen, counter):
         order = order_gen(self.data)
@@ -421,6 +423,23 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
                     length='len' if check_property_len else ''
                 )
             )
+
+    @patch('ticker.models.Price._get_currency')
+    def test_eur_usd_amounts_cache(self, get_currency):
+        get_currency.return_value = Currency.objects.first()
+        methods = ['amount_btc', 'amount_usd', 'amount_eur']
+        for i, method in enumerate(methods):
+            for _ in range(10):
+                getattr(self.order, method)
+            self.assertEqual(get_currency.call_count, 2 * (i + 1))
+
+        call_count = get_currency.call_count
+        now = datetime.now() + timedelta(seconds=settings.TICKER_INTERVAL + 1)
+        with freeze_time(now):
+            for i, method in enumerate(methods):
+                getattr(self.order, method)
+                self.assertEqual(
+                    get_currency.call_count, 2 * (i + 1) + call_count)
 
     def test_ticker_amount_calculations(self):
         ticker_amount_buy = Decimal(

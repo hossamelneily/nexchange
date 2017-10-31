@@ -237,7 +237,7 @@ API for crypto currency exchange.
 
 
 + Response 200 (application/json)
-    + Attributes (BaseOrder)
+    + Attributes (DetailedOrder)
 
     + Body
 
@@ -899,6 +899,12 @@ API for crypto currency exchange.
 + `ticker` (Ticker, required) - ticker.
 + `market` (Market, required) - market.
 
+## PriceRate
++ `rate` (number, required) - rate with which order amount was calculated.
++ `rate_usd` (number, required) - order base currency rate to USD.
++ `rate_btc` (number, required) - order base currency rate to BTC.
++ `rate_eur` (number, required) - order base currency rate to EUR.
+
 ## Address
 + `type` (required) - "W" for withdraw and "D" for Deposit.
 + `name` (optional, nullable) - name of the address.
@@ -933,6 +939,13 @@ API for crypto currency exchange.
 + `deposit_address` (Address, required) - the destination address to which the user is ought to deposit his fund in order for the trade to execute.
 + `from_default_rule` (boolean, required) - indicates that the order was created as a result of `is_default_rule` as described above.
 + `pair` (Pair, required) - exchanged pair.
++ `status_name` (array, required) - order status name.
+
+## DetailedOrder (BaseOrder)
++ `price` (PriceRate, required) - order price in different currencies.
++ `amount_usd` (number, required) - order amount in USD.
++ `amount_btc` (number, required) - order amount in BTC.
++ `amount_eur` (number, required) - order amount in EUR.
 
 ## PrivateOrder (BaseOrder)
 + `status` (number, required) - order status 2 - Initial, 2 - Paid...
@@ -971,9 +984,11 @@ API for crypto currency exchange.
 
 ## JsonHeaders
 + `Content-Type` (required) - application/json.
++ `x-referral-token` (optional) - referral code.
 
 ## BaseAuthHeaders
 + `Authorization` (required) - basic auth headers i.e. "Authorization:Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=".
++ `x-referral-token` (optional) - referral code.
 
 ## BaseAuthJsonHeaders (JsonHeaders)
 + `Authorization` (required) - basic auth headers i.e. "Authorization:Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=".

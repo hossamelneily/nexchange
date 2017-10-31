@@ -21,6 +21,7 @@ from django.utils.translation import activate
 from nexchange.utils import send_email, send_sms
 from django_fsm import FSMIntegerField, transition
 from nexchange.celery import app
+from cached_property import cached_property_with_ttl
 
 
 class Order(TimeStampedModel, SoftDeletableModel,
@@ -247,6 +248,21 @@ class Order(TimeStampedModel, SoftDeletableModel,
                                                places=decimal_places)
         setattr(self, 'amount_{}'.format(_to), amount_output_formatted)
 
+    @cached_property_with_ttl(ttl=settings.TICKER_INTERVAL)
+    def amount_eur(self):
+        return Price.convert_amount(self.amount_quote,
+                                    self.pair.quote, 'EUR')
+
+    @cached_property_with_ttl(ttl=settings.TICKER_INTERVAL)
+    def amount_usd(self):
+        return Price.convert_amount(self.amount_quote,
+                                    self.pair.quote, 'USD')
+
+    @cached_property_with_ttl(ttl=settings.TICKER_INTERVAL)
+    def amount_btc(self):
+        return Price.convert_amount(self.amount_quote,
+                                    self.pair.quote, 'BTC')
+
     @property
     def ticker_amount_quote(self):
         if not self.price:
@@ -399,7 +415,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         # TODO: Refactor, it is unreasonable to have different standards of
         # time in the DB
         return (timezone.now() > self.payment_deadline) and \
-               (self.status not in Order.IN_PAID)
+               (self.status not in Order.IN_PAID + [Order.PAID_UNCONFIRMED])
 
     @property
     def payment_status_frozen(self):
