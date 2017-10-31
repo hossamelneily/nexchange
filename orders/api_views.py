@@ -7,7 +7,7 @@ from accounts.utils import _create_anonymous_user
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import viewsets
 from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
+from django.views.decorators.cache import cache_page, never_cache
 from rest_framework_extensions.mixins import (
     ReadOnlyCacheResponseAndETAGMixin
 )
@@ -37,8 +37,12 @@ class OrderListViewSet(viewsets.ModelViewSet,
     pagination_class = OrderPagination
 
     @method_decorator(cache_page(settings.ORDER_CACHE_LIFETIME))
-    def dispatch(self, *args, **kwargs):
-        return super(OrderListViewSet, self).dispatch(*args, **kwargs)
+    def list(self, request, *args, **kwargs):
+        return super(OrderListViewSet, self).list(request, *args, **kwargs)
+
+    @never_cache
+    def retrieve(self, request, *args, **kwargs):
+        return super(OrderListViewSet, self).retrieve(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
