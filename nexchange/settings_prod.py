@@ -71,6 +71,14 @@ API3_KEY = os.getenv('API3_KEY')
 API3_SECRET = os.getenv('API3_SECRET')
 API3_PUBLIC_KEY_C1 = os.getenv('API3_PUBLIC_KEY_C1')
 
+# API4
+API4_KEY = os.getenv('API4_KEY')
+API4_SECRET = os.getenv('API4_SECRET')
+
+# API5
+API5_KEY = os.getenv('API5_KEY')
+API5_SECRET = os.getenv('API5_SECRET')
+
 # RPC
 DEFAULT_RPC_USER = os.getenv('DEFAULT_RPC_USER')
 DEFAULT_RPC_PASS = os.getenv('DEFAULT_RPC_PASS')

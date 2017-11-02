@@ -272,6 +272,12 @@ build:
           export API3_KEY=${API3_KEY}
           export API3_SECRET=${API3_SECRET}
           export API3_PUBLIC_KEY_C1=${API3_PUBLIC_KEY_C1}
+          # API4
+          export API4_KEY=${API4_KEY}
+          export API4_SECRET=${API4_SECRET}
+          # API5
+          export API5_KEY=${API5_KEY}
+          export API5_SECRET=${API5_SECRET}
           # CARDPMT
           export CARDPMT_API_ID=${CARDPMT_API_ID}
           export CARDPMT_API_PASS=${CARDPMT_API_PASS}
