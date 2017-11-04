@@ -1,7 +1,8 @@
 from django.db import models
 
 from core.common.models import TimeStampedModel
-from core.models import Currency
+from core.models import Currency, Pair
+from orders.models import Order
 from decimal import Decimal
 
 
@@ -92,3 +93,28 @@ class Account(TimeStampedModel):
 
     def __str__(self):
         return '{} {} account'.format(self.reserve.currency.code, self.wallet)
+
+
+class Cover(TimeStampedModel):
+
+    BUY = 1
+    SELL = 0
+    COVER_TYPES = (
+        (SELL, 'SELL'),
+        (BUY, 'BUY'),
+    )
+
+    cover_type = models.IntegerField(
+        choices=COVER_TYPES, default=BUY
+    )
+    pair = models.ForeignKey(Pair, null=True)
+    currency = models.ForeignKey(Currency)
+    orders = models.ManyToManyField(Order, related_name='covers')
+    amount_base = models.DecimalField(max_digits=18, decimal_places=8)
+    amount_quote = models.DecimalField(max_digits=18, decimal_places=8,
+                                       null=True)
+    rate = models.DecimalField(max_digits=18, decimal_places=8, null=True)
+    cover_id = models.CharField(max_length=100, default=None,
+                                null=True, blank=True, unique=True,
+                                db_index=True)
+    account = models.ForeignKey(Account, null=True)

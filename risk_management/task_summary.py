@@ -10,6 +10,8 @@ from risk_management.tasks.generic.reserve_balance_maintainer import \
     ReserveBalanceMaintainer
 from risk_management.tasks.generic.main_account_filler import MainAccountFiller
 from risk_management.models import Reserve
+from risk_management.tasks.generic.currency_cover import CurrencyCover
+from risk_management.tasks.generic.order_cover import OrderCover
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
@@ -44,6 +46,26 @@ def reserve_balance_maintainer_invoke(reserve_id, task=None):
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def main_account_filler_invoke(account_id, amount):
+def main_account_filler_invoke(account_id, amount=None):
     task = MainAccountFiller()
-    task.run(account_id, amount)
+    task.run(account_id, amount=amount)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def order_cover_invoke(order_id):
+    task = OrderCover()
+    cover = task.run(order_id)
+    if cover:
+        main_account_filler_invoke.apply_async(
+            [cover.account.pk], countdown=settings.THIRD_PARTY_TRADE_TIME
+        )
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def currency_cover_invoke(currency_code, amount):
+    task = CurrencyCover()
+    cover = task.run(currency_code, amount)
+    if cover:
+        main_account_filler_invoke.apply_async(
+            [cover.account.pk], countdown=settings.THIRD_PARTY_TRADE_TIME
+        )

@@ -11,7 +11,7 @@ from unittest.mock import patch
 from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
     update_pending_transactions_invoke, \
     import_transaction_deposit_uphold_blockchain_invoke
-from core.models import Address, Transaction, Currency
+from core.models import Address, Transaction, Currency, Pair
 from core.tests.base import TransactionImportBaseTestCase
 from core.tests.base import UPHOLD_ROOT
 from core.tests.base import WalletBaseTestCase
@@ -31,6 +31,9 @@ from ticker.tests.base import TickerBaseTestCase
 from verification.models import Verification
 from payments.tests.test_api_clients.test_adv_cash import \
     BaseAdvCashAPIClientTestCase
+from risk_management.tests.base import RiskManagementBaseTestCase
+from risk_management.models import Cover
+from risk_management.task_summary import order_cover_invoke
 from unittest import skip
 
 
@@ -1076,3 +1079,70 @@ class BlockchainImporterTaskTestCase(TickerBaseTestCase):
 
         self.order.refresh_from_db()
         self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
+
+
+class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
+                             TickerBaseTestCase, RiskManagementBaseTestCase):
+
+    fixtures = [
+        'market.json',
+        'currency_crypto.json',
+        'currency_fiat.json',
+        'pairs_cross.json',
+        'pairs_btc.json',
+        'payment_method.json',
+        'payment_preference.json',
+        'reserve.json',
+        'account.json'
+    ]
+
+    def setUp(self):
+        super(OrderCoverTaskTestCase, self).setUp()
+        self.import_txs_task = import_transaction_deposit_crypto_invoke
+
+    @patch(UPHOLD_ROOT + 'get_transactions')
+    @patch('nexchange.api_clients.bittrex.Bittrex.withdraw')
+    @patch('nexchange.api_clients.bittrex.Bittrex.buy_limit')
+    @patch('nexchange.api_clients.bittrex.Bittrex.get_ticker')
+    @patch('nexchange.api_clients.bittrex.Bittrex.get_balance')
+    def test_create_xvg_cover(self, _get_balance, get_ticker, buy_limit,
+                              withdraw, get_txs_uphold):
+
+        amount_base = 40000
+        pair_name = 'XVGBTC'
+        ask = Decimal('0.0012')
+        pair_trade = Pair.objects.get(name='XVGBTC')
+        trade_tx_id = '123'
+        self._create_order(pair_name=pair_name, amount_base=amount_base)
+        with patch('orders.models.Order.coverable'):
+            order_cover_invoke.apply([self.order.pk])
+            self.assertIsNone(Cover.objects.last())
+        mock_currency_code = self.order.pair.quote.code
+        mock_amount = self.order.amount_quote
+
+        # Import mocks
+        card = self.order.deposit_address.reserve
+        card_id = card.card_id
+        get_txs_uphold.return_value = [
+            self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
+        ]
+        # Trade mocks
+        _get_balance.return_value = self._get_bittrex_get_balance_response(50)
+        buy_limit.return_value = withdraw.return_value = {
+            'result': {'uuid': trade_tx_id}
+        }
+        get_ticker.return_value = self._get_bittrex_get_ticker_response(
+            ask=ask)
+
+        self.import_txs_task.apply()
+
+        cover = Cover.objects.latest('id')
+        self.assertEqual(cover.rate, ask)
+        self.assertEqual(cover.amount_base, amount_base)
+        self.assertEqual(cover.pair, pair_trade)
+        self.assertEqual(cover.amount_quote, ask * amount_base)
+        self.assertIn(self.order, cover.orders.all())
+        # Cover order Again
+        order_cover_invoke.apply([self.order.pk])
+        new_cover = Cover.objects.latest('id')
+        self.assertEqual(cover, new_cover)

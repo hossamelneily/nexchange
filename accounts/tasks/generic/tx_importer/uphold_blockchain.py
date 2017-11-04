@@ -4,6 +4,7 @@ from django.conf import settings
 from nexchange.utils import check_address_transaction_ids_blockchain
 from core.models import Transaction
 from django.core.exceptions import MultipleObjectsReturned
+from risk_management.task_summary import order_cover_invoke
 
 
 class UpholdBlockchainTransactionImporter(BaseTransactionImporter):
@@ -54,6 +55,7 @@ class UpholdBlockchainTransactionImporter(BaseTransactionImporter):
                              .format(txn.__dict__))
             self.logger.info('Order {} is marked as PAID_UNCONFIRMED'
                              .format(self.order.__dict__))
+            order_cover_invoke.apply_async([self.order.pk])
 
     def import_income_transactions(self):
         orders = self.get_orders()

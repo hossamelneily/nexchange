@@ -17,7 +17,6 @@ class BaseTestLiveOrders(TestCase):
 
     def setUp(self):
         super(BaseTestLiveOrders, self).setUp()
-        self.address = '0x17DC547F7272cAe64B85B4B0319c7575A077A4Ff'  # main address of our Uphold Account  # noqa
         self.logger = get_nexchange_logger(
             'Live Test Logger', with_email=False, with_console=True
         )
@@ -34,7 +33,7 @@ class BaseTestLiveOrders(TestCase):
         return res
 
     def create_order(self, pair_name='BTCETH',
-                     withdraw_address='3NTjj6eFFYohCMyY5ExwWRrrqyXU9jn9xN',
+                     withdraw_address='3P7HftbJek8J3vNm8WrhuuVhDj1U1EjRaR',
                      amount_base=0.008):
         deposit_address = deposit_amount = deposit_currency_code = None
         payload = {

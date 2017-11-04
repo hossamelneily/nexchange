@@ -2,8 +2,9 @@ from risk_management.tests.base import RiskManagementBaseTestCase
 from unittest.mock import patch
 from risk_management.task_summary import reserves_balance_checker_periodic,\
     account_balance_checker_invoke, reserve_balance_maintainer_invoke,\
-    main_account_filler_invoke, currency_reserve_balance_checker_invoke
-from risk_management.models import Reserve, Account
+    main_account_filler_invoke, currency_reserve_balance_checker_invoke, \
+    currency_cover_invoke
+from risk_management.models import Reserve, Account, Cover
 from decimal import Decimal
 from django.conf import settings
 from core.tests.utils import data_provider
@@ -306,6 +307,30 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
     def test_invoke_main_account_filler_bad_account_id(self, run):
         main_account_filler_invoke.apply_async([-1, 1000])
         self.assertEqual(run.call_count, 0)
+
+    @patch('nexchange.api_clients.bittrex.Bittrex.withdraw')
+    @patch('nexchange.api_clients.bittrex.Bittrex.buy_limit')
+    @patch('nexchange.api_clients.bittrex.Bittrex.get_ticker')
+    @patch('nexchange.api_clients.bittrex.Bittrex.get_balance')
+    def test_create_xvg_cover(self, _get_balance, get_ticker, buy_limit,
+                              withdraw):
+        ask = Decimal('0.0012')
+        tx_id = '12345'
+        amount_base = Decimal('10000')
+        pair = Pair.objects.get(name='XVGBTC')
+        _get_balance.return_value = self._get_bittrex_get_balance_response(50)
+        buy_limit.return_value = withdraw.return_value = {
+            'result': {'uuid': tx_id}
+        }
+        get_ticker.return_value = self._get_bittrex_get_ticker_response(
+            ask=ask)
+        currency_cover_invoke.apply(['XVG', amount_base])
+        cover = Cover.objects.last()
+        self.assertEqual(cover.rate, ask)
+        self.assertEqual(cover.amount_base, amount_base)
+        self.assertEqual(cover.pair, pair)
+        self.assertEqual(cover.currency.code, 'XVG')
+        self.assertEqual(cover.amount_quote, ask * amount_base)
 
 
 class UncoveredTestCase(RiskManagementBaseTestCase):

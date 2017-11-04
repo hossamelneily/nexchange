@@ -5,6 +5,7 @@ from django.db.models import Q
 from core.models import Transaction
 from orders.models import Order
 from nexchange.utils import get_nexchange_logger
+from risk_management.task_summary import order_cover_invoke
 
 
 class BaseTransactionImporter:
@@ -86,6 +87,7 @@ class BaseTransactionImporter:
                                  .format(tx.__dict__))
                 self.logger.info('Order {} is marked as PAID_UNCONFIRMED'
                                  .format(order.__dict__))
+                order_cover_invoke.apply_async([order.pk])
             else:
                 self.logger.error(
                     'Failed transaction register. response: {} order: {}. '

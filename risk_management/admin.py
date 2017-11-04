@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from risk_management.models import Reserve, Account
+from risk_management.models import Reserve, Account, Cover
 
 
 @admin.register(Reserve)
@@ -18,3 +18,10 @@ class AccountAdmin(admin.ModelAdmin):
                     'is_main_account')
     search_fields = ('wallet', 'reserve__currency__name',
                      'reserve__currency__code')
+
+
+@admin.register(Cover)
+class CoverAdmin(admin.ModelAdmin):
+    raw_id_fields = ('orders',)
+    list_display = ('cover_type', 'pair', 'amount_base', 'amount_quote',
+                    'account', 'cover_id')
