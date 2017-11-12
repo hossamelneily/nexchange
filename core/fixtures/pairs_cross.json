@@ -35,8 +35,8 @@
     "modified_on": "2017-02-09T12:54:12.521Z",
     "base": 3,
     "quote": 2,
-    "fee_ask": "0.00500000",
-    "fee_bid": "0.00500000",
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
     "name": "ETHLTC",
     "disabled": false
   }
@@ -122,8 +122,8 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 2,
     "quote": 3,
-    "fee_ask": "0.00500000",
-    "fee_bid": "0.00500000",
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
     "name": "LTCETH",
     "disabled": false
   }
@@ -346,8 +346,8 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 36,
     "quote": 2,
-    "fee_ask": "0.0050000",
-    "fee_bid": "0.0050000",
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
     "name": "BCHLTC",
     "disabled": false
   }
@@ -360,8 +360,8 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 36,
     "quote": 3,
-    "fee_ask": "0.0050000",
-    "fee_bid": "0.0050000",
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
     "name": "BCHETH",
     "disabled": false
   }
@@ -388,8 +388,8 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 2,
     "quote": 36,
-    "fee_ask": "0.0050000",
-    "fee_bid": "0.0050000",
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
     "name": "LTCBCH",
     "disabled": false
   }
@@ -402,8 +402,8 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 3,
     "quote": 36,
-    "fee_ask": "0.0050000",
-    "fee_bid": "0.0050000",
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
     "name": "ETHBCH",
     "disabled": false
   }
