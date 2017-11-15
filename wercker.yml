@@ -435,7 +435,7 @@ build:
         password: $DOCKER_HUB_PASSWORD
         tag: ${DOCKER_IMAGE_TAG}
         repository: $DOCKER_HUB_REPO
-        registry: https://registry.hub.docker.com
+        registry: https://registry.hub.docker.com/v2
         entrypoint: /entrypoint.sh
         ports: ${GUNICORN_PORT}
         working-dir: /usr/src/app
