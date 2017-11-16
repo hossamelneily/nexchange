@@ -27,9 +27,11 @@ class TransactionImportTaskTestCase(TransactionImportBaseTestCase,
             self._mock_cards_reserve(mock)
             self._create_an_order_for_every_crypto_currency_card(self.user)
 
+    @skip('Uphold is not used anymore')
     def test_create_transactions_with_task(self):
         self.base_test_create_transactions_with_task(self.run_method)
 
+    @skip('Uphold is not used anymore')
     def test_create_transactions_with_None_currency_address(self):
         self.address, created = Address.objects.get_or_create(
             name='test address',
@@ -72,6 +74,7 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
         }
         return wallets_ids
 
+    @skip('Uphold is not used anymore')
     @requests_mock.mock()
     def test_replace_wallet(self, mock):
         currency_code = 'ETH'
@@ -156,6 +159,7 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
             self.profile.cards_validity_approved = False
             self.profile.save()
 
+    @skip('Uphold is not used anymore')
     @data_provider(lambda: (
         ('Send funds, currency ok, balance more than 0', 'ETH', 'ETH', '1.1',
          1, {'retry': False, 'success': True}),
@@ -203,6 +207,7 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
         # check_cards_uphold_invoke.apply()
         self.assertEqual(1, check_cards.call_count)
 
+    @skip('Uphold is not used anymore')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.check_card_balance')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
     def test_retry_balance_check_x_times(self, check_tx, check_card):
@@ -219,6 +224,7 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
         self.assertEqual(check_card.call_count,
                          settings.RETRY_CARD_CHECK_MAX_RETRIES + 1)
 
+    @skip('Uphold is not used anymore')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.check_card_balance')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
     def test_retry_balance_check_success(self, check_tx, check_card):

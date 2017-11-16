@@ -9,7 +9,10 @@ class CurrencySerializer(serializers.ModelSerializer):
         fields = ('code', 'name', 'min_confirmations', 'is_crypto',
                   'minimal_amount',
                   'is_base_of_enabled_pair', 'is_quote_of_enabled_pair',
-                  'has_enabled_pairs')
+                  'has_enabled_pairs',
+                  'is_base_of_enabled_pair_for_test',
+                  'is_quote_of_enabled_pair_for_test',
+                  'has_enabled_pairs_for_test')
 
 
 class CurrencyNameSerializer(serializers.ModelSerializer):

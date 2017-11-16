@@ -617,6 +617,7 @@ class BuyOrderReleaseFailedFlags(BaseOrderReleaseTestCase):
             self.assertEqual(0, validate.call_count, name)
 
 
+@skip('Uphold is not working anymore')
 class RetryReleaseTestCase(TickerBaseTestCase):
 
     def setUp(self):

@@ -17,7 +17,7 @@ class CurrencyAdmin(admin.ModelAdmin):
 
 
 class PairAdmin(admin.ModelAdmin):
-    list_display = ('name', 'fee_ask', 'fee_bid', 'disabled')
+    list_display = ('name', 'fee_ask', 'fee_bid', 'disabled', 'test_mode')
 
 
 class TranmsactionAdmin(admin.ModelAdmin):

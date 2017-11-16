@@ -4,7 +4,8 @@ from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
     update_pending_transactions_invoke, \
     import_transaction_deposit_uphold_blockchain_invoke
 from core.tests.base import TransactionImportBaseTestCase
-from core.tests.base import UPHOLD_ROOT, EXCHANGE_ORDER_RELEASE_ROOT
+from core.tests.base import UPHOLD_ROOT, EXCHANGE_ORDER_RELEASE_ROOT, \
+    ETH_ROOT, SCRYPT_ROOT
 from core.tests.utils import data_provider
 from core.models import Transaction, Pair, Address
 from orders.models import Order
@@ -62,6 +63,7 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         response = '{{"confirmations": {}}}'.format(confirmations)
         mock.get(url, text=response)
 
+    @skip('Uphold is not used anymore')
     @data_provider(
         lambda: (
             ('1.Bad status and confs uphold, cnfs+', 'BTCETH', True,
@@ -120,23 +122,19 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
             self.assertEqual(txn.confirmations, blockchain_confirmations, name)
 
     @patch('orders.models.Order._validate_status')
-    @patch(UPHOLD_ROOT + 'execute_txn')
-    @patch(UPHOLD_ROOT + 'prepare_txn')
+    @patch(ETH_ROOT + 'release_coins')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
     def test_release_order_only_once(self, check_tx_uphold,
-                                     prepare_txn_uphold,
-                                     execute_txn_uphold, _validate_status):
+                                     release_coins_eth, _validate_status):
         _validate_status.return_value = True
         # Create order and prepare it for first release
         order, txn_dep = self._create_PAID_order()
-        check_tx_uphold.return_value = True, 999
-        prepare_txn_uphold.return_value = self.generate_txn_id()
-        execute_txn_uphold.return_value = {'code': 'OK'}
+        release_coins_eth.return_value = self.generate_txn_id()
         # Do first release
         exchange_order_release_invoke.apply_async([txn_dep.pk])
         self.order.refresh_from_db()
         # Check things after first release
-        self.assertEqual(prepare_txn_uphold.call_count, 1)
+        self.assertEqual(release_coins_eth.call_count, 1)
         self.assertIn(self.order.status, Order.IN_RELEASED)
         all_with_txn = self.order.transactions.filter(
             type=Transaction.WITHDRAW)
@@ -144,12 +142,12 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         # Prepare order for second release
         self.order.status = Order.PAID
         self.order.save()
-        prepare_txn_uphold.return_value = self.generate_txn_id()
+        release_coins_eth.return_value = self.generate_txn_id()
         exchange_order_release_invoke.apply_async([txn_dep.pk])
         # check things after second release
         all_with_txn = self.order.transactions.filter(
             type=Transaction.WITHDRAW)
-        self.assertEqual(prepare_txn_uphold.call_count, 1)
+        self.assertEqual(release_coins_eth.call_count, 1)
         self.order.refresh_from_db()
         self.assertIn(self.order.status, Order.IN_RELEASED)
         self.assertTrue(self.order.flagged)
@@ -224,18 +222,17 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
              {'pair_name': 'LTCETH', 'times': Decimal('1.00'),
               'minutes_after_expire': 12}),
         ))
-    @patch(UPHOLD_ROOT + 'get_transactions')
+    @patch(ETH_ROOT + '_get_txs')
+    @patch(SCRYPT_ROOT + '_get_txs')
     def test_dynamically_change_order_with_tx_import(self, name, test_data,
-                                                     get_txs_uphold):
+                                                     get_txs_scrypt,
+                                                     get_txs_eth):
         pair_name = test_data['pair_name']
         times = test_data['times']
-        pair = Pair.objects.get(name=pair_name)
-        mock_currency_code = pair.quote.code
         self._create_order(pair_name=pair_name, amount_base=None,
                            amount_quote=11.11)
         amount_base = self.order.amount_base
         card = self.order.deposit_address.reserve
-        card_id = card.card_id
         amount_quote = self.order.amount_quote
         mock_amount = money_format(amount_quote * times, places=8)
         minutes_after_expire = test_data['minutes_after_expire']
@@ -244,9 +241,17 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         with freeze_time(now):
             if minutes_after_expire >= 0:
                 self.assertTrue(self.order.expired, name)
-            get_txs_uphold.return_value = [
-                self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
-            ]
+            get_txs_scrypt.return_value = get_txs_eth.return_value = [{
+                'address': card.address,
+                'category': 'receive',
+                'account': '',
+                'amount': mock_amount,
+                'txid': self.generate_txn_id(),
+                'confirmations': 0,
+                'timereceived': 1498736269,
+                'time': 1498736269,
+                'fee': Decimal('-0.00000100')
+            }]
             self.import_txs_task.apply()
             txs = self.order.transactions.all()
             self.assertEqual(len(txs), 1, name)

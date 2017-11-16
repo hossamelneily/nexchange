@@ -31,7 +31,7 @@
     "reserve": 2,
     "wallet": "api1",
     "trading_allowed": false,
-    "is_main_account": true
+    "is_main_account": false
   }
 },
 {
@@ -43,7 +43,7 @@
     "reserve": 3,
     "wallet": "api1",
     "trading_allowed": false,
-    "is_main_account": true
+    "is_main_account": false
   }
 },
 {
@@ -55,7 +55,7 @@
     "reserve": 4,
     "wallet": "api1",
     "trading_allowed": false,
-    "is_main_account": true
+    "is_main_account": false
   }
 },
 {
@@ -67,7 +67,7 @@
     "reserve": 5,
     "wallet": "api1",
     "trading_allowed": false,
-    "is_main_account": true
+    "is_main_account": false
   }
 },
 {
@@ -91,6 +91,54 @@
     "reserve": 6,
     "wallet": "api2",
     "trading_allowed": true
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 9,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 2,
+    "wallet": "rpc5",
+    "trading_allowed": false,
+    "is_main_account": true
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 10,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 3,
+    "wallet": "rpc6",
+    "trading_allowed": false,
+    "is_main_account": true
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 11,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 4,
+    "wallet": "rpc7",
+    "trading_allowed": false,
+    "is_main_account": true
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 12,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 5,
+    "wallet": "rpc4",
+    "trading_allowed": false,
+    "is_main_account": true
   }
 }
 ]

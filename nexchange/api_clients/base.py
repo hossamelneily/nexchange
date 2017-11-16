@@ -18,7 +18,8 @@ class BaseApiClient:
         self.cache = {}
 
     def renew_cards_reserve(self,
-                            expected_reserve=settings.CARDS_RESERVE_COUNT):
+                            expected_reserve=settings.CARDS_RESERVE_COUNT,
+                            renew_curr_of_disabled_pairs=False):
         if settings.DEBUG:
             self.logger.info(
                 expected_reserve,
@@ -28,6 +29,10 @@ class BaseApiClient:
 
         currencies = Currency.objects.filter(is_crypto=True, disabled=False,
                                              wallet__in=self.related_nodes)
+        if not renew_curr_of_disabled_pairs:
+            currencies = [
+                curr for curr in currencies if curr.is_quote_of_enabled_pair
+            ]
 
         for curr in currencies:
             count = AddressReserve.objects \

@@ -1,17 +1,22 @@
-from nexchange.api_clients.rpc import ScryptRpcApiClient
-from nexchange.api_clients.uphold import UpholdApiClient
+from nexchange.api_clients.rpc import ScryptRpcApiClient, EthashRpcApiClient
 
 scrypt_client = ScryptRpcApiClient()
-uphold_client = UpholdApiClient()
+ethash_client = EthashRpcApiClient()
 
-assert scrypt_client.related_nodes[0] \
+assert \
+    scrypt_client.related_nodes[0] \
     != scrypt_client.related_nodes[1] \
-    != uphold_client.related_nodes[0]
-
+    != scrypt_client.related_nodes[2] \
+    != scrypt_client.related_nodes[3] \
+    != scrypt_client.related_nodes[4] \
+    != ethash_client.related_nodes[0]
 clients_lookup = {
     scrypt_client.related_nodes[0]: scrypt_client,
     scrypt_client.related_nodes[1]: scrypt_client,
-    uphold_client.related_nodes[0]: uphold_client
+    scrypt_client.related_nodes[2]: scrypt_client,
+    scrypt_client.related_nodes[3]: scrypt_client,
+    scrypt_client.related_nodes[4]: scrypt_client,
+    ethash_client.related_nodes[0]: ethash_client
 }
 
 

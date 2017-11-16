@@ -84,8 +84,8 @@ class PairFixtureTestCase(OrderBaseTestCase):
         minor_pair_fee = Decimal('0.01')  # 1.0%
         pairs = [p for p in Pair.objects.all() if p.is_crypto]
         for p in pairs:
-            if all([p.quote.wallet == 'api1', p.base.wallet == 'api1',
-                    'BTC' in [p.quote.code, p.base.code]]):
+            if p.name in ['BTCLTC', 'LTCBTC', 'ETHBTC', 'BTCETH', 'BCHBTC',
+                          'BTCBCH']:
                 fee = major_pair_fee
             else:
                 fee = minor_pair_fee

@@ -55,8 +55,8 @@ class ScryptRpcApiClient(BaseRpcClient):
 
     def __init__(self):
         super(ScryptRpcApiClient, self).__init__()
-        self.related_nodes = ['rpc2', 'rpc3']  # removed rpc4 - BCH
-        self.related_coins = ['DOGE', 'XVG']  # removed roc4 - BCH
+        self.related_nodes = ['rpc2', 'rpc3', 'rpc4', 'rpc5', 'rpc6']
+        self.related_coins = ['DOGE', 'XVG', 'BCH', 'BTC', 'LTC']
 
     def create_address(self, currency):
         address = self.call_api(currency.wallet, 'getnewaddress')
@@ -110,6 +110,81 @@ class ScryptRpcApiClient(BaseRpcClient):
     def get_txs(self, node=None, txs=None):
         txs = self._get_txs(node)
         return super(ScryptRpcApiClient, self).get_txs(node, txs)
+
+    def release_coins(self, currency, address, amount):
+        tx_id = self.call_api(currency.wallet, 'sendtoaddress',
+                              *[address.address, amount])
+        success = True
+        return tx_id, success
+
+    def get_balance(self, currency):
+        balance = self.call_api(currency.wallet, 'getbalance')
+        return balance
+
+    def get_info(self, currency):
+        info = self.call_api(currency.wallet, 'getinfo')
+        return info
+
+
+class EthashRpcApiClient(BaseRpcClient):
+
+    def __init__(self):
+        super(EthashRpcApiClient, self).__init__()
+        self.related_nodes = ['rpc7']
+        self.related_coins = ['ETH']
+
+    def create_address(self, currency):
+        address = self.call_api(currency.wallet, 'getnewaddress')
+        return {
+            'currency': currency,
+            'address': address
+        }
+
+    def parse_tx(self, tx, node=None):
+        _currency = self.get_currency({'wallet': node})
+
+        try:
+            _address = self.get_address({'address': tx['address']})
+        except Address.DoesNotExist:
+            _address = None
+            self.logger.warning(
+                'Could not find Address {}'.format(Address)
+            )
+
+        return {
+            # required
+            'currency': _currency,
+            'address_to': _address,
+            'amount': tx['amount'],
+            # TODO: check if right type is sent by the wallet
+            'time': tx['time'],
+            'tx_id': tx['txid'],
+            'tx_id_api': None,
+        }
+
+    def filter_tx(self, tx):
+        return tx['category'] == 'receive'
+
+    def _get_tx(self, tx_id, node):
+        tx = self.call_api(node, 'gettransaction', *[tx_id])
+        return tx
+
+    def check_tx(self, tx, currency):
+        # this assumes that currency and node are one to one except uphold
+        tx = self._get_tx(tx.tx_id, currency.wallet)
+        return tx['confirmations'] > currency.min_confirmations, tx[
+            'confirmations']
+
+    def _get_txs(self, node):
+        txs = self.call_api(node, 'listtransactions',
+                            *["", settings.RPC_IMPORT_TRANSACTIONS_COUNT])
+        return txs
+
+    @log_errors
+    @track_tx_mapper
+    def get_txs(self, node=None, txs=None):
+        txs = self._get_txs(node)
+        return super(EthashRpcApiClient, self).get_txs(node, txs)
 
     def release_coins(self, currency, address, amount):
         tx_id = self.call_api(currency.wallet, 'sendtoaddress',

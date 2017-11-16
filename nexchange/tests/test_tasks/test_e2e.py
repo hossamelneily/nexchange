@@ -13,7 +13,7 @@ from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
     import_transaction_deposit_uphold_blockchain_invoke
 from core.models import Address, Transaction, Currency, Pair
 from core.tests.base import TransactionImportBaseTestCase
-from core.tests.base import UPHOLD_ROOT
+from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT, ETH_ROOT
 from core.tests.base import WalletBaseTestCase
 from core.tests.utils import data_provider, get_ok_pay_mock
 from orders.models import Order
@@ -573,9 +573,12 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         )
     )
     @patch('accounts.tasks.monitor_wallets.app.send_task')
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient.release_coins')
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
+    @patch(ETH_ROOT + 'release_coins')
+    @patch(ETH_ROOT + '_get_tx')
+    @patch(ETH_ROOT + '_get_txs')
+    @patch(SCRYPT_ROOT + 'release_coins')
+    @patch(SCRYPT_ROOT + '_get_tx')
+    @patch(SCRYPT_ROOT + '_get_txs')
     @patch(UPHOLD_ROOT + 'execute_txn')
     @patch(UPHOLD_ROOT + 'prepare_txn')
     @patch(UPHOLD_ROOT + 'get_transactions')
@@ -587,7 +590,10 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                     prepare_txn_uphold,
                                     execute_txn_uphold,
                                     get_txs_scrypt, get_tx_scrypt,
-                                    release_coins_scrypt, send_task):
+                                    release_coins_scrypt,
+                                    get_txs_eth, get_tx_eth,
+                                    release_coins_eth,
+                                    send_task):
         currency_quote_code = pair_name[base_curr_code_len:]
         currency_base_code = pair_name[0:base_curr_code_len]
         if currency_base_code == 'DOGE':
@@ -609,7 +615,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                 self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
             ]
         else:
-            get_txs_scrypt.return_value = [{
+            get_txs_scrypt.return_value = get_txs_eth.return_value = [{
                 'address': card.address,
                 'category': 'receive',
                 'account': '',
@@ -621,9 +627,12 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                 'fee': Decimal('-0.00000100')
             }]
         check_tx_uphold.return_value = True, 999
-        get_tx_scrypt.return_value = {'confirmations': 249}
+        get_tx_scrypt.return_value = get_tx_eth.return_value = {
+            'confirmations': 249
+        }
         self.import_txs_task.apply()
         prepare_txn_uphold.return_value = release_coins_scrypt.return_value = \
+            release_coins_eth.return_value = \
             'txid_{}{}'.format(time(), randint(1, 999))
         execute_txn_uphold.return_value = {'code': 'OK'}
 
@@ -659,9 +668,12 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         )
     )
     @patch('orders.models.Order.expired')
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient.release_coins')
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
+    @patch(ETH_ROOT + 'release_coins')
+    @patch(ETH_ROOT + '_get_tx')
+    @patch(ETH_ROOT + '_get_txs')
+    @patch(SCRYPT_ROOT + 'release_coins')
+    @patch(SCRYPT_ROOT + '_get_tx')
+    @patch(SCRYPT_ROOT + '_get_txs')
     @patch(UPHOLD_ROOT + 'execute_txn')
     @patch(UPHOLD_ROOT + 'prepare_txn')
     @patch(UPHOLD_ROOT + 'get_transactions')
@@ -673,6 +685,8 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                                  execute_txn_uphold,
                                                  get_txs_scrypt, get_tx_scrypt,
                                                  release_coins_scrypt,
+                                                 get_txs_eth, get_tx_eth,
+                                                 release_coins_eth,
                                                  order_expired):
         order_expired.return_value = True
         currency_quote_code = pair_name[3:]
@@ -689,7 +703,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                 self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
             ]
         else:
-            get_txs_scrypt.return_value = [{
+            get_txs_eth.return_value = get_txs_scrypt.return_value = [{
                 'address': card.address,
                 'category': 'receive',
                 'account': '',
@@ -701,9 +715,12 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                 'fee': Decimal('-0.00000100')
             }]
         check_tx_uphold.return_value = True, 999
-        get_tx_scrypt.return_value = {'confirmations': 249}
+        get_tx_eth.return_value = get_tx_scrypt.return_value = {
+            'confirmations': 249
+        }
         self.import_txs_task.apply()
         prepare_txn_uphold.return_value = release_coins_scrypt.return_value = \
+            release_coins_eth.return_value = \
             'txid_{}{}'.format(time(), randint(1, 999))
         execute_txn_uphold.return_value = {'code': 'OK'}
 
@@ -1100,13 +1117,13 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
         super(OrderCoverTaskTestCase, self).setUp()
         self.import_txs_task = import_transaction_deposit_crypto_invoke
 
-    @patch(UPHOLD_ROOT + 'get_transactions')
+    @patch(SCRYPT_ROOT + '_get_txs')
     @patch('nexchange.api_clients.bittrex.Bittrex.withdraw')
     @patch('nexchange.api_clients.bittrex.Bittrex.buy_limit')
     @patch('nexchange.api_clients.bittrex.Bittrex.get_ticker')
     @patch('nexchange.api_clients.bittrex.Bittrex.get_balance')
     def test_create_xvg_cover(self, _get_balance, get_ticker, buy_limit,
-                              withdraw, get_txs_uphold):
+                              withdraw, get_txs_scrypt):
 
         amount_base = 40000
         pair_name = 'XVGBTC'
@@ -1117,15 +1134,21 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
         with patch('orders.models.Order.coverable'):
             order_cover_invoke.apply([self.order.pk])
             self.assertIsNone(Cover.objects.last())
-        mock_currency_code = self.order.pair.quote.code
         mock_amount = self.order.amount_quote
 
         # Import mocks
         card = self.order.deposit_address.reserve
-        card_id = card.card_id
-        get_txs_uphold.return_value = [
-            self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
-        ]
+        get_txs_scrypt.return_value = [{
+            'address': card.address,
+            'category': 'receive',
+            'account': '',
+            'amount': mock_amount,
+            'txid': 'txid_{}{}'.format(time(), randint(1, 999)),
+            'confirmations': 0,
+            'timereceived': 1498736269,
+            'time': 1498736269,
+            'fee': Decimal('-0.00000100')
+        }]
         # Trade mocks
         _get_balance.return_value = self._get_bittrex_get_balance_response(50)
         buy_limit.return_value = withdraw.return_value = {

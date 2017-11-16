@@ -172,15 +172,30 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
 
     @property
     def base_pairs(self):
+        return Pair.objects.filter(base=self, disabled=False, test_mode=False)
+
+    @property
+    def base_pairs_for_test(self):
         return Pair.objects.filter(base=self, disabled=False)
 
     @property
     def quote_pairs(self):
+        return Pair.objects.filter(quote=self, disabled=False, test_mode=False)
+
+    @property
+    def quote_pairs_for_test(self):
         return Pair.objects.filter(quote=self, disabled=False)
 
     @property
     def is_base_of_enabled_pair(self):
         enabled_pairs = self.base_pairs
+        if len(enabled_pairs) > 0:
+            return True
+        return False
+
+    @property
+    def is_base_of_enabled_pair_for_test(self):
+        enabled_pairs = self.base_pairs_for_test
         if len(enabled_pairs) > 0:
             return True
         return False
@@ -193,8 +208,21 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         return False
 
     @property
+    def is_quote_of_enabled_pair_for_test(self):
+        enabled_pairs = self.quote_pairs_for_test
+        if len(enabled_pairs) > 0:
+            return True
+        return False
+
+    @property
     def has_enabled_pairs(self):
-        return self.is_base_of_enabled_pair or self.is_quote_of_enabled_pair
+        return any([self.is_base_of_enabled_pair,
+                    self.is_quote_of_enabled_pair])
+
+    @property
+    def has_enabled_pairs_for_test(self):
+        return any([self.is_base_of_enabled_pair_for_test,
+                    self.is_quote_of_enabled_pair_for_test])
 
     @property
     def available_reserves(self):
@@ -250,6 +278,7 @@ class Pair(TimeStampedModel):
     disable_ticker = models.BooleanField(
         default=False, help_text='Opt-out this Pair ticker gathering.'
     )
+    test_mode = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         self.name = '{}{}'.format(self.base, self.quote)

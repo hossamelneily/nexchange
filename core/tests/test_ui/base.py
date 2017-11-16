@@ -25,7 +25,7 @@ import requests_mock
 from time import time
 import json
 from random import randint
-from core.tests.base import UPHOLD_ROOT
+from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT, ETH_ROOT
 
 
 class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
@@ -365,18 +365,24 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             options[1].click()
             submit.click()
 
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient.release_coins')
+    @patch(ETH_ROOT + '_get_tx')
+    @patch(ETH_ROOT + 'release_coins')
+    @patch(SCRYPT_ROOT + '_get_tx')
+    @patch(SCRYPT_ROOT + 'release_coins')
     @patch(UPHOLD_ROOT + 'execute_txn')
     @patch(UPHOLD_ROOT + 'prepare_txn')
     def add_withdraw_address_on_payment_success(self, prepare_txn,
                                                 execute_txn,
                                                 release_coins_scrypt,
                                                 get_tx_scrypt,
+                                                release_coins_eth, get_tx_eth,
                                                 add_new=False):
         prepare_txn.return_value = 'txid{}'.format(self.order.unique_reference)
-        release_coins_scrypt.return_value = prepare_txn.return_value, True
-        get_tx_scrypt.return_value = {'confirmations': 249}
+        release_coins_scrypt.return_value = release_coins_eth.return_value = \
+            prepare_txn.return_value, True
+        get_tx_scrypt.return_value = get_tx_eth.return_value = {
+            'confirmations': 249
+        }
         execute_txn.return_value = {'code': 'OK'}
         address_id = 'span-withdraw-{}'.format(self.order.pk)
 
@@ -498,7 +504,8 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
                                'unclickable element)')
 
     def mock_import_transaction(self, amount, currency_code, get_txs_uphold,
-                                get_rtx, get_txs_scrypt, get_tx_scrypt):
+                                get_rtx, get_txs_scrypt, get_tx_scrypt,
+                                get_txs_eth, get_tx_eth):
         self.completed = '{"status": "completed", "type": "deposit",' \
                          '"params": {"progress": 999}}'
         mock_currency = Currency.objects.get(code=currency_code)
@@ -513,7 +520,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             ]
 
         else:
-            get_txs_scrypt.return_value = [{
+            get_txs_scrypt.return_value = get_txs_eth.return_value = [{
                 'address': card.address,
                 'category': 'receive',
                 'account': '',
@@ -525,7 +532,9 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
                 'fee': Decimal('-0.00000100')
             }]
         get_rtx.return_value = json.loads(self.completed)
-        get_tx_scrypt.return_value = {'confirmations': 249}
+        get_tx_scrypt.return_value = get_tx_eth.return_value = {
+            'confirmations': 249
+        }
 
     def do_screenshot(self, filename, refresh=False):
         now = time()

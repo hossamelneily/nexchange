@@ -23,7 +23,7 @@ from accounts.task_summary import \
     update_pending_transactions_invoke as update_txs
 import random
 from copy import deepcopy
-from core.tests.base import UPHOLD_ROOT
+from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT, ETH_ROOT
 from ticker.models import Ticker, Price
 from nexchange.api_clients.uphold import UpholdApiClient
 from ticker.tasks.generic.crypto_fiat_ticker import CryptoFiatTicker
@@ -944,10 +944,13 @@ class CalculateOrderTestCase(TickerBaseTestCase):
                 self.order.payment_window,
                 skip_minutes + settings.PAYMENT_WINDOW)
 
-    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
-    def test_do_not_register_small_amount(self, check_tx):
+    @patch(ETH_ROOT + '_get_tx')
+    @patch(SCRYPT_ROOT + '_get_tx')
+    def test_do_not_register_small_amount(self, get_tx_scrypt, get_tx_eth):
         confirmations = 999
-        check_tx.return_value = True, confirmations
+        get_tx_scrypt.return_value = get_tx_eth.return_value = {
+            'confirmations': confirmations
+        }
         self._create_order()
         amount_quote = self.order.amount_quote
         amount_base = self.order.amount_base

@@ -307,7 +307,8 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "DOGEXVG",
-    "disabled": false
+    "disabled": false,
+    "test_mode": false
   }
 },
 {
@@ -321,7 +322,8 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "XVGDOGE",
-    "disabled": false
+    "disabled": false,
+    "test_mode": false
   }
 },
 {

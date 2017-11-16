@@ -3,7 +3,7 @@ from orders.models import Order
 
 from unittest.mock import patch
 from core.tests.test_ui.base import BaseTestUI
-from core.tests.base import UPHOLD_ROOT
+from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT, ETH_ROOT
 
 from selenium.webdriver.common.by import By
 from core.tests.utils import retry
@@ -22,76 +22,92 @@ class TestUIExchangeOrders(BaseTestUI):
     @retry(AssertionError, tries=3, delay=1)
     @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: (('ETHLTC', True),),)
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
+    @patch(ETH_ROOT + '_get_tx')
+    @patch(ETH_ROOT + '_get_txs')
+    @patch(SCRYPT_ROOT + '_get_tx')
+    @patch(SCRYPT_ROOT + '_get_txs')
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order1(self, pair_name, do_logout, reserve_txs,
                                      import_txs, get_txs_scrypt,
-                                     get_tx_scrypt):
+                                     get_tx_scrypt, get_txs_eth, get_tx_eth):
         self.base_test_release_exchange_order(pair_name, do_logout,
                                               reserve_txs, import_txs,
-                                              get_txs_scrypt, get_tx_scrypt)
+                                              get_txs_scrypt, get_tx_scrypt,
+                                              get_txs_eth, get_tx_eth)
 
     @retry(AssertionError, tries=3, delay=1)
     @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: (('BTCETH', False),),)
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
+    @patch(ETH_ROOT + '_get_tx')
+    @patch(ETH_ROOT + '_get_txs')
+    @patch(SCRYPT_ROOT + '_get_tx')
+    @patch(SCRYPT_ROOT + '_get_txs')
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order2(self, pair_name, do_logout, reserve_txs,
                                      import_txs, get_txs_scrypt,
-                                     get_tx_scrypt):
+                                     get_tx_scrypt, get_txs_eth, get_tx_eth):
         self.base_test_release_exchange_order(pair_name, do_logout,
                                               reserve_txs, import_txs,
-                                              get_txs_scrypt, get_tx_scrypt)
+                                              get_txs_scrypt, get_tx_scrypt,
+                                              get_txs_eth, get_tx_eth)
 
     @retry(AssertionError, tries=3, delay=1)
     @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: (('LTCBTC', False),),)
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
+    @patch(ETH_ROOT + '_get_tx')
+    @patch(ETH_ROOT + '_get_txs')
+    @patch(SCRYPT_ROOT + '_get_tx')
+    @patch(SCRYPT_ROOT + '_get_txs')
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order3(self, pair_name, do_logout, reserve_txs,
                                      import_txs, get_txs_scrypt,
-                                     get_tx_scrypt):
+                                     get_tx_scrypt, get_txs_eth, get_tx_eth):
         self.base_test_release_exchange_order(pair_name, do_logout,
                                               reserve_txs, import_txs,
-                                              get_txs_scrypt, get_tx_scrypt)
+                                              get_txs_scrypt, get_tx_scrypt,
+                                              get_txs_eth, get_tx_eth)
 
     @retry(AssertionError, tries=3, delay=1)
     @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: (('LTCDOGE', False),),)
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
+    @patch(ETH_ROOT + '_get_tx')
+    @patch(ETH_ROOT + '_get_txs')
+    @patch(SCRYPT_ROOT + '_get_tx')
+    @patch(SCRYPT_ROOT + '_get_txs')
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order4(self, pair_name, do_logout, reserve_txs,
                                      import_txs, get_txs_scrypt,
-                                     get_tx_scrypt):
+                                     get_tx_scrypt, get_txs_eth, get_tx_eth):
         self.base_test_release_exchange_order(pair_name, do_logout,
                                               reserve_txs, import_txs,
-                                              get_txs_scrypt, get_tx_scrypt)
+                                              get_txs_scrypt, get_tx_scrypt,
+                                              get_txs_eth, get_tx_eth)
 
     @retry(AssertionError, tries=3, delay=1)
     @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: (('DOGEBTC', False),),)
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_tx')
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient._get_txs')
+    @patch(ETH_ROOT + '_get_tx')
+    @patch(ETH_ROOT + '_get_txs')
+    @patch(SCRYPT_ROOT + '_get_tx')
+    @patch(SCRYPT_ROOT + '_get_txs')
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order5(self, pair_name, do_logout, reserve_txs,
                                      import_txs, get_txs_scrypt,
-                                     get_tx_scrypt):
+                                     get_tx_scrypt, get_txs_eth, get_tx_eth):
         self.base_test_release_exchange_order(pair_name, do_logout,
                                               reserve_txs, import_txs,
-                                              get_txs_scrypt, get_tx_scrypt)
+                                              get_txs_scrypt, get_tx_scrypt,
+                                              get_txs_eth, get_tx_eth)
 
     def base_test_release_exchange_order(self, pair_name, do_logout, get_txs,
                                          get_rtx, get_txs_scrypt,
-                                         get_tx_scrypt):
+                                         get_tx_scrypt, get_txs_eth,
+                                         get_tx_eth):
         pair_name = pair_name
         self.workflow = '{}'.format(pair_name)
         self.payment_method = '{}'.format(pair_name)
@@ -110,7 +126,7 @@ class TestUIExchangeOrders(BaseTestUI):
         withdraw_currency_code = currency_base_code
         self.mock_import_transaction(mock_amount, mock_currency_code,
                                      get_txs, get_rtx, get_txs_scrypt,
-                                     get_tx_scrypt)
+                                     get_tx_scrypt, get_txs_eth, get_tx_eth)
         self.place_order()
         self.click_go_to_order_list()
         self.do_screenshot('After pres GO/GET coins')

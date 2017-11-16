@@ -1,11 +1,10 @@
 from __future__ import absolute_import
 from django.conf import settings
-from nexchange.api_clients.rpc import ScryptRpcApiClient
-from nexchange.api_clients.uphold import UpholdApiClient
+from nexchange.api_clients.rpc import ScryptRpcApiClient, EthashRpcApiClient
 
 scrypt_client = ScryptRpcApiClient()
-uphold_client = UpholdApiClient()
-clients = [scrypt_client, uphold_client]
+ethash_client = EthashRpcApiClient()
+clients = [scrypt_client, ethash_client]
 
 
 def renew_cards_reserve(expected_reserve=settings.CARDS_RESERVE_COUNT):

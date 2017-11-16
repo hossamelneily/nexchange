@@ -24,6 +24,8 @@ from unittest.mock import patch
 from random import randint
 
 UPHOLD_ROOT = 'nexchange.api_clients.uphold.Uphold.'
+SCRYPT_ROOT = 'nexchange.api_clients.rpc.ScryptRpcApiClient.'
+ETH_ROOT = 'nexchange.api_clients.rpc.EthashRpcApiClient.'
 EXCHANGE_ORDER_RELEASE_ROOT = 'orders.tasks.generic.exchange_order_release.' \
                               'ExchangeOrderRelease.'
 
@@ -132,18 +134,22 @@ class UserBaseTestCase(TestCase):
                 'currency': c
             }
 
-        rpc_client_path = 'nexchange.api_clients.rpc.ScryptRpcApiClient.'
-
         self.rpc_mock_addr = \
-            mock.patch(rpc_client_path + 'create_address',
+            mock.patch(SCRYPT_ROOT + 'create_address',
                        new=addr_response)
         self.rpc_mock_addr.start()
 
-        self.rpc_mock_addr.start()
+        self.rpc_eth_mock_addr = \
+            mock.patch(ETH_ROOT + 'create_address',
+                       new=addr_response)
+        self.rpc_eth_mock_addr.start()
 
-        self.mock_rpc_txs = mock.patch(rpc_client_path + '_get_txs',
+        self.mock_rpc_txs = mock.patch(SCRYPT_ROOT + '_get_txs',
                                        lambda _self, *args: [])
         self.mock_rpc_txs.start()
+        self.mock_rpc_eth_txs = mock.patch(ETH_ROOT + '_get_txs',
+                                           lambda _self, *args: [])
+        self.mock_rpc_eth_txs.start()
 
     def _mock_uphold(self):
         uphold_client_path = 'nexchange.api_clients.uphold.UpholdApiClient.'
@@ -226,6 +232,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         pairs = Pair.objects.filter(disabled=True)
         for pair in pairs:
             pair.disabled = False
+            pair.test_mode = False
             pair.disable_ticker = False
             pair.save()
 
@@ -265,6 +272,8 @@ class OrderBaseTestCase(UserBaseTestCase):
         # rpc
         self.rpc_mock_addr.stop()
         self.mock_rpc_txs.stop()
+        self.rpc_eth_mock_addr.stop()
+        self.mock_rpc_eth_txs.stop()
 
     @classmethod
     def setUpClass(cls):

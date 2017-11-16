@@ -11,6 +11,7 @@ from core.tests.utils import data_provider
 from core.models import Pair, Currency, Address
 from nexchange.api_clients.kraken import KrakenApiClient
 from nexchange.api_clients.bittrex import BittrexApiClient
+from core.tests.base import ETH_ROOT, SCRYPT_ROOT
 
 
 class BalanceTaskTestCase(RiskManagementBaseTestCase):
@@ -21,17 +22,21 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
 
     @patch('nexchange.api_clients.uphold.Uphold.get_card')
     @patch('nexchange.api_clients.kraken.krakenex.API.query_private')
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient.get_balance')
+    @patch(SCRYPT_ROOT + 'get_balance')
+    @patch(ETH_ROOT + 'get_balance')
     @patch('nexchange.api_clients.bittrex.Bittrex.get_balance')
     def test_check_all_reserves_balances(self, get_balance_bit,
-                                         get_balance_rpc, get_balance_kraken,
+                                         get_balance_eth, get_balance_rpc,
+                                         get_balance_kraken,
                                          get_card):
         balance = 800.0
         available = 500.0
         pending = balance - available
         get_balance_bit.return_value = self._get_bittrex_get_balance_response(
             balance, available, pending)
-        get_balance_rpc.return_value = Decimal(str(balance))
+        get_balance_rpc.return_value = get_balance_eth.return_value = Decimal(
+            str(balance)
+        )
         get_balance_kraken.return_value = {'result': {'XXDG': str(balance)}}
         get_card.return_value = {'balance': Decimal(balance),
                                  'available': Decimal(available)}
