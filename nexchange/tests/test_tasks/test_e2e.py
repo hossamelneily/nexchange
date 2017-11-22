@@ -1083,6 +1083,7 @@ class BlockchainImporterTaskTestCase(TickerBaseTestCase):
                 )
             mock.get(url, text=response)
 
+    @skip('Do not import tx with blockchain/ Uphold doesnt work anymore')
     @data_provider(
         lambda: (('ETHLTC',), ('BTCETH',), ('BCHBTC',), ('LTCBCH',),)
     )

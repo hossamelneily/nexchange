@@ -154,6 +154,12 @@ class Order(TimeStampedModel, SoftDeletableModel,
                   'for {} order.'.format(self.pair.base.minimal_amount,
                                          self.pair.base.code))
             )
+        if self.amount_quote > self.pair.quote.maximal_amount and not self.pk:
+            raise ValidationError(
+                _('Order quote amount must be equal or less than {} '
+                  'for {} order.'.format(self.pair.quote.maximal_amount,
+                                         self.pair.quote.code))
+            )
 
     def _validate_status(self, status):
         if not self.pk:

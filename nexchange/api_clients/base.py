@@ -31,7 +31,7 @@ class BaseApiClient:
                                              wallet__in=self.related_nodes)
         if not renew_curr_of_disabled_pairs:
             currencies = [
-                curr for curr in currencies if curr.is_quote_of_enabled_pair
+                curr for curr in currencies if curr.is_quote_of_enabled_pair_for_test  # noqa
             ]
 
         for curr in currencies:

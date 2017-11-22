@@ -951,7 +951,7 @@ class CalculateOrderTestCase(TickerBaseTestCase):
         get_tx_scrypt.return_value = get_tx_eth.return_value = {
             'confirmations': confirmations
         }
-        self._create_order()
+        self._create_order(validate_amount=True)
         amount_quote = self.order.amount_quote
         amount_base = self.order.amount_base
         minimal_quote_amount = \

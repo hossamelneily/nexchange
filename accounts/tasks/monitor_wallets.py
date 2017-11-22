@@ -18,8 +18,7 @@ CHECK_CARD_BALANCE_TASK = 'accounts.task_summary.' \
 
 def check_uphold_txn_status_with_blockchain(tx, tx_completed,
                                             num_confirmations, logger):
-    is_uphold_coin = tx.address_to.currency.code in settings.API1_COINS
-    if not is_uphold_coin:
+    if not tx.address_to.currency.code == 'api1':
         return tx_completed, num_confirmations
     # FIXME: tx_id_api is not updated with Uphold transaction importer.
     # Check transaction Mapper, do real test on localhost

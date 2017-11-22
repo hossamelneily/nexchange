@@ -166,6 +166,10 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         max_digits=18, decimal_places=8,
         default=Decimal('0.01'),
         help_text='Minimal amount that can be set as order base.')
+    maximal_amount = models.DecimalField(
+        max_digits=18, decimal_places=8,
+        default=Decimal('1.00'),
+        help_text='Maximal amount that can be set as order base.')
 
     def natural_key(self):
         return self.code

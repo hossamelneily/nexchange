@@ -175,7 +175,8 @@ class UserBaseTestCase(TestCase):
 
     def _create_order(self, order_type=Order.BUY,
                       amount_base=0.5, pair_name='ETHLTC',
-                      payment_preference=None, user=None, amount_quote=None):
+                      payment_preference=None, user=None, amount_quote=None,
+                      validate_amount=False):
         pair = Pair.objects.get(name=pair_name)
         if user is None:
             user = self.user
@@ -189,7 +190,12 @@ class UserBaseTestCase(TestCase):
         )
         if payment_preference is not None:
             self.order.payment_preference = payment_preference
-        self.order.save()
+        if validate_amount:
+            self.order.save()
+            return
+        with patch('orders.models.Order._validate_order_base_amount') as p:
+            p.return_value = None
+            self.order.save()
 
     def _create_an_order_for_every_crypto_currency_card(self, user,
                                                         amount_quote=None):

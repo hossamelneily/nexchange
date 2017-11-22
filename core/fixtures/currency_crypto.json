@@ -12,7 +12,8 @@
       "min_confirmations": 2,
       "min_confirmation_high": 6,
       "median_confirmation": 6,
-      "minimal_amount": "0.002",
+      "minimal_amount": "0.0001",
+      "maximal_amount": "5.0",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }
@@ -29,7 +30,8 @@
       "min_confirmations": 6,
       "is_crypto": 1,
       "median_confirmation": 12,
-      "minimal_amount": "0.25",
+      "minimal_amount": "0.001",
+      "maximal_amount": "300.0",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }
@@ -46,7 +48,8 @@
       "is_crypto": 1,
       "min_confirmations": 12,
       "median_confirmation": 16,
-      "minimal_amount": "0.1",
+      "minimal_amount": "0.001",
+      "maximal_amount": "100.0",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }
@@ -63,7 +66,8 @@
       "is_crypto": 1,
       "min_confirmations": 4,
       "median_confirmation": 15,
-      "minimal_amount": "1000",
+      "minimal_amount": "1",
+      "maximal_amount": "10000.0",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }
@@ -80,7 +84,8 @@
       "is_crypto": 1,
       "min_confirmations": 6,
       "median_confirmation": 15,
-      "minimal_amount": "1000",
+      "minimal_amount": "100",
+      "maximal_amount": "5000000",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }
@@ -97,7 +102,8 @@
       "is_crypto": 1,
       "min_confirmations": 6,
       "median_confirmation": 15,
-      "minimal_amount": "1000",
+      "minimal_amount": "100",
+      "maximal_amount": "1200000",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00"
     }
@@ -114,7 +120,8 @@
       "is_crypto": 1,
       "min_confirmations": 6,
       "median_confirmation": 15,
-      "minimal_amount": "0.05",
+      "minimal_amount": "0.0001",
+      "maximal_amount": "15.0",
       "created_on":"2017-09-19T19:21:42+00:00",
       "modified_on":"2017-09-19T19:21:42+00:00"
     }

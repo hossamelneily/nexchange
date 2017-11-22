@@ -447,7 +447,7 @@ API1_ID_C1 = 'a1a88f60-7473-47e4-9b78-987daf198a5d'
 API1_ID_C2 = '12345'
 API1_ID_C3 = '54321'
 API1_ID_C4 = '543216'
-API1_COINS = ['BTC', 'ETH', 'LTC', 'BCH']
+API1_COINS = []
 API1_PAT = 'None'
 CARDS_RESERVE_COUNT = 20
 # this is used if there is no reserve on user.create()

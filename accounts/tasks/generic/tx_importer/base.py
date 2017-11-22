@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 
-from core.models import Transaction, Pair
+from core.models import Transaction, Currency
 from orders.models import Order
 from nexchange.utils import get_nexchange_logger
 from risk_management.task_summary import order_cover_invoke
@@ -111,7 +111,8 @@ class BaseTransactionImporter:
         # Note: this will only work if node and currency
         # are one to one
         for node in self.api.related_nodes:
-            if not Pair.objects.filter(quote__wallet=node, disabled=False):
+            currency = Currency.objects.get(wallet=node)
+            if not currency.is_base_of_enabled_pair_for_test:
                 continue
             total_txs, txs = self.api.get_txs(node)
             for tx in txs:
