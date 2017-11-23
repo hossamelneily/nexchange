@@ -112,7 +112,7 @@ class BaseTransactionImporter:
         # are one to one
         for node in self.api.related_nodes:
             currency = Currency.objects.get(wallet=node)
-            if not currency.is_base_of_enabled_pair_for_test:
+            if not currency.is_quote_of_enabled_pair_for_test:
                 continue
             total_txs, txs = self.api.get_txs(node)
             for tx in txs:
