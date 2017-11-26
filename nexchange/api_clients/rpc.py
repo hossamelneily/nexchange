@@ -3,10 +3,27 @@ from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from .decorators import track_tx_mapper, log_errors
 from core.models import Address
 from django.conf import settings
+from nexchange.utils import AESCipher
 import os
 
 
 class RpcMapper:
+    PWS = {
+        'rpc1': 'ove9n97G6tv3N8WUFdQKtgugeMGpqkYQmoHZI+jXl5rNAnAkT0Hgg'
+                'F8jDuVsgXZS/QjETkQuMihsLqIDSojcRmH7piN8BSafOFG36GijxZo=',
+        'rpc2': '8b2Dqw+FKwZ1pv/sAtsJUVKlz/z33zdRrivkiRIpVHWTXlilCxeYW'
+                'DeQ8AjcyVK7bXReUqchn8pKAqbLYN7mG0CE+i81Ka8x3aYGaBF1hLY=',
+        'rpc3': 'r7MC29tWNB1MM8elBEqrMn9IDUuPT3nzS08htosaBaJxixBFk4qsQa'
+                '/aULRB/LSN6JlLu3Lr3bumPdWBc1ossuxb1/d8Mswy+MJuwJ3QBgc=',
+        'rpc4': 'S5iAXq8gKpAFDMFiPzjEgVlw5vnycE4e1+A2xEBS464b2xLyayiinW'
+                'qsn9f4EKFuRifZdZnBHmPKvT7iIpEOJJCNwwsonmysPDIyUURLoy4=',
+        'rpc5': 'Z0DkkAwJqPJ7dx6ykAOT5lqwY5VpYlG16yhL4bU4D9zi4u4jQeqf3Pdc'
+                '0KdE7f6nMdVX7QYhzwZddKlXK9zZfiiR2OutX6VLZuQmTEl4fJ0=',
+        'rpc6': 'DCz4BziQRj7o+gwK2POJtcfNwVn++GXJ6Y80P2frgCU6hsMwcu1022'
+                'AyHTlm7nDeBSbwir/B5qWJTrWrLDMxBNfW8MzpVMrd7fk82sPTzGU=',
+        'rpc7': 'PbGnX+pDzdNZOVZ9EefGrBFMw9c8oTJxddtWsjbNINDJOai5zvK3spG'
+                'YWg/yNaX+S3wjX7t0K1bl/GgZZtxSKU7OXrXQqoPjMUil6JxU7+Q=',
+    }
 
     @classmethod
     def get_rpc_addr(cls, node):
@@ -25,8 +42,28 @@ class RpcMapper:
         }
         return '{protocol}://{user}:{passwd}@{host}:{port}'.format(**kwargs)
 
+    @classmethod
+    def get_raw_pw(cls, node):
+        return cls.PWS[node]
+
+
+    @classmethod
+    def get_key_pw(cls, node):
+        prefix = 'RPC'
+        env = '{}_{}_{}'.format(prefix, node.upper(), 'K')
+        return os.getenv(env)
+
+    @classmethod
+    def get_pass(cls, node):
+        raw_pass = RpcMapper.get_raw_pw
+        pass_key = RpcMapper.get_key_pw(node)
+        cipher = AESCipher(pass_key)
+        return cipher.decrypt(raw_pass)
+
 
 class BaseRpcClient(BaseApiClient):
+    LOCK_WALLET = 'walletlock'
+    UNLOCK_WALLET = 'walletpassphrase'
 
     def __init__(self):
         super(BaseRpcClient, self).__init__()
@@ -41,14 +78,28 @@ class BaseRpcClient(BaseApiClient):
         self.api = self.api_cache[self.rpc_endpoint]
         return self.api
 
+    def unlock(self, api, pass_phrase):
+        raise NotImplementedError
+
+    def lock(self, api):
+        raise NotImplementedError
+
+    def encrypt(self, api):
+        raise NotImplementedError
+
     def call_api(self, node, endpoint, *args):
+        # TODO: move unlock to decorator
         api = self.get_api(node)
+        fn = getattr(api, endpoint)
         try:
-            fn = getattr(api, endpoint)
+            rpc_pass = RpcMapper.get_pass(node)
+            self.unlock(api, rpc_pass)
             return fn(*args)
         except JSONRPCException as e:
             self.logger.error('JSON RPC ERROR HOST {} ERROR {}'
                               .format(self.rpc_endpoint, str(e)))
+        finally:
+            self.lock(api)
 
 
 class ScryptRpcApiClient(BaseRpcClient):
@@ -57,6 +108,14 @@ class ScryptRpcApiClient(BaseRpcClient):
         super(ScryptRpcApiClient, self).__init__()
         self.related_nodes = ['rpc2', 'rpc3', 'rpc4', 'rpc5', 'rpc6']
         self.related_coins = ['DOGE', 'XVG', 'BCH', 'BTC', 'LTC']
+
+    def lock(self, api):
+        encrypt_fn = getattr(api, self.LOCK_WALLET)
+        return encrypt_fn()
+
+    def unlock(self, api, pass_phrase):
+        decrypt_fn = getattr(api, self.UNLOCK_WALLET)
+        return decrypt_fn(*[pass_phrase, settings.WALLET_TIMEOUT])
 
     def create_address(self, currency):
         address = self.call_api(currency.wallet, 'getnewaddress')

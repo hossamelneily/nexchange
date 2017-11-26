@@ -306,11 +306,13 @@ build:
           export EMAIL_HOST_USER=${EMAIL_HOST_USER}
           export EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
           export EMAIL_PORT=${EMAIL_PORT}
+
           #RPC1
           export RPC_RPC1_USER=${RPC_RPC1_USER}
           export RPC_RPC1_PASSWORD=${RPC_RPC1_PASSWORD}
           export RPC_RPC1_PORT=${RPC_RPC1_PORT}
           export RPC_RPC1_HOST=${RPC_RPC1_HOST}
+          export RPC_RPC1_K=${RPC_RPC1_K}
 
           #RPC2
           export RPC_RPC2_USER=${RPC_RPC2_USER}
@@ -318,36 +320,43 @@ build:
           export RPC_RPC2_PORT=${RPC_RPC2_PORT}
           export RPC_RPC2_HOST=${RPC_RPC2_HOST}
           export RPC2_PUBLIC_KEY_C1=${RPC2_PUBLIC_KEY_C1}
+          export RPC_RPC2_K=${RPC_RPC2_K}
+
 
           #RPC3
           export RPC_RPC3_USER=${RPC_RPC3_USER}
           export RPC_RPC3_PASSWORD=${RPC_RPC3_PASSWORD}
           export RPC_RPC3_PORT=${RPC_RPC3_PORT}
           export RPC_RPC3_HOST=${RPC_RPC3_HOST}
+          export RPC_RPC3_K=${RPC_RPC3_K}
 
           #RPC4
           export RPC_RPC4_USER=${RPC_RPC4_USER}
           export RPC_RPC4_PASSWORD=${RPC_RPC4_PASSWORD}
           export RPC_RPC4_PORT=${RPC_RPC4_PORT}
           export RPC_RPC4_HOST=${RPC_RPC4_HOST}
+          export RPC_RPC4_K=${RPC_RPC4_K}
 
           #RPC5
           export RPC_RPC5_USER=${RPC_RPC5_USER}
           export RPC_RPC5_PASSWORD=${RPC_RPC5_PASSWORD}
           export RPC_RPC5_PORT=${RPC_RPC5_PORT}
           export RPC_RPC5_HOST=${RPC_RPC5_HOST}
+          export RPC_RPC4_K=${RPC_RPC5_K}
 
           #RPC6
           export RPC_RPC6_USER=${RPC_RPC6_USER}
           export RPC_RPC6_PASSWORD=${RPC_RPC6_PASSWORD}
           export RPC_RPC6_PORT=${RPC_RPC6_PORT}
           export RPC_RPC6_HOST=${RPC_RPC6_HOST}
+          export RPC_RPC6_K=${RPC_RPC6_K}
 
           #RPC7
           export RPC_RPC7_USER=${RPC_RPC7_USER}
           export RPC_RPC7_PASSWORD=${RPC_RPC7_PASSWORD}
           export RPC_RPC7_PORT=${RPC_RPC7_PORT}
           export RPC_RPC7_HOST=${RPC_RPC7_HOST}
+          export RPC_RPC7_K=${RPC_RPC7_K}
 
           # SOCIAL login
           export SOCIAL_AUTH_TWITTER_KEY=${SOCIAL_AUTH_TWITTER_KEY}

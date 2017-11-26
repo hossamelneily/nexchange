@@ -1,5 +1,6 @@
 from nexchange.api_clients.rpc import ScryptRpcApiClient, EthashRpcApiClient
 
+
 scrypt_client = ScryptRpcApiClient()
 ethash_client = EthashRpcApiClient()
 

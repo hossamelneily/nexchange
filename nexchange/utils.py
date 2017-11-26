@@ -1,14 +1,18 @@
 import sys
 import traceback
 import logging
+import base64
+import hashlib
+import string
 from django.conf import settings
 from django.core.mail import send_mail
 from requests import get
 from twilio.exceptions import TwilioException
 from twilio.rest import TwilioRestClient
 from django.utils.log import AdminEmailHandler
-import string
 from decimal import Decimal
+from Crypto import Random
+from Crypto.Cipher import AES
 
 
 class Del:
@@ -268,3 +272,29 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+
+class AESCipher:
+
+    def __init__(self, key):
+        self.bs = 32
+        self.key = hashlib.sha256(key.encode()).digest()
+
+    def encrypt(self, raw):
+        raw = self._pad(raw)
+        iv = Random.new().read(AES.block_size)
+        cipher = AES.new(self.key, AES.MODE_CBC, iv)
+        return base64.b64encode(iv + cipher.encrypt(raw))
+
+    def decrypt(self, enc):
+        enc = base64.b64decode(enc)
+        iv = enc[:AES.block_size]
+        cipher = AES.new(self.key, AES.MODE_CBC, iv)
+        return self._unpad(cipher.decrypt(enc[AES.block_size:])).decode('utf-8')
+
+    def _pad(self, s):
+        return s + (self.bs - len(s) % self.bs) * chr(self.bs - len(s) % self.bs)
+
+    @staticmethod
+    def _unpad(s):
+        return s[:-ord(s[len(s)-1:])]

@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch
 from decimal import Decimal
-from nexchange.utils import check_address_blockchain
+from nexchange.utils import check_address_blockchain, AESCipher
 from payments.api_clients.ok_pay import OkPayAPI
 from payments.api_clients.payeer import PayeerAPIClient
 import requests_mock
@@ -110,3 +110,27 @@ class BlockchainTestCase(OrderBaseTestCase):
             m.get(self.url, text=f.read().replace('\n', ''))
         res = check_address_blockchain(self.address)
         self.assertEqual(2, len(res['txs']))
+
+
+class TestAesCypher(TestCase):
+    def test_decrypt_success(self):
+        key = 'my_key'
+        raw = 'my_secret'
+
+        cipher = AESCipher(key)
+
+        encrypted = cipher.encrypt(raw)
+        decrypted = cipher.decrypt(encrypted)
+        self.assertEqual(raw, decrypted)
+
+    def test_decrypt_failure(self):
+        key = 'my_key'
+        wrong_key = 'false_key'
+        raw = 'my_secret'
+
+        cipher = AESCipher(key)
+        wrong_cipher = AESCipher(wrong_key)
+
+        encrypted = cipher.encrypt(raw)
+        decrypted = wrong_cipher.decrypt(encrypted)
+        self.assertNotEqual(raw, decrypted)
