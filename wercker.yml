@@ -342,7 +342,7 @@ build:
           export RPC_RPC5_PASSWORD=${RPC_RPC5_PASSWORD}
           export RPC_RPC5_PORT=${RPC_RPC5_PORT}
           export RPC_RPC5_HOST=${RPC_RPC5_HOST}
-          export RPC_RPC4_K=${RPC_RPC5_K}
+          export RPC_RPC5_K=${RPC_RPC5_K}
 
           #RPC6
           export RPC_RPC6_USER=${RPC_RPC6_USER}
