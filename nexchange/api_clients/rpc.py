@@ -55,7 +55,7 @@ class RpcMapper:
 
     @classmethod
     def get_pass(cls, node):
-        raw_pass = RpcMapper.get_raw_pw
+        raw_pass = RpcMapper.get_raw_pw(node)
         pass_key = RpcMapper.get_key_pw(node)
         cipher = AESCipher(pass_key)
         return cipher.decrypt(raw_pass)
