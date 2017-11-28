@@ -99,7 +99,13 @@ class BaseRpcClient(BaseApiClient):
             self.logger.error('JSON RPC ERROR HOST {} ERROR {}'
                               .format(self.rpc_endpoint, str(e)))
         finally:
-            self.lock(api)
+            try:
+                self.lock(api)
+            except JSONRPCException:
+                msg = 'Unencrypted wallet was attempted ' \
+                      'to be locked node: {} endpoint: {}'.\
+                    format(node, endpoint)
+                self.logger.error(msg)
 
 
 class ScryptRpcApiClient(BaseRpcClient):
