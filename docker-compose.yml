@@ -8,13 +8,13 @@ services:
           options:
             syslog-address: ${LOGSTASH_ADDRESS}:${LOGSTASH_PORT}
     postgis:
-        image: mdillon/postgis:10
+        image: mdillon/postgis:9.6
         environment:
            POSTGRES_USER: ${POSTGIS_ENV_POSTGRES_USER}
            POSTGRES_PASSWORD: ${POSTGIS_ENV_POSTGRES_PASSWORD}
            POSTGRES_DB: ${POSTGIS_ENV_POSTGRES_DB}
         volumes:
-            - /mnt/${DB_VOL}/nexchange/postgres10:/var/lib/postgresql/data
+            - /mnt/${DB_VOL}/nexchange/database:/var/lib/postgresql/data
         restart: always
         logging:
             driver: syslog
