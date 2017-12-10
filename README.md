@@ -28,7 +28,7 @@
 
 2. Optionally change values for other variables in the ENVIRONMENT file
 
-3. run `$ wercker dev --publish 8000` to start container
+3. run `$ wercker dev --expose-ports` to start container
 
 4. Access http://localhost:8000
 
