@@ -78,7 +78,7 @@
     "fields": {
       "code": "DOGE",
       "name": "doge",
-      "ticker": "cryptopia",
+      "ticker": "bittrex",
       "wallet": "rpc2",
       "algo": "scrypt",
       "is_crypto": 1,
@@ -96,7 +96,7 @@
     "fields": {
       "code": "XVG",
       "name": "verge",
-      "ticker": "cryptopia",
+      "ticker": "bittrex",
       "wallet": "rpc3",
       "algo": "scrypt",
       "is_crypto": 1,

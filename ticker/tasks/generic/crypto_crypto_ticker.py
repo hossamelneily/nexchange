@@ -3,7 +3,8 @@ from decimal import Decimal
 from core.models import Pair
 from ticker.models import Price
 from ticker.tasks.generic.base import BaseTicker,\
-    KrakenBaseTicker, CryptopiaBaseTicker, CoinexchangeBaseTicker
+    KrakenBaseTicker, CryptopiaBaseTicker, CoinexchangeBaseTicker,\
+    BittrexBaseTicker
 
 
 class CryptoCryptoTicker(BaseTicker):
@@ -15,8 +16,7 @@ class CryptoCryptoTicker(BaseTicker):
     def get_ticker_crypto(self):
         self.native_ticker = any([
             self.pair.base.code == 'BTC',
-            self.pair.quote.code == 'BTC',
-            self.pair.name in ['XVGDOGE', 'DOGEXVG']])
+            self.pair.quote.code == 'BTC'])
 
         if not self.native_ticker:
             available_pair = Pair.objects.get(
@@ -60,4 +60,8 @@ class CryptoCryptoCryptopiaTicker(CryptoCryptoTicker, CryptopiaBaseTicker):
 
 class CryptoCryptoCoinexchangeTicker(CryptoCryptoTicker,
                                      CoinexchangeBaseTicker):
+    pass
+
+
+class CryptoCryptoBittrexTicker(CryptoCryptoTicker, BittrexBaseTicker):
     pass

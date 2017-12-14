@@ -1,10 +1,94 @@
 import requests
 from ticker.fixtures.available_kraken_pairs import kraken_pairs
+from django.core.exceptions import ValidationError
 
 
 class BaseApiAdapter:
     def get_quote(self, crypto_pair):
         raise NotImplementedError
+
+
+class BittrexAdapter(BaseApiAdapter):
+
+    PAIR_NAME_TEMPLATE = '{quote}-{base}'
+    BASE_URL = 'https://bittrex.com/api/v1.1/public/'
+
+    def __init__(self):
+        super(BittrexAdapter, self).__init__()
+        self.reverse_pair = False
+
+    def get_markets(self):
+        return requests.get(self.BASE_URL + 'getmarkets').json()
+
+    def check_if_pair_is_available(self, pair):
+        markets = self.get_markets()
+        result = markets.get('result', {})
+        names = [market.get('MarketName') for market in result]
+        market = self.PAIR_NAME_TEMPLATE.format(
+            base=pair.base.code,
+            quote=pair.quote.code
+        )
+        reverse_market = self.PAIR_NAME_TEMPLATE.format(
+            quote=pair.base.code,
+            base=pair.quote.code
+        )
+        pair_available = market in names
+        reverse_pair_available = reverse_market in names
+        return {'pair_available': pair_available,
+                'reverse_pair_available': reverse_pair_available}
+
+    def get_ticker(self, pair, reverse_pair=False):
+        market = self.PAIR_NAME_TEMPLATE.format(
+            base=pair.base.code,
+            quote=pair.quote.code
+        )
+        if reverse_pair:
+            market = self.PAIR_NAME_TEMPLATE.format(
+                quote=pair.base.code,
+                base=pair.quote.code
+            )
+        return requests.get(
+            self.BASE_URL + 'getticker/?market={}'.format(market)).json()
+
+    def get_quote(self, pair):
+        in_result = self.check_if_pair_is_available(pair)
+        pair_available = in_result.get('pair_available')
+        reverse_pair_available = in_result.get('reverse_pair_available')
+        if pair_available:
+            self.reverse_pair = False
+        elif reverse_pair_available:
+            self.reverse_pair = True
+        else:
+            raise ValidationError(
+                'Ticker and reverse ticker is not available for pair '
+                '{}'.format(pair.name)
+            )
+        ticker = self.get_ticker(pair, reverse_pair=self.reverse_pair)
+        result = ticker.get('result', {})
+        ask = result.get('Ask')
+        bid = result.get('Bid')
+        return {
+            'reverse': self.reverse_pair,
+            'ask': ask,
+            'bid': bid,
+        }
+
+    def pair_api_repr(self, pair):
+        quote = self.kraken_format(pair.quote.code, pair.quote.is_crypto)
+        base = self.kraken_format(pair.base.code, pair.base.is_crypto)
+        reverse_name = '{}{}'.format(quote, base)
+        name = '{}{}'.format(base, quote)
+        if name in kraken_pairs:
+            self.reverse_pair = False
+            return name
+        elif reverse_name in kraken_pairs:
+            self.reverse_pair = True
+            return reverse_name
+        else:
+            raise ValueError(
+                'Kraken does not have nor pair {} neither its '
+                'reverse pair {}'.format(name, reverse_name)
+            )
 
 
 class KrakenAdapter(BaseApiAdapter):

@@ -4,7 +4,7 @@ from core.tests.base import OrderBaseTestCase
 from ticker.tasks.generic.base import BaseTicker
 from ticker.task_summary import get_all_tickers
 from ticker.adapters import KrakenAdapter, CryptopiaAdapter, \
-    CoinexchangeAdapter
+    CoinexchangeAdapter, BittrexAdapter
 from ticker.tests.fixtures.coinexchange.markets import \
     response as coinex_markets_resp
 from ticker.tests.fixtures.coinexchange.market_summary import \
@@ -13,6 +13,8 @@ import requests_mock
 from core.models import Pair
 from ticker.tests.fixtures.cryptopia_ticker import res as \
     cryptopia_ticker_resp_empty
+from ticker.tests.fixtures.bittrex.market_resp import \
+    resp as bittrex_market_resp
 
 
 class TickerBaseTestCase(OrderBaseTestCase):
@@ -82,6 +84,21 @@ class TickerBaseTestCase(OrderBaseTestCase):
             mock.get(
                 url,
                 text=self.cryptopia_ticker_resp.format(pair_name))
+        bittrex_pairs = Pair.objects.filter(
+            name__in=['XVGBTC', 'DOGEBTC']
+        )
+        for pair in bittrex_pairs:
+            pair_name = '{}-{}'.format(pair.quote.code, pair.base.code)
+            url = BittrexAdapter.BASE_URL + 'getticker/?market={}'.format(
+                pair_name)
+            resp_text = '{"success":true,"message":"","result":{"Bid":' \
+                        '0.00000098,"Ask":0.00000099,"Last":0.00000098}}'
+            mock.get(
+                url,
+                text=resp_text
+            )
+        mock.get(BittrexAdapter.BASE_URL + 'getmarkets',
+                 text=bittrex_market_resp)
         mock.get(CoinexchangeAdapter.RESOURCE_MARKETS,
                  text=coinex_markets_resp)
         mock.get(CoinexchangeAdapter.RESOURCE_TICKER_PARAM.format('251'),
