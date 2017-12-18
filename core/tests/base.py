@@ -22,6 +22,9 @@ from time import time
 import re
 from unittest.mock import patch
 from random import randint
+from web3 import Web3
+from nexchange.api_clients.rpc import EthashRpcApiClient
+from django.db.models import Q
 
 UPHOLD_ROOT = 'nexchange.api_clients.uphold.Uphold.'
 SCRYPT_ROOT = 'nexchange.api_clients.rpc.ScryptRpcApiClient.'
@@ -111,10 +114,11 @@ class UserBaseTestCase(TestCase):
         )
         return res
 
-    def _get_id(self, prefix):
+    def _get_id(self, prefix, pattern=None):
         id = str(time()).split('.')[1]
-        rand = randint(0, 999)
-        pattern = '{prefix}_{base}{id}{rand}'
+        rand = randint(256, 4095)
+        if pattern is None:
+            pattern = '{prefix}_{base}{id}{rand}'
         return pattern.format(prefix=prefix,
                               base=self.address_id_pattern,
                               id=id, rand=rand)
@@ -128,11 +132,18 @@ class UserBaseTestCase(TestCase):
         return res
 
     def _mock_rpc(self):
-        def addr_response(_self, c):
+        def addr_response(_self, currency):
+            pattern = None
+            if currency.wallet == 'rpc7':
+                pattern = '0x{rand:02x}' + ('1' * 37)
             return {
-                'address': self._get_id('addr'),
-                'currency': c
+                'address': self._get_id('addr', pattern=pattern),
+                'currency': currency
             }
+
+        def ethash_addr_response(_self, currency):
+            pattern = '0x{rand:02x}' + ('1' * 37)
+            return self._get_id('addr', pattern=pattern)
 
         self.rpc_mock_addr = \
             mock.patch(SCRYPT_ROOT + 'create_address',
@@ -140,16 +151,13 @@ class UserBaseTestCase(TestCase):
         self.rpc_mock_addr.start()
 
         self.rpc_eth_mock_addr = \
-            mock.patch(ETH_ROOT + 'create_address',
-                       new=addr_response)
+            mock.patch('web3.personal.Personal.newAccount',
+                       new=ethash_addr_response)
         self.rpc_eth_mock_addr.start()
 
         self.mock_rpc_txs = mock.patch(SCRYPT_ROOT + '_get_txs',
                                        lambda _self, *args: [])
         self.mock_rpc_txs.start()
-        self.mock_rpc_eth_txs = mock.patch(ETH_ROOT + '_get_txs',
-                                           lambda _self, *args: [])
-        self.mock_rpc_eth_txs.start()
 
     def _mock_uphold(self):
         uphold_client_path = 'nexchange.api_clients.uphold.UpholdApiClient.'
@@ -173,6 +181,10 @@ class UserBaseTestCase(TestCase):
         pattern_addr = re.compile('https://api.uphold.com/v0/me/cards/.+/addresses')  # noqa
         _mock.post(pattern_addr, text=self._request_address)
 
+    @patch.dict(os.environ, {'RPC_RPC7_PASSWORD': 'password'})
+    @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
+    @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
+    @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
     def _create_order(self, order_type=Order.BUY,
                       amount_base=0.5, pair_name='ETHLTC',
                       payment_preference=None, user=None, amount_quote=None,
@@ -197,13 +209,20 @@ class UserBaseTestCase(TestCase):
             p.return_value = None
             self.order.save()
 
+    @patch.dict(os.environ, {'RPC_RPC7_PASSWORD': 'password'})
+    @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
+    @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
+    @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
     def _create_an_order_for_every_crypto_currency_card(self, user,
                                                         amount_quote=None):
         crypto_currencies = Currency.objects.filter(is_crypto=True).exclude(
             code='RNS')
         crypto_codes = [curr.code for curr in crypto_currencies]
         for code in crypto_codes:
-            pair_name = Pair.objects.filter(quote__code=code).first().name
+            pair = Pair.objects.filter(quote__code=code)
+            if not pair:
+                continue
+            pair_name = pair.first().name
             self._create_order(user=user, pair_name=pair_name,
                                amount_quote=amount_quote)
 
@@ -213,6 +232,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         'market.json',
         'currency_crypto.json',
         'currency_fiat.json',
+        'currency_tokens.json',
         'country.json',
         'pairs_cross.json',
         'pairs_btc.json',
@@ -265,6 +285,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         self._reserve_txn_uphold = self.patcher_uphold_reserve_txn.start()
         self._reserve_txn_uphold.return_value = {'status': 'completed'}
         self.enable_all_pairs()
+        self.ethash_client = EthashRpcApiClient()
 
     def tearDown(self):
         super(OrderBaseTestCase, self).tearDown()
@@ -279,7 +300,6 @@ class OrderBaseTestCase(UserBaseTestCase):
         self.rpc_mock_addr.stop()
         self.mock_rpc_txs.stop()
         self.rpc_eth_mock_addr.stop()
-        self.mock_rpc_eth_txs.stop()
 
     @classmethod
     def setUpClass(cls):
@@ -330,6 +350,21 @@ class OrderBaseTestCase(UserBaseTestCase):
 
         cls.price_eur = Price(pair=cls.BTCEUR, ticker=ticker_eur)
         cls.price_eur.save()
+        cls._create_bdg_tickers()
+
+    # FIXME: remove this after mechanism for BDG tickers created
+    @classmethod
+    def _create_bdg_tickers(cls):
+        pairs = Pair.objects.filter(Q(quote__code='BDG') | Q(base__code='BDG'))
+        for pair in pairs:
+            ask = Decimal('11000')
+            bid = Decimal('9000')
+            if pair.quote.code == 'BTC':
+                ask, bid = Decimal('1') / bid, Decimal('1') / ask
+            ticker = Ticker(pair=pair, ask=ask, bid=bid)
+            ticker.save()
+            price = Price(pair=pair, ticker=ticker)
+            price.save()
 
     def get_uphold_tx(self, currency_code, amount, card_id):
         return {
@@ -345,6 +380,53 @@ class OrderBaseTestCase(UserBaseTestCase):
                 'txid': 'tx{}{}'.format(time(), randint(1, 999))
             }
         }
+
+    def get_ethash_tx(self, amount, address):
+        value = Web3.toWei(amount, 'ether')
+        return [{
+            'data': {},
+            'to': address,
+            'value': value,
+            'tx_id': self.generate_txn_id(),
+            'currency_code': 'ETH',
+        }]
+
+    def get_ethash_tx_raw(self, currency, amount, address):
+        if currency.is_token:
+            main_value = 0
+            main_to = currency.contract_address
+            value = int(
+                Decimal(amount) * Decimal('1e{}'.format(currency.decimals))
+            )
+            input = self.ethash_client.get_data_hash(
+                'transfer(address,uint256)', *[address, hex(value)]
+            )
+        else:
+            main_value = Web3.toWei(amount, 'ether')
+            main_to = address
+            input = '0x'
+        return {
+            'transactions': [{
+                'hash': self.generate_txn_id(),
+                'input': input,
+                'nonce': 0,
+                'to': main_to,
+                'value': main_value
+            }]
+        }
+
+    def get_scrypt_tx(self, amount, address):
+        return [{
+            'address': address,
+            'category': 'receive',
+            'account': '',
+            'amount': amount,
+            'txid': self.generate_txn_id(),
+            'confirmations': 0,
+            'timereceived': 1498736269,
+            'time': 1498736269,
+            'fee': Decimal('-0.00000100')
+        }]
 
     def generate_txn_id(self):
         txn_id = 'txid_{}{}'.format(time(), randint(1, 999))
@@ -407,6 +489,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         'market.json',
         'currency_crypto.json',
         'currency_fiat.json',
+        'currency_tokens.json',
         'pairs_cross.json',
         'pairs_btc.json',
         'pairs_ltc.json',
@@ -414,6 +497,8 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         'pairs_eth.json',
         'payment_method.json',
         'payment_preference.json',
+        'reserve.json',
+        'account.json',
     ]
 
     def __init__(self, *args, **kwargs):

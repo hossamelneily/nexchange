@@ -48,5 +48,6 @@ class UserCreationTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
             user_cards_len = len(user.addressreserve_set.all())
             len_crypto_curr = len(
                 Currency.objects.filter(
-                    is_crypto=True, disabled=False).exclude(code='RNS'))
+                    is_crypto=True, disabled=False).exclude(code__in=[
+                        'RNS', 'GNT', 'OMG', 'QTM']))
             self.assertEqual(user_cards_len, len_crypto_curr)

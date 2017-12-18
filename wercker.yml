@@ -86,6 +86,7 @@ dev:
           python manage.py loaddata core/fixtures/market.json
           python manage.py loaddata core/fixtures/currency_crypto.json
           python manage.py loaddata core/fixtures/currency_fiat.json
+          python manage.py loaddata core/fixtures/currency_tokens.json
     - script:
         name: Django import Country fixture
         code: |
@@ -328,6 +329,7 @@ build:
           export RPC_RPC3_PASSWORD=${RPC_RPC3_PASSWORD}
           export RPC_RPC3_PORT=${RPC_RPC3_PORT}
           export RPC_RPC3_HOST=${RPC_RPC3_HOST}
+          export RPC3_PUBLIC_KEY_C1=${RPC3_PUBLIC_KEY_C1}
           export RPC_RPC3_K=${RPC_RPC3_K}
 
           #RPC4
@@ -335,6 +337,7 @@ build:
           export RPC_RPC4_PASSWORD=${RPC_RPC4_PASSWORD}
           export RPC_RPC4_PORT=${RPC_RPC4_PORT}
           export RPC_RPC4_HOST=${RPC_RPC4_HOST}
+          export RPC4_PUBLIC_KEY_C1=${RPC4_PUBLIC_KEY_C1}
           export RPC_RPC4_K=${RPC_RPC4_K}
 
           #RPC5
@@ -342,6 +345,7 @@ build:
           export RPC_RPC5_PASSWORD=${RPC_RPC5_PASSWORD}
           export RPC_RPC5_PORT=${RPC_RPC5_PORT}
           export RPC_RPC5_HOST=${RPC_RPC5_HOST}
+          export RPC5_PUBLIC_KEY_C1=${RPC5_PUBLIC_KEY_C1}
           export RPC_RPC5_K=${RPC_RPC5_K}
 
           #RPC6
@@ -349,6 +353,7 @@ build:
           export RPC_RPC6_PASSWORD=${RPC_RPC6_PASSWORD}
           export RPC_RPC6_PORT=${RPC_RPC6_PORT}
           export RPC_RPC6_HOST=${RPC_RPC6_HOST}
+          export RPC6_PUBLIC_KEY_C1=${RPC6_PUBLIC_KEY_C1}
           export RPC_RPC6_K=${RPC_RPC6_K}
 
           #RPC7
@@ -356,7 +361,15 @@ build:
           export RPC_RPC7_PASSWORD=${RPC_RPC7_PASSWORD}
           export RPC_RPC7_PORT=${RPC_RPC7_PORT}
           export RPC_RPC7_HOST=${RPC_RPC7_HOST}
+          export RPC7_PUBLIC_KEY_C1=${RPC7_PUBLIC_KEY_C1}
           export RPC_RPC7_K=${RPC_RPC7_K}
+
+          # RPC settings
+          export RPC_IMPORT_TRANSACTIONS_COUNT=${RPC_IMPORT_TRANSACTION_COUNT}
+          export RPC_IMPORT_BLOCK_COUNT=${RPC_IMPORT_BLOCK_COUNT}
+          export RPC_GAS_LIMIT_ETH=${RPC_GAS_LIMIT_ETH}
+          export RPC_GAS_LIMIT_TOKEN=${RPC_GAS_LIMIT_TOKEN}
+          export RPC_GAS_PRICE=${RPC_GAS_PRICE}
 
           # SOCIAL login
           export SOCIAL_AUTH_TWITTER_KEY=${SOCIAL_AUTH_TWITTER_KEY}
@@ -381,6 +394,7 @@ build:
           python /usr/src/app/manage.py loaddata core/fixtures/market.json
           python /usr/src/app/manage.py loaddata core/fixtures/currency_crypto.json
           python /usr/src/app/manage.py loaddata core/fixtures/currency_fiat.json
+          python /usr/src/app/manage.py loaddata core/fixtures/currency_tokens.json
           python /usr/src/app/manage.py loaddata core/fixtures/country.json
           python /usr/src/app/manage.py loaddata payments/fixtures/payment_method.json
           python /usr/src/app/manage.py loaddata payments/fixtures/payment_preference.json

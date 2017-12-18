@@ -137,7 +137,7 @@ class BaseApiClient:
     def check_tx(self, tx, node):
         raise NotImplementedError()
 
-    def release_coins(self, currency, address, amount):
+    def release_coins(self, currency, address, amount, **kwargs):
         raise NotImplementedError()
 
     def resend_funds_to_main_card(self, card_id, curr_code):

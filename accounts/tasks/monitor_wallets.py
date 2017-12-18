@@ -14,6 +14,7 @@ from nexchange.celery import app
 
 CHECK_CARD_BALANCE_TASK = 'accounts.task_summary.' \
                           'check_transaction_card_balance_invoke'
+SEND_GAS_TASK = 'accounts.task_summary.send_gas_to_transaction_card_invoke'
 
 
 def check_uphold_txn_status_with_blockchain(tx, tx_completed,
@@ -78,6 +79,7 @@ def _update_pending_transaction(tx, logger, next_tasks=None):
                 # next_tasks.add((exchange_order_release_invoke, tx.pk,))
                 app.send_task(CHECK_CARD_BALANCE_TASK, [tx.pk],
                               countdown=settings.CARD_CHECK_TIME)
+                app.send_task(SEND_GAS_TASK, [tx.pk])
 
 
 def update_pending_transactions():

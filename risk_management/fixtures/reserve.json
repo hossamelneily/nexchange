@@ -62,5 +62,25 @@
     "margin_balance": "500.0",
     "is_limit_reserve": true
   }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 7,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 37,
+    "is_limit_reserve": false
+  }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 8,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 40,
+    "is_limit_reserve": false
+  }
 }
 ]

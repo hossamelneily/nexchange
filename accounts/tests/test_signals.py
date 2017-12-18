@@ -9,6 +9,7 @@ from accounts.models import Profile
 from django.conf import settings
 from unittest.mock import patch
 from unittest import skip
+import os
 
 
 class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
@@ -17,11 +18,16 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
         super(RenewReserveTestCase, self).setUp()
         Cards.objects.all().delete()
         self.len_crypto_curencies = len(Currency.objects.filter(
-            disabled=False, is_crypto=True).exclude(code='RNS')
+            disabled=False, is_crypto=True).exclude(code__in=[
+                'RNS', 'GNT', 'OMG', 'QTM'])
         )
         with requests_mock.mock() as mock:
             self.get_tickers(mock)
 
+    @patch.dict(os.environ, {'RPC_RPC7_PASSWORD': 'password'})
+    @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
+    @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
+    @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
     @requests_mock.mock()
     def test_expected_reserve_default(self, mock):
         self._mock_cards_reserve(mock)

@@ -6,6 +6,9 @@ from ticker.tests.base import TickerBaseTestCase
 from django.core.exceptions import ValidationError
 from core.tests.utils import data_provider
 from decimal import Decimal
+import json
+import os
+from collections import Counter
 
 
 class ValidateUniqueFieldMixinTestCase(TestCase):
@@ -91,6 +94,34 @@ class PairFixtureTestCase(OrderBaseTestCase):
                 fee = minor_pair_fee
             self.assertEqual(p.fee_ask, fee, 'Bad fee_ask on {}'.format(p))
             self.assertEqual(p.fee_bid, fee, 'Bad fee_bid on {}'.format(p))
+
+    def test_fixture_pks(self):
+        path = 'core/fixtures/'
+        fixture_files = os.listdir(path)
+        pair_fixtures = [name for name in fixture_files if name[:5] == 'pairs']
+        currency_fixtures = [
+            name for name in fixture_files if name[:8] == 'currency'
+        ]
+        pair_data = []
+        for fix in pair_fixtures:
+            pair_data += json.loads(open(path + fix).read())
+        pair_pks = [record['pk'] for record in pair_data]
+        pair_counter = Counter(pair_pks)
+        for key, value in pair_counter.items():
+            if value != 1:
+                raise ValidationError(
+                    'Pair pk {} repeated in fixtures!'.format(key)
+                )
+        currency_data = []
+        for fix in currency_fixtures:
+            currency_data += json.loads(open(path + fix).read())
+        currency_pks = [record['pk'] for record in currency_data]
+        currency_counter = Counter(currency_pks)
+        for key, value in currency_counter.items():
+            if value != 1:
+                raise ValidationError(
+                    'Currency pk {} repeated in fixtures!'.format(key)
+                )
 
 
 class TransactionTestCase(TickerBaseTestCase):

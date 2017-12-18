@@ -54,4 +54,5 @@ django-fsm==2.6.0
 -e git+https://github.com/ericsomdahl/python-bittrex.git#egg=bittrex
 -e git+https://github.com/SarunasAzna/poloniex.git#egg=poloniex
 cached-property>=1.3.1
+web3>=3.16.2
 pycrypto==2.6.1

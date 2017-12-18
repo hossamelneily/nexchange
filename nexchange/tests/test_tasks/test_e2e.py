@@ -573,7 +573,9 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         )
     )
     @patch('accounts.tasks.monitor_wallets.app.send_task')
+    @patch(ETH_ROOT + '_get_current_block')
     @patch(ETH_ROOT + 'release_coins')
+    @patch(ETH_ROOT + '_get_tx_receipt')
     @patch(ETH_ROOT + '_get_tx')
     @patch(ETH_ROOT + '_get_txs')
     @patch(SCRYPT_ROOT + 'release_coins')
@@ -592,7 +594,8 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                     get_txs_scrypt, get_tx_scrypt,
                                     release_coins_scrypt,
                                     get_txs_eth, get_tx_eth,
-                                    release_coins_eth,
+                                    get_tx_eth_receipt,
+                                    release_coins_eth, get_block_eth,
                                     send_task):
         currency_quote_code = pair_name[base_curr_code_len:]
         currency_base_code = pair_name[0:base_curr_code_len]
@@ -615,21 +618,18 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                 self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
             ]
         else:
-            get_txs_scrypt.return_value = get_txs_eth.return_value = [{
-                'address': card.address,
-                'category': 'receive',
-                'account': '',
-                'amount': mock_amount,
-                'txid': 'txid_{}{}'.format(time(), randint(1, 999)),
-                'confirmations': 0,
-                'timereceived': 1498736269,
-                'time': 1498736269,
-                'fee': Decimal('-0.00000100')
-            }]
-        check_tx_uphold.return_value = True, 999
-        get_tx_scrypt.return_value = get_tx_eth.return_value = {
-            'confirmations': 249
+            get_txs_eth.return_value = self.get_ethash_tx(mock_amount,
+                                                          card.address)
+            get_txs_scrypt.return_value = self.get_scrypt_tx(mock_amount,
+                                                             card.address)
+        confs = 249
+        check_tx_uphold.return_value = True, confs
+        get_tx_scrypt.return_value = {
+            'confirmations': confs
         }
+        get_tx_eth_receipt.return_value = {'status': 1}
+        get_tx_eth.return_value = {'blockNumber': 0}
+        get_block_eth.return_value = confs
         self.import_txs_task.apply()
         prepare_txn_uphold.return_value = release_coins_scrypt.return_value = \
             release_coins_eth.return_value = \
@@ -640,7 +640,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
         self.update_confirmation_task.apply()
 
-        self.assertEqual(1, send_task.call_count, pair_name)
+        self.assertEqual(2, send_task.call_count, pair_name)
 
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, Order.PAID, pair_name)
@@ -703,26 +703,18 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                 self.get_uphold_tx(mock_currency_code, mock_amount, card_id)
             ]
         else:
-            get_txs_eth.return_value = get_txs_scrypt.return_value = [{
-                'address': card.address,
-                'category': 'receive',
-                'account': '',
-                'amount': mock_amount,
-                'txid': 'txid_{}{}'.format(time(), randint(1, 999)),
-                'confirmations': 0,
-                'timereceived': 1498736269,
-                'time': 1498736269,
-                'fee': Decimal('-0.00000100')
-            }]
+            get_txs_eth.return_value = self.get_ethash_tx(mock_amount,
+                                                          card.address)
+            get_txs_scrypt.return_value = self.get_scrypt_tx(mock_amount,
+                                                             card.address)
         check_tx_uphold.return_value = True, 999
         get_tx_eth.return_value = get_tx_scrypt.return_value = {
             'confirmations': 249
         }
         self.import_txs_task.apply()
-        prepare_txn_uphold.return_value = release_coins_scrypt.return_value = \
+        release_coins_scrypt.return_value = \
             release_coins_eth.return_value = \
             'txid_{}{}'.format(time(), randint(1, 999))
-        execute_txn_uphold.return_value = {'code': 'OK'}
 
         self.order.refresh_from_db()
         self.assertTrue(self.order.expired)
@@ -1106,6 +1098,7 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
         'market.json',
         'currency_crypto.json',
         'currency_fiat.json',
+        'currency_tokens.json',
         'pairs_cross.json',
         'pairs_btc.json',
         'payment_method.json',

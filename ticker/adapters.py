@@ -100,20 +100,22 @@ class KrakenAdapter(BaseApiAdapter):
         self.reverse_pair = True
 
     @staticmethod
-    def kraken_format(code, is_crypto):
+    def kraken_format(code, is_crypto, add_pad=True):
         if code == 'DOGE':
             code = 'XDG'
         if code == 'BTC':
             code = 'XBT'
-        if is_crypto:
-            res = 'X{}'.format(code)
-        else:
-            res = 'Z{}'.format(code)
+        pad = 'X' if is_crypto else 'Z'
+        pad = pad if add_pad else ''
+        res = '{}{}'.format(pad, code)
         return res
 
     def pair_api_repr(self, pair):
-        quote = self.kraken_format(pair.quote.code, pair.quote.is_crypto)
-        base = self.kraken_format(pair.base.code, pair.base.is_crypto)
+        add_pad = False if 'EOS' in pair.name else True
+        quote = self.kraken_format(pair.quote.code, pair.quote.is_crypto,
+                                   add_pad=add_pad)
+        base = self.kraken_format(pair.base.code, pair.base.is_crypto,
+                                  add_pad=add_pad)
         reverse_name = '{}{}'.format(quote, base)
         name = '{}{}'.format(base, quote)
         if name in kraken_pairs:
@@ -135,9 +137,9 @@ class KrakenAdapter(BaseApiAdapter):
             and invert_kraken_style @property's
         """
         kraken_pair = self.pair_api_repr(pair)
-        res = requests.get(self.RESOURCE_MARKET.format(
-            kraken_pair
-        )).json()['result']
+        res = requests.get(
+            self.RESOURCE_MARKET.format(kraken_pair)
+        ).json()['result']
 
         ask = res[kraken_pair]['a'][0]
         bid = res[kraken_pair]['b'][0]

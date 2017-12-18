@@ -22,6 +22,8 @@ class TestUIExchangeOrders(BaseTestUI):
     @retry(AssertionError, tries=3, delay=1)
     @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: (('ETHLTC', True),),)
+    @patch(ETH_ROOT + '_get_tx_receipt')
+    @patch(ETH_ROOT + '_get_current_block')
     @patch(ETH_ROOT + '_get_tx')
     @patch(ETH_ROOT + '_get_txs')
     @patch(SCRYPT_ROOT + '_get_tx')
@@ -30,15 +32,20 @@ class TestUIExchangeOrders(BaseTestUI):
     @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order1(self, pair_name, do_logout, reserve_txs,
                                      import_txs, get_txs_scrypt,
-                                     get_tx_scrypt, get_txs_eth, get_tx_eth):
+                                     get_tx_scrypt, get_txs_eth, get_tx_eth,
+                                     get_block_eth, get_tx_eth_receipt):
         self.base_test_release_exchange_order(pair_name, do_logout,
                                               reserve_txs, import_txs,
                                               get_txs_scrypt, get_tx_scrypt,
-                                              get_txs_eth, get_tx_eth)
+                                              get_txs_eth, get_tx_eth,
+                                              get_block_eth,
+                                              get_tx_eth_receipt)
 
     @retry(AssertionError, tries=3, delay=1)
     @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: (('BTCETH', False),),)
+    @patch(ETH_ROOT + '_get_tx_receipt')
+    @patch(ETH_ROOT + '_get_current_block')
     @patch(ETH_ROOT + '_get_tx')
     @patch(ETH_ROOT + '_get_txs')
     @patch(SCRYPT_ROOT + '_get_tx')
@@ -47,15 +54,20 @@ class TestUIExchangeOrders(BaseTestUI):
     @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order2(self, pair_name, do_logout, reserve_txs,
                                      import_txs, get_txs_scrypt,
-                                     get_tx_scrypt, get_txs_eth, get_tx_eth):
+                                     get_tx_scrypt, get_txs_eth, get_tx_eth,
+                                     get_block_eth, get_tx_eth_receipt):
         self.base_test_release_exchange_order(pair_name, do_logout,
                                               reserve_txs, import_txs,
                                               get_txs_scrypt, get_tx_scrypt,
-                                              get_txs_eth, get_tx_eth)
+                                              get_txs_eth, get_tx_eth,
+                                              get_block_eth,
+                                              get_tx_eth_receipt)
 
     @retry(AssertionError, tries=3, delay=1)
     @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: (('LTCBTC', False),),)
+    @patch(ETH_ROOT + '_get_tx_receipt')
+    @patch(ETH_ROOT + '_get_current_block')
     @patch(ETH_ROOT + '_get_tx')
     @patch(ETH_ROOT + '_get_txs')
     @patch(SCRYPT_ROOT + '_get_tx')
@@ -64,15 +76,20 @@ class TestUIExchangeOrders(BaseTestUI):
     @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order3(self, pair_name, do_logout, reserve_txs,
                                      import_txs, get_txs_scrypt,
-                                     get_tx_scrypt, get_txs_eth, get_tx_eth):
+                                     get_tx_scrypt, get_txs_eth, get_tx_eth,
+                                     get_block_eth, get_tx_eth_receipt):
         self.base_test_release_exchange_order(pair_name, do_logout,
                                               reserve_txs, import_txs,
                                               get_txs_scrypt, get_tx_scrypt,
-                                              get_txs_eth, get_tx_eth)
+                                              get_txs_eth, get_tx_eth,
+                                              get_block_eth,
+                                              get_tx_eth_receipt)
 
     @retry(AssertionError, tries=3, delay=1)
     @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: (('LTCDOGE', False),),)
+    @patch(ETH_ROOT + '_get_tx_receipt')
+    @patch(ETH_ROOT + '_get_current_block')
     @patch(ETH_ROOT + '_get_tx')
     @patch(ETH_ROOT + '_get_txs')
     @patch(SCRYPT_ROOT + '_get_tx')
@@ -81,15 +98,20 @@ class TestUIExchangeOrders(BaseTestUI):
     @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order4(self, pair_name, do_logout, reserve_txs,
                                      import_txs, get_txs_scrypt,
-                                     get_tx_scrypt, get_txs_eth, get_tx_eth):
+                                     get_tx_scrypt, get_txs_eth, get_tx_eth,
+                                     get_block_eth, get_tx_eth_receipt):
         self.base_test_release_exchange_order(pair_name, do_logout,
                                               reserve_txs, import_txs,
                                               get_txs_scrypt, get_tx_scrypt,
-                                              get_txs_eth, get_tx_eth)
+                                              get_txs_eth, get_tx_eth,
+                                              get_block_eth,
+                                              get_tx_eth_receipt)
 
     @retry(AssertionError, tries=3, delay=1)
     @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: (('DOGEBTC', False),),)
+    @patch(ETH_ROOT + '_get_tx_receipt')
+    @patch(ETH_ROOT + '_get_current_block')
     @patch(ETH_ROOT + '_get_tx')
     @patch(ETH_ROOT + '_get_txs')
     @patch(SCRYPT_ROOT + '_get_tx')
@@ -98,16 +120,20 @@ class TestUIExchangeOrders(BaseTestUI):
     @patch(UPHOLD_ROOT + 'get_transactions')
     def test_release_exchange_order5(self, pair_name, do_logout, reserve_txs,
                                      import_txs, get_txs_scrypt,
-                                     get_tx_scrypt, get_txs_eth, get_tx_eth):
+                                     get_tx_scrypt, get_txs_eth, get_tx_eth,
+                                     get_block_eth, get_tx_eth_receipt):
         self.base_test_release_exchange_order(pair_name, do_logout,
                                               reserve_txs, import_txs,
                                               get_txs_scrypt, get_tx_scrypt,
-                                              get_txs_eth, get_tx_eth)
+                                              get_txs_eth, get_tx_eth,
+                                              get_block_eth,
+                                              get_tx_eth_receipt)
 
     def base_test_release_exchange_order(self, pair_name, do_logout, get_txs,
                                          get_rtx, get_txs_scrypt,
                                          get_tx_scrypt, get_txs_eth,
-                                         get_tx_eth):
+                                         get_tx_eth, get_block_eth,
+                                         get_tx_eth_receipt):
         pair_name = pair_name
         self.workflow = '{}'.format(pair_name)
         self.payment_method = '{}'.format(pair_name)
@@ -126,7 +152,8 @@ class TestUIExchangeOrders(BaseTestUI):
         withdraw_currency_code = currency_base_code
         self.mock_import_transaction(mock_amount, mock_currency_code,
                                      get_txs, get_rtx, get_txs_scrypt,
-                                     get_tx_scrypt, get_txs_eth, get_tx_eth)
+                                     get_tx_scrypt, get_txs_eth, get_tx_eth,
+                                     get_block_eth, get_tx_eth_receipt)
         self.place_order()
         self.click_go_to_order_list()
         self.do_screenshot('After pres GO/GET coins')

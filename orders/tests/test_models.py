@@ -960,7 +960,7 @@ class CalculateOrderTestCase(TickerBaseTestCase):
         res = self.order.register_deposit(
             {'order': self.order, 'address_to': self.order.deposit_address,
              'type': Transaction.DEPOSIT, 'tx_id_api': self.generate_txn_id(),
-             'amount': tx_amount})
+             'amount': tx_amount, 'currency': self.order.pair.quote})
         self.assertEqual('ERROR', res['status'])
         self.assertEqual(self.order.status, Order.INITIAL)
         self.assertEqual(self.order.amount_base, amount_base)

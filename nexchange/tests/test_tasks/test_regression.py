@@ -241,17 +241,11 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         with freeze_time(now):
             if minutes_after_expire >= 0:
                 self.assertTrue(self.order.expired, name)
-            get_txs_scrypt.return_value = get_txs_eth.return_value = [{
-                'address': card.address,
-                'category': 'receive',
-                'account': '',
-                'amount': mock_amount,
-                'txid': self.generate_txn_id(),
-                'confirmations': 0,
-                'timereceived': 1498736269,
-                'time': 1498736269,
-                'fee': Decimal('-0.00000100')
-            }]
+
+            get_txs_eth.return_value = self.get_ethash_tx(mock_amount,
+                                                          card.address)
+            get_txs_scrypt.return_value = self.get_scrypt_tx(mock_amount,
+                                                             card.address)
             self.import_txs_task.apply()
             txs = self.order.transactions.all()
             self.assertEqual(len(txs), 1, name)

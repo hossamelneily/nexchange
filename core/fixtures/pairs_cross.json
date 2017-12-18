@@ -465,5 +465,395 @@
     "name": "BCHXVG",
     "disabled": true
   }
+},
+{
+  "model": "core.pair",
+  "pk": 165,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 1,
+    "quote": 37,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BTCBDG",
+    "disable_ticker": true,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 166,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 37,
+    "quote": 1,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BDGBTC",
+    "disable_ticker": true,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 167,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 2,
+    "quote": 37,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "LTCBDG",
+    "disable_ticker": true,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 168,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 37,
+    "quote": 2,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BDGLTC",
+    "disable_ticker": true,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 169,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 3,
+    "quote": 37,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "ETHBDG",
+    "disable_ticker": true,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 170,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 37,
+    "quote": 3,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BDGETH",
+    "disable_ticker": true,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 171,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 34,
+    "quote": 37,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DOGEBDG",
+    "disable_ticker": true,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 172,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 37,
+    "quote": 34,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BDGDOGE",
+    "disable_ticker": true,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 173,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 35,
+    "quote": 37,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XVGBDG",
+    "disable_ticker": true,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 174,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 37,
+    "quote": 35,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BDGXVG",
+    "disable_ticker": true,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 175,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 36,
+    "quote": 37,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BCHBDG",
+    "disable_ticker": true,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 176,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 37,
+    "quote": 36,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BDGBCH",
+    "disable_ticker": true,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 177,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 1,
+    "quote": 40,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BTCEOS",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 178,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 40,
+    "quote": 1,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "EOSBTC",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 179,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 2,
+    "quote": 40,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "LTCEOS",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 180,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 40,
+    "quote": 2,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "EOSLTC",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 181,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 3,
+    "quote": 40,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "ETHEOS",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 182,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 40,
+    "quote": 3,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "EOSETH",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 183,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 34,
+    "quote": 40,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DOGEEOS",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 184,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 40,
+    "quote": 34,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "EOSDOGE",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 185,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 35,
+    "quote": 40,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XVGEOS",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 186,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 40,
+    "quote": 35,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "EOSXVG",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 187,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 36,
+    "quote": 40,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BCHEOS",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 188,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 40,
+    "quote": 36,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "EOSBCH",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 189,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 37,
+    "quote": 40,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BDGEOS",
+    "disable_ticker": true,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 190,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 40,
+    "quote": 37,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "EOSBDG",
+    "disable_ticker": true,
+    "disabled": true
+  }
 }
 ]

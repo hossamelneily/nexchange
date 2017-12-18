@@ -550,10 +550,17 @@ class Order(TimeStampedModel, SoftDeletableModel,
         order = tx_data.get('order')
         tx_type = tx_data.get('type')
         tx_amount = tx_data.get('amount')
+        tx_currency = tx_data.get('currency')
         if order != self:
             raise ValidationError(
                 'Bad order {} on the deposit tx. Should be {}'.format(
                     order, self
+                )
+            )
+        if self.pair.quote != tx_currency:
+            raise ValidationError(
+                'Bad tx currency {}. Order quote currency {}'.format(
+                    tx_currency, self.pair.quote
                 )
             )
         if tx_type != Transaction.DEPOSIT:

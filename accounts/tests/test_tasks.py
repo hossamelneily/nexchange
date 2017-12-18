@@ -1,4 +1,4 @@
-from core.tests.base import TransactionImportBaseTestCase
+from core.tests.base import TransactionImportBaseTestCase, ETH_ROOT
 from core.models import Address, Currency, AddressReserve, Transaction
 from accounts.task_summary import import_transaction_deposit_crypto_invoke,\
     check_transaction_card_balance_invoke
@@ -9,11 +9,12 @@ from accounts.models import Profile
 from accounts.tasks.generic.addressreserve_monitor.base import ReserveMonitor
 from core.tests.utils import data_provider
 from unittest.mock import patch
-import random
 from django.conf import settings
 from unittest import skip
-from nexchange.api_clients.uphold import UpholdApiClient
+from nexchange.api_clients.rpc import EthashRpcApiClient
 from accounts.task_summary import update_pending_transactions_invoke
+import os
+from decimal import Decimal
 
 
 class TransactionImportTaskTestCase(TransactionImportBaseTestCase,
@@ -58,8 +59,8 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
             self.profile = Profile(user=self.user)
             self.profile.save()
         self.currency = Currency.objects.get(code='ETH')
-        self.client = UpholdApiClient()
-        self.monitor = ReserveMonitor(self.client, wallet='api1')
+        self.client = EthashRpcApiClient()
+        self.monitor = ReserveMonitor(self.client, wallet='rpc7')
         self.url_base = 'https://api.uphold.com/v0/me/cards/'
         with requests_mock.mock() as mock:
             self.get_tickers(mock)
@@ -159,46 +160,56 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
             self.profile.cards_validity_approved = False
             self.profile.save()
 
-    @skip('Uphold is not used anymore')
     @data_provider(lambda: (
-        ('Send funds, currency ok, balance more than 0', 'ETH', 'ETH', '1.1',
+        ('Send funds, balance more than 0', 'ETH', '1.1', '0.1',
          1, {'retry': False, 'success': True}),
-        ('Do not release, bad currency', 'BTC', 'ETH', '2.0', 0,
-         {'retry': False, 'success': False}),
-        ('Do not release, balance == 0', 'LTC', 'LTC', '0.0', 0,
+        ('Send funds, balance more than 0', 'EOS', '1.1', '0.1',
+         1, {'retry': False, 'success': True}),
+        ('Send funds, balance more than 0', 'BDG', '1.1', '0',
+         0, {'retry': True, 'success': False}),
+        ('Do not release, balance == 0', 'ETH', '0.0', '0', 0,
          {'retry': True, 'success': False}),
     ),)
-    @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @requests_mock.mock()
-    def test_send_funds_to_main_card(self, name, curr_code, main_curr_code,
-                                     amount, release_call_count,
-                                     resend_funds_res, release_coins, mock):
-        release_coins.return_value = (
-            '%06x' % random.randrange(16 ** 16)).upper(), True
+    @patch.dict(os.environ, {'RPC7_PUBLIC_KEY_C1': '0xmain'})
+    @patch.dict(os.environ, {'RPC_RPC7_PASSWORD': 'password'})
+    @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
+    @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
+    @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
+    @patch('web3.eth.Eth.call')
+    @patch('web3.eth.Eth.getBalance')
+    @patch(ETH_ROOT + 'release_coins')
+    def test_send_funds_to_main_card(self, name, curr_code,
+                                     amount, amount_main, release_call_count,
+                                     resend_funds_res, release_coins,
+                                     get_balance, get_balance_erc20):
+        release_coins.return_value = self.generate_txn_id(), True
         card = self.user.addressreserve_set.get(currency__code=curr_code)
-        card_url = self.url_base + card.card_id
-        main_card_id = self.monitor.client.coin_card_mapper(curr_code)
-        main_address_name = self.monitor.client.address_name_mapper(curr_code)
-        main_card_url = self.url_base + main_card_id
-        mock.get(
-            card_url,
-            text='{{"currency":"{}","balance": "{}"}}'.format(curr_code,
-                                                              amount)
-        )
-        mock.get(
-            main_card_url,
-            text='{{"currency":"{}","address":{{"{}":"dfasf"}}}}'.format(
-                main_curr_code, main_address_name
-            )
-        )
+        currency = Currency.objects.get(code=curr_code)
+        value = int(Decimal(amount) * (10 ** currency.decimals))
+        get_balance_erc20.return_value = hex(value)
+        if currency.is_token:
+            main_value = int(Decimal(amount_main) * (10 ** 18))
+            get_balance.return_value = main_value
+        else:
+            get_balance.return_value = value
         res1 = self.monitor.client.resend_funds_to_main_card(card.card_id,
                                                              curr_code)
         res2 = self.monitor.client.check_card_balance(card.pk)
         self.assertEqual(release_coins.call_count, release_call_count * 2,
                          name)
-        for key, value in resend_funds_res.items():
-            self.assertEqual(res1[key], value, name)
-            self.assertEqual(res2[key], value, name)
+        amount_to_send = Decimal(amount) - self.client.get_total_gas_price(
+            currency.is_token
+        )
+        if currency.is_token:
+            amount_to_send = Decimal(amount)
+        if release_call_count:
+            release_coins.assert_called_with(
+                currency, '0xmain', amount_to_send, address_from=card.address
+            )
+
+        for key, val in resend_funds_res.items():
+            self.assertEqual(res1[key], val, name)
+            self.assertEqual(res2[key], val, name)
 
     @skip('Cards must be checked card by card')
     @patch('accounts.tasks.generic.addressreserve_monitor.base.'
@@ -207,35 +218,39 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
         # check_cards_uphold_invoke.apply()
         self.assertEqual(1, check_cards.call_count)
 
-    @skip('Uphold is not used anymore')
-    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_card_balance')
-    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
+    @patch(ETH_ROOT + 'check_card_balance')
+    @patch(ETH_ROOT + 'check_tx')
     def test_retry_balance_check_x_times(self, check_tx, check_card):
         check_card.return_value = {'retry': True}
         check_tx.return_value = True, 999
-        self._create_order()
+        self._create_order(pair_name='BTCETH')
         self.order.register_deposit(
             {'order': self.order, 'address_to': self.order.deposit_address,
-             'type': Transaction.DEPOSIT, 'tx_id_api': self.generate_txn_id(),
-             'amount': self.order.amount_quote})
+             'type': Transaction.DEPOSIT, 'tx_id': self.generate_txn_id(),
+             'amount': self.order.amount_quote, 'currency':
+                 self.order.pair.quote}
+        )
         update_pending_transactions_invoke.apply()
         tx = self.order.transactions.last()
         check_transaction_card_balance_invoke.apply([tx.pk])
         self.assertEqual(check_card.call_count,
                          settings.RETRY_CARD_CHECK_MAX_RETRIES + 1)
 
-    @skip('Uphold is not used anymore')
-    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_card_balance')
-    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
+    @patch(ETH_ROOT + 'check_card_balance')
+    @patch(ETH_ROOT + 'check_tx')
     def test_retry_balance_check_success(self, check_tx, check_card):
         check_card.return_value = {'retry': True}
         check_tx.return_value = True, 999
-        self._create_order()
+        self._create_order(pair_name='BTCETH')
         self.order.register_deposit(
             {'order': self.order, 'address_to': self.order.deposit_address,
-             'type': Transaction.DEPOSIT, 'tx_id_api': self.generate_txn_id(),
-             'amount': self.order.amount_quote})
+             'type': Transaction.DEPOSIT, 'tx_id': self.generate_txn_id(),
+             'amount': self.order.amount_quote,
+             'currency': self.order.pair.quote}
+        )
         update_pending_transactions_invoke.apply()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PAID)
         tx = self.order.transactions.last()
         check_card.return_value = {'retry': False}
         check_transaction_card_balance_invoke.apply([tx.pk])

@@ -1,0 +1,107 @@
+[
+  {
+    "model": "core.currency",
+    "pk": 37,
+    "fields": {
+      "code": "BDG",
+      "name": "BitDegree",
+      "ticker": "",
+      "wallet": "rpc7",
+      "algo": "ethash",
+      "is_crypto": 1,
+      "min_confirmations": 12,
+      "median_confirmation": 16,
+      "minimal_amount": "10",
+      "maximal_amount": "15000.0",
+      "is_token": true,
+      "decimals": 18,
+      "contract_address": "0x1961B3331969eD52770751fC718ef530838b6dEE",
+      "created_on":"2017-09-19T19:21:42+00:00",
+      "modified_on":"2017-09-19T19:21:42+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 38,
+    "fields": {
+      "code": "GNT",
+      "name": "Golem",
+      "ticker": "",
+      "wallet": "rpc7",
+      "algo": "ethash",
+      "is_crypto": 1,
+      "min_confirmations": 12,
+      "median_confirmation": 16,
+      "minimal_amount": "10",
+      "maximal_amount": "15000.0",
+      "decimals": 18,
+      "is_token": true,
+      "contract_address": "0xa74476443119a942de498590fe1f2454d7d4ac0d",
+      "created_on":"2017-09-19T19:21:42+00:00",
+      "modified_on":"2017-09-19T19:21:42+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 39,
+    "fields": {
+      "code": "OMG",
+      "name": "OmiseGo",
+      "ticker": "",
+      "wallet": "rpc7",
+      "algo": "ethash",
+      "is_crypto": 1,
+      "min_confirmations": 12,
+      "median_confirmation": 16,
+      "minimal_amount": "10",
+      "maximal_amount": "15000.0",
+      "is_token": true,
+      "decimals": 18,
+      "contract_address": "0xd26114cd6EE289AccF82350c8d8487fedB8A0C07",
+      "created_on":"2017-09-19T19:21:42+00:00",
+      "modified_on":"2017-09-19T19:21:42+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 40,
+    "fields": {
+      "code": "EOS",
+      "name": "EOS",
+      "ticker": "kraken",
+      "wallet": "rpc7",
+      "algo": "ethash",
+      "is_crypto": 1,
+      "min_confirmations": 12,
+      "median_confirmation": 16,
+      "minimal_amount": "1",
+      "maximal_amount": "100",
+      "decimals": 18,
+      "is_token": true,
+      "contract_address": "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0",
+      "created_on":"2017-09-19T19:21:42+00:00",
+      "modified_on":"2017-09-19T19:21:42+00:00"
+    }
+  },
+  {
+    "model": "core.currency",
+    "pk": 41,
+    "fields": {
+      "code": "QTM",
+      "name": "Qtum",
+      "ticker": "",
+      "wallet": "rpc7",
+      "algo": "ethash",
+      "is_crypto": 1,
+      "min_confirmations": 12,
+      "median_confirmation": 16,
+      "decimals": 18,
+      "minimal_amount": "10",
+      "maximal_amount": "15000.0",
+      "is_token": true,
+      "contract_address": "0x9a642d6b3368ddc662CA244bAdf32cDA716005BC",
+      "created_on":"2017-09-19T19:21:42+00:00",
+      "modified_on":"2017-09-19T19:21:42+00:00"
+    }
+  }
+]

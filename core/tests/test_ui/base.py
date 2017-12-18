@@ -17,20 +17,22 @@ from core.models import AddressReserve, Currency
 from verification.models import Verification
 from django.conf import settings
 from django.contrib.auth.models import User
-from decimal import Decimal
 
 from accounts.models import SmsToken
 from unittest.mock import patch
 import requests_mock
 from time import time
 import json
-from random import randint
 from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT, ETH_ROOT
 
 
 class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
                  TickerBaseTestCase):
 
+    @patch.dict(os.environ, {'RPC_RPC7_PASSWORD': 'password'})
+    @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
+    @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
+    @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
     def setUp(self):
         super(BaseTestUI, self).setUp()
         self.workflow = self.__class__.__name__.split('TestUI')[1].upper()
@@ -365,6 +367,8 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             options[1].click()
             submit.click()
 
+    @patch(ETH_ROOT + '_get_tx_receipt')
+    @patch(ETH_ROOT + '_get_current_block')
     @patch(ETH_ROOT + '_get_tx')
     @patch(ETH_ROOT + 'release_coins')
     @patch(SCRYPT_ROOT + '_get_tx')
@@ -376,13 +380,19 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
                                                 release_coins_scrypt,
                                                 get_tx_scrypt,
                                                 release_coins_eth, get_tx_eth,
+                                                get_block_eth,
+                                                get_tx_eth_receipt,
                                                 add_new=False):
         prepare_txn.return_value = 'txid{}'.format(self.order.unique_reference)
         release_coins_scrypt.return_value = release_coins_eth.return_value = \
             prepare_txn.return_value, True
-        get_tx_scrypt.return_value = get_tx_eth.return_value = {
-            'confirmations': 249
+        confs = 249
+        get_tx_scrypt.return_value = {
+            'confirmations': confs
         }
+        get_tx_eth.return_value = {'blockNumber': 0}
+        get_tx_eth_receipt.return_value = {'status': 1}
+        get_block_eth.return_value = confs
         execute_txn.return_value = {'code': 'OK'}
         address_id = 'span-withdraw-{}'.format(self.order.pk)
 
@@ -505,7 +515,8 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
 
     def mock_import_transaction(self, amount, currency_code, get_txs_uphold,
                                 get_rtx, get_txs_scrypt, get_tx_scrypt,
-                                get_txs_eth, get_tx_eth):
+                                get_txs_eth, get_tx_eth, get_block_eth,
+                                get_tx_eth_receipt):
         self.completed = '{"status": "completed", "type": "deposit",' \
                          '"params": {"progress": 999}}'
         mock_currency = Currency.objects.get(code=currency_code)
@@ -520,21 +531,18 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             ]
 
         else:
-            get_txs_scrypt.return_value = get_txs_eth.return_value = [{
-                'address': card.address,
-                'category': 'receive',
-                'account': '',
-                'amount': amount,
-                'txid': 'txid_{}{}'.format(time(), randint(1, 999)),
-                'confirmations': 0,
-                'timereceived': 1498736269,
-                'time': 1498736269,
-                'fee': Decimal('-0.00000100')
-            }]
+            get_txs_eth.return_value = self.get_ethash_tx(amount,
+                                                          card.address)
+            get_txs_scrypt.return_value = self.get_scrypt_tx(amount,
+                                                             card.address)
         get_rtx.return_value = json.loads(self.completed)
-        get_tx_scrypt.return_value = get_tx_eth.return_value = {
-            'confirmations': 249
+        confs = 249
+        get_tx_scrypt.return_value = {
+            'confirmations': confs
         }
+        get_tx_eth.return_value = {'blockNumber': 0}
+        get_tx_eth_receipt.return_value = {'status': 1}
+        get_block_eth.return_value = confs
 
     def do_screenshot(self, filename, refresh=False):
         now = time()

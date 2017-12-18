@@ -6,6 +6,7 @@ class RiskManagementBaseTestCase(TestCase):
     fixtures = [
         'currency_crypto.json',
         'currency_fiat.json',
+        'currency_tokens.json',
         'pairs_cross.json',
         'reserve.json',
         'account.json',

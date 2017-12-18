@@ -58,6 +58,19 @@ def check_card_balance_invoke(card_id, task=None):
     res = task.client.check_card_balance(card_id)
     return res
 
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+@get_task(task_cls=ReserveMonitor, key='pk__in')
+def send_gas_to_card_invoke(card_id, task=None):
+    res = task.client.add_gas_to_card(card_id)
+    return res
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def send_gas_to_transaction_card_invoke(tx_id):
+    tx = Transaction.objects.get(pk=tx_id)
+    if tx.order.pair.quote.is_token:
+        card = tx.address_to.reserve
+        return send_gas_to_card_invoke.apply([card.pk])
+
 
 @app.task(bind=True)
 def check_transaction_card_balance_invoke(self, tx_id):

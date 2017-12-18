@@ -7,6 +7,7 @@ from ticker.models import Ticker
 from decimal import Decimal
 from ticker.tasks.generic.base import BaseTicker
 from unittest.mock import patch
+from django.db.models import Q
 
 
 class TestTickerTask(TickerBaseTestCase):
@@ -23,7 +24,12 @@ class TestTickerTask(TickerBaseTestCase):
 
     @requests_mock.mock()
     def test_create_enabled_ticker(self, m):
-        enabled_pairs_count = len(Pair.objects.filter(disable_ticker=False))
+        # FIXME: remove after tokens tickers created
+        enabled_pairs = Pair.objects.filter(disable_ticker=False)
+        pending_tokens = ['BDG']
+        enabled_pairs = enabled_pairs.exclude(
+            Q(quote__code__in=pending_tokens) | Q(base__code__in=pending_tokens))  # noqa)
+        enabled_pairs_count = len(enabled_pairs)
         before = len(Price.objects.filter(pair=self.main_ticker,
                                           market__code='nex'))
         before_loc = len(Price.objects.filter(pair=self.main_ticker,
