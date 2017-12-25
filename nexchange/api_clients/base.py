@@ -242,3 +242,29 @@ class BaseWalletApiClient(BaseApiClient):
     def get_card_validity(self, wallet):
         raise NotImplementedError()
 
+    def retry(self, tx):
+        self.logger.warning(
+            'retry is not implemented for currency {}. Tx: {}'.format(
+                tx.currency, tx))
+        return {'success': False, 'retry': False}
+
+
+class BaseTradeApiClient(BaseApiClient):
+
+    def trade_type_rate_type_mapper(self, trade_type):
+        if trade_type.upper() == 'SELL':
+            return 'Bid'
+        if trade_type.upper() == 'BUY':
+            return 'Ask'
+
+    def coin_address_mapper(self, code):
+        if code == 'XVG':
+            return settings.RPC3_PUBLIC_KEY_C1
+        elif code == 'DOGE':
+            return settings.RPC2_PUBLIC_KEY_C1
+
+    def trade_limit(self, pair, amount, trade_type, rate=None):
+        trade_fn = getattr(self, '{}_limit'.format(trade_type.lower()))
+        res = trade_fn(pair, amount, rate=rate)
+        return res
+

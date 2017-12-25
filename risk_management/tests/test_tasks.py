@@ -242,7 +242,7 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
         ask = Decimal('0.001')
         get_ticker.return_value = self._get_bittrex_get_ticker_response(
             ask=ask)
-        main_account_filler_invoke.apply_async([account_from.pk, amount])
+        main_account_filler_invoke.apply_async([account_from.pk, amount, True])
         self.assertEqual(buy_limit.call_count, 1)
         pair_name = 'BTC-{}'.format(self.reserve.currency.code)
         buy_limit.assert_called_with(pair_name, amount - balance, ask)
@@ -251,7 +251,7 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
         withdraw.assert_called_with(
             self.reserve.currency.code,
             amount,
-            settings.API3_PUBLIC_KEY_C1
+            settings.RPC3_PUBLIC_KEY_C1
         )
 
     @patch('nexchange.api_clients.kraken.krakenex.API.query_private')
@@ -289,7 +289,7 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
         q_public.side_effect = side_public
         q_private.side_effect = side_private
 
-        main_account_filler_invoke.apply_async([account_from.pk, amount])
+        main_account_filler_invoke.apply_async([account_from.pk, amount, True])
         self.assertEqual(
             self.add_order_params,
             {'volume': str(self.balance), 'price': ask,

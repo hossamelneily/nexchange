@@ -13,7 +13,7 @@ from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
     import_transaction_deposit_uphold_blockchain_invoke
 from core.models import Address, Transaction, Currency, Pair
 from core.tests.base import TransactionImportBaseTestCase
-from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT, ETH_ROOT
+from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT, ETH_ROOT, BITTREX_ROOT
 from core.tests.base import WalletBaseTestCase
 from core.tests.utils import data_provider, get_ok_pay_mock
 from orders.models import Order
@@ -1111,55 +1111,88 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
         super(OrderCoverTaskTestCase, self).setUp()
         self.import_txs_task = import_transaction_deposit_crypto_invoke
 
+    @data_provider(
+        lambda: (
+            ('XVGBTC', 40000, 'amount_base'),
+            ('BTCXVG', 0.2, 'amount_quote'),
+            ('LTCXVG', 2, 'amount_quote'),
+            ('XVGETH', 30000, 'amount_base'),
+        )
+    )
+    @patch(BITTREX_ROOT + 'release_coins')
+    @patch(ETH_ROOT + '_get_txs')
     @patch(SCRYPT_ROOT + '_get_txs')
     @patch('nexchange.api_clients.bittrex.Bittrex.withdraw')
+    @patch('nexchange.api_clients.bittrex.Bittrex.sell_limit')
     @patch('nexchange.api_clients.bittrex.Bittrex.buy_limit')
     @patch('nexchange.api_clients.bittrex.Bittrex.get_ticker')
+    @patch(SCRYPT_ROOT + 'get_balance')
     @patch('nexchange.api_clients.bittrex.Bittrex.get_balance')
-    def test_create_xvg_cover(self, _get_balance, get_ticker, buy_limit,
-                              withdraw, get_txs_scrypt):
+    def test_create_xvg_cover(self, pair_name, amount_base, trade_amount_key,
+                              _get_balance, get_balance_scrypt, get_ticker,
+                              buy_limit, sell_limit, withdraw,
+                              get_txs_scrypt, get_txs_eth, release_coins):
 
-        amount_base = 40000
-        pair_name = 'XVGBTC'
-        ask = Decimal('0.0012')
+        ask = bid = Decimal('0.0012')
         pair_trade = Pair.objects.get(name='XVGBTC')
-        trade_tx_id = '123'
+        withdraw_tx_id = '123'
+        buy_tx_id = self.generate_txn_id()
+        sell_tx_id = self.generate_txn_id()
         self._create_order(pair_name=pair_name, amount_base=amount_base)
-        with patch('orders.models.Order.coverable'):
-            order_cover_invoke.apply([self.order.pk])
-            self.assertIsNone(Cover.objects.last())
         mock_amount = self.order.amount_quote
+        xvg_amount = getattr(self.order, trade_amount_key)
+        balance_bittrex = xvg_amount
+        balance_main = xvg_amount / Decimal('2')
 
         # Import mocks
         card = self.order.deposit_address.reserve
-        get_txs_scrypt.return_value = [{
-            'address': card.address,
-            'category': 'receive',
-            'account': '',
-            'amount': mock_amount,
-            'txid': 'txid_{}{}'.format(time(), randint(1, 999)),
-            'confirmations': 0,
-            'timereceived': 1498736269,
-            'time': 1498736269,
-            'fee': Decimal('-0.00000100')
-        }]
+        get_txs_scrypt.return_value = self.get_scrypt_tx(
+            mock_amount, card.address
+        )
+        get_txs_eth.return_value = self.get_ethash_tx(mock_amount,
+                                                      card.address)
         # Trade mocks
-        _get_balance.return_value = self._get_bittrex_get_balance_response(50)
-        buy_limit.return_value = withdraw.return_value = {
-            'result': {'uuid': trade_tx_id}
-        }
+        _get_balance.return_value = self._get_bittrex_get_balance_response(
+            float(balance_bittrex), available=float(balance_bittrex)
+        )
+        get_balance_scrypt.return_value = balance_main
+        withdraw.return_value = {'result': {'uuid': withdraw_tx_id}}
+        buy_limit.return_value = {'result': {'uuid': buy_tx_id}}
+        sell_limit.return_value = {'result': {'uuid': sell_tx_id}}
         get_ticker.return_value = self._get_bittrex_get_ticker_response(
-            ask=ask)
+            ask=ask, bid=bid)
 
         self.import_txs_task.apply()
 
         cover = Cover.objects.latest('id')
-        self.assertEqual(cover.rate, ask)
-        self.assertEqual(cover.amount_base, amount_base)
-        self.assertEqual(cover.pair, pair_trade)
-        self.assertEqual(cover.amount_quote, ask * amount_base)
+        cover_order = cover.orders.last()
+        self.assertEqual(self.order, cover_order, pair_name)
+        self.assertEqual(cover.rate, ask, pair_name)
+        self.assertEqual(cover.amount_base, xvg_amount, pair_name)
+        self.assertEqual(cover.pair, pair_trade, pair_name)
+        self.assertAlmostEqual(cover.amount_quote, ask * cover.amount_base, 7,
+                               pair_name)
+        if self.order.pair.base.code == 'XVG':
+            expected_type = cover.BUY
+            expected_id = buy_tx_id
+        elif self.order.pair.quote.code == 'XVG':
+            expected_type = cover.SELL
+            expected_id = sell_tx_id
+        self.assertEqual(cover.cover_type, expected_type, pair_name)
+        self.assertEqual(cover.cover_id, expected_id, pair_name)
         self.assertIn(self.order, cover.orders.all())
         # Cover order Again
         order_cover_invoke.apply([self.order.pk])
         new_cover = Cover.objects.latest('id')
         self.assertEqual(cover, new_cover)
+        # Check cover sent
+        if expected_type == cover.BUY:
+            release_coins.assert_called_once()
+            main_account = cover.account.reserve.account_set.get(
+                is_main_account=True)
+            release_coins.assert_called_with(
+                pair_trade.base, settings.RPC3_PUBLIC_KEY_C1,
+                balance_bittrex - balance_main + main_account.minimal_reserve
+            )
+        else:
+            release_coins.assert_not_called()

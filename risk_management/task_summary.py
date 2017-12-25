@@ -46,18 +46,19 @@ def reserve_balance_maintainer_invoke(reserve_id, task=None):
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def main_account_filler_invoke(account_id, amount=None):
+def main_account_filler_invoke(account_id, amount=None, do_trade=False):
     task = MainAccountFiller()
-    task.run(account_id, amount=amount)
+    task.run(account_id, amount=amount, do_trade=do_trade)
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def order_cover_invoke(order_id):
     task = OrderCover()
-    cover = task.run(order_id)
-    if cover:
+    cover, send_to_main, amount = task.run(order_id)
+    if send_to_main and amount:
         main_account_filler_invoke.apply_async(
-            [cover.account.pk], countdown=settings.THIRD_PARTY_TRADE_TIME
+            [cover.account.pk, amount],
+            countdown=settings.THIRD_PARTY_TRADE_TIME
         )
 
 
@@ -67,5 +68,6 @@ def currency_cover_invoke(currency_code, amount):
     cover = task.run(currency_code, amount)
     if cover:
         main_account_filler_invoke.apply_async(
-            [cover.account.pk], countdown=settings.THIRD_PARTY_TRADE_TIME
+            [cover.account.pk, cover.amount_base],
+            countdown=settings.THIRD_PARTY_TRADE_TIME
         )

@@ -24,7 +24,8 @@ class BittrexApiClient(BaseTradeApiClient):
         result = raw_res.get('result', {})
         res = {
             key.lower(): Decimal(str(value))
-            for key, value in result.items() if isinstance(value, float)
+            for key, value in result.items() if key in ['Pending', 'Balance',
+                                                        'Available']
         }
         return res
 

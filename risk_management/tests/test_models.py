@@ -1,6 +1,10 @@
 from risk_management.tests.base import RiskManagementBaseTestCase
-from risk_management.models import Reserve, Account
+from risk_management.models import Reserve, Account, Cover
 from decimal import Decimal
+from unittest.mock import patch
+from core.tests.base import SCRYPT_ROOT
+from core.models import Pair
+from risk_management.task_summary import reserves_balance_checker_periodic
 
 
 class PropetiesTestCase(RiskManagementBaseTestCase):
@@ -33,3 +37,79 @@ class PropetiesTestCase(RiskManagementBaseTestCase):
             main_account = Account.objects.get(is_main_account=True,
                                                reserve=reserve)
             self.assertEqual(account, main_account)
+
+    @patch(SCRYPT_ROOT + 'get_balance')
+    @patch('nexchange.api_clients.bittrex.Bittrex.get_balance')
+    def test_xvg_cover_amount_to_main_account(self, _get_balance,
+                                              get_balance_scrypt):
+
+        account = Account.objects.get(wallet='api3',
+                                      reserve__currency__code='XVG')
+        main_account = account.reserve.main_account
+        pair = Pair.objects.get(name='XVGBTC')
+        currency = pair.base
+        amount_base = Decimal('12300')
+        cover = Cover(account=account, amount_base=amount_base, pair=pair,
+                      currency=currency)
+        cover.save()
+
+        # available_to_send >= need_to_send_additional
+        balance_bittrex = amount_base + account.required_reserve \
+            + main_account.required_reserve
+        balance_main = Decimal('0')
+        _get_balance.return_value = self._get_bittrex_get_balance_response(
+            float(balance_bittrex), available=float(balance_bittrex)
+        )
+        get_balance_scrypt.return_value = balance_main
+        reserves_balance_checker_periodic.apply_async()
+        account.refresh_from_db()
+        main_account.refresh_from_db()
+        self.assertEqual(
+            cover.amount_to_main_account,
+            amount_base + main_account.required_reserve - balance_main
+        )
+
+        # available_to_send >= minimal_to_send_additional
+        balance_bittrex = amount_base + account.required_reserve \
+            + main_account.minimal_reserve
+        balance_main = Decimal('0')
+        _get_balance.return_value = self._get_bittrex_get_balance_response(
+            float(balance_bittrex), available=float(balance_bittrex)
+        )
+        get_balance_scrypt.return_value = balance_main
+        reserves_balance_checker_periodic.apply_async()
+        account.refresh_from_db()
+        main_account.refresh_from_db()
+        self.assertEqual(
+            cover.amount_to_main_account,
+            amount_base + main_account.minimal_reserve - balance_main
+        )
+        # elif max_to_send >= minimal_to_send_additional
+        balance_bittrex = amount_base + account.minimal_reserve \
+            + main_account.minimal_reserve
+        balance_main = Decimal('0')
+        _get_balance.return_value = self._get_bittrex_get_balance_response(
+            float(balance_bittrex), available=float(balance_bittrex)
+        )
+        get_balance_scrypt.return_value = balance_main
+        reserves_balance_checker_periodic.apply_async()
+        account.refresh_from_db()
+        main_account.refresh_from_db()
+        self.assertEqual(
+            cover.amount_to_main_account,
+            amount_base + main_account.minimal_reserve - balance_main
+        )
+        # else
+        balance_bittrex = amount_base / Decimal('2')
+        balance_main = Decimal('0')
+        _get_balance.return_value = self._get_bittrex_get_balance_response(
+            float(balance_bittrex), available=float(balance_bittrex)
+        )
+        get_balance_scrypt.return_value = balance_main
+        reserves_balance_checker_periodic.apply_async()
+        account.refresh_from_db()
+        main_account.refresh_from_db()
+        self.assertEqual(
+            cover.amount_to_main_account,
+            balance_bittrex - account.minimal_reserve
+        )

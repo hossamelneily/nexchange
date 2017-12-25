@@ -7,7 +7,9 @@
     "modified_on": "2017-10-04T12:58:09.529Z",
     "reserve": 1,
     "wallet": "api3",
-    "trading_allowed": true
+    "trading_allowed": true,
+    "required_reserve": "100000.0",
+    "minimal_reserve": "5000.0"
   }
 },
 {
@@ -19,7 +21,9 @@
     "reserve": 1,
     "wallet": "rpc3",
     "trading_allowed": false,
-    "is_main_account": true
+    "is_main_account": true,
+    "required_reserve": "100000.0",
+    "minimal_reserve": "5000.0"
   }
 },
 {

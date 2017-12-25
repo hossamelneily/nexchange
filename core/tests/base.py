@@ -29,6 +29,7 @@ from django.db.models import Q
 UPHOLD_ROOT = 'nexchange.api_clients.uphold.Uphold.'
 SCRYPT_ROOT = 'nexchange.api_clients.rpc.ScryptRpcApiClient.'
 ETH_ROOT = 'nexchange.api_clients.rpc.EthashRpcApiClient.'
+BITTREX_ROOT = 'nexchange.api_clients.bittrex.BittrexApiClient.'
 EXCHANGE_ORDER_RELEASE_ROOT = 'orders.tasks.generic.exchange_order_release.' \
                               'ExchangeOrderRelease.'
 

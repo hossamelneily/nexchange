@@ -10,6 +10,7 @@ from core.tests.base import OrderBaseTestCase
 from core.tests.utils import get_ok_pay_mock, get_payeer_mock
 from django.conf import settings
 import os
+from core.tests.utils import retry
 
 
 class PayeerAPIClientTestCase(TestCase):
@@ -113,6 +114,7 @@ class BlockchainTestCase(OrderBaseTestCase):
 
 
 class TestAesCypher(TestCase):
+    @retry(UnicodeDecodeError, tries=3, delay=1)
     def test_decrypt_success(self):
         key = 'my_key'
         raw = 'my_secret'
@@ -123,6 +125,7 @@ class TestAesCypher(TestCase):
         decrypted = cipher.decrypt(encrypted)
         self.assertEqual(raw, decrypted)
 
+    @retry(UnicodeDecodeError, tries=3, delay=1)
     def test_decrypt_failure(self):
         key = 'my_key'
         wrong_key = 'false_key'

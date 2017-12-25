@@ -1,6 +1,7 @@
 from risk_management.tasks.generic.base import BaseAccountManagerTask
 from risk_management.models import Cover
 from core.models import Currency
+from decimal import Decimal
 
 
 class CurrencyCover(BaseAccountManagerTask):
@@ -9,6 +10,12 @@ class CurrencyCover(BaseAccountManagerTask):
     ALLOWED_COINS = ['XVG']
 
     def run(self, currency_code, amount):
+        if amount >= Decimal('0'):
+            trade_type = 'BUY'
+            cover_type = Cover.BUY
+        else:
+            trade_type = 'SELL'
+            cover_type = Cover.SELL
         # FIXME: Should be removed after all coins trading works
         if currency_code not in self.ALLOWED_COINS:
             self.logger.info(
@@ -20,10 +27,10 @@ class CurrencyCover(BaseAccountManagerTask):
         currency = Currency.objects.get(code=currency_code)
         reserve = currency.reserve_set.get()
 
-        cover = Cover(amount_base=amount, currency=currency)
+        cover = Cover(amount_base=abs(amount), currency=currency,
+                      cover_type=cover_type)
         cover.save()
 
-        trade_type = 'BUY'
         trade_amount = cover.amount_base
         self.logger.info('Going to {} {} {}'.format(
             trade_type, str(trade_amount), currency.code))
@@ -34,8 +41,7 @@ class CurrencyCover(BaseAccountManagerTask):
         cover.rate = account_dict.get('rate')
         cover.amount_quote = cover.amount_base * cover.rate
         cover.save()
-        res = self.trade_coin(cover.account, trade_type, trade_amount,
-                              cover.pair, rate=cover.rate)
-        cover.cover_id = res.get('result', {}).get('uuid')
-        cover.save()
+        cover.pre_execute()
+        api = self.get_api_client(cover.account.wallet)
+        cover.execute(api)
         return cover
