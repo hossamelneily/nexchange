@@ -855,5 +855,185 @@
     "disable_ticker": true,
     "disabled": true
   }
+},
+{
+  "model": "core.pair",
+  "pk": 191,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 1,
+    "quote": 42,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BTCXRB",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 192,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 42,
+    "quote": 1,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XRBBTC",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 193,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 2,
+    "quote": 42,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "LTCXRB",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 194,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 42,
+    "quote": 2,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XRBLTC",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 195,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 3,
+    "quote": 42,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "ETHXRB",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 196,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 42,
+    "quote": 3,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XRBETH",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 197,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 34,
+    "quote": 42,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DOGEXRB",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 198,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 42,
+    "quote": 34,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XRBDOGE",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 199,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 35,
+    "quote": 42,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XVGXRB",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 200,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 42,
+    "quote": 35,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XRBXVG",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 201,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 36,
+    "quote": 42,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BCHXRB",
+    "disable_ticker": false,
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 202,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 42,
+    "quote": 36,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XRBBCH",
+    "disable_ticker": false,
+    "disabled": true
+  }
 }
 ]

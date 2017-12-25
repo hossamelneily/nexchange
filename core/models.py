@@ -29,7 +29,7 @@ class BtcBase(TimeStampedModel):
 class AddressReserve(models.Model):
     card_id = models.CharField('card_id', max_length=36, unique=True,
                                null=True, blank=True, default=None)
-    address = models.CharField('address_id', max_length=42, unique=True)
+    address = models.CharField('address_id', max_length=64, unique=True)
     currency = models.ForeignKey('core.Currency')
     user = models.ForeignKey(User, null=True, blank=True, default=None)
     created = models.DateTimeField(auto_now_add=True)
@@ -56,7 +56,7 @@ class Address(BtcBase, SoftDeletableModel):
                                 blank=True, default=None, related_name='addr')
     name = models.CharField(max_length=100, blank=True)
     # TODO: what if two different users want to withdraw to the same address?
-    address = models.CharField(max_length=42, unique=True,
+    address = models.CharField(max_length=64, unique=True,
                                validators=[validate_address])
     user = models.ForeignKey(User, blank=True, null=True)
     currency = models.ForeignKey('core.Currency', blank=True, null=True)

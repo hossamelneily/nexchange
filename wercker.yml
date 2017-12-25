@@ -375,6 +375,15 @@ build:
           export RPC7_PUBLIC_KEY_C1=${RPC7_PUBLIC_KEY_C1}
           export RPC_RPC7_K=${RPC_RPC7_K}
 
+          #RPC8
+          export RPC_RPC8_USER=${RPC_RPC8_USER}
+          export RPC_RPC8_PASSWORD=${RPC_RPC8_PASSWORD}
+          export RPC_RPC8_PORT=${RPC_RPC8_PORT}
+          export RPC_RPC8_HOST=${RPC_RPC8_HOST}
+          export RPC8_PUBLIC_KEY_C1=${RPC8_PUBLIC_KEY_C1}
+          export RPC8_WALLET=${RPC8_WALLET}
+          export RPC_RPC8_K=${RPC_RPC8_K}
+
           # RPC settings
           export RPC_IMPORT_TRANSACTIONS_COUNT=${RPC_IMPORT_TRANSACTION_COUNT}
           export RPC_IMPORT_BLOCK_COUNT=${RPC_IMPORT_BLOCK_COUNT}

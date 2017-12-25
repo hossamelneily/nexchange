@@ -29,9 +29,19 @@ from django.db.models import Q
 UPHOLD_ROOT = 'nexchange.api_clients.uphold.Uphold.'
 SCRYPT_ROOT = 'nexchange.api_clients.rpc.ScryptRpcApiClient.'
 ETH_ROOT = 'nexchange.api_clients.rpc.EthashRpcApiClient.'
+BLAKE2_ROOT = 'nexchange.api_clients.rpc.Blake2RpcApiClient.'
 BITTREX_ROOT = 'nexchange.api_clients.bittrex.BittrexApiClient.'
+
 EXCHANGE_ORDER_RELEASE_ROOT = 'orders.tasks.generic.exchange_order_release.' \
                               'ExchangeOrderRelease.'
+
+RPC8_PASSWORD = 'password'
+RPC8_HOST = '0.0.0.0'
+RPC8_PORT = '0000'
+RPC8_USER = 'user'
+RPC8_WALLET = '1234'
+RPC8_PUBLIC_KEY_C1 = 'xrb_1maincard'
+RPC8_URL = 'http://{}:{}@{}/'.format(RPC8_USER, RPC8_PASSWORD, RPC8_HOST)
 
 
 class UserBaseTestCase(TestCase):
@@ -96,6 +106,16 @@ class UserBaseTestCase(TestCase):
                          id_status=Verification.OK,
                          util_status=Verification.OK).save()
             convert_cash.return_value = True
+
+            def text_callback(request, context):
+                body = request._request.body
+                params = json.loads(body)
+                if all([params.get('action') == 'account_create',
+                        params.get('wallet')]):
+                    return {'account': self._get_id('xrb_')}
+
+            m.post(RPC8_URL, json=text_callback)
+
             self._create_an_order_for_every_crypto_currency_card(
                 self.user, amount_quote='1.1')
     # deprecated
@@ -178,6 +198,14 @@ class UserBaseTestCase(TestCase):
 
     # deprecated
     def _mock_cards_reserve(self, _mock):
+        def text_callback(request, context):
+            body = request._request.body
+            params = json.loads(body)
+            if all([params.get('action') == 'account_create',
+                    params.get('wallet')]):
+                return {'account': self._get_id('xrb_')}
+
+        _mock.post(RPC8_URL, json=text_callback)
         # renos_coin = Currency.objects.get(code='RNS')
         _mock.post(
             'https://api.uphold.com/v0/me/cards/',
@@ -186,14 +214,31 @@ class UserBaseTestCase(TestCase):
         pattern_addr = re.compile('https://api.uphold.com/v0/me/cards/.+/addresses')  # noqa
         _mock.post(pattern_addr, text=self._request_address)
 
+    @patch.dict(os.environ, {'RPC8_PUBLIC_KEY_C1': RPC8_PUBLIC_KEY_C1})
+    @patch.dict(os.environ, {'RPC8_WALLET': RPC8_WALLET})
+    @patch.dict(os.environ, {'RPC_RPC8_PASSWORD': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC8_K': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC8_USER': RPC8_USER})
+    @patch.dict(os.environ, {'RPC_RPC8_HOST': RPC8_HOST})
+    @patch.dict(os.environ, {'RPC_RPC8_PORT': RPC8_PORT})
     @patch.dict(os.environ, {'RPC_RPC7_PASSWORD': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
     @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
-    def _create_order(self, order_type=Order.BUY,
+    @requests_mock.mock()
+    def _create_order(self, mock, order_type=Order.BUY,
                       amount_base=0.5, pair_name='ETHLTC',
                       payment_preference=None, user=None, amount_quote=None,
                       validate_amount=False):
+        def text_callback(request, context):
+            body = request._request.body
+            params = json.loads(body)
+            if all([params.get('action') == 'account_create',
+                    params.get('wallet')]):
+                return {'account': self._get_id('xrb_')}
+
+        mock.post(RPC8_URL, json=text_callback)
+
         pair = Pair.objects.get(name=pair_name)
         if user is None:
             user = self.user
@@ -214,6 +259,13 @@ class UserBaseTestCase(TestCase):
             p.return_value = None
             self.order.save()
 
+    @patch.dict(os.environ, {'RPC8_PUBLIC_KEY_C1': RPC8_PUBLIC_KEY_C1})
+    @patch.dict(os.environ, {'RPC8_WALLET': RPC8_WALLET})
+    @patch.dict(os.environ, {'RPC_RPC8_PASSWORD': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC8_K': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC8_USER': RPC8_USER})
+    @patch.dict(os.environ, {'RPC_RPC8_HOST': RPC8_HOST})
+    @patch.dict(os.environ, {'RPC_RPC8_PORT': RPC8_PORT})
     @patch.dict(os.environ, {'RPC_RPC7_PASSWORD': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
@@ -418,6 +470,17 @@ class OrderBaseTestCase(UserBaseTestCase):
                 'nonce': 0,
                 'to': main_to,
                 'value': main_value
+            }]
+        }
+
+    def get_blake2_raw_tx(self, currency, amount, address):
+        raw_amount = str(int(amount * (10 ** currency.decimals)))
+        return {
+            'history': [{
+                'type': 'receive',
+                'hash': self.generate_txn_id(),
+                'account': address,
+                'amount': raw_amount
             }]
         }
 

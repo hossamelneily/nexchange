@@ -5,10 +5,12 @@ from django.conf import settings
 from core.models import Pair
 from ticker.tasks.generic.crypto_fiat_ticker import \
     CryptoFiatKrakenTicker, CryptoFiatCryptopiaTicker, \
-    CryptoFiatCoinexchangeTicker, CryptoFiatBittrexTicker
+    CryptoFiatCoinexchangeTicker, CryptoFiatBittrexTicker,\
+    CryptoFiatBitgrailTicker
 from ticker.tasks.generic.crypto_crypto_ticker import \
     CryptoCryptoKrakenTicker, CryptoCryptoCryptopiaTicker, \
-    CryptoCryptoCoinexchangeTicker, CryptoCryptoBittrexTicker
+    CryptoCryptoCoinexchangeTicker, CryptoCryptoBittrexTicker,\
+    CryptoCryptoBitgrailTicker
 from nexchange.utils import get_nexchange_logger
 
 
@@ -16,10 +18,12 @@ crypto_fiat_ticker_kraken = CryptoFiatKrakenTicker()
 crypto_fiat_ticker_cryptopia = CryptoFiatCryptopiaTicker()
 crypto_fiat_ticker_coinexchange = CryptoFiatCoinexchangeTicker()
 crypto_fiat_ticker_bittrex = CryptoFiatBittrexTicker()
+crypto_fiat_ticker_bitgrail = CryptoFiatBitgrailTicker()
 crypto_crypto_ticker_kraken = CryptoCryptoKrakenTicker()
 crypto_crypto_ticker_cryptopia = CryptoCryptoCryptopiaTicker()
 crypto_crypto_ticker_coinexchange = CryptoCryptoCoinexchangeTicker()
 crypto_crypto_ticker_bittrex = CryptoCryptoBittrexTicker()
+crypto_crypto_ticker_bitgrail = CryptoCryptoBitgrailTicker()
 
 
 def get_ticker_crypto_fiat(**kwargs):
@@ -35,6 +39,8 @@ def get_ticker_crypto_fiat(**kwargs):
             ticker_api = crypto_fiat_ticker_coinexchange
         elif pair.base.ticker == 'bittrex':
             ticker_api = crypto_fiat_ticker_bittrex
+        elif pair.base.ticker == 'bitgrail':
+            ticker_api = crypto_fiat_ticker_bitgrail
         else:
             ticker_api = None
             logger.error('pair {} no ticker defined'.format(pair))
@@ -58,6 +64,8 @@ def get_ticker_crypto_crypto(**kwargs):
             return crypto_crypto_ticker_coinexchange.run(pair_pk)
         elif pair.quote.ticker == 'bittrex':
             return crypto_crypto_ticker_bittrex.run(pair_pk)
+        elif pair.quote.ticker == 'bitgrail':
+            return crypto_crypto_ticker_bitgrail.run(pair_pk)
         else:
             logger.error('pair {} no ticker defined'.format(pair))
     else:

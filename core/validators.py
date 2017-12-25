@@ -109,6 +109,18 @@ def validate_eth(value):
     # TODO: add ETH hash validation
 
 
+def validate_xrb(value):
+    p = re.compile('^xrb_(1|3)[0-9a-zA-Z]{59}$')
+    p.match(value)
+
+    if not p.match(value):
+        raise ValidationError(
+            _('%(value)s has invalid characters for a valid Ethereum address'),
+            params={'value': value},
+        )
+    # TODO: add ETH hash validation
+
+
 def validate_address(value):
     if value[:2] == '0x':
         validate_eth(value)
@@ -142,5 +154,7 @@ def get_validator(code):
         return validate_doge
     elif code == 'XVG':
         return validate_xvg
+    elif code == 'XRB':
+        return validate_xrb
 
     return validate_non_address

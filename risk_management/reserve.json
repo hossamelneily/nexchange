@@ -1,0 +1,14 @@
+[
+{
+  "model": "risk_management.reserve",
+  "pk": 1,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 35,
+    "is_limit_reserve": false,
+    "expected_balance": "0E-8",
+    "margin_balance": "0E-8"
+  }
+}
+]

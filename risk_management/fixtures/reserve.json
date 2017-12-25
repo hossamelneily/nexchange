@@ -79,7 +79,21 @@
   "fields": {
     "created_on": "2017-10-04T12:57:37.855Z",
     "modified_on": "2017-10-04T12:57:37.855Z",
+    "expected_balance": "3500.0",
+    "margin_balance": "500.0",
     "currency": 40,
+    "is_limit_reserve": false
+  }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 9,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 42,
+    "expected_balance": "3500.0",
+    "margin_balance": "500.0",
     "is_limit_reserve": false
   }
 }

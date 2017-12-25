@@ -10,6 +10,8 @@ from django.conf import settings
 from unittest.mock import patch
 from unittest import skip
 import os
+from core.tests.base import RPC8_WALLET, RPC8_PUBLIC_KEY_C1, RPC8_PORT,\
+    RPC8_HOST, RPC8_USER, RPC8_PASSWORD
 
 
 class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
@@ -24,6 +26,13 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
         with requests_mock.mock() as mock:
             self.get_tickers(mock)
 
+    @patch.dict(os.environ, {'RPC8_PUBLIC_KEY_C1': RPC8_PUBLIC_KEY_C1})
+    @patch.dict(os.environ, {'RPC8_WALLET': RPC8_WALLET})
+    @patch.dict(os.environ, {'RPC_RPC8_PASSWORD': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC8_K': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC8_USER': RPC8_USER})
+    @patch.dict(os.environ, {'RPC_RPC8_HOST': RPC8_HOST})
+    @patch.dict(os.environ, {'RPC_RPC8_PORT': RPC8_PORT})
     @patch.dict(os.environ, {'RPC_RPC7_PASSWORD': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})

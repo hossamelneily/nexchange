@@ -6,13 +6,14 @@ from core.models import Pair, Market
 from ticker.models import Ticker
 from nexchange.tasks.base import BaseTask
 from ticker.adapters import KrakenAdapter, CryptopiaAdapter, \
-    CoinexchangeAdapter, BittrexAdapter
+    CoinexchangeAdapter, BittrexAdapter, BitgrailAdapter
 from django.conf import settings
 
 requests_cache.install_cache('ticker_cache',
                              expire_after=settings.TICKER_INTERVAL,
                              backend=settings.TICKER_CACHE_BACKEND)
 
+bitgrail_adapter = BitgrailAdapter()
 bittrex_adapter = BittrexAdapter()
 kraken_adapter = KrakenAdapter()
 cryptopia_adapter = CryptopiaAdapter()
@@ -78,6 +79,8 @@ class BaseTicker(BaseTask):
             return coinexchange_adapter
         elif currency.ticker == 'bittrex':
             return bittrex_adapter
+        elif currency.ticker == 'bitgrail':
+            return bitgrail_adapter
         else:
             return self.bitcoin_api_adapter
 
@@ -235,3 +238,9 @@ class BittrexBaseTicker(BaseTicker):
     def __init__(self, *args, **kwargs):
         super(BittrexBaseTicker, self).__init__(*args, **kwargs)
         self.quote_api_adapter = bittrex_adapter
+
+
+class BitgrailBaseTicker(BaseTicker):
+    def __init__(self, *args, **kwargs):
+        super(BitgrailBaseTicker, self).__init__(*args, **kwargs)
+        self.quote_api_adapter = bitgrail_adapter

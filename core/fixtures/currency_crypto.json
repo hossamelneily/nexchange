@@ -126,5 +126,24 @@
       "created_on":"2017-09-19T19:21:42+00:00",
       "modified_on":"2017-09-19T19:21:42+00:00"
     }
+  },
+  {
+    "model": "core.currency",
+    "pk": 42,
+    "fields": {
+      "code": "XRB",
+      "name": "raiblocks",
+      "ticker": "bitgrail",
+      "wallet": "rpc8",
+      "algo": "sha256",
+      "is_crypto": 1,
+      "min_confirmations": 1,
+      "median_confirmation": 1,
+      "minimal_amount": "0.0001",
+      "maximal_amount": "15.0",
+      "decimals": 30,
+      "created_on":"2017-09-19T19:21:42+00:00",
+      "modified_on":"2017-09-19T19:21:42+00:00"
+    }
   }
 ]

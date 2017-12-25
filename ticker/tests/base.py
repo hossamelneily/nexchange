@@ -4,7 +4,7 @@ from core.tests.base import OrderBaseTestCase
 from ticker.tasks.generic.base import BaseTicker
 from ticker.task_summary import get_all_tickers
 from ticker.adapters import KrakenAdapter, CryptopiaAdapter, \
-    CoinexchangeAdapter, BittrexAdapter
+    CoinexchangeAdapter, BittrexAdapter, BitgrailAdapter
 from ticker.tests.fixtures.coinexchange.markets import \
     response as coinex_markets_resp
 from ticker.tests.fixtures.coinexchange.market_summary import \
@@ -15,6 +15,8 @@ from ticker.tests.fixtures.cryptopia_ticker import res as \
     cryptopia_ticker_resp_empty
 from ticker.tests.fixtures.bittrex.market_resp import \
     resp as bittrex_market_resp
+from ticker.tests.fixtures.bitgrail.market_resp import \
+    resp as bitgrail_market_resp
 
 
 class TickerBaseTestCase(OrderBaseTestCase):
@@ -99,6 +101,8 @@ class TickerBaseTestCase(OrderBaseTestCase):
             )
         mock.get(BittrexAdapter.BASE_URL + 'getmarkets',
                  text=bittrex_market_resp)
+        mock.get(BitgrailAdapter.BASE_URL + 'markets',
+                 text=bitgrail_market_resp)
         mock.get(CoinexchangeAdapter.RESOURCE_MARKETS,
                  text=coinex_markets_resp)
         mock.get(CoinexchangeAdapter.RESOURCE_TICKER_PARAM.format('251'),

@@ -8,6 +8,52 @@ class BaseApiAdapter:
         raise NotImplementedError
 
 
+class BitgrailAdapter(BaseApiAdapter):
+
+    PAIR_NAME_TEMPLATE = '{base}/{quote}'
+    BASE_URL = 'https://bitgrail.com/api/v1/'
+
+    def __init__(self):
+        super(BitgrailAdapter, self).__init__()
+        self.reverse_pair = False
+
+    def get_markets(self):
+        return requests.get(self.BASE_URL + 'markets').json()
+
+    def get_quote(self, pair):
+        markets = self.get_markets().get('response')
+        all_markets = []
+        for market in markets.values():
+            all_markets += market
+        market_dict = {market['market']: market for market in all_markets}
+        market = self.PAIR_NAME_TEMPLATE.format(
+            base=pair.base.code,
+            quote=pair.quote.code
+        )
+        reverse_market = self.PAIR_NAME_TEMPLATE.format(
+            quote=pair.base.code,
+            base=pair.quote.code
+        )
+        if market in market_dict:
+            self.reverse_pair = False
+            result = market_dict[market]
+        elif reverse_market in market_dict:
+            self.reverse_pair = True
+            result = market_dict[reverse_market]
+        else:
+            raise ValidationError(
+                'Ticker and reverse ticker is not available for pair '
+                '{}'.format(pair.name)
+            )
+        ask = result.get('ask')
+        bid = result.get('bid')
+        return {
+            'reverse': self.reverse_pair,
+            'ask': ask,
+            'bid': bid,
+        }
+
+
 class BittrexAdapter(BaseApiAdapter):
 
     PAIR_NAME_TEMPLATE = '{quote}-{base}'
@@ -72,23 +118,6 @@ class BittrexAdapter(BaseApiAdapter):
             'ask': ask,
             'bid': bid,
         }
-
-    def pair_api_repr(self, pair):
-        quote = self.kraken_format(pair.quote.code, pair.quote.is_crypto)
-        base = self.kraken_format(pair.base.code, pair.base.is_crypto)
-        reverse_name = '{}{}'.format(quote, base)
-        name = '{}{}'.format(base, quote)
-        if name in kraken_pairs:
-            self.reverse_pair = False
-            return name
-        elif reverse_name in kraken_pairs:
-            self.reverse_pair = True
-            return reverse_name
-        else:
-            raise ValueError(
-                'Kraken does not have nor pair {} neither its '
-                'reverse pair {}'.format(name, reverse_name)
-            )
 
 
 class KrakenAdapter(BaseApiAdapter):

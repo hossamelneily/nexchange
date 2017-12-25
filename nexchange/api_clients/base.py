@@ -1,7 +1,10 @@
 from nexchange.utils import get_nexchange_logger
 from core.models import Currency, Address, AddressReserve
+from bitcoinrpc.authproxy import JSONRPCException
 from django.conf import settings
 from .decorators import log_errors
+import requests
+import json
 
 
 class BaseApiClient:
@@ -267,4 +270,115 @@ class BaseTradeApiClient(BaseApiClient):
         trade_fn = getattr(self, '{}_limit'.format(trade_type.lower()))
         res = trade_fn(pair, amount, rate=rate)
         return res
+
+
+class Blake2Proxy:
+
+    def __init__(self, url):
+        self.url = url
+
+    def _call_rpc(self, action, **kwargs):
+        res = requests.post(self.url,
+                            data=json.dumps({'action': action, **kwargs}))
+        if res.status_code != 200:
+            raise JSONRPCException('Bad status code: {}'.format(res))
+        return res.json()
+
+    def block_count(self):
+        return self._call_rpc('block_count')
+
+    def account_balance(self, account):
+        kwargs = {'account': account}
+        res = self._call_rpc('account_balance', **kwargs)
+        if 'balance' not in res:
+            raise JSONRPCException('Bad account balance response: {}'.format(
+                res))
+        return res
+
+    def account_info(self, account):
+        kwargs = {'account': account}
+        return self._call_rpc('account_info', **kwargs)
+
+    def account_create(self, wallet):
+        kwargs = {'wallet': wallet}
+        res = self._call_rpc('account_create', **kwargs)
+        account = res.get('account')
+        if not account:
+            raise JSONRPCException('Account is None. Response:{}'.format(res))
+        return account
+
+    def account_list(self, wallet):
+        kwargs = {'wallet': wallet}
+        res = self._call_rpc('account_list', **kwargs)
+        accounts = res.get('accounts')
+        if not accounts:
+            raise JSONRPCException(
+                'Bad list accounts response. Response:{}'.format(res)
+            )
+        return accounts
+
+    def key_create(self):
+        return self._call_rpc('key_create')
+
+    def wallet_create(self):
+        return self._call_rpc('wallet_create')
+
+    def wallet_balance_total(self, wallet):
+        kwargs = {'wallet': wallet}
+        return self._call_rpc('account_balance', **kwargs)
+
+    def send(self, wallet, source, destination, amount):
+        kwargs = {
+            "wallet": wallet,
+            "source": source,
+            "destination": destination,
+            "amount": amount
+        }
+        res = self._call_rpc('send', **kwargs)
+        block = res.get('block')
+        if not block:
+            raise JSONRPCException(
+                'No block in response: {}'.format(res)
+            )
+        return block
+
+    def history(self, hash, count):
+        kwargs = {'hash': hash, 'count': str(count)}
+        res = self._call_rpc('history', **kwargs)
+        history = res.get('history')
+        if not history:
+            history = []
+        return history
+
+    def get_block(self, hash):
+        res = self.history(hash, 1)
+        if not res:
+            return None
+        else:
+            return res[0]
+
+    def account_history(self, account, count):
+        kwargs = {'account': account, 'count': str(count)}
+        res = self._call_rpc('history', **kwargs)
+        history = res.get('history')
+        if not history:
+            history = []
+        return history
+
+    def block(self, hash):
+        kwargs = {'hash': hash}
+        return self._call_rpc('block', **kwargs)
+
+    def blocks_info(self, hashes):
+        kwargs = {'hashes': hashes}
+        return self._call_rpc('blocks_info', **kwargs)
+
+    def pending_exists(self, hash):
+        kwargs = {'hash': hash}
+        res = self._call_rpc('pending_exists', **kwargs)
+        return res.get('exists')
+
+    def password_enter(self, wallet, password):
+        kwargs = {'wallet': wallet, 'password': password}
+        return self._call_rpc('password_enter', **kwargs)
 
