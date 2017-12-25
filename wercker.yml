@@ -35,6 +35,7 @@ dev:
     - script:
         name: Django make migrations
         code: |
+          yes y | python manage.py makemigrations --merge
           python manage.py makemigrations core
           python manage.py makemigrations
     - script:
