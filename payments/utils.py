@@ -75,8 +75,8 @@ def check_signature_robo(_inv_id, out_summ, crc):
     return False
 
 
-def get_sha256_sign(ar_hash=(), upper=True):
-    result_string = ":".join(ar_hash)
+def get_sha256_sign(ar_hash=(), upper=True, delimiter=':'):
+    result_string = delimiter.join(ar_hash)
     sign_hash = sha256(result_string.encode('utf8'))
     sign = sign_hash.hexdigest()
     if upper:

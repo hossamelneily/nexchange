@@ -7,7 +7,8 @@ ADMINS = []
 
 # Local and staging
 INTERNAL_IPS = ('127.0.0.1', '192.168.99.100', '192.168.43.146')
-ALLOWED_HOSTS += ('localhost', '192.168.43.146', 'nexchange.dev')
+ALLOWED_HOSTS += ('localhost', '192.168.43.146', 'nexchange.dev',
+                  '207.154.223.232')
 SESSION_COOKIE_DOMAIN = None
 MIDDLEWARE_CLASSES += [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -187,3 +188,14 @@ CARDPMT_TEST_MODE = False
 
 # Confirmation code length (for telephone and email authentication)
 CONFIRMATION_CODE_LENGTH = 4
+
+# Safe Charge
+SAFE_CHARGE_MERCHANT_ID = '5741690954528998130'
+SAFE_CHARGE_MERCHANT_SITE_ID = '144073'
+SAFE_CHARGE_SECRET_KEY = 'VidQsfiGeybqTOsPGP7kUcnb1yb62AkoRFNk24NupakkEGdZYZRvNncEkMUEP0uC'  # noqa
+SAFE_CHARGE_TEST = True
+SAFE_CHARGE_NOTIFY_URL = 'http://207.154.223.232:8000/en/payments/safe_charge/dmn/listen'  # noqa
+SAFE_CHARGE_SUCCESS_URL = 'https://nexchange.io/order/{}'
+SAFE_CHARGE_ERROR_URL = SAFE_CHARGE_SUCCESS_URL
+SAFE_CHARGE_PENDING_URL = SAFE_CHARGE_SUCCESS_URL
+SAFE_CHARGE_BACK_URL = SAFE_CHARGE_SUCCESS_URL

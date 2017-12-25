@@ -11,6 +11,8 @@ payment_urls = [
         name='payments.retry'),
     url(r'^info/(?P<provider>.+)/$', views.payment_info,
         name='payments.info'),
+    url(r'^safe_charge/dmn/listen$', views.SafeChargeListenView.as_view(),
+        name='payments.listen_safe_charge'),
     url(r'^options/$',
         views.payment_type,
         name='payments.options'),

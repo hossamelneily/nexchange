@@ -246,29 +246,33 @@ CORE_TASKS = {
 }
 
 PAYMENT_CHECKER_TASKS = {
-    'check_okpay_payments': {
-        'task': 'payments.task_summary.run_okpay',
-        'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
-    },
-    'check_payeer_payments': {
-        'task': 'payments.task_summary.run_payeer',
-        'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
-    },
-    'check_sofort_payments': {
-        'task': 'payments.task_summary.run_sofort',
-        'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
-    },
-    'check_adv_cash_payments': {
-        'task': 'payments.task_summary.run_adv_cash',
+    # 'check_okpay_payments': {
+    #     'task': 'payments.task_summary.run_okpay',
+    #     'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
+    # },
+    # 'check_payeer_payments': {
+    #     'task': 'payments.task_summary.run_payeer',
+    #     'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
+    # },
+    # 'check_sofort_payments': {
+    #     'task': 'payments.task_summary.run_sofort',
+    #     'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
+    # },
+    # 'check_adv_cash_payments': {
+    #     'task': 'payments.task_summary.run_adv_cash',
+    #     'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
+    # },
+    'check_fiat_order_deposit_periodic': {
+        'task': 'payments.task_summary.check_fiat_order_deposit_periodic',
         'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
     },
 }
 
 ORDER_RELEASE_TASKS = {
-    # 'buy_order_release_reference_periodic': {
-    #     'task': 'orders.task_summary.buy_order_release_reference_periodic',
-    #     'schedule': timedelta(seconds=30),
-    # },
+    'buy_order_release_reference_periodic': {
+        'task': 'orders.task_summary.buy_order_release_reference_periodic',
+        'schedule': timedelta(seconds=30),
+    },
     'exchange_order_release_periodic': {
         'task': 'orders.task_summary.exchange_order_release_periodic',
         'schedule': timedelta(seconds=30),
@@ -305,7 +309,7 @@ CELERY_BEAT_SCHEDULE = {}
 
 CELERY_BEAT_SCHEDULE.update(CORE_TASKS)
 # Disabled while we do not support Fiat
-# CELERY_BEAT_SCHEDULE.update(PAYMENT_CHECKER_TASKS)
+CELERY_BEAT_SCHEDULE.update(PAYMENT_CHECKER_TASKS)
 CELERY_BEAT_SCHEDULE.update(TRANSACTION_CHECKER_TASKS)
 CELERY_BEAT_SCHEDULE.update(ORDER_RELEASE_TASKS)
 CELERY_BEAT_SCHEDULE.update(TRADING_TASKS)
@@ -599,3 +603,14 @@ LOGGING = {
 BASIC_LOGGING_LEVEL = logging.DEBUG
 CREDIT_CARD_IS_TEST = False
 CARDPMT_TEST_MODE = False
+
+# Safe Charge
+SAFE_CHARGE_MERCHANT_ID = ''
+SAFE_CHARGE_MERCHANT_SITE_ID = ''
+SAFE_CHARGE_SECRET_KEY = ''
+SAFE_CHARGE_TEST = True
+SAFE_CHARGE_NOTIFY_URL = 'http://207.154.223.232:8000/en/payments/safe_charge/dmn/listen'  # noqa
+SAFE_CHARGE_SUCCESS_URL = 'https://nexchange.io/order/{}'
+SAFE_CHARGE_ERROR_URL = SAFE_CHARGE_SUCCESS_URL
+SAFE_CHARGE_PENDING_URL = SAFE_CHARGE_SUCCESS_URL
+SAFE_CHARGE_BACK_URL = SAFE_CHARGE_SUCCESS_URL

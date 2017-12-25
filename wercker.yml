@@ -99,6 +99,9 @@ dev:
           python manage.py loaddata core/fixtures/pairs_ltc.json
           python manage.py loaddata core/fixtures/pairs_eth.json
           python manage.py loaddata core/fixtures/pairs_rns.json
+          python manage.py loaddata core/fixtures/pairs_bch.json
+          python manage.py loaddata core/fixtures/pairs_xvg.json
+          python manage.py loaddata core/fixtures/pairs_doge.json
     - script:
         name: Django import Payment Methods fixture
         code: |
@@ -302,6 +305,14 @@ build:
           # Twilio
           export TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
           export TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+          # Safe Charge
+          export SAFE_CHARGE_MERCHANT_ID=${SAFE_CHARGE_MERCHANT_ID}
+          export SAFE_CHARGE_MERCHANT_SITE_ID=${SAFE_CHARGE_MERCHANT_SITE_ID}
+          export SAFE_CHARGE_SECRET_KEY=${SAFE_CHARGE_SECRET_KEY}
+          export SAFE_CHARGE_SUCCESS_URL=${SAFE_CHARGE_SUCCESS_URL}
+          export SAFE_CHARGE_ERROR_URL=${SAFE_CHARGE_ERROR_URL}
+          export SAFE_CHARGE_PENDING_URL=${SAFE_CHARGE_PENDING_URL}
+          export SAFE_CHARGE_BACK_URL=${SAFE_CHARGE_BACK_URL}
           # Smtp
           export EMAIL_HOST=${EMAIL_HOST}
           export EMAIL_HOST_USER=${EMAIL_HOST_USER}
@@ -408,6 +419,9 @@ build:
           python manage.py loaddata core/fixtures/pairs_ltc.json
           python manage.py loaddata core/fixtures/pairs_eth.json
           python manage.py loaddata core/fixtures/pairs_rns.json
+          python manage.py loaddata core/fixtures/pairs_bch.json
+          python manage.py loaddata core/fixtures/pairs_doge.json
+          python manage.py loaddata core/fixtures/pairs_xvg.json
 
           if [ ! -z $CMS_FROM_FIXTURE] && [ ${CMS_FROM_FIXTURE} -eq 1 ]
           then

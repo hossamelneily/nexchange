@@ -10,7 +10,7 @@
     "fee_ask": "0.00000000",
     "fee_bid": "0.00000000",
     "name": "BTCUSD",
-    "disabled": true
+    "disabled": false
   }
 },
 {
@@ -38,7 +38,7 @@
     "fee_ask": "0.00000000",
     "fee_bid": "0.00000000",
     "name": "BTCEUR",
-    "disabled": true
+    "disabled": false
   }
 },
 {

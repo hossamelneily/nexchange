@@ -56,7 +56,8 @@ def download(request, file_name):
     verification = Verification.objects.filter(
         Q(identity_document=file_name) | Q(utility_document=file_name)
     )
-    if not verification[0].user == request.user:
+    if all([not verification[0].user == request.user,
+            not request.user.is_staff]):
         return HttpResponseForbidden(
             _('You don\'t have permission to download this document')
         )

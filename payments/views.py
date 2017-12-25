@@ -19,13 +19,15 @@ from payments.adapters import (leupay_adapter, robokassa_adapter,
                                unitpay_adapter, okpay_adapter,
                                payeer_adapter, sofort_adapter,
                                adv_cash_adapter)
-from payments.models import Payment, PaymentPreference
+from payments.models import Payment, PaymentPreference, PaymentMethod
 from payments.utils import get_sha256_sign
 from payments.task_summary import run_payeer, run_okpay, run_sofort, \
     run_adv_cash
 from decimal import Decimal
 from payments.api_clients.card_pmt import CardPmtAPIClient
 from core.context_processors import country_code
+from django.views.generic import View
+from django.utils.decorators import method_decorator
 
 
 @login_required
@@ -357,3 +359,78 @@ def pay_with_credit_card(request):
                             safe=False)
     else:
         return HttpResponseForbidden(_(res['msg']))
+
+
+class SafeChargeListenView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(SafeChargeListenView, self).dispatch(request,
+                                                          *args, **kwargs)
+
+    def get_or_create_payment_preference(self, unique_cc, name_on_card):
+        pref_args = {'provider_system_id': unique_cc}
+        payment_pref_list = PaymentPreference.objects.filter(
+            **pref_args)
+        if not payment_pref_list:
+            pref = PaymentPreference(**pref_args)
+            pref.payment_method = PaymentMethod.objects.get(
+                name__icontains='Safe Charge')
+        else:
+            pref = payment_pref_list[0]
+        pref.secondary_identifier = name_on_card
+        pref.save()
+        return pref
+
+    def _prepare_payment_data(self, order, payment_preference, total_amount,
+                              currency, ppp_tx_id, tx_id, auth_code):
+        return {
+            'order': order,
+            'payment_preference': payment_preference,
+            'amount_cash': Decimal(total_amount),
+            'currency': Currency.objects.get(code=currency),
+            'user': order.user,
+            'payment_system_id': ppp_tx_id if ppp_tx_id else None,
+            'secondary_payment_system_id': tx_id if tx_id else None,
+            'type': Payment.DEPOSIT,
+            'reference': order.unique_reference,
+            'auth_code': auth_code
+        }
+
+    def post(self, request):
+        params = request.POST
+        key = settings.SAFE_CHARGE_SECRET_KEY
+        total_amount = params.get('totalAmount', '')
+        currency = params.get('currency', '')
+        time_stamp = params.get('responseTimeStamp', '')
+        ppp_tx_id = params.get('PPP_TransactionID', '')
+        tx_id = params.get('TransactionID', '')
+        status = params.get('Status', '')
+        product_id = params.get('productId', '').replace(" ", "")
+        unique_cc = params.get('uniqueCC', '')
+        name_on_card = params.get('nameOnCard', '')
+        checksum = params.get('advancedResponseChecksum',
+                              params.get('advanceResponseChecksum', ''))
+        to_hash = (key, total_amount, currency, time_stamp, ppp_tx_id, status,
+                   product_id)
+        auth_code = params.get('AuthCode', '')
+        expected_checksum = get_sha256_sign(ar_hash=to_hash, delimiter='',
+                                            upper=False)
+        if checksum == expected_checksum:
+            order = Order.objects.get(unique_reference=product_id)
+            if all([status in ['APPROVED', 'SUCCESS', 'PENDING'],
+                    order.status == Order.INITIAL]):
+                pref = self.get_or_create_payment_preference(unique_cc,
+                                                             name_on_card)
+                payment_data = self._prepare_payment_data(
+                    order, pref, total_amount, currency, ppp_tx_id, tx_id,
+                    auth_code
+                )
+                order.register_deposit(payment_data, crypto=False)
+            if all([status in ['APPROVED', 'SUCCESS'],
+                    order.status == Order.PAID_UNCONFIRMED]):
+                payment = order.payment_set.get(type=Payment.DEPOSIT)
+                payment.is_success = True
+                payment.save()
+
+        return HttpResponse()

@@ -1,0 +1,72 @@
+[
+{
+  "model": "core.pair",
+  "pk": 160,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.088Z",
+    "modified_on": "2017-03-01T12:49:29.090Z",
+    "base": 36,
+    "quote": 4,
+    "fee_ask": "0.00000000",
+    "fee_bid": "0.00000000",
+    "name": "BCHUSD",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 161,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.093Z",
+    "modified_on": "2017-03-01T12:49:29.094Z",
+    "base": 36,
+    "quote": 5,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BCHRUB",
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 162,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.096Z",
+    "modified_on": "2017-03-01T12:49:29.098Z",
+    "base": 36,
+    "quote": 6,
+    "fee_ask": "0.00000000",
+    "fee_bid": "0.00000000",
+    "name": "BCHEUR",
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 163,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.100Z",
+    "modified_on": "2017-03-01T12:49:29.101Z",
+    "base": 36,
+    "quote": 7,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BCHGBP",
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 164,
+  "fields": {
+    "created_on": "2017-03-01T12:49:29.104Z",
+    "modified_on": "2017-03-01T12:49:29.105Z",
+    "base": 36,
+    "quote": 8,
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
+    "name": "BCHJPY",
+    "disabled": true
+  }
+}
+]

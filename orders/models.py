@@ -22,6 +22,11 @@ from nexchange.utils import send_email, send_sms
 from django_fsm import FSMIntegerField, transition
 from nexchange.celery import app
 from cached_property import cached_property_with_ttl
+from payments.api_clients.safe_charge import SafeChargeAPIClient
+from payments.models import PaymentPreference
+
+
+safe_charge_client = SafeChargeAPIClient()
 
 
 class Order(TimeStampedModel, SoftDeletableModel,
@@ -170,7 +175,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
                 _('Cannot set order status to {} when it is CANCELED'.format(
                     status)))
         elif status == Order.CANCELED:
-            if old_status in [Order.INITIAL, Order.CANCELED]:
+            if old_status in [Order.INITIAL, Order.CANCELED,
+                              Order.PAID_UNCONFIRMED]:
                 return
             else:
                 raise ValidationError(
@@ -202,6 +208,14 @@ class Order(TimeStampedModel, SoftDeletableModel,
         elif self.amount_quote:
             return self.PROVIDED_QUOTE
 
+    def set_payment_preference(self, method_name='Safe Charge'):
+        if any([self.exchange, self.pk, self.payment_preference]):
+            return
+        self.payment_preference = PaymentPreference.objects.get(
+            user__is_staff=True,
+            payment_method__name__icontains=method_name
+        )
+
     def save(self, *args, **kwargs):
         self._validate_fields()
         if not self.unique_reference:
@@ -211,18 +225,19 @@ class Order(TimeStampedModel, SoftDeletableModel,
                     lambda x: Order.objects.filter(unique_reference=x).count(),
                     settings.UNIQUE_REFERENCE_LENGTH
                 ).upper()
+        if self.pair.is_crypto:
+            self.exchange = True
+        else:
+            self.exchange = False
         if not self.pk:
             self.user_provided_amount = self.get_provided_amount_option()
+            self.set_payment_preference()
             if self.amount_base:
                 self.calculate_quote_from_base()
             elif self.amount_quote:
                 self.calculate_base_from_quote()
 
         self._validate_order_base_amount()
-        if self.pair.is_crypto:
-            self.exchange = True
-        else:
-            self.exchange = False
 
         super(Order, self).save(*args, **kwargs)
 
@@ -253,6 +268,12 @@ class Order(TimeStampedModel, SoftDeletableModel,
         amount_output_formatted = money_format(amount_output,
                                                places=decimal_places)
         setattr(self, 'amount_{}'.format(_to), amount_output_formatted)
+
+    @property
+    def payment_url(self):
+        if any([self.pair.quote.is_crypto, self.status != self.INITIAL]):
+            return ''
+        return safe_charge_client.generate_cachier_url_for_order(self)
 
     @cached_property_with_ttl(ttl=settings.TICKER_INTERVAL)
     def amount_eur(self):
@@ -300,16 +321,18 @@ class Order(TimeStampedModel, SoftDeletableModel,
     @property
     def recommended_quote_decimal_places(self):
         return self.recommended_decimal_places(self.ticker_amount_quote,
+                                               self.pair.quote,
                                                dynamic=self.dynamic_decimal_places)  # noqa
 
     @property
     def recommended_base_decimal_places(self):
         return self.recommended_decimal_places(self.ticker_amount_base,
+                                               self.pair.base,
                                                dynamic=self.dynamic_decimal_places)  # noqa
 
-    def recommended_decimal_places(self, amount, dynamic=False):
+    def recommended_decimal_places(self, amount, currency, dynamic=False):
         decimal_places = 2
-        if self.pair.is_crypto:
+        if currency.is_crypto:
             if dynamic:
                 add_places = -int(floor(log10(abs(amount))))
                 if add_places > 0:
@@ -321,7 +344,11 @@ class Order(TimeStampedModel, SoftDeletableModel,
     def add_payment_fee_to_amount_base(self, amount_base):
         if not self.payment_preference or self.exchange:
             return amount_base
-        raise NotImplementedError('Cannot add fee to amount_base')
+        base = Decimal('1.0')
+        method = self.payment_preference.payment_method
+        fee = method.fee_deposit
+        amount_base = amount_base * (base - fee)
+        return amount_base
 
     def add_payment_fee_to_amount_quote(self, amount_quote):
         if not self.payment_preference or self.exchange:
@@ -337,7 +364,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
             fee = self.payment_preference.payment_method.fee_withdraw
             if method.pays_withdraw_fee == method.MERCHANT:
                 fee = -fee
-        amount_quote = amount_quote * (base + fee)
+        amount_quote = amount_quote / (base - fee)
         return amount_quote
 
     @property
@@ -519,6 +546,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
             self.get_status_display()
         )
         dec_pls = self.recommended_decimal_places(self.ticker_amount_quote,
+                                                  self.pair.quote,
                                                   dynamic=True)
         if round(self.amount_quote, dec_pls) != \
                 round(self.ticker_amount_quote, dec_pls):
@@ -527,7 +555,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
             )
         return name
 
-    def calculate_order(self, amount_quote):
+    def calculate_order(self, amount_quote, payment_method=None):
         if self.expired:
             price = Price.objects.filter(
                 pair=self.pair, market__is_main_market=True).latest('id')
@@ -540,17 +568,37 @@ class Order(TimeStampedModel, SoftDeletableModel,
             self.payment_window += settings.PAYMENT_WINDOW + expired_minutes
         else:
             price = self.price
-        if any([self.expired, self.amount_quote != amount_quote]):
+        new_payment_method = False
+        if payment_method:
+            if not self.payment_preference:
+                new_payment_method = True
+            elif self.payment_preference.payment_method != payment_method:
+                new_payment_method = True
+
+        if any([self.expired, self.amount_quote != amount_quote,
+                new_payment_method]):
+            if new_payment_method:
+                self.payment_preference = PaymentPreference.objects.get(
+                    user__is_staff=True,
+                    payment_method=payment_method
+                )
             self.amount_quote = amount_quote
             self.calculate_base_from_quote(price=price)
             self.save()
 
     @transition(field=status, source=INITIAL, target=PAID_UNCONFIRMED)
-    def _register_deposit(self, tx_data):
+    def _register_deposit(self, tx_data, crypto=True):
+        if crypto:
+            model = Transaction
+            amount_key = 'amount'
+        else:
+            model = Payment
+            amount_key = 'amount_cash'
         order = tx_data.get('order')
         tx_type = tx_data.get('type')
-        tx_amount = tx_data.get('amount')
+        tx_amount = tx_data.get(amount_key)
         tx_currency = tx_data.get('currency')
+
         if order != self:
             raise ValidationError(
                 'Bad order {} on the deposit tx. Should be {}'.format(
@@ -575,17 +623,20 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
         # Transaction is created before calculate_order to assure that
         # it will not be hanging (waiting for better rate).
-        tx = Transaction(**tx_data)
+        tx = model(**tx_data)
         tx.save()
+        payment_method = None
+        if not crypto:
+            payment_method = tx.payment_preference.payment_method
 
-        self.calculate_order(tx_amount)
+        self.calculate_order(tx_amount, payment_method=payment_method)
 
         return tx
 
-    def register_deposit(self, tx_data):
+    def register_deposit(self, tx_data, crypto=True):
         res = {'status': 'OK'}
         try:
-            tx = self._register_deposit(tx_data)
+            tx = self._register_deposit(tx_data, crypto=crypto)
             res.update({'tx': tx})
         except Exception as e:
             res = {'status': 'ERROR', 'message': '{}'.format(e)}
@@ -594,23 +645,28 @@ class Order(TimeStampedModel, SoftDeletableModel,
         return res
 
     @transition(field=status, source=PAID_UNCONFIRMED, target=PAID)
-    def _confirm_deposit(self, tx):
+    def _confirm_deposit(self, tx, crypto=True):
+        if crypto:
+            success_params = ['is_completed', 'is_verified']
+        else:
+            success_params = ['is_complete']
         if tx.type != Transaction.DEPOSIT:
             raise ValidationError(
                 'Order {}. Cannot confirm DEPOSIT - wrong transaction '
                 'type {}'.format(self, tx.type))
-        if tx.is_completed or tx.is_verified:
-            raise ValidationError(
-                'Order {}.Cannot confirm DEPOSIT - already confirmed.'.format(
-                    self))
-        tx.is_completed = True
-        tx.is_verified = True
+        for param in success_params:
+            if getattr(tx, param):
+                raise ValidationError(
+                    'Order {}.Cannot confirm DEPOSIT - already confirmed({}).'
+                    ''.format(self, param)
+                )
+            setattr(tx, param, True)
         tx.save()
 
-    def confirm_deposit(self, tx):
+    def confirm_deposit(self, tx, crypto=True):
         res = {'status': 'OK'}
         try:
-            self._confirm_deposit(tx)
+            self._confirm_deposit(tx, crypto=crypto)
         except Exception as e:
             res = {'status': 'ERROR', 'message': '{}'.format(e)}
         self.save()
@@ -707,6 +763,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         self.save()
         return res
 
+    @transition(field=status, source=PAID_UNCONFIRMED, target=CANCELED)
     @transition(field=status, source=INITIAL, target=CANCELED)
     def _cancel(self):
         pass
@@ -719,3 +776,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
             res = {'status': 'ERROR', 'message': '{}'.format(e)}
         self.save()
         return res
+
+    @property
+    def amount_quote_fee(self):
+        if not self.payment_preference:
+            return Decimal('0.0')
+        fee = self.payment_preference.payment_method.fee_deposit
+        return fee * self.amount_quote

@@ -15,8 +15,3 @@ class VerificationTestCase(UserBaseTestCase):
     def test_create_verification(self):
         verification = Verification(**self.verification_data)
         verification.save()
-
-    def test_create_verification_without_user(self):
-        verification = Verification()
-        with self.assertRaises(IntegrityError):
-            verification.save()

@@ -23,7 +23,7 @@ class BtcBase(TimeStampedModel):
         (DEPOSIT, 'DEPOSIT'),
     )
     type = models.CharField(max_length=1,
-                            choices=TYPES)
+                            choices=TYPES, null=True)
 
 
 class AddressReserve(models.Model):

@@ -552,6 +552,7 @@ class BuyOrderReleaseFailedFlags(BaseOrderReleaseTestCase):
              ),
         )
     )
+    @patch('orders.models.Order.coverable')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
     @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     def test_release_flags(self,
@@ -564,7 +565,7 @@ class BuyOrderReleaseFailedFlags(BaseOrderReleaseTestCase):
                            user_verified_for_buy,
                            # stabs!
                            trans_history,
-                           release_coins):
+                           release_coins, coverable):
 
         trans_history.return_value = get_ok_pay_mock(
             data='transaction_history'

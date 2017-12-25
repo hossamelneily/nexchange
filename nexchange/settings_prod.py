@@ -168,3 +168,14 @@ LOGGING = {
 
 # Confirmation code length (for telephone and email authentication)
 CONFIRMATION_CODE_LENGTH = 4
+
+# Safe Charge
+SAFE_CHARGE_MERCHANT_ID = os.getenv('SAFE_CHARGE_MERCHANT_ID', '')
+SAFE_CHARGE_MERCHANT_SITE_ID = os.getenv('SAFE_CHARGE_MERCHANT_SITE_ID', '')
+SAFE_CHARGE_SECRET_KEY = os.getenv('SAFE_CHARGE_SECRET_KEY', '')
+SAFE_CHARGE_TEST = False
+SAFE_CHARGE_NOTIFY_URL = 'https://api.nexchange.io/en/payments/safe_charge/dmn/listen'  # noqa
+SAFE_CHARGE_SUCCESS_URL = os.getenv('SAFE_CHARGE_SUCCESS_URL', 'https://nexchange.io/order/{}')  # noqa
+SAFE_CHARGE_ERROR_URL = os.getenv('SAFE_CHARGE_ERROR_URL', SAFE_CHARGE_SUCCESS_URL)  # noqa
+SAFE_CHARGE_PENDING_URL = os.getenv('SAFE_CHARGE_PENDING_URL', SAFE_CHARGE_SUCCESS_URL)  # noqa
+SAFE_CHARGE_BACK_URL = os.getenv('SAFE_CHARGE_BACK_URL', SAFE_CHARGE_SUCCESS_URL)  # noqa

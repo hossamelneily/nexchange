@@ -253,7 +253,9 @@ class OrderPriceGenerationTest(OrderBaseTestCase):
     def setUpClass(cls):
         super(OrderPriceGenerationTest, cls).setUpClass()
 
-    def test_auto_set_amount_cash_buy_btc_with_usd(self):
+    @patch('orders.models.Order.set_payment_preference')
+    def test_auto_set_amount_cash_buy_btc_with_usd(self, set_pref):
+        set_pref.return_value = True
         # When the client slees we buy and vice versa
         # TODO: consider different naming conventions
         amount_btc = 2.5
@@ -281,7 +283,9 @@ class OrderPriceGenerationTest(OrderBaseTestCase):
 
         self.assertEqual(self.order.amount_cash, expected)
 
-    def test_auto_set_amount_cash_buy_btc_with_rub(self):
+    @patch('orders.models.Order.set_payment_preference')
+    def test_auto_set_amount_cash_buy_btc_with_rub(self, set_pref):
+        set_pref.return_value = True
         amount_btc = 2.5
         expected = OrderBaseTestCase.PRICE_BUY_RUB * amount_btc
         self.order = Order(
@@ -294,7 +298,9 @@ class OrderPriceGenerationTest(OrderBaseTestCase):
 
         self.assertEqual(self.order.amount_quote, expected)
 
-    def test_auto_set_amount_cash_sell_btc_for_usd(self):
+    @patch('orders.models.Order.set_payment_preference')
+    def test_auto_set_amount_cash_sell_btc_for_usd(self, set_pref):
+        set_pref.return_value = True
         amount_btc = 2.5
 
         expected = OrderBaseTestCase.PRICE_SELL_USD * amount_btc
@@ -325,7 +331,9 @@ class OrderPriceGenerationTest(OrderBaseTestCase):
 
         self.assertEqual(self.order.amount_to, expected)
 
-    def test_auto_set_amount_cash_sell_btc_for_rub(self):
+    @patch('orders.models.Order.set_payment_preference')
+    def test_auto_set_amount_cash_sell_btc_for_rub(self, set_pref):
+        set_pref.return_value = True
         amount_btc = 2.5
         expected = OrderBaseTestCase.PRICE_SELL_RUB * amount_btc
         self.order = Order(

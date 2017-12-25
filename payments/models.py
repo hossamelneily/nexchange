@@ -6,6 +6,7 @@ from django.conf import settings
 from core.common.models import SoftDeletableModel, \
     TimeStampedModel, FlagableMixin
 from core.models import Location, Country
+from core.models import BtcBase
 
 
 class PaymentMethodManager(models.Manager):
@@ -104,6 +105,9 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     user = models.ForeignKey(User, default=None, blank=True, null=True)
     payment_method = models.ForeignKey('PaymentMethod', default=None)
     currency = models.ManyToManyField('core.Currency')
+    provider_system_id = models.CharField(
+        max_length=100, null=True, blank=True, unique=True
+    )
     # Optional, sometimes we need this to confirm
     identifier = models.CharField(max_length=100)
     secondary_identifier = models.CharField(max_length=100,
@@ -155,12 +159,50 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
             return False
         return True
 
+    @property
+    def id_document_status(self):
+        verifications = self.verification_set.all()
+        if not verifications:
+            return
+        if verifications.filter(id_status='OK'):
+            return 'APPROVED'
+        if verifications.filter(id_status='PENDING'):
+            return 'PENDING'
+        if verifications.filter(id_status='REJECTED'):
+            return 'REJECTED'
+
+    @property
+    def residence_document_status(self):
+        verifications = self.verification_set.all()
+        if not verifications:
+            return
+        if verifications.filter(util_status='OK'):
+            return 'APPROVED'
+        if verifications.filter(util_status='PENDING'):
+            return 'PENDING'
+        if verifications.filter(util_status='REJECTED'):
+            return 'REJECTED'
+
+    @property
+    def is_verified(self):
+        verifications = self.verification_set.all()
+        id_status = False
+        util_status = False
+        for ver in verifications:
+            if ver.id_status == ver.OK:
+                id_status = True
+            if ver.util_status == ver.OK:
+                util_status = True
+            if id_status and util_status:
+                return True
+        return False
+
     def __str__(self):
         return "{} {}".format(self.payment_method.name,
                               self.identifier)
 
 
-class Payment(TimeStampedModel, SoftDeletableModel, FlagableMixin):
+class Payment(BtcBase, SoftDeletableModel, FlagableMixin):
     nonce = models.CharField(_('Nonce'),
                              max_length=256,
                              null=True,
@@ -183,6 +225,10 @@ class Payment(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                                null=True, default=None)
     payment_system_id = models.CharField(max_length=255, unique=True,
                                          null=True, default=None)
+    secondary_payment_system_id = models.CharField(max_length=255, unique=True,
+                                                   null=True, default=None)
+    auth_code = models.CharField(max_length=50, blank=True,
+                                 null=True, default=None)
 
     @property
     def api_time(self):

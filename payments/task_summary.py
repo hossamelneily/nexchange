@@ -2,8 +2,12 @@ from payments.tasks.generic.ok_pay import OkPayPaymentChecker
 from payments.tasks.generic.payeer import PayeerPaymentChecker
 from payments.tasks.generic.sofort import SofortPaymentChecker
 from payments.tasks.generic.adv_cash import AdvCashPaymentChecker
+from payments.tasks.generic.order_checker.base import \
+    BaseFiatOrderDepositChecker
 from django.conf import settings
 from celery import shared_task
+from nexchange.utils import get_nexchange_logger
+from orders.models import Order
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
@@ -32,3 +36,22 @@ def run_adv_cash():
     # TODO: migrate to single instance
     adv_cash_checker = AdvCashPaymentChecker()
     return adv_cash_checker.run()
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def check_fiat_order_deposit_invoke(order_pk):
+    task = BaseFiatOrderDepositChecker()
+    task.run(order_pk)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def check_fiat_order_deposit_periodic():
+    logger = get_nexchange_logger('Periodic Fiat Order Deposit Checker')
+    pending_fiat_orders = Order.objects.filter(
+        flagged=False, status=Order.PAID_UNCONFIRMED, exchange=False
+    )
+    for order in pending_fiat_orders:
+        try:
+            check_fiat_order_deposit_invoke.apply_async([order.pk])
+        except Exception as e:
+            logger.logger.info(e)

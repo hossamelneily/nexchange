@@ -39,7 +39,12 @@ def buy_order_release_reference_periodic():
         flagged=False
     ):
         try:
-            buy_order_release_by_reference_invoke.apply_async([payment.pk])
+            order = payment.order
+            if order.coverable:
+                buy_order_release_by_reference_invoke.apply_async([payment.pk])
+            else:
+                logger.warning('Not enough funds to release order {}'.format(
+                    order.unique_reference))
         except Exception as e:
             logger.warning(e)
 

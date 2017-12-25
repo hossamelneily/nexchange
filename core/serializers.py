@@ -7,7 +7,7 @@ class CurrencySerializer(serializers.ModelSerializer):
     class Meta:
         model = Currency
         fields = ('code', 'name', 'min_confirmations', 'is_crypto',
-                  'minimal_amount',
+                  'minimal_amount', 'maximal_amount',
                   'is_base_of_enabled_pair', 'is_quote_of_enabled_pair',
                   'has_enabled_pairs',
                   'is_base_of_enabled_pair_for_test',

@@ -31,7 +31,7 @@ from payments.urls import payment_urls
 from referrals.urls import referral_urls, referrals_api_patterns
 from support.urls import support_urls, support_api_patterns
 from ticker.urls import ticker_api_patterns
-from verification.urls import verification_urls
+from verification.urls import verification_urls, kyc_api_patterns
 
 js_info_dict = {
     'domain': 'djangojs',
@@ -48,7 +48,7 @@ js_info_dict = {
 
 api_patterns = ticker_api_patterns + referrals_api_patterns \
     + order_api_patterns + account_api_patterns + \
-    core_api_patterns + support_api_patterns
+    core_api_patterns + support_api_patterns + kyc_api_patterns
 
 
 urlpatterns = i18n_patterns(
