@@ -149,6 +149,10 @@ class UserBaseTestCase(TestCase):
             mock.patch(SCRYPT_ROOT + 'create_address',
                        new=addr_response)
         self.rpc_mock_addr.start()
+        self.rpc_mock_backup = \
+            mock.patch(SCRYPT_ROOT + 'backup_wallet',
+                       new=addr_response)
+        self.rpc_mock_backup.start()
 
         self.rpc_eth_mock_addr = \
             mock.patch('web3.personal.Personal.newAccount',
@@ -298,6 +302,7 @@ class OrderBaseTestCase(UserBaseTestCase):
 
         # rpc
         self.rpc_mock_addr.stop()
+        self.rpc_mock_backup.stop()
         self.mock_rpc_txs.stop()
         self.rpc_eth_mock_addr.stop()
 

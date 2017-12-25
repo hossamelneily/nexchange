@@ -17,6 +17,89 @@ class BaseApiClient:
         self.mapper = None
         self.cache = {}
 
+    def revert_tx_mapper(self):
+        self.mapper.start = self.start
+        self.mapper.save()
+
+    def get_currency(self, lookup):
+        return self.get_cached_obj(Currency, lookup)
+
+    def get_address(self, lookup):
+        # get or create or catch?
+        return self.get_cached_obj(Address, lookup)
+
+    @log_errors
+    def get_cached_obj(self, obj, lookup):
+        cache_id = str(hash(frozenset(lookup.items())))
+        if cache_id not in self.cache:
+            self.cache[cache_id] = obj.objects.get(
+                **lookup
+            )
+        return self.cache[cache_id]
+
+    def get_api(self, currency):
+        raise NotImplementedError()
+
+    def create_address(self, currency):
+        raise NotImplementedError()
+
+    def parse_tx(self, tx, node=None):
+        raise NotImplementedError()
+
+    def filter_tx(self, tx):
+        raise NotImplementedError()
+
+    def get_txs(self, node=None, txs=None):
+        return len(txs), \
+            [self.parse_tx(tx, node)
+                for tx in txs if self.filter_tx(tx)]
+
+    def check_tx(self, tx, node):
+        raise NotImplementedError()
+
+    def release_coins(self, currency, address, amount):
+        raise NotImplementedError()
+
+    def resend_funds_to_main_card(self, card_id, curr_code):
+        raise NotImplementedError
+
+    def check_card_balance(self, card_pk):
+        card = AddressReserve.objects.get(pk=card_pk)
+        res = self.resend_funds_to_main_card(card.card_id, card.currency.code)
+        return res
+
+    def get_card_validity(self, wallet):
+        raise NotImplementedError()
+
+    def retry(self, tx):
+        self.logger.warning(
+            'retry is not implemented for currency {}. Tx: {}'.format(
+                tx.currency, tx))
+        return {'success': False, 'retry': False}
+
+
+class BaseTradeApiClient(BaseApiClient):
+
+    def trade_type_rate_type_mapper(self, trade_type):
+        if trade_type.upper() == 'SELL':
+            return 'Bid'
+        if trade_type.upper() == 'BUY':
+            return 'Ask'
+
+    def coin_address_mapper(self, code):
+        if code == 'XVG':
+            return settings.API3_PUBLIC_KEY_C1
+        elif code == 'DOGE':
+            return settings.RPC2_PUBLIC_KEY_C1
+
+    def trade_limit(self, pair, amount, trade_type, rate=None):
+        trade_fn = getattr(self, '{}_limit'.format(trade_type.lower()))
+        res = trade_fn(pair, amount, rate=rate)
+        return res
+
+
+class BaseWalletApiClient(BaseApiClient):
+
     def renew_cards_reserve(self,
                             expected_reserve=settings.CARDS_RESERVE_COUNT,
                             renew_curr_of_disabled_pairs=False):
@@ -35,9 +118,11 @@ class BaseApiClient:
             ]
 
         for curr in currencies:
+            renewed = False
             count = AddressReserve.objects \
                 .filter(user=None, currency=curr, disabled=False).count()
             while count < expected_reserve:
+                renewed = True
                 address_res = self.create_address(curr)
                 AddressReserve.objects.get_or_create(**address_res)
                 self.logger.info(
@@ -46,6 +131,9 @@ class BaseApiClient:
 
                 count = AddressReserve.objects \
                     .filter(user=None, currency=curr, disabled=False).count()
+
+            if renewed:
+                self.backup_wallet(curr)
 
     def create_user_wallet(self, user, currency):
         unassigned_cards = AddressReserve.objects.filter(currency=currency,
@@ -97,6 +185,9 @@ class BaseApiClient:
         res = self.create_user_wallet(user, currency)
         return res
 
+    def backup_wallet(self, currency):
+        pass
+      
     def revert_tx_mapper(self):
         self.mapper.start = self.start
         self.mapper.save()
@@ -151,28 +242,3 @@ class BaseApiClient:
     def get_card_validity(self, wallet):
         raise NotImplementedError()
 
-    def retry(self, tx):
-        self.logger.warning(
-            'retry is not implemented for currency {}. Tx: {}'.format(
-                tx.currency, tx))
-        return {'success': False, 'retry': False}
-
-
-class BaseTradeApiClient(BaseApiClient):
-
-    def trade_type_rate_type_mapper(self, trade_type):
-        if trade_type.upper() == 'SELL':
-            return 'Bid'
-        if trade_type.upper() == 'BUY':
-            return 'Ask'
-
-    def coin_address_mapper(self, code):
-        if code == 'XVG':
-            return settings.API3_PUBLIC_KEY_C1
-        elif code == 'DOGE':
-            return settings.RPC2_PUBLIC_KEY_C1
-
-    def trade_limit(self, pair, amount, trade_type, rate=None):
-        trade_fn = getattr(self, '{}_limit'.format(trade_type.lower()))
-        res = trade_fn(pair, amount, rate=rate)
-        return res

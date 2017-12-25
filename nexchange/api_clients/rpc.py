@@ -1,4 +1,4 @@
-from .base import BaseApiClient
+from .base import BaseWalletApiClient
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from .decorators import track_tx_mapper, log_errors
 from core.models import Address, Currency, Transaction, AddressReserve
@@ -63,9 +63,7 @@ class RpcMapper:
         return cipher.decrypt(raw_pass)
 
 
-class BaseRpcClient(BaseApiClient):
-    LOCK_WALLET = 'walletlock'
-    UNLOCK_WALLET = 'walletpassphrase'
+class BaseRpcClient(BaseWalletApiClient):
 
     def __init__(self):
         super(BaseRpcClient, self).__init__()
@@ -117,6 +115,8 @@ class BaseRpcClient(BaseApiClient):
 
 
 class ScryptRpcApiClient(BaseRpcClient):
+    LOCK_WALLET = 'walletlock'
+    UNLOCK_WALLET = 'walletpassphrase'
 
     LOCK_WALLET = 'walletlock'
     UNLOCK_WALLET = 'walletpassphrase'
@@ -203,6 +203,11 @@ class ScryptRpcApiClient(BaseRpcClient):
     def get_info(self, currency):
         info = self.call_api(currency.wallet, 'getinfo')
         return info
+
+    def backup_wallet(self, currency):
+        path = os.path.join(settings.WALLET_BACKUP_PATH,
+                            currency.code)
+        self.call_api(currency.wallet, 'backupwallet', *[path])
 
 
 class EthashRpcApiClient(BaseRpcClient):
@@ -524,8 +529,10 @@ class EthashRpcApiClient(BaseRpcClient):
                 params_input[64 * i: 64 * (i + 1)]
             )
             params.append(param)
-
         return method, params
+            
+    def backup_wallet(self, currency):
+        pass
 
     def get_data_hash(self, fn, *args):
         data_hash = Web3.sha3(bytes(fn, 'utf-8'))[:10]
@@ -546,3 +553,4 @@ class EthashRpcApiClient(BaseRpcClient):
         c = res['currentBlock']
         h = res['highestBlock']
         return res, h - c, c / h
+ 
