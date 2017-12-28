@@ -1,6 +1,7 @@
 from decimal import Decimal
 import json
 
+from core.tests.utils import enable_all_pairs
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import Client, TestCase
@@ -311,14 +312,6 @@ class OrderBaseTestCase(UserBaseTestCase):
 
     RATE_EUR = 70.00
 
-    def enable_all_pairs(self):
-        pairs = Pair.objects.filter(disabled=True)
-        for pair in pairs:
-            pair.disabled = False
-            pair.test_mode = False
-            pair.disable_ticker = False
-            pair.save()
-
     def setUp(self):
         super(OrderBaseTestCase, self).setUp()
         self.patcher_twilio_send_sms = patch(
@@ -341,7 +334,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         )
         self._reserve_txn_uphold = self.patcher_uphold_reserve_txn.start()
         self._reserve_txn_uphold.return_value = {'status': 'completed'}
-        self.enable_all_pairs()
+        enable_all_pairs
         self.ethash_client = EthashRpcApiClient()
 
     def tearDown(self):
@@ -575,7 +568,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.uphold_import_transactions_empty = None
 
     def setUp(self):
-        self.enable_all_pairs()
+        enable_all_pairs
         super(TransactionImportBaseTestCase, self).setUp()
 
         self.main_pref = self.okpay_pref = PaymentPreference.objects.get(

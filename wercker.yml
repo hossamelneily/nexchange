@@ -445,6 +445,10 @@ build:
           # Create superuser
           echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@onit.ws','weare0nit')" | python manage.py shell
           #
+
+          # enable pairs
+          echo "from core.tests.utils import enable_prod_pairs; enable_prod_pairs()" | python manage.py shell
+          #
           # Start Cron Process
           cron
           # Fix orders and transactions
