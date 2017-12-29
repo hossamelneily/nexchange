@@ -489,7 +489,7 @@ build:
         code: |
           chmod +x /celery_dump_events.sh
           # monitor celery events and dispatch to ELK stack every 5 minutes
-          echo "*/5 * * * * root /celery_dump_events.sh" >> /etc/crontab
+          # echo "*/5 * * * * root /celery_dump_events.sh" >> /etc/crontab
           # start cron
           cron
     - script:
