@@ -202,7 +202,8 @@ def enable_all_pairs():
 def enable_prod_pairs():
     pairs = Pair.objects.filter(
         disabled=True,
-        is_crypto=True,
+        base__is_crypto=True,
+        quote__is_crypto=True,
         test_mode=False
     )
     for pair in pairs:

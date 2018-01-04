@@ -158,3 +158,4 @@ def get_validator(code):
         return validate_xrb
 
     return validate_non_address
+

@@ -638,7 +638,7 @@ class EthashRpcApiClient(BaseRpcClient):
 
     def get_total_gas_price(self, is_token):
         gas_price = settings.RPC_GAS_PRICE
-        gas =  settings.RPC_GAS_LIMIT_TOKEN if is_token else settings.RPC_GAS_LIMIT_ETH  # noqa
+        gas = settings.RPC_GAS_LIMIT_TOKEN if is_token else settings.RPC_GAS_LIMIT_ETH  # noqa
         return Web3.fromWei(gas_price * gas, 'ether')
 
     def check_card_balance(self, card_pk, **kwargs):
@@ -727,4 +727,3 @@ class EthashRpcApiClient(BaseRpcClient):
         c = res['currentBlock']
         h = res['highestBlock']
         return res, h - c, c / h
- 
