@@ -45,9 +45,10 @@ class UserCreationTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
             profile = Profile(user=user)
             profile.save()
             self._create_an_order_for_every_crypto_currency_card(user)
-            user_cards_len = len(user.addressreserve_set.all())
-            len_crypto_curr = len(
-                Currency.objects.filter(
-                    is_crypto=True, disabled=False).exclude(code__in=[
-                        'RNS', 'GNT', 'OMG', 'QTM']))
+            reserve_set = user.addressreserve_set.all()
+            user_cards_len = len(reserve_set)
+            crypto_curr = Currency.objects.filter(
+                is_crypto=True, disabled=False).exclude(
+                code__in=['RNS', 'GNT', 'OMG', 'QTM'])
+            len_crypto_curr = len(crypto_curr)
             self.assertEqual(user_cards_len, len_crypto_curr)

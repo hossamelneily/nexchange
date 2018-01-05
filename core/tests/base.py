@@ -271,8 +271,10 @@ class UserBaseTestCase(TestCase):
     @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
     @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
-    def _create_an_order_for_every_crypto_currency_card(self, user,
+    @patch('core.models.Currency.is_quote_of_enabled_pair')
+    def _create_an_order_for_every_crypto_currency_card(self, user, is_quote,
                                                         amount_quote=None):
+        is_quote.return_value = True
         crypto_currencies = Currency.objects.filter(is_crypto=True).exclude(
             code='RNS')
         crypto_codes = [curr.code for curr in crypto_currencies]

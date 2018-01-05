@@ -76,9 +76,11 @@ class Blake2RawE2ETestCase(TransactionImportBaseTestCase,
     @patch.dict(os.environ, {'RPC_RPC8_USER': RPC8_USER})
     @patch.dict(os.environ, {'RPC_RPC8_HOST': RPC8_HOST})
     @patch.dict(os.environ, {'RPC_RPC8_PORT': RPC8_PORT})
+    @patch('core.models.Currency.is_quote_of_enabled_pair')
     @patch('accounts.tasks.monitor_wallets.app.send_task')
     @requests_mock.mock()
-    def test_pay_blake2_order(self, pair_name, send_task, mock):
+    def test_pay_blake2_order(self, pair_name, send_task, is_quote, mock):
+        is_quote.return_value = True
         amount_base = 0.5
         self._create_order(pair_name=pair_name, amount_base=amount_base)
         mock_currency = self.order.pair.quote
