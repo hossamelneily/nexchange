@@ -23,7 +23,8 @@ API for crypto currency exchange.
                 "minimal_amount": "0.01000000",
                 "is_base_of_enabled_pair": true,
                 "is_quote_of_enabled_pair": true,
-                "has_enabled_pairs": true
+                "has_enabled_pairs": true,
+                "withdrawal_fee": "0.00250000"
               },
               {
                 "code": "LTC",
@@ -33,7 +34,8 @@ API for crypto currency exchange.
                 "minimal_amount": "0.50000000",
                 "is_base_of_enabled_pair": true,
                 "is_quote_of_enabled_pair": true,
-                "has_enabled_pairs": true
+                "has_enabled_pairs": true,
+                "withdrawal_fee": "0.00010000"
               }
             ]
 
@@ -177,7 +179,10 @@ API for crypto currency exchange.
                     "address": "0xF00667496B353d77492e0f7167843d5d5802030b",
                     "currency_code": "ETH"
                   },
-                  "pair_name": "BTCETH"
+                  "pair_name": "BTCETH",
+                  "withdrawal_fee": "0.0025",
+                  "withdrawal_fee_quote": "0.03585",
+                  "user_provided_amount": "0"
                 },
                 {
                   "amount_base": "0.50000000",
@@ -213,7 +218,10 @@ API for crypto currency exchange.
                     "address": "0x408a05c9F62E8eaECd258BB27213ee6e59d2E7Ef",
                     "currency_code": "ETH"
                   },
-                  "pair_name": "BTCETH"
+                  "pair_name": "BTCETH",
+                  "withdrawal_fee": "0.0025",
+                  "withdrawal_fee_quote": "0.03585",
+                  "user_provided_amount": "0"
                 }
               ]
             }
@@ -255,7 +263,10 @@ API for crypto currency exchange.
                 "address":"LewxThDasEA2JTDVDdGMot92kG6XYNFNQN",
                 "currency_code":"LTC"
               },
-              "pair_name":"BTCLTC"
+              "pair_name":"BTCLTC",
+              "withdrawal_fee": "0.0025",
+              "withdrawal_fee_quote": "0.03585",
+              "user_provided_amount": "0"
             }
 
 
@@ -294,6 +305,9 @@ API for crypto currency exchange.
                   "unique_reference": "1CPL5",
                   "amount_quote": "48.00000000",
                   "pair": 1,
+                  "withdrawal_fee": "0.0025",
+                  "withdrawal_fee_quote": "0.03585",
+                  "user_provided_amount": "0",
                   "withdraw_address": {},
                   "created_on": "2017-08-16T10:36:02.248639Z",
                   "from_default_rule": false,
@@ -360,6 +374,9 @@ API for crypto currency exchange.
               "unique_reference": "1CPL5",
               "amount_quote": "48.00000000",
               "pair": 1,
+              "withdrawal_fee": "0.0025",
+              "withdrawal_fee_quote": "0.03585",
+              "user_provided_amount": "0",
               "withdraw_address": {},
               "created_on": "2017-08-16T10:36:02.248639Z",
               "from_default_rule": false,
@@ -431,6 +448,9 @@ API for crypto currency exchange.
               "is_default_rule": false,
               "unique_reference": "L18XD",
               "amount_quote": "0.03110000",
+              "withdrawal_fee": "0.0025",
+              "withdrawal_fee_quote": "0.03585",
+              "user_provided_amount": "0",
               "pair": {
                   "name": "LTCBTC"
                 },
@@ -517,6 +537,9 @@ API for crypto currency exchange.
                   "is_quote_of_enabled_pair": true,
                   "has_enabled_pairs": true
                 },
+                "withdrawal_fee": "0.0025",
+                "withdrawal_fee_quote": "0.03585",
+                "user_provided_amount": "0",
                 "fee_ask": 0.001,
                 "fee_bid": 0.001
               },
@@ -657,6 +680,7 @@ API for crypto currency exchange.
                 "withdraw_address": {
                     "address": "1GFB4x4Tn4jMgxnKbzWsAUmLfmpz6VNtUW"
                 }
+
             }
 
 + Response 201 (application/json)

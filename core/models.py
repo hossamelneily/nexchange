@@ -155,7 +155,9 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         models.IntegerField(blank=True, null=True)
     median_confirmation = models.IntegerField(blank=True, null=True)
     is_crypto = models.BooleanField(default=False)
-    fee_offset = models.FloatField(default=0.0)
+    withdrawal_fee = models.DecimalField(max_digits=18,
+                                         decimal_places=8,
+                                         default=0.00)
     wallet = models.CharField(null=True, max_length=10,
                               blank=True, default=None)
     algo = models.CharField(null=True, max_length=10,

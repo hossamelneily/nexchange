@@ -255,7 +255,11 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
             self.assertEqual(self.order.status, Order.PAID_UNCONFIRMED)
             self.assertAlmostEqual(
                 self.order.amount_quote, mock_amount, 7, name)
-            expected_base = money_format(amount_base * times, places=8)
+            expected_base = money_format(
+                (amount_base + self.order.withdrawal_fee) *
+                times - self.order.withdrawal_fee,
+                places=8
+            )
             self.assertAlmostEqual(
                 self.order.amount_base, expected_base, 7, name)
             self.assertFalse(self.order.expired, name)

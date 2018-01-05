@@ -18,7 +18,8 @@ BASE_FIELDS = ('amount_base', 'is_default_rule',
 READABLE_FIELDS = ('deposit_address', 'created_on', 'from_default_rule',
                    'unique_reference', 'deposit_address',
                    'payment_window', 'payment_deadline',
-                   'status_name', 'transactions', 'referral_code')
+                   'status_name', 'transactions', 'referral_code',
+                   'withdrawal_fee', 'withdrawal_fee_quote', 'user_provided_amount')
 RATE_FIELDS = ('amount_usd', 'amount_btc', 'amount_eur', 'price',
                'amount_quote_fee')
 CREATE_FIELDS = ('payment_url',)

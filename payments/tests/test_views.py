@@ -598,9 +598,10 @@ class SafeChargeTestCase(OrderBaseTestCase):
         pref = order.payment_preference
         fee = pref.payment_method.fee_deposit
         expected_ticker_amount_base = \
-            order.amount_base / (Decimal('1.0') - fee)
+            (order.amount_base + order.pair.base.withdrawal_fee)\
+            / (Decimal('1.0') - fee)
         self.assertAlmostEqual(expected_ticker_amount_base,
-                               order.ticker_amount_base, 5)
+                               order.ticker_amount_base, 4)
         self.assertEqual(order.amount_base, Decimal(amount_base))
         # quote fee
         amount_quote = order.amount_quote
@@ -618,8 +619,9 @@ class SafeChargeTestCase(OrderBaseTestCase):
         pref = order.payment_preference
         fee = pref.payment_method.fee_deposit
         expected_ticker_amount_quote = \
-            order.amount_quote * (Decimal('1.0') - fee)
+            (order.amount_quote - order.withdrawal_fee_quote) * \
+            (Decimal('1.0') - fee)
         self.assertEqual(expected_ticker_amount_quote,
                          order.ticker_amount_quote)
         self.assertEqual(order.amount_quote, Decimal(amount_quote))
-        self.assertAlmostEqual(order.amount_base, amount_base, 5)
+        self.assertAlmostEqual(order.amount_base, amount_base, 3)

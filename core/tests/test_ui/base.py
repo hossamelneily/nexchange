@@ -17,6 +17,7 @@ from core.models import AddressReserve, Currency
 from verification.models import Verification
 from django.conf import settings
 from django.contrib.auth.models import User
+from decimal import Decimal
 
 from accounts.models import SmsToken
 from unittest.mock import patch
@@ -75,6 +76,11 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         with requests_mock.mock() as mock:
             self._mock_cards_reserve(mock)
             renew_cards_reserve_invoke.apply()
+
+        crypto_currencies = Currency.objects.filter(is_crypto=True)
+        for curr in crypto_currencies:
+            curr.withdrawal_fee = Decimal('0')
+            curr.save()
 
     def tearDown(self):
         super(BaseTestUI, self).tearDown()

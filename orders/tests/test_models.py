@@ -258,8 +258,10 @@ class OrderPriceGenerationTest(OrderBaseTestCase):
         set_pref.return_value = True
         # When the client slees we buy and vice versa
         # TODO: consider different naming conventions
-        amount_btc = 2.5
-        expected = OrderBaseTestCase.PRICE_BUY_USD * amount_btc
+        amount_btc = Decimal('2.5')
+        expected = \
+            OrderBaseTestCase.PRICE_BUY_USD * \
+            (amount_btc + self.BTCRUB.base.withdrawal_fee)
         self.order = Order(
             order_type=Order.BUY,
             amount_base=amount_btc,
@@ -286,8 +288,10 @@ class OrderPriceGenerationTest(OrderBaseTestCase):
     @patch('orders.models.Order.set_payment_preference')
     def test_auto_set_amount_cash_buy_btc_with_rub(self, set_pref):
         set_pref.return_value = True
-        amount_btc = 2.5
-        expected = OrderBaseTestCase.PRICE_BUY_RUB * amount_btc
+        amount_btc = Decimal('2.5')
+        expected = \
+            OrderBaseTestCase.PRICE_BUY_RUB *\
+            (amount_btc + self.BTCRUB.base.withdrawal_fee)
         self.order = Order(
             order_type=Order.BUY,
             amount_base=amount_btc,
@@ -301,9 +305,10 @@ class OrderPriceGenerationTest(OrderBaseTestCase):
     @patch('orders.models.Order.set_payment_preference')
     def test_auto_set_amount_cash_sell_btc_for_usd(self, set_pref):
         set_pref.return_value = True
-        amount_btc = 2.5
-
-        expected = OrderBaseTestCase.PRICE_SELL_USD * amount_btc
+        amount_btc = Decimal('2.5')
+        expected = \
+            OrderBaseTestCase.PRICE_SELL_USD * \
+            (amount_btc + self.BTCRUB.base.withdrawal_fee)
 
         self.order = Order(
             order_type=Order.SELL,
@@ -336,6 +341,10 @@ class OrderPriceGenerationTest(OrderBaseTestCase):
         set_pref.return_value = True
         amount_btc = 2.5
         expected = OrderBaseTestCase.PRICE_SELL_RUB * amount_btc
+        amount_btc = Decimal('2.5')
+        expected = \
+            OrderBaseTestCase.PRICE_SELL_RUB * \
+            (amount_btc + self.BTCRUB.base.withdrawal_fee)
         self.order = Order(
             order_type=Order.SELL,
             amount_base=amount_btc,
@@ -460,8 +469,10 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
         self.assertEqual(self.order.ticker_amount_quote, ticker_amount_sell)
 
     def test_ticker_amount_equal_to_amount_quote(self):
-        self.assertEqual(self.order.amount_quote,
-                         self.order.ticker_amount_quote)
+        self.assertEqual(
+            self.order.amount_quote,
+            self.order.ticker_amount_quote + self.order.withdrawal_fee_quote
+        )
         # https://github.com/onitsoft/nexchange/pull/348 remove following line
         # after this PR merge
         self.order.status = Order.PAID
@@ -676,7 +687,9 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
         price.save()
 
         # amount_base == 1 for simplicity
-        order_data.update({'amount_base': 1.0})
+        order_data.update({
+            'amount_base': Decimal(1.0) - self.data['pair'].base.withdrawal_fee
+        })
         self.data.update(order_data)
         order = Order(**self.data)
         order.save()
@@ -917,7 +930,12 @@ class CalculateOrderTestCase(TickerBaseTestCase):
         times = Decimal('1.2')
         self.order.calculate_order(amount_quote * Decimal('1.2'))
         self.order.refresh_from_db()
-        self.assertEqual(amount_base * times, self.order.amount_base)
+        expected_base = money_format(
+            (amount_base + self.order.withdrawal_fee) *
+            times - self.order.withdrawal_fee,
+            places=8
+        )
+        self.assertEqual(expected_base, self.order.amount_base)
         self.assertAlmostEqual(
             amount_quote * times, self.order.amount_quote, 8)
         self.assertEqual(price, self.order.price)
@@ -937,7 +955,10 @@ class CalculateOrderTestCase(TickerBaseTestCase):
         self.assertEqual(latest_price, self.order.price)
         self.assertEqual(amount_quote, self.order.amount_quote)
         self.assertAlmostEqual(
-            self.order.amount_quote, self.order.amount_base * times, 8)
+            self.order.amount_quote,
+            (self.order.amount_base + self.order.pair.base.withdrawal_fee) * times,  # noqa
+            8
+        )
 
     def test_adjust_payment_window(self):
         default_window = self.order.payment_window

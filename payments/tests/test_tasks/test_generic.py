@@ -160,7 +160,7 @@ class AdvCashGenericTaskTestCase(BaseAdvCashAPIClientTestCase):
     @data_provider(lambda: (
         ('wrong currency', {'currency': 'USD'}),
         ('wrong reference', {'unique_ref': 'bad_id', 'comment': 'bad_id',
-                             'amount': '501.00'}),
+                             'amount': '502.00'}),
         ('wrong amount', {'amount': '0.00001'}),
     ))
     @patch('payments.api_clients.adv_cash.AdvCashAPIClient.history')

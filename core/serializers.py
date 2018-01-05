@@ -12,7 +12,8 @@ class CurrencySerializer(serializers.ModelSerializer):
                   'has_enabled_pairs',
                   'is_base_of_enabled_pair_for_test',
                   'is_quote_of_enabled_pair_for_test',
-                  'has_enabled_pairs_for_test')
+                  'has_enabled_pairs_for_test',
+                  'withdrawal_fee')
 
 
 class CurrencyNameSerializer(serializers.ModelSerializer):

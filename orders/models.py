@@ -330,6 +330,17 @@ class Order(TimeStampedModel, SoftDeletableModel,
                                                self.pair.base,
                                                dynamic=self.dynamic_decimal_places)  # noqa
 
+    @property
+    def withdrawal_fee(self):
+        return self.pair.base.withdrawal_fee
+
+    @property
+    def withdrawal_fee_quote(self):
+        if self.order_type == self.BUY:
+            return self.pair.base.withdrawal_fee * self.price.ticker.ask
+        if self.order_type == self.SELL:
+            return self.pair.base.withdrawal_fee * self.price.ticker.bid
+
     def recommended_decimal_places(self, amount, currency, dynamic=False):
         decimal_places = 2
         if currency.is_crypto:
@@ -342,8 +353,11 @@ class Order(TimeStampedModel, SoftDeletableModel,
         return decimal_places
 
     def add_payment_fee_to_amount_base(self, amount_base):
-        if not self.payment_preference or self.exchange:
+        amount_base -= self.withdrawal_fee
+
+        if not self.payment_preference:
             return amount_base
+
         base = Decimal('1.0')
         method = self.payment_preference.payment_method
         fee = method.fee_deposit
@@ -351,8 +365,11 @@ class Order(TimeStampedModel, SoftDeletableModel,
         return amount_base
 
     def add_payment_fee_to_amount_quote(self, amount_quote):
-        if not self.payment_preference or self.exchange:
+        amount_quote += self.withdrawal_fee_quote
+
+        if not self.payment_preference:
             return amount_quote
+
         base = Decimal('1.0')
         fee = Decimal('0.0')
         method = self.payment_preference.payment_method
