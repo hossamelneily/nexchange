@@ -7,6 +7,8 @@ from datetime import datetime
 from time import time, sleep
 from functools import wraps
 from core.models import Pair
+from django.db.models import Q
+
 
 def retry(ExceptionToCheck, tries=4, delay=3, backoff=2, logger=None):
     """Retry calling the decorated function using an exponential backoff.
@@ -191,7 +193,7 @@ def read_fixture(path):
 
 
 def enable_all_pairs():
-    pairs = Pair.objects.filter(disabled=True)
+    pairs = Pair.objects.filter(Q(disabled=True) | Q(test_mode=True))
     for pair in pairs:
         pair.disabled = False
         pair.test_mode = False

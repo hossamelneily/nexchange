@@ -69,6 +69,7 @@ class UserBaseTestCase(TestCase):
         super(UserBaseTestCase, cls).tearDownClass()
 
     def setUp(self):
+        enable_all_pairs()
         self.logout_url = reverse('accounts.logout')
         self.username = '+491628290463'
         self.password = '123Mudar'
@@ -316,6 +317,7 @@ class OrderBaseTestCase(UserBaseTestCase):
 
     def setUp(self):
         super(OrderBaseTestCase, self).setUp()
+        enable_all_pairs()
         self.patcher_twilio_send_sms = patch(
             'accounts.api_clients.auth_messages._send_sms')
         self.patcher_twilio_send_sms2 = patch(
@@ -336,7 +338,6 @@ class OrderBaseTestCase(UserBaseTestCase):
         )
         self._reserve_txn_uphold = self.patcher_uphold_reserve_txn.start()
         self._reserve_txn_uphold.return_value = {'status': 'completed'}
-        enable_all_pairs()
         self.ethash_client = EthashRpcApiClient()
 
     def tearDown(self):
@@ -570,7 +571,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.uphold_import_transactions_empty = None
 
     def setUp(self):
-        enable_all_pairs
+        enable_all_pairs()
         super(TransactionImportBaseTestCase, self).setUp()
 
         self.main_pref = self.okpay_pref = PaymentPreference.objects.get(
