@@ -32,7 +32,8 @@ class PairSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Pair
-        fields = ('name', 'base', 'quote', 'fee_ask', 'fee_bid',)
+        fields = ('name', 'base', 'quote', 'fee_ask', 'fee_bid', 'disabled',
+                  'test_mode')
 
 
 class NestedPairSerializer(serializers.ModelSerializer):

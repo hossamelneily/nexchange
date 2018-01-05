@@ -336,7 +336,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         )
         self._reserve_txn_uphold = self.patcher_uphold_reserve_txn.start()
         self._reserve_txn_uphold.return_value = {'status': 'completed'}
-        enable_all_pairs
+        enable_all_pairs()
         self.ethash_client = EthashRpcApiClient()
 
     def tearDown(self):
