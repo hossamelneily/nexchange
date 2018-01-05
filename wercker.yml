@@ -447,10 +447,10 @@ build:
           #
 
           # enable pairs
-          echo "from core.tests.utils import enable_prod_pairs; enable_prod_pairs()" | python manage.py shell
+          # echo "from core.tests.utils import enable_prod_pairs; enable_prod_pairs()" | python manage.py shell
           #
           # Start Cron Process
-          cron
+          # cron
           # Fix orders and transactions
           python manage.py migrate_order_statuses
           python manage.py fix_replay_transactions
@@ -487,11 +487,11 @@ build:
     - script:
         name: Add cron jobs
         code: |
-          chmod +x /celery_dump_events.sh
+          # chmod +x /celery_dump_events.sh
           # monitor celery events and dispatch to ELK stack every 5 minutes
           # echo "*/5 * * * * root /celery_dump_events.sh" >> /etc/crontab
           # start cron
-          cron
+          # cron
     - script:
         name: echo python information
         code: |
