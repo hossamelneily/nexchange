@@ -66,3 +66,42 @@ def send_money(order_pk):
     else:
         status = True
     return status
+
+
+def release_order(o1):
+    from decimal import Decimal
+    from core.models import Transaction
+    from nexchange.api_clients.rpc import ScryptRpcApiClient
+
+    o1.refresh_from_db()
+    if o1.status >= o1.RELEASED:
+        return
+
+    api = ScryptRpcApiClient()
+
+    if o1.pair.base.code == 'BTC':
+      o1.amount_base -= Decimal(0.005)
+
+    txid, b = api.release_coins(o1.pair.base, o1.withdraw_address, o1.amount_base)
+    o1.status = o1.RELEASED
+    o1.save()
+    tx, created = Transaction.objects.get_or_create(
+        order=o1,
+        type='W',
+        address_to=o1.withdraw_address,
+        amount=o1.amount_base
+    )
+
+    tx.tx_id = txid
+    tx.save()
+    o1.refresh_from_db()
+    tx.refresh_from_db()
+    print(o1)
+    print(tx)
+    print(tx.tx_id)
+    return o1, tx
+
+
+def refresh(idx, status):
+    stuck = Order.objects.filter(status=status)
+    return stuck[idx]

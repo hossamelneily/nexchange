@@ -206,7 +206,6 @@ def enable_prod_pairs():
         disabled=True,
         base__is_crypto=True,
         quote__is_crypto=True,
-        test_mode=False
     )
     for pair in pairs:
         pair.disabled = False
