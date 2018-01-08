@@ -463,7 +463,7 @@ class EthashRpcApiClient(BaseRpcClient):
         to = tx['to']
         value = tx['value']
         try:
-            _address = self.get_address({'address': to})
+            _address = self.get_address({'address': to.lower()})
         except Address.DoesNotExist:
             _address = None
             self.logger.warning(
@@ -519,7 +519,6 @@ class EthashRpcApiClient(BaseRpcClient):
         currency = Currency.objects.get(
             code=self.related_coins[self.related_nodes.index(node)]
         )
-        currency_code = currency.code
         accounts = accounts if accounts else self.get_accounts(node)
         if end_block_number is None:
             end_block_number = self._get_current_block(node)
@@ -552,6 +551,7 @@ class EthashRpcApiClient(BaseRpcClient):
                 else:
                     value = main_value
                     to = main_to
+                    currency_code = currency.code
                 if not currency_code:
                     continue
                 if all([to not in accounts]):
