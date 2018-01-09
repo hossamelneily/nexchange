@@ -142,7 +142,7 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
                     Currency.objects.get(code='ETH'),
                     card.address,
                     Decimal(
-                        str(settings.RPC_GAS_LIMIT_ETH * settings.RPC_GAS_PRICE / (10**18))  # noqa
+                        str(settings.RPC_GAS_LIMIT_TOKEN * settings.RPC_GAS_PRICE / (10**18))  # noqa
                     )
                 )
             else:

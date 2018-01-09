@@ -554,7 +554,7 @@ class EthashRpcApiClient(BaseRpcClient):
                     currency_code = currency.code
                 if not currency_code:
                     continue
-                if all([to not in accounts]):
+                if all([to.lower() not in [acc.lower() for acc in accounts]]):
                     continue
                 res.append({
                     'data': tx_data,
@@ -587,7 +587,7 @@ class EthashRpcApiClient(BaseRpcClient):
             data = self.get_data_hash('transfer(address,uint256)',
                                       *[address_to, hex(value)])
             tx = {
-                '_from': address_from,
+                'from': address_from,
                 'to': currency.contract_address,
                 'value': 0,
                 'data': data,
@@ -597,7 +597,7 @@ class EthashRpcApiClient(BaseRpcClient):
         else:
             value = Web3.toWei(amount, 'ether')
             tx = {
-                '_from': address_from,
+                'from': address_from,
                 'to': address_to,
                 'value': value,
                 'gasPrice': settings.RPC_GAS_PRICE,
@@ -654,7 +654,7 @@ class EthashRpcApiClient(BaseRpcClient):
         main_currency = Currency.objects.get(
             code=self.related_coins[self.related_nodes.index(node)]
         )
-        amount = self.get_total_gas_price(main_currency.is_token)
+        amount = self.get_total_gas_price(card.currency.is_token)
         return self.release_coins(main_currency, address, amount)
 
     def resend_funds_to_main_card(self, address, currency):
