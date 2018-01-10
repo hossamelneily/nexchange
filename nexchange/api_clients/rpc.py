@@ -545,9 +545,14 @@ class EthashRpcApiClient(BaseRpcClient):
                     currency_code = _currency.code if _currency else ''
                     input = tx_data.get('input')
                     decoded_input = self.decode_transaction_input(input)
-                    if decoded_input[0] in self.ERC20_TRANSFER_FINCTIONS:
-                        to = self._strip_address_padding(decoded_input[1][0])
-                        value = int(decoded_input[1][1], 16)
+                    try:
+                        if decoded_input[0] in self.ERC20_TRANSFER_FINCTIONS:
+                            to = self._strip_address_padding(
+                                decoded_input[1][0]
+                            )
+                            value = int(decoded_input[1][1], 16)
+                    except IndexError:
+                        continue
                 else:
                     value = main_value
                     to = main_to
