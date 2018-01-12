@@ -8,8 +8,8 @@
     "reserve": 1,
     "wallet": "api3",
     "trading_allowed": true,
-    "required_reserve": "100000.0",
-    "minimal_reserve": "5000.0"
+    "required_reserve": "10000.0",
+    "minimal_reserve": "500.0"
   }
 },
 {
@@ -22,8 +22,8 @@
     "wallet": "rpc3",
     "trading_allowed": false,
     "is_main_account": true,
-    "required_reserve": "100000.0",
-    "minimal_reserve": "5000.0"
+    "required_reserve": "10000.0",
+    "minimal_reserve": "500.0"
   }
 },
 {

@@ -2,7 +2,7 @@ from random import randint
 from decimal import Decimal
 import requests_mock
 
-from core.models import Pair
+from core.models import Pair, Currency
 from orders.models import Order
 from referrals.models import ReferralCode, Referral, Program
 from core.tests.base import OrderBaseTestCase
@@ -31,6 +31,10 @@ class TestReferralModel(TickerBaseTestCase):
 
     def setUp(self):
         super(TestReferralModel, self).setUp()
+        currencies = Currency.objects.filter(is_crypto=False)
+        for curr in currencies:
+            curr.maximal_amount = 50000000
+            curr.save()
         program = Program.objects.get(pk=1)
         code = ReferralCode(user=self.user, program=program)
         code.save()

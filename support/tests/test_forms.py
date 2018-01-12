@@ -7,6 +7,7 @@ from core.tests.base import OrderBaseTestCase, UserBaseTestCase
 from orders.models import Order
 from support.forms import SupportForm
 from unittest import skip
+from core.models import Currency
 
 
 class SupportTestForm(TestCase):
@@ -74,6 +75,10 @@ class SupportTestModelUserOrder(OrderBaseTestCase):
 
     def setUp(self):
         super(SupportTestModelUserOrder, self).setUp()
+        currencies = Currency.objects.filter(is_crypto=False)
+        for curr in currencies:
+            curr.maximal_amount = 50000000
+            curr.save()
         self.factory = RequestFactory()
 
         pair = self.BTCRUB

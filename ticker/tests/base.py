@@ -87,14 +87,21 @@ class TickerBaseTestCase(OrderBaseTestCase):
                 url,
                 text=self.cryptopia_ticker_resp.format(pair_name))
         bittrex_pairs = Pair.objects.filter(
-            name__in=['XVGBTC', 'DOGEBTC']
+            name__in=['XVGBTC', 'DOGEBTC', 'ETHBTC', 'LTCBTC']
         )
         for pair in bittrex_pairs:
+            if pair.base.code in ['ETH', 'LTC']:
+                ask = 0.099
+                bid = 0.098
+            else:
+                ask = 0.00000099
+                bid = 0.00000098
             pair_name = '{}-{}'.format(pair.quote.code, pair.base.code)
             url = BittrexAdapter.BASE_URL + 'getticker/?market={}'.format(
                 pair_name)
-            resp_text = '{"success":true,"message":"","result":{"Bid":' \
-                        '0.00000098,"Ask":0.00000099,"Last":0.00000098}}'
+            resp_text = '{{"success":true,"message":"","result":{{"Bid":' \
+                        '{bid},"Ask":{ask},"Last":{ask}}}}}'.format(ask=ask,
+                                                                    bid=bid)
             mock.get(
                 url,
                 text=resp_text

@@ -76,6 +76,12 @@ class OrderValidatePaymentTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(OrderValidatePaymentTestCase, self).setUp()
+
+        currencies = Currency.objects.filter(is_crypto=False)
+        for curr in currencies:
+            curr.maximal_amount = 50000000
+            curr.save()
+
         self.data = {
             'amount_base': Decimal('1.0'),
             'pair': self.BTCRUB,
@@ -249,6 +255,13 @@ class OrderValidatePaymentTestCase(OrderBaseTestCase):
 
 class OrderPriceGenerationTest(OrderBaseTestCase):
 
+    def setUp(self):
+        super(OrderPriceGenerationTest, self).setUp()
+        currencies = Currency.objects.filter(is_crypto=False)
+        for curr in currencies:
+            curr.maximal_amount = 50000000
+            curr.save()
+
     @classmethod
     def setUpClass(cls):
         super(OrderPriceGenerationTest, cls).setUpClass()
@@ -359,6 +372,12 @@ class OrderUniqueReferenceTestsCase(OrderBaseTestCase):
 
     def setUp(self):
         super(OrderUniqueReferenceTestsCase, self).setUp()
+
+        currencies = Currency.objects.filter(is_crypto=False)
+        for curr in currencies:
+            curr.maximal_amount = 50000000
+            curr.save()
+
         self.data = {
             'amount_base': Decimal('1.0'),
             'pair': self.BTCRUB,
@@ -398,6 +417,12 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(OrderPropertiesTestCase, self).setUp()
+
+        currencies = Currency.objects.filter(is_crypto=False)
+        for curr in currencies:
+            curr.maximal_amount = 50000000
+            curr.save()
+
         payment_pref = PaymentPreference.objects.get(
             identifier='okpay@nexchange.co.uk'
         )

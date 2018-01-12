@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.test import Client
 from unittest.mock import patch
 
-from core.models import Address, Transaction
+from core.models import Address, Transaction, Currency
 from core.tests.base import OrderBaseTestCase, UserBaseTestCase
 from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT
 from core.tests.utils import data_provider
@@ -157,6 +157,10 @@ class PaymentReleaseTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(PaymentReleaseTestCase, self).setUp()
+        currencies = Currency.objects.filter(is_crypto=False)
+        for curr in currencies:
+            curr.maximal_amount = 50000000
+            curr.save()
         self.method_data = {
             "is_internal": 1,
             'name': 'Robokassa'
@@ -311,6 +315,11 @@ class SafeChargeTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(SafeChargeTestCase, self).setUp()
+        currencies = Currency.objects.filter(is_crypto=False)
+        for curr in currencies:
+            curr.maximal_amount = 50000000
+            curr.save()
+
         self.pref = PaymentPreference.objects.get(
             payment_method__name='Safe Charge'
         )

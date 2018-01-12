@@ -7,7 +7,7 @@
       "name": "USD",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00",
-      "maximal_amount": "5000"
+      "maximal_amount": "500"
     }
   },
   {
@@ -18,7 +18,7 @@
       "name": "RUB",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00",
-      "maximal_amount": "500000"
+      "maximal_amount": "5000"
     }
   },
   {
@@ -29,7 +29,7 @@
       "name": "EUR",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00",
-      "maximal_amount": "5000"
+      "maximal_amount": "500"
     }
   },
   {

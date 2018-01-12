@@ -3,6 +3,7 @@ from decimal import Decimal
 from core.tests.base import OrderBaseTestCase
 from orders.models import Order
 from support.models import Support
+from core.models import Currency
 
 
 class SupportTestModelUser(OrderBaseTestCase):
@@ -10,6 +11,10 @@ class SupportTestModelUser(OrderBaseTestCase):
     def setUp(self):
 
         super(SupportTestModelUser, self).setUp()
+        currencies = Currency.objects.filter(is_crypto=False)
+        for curr in currencies:
+            curr.maximal_amount = 50000000
+            curr.save()
         pair = self.BTCRUB
 
         self.data = {

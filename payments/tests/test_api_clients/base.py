@@ -14,7 +14,7 @@ class BaseCardPmtAPITestCase(OrderBaseTestCase):
     def setUp(self):
         super(BaseCardPmtAPITestCase, self).setUp()
         self.order_data = {
-            'amount_base': 1.00,
+            'amount_base': 0.1,
             'pair': self.BTCUSD,
             'user': self.user,
         }
@@ -69,7 +69,7 @@ class BaseSofortAPITestCase(OrderBaseTestCase):
             payment_method__name__icontains='sofort'
         ).first()
         self.order_data = {
-            'amount_base': 1.00,
+            'amount_base': 0.1,
             'pair': self.BTCEUR,
             'user': self.user,
             'payment_preference': self.sofort_pref,

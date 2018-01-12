@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.utils import timezone
 
 from accounts.models import Profile
-from core.models import Address
+from core.models import Address, Currency
 from core.tests.base import OrderBaseTestCase
 from ticker.tests.base import TickerBaseTestCase
 from orders.models import Order
@@ -25,6 +25,10 @@ class OrderSetAsPaidTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(OrderSetAsPaidTestCase, self).setUp()
+        currencies = Currency.objects.filter(is_crypto=False)
+        for curr in currencies:
+            curr.maximal_amount = 50000000
+            curr.save()
         self.data = {
             'amount_quote': Decimal(30674.85),
             'amount_base': Decimal(1.00),
@@ -119,6 +123,13 @@ class OrderSetAsPaidTestCase(OrderBaseTestCase):
 
 
 class OrderPayUntilTestCase(OrderBaseTestCase):
+
+    def setUp(self):
+        super(OrderPayUntilTestCase, self).setUp()
+        currencies = Currency.objects.filter(is_crypto=False)
+        for curr in currencies:
+            curr.maximal_amount = 50000000
+            curr.save()
 
     def test_pay_until_message_is_in_context_and_is_rendered(self):
         params = {
@@ -222,6 +233,10 @@ class UpdateWithdrawAddressTestCase(TickerBaseTestCase):
 
     def setUp(self):
         super(UpdateWithdrawAddressTestCase, self).setUp()
+        currencies = Currency.objects.filter(is_crypto=False)
+        for curr in currencies:
+            curr.maximal_amount = 50000000
+            curr.save()
 
         PaymentMethod.objects.all().delete()
 

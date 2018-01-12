@@ -94,8 +94,11 @@ class VolumeViewSet(ReadOnlyCacheResponseAndETAGMixin, DateFilterViewSet):
         pairs = Pair.objects.filter(disabled=False)
         total_base = total_quote = 0
         for pair in pairs:
-            rate_base = self.get_rate(pair.base)
-            rate_quote = self.get_rate(pair.quote)
+            try:
+                rate_base = self.get_rate(pair.base)
+                rate_quote = self.get_rate(pair.quote)
+            except Price.DoesNotExist:
+                continue
             last_ask = Price.objects.filter(
                 pair=pair, market__is_main_market=True
             ).latest('id').rate

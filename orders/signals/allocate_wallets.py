@@ -20,7 +20,7 @@ def allocate_wallets(sender, instance=None, created=False, **kwargs):
     if not all([
         currency.is_crypto,
         not currency.disabled,
-        currency.is_quote_of_enabled_pair,
+        currency.is_quote_of_enabled_pair_for_test,
     ]):
         # FIXME: Here we can add some message to our customer. Uphold is doing
         # that. It is something like - 'Sorry, our payment provider

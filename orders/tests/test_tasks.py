@@ -54,6 +54,10 @@ class BaseOrderReleaseTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(BaseOrderReleaseTestCase, self).setUp()
+        currencies = Currency.objects.filter(is_crypto=False)
+        for curr in currencies:
+            curr.maximal_amount = 50000000
+            curr.save()
         self.payments = []
         self.orders = []
         self.addr = Address(address='12345', user=self.user)

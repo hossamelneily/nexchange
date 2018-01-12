@@ -72,7 +72,7 @@ def get_ticker_crypto_crypto(**kwargs):
         logger.warning('pair_pk is not defined in kwargs')
 
 
-@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT * 2)
 def get_all_tickers():
     logger = get_nexchange_logger('Get Tickers')
     pairs = Pair.objects.filter(disable_ticker=False)

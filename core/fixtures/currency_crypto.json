@@ -5,7 +5,7 @@
     "fields": {
       "code": "BTC",
       "name": "bitcoin",
-      "ticker": "kraken",
+      "ticker": "bittrex",
       "wallet": "rpc5",
       "algo": "sha256",
       "withdrawal_fee": "0.002",
@@ -25,7 +25,7 @@
     "fields": {
       "code": "LTC",
       "name": "litecoin",
-      "ticker": "kraken",
+      "ticker": "bittrex",
       "wallet": "rpc6",
       "algo": "scrypt",
       "withdrawal_fee": "0.01",
@@ -44,7 +44,7 @@
     "fields": {
       "code": "ETH",
       "name": "ethereum",
-      "ticker": "kraken",
+      "ticker": "bittrex",
       "wallet": "rpc7",
       "algo": "ethash",
       "withdrawal_fee": "0.001",
