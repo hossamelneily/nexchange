@@ -176,6 +176,7 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     contract_address = models.CharField(max_length=42, unique=True, null=True,
                                         blank=True)
     decimals = models.IntegerField(default=8)
+    execute_cover = models.BooleanField(default=False)
 
     def natural_key(self):
         return self.code

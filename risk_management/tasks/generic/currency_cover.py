@@ -41,7 +41,8 @@ class CurrencyCover(BaseAccountManagerTask):
         cover.rate = account_dict.get('rate')
         cover.amount_quote = cover.amount_base * cover.rate
         cover.save()
-        cover.pre_execute()
-        api = self.get_api_client(cover.account.wallet)
-        cover.execute(api)
+        if currency.execute_cover:
+            cover.pre_execute()
+            api = self.get_api_client(cover.account.wallet)
+            cover.execute(api)
         return cover

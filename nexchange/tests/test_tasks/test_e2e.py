@@ -1135,6 +1135,9 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
 
         ask = bid = Decimal('0.0012')
         pair_trade = Pair.objects.get(name='XVGBTC')
+        xvg = pair_trade.base
+        xvg.execute_cover = True
+        xvg.save()
         withdraw_tx_id = '123'
         buy_tx_id = self.generate_txn_id()
         sell_tx_id = self.generate_txn_id()
