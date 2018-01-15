@@ -13,6 +13,7 @@ class CurrencyViewSet(viewsets.ModelViewSet):
     serializer_class = CurrencySerializer
     queryset = Currency.objects.all()
     lookup_field = 'code'
+    http_method_names = ['get']
 
     @method_decorator(cache_page(settings.CURRENCY_CACHE_LIFETIME))
     def dispatch(self, *args, **kwargs):
