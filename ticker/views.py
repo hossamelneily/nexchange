@@ -15,6 +15,7 @@ class LastPricesViewSet(ReadOnlyCacheResponseAndETAGMixin,
                         DateFilterViewSet):
 
     model_class = Price
+    http_method_names = ['get']
 
     @method_decorator(cache_page(settings.PRICE_CACHE_LIFETIME))
     def dispatch(self, *args, **kwargs):
@@ -35,6 +36,7 @@ class PriceHistoryViewSet(ReadOnlyETAGMixin,
                           DataPointsFilterViewSet):
     serializer_class = PriceSerializer
     model_class = Price
+    http_method_names = ['get']
 
     def get_queryset(self, filters=None, **kwargs):
         self.queryset = Price.objects

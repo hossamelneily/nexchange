@@ -25,6 +25,7 @@ class PairViewSet(viewsets.ModelViewSet):
     serializer_class = PairSerializer
     queryset = Pair.objects.all()
     lookup_field = 'name'
+    http_method_names = ['get']
 
     @method_decorator(cache_page(settings.PAIR_CACHE_LIFETIME))
     def dispatch(self, *args, **kwargs):
