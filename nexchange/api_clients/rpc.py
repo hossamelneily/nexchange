@@ -410,6 +410,7 @@ class EthashRpcApiClient(BaseRpcClient):
         self.related_nodes = ['rpc7']
         self.related_coins = ['ETH']
         self.encrypt = None
+        self.account = None
 
     def get_fn(self, api, endpoint):
         self.encrypt = True if endpoint in self.ENCRYPTED_METHODS else False
@@ -420,16 +421,19 @@ class EthashRpcApiClient(BaseRpcClient):
     def lock(self, api, **kwargs):
         if not self.encrypt:
             return
-        account = self.coin_card_mapper(kwargs.get('node'))
+        if not self.account:
+            self.account = self.coin_card_mapper(kwargs.get('node'))
         encrypt_fn = self.get_fn(api, self.LOCK_WALLET)
-        return encrypt_fn(*[account])
+        return encrypt_fn(*[self.account])
 
     def unlock(self, api, pass_phrase, **kwargs):
         if not self.encrypt:
             return
-        account = self.coin_card_mapper(kwargs.get('node'))
+        if not self.account:
+            self.account = self.coin_card_mapper(kwargs.get('node'))
         decrypt_fn = self.get_fn(api, self.UNLOCK_WALLET)
-        return decrypt_fn(*[account, pass_phrase, settings.WALLET_TIMEOUT])
+        return decrypt_fn(*[self.account, pass_phrase,
+                            settings.WALLET_TIMEOUT])
 
     def get_api(self, node):
         self.rpc_endpoint, kwargs = RpcMapper.get_rpc_addr(node)
@@ -615,6 +619,7 @@ class EthashRpcApiClient(BaseRpcClient):
 
     def release_coins(self, currency, address, amount, **kwargs):
         tx = self._form_transaction(currency, address, amount, **kwargs)
+        self.account = tx['from']
         node = currency.wallet
 
         tx_id = self.call_api(node, 'eth_sendTransaction',
@@ -666,7 +671,7 @@ class EthashRpcApiClient(BaseRpcClient):
         if not isinstance(currency, Currency):
             currency = Currency.objects.get(code=currency)
         node = currency.wallet
-        total_gas = self.get_total_gas_price(False)
+        total_gas = self.get_total_gas_price(currency.is_token)
         main_address = self.coin_card_mapper(node)
         balance = self.get_balance(currency, account=address)
         if currency.is_token:
@@ -709,7 +714,7 @@ class EthashRpcApiClient(BaseRpcClient):
             )
             params.append(param)
         return method, params
-            
+
     def backup_wallet(self, currency):
         pass
 
