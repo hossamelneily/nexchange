@@ -404,7 +404,6 @@ class OrderBaseTestCase(UserBaseTestCase):
 
         cls.price_eur = Price(pair=cls.BTCEUR, ticker=ticker_eur)
         cls.price_eur.save()
-        cls._create_bdg_tickers()
 
     # FIXME: remove this after mechanism for BDG tickers created
     @classmethod

@@ -4,7 +4,7 @@ from core.models import Pair
 from ticker.models import Price
 from ticker.tasks.generic.base import BaseTicker,\
     KrakenBaseTicker, CryptopiaBaseTicker, CoinexchangeBaseTicker,\
-    BittrexBaseTicker, BitgrailBaseTicker
+    BittrexBaseTicker, BitgrailBaseTicker, IdexBaseTicker
 
 
 class CryptoCryptoTicker(BaseTicker):
@@ -13,25 +13,53 @@ class CryptoCryptoTicker(BaseTicker):
         super(CryptoCryptoTicker, self).__init__()
         self.native_ticker = False
 
-    def get_ticker_crypto(self):
+    def _get_ticker_crypto(self, pair=None):
+        if pair is None:
+            pair = self.pair
+        base = 'ETH' if any([
+            pair.quote.ticker in ['idex'],
+            pair.base.ticker in ['idex']
+        ]) else 'BTC'
         self.native_ticker = any([
-            self.pair.base.code == 'BTC',
-            self.pair.quote.code == 'BTC'])
+            pair.base.code == base,
+            pair.quote.code == base
+        ])
 
         if not self.native_ticker:
-            available_pair = Pair.objects.get(
-                name='BTC{}'.format(self.pair.quote.code)
-            )
-            api_adapter = self.get_api_adapter(available_pair)
-            pair = api_adapter.get_quote(available_pair)
-            self.get_btc_base_multiplier()
+            if any([self.pair.base.ticker not in ['idex'],
+                    self.pair.quote.code == 'BTC']):
+                available_pair = Pair.objects.get(
+                    name='{}{}'.format(base, pair.quote.code)
+                )
+                api_adapter = self.get_api_adapter(available_pair)
+                _ticker = api_adapter.get_normalized_quote(available_pair)
+            else:
+                btceth = Pair.objects.get(name='BTCETH')
+                api_adapter = self.get_api_adapter(btceth)
+                btceth_ticker = api_adapter.get_normalized_quote(btceth)
+                eth_ask = Decimal(btceth_ticker.get('ask'))
+                eth_bid = Decimal(btceth_ticker.get('bid'))
+                btccrypto = Pair.objects.get(
+                    name='BTC{}'.format(self.pair.quote.code)
+                )
+                api_adapter = self.get_api_adapter(btccrypto)
+                btccrypto_ticker = api_adapter.get_normalized_quote(btccrypto)
+                btc_ask = Decimal(btccrypto_ticker.get('ask'))
+                btc_bid = Decimal(btccrypto_ticker.get('bid'))
+                ask = btc_ask / eth_bid
+                bid = btc_bid / eth_ask
+                _ticker = {'ask': ask, 'bid': bid}
+            self.get_base_multiplier(base=base)
         else:
-            api_adapter = self.get_api_adapter(self.pair)
-            pair = api_adapter.get_quote(self.pair)
-        ask_quote = pair['ask']
-        bid_quote = pair['bid']
-        reverse = pair.get('reverse', True)
-        ticker = self.create_ticker(ask_quote, bid_quote, reverse=reverse)
+            api_adapter = self.get_api_adapter(pair)
+            _ticker = api_adapter.get_normalized_quote(pair)
+        return _ticker
+
+    def get_ticker_crypto(self):
+        _ticker = self._get_ticker_crypto()
+        ask_quote = _ticker['ask']
+        bid_quote = _ticker['bid']
+        ticker = self.create_ticker(ask_quote, bid_quote, reverse=False)
         price = Price(pair=self.pair, ticker=ticker, market=self.market)
         price.save()
         return price
@@ -68,4 +96,8 @@ class CryptoCryptoBittrexTicker(CryptoCryptoTicker, BittrexBaseTicker):
 
 
 class CryptoCryptoBitgrailTicker(CryptoCryptoTicker, BitgrailBaseTicker):
+    pass
+
+
+class CryptoCryptoIdexTicker(CryptoCryptoTicker, IdexBaseTicker):
     pass

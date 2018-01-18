@@ -4,7 +4,7 @@ from core.tests.base import OrderBaseTestCase
 from ticker.tasks.generic.base import BaseTicker
 from ticker.task_summary import get_all_tickers
 from ticker.adapters import KrakenAdapter, CryptopiaAdapter, \
-    CoinexchangeAdapter, BittrexAdapter, BitgrailAdapter
+    CoinexchangeAdapter, BittrexAdapter, BitgrailAdapter, IdexAdapter
 from ticker.tests.fixtures.coinexchange.markets import \
     response as coinex_markets_resp
 from ticker.tests.fixtures.coinexchange.market_summary import \
@@ -121,6 +121,8 @@ class TickerBaseTestCase(OrderBaseTestCase):
                  text=self.localbtc_sell_resp)
         mock.get(BaseTicker.LOCALBTC_URL.format(BaseTicker.ACTION_BUY),
                  text=self.localbtc_sell_resp)
+        mock.post(IdexAdapter.BASE_URL + '/returnTicker',
+                  text='{"last": "0.000322401"}')
 
     def get_tickers(self, mock):
         self.mock_resources(mock)

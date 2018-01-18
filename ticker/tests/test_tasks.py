@@ -26,7 +26,7 @@ class TestTickerTask(TickerBaseTestCase):
     def test_create_enabled_ticker(self, m):
         # FIXME: remove after tokens tickers created
         enabled_pairs = Pair.objects.filter(disable_ticker=False)
-        pending_tokens = ['BDG']
+        pending_tokens = []
         enabled_pairs = enabled_pairs.exclude(
             Q(quote__code__in=pending_tokens) | Q(base__code__in=pending_tokens))  # noqa)
         enabled_pairs_count = len(enabled_pairs)

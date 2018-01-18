@@ -505,7 +505,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "BTCBDG",
-    "disable_ticker": true,
+    "disable_ticker": false,
     "disabled": false,
     "test_mode": true
   }
@@ -521,7 +521,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "BDGBTC",
-    "disable_ticker": true,
+    "disable_ticker": false,
     "disabled": false,
     "test_mode": true
   }
@@ -537,7 +537,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "LTCBDG",
-    "disable_ticker": true,
+    "disable_ticker": false,
     "disabled": false,
     "test_mode": true
   }
@@ -553,7 +553,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "BDGLTC",
-    "disable_ticker": true,
+    "disable_ticker": false,
     "disabled": false,
     "test_mode": true
   }
@@ -569,7 +569,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "ETHBDG",
-    "disable_ticker": true,
+    "disable_ticker": false,
     "disabled": false,
     "test_mode": true
   }
@@ -585,7 +585,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "BDGETH",
-    "disable_ticker": true,
+    "disable_ticker": false,
     "disabled": false,
     "test_mode": true
   }
@@ -601,7 +601,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "DOGEBDG",
-    "disable_ticker": true,
+    "disable_ticker": false,
     "disabled": false,
     "test_mode": true
   }
@@ -617,7 +617,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "BDGDOGE",
-    "disable_ticker": true,
+    "disable_ticker": false,
     "disabled": false,
     "test_mode": true
   }
@@ -633,7 +633,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "XVGBDG",
-    "disable_ticker": true,
+    "disable_ticker": false,
     "disabled": false,
     "test_mode": true
   }
@@ -649,7 +649,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "BDGXVG",
-    "disable_ticker": true,
+    "disable_ticker": false,
     "disabled": false,
     "test_mode": true
   }
@@ -665,7 +665,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "BCHBDG",
-    "disable_ticker": true,
+    "disable_ticker": false,
     "disabled": false,
     "test_mode": true
   }
@@ -681,7 +681,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "BDGBCH",
-    "disable_ticker": true,
+    "disable_ticker": false,
     "disabled": false,
     "test_mode": true
   }
@@ -889,7 +889,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "BDGEOS",
-    "disable_ticker": true,
+    "disable_ticker": false,
     "disabled": false,
     "test_mode": true
   }
@@ -905,7 +905,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "EOSBDG",
-    "disable_ticker": true,
+    "disable_ticker": false,
     "disabled": false,
     "test_mode": true
   }

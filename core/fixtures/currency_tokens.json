@@ -5,7 +5,7 @@
     "fields": {
       "code": "BDG",
       "name": "BitDegree",
-      "ticker": "",
+      "ticker": "idex",
       "wallet": "rpc7",
       "algo": "ethash",
       "is_crypto": 1,

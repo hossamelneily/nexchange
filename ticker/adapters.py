@@ -1,11 +1,64 @@
 import requests
 from ticker.fixtures.available_kraken_pairs import kraken_pairs
 from django.core.exceptions import ValidationError
+from decimal import Decimal
 
 
 class BaseApiAdapter:
     def get_quote(self, crypto_pair):
         raise NotImplementedError
+
+    def normalize_quote(self, raw_ticker):
+        _ask = Decimal(raw_ticker.get('ask'))
+        _bid = Decimal(raw_ticker.get('bid'))
+        reverse = raw_ticker.get('reverse')
+        assert reverse is not None, 'No reverse parameter defined'
+        ask = Decimal('1.0') / _bid if reverse else _ask
+        bid = Decimal('1.0') / _ask if reverse else _bid
+        return {'ask': ask, 'bid': bid}
+
+    def get_normalized_quote(self, crypto_pair):
+        ticker = self.get_quote(crypto_pair)
+        return self.normalize_quote(ticker)
+
+
+class IdexAdapter(BaseApiAdapter):
+
+    PAIR_NAME_TEMPLATE = '{quote}_{base}'
+    BASE_URL = 'https://api.idex.market'
+
+    def __init__(self):
+        super(IdexAdapter, self).__init__()
+        self.reverse_pair = False
+
+    def get_quote(self, pair):
+        if all([pair.quote.code == 'ETH', pair.base.is_token]):
+            base = pair.base.code
+            quote = pair.quote.code
+            self.reverse_pair = False
+        elif all([pair.base.code == 'ETH', pair.quote.is_token]):
+            base = pair.quote.code
+            quote = pair.base.code
+            self.reverse_pair = True
+        else:
+            raise ValidationError(
+                'Ticker and reverse ticker is not available for pair '
+                '{}'.format(pair.name)
+            )
+
+        market = self.PAIR_NAME_TEMPLATE.format(
+            base=base,
+            quote=quote
+        )
+        result = requests.post(
+            self.BASE_URL + '/returnTicker', json={'market': market}
+        ).json()
+        ask = bid = result.get('last')
+        return {
+            'reverse': self.reverse_pair,
+            'ask': ask,
+            'bid': bid,
+        }
 
 
 class BitgrailAdapter(BaseApiAdapter):
@@ -260,7 +313,8 @@ class CoinexchangeAdapter(BaseApiAdapter):
             return res
         res.update({
             'ask': ask,
-            'bid': bid
+            'bid': bid,
+            'reverse': True
         })
         return res
 

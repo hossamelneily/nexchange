@@ -8,7 +8,7 @@ from ticker.tasks.generic.base import BaseTicker,\
     BittrexBaseTicker, BitgrailBaseTicker
 from django.conf import settings
 from .base import cryptopia_adapter, coinexchange_adapter, bittrex_adapter,\
-    bitgrail_adapter
+    bitgrail_adapter, idex_adapter
 
 
 requests_cache.install_cache('btc_crypto_cache',
@@ -20,7 +20,7 @@ class CryptoFiatTicker(BaseTicker):
     def get_ticker_crypto_fiat(self):
         price = self.handle()
         prices = self.convert_fiat(price)
-        self.get_btc_base_multiplier()
+        self.get_base_multiplier()
         if prices:
             ticker = self.create_ticker(
                 prices['ask'], prices['bid']
@@ -97,3 +97,9 @@ class CryptoFiatBitgrailTicker(CryptoFiatTicker, BitgrailBaseTicker):
     def __init__(self, *args, **kwargs):
         super(CryptoFiatBitgrailTicker, self).__init__(*args, **kwargs)
         self.bitcoin_api_adapter = bitgrail_adapter
+
+
+class CryptoFiatIdexTicker(CryptoFiatTicker, BitgrailBaseTicker):
+    def __init__(self, *args, **kwargs):
+        super(CryptoFiatIdexTicker, self).__init__(*args, **kwargs)
+        self.bitcoin_api_adapter = idex_adapter
