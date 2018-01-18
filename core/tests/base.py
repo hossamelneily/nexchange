@@ -405,20 +405,6 @@ class OrderBaseTestCase(UserBaseTestCase):
         cls.price_eur = Price(pair=cls.BTCEUR, ticker=ticker_eur)
         cls.price_eur.save()
 
-    # FIXME: remove this after mechanism for BDG tickers created
-    @classmethod
-    def _create_bdg_tickers(cls):
-        pairs = Pair.objects.filter(Q(quote__code='BDG') | Q(base__code='BDG'))
-        for pair in pairs:
-            ask = Decimal('11000')
-            bid = Decimal('9000')
-            if pair.quote.code == 'BTC':
-                ask, bid = Decimal('1') / bid, Decimal('1') / ask
-            ticker = Ticker(pair=pair, ask=ask, bid=bid)
-            ticker.save()
-            price = Price(pair=pair, ticker=ticker)
-            price.save()
-
     def get_uphold_tx(self, currency_code, amount, card_id):
         return {
             'id': 'txapi{}{}'.format(time(), randint(1, 999)),

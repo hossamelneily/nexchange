@@ -308,6 +308,12 @@ class Pair(TimeStampedModel):
             return True
         return False
 
+    @property
+    def contains_token(self):
+        if self.base.is_token or self.quote.is_token:
+            return True
+        return False
+
 
 class Country(models.Model):
     country = CountryField(unique=True)

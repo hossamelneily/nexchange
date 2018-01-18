@@ -171,7 +171,7 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
     def test_release_ethash_order(self, pair_name, get_balance, unlock, lock,
                                   send_tx, get_tx_eth, get_block_eth,
                                   get_tx_eth_receipt, eth_call):
-        amount_base = 10
+        amount_base = 50
         order = self._create_paid_order_api(
             pair_name, amount_base,
             '0x77454e832261aeed81422348efee52d5bd3a3684'

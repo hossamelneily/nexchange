@@ -86,12 +86,23 @@ class PairFixtureTestCase(OrderBaseTestCase):
         major_pair_fee = Decimal('0.005')  # 0.5%
         minor_pair_fee = Decimal('0.01')  # 1.0%
         pairs = [p for p in Pair.objects.all() if p.is_crypto]
-        for p in pairs:
+        token_pairs = [p for p in pairs if p.contains_token]
+        non_token_pairs = [p for p in pairs if not p.contains_token]
+        for p in non_token_pairs:
             if p.name in ['BTCLTC', 'LTCBTC', 'ETHBTC', 'BTCETH', 'BCHBTC',
                           'BTCBCH']:
                 fee = major_pair_fee
             else:
                 fee = minor_pair_fee
+            self.assertEqual(p.fee_ask, fee, 'Bad fee_ask on {}'.format(p))
+            self.assertEqual(p.fee_bid, fee, 'Bad fee_bid on {}'.format(p))
+        for p in token_pairs:
+            if 'ETH' in p.name:
+                fee = minor_pair_fee
+            elif 'BTC' in p.name:
+                fee = minor_pair_fee + major_pair_fee
+            else:
+                fee = 2 * minor_pair_fee
             self.assertEqual(p.fee_ask, fee, 'Bad fee_ask on {}'.format(p))
             self.assertEqual(p.fee_bid, fee, 'Bad fee_bid on {}'.format(p))
 
