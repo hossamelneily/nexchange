@@ -16,7 +16,9 @@
       "minimal_amount": "0.004",
       "maximal_amount": "5.0",
       "created_on":"2016-05-20T17:41:28+00:00",
-      "modified_on":"2016-05-20T17:41:28+00:00"
+      "modified_on":"2016-05-20T17:41:28+00:00",
+      "unslippaged_amount": "1.0",
+      "slippage_rate": "0.00125"
     }
   },
   {
@@ -35,7 +37,9 @@
       "minimal_amount": "0.001",
       "maximal_amount": "300.0",
       "created_on":"2016-05-20T17:41:28+00:00",
-      "modified_on":"2016-05-20T17:41:28+00:00"
+      "modified_on":"2016-05-20T17:41:28+00:00",
+      "unslippaged_amount": "60.0",
+      "slippage_rate": "0.00002083"
     }
   },
   {
@@ -55,7 +59,9 @@
       "minimal_amount": "0.001",
       "maximal_amount": "100.0",
       "created_on":"2016-05-20T17:41:28+00:00",
-      "modified_on":"2016-05-20T17:41:28+00:00"
+      "modified_on":"2016-05-20T17:41:28+00:00",
+      "unslippaged_amount": "11.0",
+      "slippage_rate": "0.00011364"
     }
   },
   {
@@ -92,7 +98,9 @@
       "minimal_amount": "100",
       "maximal_amount": "5000000",
       "created_on":"2016-05-20T17:41:28+00:00",
-      "modified_on":"2016-05-20T17:41:28+00:00"
+      "modified_on":"2016-05-20T17:41:28+00:00",
+      "unslippaged_amount": "1500000.0",
+      "slippage_rate": "8.33e-10"
     }
   },
     {
@@ -111,7 +119,9 @@
       "minimal_amount": "100",
       "maximal_amount": "1200000",
       "created_on":"2016-05-20T17:41:28+00:00",
-      "modified_on":"2016-05-20T17:41:28+00:00"
+      "modified_on":"2016-05-20T17:41:28+00:00",
+      "unslippaged_amount": "130000.0",
+      "slippage_rate": "9.615e-9"
     }
   },
   {
@@ -130,7 +140,9 @@
       "minimal_amount": "0.0001",
       "maximal_amount": "15.0",
       "created_on":"2017-09-19T19:21:42+00:00",
-      "modified_on":"2017-09-19T19:21:42+00:00"
+      "modified_on":"2017-09-19T19:21:42+00:00",
+      "unslippaged_amount": "6.0",
+      "slippage_rate": "0.0002083"
     }
   },
   {
@@ -150,7 +162,9 @@
       "maximal_amount": "15.0",
       "decimals": 30,
       "created_on":"2017-09-19T19:21:42+00:00",
-      "modified_on":"2017-09-19T19:21:42+00:00"
+      "modified_on":"2017-09-19T19:21:42+00:00",
+      "unslippaged_amount": "750",
+      "slippage_rate": "0.000001667"
     }
   }
 ]

@@ -28,6 +28,13 @@ class Price(IndexTimeStampedModel):
     pair = models.ForeignKey(Pair, blank=True, null=True)
     better_adds_count = models.IntegerField(default=0)
     market = models.ForeignKey(Market, default=DEFAULT_MARKET_PK)
+    slippage = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'))
+
+    def save(self):
+        if self.pair:
+            self.slippage = self.pair.base.current_slippage
+        super(Price, self).save()
 
     @classmethod
     def _get_currency(cls, currency):
@@ -93,7 +100,7 @@ class Price(IndexTimeStampedModel):
 
     @property
     def rate(self):
-        return self.ticker.ask
+        return self.ticker.ask * (Decimal('1.0') + self.slippage)
 
     @cached_property_with_ttl(ttl=settings.TICKER_INTERVAL)
     def rate_btc(self):

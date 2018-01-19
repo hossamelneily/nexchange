@@ -590,7 +590,9 @@ class SafeChargeTestCase(OrderBaseTestCase):
         url = self.payment_handler.generate_cachier_url_for_order(order)
         self.assertIn(order.user.username, url)
 
-    def test_payment_fee(self):
+    @patch('orders.models.Order.get_current_slippage')
+    def test_payment_fee(self, get_slippage):
+        get_slippage.return_value = Decimal('0')
         # base fee
         amount_base = 4
         order_data = {

@@ -8,6 +8,7 @@ from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT, ETH_ROOT
 from selenium.webdriver.common.by import By
 from core.tests.utils import retry
 from selenium.common.exceptions import TimeoutException
+from decimal import Decimal
 
 
 class TestUIExchangeOrders(BaseTestUI):
@@ -18,6 +19,16 @@ class TestUIExchangeOrders(BaseTestUI):
         self.LTC_address = 'LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4'
         self.ETH_address = '0x77454e832261aeed81422348efee52d5bd3a3684'
         self.DOGE_address = 'D6BpZ4pP17JDsjpSWVrB2Hpa4oCi5mLfua'
+
+        self.mock_get_slippage = patch(
+            'orders.models.Order.get_current_slippage',
+            return_value=Decimal('0')
+        )
+        self.mock_get_slippage.start()
+
+    def tearDown(self):
+        super(TestUIExchangeOrders, self).tearDown()
+        self.mock_get_slippage.stop()
 
     @retry(AssertionError, tries=3, delay=1)
     @retry(TimeoutException, tries=2, delay=1)

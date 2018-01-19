@@ -10,12 +10,12 @@ from django.utils.translation import ugettext as _
 
 from core.common.models import (SoftDeletableModel, TimeStampedModel,
                                 UniqueFieldMixin, FlagableMixin)
-from core.models import Pair, Transaction
+from core.models import Pair, Transaction, Currency
 from payments.utils import money_format
 from payments.models import Payment
 from ticker.models import Price
 from django.core.exceptions import ValidationError
-from django.db.models import Q
+from django.db.models import Q, Sum
 from math import log10, floor, ceil
 from django.utils.translation import activate
 from nexchange.utils import send_email, send_sms
@@ -127,6 +127,9 @@ class Order(TimeStampedModel, SoftDeletableModel,
     system_marked_as_paid = models.BooleanField(default=False)
     user_provided_amount = models.IntegerField(
         choices=PROVIDED_AMOUNT_OPTIONS, default=PROVIDED_BASE)
+    slippage = models.DecimalField(
+        max_digits=18, decimal_places=8, default=Decimal('0'),
+    )
 
     class Meta:
         ordering = ['-created_on']
@@ -247,6 +250,22 @@ class Order(TimeStampedModel, SoftDeletableModel,
     def calculate_base_from_quote(self, price=None):
         self.calculate_from(_from='quote', price=price)
 
+    def set_slippage(self, price, amount, amount_type):
+        currency = self.pair.base
+        if amount_type == 'base':
+            additional_amount = amount
+        elif amount_type == 'quote':
+            additional_amount = amount / price.rate
+
+        slippage = self.get_current_slippage(
+            currency, additional_amount=additional_amount
+        )
+        self.slippage = slippage
+        currency.current_slippage = slippage
+        currency.save()
+        price.slippage = slippage
+        price.save()
+
     def calculate_from(self, _from='base', price=None):
         if _from == 'base':
             _to = 'quote'
@@ -260,6 +279,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
             price = Price.objects.filter(
                 pair=self.pair, market__is_main_market=True).latest('id')
         self.price = price
+        self.set_slippage(self.price, amount_input, _from)
         ticker_amount_output = getattr(self, 'ticker_amount_{}'.format(_to))
         fee_adder = getattr(self, 'add_payment_fee_to_amount_{}'.format(_to))
         amount_output = fee_adder(ticker_amount_output)
@@ -297,7 +317,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         # For annotations
         res = None
         if self.order_type == Order.BUY:
-            res = self.amount_base * self.price.ticker.ask
+            res = self.amount_base * self.price.rate
         elif self.order_type == Order.SELL:
             res = self.amount_base * self.price.ticker.bid
         return res
@@ -309,7 +329,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         # For annotations
         res = None
         if self.order_type == Order.BUY:
-            res = self.amount_quote / self.price.ticker.ask
+            res = self.amount_quote / self.price.rate
         elif self.order_type == Order.SELL:
             res = self.amount_quote / self.price.ticker.bid
         return res
@@ -505,6 +525,41 @@ class Order(TimeStampedModel, SoftDeletableModel,
     @property
     def status_name(self):
         return [status for status in Order.STATUS_TYPES if status[0] == self.status]  # noqa
+
+    @classmethod
+    def pending_amount_diff(cls, currency, additional_amount=0):
+        if not isinstance(additional_amount, Decimal):
+            additional_amount = Decimal(str(additional_amount))
+        return additional_amount
+        # FIXME: only use additional_amount for now, logic down is for reading order list  # noqa
+        # if not isinstance(currency, Currency):
+        #     currency = Currency.objects.get(code=currency)
+        # if not isinstance(additional_amount, Decimal):
+        #     additional_amount = Decimal(str(additional_amount))
+        # base = cls.objects.filter(
+        #     pair__base=currency, status=cls.PAID_UNCONFIRMED).aggregate(
+        #     Sum('amount_base'))['amount_base__sum']
+        # quote = cls.objects.filter(
+        #     pair__quote=currency, status=cls.PAID_UNCONFIRMED).aggregate(
+        #     Sum('amount_quote'))['amount_quote__sum']
+        # if not base:
+        #     base = Decimal('0')
+        # base += additional_amount
+        # if not quote:
+        #     quote = Decimal('0')
+        # return base - quote
+
+    @classmethod
+    def get_current_slippage(cls, currency, additional_amount=0):
+        if not isinstance(currency, Currency):
+            currency = Currency.objects.get(code=currency)
+        diff = cls.pending_amount_diff(
+            currency, additional_amount=additional_amount
+        )
+        if diff < currency.unslippaged_amount:
+            return Decimal('0')
+        else:
+            return (diff - currency.unslippaged_amount) * currency.slippage_rate  # noqa
 
     def get_profile(self):
         return self.user.profile

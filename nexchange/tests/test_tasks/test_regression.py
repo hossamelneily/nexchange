@@ -222,11 +222,14 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
              {'pair_name': 'LTCETH', 'times': Decimal('1.00'),
               'minutes_after_expire': 12}),
         ))
+    @patch('orders.models.Order.get_current_slippage')
     @patch(ETH_ROOT + '_get_txs')
     @patch(SCRYPT_ROOT + '_get_txs')
     def test_dynamically_change_order_with_tx_import(self, name, test_data,
                                                      get_txs_scrypt,
-                                                     get_txs_eth):
+                                                     get_txs_eth,
+                                                     get_slippage):
+        get_slippage.return_value = Decimal('0')
         pair_name = test_data['pair_name']
         times = test_data['times']
         self._create_order(pair_name=pair_name, amount_base=None,

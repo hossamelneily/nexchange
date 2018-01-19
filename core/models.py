@@ -168,6 +168,16 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         max_digits=18, decimal_places=8,
         default=Decimal('0.01'),
         help_text='Minimal amount that can be set as order base.')
+
+    unslippaged_amount = models.DecimalField(max_digits=18, decimal_places=8,
+                                             default=Decimal('1.0'))
+    slippage_rate = models.DecimalField(
+        max_digits=18, decimal_places=16, default=Decimal('0.0'),
+        help_text='slippage per coin, 0.001 means 0.1% per coin'
+    )
+    current_slippage = models.DecimalField(
+        max_digits=18, decimal_places=8, default=Decimal('0'),
+    )
     maximal_amount = models.DecimalField(
         max_digits=18, decimal_places=8,
         default=Decimal('1.00'),
@@ -177,6 +187,13 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                                         blank=True)
     decimals = models.IntegerField(default=8)
     execute_cover = models.BooleanField(default=False)
+
+    def get_slippage_amount(self, amount):
+        amount_from = amount - self.unslippaged_amount
+        if amount_from > Decimal('0'):
+            return Decimal('0')
+        else:
+            return amount_from * self.slippage_rate
 
     def natural_key(self):
         return self.code
