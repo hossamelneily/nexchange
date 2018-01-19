@@ -26,7 +26,7 @@
     "fee_bid": "0.00500000",
     "name": "BTCETH",
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -41,7 +41,7 @@
     "fee_bid": "0.01000000",
     "name": "ETHLTC",
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -116,7 +116,7 @@
     "fee_bid": "0.00500000",
     "name": "ETHBTC",
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -131,7 +131,7 @@
     "fee_bid": "0.01000000",
     "name": "LTCETH",
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -176,7 +176,7 @@
     "fee_bid": "0.0100000",
     "name": "DOGEETH",
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -221,7 +221,7 @@
     "fee_bid": "0.0100000",
     "name": "ETHDOGE",
      "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -266,7 +266,7 @@
     "fee_bid": "0.0100000",
     "name": "XVGETH",
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -311,7 +311,7 @@
     "fee_bid": "0.0100000",
     "name": "ETHXVG",
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -386,7 +386,7 @@
     "fee_bid": "0.0100000",
     "name": "BCHETH",
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -431,7 +431,7 @@
     "fee_bid": "0.0100000",
     "name": "ETHBCH",
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -502,12 +502,12 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 1,
     "quote": 37,
-    "fee_ask": "0.0150000",
+    "fee_ask": "0.0300000",
     "fee_bid": "0.0150000",
     "name": "BTCBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -519,11 +519,11 @@
     "base": 37,
     "quote": 1,
     "fee_ask": "0.0150000",
-    "fee_bid": "0.0150000",
+    "fee_bid": "0.0300000",
     "name": "BDGBTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -534,12 +534,12 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 2,
     "quote": 37,
-    "fee_ask": "0.0200000",
+    "fee_ask": "0.0400000",
     "fee_bid": "0.0200000",
     "name": "LTCBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -551,11 +551,11 @@
     "base": 37,
     "quote": 2,
     "fee_ask": "0.0200000",
-    "fee_bid": "0.0200000",
+    "fee_bid": "0.0400000",
     "name": "BDGLTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -566,12 +566,12 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 3,
     "quote": 37,
-    "fee_ask": "0.0100000",
+    "fee_ask": "0.0200000",
     "fee_bid": "0.0100000",
     "name": "ETHBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -583,11 +583,11 @@
     "base": 37,
     "quote": 3,
     "fee_ask": "0.0100000",
-    "fee_bid": "0.0100000",
+    "fee_bid": "0.0200000",
     "name": "BDGETH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -598,12 +598,12 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 34,
     "quote": 37,
-    "fee_ask": "0.0200000",
+    "fee_ask": "0.0400000",
     "fee_bid": "0.0200000",
     "name": "DOGEBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -615,11 +615,11 @@
     "base": 37,
     "quote": 34,
     "fee_ask": "0.0200000",
-    "fee_bid": "0.0200000",
+    "fee_bid": "0.0400000",
     "name": "BDGDOGE",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -630,12 +630,12 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 35,
     "quote": 37,
-    "fee_ask": "0.0200000",
+    "fee_ask": "0.0400000",
     "fee_bid": "0.0200000",
     "name": "XVGBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -647,11 +647,11 @@
     "base": 37,
     "quote": 35,
     "fee_ask": "0.0200000",
-    "fee_bid": "0.0200000",
+    "fee_bid": "0.0400000",
     "name": "BDGXVG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -662,12 +662,12 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 36,
     "quote": 37,
-    "fee_ask": "0.0200000",
+    "fee_ask": "0.0400000",
     "fee_bid": "0.0200000",
     "name": "BCHBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -679,11 +679,11 @@
     "base": 37,
     "quote": 36,
     "fee_ask": "0.0200000",
-    "fee_bid": "0.0200000",
+    "fee_bid": "0.0400000",
     "name": "BDGBCH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -699,7 +699,7 @@
     "name": "BTCEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -715,7 +715,7 @@
     "name": "EOSBTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -731,7 +731,7 @@
     "name": "LTCEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -747,7 +747,7 @@
     "name": "EOSLTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -763,7 +763,7 @@
     "name": "ETHEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -779,7 +779,7 @@
     "name": "EOSETH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -795,7 +795,7 @@
     "name": "DOGEEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -811,7 +811,7 @@
     "name": "EOSDOGE",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -827,7 +827,7 @@
     "name": "XVGEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -843,7 +843,7 @@
     "name": "EOSXVG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -859,7 +859,7 @@
     "name": "BCHEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -875,7 +875,7 @@
     "name": "EOSBCH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -887,11 +887,11 @@
     "base": 37,
     "quote": 40,
     "fee_ask": "0.0200000",
-    "fee_bid": "0.0200000",
+    "fee_bid": "0.0400000",
     "name": "BDGEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -902,12 +902,12 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 40,
     "quote": 37,
-    "fee_ask": "0.0200000",
+    "fee_ask": "0.0400000",
     "fee_bid": "0.0200000",
     "name": "EOSBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {

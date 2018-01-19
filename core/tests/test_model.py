@@ -103,8 +103,17 @@ class PairFixtureTestCase(OrderBaseTestCase):
                 fee = minor_pair_fee + major_pair_fee
             else:
                 fee = 2 * minor_pair_fee
-            self.assertEqual(p.fee_ask, fee, 'Bad fee_ask on {}'.format(p))
-            self.assertEqual(p.fee_bid, fee, 'Bad fee_bid on {}'.format(p))
+
+            if p.quote.code == 'BDG':
+                ask = Decimal('2') * fee
+                bid = fee
+            elif p.base.code == 'BDG':
+                bid = Decimal('2') * fee
+                ask = fee
+            else:
+                ask = bid = fee
+            self.assertEqual(p.fee_ask, ask, 'Bad fee_ask on {}'.format(p))
+            self.assertEqual(p.fee_bid, bid, 'Bad fee_bid on {}'.format(p))
 
     def test_fixture_pks(self):
         path = 'core/fixtures/'
