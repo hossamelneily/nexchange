@@ -19,8 +19,8 @@
       "created_on":"2017-09-19T19:21:42+00:00",
       "modified_on":"2017-09-19T19:21:42+00:00",
       "withdrawal_fee": "15",
-      "unslippaged_amount": "45000.0",
-      "slippage_rate": "2.77777778e-8",
+      "unslippaged_amount": "450.0",
+      "slippage_rate": "0.000001",
       "quote_unslippaged_amount_multiplier": "0.01",
       "quote_slippage_rate_multiplier": "160.0"
     }
