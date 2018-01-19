@@ -175,6 +175,16 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         max_digits=18, decimal_places=16, default=Decimal('0.0'),
         help_text='slippage per coin, 0.001 means 0.1% per coin'
     )
+    quote_slippage_rate_multiplier = models.DecimalField(
+        max_digits=18, decimal_places=8, default=Decimal('1.0'),
+        help_text='Multiplies oposite slippage a.k.a in case when this '
+                  'currency is quote.'
+    )
+    quote_unslippaged_amount_multiplier = models.DecimalField(
+        max_digits=18, decimal_places=8, default=Decimal('1.0'),
+        help_text='Multiplies opposite unslippaged amount a.k.a in case'
+                  'when this currency is quote.'
+    )
     current_slippage = models.DecimalField(
         max_digits=18, decimal_places=8, default=Decimal('0'),
     )

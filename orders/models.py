@@ -252,13 +252,14 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
     def set_slippage(self, price, amount, amount_type):
         currency = self.pair.base
+        quote = self.pair.quote
         if amount_type == 'base':
             additional_amount = amount
         elif amount_type == 'quote':
             additional_amount = amount / price.rate
 
         slippage = self.get_current_slippage(
-            currency, additional_amount=additional_amount
+            currency, quote, additional_amount=additional_amount
         )
         self.slippage = slippage
         currency.current_slippage = slippage
@@ -550,16 +551,20 @@ class Order(TimeStampedModel, SoftDeletableModel,
         # return base - quote
 
     @classmethod
-    def get_current_slippage(cls, currency, additional_amount=0):
+    def get_current_slippage(cls, currency, quote, additional_amount=0):
+        slippage_rate = \
+            currency.slippage_rate * quote.quote_slippage_rate_multiplier  # noqa
+        unslippaged_amount = \
+            currency.unslippaged_amount * quote.quote_unslippaged_amount_multiplier  # noqa
         if not isinstance(currency, Currency):
             currency = Currency.objects.get(code=currency)
         diff = cls.pending_amount_diff(
             currency, additional_amount=additional_amount
         )
-        if diff < currency.unslippaged_amount:
+        if diff < unslippaged_amount:
             return Decimal('0')
         else:
-            return (diff - currency.unslippaged_amount) * currency.slippage_rate  # noqa
+            return (diff - unslippaged_amount) * slippage_rate  # noqa
 
     def get_profile(self):
         return self.user.profile

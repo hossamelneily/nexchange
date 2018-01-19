@@ -18,7 +18,11 @@
       "contract_address": "0x1961B3331969eD52770751fC718ef530838b6dEE",
       "created_on":"2017-09-19T19:21:42+00:00",
       "modified_on":"2017-09-19T19:21:42+00:00",
-      "withdrawal_fee": "15"
+      "withdrawal_fee": "15",
+      "unslippaged_amount": "45000.0",
+      "slippage_rate": "2.77777778e-8",
+      "quote_unslippaged_amount_multiplier": "0.01",
+      "quote_slippage_rate_multiplier": "160.0"
     }
   },
   {
@@ -81,7 +85,9 @@
       "is_token": true,
       "contract_address": "0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0",
       "created_on":"2017-09-19T19:21:42+00:00",
-      "modified_on":"2017-09-19T19:21:42+00:00"
+      "modified_on":"2017-09-19T19:21:42+00:00",
+      "unslippaged_amount": "1000.0",
+      "slippage_rate": "0.00000125"
     }
   },
   {
