@@ -180,5 +180,17 @@
     "trading_allowed": false,
     "is_main_account": true
   }
+},
+{
+  "model": "risk_management.account",
+  "pk": 16,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 2,
+    "wallet": "api3",
+    "trading_allowed": false,
+    "is_main_account": false
+  }
 }
 ]

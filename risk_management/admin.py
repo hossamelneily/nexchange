@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from risk_management.models import Reserve, Account, Cover
+from risk_management.models import Reserve, Account, Cover, ReserveLog,\
+    PortfolioLog
 
 
 @admin.register(Reserve)
@@ -25,3 +26,19 @@ class CoverAdmin(admin.ModelAdmin):
     raw_id_fields = ('orders',)
     list_display = ('cover_type', 'pair', 'amount_base', 'amount_quote',
                     'account', 'cover_id')
+
+
+@admin.register(ReserveLog)
+class ReserveLogAdmin(admin.ModelAdmin):
+    list_display = ('reserve', 'available', 'available_btc', 'available_usd',
+                    'available_eur', 'available_eth', 'created_on',
+                    'portfolio_log')
+    search_fields = ('reserve__currency__name', 'reserve__currency__code')
+
+
+@admin.register(PortfolioLog)
+class PortfolioLogAdmin(admin.ModelAdmin):
+    list_display = ('created_on', 'total_btc', 'total_usd', 'total_eur',
+                    'total_eth', 'assets_str')
+    readonly_fields = ('created_on', 'total_btc', 'total_usd', 'total_eur',
+                       'total_eth', 'assets_str', 'assets_by_proportion')

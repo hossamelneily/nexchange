@@ -9,7 +9,7 @@ from risk_management.tasks.generic.reserve_balance_checker import \
 from risk_management.tasks.generic.reserve_balance_maintainer import \
     ReserveBalanceMaintainer
 from risk_management.tasks.generic.main_account_filler import MainAccountFiller
-from risk_management.models import Reserve
+from risk_management.models import Reserve, PortfolioLog
 from risk_management.tasks.generic.currency_cover import CurrencyCover
 from risk_management.tasks.generic.order_cover import OrderCover
 
@@ -71,3 +71,9 @@ def currency_cover_invoke(currency_code, amount):
             [cover.account.pk, cover.amount_base],
             countdown=settings.THIRD_PARTY_TRADE_TIME
         )
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def log_current_assets():
+    new_log = PortfolioLog()
+    new_log.save()

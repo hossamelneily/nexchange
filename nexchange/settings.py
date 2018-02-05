@@ -303,6 +303,10 @@ TRADING_TASKS = {
                 'reserves_balance_checker_periodic',
         'schedule': timedelta(seconds=30),
     },
+    'log_current_assets': {
+        'task': 'risk_management.task_summary.log_current_assets',
+        'schedule': timedelta(seconds=600),
+    },
 }
 
 CELERY_BEAT_SCHEDULE = {}

@@ -2,6 +2,7 @@ from django.db import models
 
 from core.common.models import TimeStampedModel
 from core.models import Currency, Pair
+from ticker.models import Price
 from orders.models import Order
 from decimal import Decimal
 from django.utils.translation import ugettext as _
@@ -73,6 +74,104 @@ class Reserve(TimeStampedModel):
     @property
     def main_account(self):
         return self.account_set.get(is_main_account=True)
+
+
+class PortfolioLog(TimeStampedModel):
+
+    def save(self):
+        log_reserves = False if self.pk else True
+        res = super(PortfolioLog, self).save()
+        if log_reserves:
+            all_reserves = Reserve.objects.all()
+            for reserve in all_reserves:
+                reserve = ReserveLog(reserve=reserve, portfolio_log=self)
+                reserve.save()
+        return res
+
+    def sum_reserve_logs_field(self, field_name):
+        reserve_logs = self.reservelog_set.all()
+        return Decimal(sum([getattr(log, field_name) for log in reserve_logs]))
+
+    @property
+    def total_btc(self):
+        return self.sum_reserve_logs_field('available_btc')
+
+    @property
+    def total_usd(self):
+        return self.sum_reserve_logs_field('available_usd')
+
+    @property
+    def total_eur(self):
+        return self.sum_reserve_logs_field('available_eur')
+
+    @property
+    def total_eth(self):
+        return self.sum_reserve_logs_field('available_eth')
+
+    @property
+    def assets_by_proportion(self):
+        reserve_logs = self.reservelog_set.all()
+        amount_btc = self.total_btc
+        return {log.reserve.currency.code: log.available_btc / amount_btc for log in reserve_logs}  # noqa
+
+    @property
+    def assets_str(self):
+        assets = self.assets_by_proportion
+        res = '|'
+        for key, value in assets.items():
+            res += ' {0:.1f}% {1:s} |'.format(value * 100, key)
+        return res
+
+    def __str__(self):
+        return '{}'.format(self.pk)
+
+
+class ReserveLog(TimeStampedModel):
+    reserve = models.ForeignKey(Reserve)
+    portfolio_log = models.ForeignKey(PortfolioLog, null=True, blank=True)
+    available = models.DecimalField(max_digits=18, decimal_places=8,
+                                    default=Decimal('0'), blank=True)
+    rate_btc = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'), blank=True)
+    rate_usd = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'), blank=True)
+    rate_eur = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'), blank=True)
+    rate_eth = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'), blank=True)
+
+    def save(self):
+        if not self.reserve:
+            raise ValidationError('No reserve defined')
+        if not self.pk:
+            if not self.available:
+                self.available = self.reserve.available
+            reserve_currency = self.reserve.currency
+            for quote_currency in ['BTC', 'USD', 'EUR', 'ETH']:
+                field = 'rate_{}'.format(quote_currency.lower())
+                if not getattr(self, field):
+                    try:
+                        rate = Price.get_rate(reserve_currency, quote_currency)
+                        setattr(self, field, rate)
+                    except Price.DoesNotExist:
+                        continue
+        super(ReserveLog, self).save()
+
+    @property
+    def available_btc(self):
+        return self.available * self.rate_btc
+
+    @property
+    def available_usd(self):
+        return self.available * self.rate_usd
+
+    @property
+    def available_eth(self):
+        return self.available * self.rate_eth
+
+    @property
+    def available_eur(self):
+        return self.available * self.rate_eur
 
 
 class Account(TimeStampedModel):

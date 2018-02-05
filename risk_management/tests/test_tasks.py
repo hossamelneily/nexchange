@@ -3,8 +3,8 @@ from unittest.mock import patch
 from risk_management.task_summary import reserves_balance_checker_periodic,\
     account_balance_checker_invoke, reserve_balance_maintainer_invoke,\
     main_account_filler_invoke, currency_reserve_balance_checker_invoke, \
-    currency_cover_invoke
-from risk_management.models import Reserve, Account, Cover
+    currency_cover_invoke, log_current_assets
+from risk_management.models import Reserve, Account, Cover, PortfolioLog
 from decimal import Decimal
 from django.conf import settings
 from core.tests.utils import data_provider
@@ -42,6 +42,9 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
                                  'available': Decimal(available)}
         reserves_balance_checker_periodic.apply_async()
         reserves = Reserve.objects.all()
+        # Log the the assets:
+        log_current_assets.apply_async()
+        portfolio_log = PortfolioLog.objects.last()
         for reserve in reserves:
             accounts = reserve.account_set.all()
             all_balance = all_pending = all_available = Decimal('0')
@@ -62,6 +65,16 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
             self.assertEqual(reserve.balance, all_balance, msg)
             self.assertEqual(reserve.available, all_available, msg)
             self.assertEqual(reserve.pending, all_pending, msg)
+            reserve_log = portfolio_log.reservelog_set.get(reserve=reserve)
+            self.assertEqual(reserve_log.available, reserve.available, msg)
+        # Check portfolio properties
+        self.assertIsInstance(portfolio_log.assets_by_proportion, dict)
+        self.assertIsInstance(portfolio_log.assets_str, str)
+        self.assertIsInstance(portfolio_log.total_btc, Decimal)
+        self.assertIsInstance(portfolio_log.total_usd, Decimal)
+        self.assertIsInstance(portfolio_log.total_eth, Decimal)
+        self.assertIsInstance(portfolio_log.total_eur, Decimal)
+        self.assertIsInstance(portfolio_log.__str__(), str)
 
     @data_provider(
         lambda: (
