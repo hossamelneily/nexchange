@@ -370,7 +370,6 @@ build:
 
           #RPC7
           export RPC_RPC7_USER=${RPC_RPC7_USER}
-          export RPC_RPC7_PASSWORD=${RPC_RPC7_PASSWORD}
           export RPC_RPC7_PORT=${RPC_RPC7_PORT}
           export RPC_RPC7_HOST=${RPC_RPC7_HOST}
           export RPC7_PUBLIC_KEY_C1=${RPC7_PUBLIC_KEY_C1}

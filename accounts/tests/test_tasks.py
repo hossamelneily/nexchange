@@ -16,6 +16,8 @@ from accounts.task_summary import update_pending_transactions_invoke
 import os
 from decimal import Decimal
 
+RPC7_KEY1 = '0xmain'
+
 
 class TransactionImportTaskTestCase(TransactionImportBaseTestCase,
                                     TickerBaseTestCase):
@@ -170,18 +172,19 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
         ('Do not release, balance == 0', 'ETH', '0.0', '0', 0,
          {'retry': True, 'success': False}),
     ),)
-    @patch.dict(os.environ, {'RPC7_PUBLIC_KEY_C1': '0xmain'})
-    @patch.dict(os.environ, {'RPC_RPC7_PASSWORD': 'password'})
+    @patch.dict(os.environ, {'RPC7_PUBLIC_KEY_C1': RPC7_KEY1})
     @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
     @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
+    @patch(ETH_ROOT + 'get_accounts')
     @patch('web3.eth.Eth.call')
     @patch('web3.eth.Eth.getBalance')
     @patch(ETH_ROOT + 'release_coins')
     def test_send_funds_to_main_card(self, name, curr_code,
                                      amount, amount_main, release_call_count,
                                      resend_funds_res, release_coins,
-                                     get_balance, get_balance_erc20):
+                                     get_balance, get_balance_erc20, get_accs):
+        get_accs.return_value = [RPC7_KEY1.upper()]
         release_coins.return_value = self.generate_txn_id(), True
         card = self.user.addressreserve_set.get(currency__code=curr_code)
         currency = Currency.objects.get(code=curr_code)

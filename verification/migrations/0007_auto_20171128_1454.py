@@ -15,11 +15,33 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='verification',
             name='id_status',
-            field=models.CharField(blank=True, choices=[('REJECTED', 'Rejected'), ('PENDING', 'Pending'), ('OK', 'Approved')], default='PENDING', max_length=10, null=True),
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ('REJECTED',
+                     'Rejected'),
+                    ('PENDING',
+                     'Pending'),
+                    ('OK',
+                     'Approved')],
+                default='PENDING',
+                max_length=10,
+                null=True),
         ),
         migrations.AlterField(
             model_name='verification',
             name='util_status',
-            field=models.CharField(blank=True, choices=[('REJECTED', 'Rejected'), ('PENDING', 'Pending'), ('OK', 'Approved')], default='PENDING', max_length=10, null=True),
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ('REJECTED',
+                     'Rejected'),
+                    ('PENDING',
+                     'Pending'),
+                    ('OK',
+                     'Approved')],
+                default='PENDING',
+                max_length=10,
+                null=True),
         ),
     ]

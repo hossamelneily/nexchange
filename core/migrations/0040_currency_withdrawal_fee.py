@@ -15,6 +15,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='currency',
             name='withdrawal_fee',
-            field=models.DecimalField(decimal_places=8, default=0.0, max_digits=18),
+            field=models.DecimalField(
+                decimal_places=8,
+                default=0.0,
+                max_digits=18),
         ),
     ]

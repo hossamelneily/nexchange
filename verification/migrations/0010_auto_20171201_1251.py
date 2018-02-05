@@ -17,11 +17,21 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='verification',
             name='identity_document',
-            field=models.FileField(blank=True, null=True, upload_to=verification.models.Verification.identity_file_name, validators=[verification.validators.validate_image_extension]),
+            field=models.FileField(
+                blank=True,
+                null=True,
+                upload_to=verification.models.Verification.identity_file_name,
+                validators=[
+                    verification.validators.validate_image_extension]),
         ),
         migrations.AlterField(
             model_name='verification',
             name='utility_document',
-            field=models.FileField(blank=True, null=True, upload_to=verification.models.Verification._utility_file_name, validators=[verification.validators.validate_image_extension]),
+            field=models.FileField(
+                blank=True,
+                null=True,
+                upload_to=verification.models.Verification._utility_file_name,
+                validators=[
+                    verification.validators.validate_image_extension]),
         ),
     ]

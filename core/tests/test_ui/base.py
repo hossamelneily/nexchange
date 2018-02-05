@@ -30,7 +30,6 @@ from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT, ETH_ROOT
 class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
                  TickerBaseTestCase):
 
-    @patch.dict(os.environ, {'RPC_RPC7_PASSWORD': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
     @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})

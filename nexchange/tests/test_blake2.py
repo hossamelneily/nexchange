@@ -169,7 +169,7 @@ class Blake2RawE2ETestCase(TransactionImportBaseTestCase,
                     params.get('amount') == str(value)]):
                 return {'block': with_tx_id}
             if all([params.get('action') == 'password_enter',
-                    params.get('wallet'), params.get('password')]):
+                    params.get('wallet'), 'password' in params]):
                 return {'valid': 1}
             if all([params.get('action') == 'pending_exists',
                     params.get('hash') == with_tx_id]):

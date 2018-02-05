@@ -1,69 +1,12 @@
-from .base import BaseApiClient, Blake2Proxy, BaseWalletApiClient
+from .base import Blake2Proxy, BaseWalletApiClient
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
-from .decorators import track_tx_mapper, log_errors
+from .decorators import track_tx_mapper, log_errors, encrypted_endpoint
 from core.models import Address, Currency, Transaction, AddressReserve
 from django.conf import settings
-from nexchange.utils import AESCipher
-import os
 from decimal import Decimal
 from web3 import Web3, RPCProvider
-
-
-class RpcMapper:
-    PWS = {
-        'rpc1': 'ove9n97G6tv3N8WUFdQKtgugeMGpqkYQmoHZI+jXl5rNAnAkT0Hgg'
-                'F8jDuVsgXZS/QjETkQuMihsLqIDSojcRmH7piN8BSafOFG36GijxZo=',
-        'rpc2': '8b2Dqw+FKwZ1pv/sAtsJUVKlz/z33zdRrivkiRIpVHWTXlilCxeYW'
-                'DeQ8AjcyVK7bXReUqchn8pKAqbLYN7mG0CE+i81Ka8x3aYGaBF1hLY=',
-        'rpc3': 'r7MC29tWNB1MM8elBEqrMn9IDUuPT3nzS08htosaBaJxixBFk4qsQa'
-                '/aULRB/LSN6JlLu3Lr3bumPdWBc1ossuxb1/d8Mswy+MJuwJ3QBgc=',
-        'rpc4': 'S5iAXq8gKpAFDMFiPzjEgVlw5vnycE4e1+A2xEBS464b2xLyayiinW'
-                'qsn9f4EKFuRifZdZnBHmPKvT7iIpEOJJCNwwsonmysPDIyUURLoy4=',
-        'rpc5': 'Z0DkkAwJqPJ7dx6ykAOT5lqwY5VpYlG16yhL4bU4D9zi4u4jQeqf3Pdc'
-                '0KdE7f6nMdVX7QYhzwZddKlXK9zZfiiR2OutX6VLZuQmTEl4fJ0=',
-        'rpc6': 'DCz4BziQRj7o+gwK2POJtcfNwVn++GXJ6Y80P2frgCU6hsMwcu1022'
-                'AyHTlm7nDeBSbwir/B5qWJTrWrLDMxBNfW8MzpVMrd7fk82sPTzGU=',
-        'rpc7': 'PbGnX+pDzdNZOVZ9EefGrBFMw9c8oTJxddtWsjbNINDJOai5zvK3spG'
-                'YWg/yNaX+S3wjX7t0K1bl/GgZZtxSKU7OXrXQqoPjMUil6JxU7+Q=',
-        # FIXME: What kind of hash should be placed here? (Oleg?)
-        'rpc8': 'PbGnX+pDzdNZOVZ9EefGrBFMw9c8oTJxddtWsjbNINDJOai5zvK3spG'
-                'YWg/yNaX+S3wjX7t0K1bl/GgZZtxSKU7OXrXQqoPjMUil6JxU7+Q=',
-    }
-
-    @classmethod
-    def get_rpc_addr(cls, node):
-        protocol = 'http'
-        prefix = 'RPC'
-        user_env = '{}_{}_{}'.format(prefix, node.upper(), 'USER')
-        pass_env = '{}_{}_{}'.format(prefix, node.upper(), 'PASSWORD')
-        host_env = '{}_{}_{}'.format(prefix, node.upper(), 'HOST')
-        port_env = '{}_{}_{}'.format(prefix, node.upper(), 'PORT')
-        kwargs = {
-            'protocol': protocol,
-            'user': os.getenv(user_env, settings.DEFAULT_RPC_USER),
-            'passwd': os.getenv(pass_env, settings.DEFAULT_RPC_PASS),
-            'host': os.getenv(host_env, settings.DEFAULT_RPC_HOST),
-            'port': os.getenv(port_env, None),
-        }
-        return '{protocol}://{user}:{passwd}@{host}:{port}'.format(**kwargs),\
-               kwargs
-
-    @classmethod
-    def get_raw_pw(cls, node):
-        return cls.PWS[node]
-
-    @classmethod
-    def get_key_pw(cls, node):
-        prefix = 'RPC'
-        env = '{}_{}_{}'.format(prefix, node.upper(), 'K')
-        return os.getenv(env)
-
-    @classmethod
-    def get_pass(cls, node):
-        raw_pass = RpcMapper.get_raw_pw(node)
-        pass_key = RpcMapper.get_key_pw(node)
-        cipher = AESCipher(pass_key)
-        return cipher.decrypt(raw_pass)
+from .mappers import RpcMapper
+import os
 
 
 class BaseRpcClient(BaseWalletApiClient):
@@ -98,23 +41,12 @@ class BaseRpcClient(BaseWalletApiClient):
         api = self.get_api(node)
         fn = self.get_fn(api, endpoint)
         try:
-            rpc_pass = RpcMapper.get_pass(node)
-            self.unlock(api, rpc_pass, **{'node': node})
             if not callable(fn):
                 return fn
             return fn(*args, **kwargs)
         except JSONRPCException as e:
             self.logger.error('JSON RPC ERROR HOST {} ERROR {}'
                               .format(self.rpc_endpoint, str(e)))
-        finally:
-            try:
-                self.lock(api, **{'node': node})
-                pass
-            except JSONRPCException:
-                msg = 'Unencrypted wallet was attempted ' \
-                      'to be locked node: {} endpoint: {}'.\
-                    format(node, endpoint)
-                self.logger.error(msg)
 
 
 class ScryptRpcApiClient(BaseRpcClient):
@@ -193,6 +125,7 @@ class ScryptRpcApiClient(BaseRpcClient):
         txs = self._get_txs(node)
         return super(ScryptRpcApiClient, self).get_txs(node, txs)
 
+    @encrypted_endpoint
     def release_coins(self, currency, address, amount, **kwargs):
         tx_id = self.call_api(currency.wallet, 'sendtoaddress',
                               *[address.address, amount])
@@ -216,7 +149,6 @@ class ScryptRpcApiClient(BaseRpcClient):
 class Blake2RpcApiClient(BaseRpcClient):
 
     UNLOCK_WALLET = 'password_enter'
-    ENCRYPTED_METHODS = []
 
     def __init__(self):
         super(Blake2RpcApiClient, self).__init__()
@@ -231,15 +163,12 @@ class Blake2RpcApiClient(BaseRpcClient):
         return self.api
 
     def get_fn(self, api, endpoint):
-        self.encrypt = True if endpoint in self.ENCRYPTED_METHODS else False
         return getattr(api, endpoint)
 
     def lock(self, api, **kwargs):
         pass
 
     def unlock(self, api, pass_phrase, **kwargs):
-        if not self.encrypt:
-            return
         wallet = self.coin_wallet_mapper(kwargs.get('node'))
         decrypt_fn = getattr(api, self.UNLOCK_WALLET)
         return decrypt_fn(*[wallet, pass_phrase])
@@ -317,6 +246,7 @@ class Blake2RpcApiClient(BaseRpcClient):
         txs = self._get_txs(node)
         return super(Blake2RpcApiClient, self).get_txs(node, txs)
 
+    @encrypted_endpoint
     def release_coins(self, currency, address, amount, **kwargs):
         node = currency.wallet
         if isinstance(address, Address):
@@ -400,7 +330,6 @@ class EthashRpcApiClient(BaseRpcClient):
         '0x54fd4d50': 'version()',
     }
     ERC20_TRANSFER_FINCTIONS = ['transfer(address,uint256)']
-    ENCRYPTED_METHODS = ['personal_sendTransaction', 'eth_sendTransaction']
 
     LOCK_WALLET = 'personal_lockAccount'
     UNLOCK_WALLET = 'personal_unlockAccount'
@@ -409,26 +338,20 @@ class EthashRpcApiClient(BaseRpcClient):
         super(EthashRpcApiClient, self).__init__()
         self.related_nodes = ['rpc7']
         self.related_coins = ['ETH']
-        self.encrypt = None
         self.account = None
 
     def get_fn(self, api, endpoint):
-        self.encrypt = True if endpoint in self.ENCRYPTED_METHODS else False
         module = endpoint.split('_')[0]
         method = endpoint.split('_')[1]
         return getattr(getattr(api, module), method)
 
     def lock(self, api, **kwargs):
-        if not self.encrypt:
-            return
         if not self.account:
             self.account = self.coin_card_mapper(kwargs.get('node'))
         encrypt_fn = self.get_fn(api, self.LOCK_WALLET)
         return encrypt_fn(*[self.account])
 
     def unlock(self, api, pass_phrase, **kwargs):
-        if not self.encrypt:
-            return
         if not self.account:
             self.account = self.coin_card_mapper(kwargs.get('node'))
         decrypt_fn = self.get_fn(api, self.UNLOCK_WALLET)
@@ -451,8 +374,7 @@ class EthashRpcApiClient(BaseRpcClient):
     def create_address(self, currency, password=None):
         node = currency.wallet
         if password is None:
-            pass_env = 'RPC_{}_{}'.format(node.upper(), 'PASSWORD')
-            password = os.getenv(pass_env, None)
+            password = RpcMapper.get_pass(node)
         address = self.call_api(node, 'personal_newAccount', *[password])
         return {
             'currency': currency,
@@ -617,6 +539,7 @@ class EthashRpcApiClient(BaseRpcClient):
 
         return tx
 
+    @encrypted_endpoint
     def release_coins(self, currency, address, amount, **kwargs):
         tx = self._form_transaction(currency, address, amount, **kwargs)
         self.account = tx['from']
@@ -685,6 +608,7 @@ class EthashRpcApiClient(BaseRpcClient):
 
         if any([amount <= 0, main_balance < total_gas]):
             return {'success': False, 'retry': True}
+        assert main_address.lower() in [acc.lower() for acc in self.get_accounts(node)]  # noqa
         tx_id, success = self.release_coins(currency, main_address,
                                             amount, address_from=address)
         retry = not success
