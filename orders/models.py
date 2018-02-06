@@ -155,18 +155,26 @@ class Order(TimeStampedModel, SoftDeletableModel,
         elif field < min([i[0] for i in types]):
             raise ValidationError(_('Invalid order type choice'))
 
-    def _validate_order_base_amount(self):
+    def _validate_order_amount(self):
         if self.amount_base < self.pair.base.minimal_amount:
             raise ValidationError(
                 _('Order base amount must be equal or more than {} '
                   'for {} order.'.format(self.pair.base.minimal_amount,
                                          self.pair.base.code))
             )
-        if self.amount_quote > self.pair.quote.maximal_amount and not self.pk:
+        if all([self.amount_quote > self.pair.quote.maximal_amount,
+                not self.pk]):
             raise ValidationError(
                 _('Order quote amount must be equal or less than {} '
                   'for {} order.'.format(self.pair.quote.maximal_amount,
                                          self.pair.quote.code))
+            )
+        if all([not self.coverable, not self.pair.base.execute_cover,
+                not self.pk]):
+            raise ValidationError(
+                _('Maximal amount of {} to buy is {}.'.format(
+                    self.pair.base.code, self.pair.base.available_main_reserves
+                ))
             )
 
     def _validate_status(self, status):
@@ -240,7 +248,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
             elif self.amount_quote:
                 self.calculate_base_from_quote()
 
-        self._validate_order_base_amount()
+        self._validate_order_amount()
 
         super(Order, self).save(*args, **kwargs)
 

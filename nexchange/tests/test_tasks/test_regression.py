@@ -345,6 +345,7 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
     @patch('core.models.Currency.available_main_reserves',
            new_callable=PropertyMock)
     def test_exchange_release_periodic(self, main_reserves):
+        main_reserves.return_value = Decimal('10000')
         self._create_PAID_order()
         # Do not release not enough funds
         main_reserves.return_value = self.order.amount_base - Decimal('0.1')

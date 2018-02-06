@@ -7,7 +7,9 @@ from datetime import datetime
 from time import time, sleep
 from functools import wraps
 from core.models import Pair
+from risk_management.models import Account
 from django.db.models import Q
+from decimal import Decimal
 
 
 def retry(ExceptionToCheck, tries=4, delay=3, backoff=2, logger=None):
@@ -199,6 +201,14 @@ def enable_all_pairs():
         pair.test_mode = False
         pair.disable_ticker = False
         pair.save()
+
+
+def set_big_reserves():
+    accounts = Account.objects.filter(is_main_account=True)
+    assert os.getenv('DJANGO_SETTINGS_MODULE') == 'nexchange.settings_test'
+    for acc in accounts:
+        acc.available = Decimal(1e7)
+        acc.save()
 
 
 def enable_prod_pairs():

@@ -1,7 +1,7 @@
 from decimal import Decimal
 import json
 
-from core.tests.utils import enable_all_pairs
+from core.tests.utils import enable_all_pairs, set_big_reserves
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import Client, TestCase
@@ -70,6 +70,7 @@ class UserBaseTestCase(TestCase):
 
     def setUp(self):
         enable_all_pairs()
+        set_big_reserves()
         self.logout_url = reverse('accounts.logout')
         self.username = '+491628290463'
         self.password = '123Mudar'
@@ -256,7 +257,7 @@ class UserBaseTestCase(TestCase):
         if validate_amount:
             self.order.save()
             return
-        with patch('orders.models.Order._validate_order_base_amount') as p:
+        with patch('orders.models.Order._validate_order_amount') as p:
             p.return_value = None
             self.order.save()
 

@@ -30,6 +30,8 @@ from ticker.tasks.generic.crypto_fiat_ticker import CryptoFiatTicker
 import requests_mock
 from freezegun import freeze_time
 from core.tests.utils import retry
+from rest_framework.test import APIClient
+from risk_management.models import Account
 
 
 class OrderBasicFieldsTestCase(OrderBaseTestCase):
@@ -1032,3 +1034,64 @@ class CalculateOrderTestCase(TickerBaseTestCase):
         self.order.refresh_from_db()
         self.assertEqual(confirmations, tx.confirmations)
         self.assertEqual(self.order.status, Order.INITIAL)
+
+
+class CreateCoverableOrderTestCase(TickerBaseTestCase):
+
+    def setUp(self):
+        super(CreateCoverableOrderTestCase, self).setUp()
+        self.pair = Pair.objects.get(name='BTCLTC')
+        self.main_account = Account.objects.get(
+            reserve__currency=self.pair.base, is_main_account=True
+        )
+        self.api_client = APIClient()
+
+    def _create_order_api(self, amount_base=3):
+        order_data = {
+            "amount_base": amount_base,
+            "pair": {
+                "name": self.pair.name
+            },
+            "withdraw_address": {
+                "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ"
+            }
+        }
+        order_api_url = '/en/api/v1/orders/'
+        response = self.api_client.post(
+            order_api_url, order_data, format='json')
+        if 'non_field_errors' in response.json():
+            return
+        order = Order.objects.get(
+            unique_reference=response.json()['unique_reference']
+        )
+        return order
+
+    def test_not_create_uncoverable_order(self):
+        orders_count = len(Order.objects.all())
+        amount_base = Decimal(1)
+        self.main_account.available = amount_base / Decimal(2)
+        self.main_account.save()
+        self._create_order_api(amount_base=amount_base)
+        self.assertEqual(orders_count, len(Order.objects.all()))
+
+    def test_edit_uncoverable_order(self):
+        amount_base = Decimal(1)
+        self.main_account.available = amount_base + Decimal('0.001')
+        self.main_account.save()
+        order = self._create_order_api(amount_base=amount_base)
+        self.main_account.available = amount_base / Decimal(2)
+        self.main_account.save()
+        order.status = order.PAID_UNCONFIRMED
+        order.save()
+        order.refresh_from_db()
+        self.assertEqual(order.status, order.PAID_UNCONFIRMED)
+
+    def test_create_order_with_executable_cover(self):
+        amount_base = Decimal(1)
+        self.main_account.available = amount_base / Decimal(2)
+        self.main_account.save()
+        base = self.pair.base
+        base.execute_cover = True
+        base.save()
+        order = self._create_order_api(amount_base=amount_base)
+        self.assertFalse(order.coverable)

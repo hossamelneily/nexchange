@@ -9,6 +9,7 @@ from orders.models import Order
 from core.models import Address, Pair
 
 from django.core.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError as RestValidationError
 from django.utils.translation import ugettext_lazy as _
 from core.validators import get_validator
 
@@ -100,10 +101,13 @@ class CreateOrderSerializer(OrderSerializer):
             address = addr_list[0]
 
         order.withdraw_address = address
-        order.save()
-        # get post_save stuff in sync
-        order.refresh_from_db()
-        return order
+        try:
+            order.save()
+            # get post_save stuff in sync
+            order.refresh_from_db()
+            return order
+        except ValidationError as e:
+            raise RestValidationError({'non_field_errors': [e.message]})
 
     def update(self, instance, validated_data):
         # Forbid updating after creation
