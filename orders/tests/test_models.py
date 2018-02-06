@@ -988,7 +988,7 @@ class CalculateOrderTestCase(TickerBaseTestCase):
         self.assertAlmostEqual(
             self.order.amount_quote,
             (self.order.amount_base + self.order.pair.base.withdrawal_fee) * times,  # noqa
-            8
+            7
         )
 
     def test_adjust_payment_window(self):

@@ -10,7 +10,7 @@ from accounts.task_summary import import_transaction_deposit_crypto_invoke,\
 from orders.task_summary import exchange_order_release_periodic
 from risk_management.task_summary import reserves_balance_checker_periodic
 from orders.models import Order
-from core.models import Transaction, Currency
+from core.models import Transaction, Currency, Pair
 import os
 from rest_framework.test import APIClient
 from accounts import task_summary as account_tasks
@@ -170,6 +170,11 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
                                   send_tx, get_tx_eth, get_block_eth,
                                   get_tx_eth_receipt, eth_call):
         amount_base = 50
+        pair = Pair.objects.get(name=pair_name)
+        base = pair.base
+        if base.minimal_amount >= Decimal(amount_base):
+            base.minimal_amount = Decimal(amount_base) / Decimal('2')
+            base.save()
         order = self._create_paid_order_api(
             pair_name, amount_base,
             '0x77454e832261aeed81422348efee52d5bd3a3684'
