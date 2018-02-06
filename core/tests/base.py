@@ -140,7 +140,8 @@ class UserBaseTestCase(TestCase):
 
     def _get_id(self, prefix, pattern=None):
         id = str(time()).split('.')[1]
-        rand = randint(256, 4095)
+        # 4 digits hex - [0x1000:0x10000), sensitive for ETH address pattern
+        rand = randint(4096, 65535)
         if pattern is None:
             pattern = '{prefix}_{base}{id}{rand}'
         return pattern.format(prefix=prefix,
@@ -159,14 +160,14 @@ class UserBaseTestCase(TestCase):
         def addr_response(_self, currency):
             pattern = None
             if currency.wallet == 'rpc7':
-                pattern = '0x{rand:02x}' + ('1' * 37)
+                pattern = '0x{rand:02x}' + ('1' * 36)
             return {
                 'address': self._get_id('addr', pattern=pattern),
                 'currency': currency
             }
 
         def ethash_addr_response(_self, currency):
-            pattern = '0x{rand:02x}' + ('1' * 37)
+            pattern = '0x{rand:02x}' + ('1' * 36)
             return self._get_id('addr', pattern=pattern)
 
         self.rpc_mock_addr = \

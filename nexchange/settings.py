@@ -150,7 +150,8 @@ INSTALLED_APPS = [
     'loginurl',
     'social_django',
     'django_fsm',
-    'risk_management'
+    'risk_management',
+    'audit'
 ]
 
 
