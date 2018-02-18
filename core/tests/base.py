@@ -25,7 +25,6 @@ from unittest.mock import patch
 from random import randint
 from web3 import Web3
 from nexchange.api_clients.rpc import EthashRpcApiClient
-from django.db.models import Q
 
 UPHOLD_ROOT = 'nexchange.api_clients.uphold.Uphold.'
 SCRYPT_ROOT = 'nexchange.api_clients.rpc.ScryptRpcApiClient.'
@@ -300,6 +299,10 @@ class OrderBaseTestCase(UserBaseTestCase):
         'pairs_eth.json',
         'pairs_ltc.json',
         'pairs_rns.json',
+        'pairs_doge.json',
+        'pairs_bch.json',
+        'pairs_xvg.json',
+        'pairs_nano.json',
         'payment_method.json',
         'payment_preference.json',
         'reserve.json',
@@ -545,6 +548,10 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         'pairs_ltc.json',
         'pairs_rns.json',
         'pairs_eth.json',
+        'pairs_doge.json',
+        'pairs_bch.json',
+        'pairs_xvg.json',
+        'pairs_nano.json',
         'payment_method.json',
         'payment_preference.json',
         'reserve.json',

@@ -164,13 +164,15 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
 
     @data_provider(lambda: (
         ('Send funds, balance more than 0', 'ETH', '1.1', '0.1',
-         1, {'retry': False, 'success': True}),
+         1, {'retry': False, 'success': True}, False),
         ('Send funds, balance more than 0', 'EOS', '1.1', '0.1',
-         1, {'retry': False, 'success': True}),
+         1, {'retry': False, 'success': True}, False),
         ('Send funds, balance more than 0', 'BDG', '1.1', '0',
-         0, {'retry': True, 'success': False}),
+         0, {'retry': True, 'success': False}, False),
         ('Do not release, balance == 0', 'ETH', '0.0', '0', 0,
-         {'retry': True, 'success': False}),
+         {'retry': True, 'success': False}, False),
+        ('Release error', 'ETH', '1.1', '0.1',
+         1, {'retry': True, 'success': False}, True),
     ),)
     @patch.dict(os.environ, {'RPC7_PUBLIC_KEY_C1': RPC7_KEY1})
     @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
@@ -182,10 +184,14 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
     @patch(ETH_ROOT + 'release_coins')
     def test_send_funds_to_main_card(self, name, curr_code,
                                      amount, amount_main, release_call_count,
-                                     resend_funds_res, release_coins,
-                                     get_balance, get_balance_erc20, get_accs):
+                                     resend_funds_res, raise_value_error,
+                                     release_coins, get_balance,
+                                     get_balance_erc20, get_accs):
         get_accs.return_value = [RPC7_KEY1.upper()]
-        release_coins.return_value = self.generate_txn_id(), True
+        if raise_value_error:
+            release_coins.side_effect = ValueError('Locked wallet')
+        else:
+            release_coins.return_value = self.generate_txn_id(), True
         card = self.user.addressreserve_set.get(currency__code=curr_code)
         currency = Currency.objects.get(code=curr_code)
         value = int(Decimal(amount) * (10 ** currency.decimals))

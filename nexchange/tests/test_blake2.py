@@ -66,7 +66,7 @@ class Blake2RawE2ETestCase(TransactionImportBaseTestCase,
 
     @data_provider(
         lambda: (
-            ('BTCXRB',),
+            ('BTCNANO',),
         )
     )
     @patch.dict(os.environ, {'RPC8_PUBLIC_KEY_C1': RPC8_PUBLIC_KEY_C1})
@@ -136,7 +136,7 @@ class Blake2RawE2ETestCase(TransactionImportBaseTestCase,
 
     @data_provider(
         lambda: (
-            ('XRBBTC',),
+            ('NANOBTC',),
         )
     )
     @patch.dict(os.environ, {'RPC8_PUBLIC_KEY_C1': RPC8_PUBLIC_KEY_C1})

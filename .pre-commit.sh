@@ -7,17 +7,19 @@ function use_running_container {
     coverage_cmd="${coverage_cmd} && coverage run --source='.' --omit='src/' manage.py test -v 3 --pattern='test_*.py'"
     coverage_cmd="${coverage_cmd} && coverage report "
     coverage_cmd="${coverage_cmd} && coverage html -d cover"
+    api_tests_cmd="./manage.py test --failfast -v=3 --pattern='api_test*.py'"
 
     echo "${coverage_cmd}"
 
     static_validation_cmd_py="cd /pipeline/source && ./static-validation-py.sh"
     static_validation_cmd_js="cd /pipeline/source && ./static-validation-js.sh"
     backend_tests="cd /pipeline/source && export DJANGO_SETTINGS_MODULE=nexchange.settings_test && ${coverage_cmd}"
+    api_tests="cd /pipeline/source && export DJANGO_SETTINGS_MODULE=nexchange.settings_test && ${api_tests_cmd}"
     frontend_tests="cd /pipeline/source && PHANTOMJS_BIN=node_modules/.bin/phantomjs  npm run-script test"
 
     docker exec -t ${RUNNING_CONTAINER} bash -c "${static_validation_cmd_py}" &&
         docker exec -t ${RUNNING_CONTAINER} bash -c "${static_validation_cmd_js}" &&
-            docker exec -t ${RUNNING_CONTAINER} bash -c "${backend_tests}"
+            docker exec -t ${RUNNING_CONTAINER} bash -c "${api_tests}"
 }
 
 function use_wercker {

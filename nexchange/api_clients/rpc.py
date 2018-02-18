@@ -609,9 +609,12 @@ class EthashRpcApiClient(BaseRpcClient):
         if any([amount <= 0, main_balance < total_gas]):
             return {'success': False, 'retry': True}
         assert main_address.lower() in [acc.lower() for acc in self.get_accounts(node)]  # noqa
-        tx_id, success = self.release_coins(currency, main_address,
-                                            amount, address_from=address)
-        retry = not success
+        try:
+            tx_id, success = self.release_coins(currency, main_address,
+                                                amount, address_from=address)
+            retry = not success
+        except ValueError:
+            return {'success': False, 'retry': True}
         return {'success': success, 'retry': retry, 'tx_id': tx_id}
 
     def pad_left(self, value, width=64):

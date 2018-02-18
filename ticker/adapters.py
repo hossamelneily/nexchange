@@ -22,6 +22,57 @@ class BaseApiAdapter:
         return self.normalize_quote(ticker)
 
 
+class KucoinAdapter(BaseApiAdapter):
+
+    PAIR_NAME_TEMPLATE = '{base}-{quote}'
+    BASE_URL = 'https://api.kucoin.com/v1/'
+
+    def __init__(self):
+        super(KucoinAdapter, self).__init__()
+        self.reverse_pair = False
+
+    def get_markets(self):
+        return requests.get(self.BASE_URL + 'open/tick').json()
+
+    def kucoin_format(self, code):
+        if code == 'NANO':
+            code = 'XRB'
+        return code
+
+    def get_quote(self, pair):
+        markets = self.get_markets().get('data')
+        all_markets = []
+        for market in markets:
+            all_markets.append(market)
+        market_dict = {market['symbol']: market for market in all_markets}
+        market = self.PAIR_NAME_TEMPLATE.format(
+            base=self.kucoin_format(pair.base.code),
+            quote=self.kucoin_format(pair.quote.code)
+        )
+        reverse_market = self.PAIR_NAME_TEMPLATE.format(
+            quote=self.kucoin_format(pair.base.code),
+            base=self.kucoin_format(pair.quote.code)
+        )
+        if market in market_dict:
+            self.reverse_pair = False
+            result = market_dict[market]
+        elif reverse_market in market_dict:
+            self.reverse_pair = True
+            result = market_dict[reverse_market]
+        else:
+            raise ValidationError(
+                'Ticker and reverse ticker is not available for pair '
+                '{}'.format(pair.name)
+            )
+        ask = result.get('sell')
+        bid = result.get('buy')
+        return {
+            'reverse': self.reverse_pair,
+            'ask': ask,
+            'bid': bid,
+        }
+
+
 class IdexAdapter(BaseApiAdapter):
 
     PAIR_NAME_TEMPLATE = '{quote}_{base}'
@@ -64,7 +115,7 @@ class IdexAdapter(BaseApiAdapter):
 class BitgrailAdapter(BaseApiAdapter):
 
     PAIR_NAME_TEMPLATE = '{base}/{quote}'
-    BASE_URL = 'https://bitgrail.com/api/v1/'
+    BASE_URL = 'https://api.bitgrail.com/v1/'
 
     def __init__(self):
         super(BitgrailAdapter, self).__init__()

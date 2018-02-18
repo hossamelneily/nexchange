@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from risk_management.models import Reserve, Account, Cover, ReserveLog,\
-    PortfolioLog
+    PortfolioLog, PNL, PNLSheet
 
 
 @admin.register(Reserve)
@@ -42,3 +42,20 @@ class PortfolioLogAdmin(admin.ModelAdmin):
                     'total_eth', 'assets_str')
     readonly_fields = ('created_on', 'total_btc', 'total_usd', 'total_eur',
                        'total_eth', 'assets_str', 'assets_by_proportion')
+
+
+@admin.register(PNL)
+class PNLAdmin(admin.ModelAdmin):
+    list_display = ('pnl_sheet', 'date_from', 'date_to', 'pair', 'volume_ask',
+                    'volume_bid', 'average_ask', 'average_bid', 'exit_price')
+    readonly_fields = ('position_str', 'base_position_str', 'realized_volume',
+                       'pnl_realized', 'pnl_unrealized', 'pnl_str', 'pnl_btc',
+                       'pnl_usd', 'pnl_eth', 'pnl_eur')
+    search_fields = ('pair__name',)
+
+
+@admin.register(PNLSheet)
+class PNLSheetAdmin(admin.ModelAdmin):
+    list_display = ('date_from', 'date_to')
+    readonly_fields = ('pnl_btc', 'pnl_eth', 'pnl_eur',
+                       'pnl_usd', 'positions', 'positions_str')

@@ -6,6 +6,7 @@ from audit.models import SuspiciousTransactions
 import requests
 import os
 from decimal import Decimal
+from datetime import datetime
 
 
 class SuspiciousTransactionsChecker(BaseTask):
@@ -90,7 +91,8 @@ class SuspiciousTransactionsChecker(BaseTask):
                     'to': to,
                     'from': _from,
                     'amount': amount,
-                    'tx_id': tx_id
+                    'tx_id': tx_id,
+                    'time_stamp': tx_data.get('timeStamp')
                 }
                 if tx_data_decoded['from'].lower() == main_account.lower():
                     tx_data_decoded['internal'] = \
@@ -134,6 +136,7 @@ class SuspiciousTransactionsChecker(BaseTask):
         total_amount = Decimal('0')
         for tx in out_txs + other_txs:
             tx_id = tx.get('tx_id', tx.get('txid'))
+            time_stamp = tx.get('time_stamp', tx.get('time'))
             amount = tx['amount']
             report = False
             msg = ''
@@ -180,6 +183,8 @@ class SuspiciousTransactionsChecker(BaseTask):
                     sus_tx.address_from = _from
                     sus_tx.address_to = _to
                     sus_tx.auto_comment = msg
+                    if time_stamp:
+                        sus_tx.time = datetime.fromtimestamp(int(time_stamp))
                     sus_tx.save()
 
                 i += 1

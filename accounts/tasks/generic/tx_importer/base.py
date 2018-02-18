@@ -118,10 +118,13 @@ class BaseTransactionImporter:
                     skip = False
             if skip:
                 continue
-            total_txs, txs = self.api.get_txs(node)
-            for tx in txs:
-                if tx['address_to'] is not None:
-                    self.get_or_create_tx(tx)
-                else:
-                    self.logger.info(
-                        'Transaction has no address_to: {}'.format(tx))
+            try:
+                total_txs, txs = self.api.get_txs(node)
+                for tx in txs:
+                    if tx['address_to'] is not None:
+                        self.get_or_create_tx(tx)
+                    else:
+                        self.logger.info(
+                            'Transaction has no address_to: {}'.format(tx))
+            except TypeError:
+                self.logger.warning('node {} is not working'.format(node))

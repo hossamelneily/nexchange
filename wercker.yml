@@ -103,6 +103,7 @@ dev:
           python manage.py loaddata core/fixtures/pairs_bch.json
           python manage.py loaddata core/fixtures/pairs_xvg.json
           python manage.py loaddata core/fixtures/pairs_doge.json
+          python manage.py loaddata core/fixtures/pairs_nano.json
     - script:
         name: Django import Payment Methods fixture
         code: |
@@ -127,7 +128,7 @@ dev:
     - script:
         name: Django import Articles fixtures
         code: |
-          if [ ! -z $LOCAL_CMS] && [ ${LOCAL_CMS} -eq 1 ]
+          if [ ! -z $LOCAL_CMS ] && [ ${LOCAL_CMS} -eq 1 ]
           then
             python manage.py loaddata articles/fixtures/articles.json
           fi
@@ -135,6 +136,9 @@ dev:
         name: Link pre-commit hook script
         code: |
           chmod +x .pre-commit.sh
+          if [ ! -d .git/hooks/ ]; then
+            mkdir .git/hooks/
+          fi
           cd .git/hooks/
           ln -fs ../../.pre-commit.sh pre-commit
           cd -
@@ -431,6 +435,7 @@ build:
           python manage.py loaddata core/fixtures/pairs_bch.json
           python manage.py loaddata core/fixtures/pairs_doge.json
           python manage.py loaddata core/fixtures/pairs_xvg.json
+          python manage.py loaddata core/fixtures/pairs_nano.json
 
           if [ ! -z $CMS_FROM_FIXTURE] && [ ${CMS_FROM_FIXTURE} -eq 1 ]
           then

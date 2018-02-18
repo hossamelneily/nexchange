@@ -21,7 +21,7 @@ class FlipSendWidget {
             currencyTo = pair.substring(0, startOfFrom),
             currencyFrom = pair.substring(startOfFrom);
         // FIXME: hardcoded DOGE coin selector
-        if (currencyTo.toUpperCase() === 'DOG') {
+        if (currencyTo.toUpperCase() === 'DOG' || currencyTo.toUpperCase() === 'NAN') {
             startOfFrom = 4;
             currencyTo = pair.substring(0, startOfFrom);
             currencyFrom = pair.substring(startOfFrom);
@@ -156,10 +156,10 @@ class FlipSendWidget {
 		// FIXME: hardcoded DOGE coin selector
         let baseCodeLength = 3,
 		    quoteCodeLength = 3;
-		if (pair.substring(0, 4).toUpperCase() === 'DOGE') {
+        if (pair.substring(0, 4).toUpperCase() === 'DOGE' || pair.substring(0, 4).toUpperCase() === 'NANO') {
 			baseCodeLength = 4;
 		}
-        if (pair.substring(3).toUpperCase() === 'DOGE') {
+        if (pair.substring(3).toUpperCase() === 'DOGE' || pair.substring(3).toUpperCase() === 'NANO') {
             quoteCodeLength = 4;
         }
 		let reversePair = Extractor.reversePair(pair, baseCodeLength),

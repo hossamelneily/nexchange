@@ -109,7 +109,7 @@ def validate_eth(value):
     # TODO: add ETH hash validation
 
 
-def validate_xrb(value):
+def validate_nano(value):
     p = re.compile('^xrb_(1|3)[0-9a-zA-Z]{59}$')
     p.match(value)
 
@@ -154,8 +154,7 @@ def get_validator(code):
         return validate_doge
     elif code == 'XVG':
         return validate_xvg
-    elif code == 'XRB':
-        return validate_xrb
+    elif code == 'NANO':
+        return validate_nano
 
     return validate_non_address
-

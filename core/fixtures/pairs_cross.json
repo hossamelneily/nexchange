@@ -920,7 +920,7 @@
     "quote": 42,
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
-    "name": "BTCXRB",
+    "name": "BTCNANO",
     "disable_ticker": false,
     "disabled": false,
     "test_mode": true
@@ -936,7 +936,7 @@
     "quote": 1,
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
-    "name": "XRBBTC",
+    "name": "NANOBTC",
     "disable_ticker": false,
     "disabled": false,
     "test_mode": true
@@ -952,7 +952,7 @@
     "quote": 42,
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
-    "name": "LTCXRB",
+    "name": "LTCNANO",
     "disable_ticker": false,
     "disabled": false,
     "test_mode": true
@@ -968,7 +968,7 @@
     "quote": 2,
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
-    "name": "XRBLTC",
+    "name": "NANOLTC",
     "disable_ticker": false,
     "disabled": false,
     "test_mode": true
@@ -984,7 +984,7 @@
     "quote": 42,
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
-    "name": "ETHXRB",
+    "name": "ETHNANO",
     "disable_ticker": false,
     "disabled": false,
     "test_mode": true
@@ -1000,7 +1000,7 @@
     "quote": 3,
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
-    "name": "XRBETH",
+    "name": "NANOETH",
     "disable_ticker": false,
     "disabled": false,
     "test_mode": true
@@ -1016,7 +1016,7 @@
     "quote": 42,
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
-    "name": "DOGEXRB",
+    "name": "DOGENANO",
     "disable_ticker": false,
     "disabled": false,
     "test_mode": true
@@ -1032,7 +1032,7 @@
     "quote": 34,
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
-    "name": "XRBDOGE",
+    "name": "NANODOGE",
     "disable_ticker": false,
     "disabled": false,
     "test_mode": true
@@ -1048,7 +1048,7 @@
     "quote": 42,
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
-    "name": "XVGXRB",
+    "name": "XVGNANO",
     "disable_ticker": false,
     "disabled": false,
     "test_mode": true
@@ -1064,7 +1064,7 @@
     "quote": 35,
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
-    "name": "XRBXVG",
+    "name": "NANOXVG",
     "disable_ticker": false,
     "disabled": false,
     "test_mode": true
@@ -1080,7 +1080,7 @@
     "quote": 42,
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
-    "name": "BCHXRB",
+    "name": "BCHNANO",
     "disable_ticker": false,
     "disabled": false,
     "test_mode": true
@@ -1096,7 +1096,7 @@
     "quote": 36,
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
-    "name": "XRBBCH",
+    "name": "NANOBCH",
     "disable_ticker": false,
     "disabled": false,
     "test_mode": true

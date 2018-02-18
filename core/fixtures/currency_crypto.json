@@ -149,9 +149,9 @@
     "model": "core.currency",
     "pk": 42,
     "fields": {
-      "code": "XRB",
-      "name": "raiblocks",
-      "ticker": "bitgrail",
+      "code": "NANO",
+      "name": "nano",
+      "ticker": "kucoin",
       "wallet": "rpc8",
       "algo": "blake2",
       "withdrawal_fee": "0.1",

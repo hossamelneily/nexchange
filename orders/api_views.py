@@ -12,9 +12,14 @@ from rest_framework_extensions.mixins import (
     ReadOnlyCacheResponseAndETAGMixin
 )
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.exceptions import APIException
+from rest_framework import status
 from collections import OrderedDict
 from core.models import Pair
 from django.db.models import Sum
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import ValidationError
 from decimal import Decimal
 from ticker.models import Price
 from core.common.api_views import DateFilterViewSet
@@ -35,6 +40,7 @@ class OrderListViewSet(viewsets.ModelViewSet,
     lookup_field = 'unique_reference'
     serializer_class = OrderSerializer
     pagination_class = OrderPagination
+    http_method_names = ['get', 'post']
 
     @method_decorator(cache_page(settings.ORDER_CACHE_LIFETIME))
     def list(self, request, *args, **kwargs):
@@ -67,6 +73,7 @@ class OrderListViewSet(viewsets.ModelViewSet,
 class VolumeViewSet(ReadOnlyCacheResponseAndETAGMixin, DateFilterViewSet):
 
     model_class = Order
+    http_method_names = ['get']
 
     @method_decorator(cache_page(settings.VOLUME_CACHE_LIFETIME))
     def dispatch(self, *args, **kwargs):
@@ -132,4 +139,46 @@ class VolumeViewSet(ReadOnlyCacheResponseAndETAGMixin, DateFilterViewSet):
         data.update({'tradable_pairs': volume_data})
 
         data = OrderedDict(data)
+        return Response(data)
+
+
+class PriceView(APIView):
+
+    PAIR_REQUIRED = APIException(detail='pair_name is required')
+    PAIR_REQUIRED.status_code = status.HTTP_400_BAD_REQUEST
+
+    BASE_OR_QUOTE_REQUIRED = APIException(
+        detail='Either amount_quote or amount_base is required')
+    BASE_OR_QUOTE_REQUIRED.status_code = status.HTTP_400_BAD_REQUEST
+
+    PAIR_DOES_NOT_EXIST = APIException(detail='pair does not exist')
+    PAIR_DOES_NOT_EXIST.status_code = status.HTTP_404_NOT_FOUND
+
+    def get(self, request, pair_name=None):
+        amount_base = self.request.GET.get('amount_base', None)
+        amount_quote = self.request.GET.get('amount_quote', None)
+        if not pair_name:
+            raise self.PAIR_REQUIRED
+        if not any((amount_base, amount_quote)):
+            raise self.BASE_OR_QUOTE_REQUIRED
+        try:
+            pair = Pair.objects.get(name=pair_name)
+        except (ObjectDoesNotExist, MultipleObjectsReturned):
+            raise self.PAIR_DOES_NOT_EXIST
+        if amount_base:
+            amount_base = Decimal(amount_base)
+            order = Order(pair=pair, amount_base=amount_base)
+            order.calculate_quote_from_base()
+            data = OrderedDict({'amount_base': amount_base,
+                                'amount_quote': order.amount_quote})
+        elif amount_quote:
+            amount_quote = Decimal(amount_quote)
+            order = Order(pair=pair, amount_quote=amount_quote)
+            order.calculate_base_from_quote()
+            data = OrderedDict(
+                {'amount_base': order.amount_base, 'amount_quote': amount_quote})
+        try:
+            order._validate_order_amount()
+        except ValidationError as e:
+            raise APIException(detail=str(e))
         return Response(data)

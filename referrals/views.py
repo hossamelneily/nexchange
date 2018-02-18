@@ -18,6 +18,7 @@ from .serializers import ReferralSerializer
 class ReferralViewSet(DateFilterViewSet):
     serializer_class = ReferralSerializer
     premission_classes = (IsLoggedIn,)
+    http_method_names = ['get']
 
     def get_queryset(self, *args, **kwargs):
         self.queryset = \

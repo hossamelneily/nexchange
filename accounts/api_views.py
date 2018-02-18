@@ -18,6 +18,7 @@ class UserViewSet(NoDeleteModelViewSet):
     serializer_class = UserSerializer
     lookup_field = 'username'
     queryset = User.objects.all()
+    http_method_names = ['get']
 
     def get_object(self):
         """
@@ -43,6 +44,7 @@ class UserOrderListViewSet(OrderListViewSet):
     permission_classes = OrderListViewSet.permission_classes + \
         (permissions.IsAuthenticated,)
     serializer_class = UserOrderSerializer
+    http_method_names = ['get', 'post']
 
     def get_queryset(self, filters=None, **kwargs):
         self.queryset = Order.objects.filter(user=self.request.user)
@@ -62,6 +64,7 @@ class UserAddressViewSet(UserResourceViewSet):
     model_class = Address
     serializer_class = AddressSerializer
     lookup_field = 'address'
+    http_method_names = ['get', 'post']
 
     def get_serializer_class(self):
         if self.request.method in ['PUT', 'PATCH']:

@@ -308,6 +308,18 @@ TRADING_TASKS = {
         'task': 'risk_management.task_summary.log_current_assets',
         'schedule': timedelta(seconds=600),
     },
+    'calculate_pnls': {
+        'task': 'risk_management.task_summary.calculate_pnls',
+        'schedule': timedelta(hours=24),
+    },
+}
+
+AUDIT_TASKS = {
+    'audit_transactions': {
+        'task': 'audit.task_summary.'
+                'check_suspicious_transactions_all_currencies_invoke',
+        'schedule': timedelta(hours=24),
+    },
 }
 
 CELERY_BEAT_SCHEDULE = {}
@@ -318,13 +330,14 @@ CELERY_BEAT_SCHEDULE.update(PAYMENT_CHECKER_TASKS)
 CELERY_BEAT_SCHEDULE.update(TRANSACTION_CHECKER_TASKS)
 CELERY_BEAT_SCHEDULE.update(ORDER_RELEASE_TASKS)
 CELERY_BEAT_SCHEDULE.update(TRADING_TASKS)
+CELERY_BEAT_SCHEDULE.update(AUDIT_TASKS)
 
 TASKS_TIME_LIMIT = 30
 TRANSACTION_IMPORT_TIME_LIMIT = 9
 RETRY_RELEASE_TIME = 600
 RETRY_RELEASE_MAX_RETRIES = 3
-CARD_CHECK_TIME = 300
-RETRY_CARD_CHECK_MAX_RETRIES = 18
+CARD_CHECK_TIME = 150
+RETRY_CARD_CHECK_MAX_RETRIES = 5
 THIRD_PARTY_TRADE_TIME = 10
 
 

@@ -9,9 +9,10 @@ from risk_management.tasks.generic.reserve_balance_checker import \
 from risk_management.tasks.generic.reserve_balance_maintainer import \
     ReserveBalanceMaintainer
 from risk_management.tasks.generic.main_account_filler import MainAccountFiller
-from risk_management.models import Reserve, PortfolioLog
+from risk_management.models import Reserve, PortfolioLog, PNLSheet
 from risk_management.tasks.generic.currency_cover import CurrencyCover
 from risk_management.tasks.generic.order_cover import OrderCover
+from django.utils.timezone import now, timedelta
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
@@ -77,3 +78,11 @@ def currency_cover_invoke(currency_code, amount):
 def log_current_assets():
     new_log = PortfolioLog()
     new_log.save()
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def calculate_pnls():
+    date_from = now() - timedelta(hours=24)
+    date_to = now()
+    new_sheet = PNLSheet(date_from=date_from, date_to=date_to)
+    new_sheet.save()

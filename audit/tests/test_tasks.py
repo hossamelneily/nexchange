@@ -55,10 +55,12 @@ class AuditTaksTestCase(AuditBaseTestCase):
                 {'hash': hash,
                  'value': str(value),
                  'from': _from,
+                 'timeStamp': '1518441881',
                  'to': _to},
                 {'hash': hash_token,
                  'value': '0',
                  'from': _from,
+                 'timeStamp': '1518441881',
                  'to': _token_address,
                  'input': '0xa9059cbb000000000000000000000000{}{}{}'.format(
                      _to[2:], hex_val_padding, hex_val[2:]
@@ -67,6 +69,7 @@ class AuditTaksTestCase(AuditBaseTestCase):
                  'value': '0',
                  'from': _from,
                  'to': _token_address,
+                 'timeStamp': '1518441881',
                  'input': '0xa9059cbb000000000000000000000000{}{}{}'.format(
                      _to_internal[2:], hex_val_padding, hex_val[2:]
                  )},
@@ -74,6 +77,7 @@ class AuditTaksTestCase(AuditBaseTestCase):
                  'value': '0',
                  'from': _to_internal,
                  'to': _token_address,
+                 'timeStamp': '1518441881',
                  'input': '0xa9059cbb000000000000000000000000{}{}{}'.format(
                      _from[2:], hex_val_padding, hex_val[2:]
                  )},
@@ -98,6 +102,7 @@ class AuditTaksTestCase(AuditBaseTestCase):
             self.assertEqual(tx.currency.code, currency_code)
             self.assertEqual(tx.address_from, _from)
             self.assertEqual(tx.address_to, _to)
+            self.assertIsNotNone(tx.time)
 
     @patch.dict(os.environ, {'RPC3_PUBLIC_KEY_C1': RPC7_PUBLIC_KEY_C1})
     @patch.dict(os.environ, {'RPC_RPC3_PASSWORD': 'password'})
@@ -117,6 +122,7 @@ class AuditTaksTestCase(AuditBaseTestCase):
             {'txid': hash,
              'category': 'send',
              'address': _to,
+             'time': 1518441881,
              'amount': - amount},
         ]
         self.checker.apply_async([currency_code])
@@ -132,6 +138,7 @@ class AuditTaksTestCase(AuditBaseTestCase):
             self.assertEqual(tx.currency.code, currency_code)
             self.assertIsNone(tx.address_from)
             self.assertEqual(tx.address_to, _to)
+            self.assertIsNotNone(tx.time)
 
     @patch('audit.tasks.generic.suspicious_transactions_checker.'
            'SuspiciousTransactionsChecker.run')
@@ -139,5 +146,5 @@ class AuditTaksTestCase(AuditBaseTestCase):
         self.checker_all.apply_async()
         currs = Currency.objects.filter(
             is_crypto=True, is_token=False
-        ).exclude(code__in=['RNS', 'XRB'])
+        ).exclude(code__in=['RNS', 'XRB', 'NANO'])
         self.assertEqual(checker_run.call_count, len(currs))

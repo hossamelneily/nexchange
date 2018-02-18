@@ -8,6 +8,9 @@ from decimal import Decimal
 from django.utils.translation import ugettext as _
 from django_fsm import FSMIntegerField, transition
 from django.core.exceptions import ValidationError
+from django.db.models import Sum
+from django.utils.timezone import now, timedelta
+from copy import deepcopy
 
 
 class Reserve(TimeStampedModel):
@@ -303,3 +306,229 @@ class Cover(TimeStampedModel):
         else:
             amount = max_to_send
         return amount
+
+
+class PNLSheet(TimeStampedModel):
+
+    def get_defult_date_from():
+        return now() - timedelta(hours=24)
+
+    date_from = models.DateTimeField(
+        blank=True, null=True, default=get_defult_date_from
+    )
+    date_to = models.DateTimeField(blank=True, null=True, default=now)
+
+    def sum_pnls_field(self, field_name):
+        reserve_logs = self.pnl_set.all()
+        return Decimal(sum([getattr(log, field_name) for log in reserve_logs]))
+
+    @property
+    def pnl_btc(self):
+        return self.sum_pnls_field('pnl_btc')
+
+    @property
+    def pnl_usd(self):
+        return self.sum_pnls_field('pnl_usd')
+
+    @property
+    def pnl_eur(self):
+        return self.sum_pnls_field('pnl_eur')
+
+    @property
+    def pnl_eth(self):
+        return self.sum_pnls_field('pnl_eth')
+
+    @property
+    def positions(self):
+        res = {}
+        pnls = self.pnl_set.filter(pair__isnull=False)
+        for pnl in pnls:
+            pnl_positions = {
+                pnl.pair.base.code: pnl.base_position,
+                pnl.pair.quote.code: pnl.position
+            }
+            for key, value in pnl_positions.items():
+                if key in res:
+                    res[key] += value
+                else:
+                    res.update({key: value})
+        return res
+
+    @property
+    def positions_str(self):
+        positions = self.positions
+        res = '|'
+        for key, value in positions.items():
+            res += ' {0:.1f} {1:s} |'.format(value, key)
+        return res
+
+    def save(self):
+        create_pnls = False if self.pk else True
+        res = super(PNLSheet, self).save()
+        if create_pnls:
+            crypto = Currency.objects.filter(is_crypto=True).exclude(
+                code__in=['RNS']).order_by('pk')
+            codes = [curr.code for curr in crypto] + ['EUR', 'USD']
+            names = []
+            for i, code_base in enumerate(codes):
+                for code_quote in codes[i + 1:]:
+                    names.append('{}{}'.format(code_base, code_quote))
+            pairs = Pair.objects.filter(name__in=names)
+            for pair in pairs:
+                pnl = PNL(pair=pair, pnl_sheet=self, date_from=self.date_from,
+                          date_to=self.date_to)
+                pnl.save()
+        return res
+
+    def __str__(self):
+        return '{}'.format(self.pk)
+
+
+class PNL(TimeStampedModel):
+
+    def get_defult_date_from():
+        return now() - timedelta(hours=24)
+
+    pnl_sheet = models.ForeignKey(PNLSheet, null=True, blank=True)
+    date_from = models.DateTimeField(
+        blank=True, null=True, default=get_defult_date_from
+    )
+    date_to = models.DateTimeField(blank=True, null=True, default=now)
+    pair = models.ForeignKey(Pair, blank=True, null=True)
+    average_ask = models.DecimalField(max_digits=18, decimal_places=8,
+                                      default=Decimal('0'))
+    volume_ask = models.DecimalField(max_digits=18, decimal_places=8,
+                                     default=Decimal('0'))
+    average_bid = models.DecimalField(max_digits=18, decimal_places=8,
+                                      default=Decimal('0'))
+    volume_bid = models.DecimalField(max_digits=18, decimal_places=8,
+                                     default=Decimal('0'))
+    pair_order_count = models.IntegerField(null=True, blank=True)
+    opposite_pair_order_count = models.IntegerField(null=True, blank=True)
+    exit_price = models.DecimalField(max_digits=18, decimal_places=8,
+                                     default=Decimal('0'))
+    rate_btc = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'), blank=True)
+    rate_usd = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'), blank=True)
+    rate_eur = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'), blank=True)
+    rate_eth = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'), blank=True)
+
+    @property
+    def position(self):
+        return self.volume_ask - self.volume_bid
+
+    @property
+    def position_str(self):
+        asset = '<asset>' if not self.pair else self.pair.quote.code
+        return '{} {}'.format(self.position, asset)
+
+    @property
+    def base_position(self):
+        return \
+            self.volume_bid * self.average_bid - \
+            self.volume_ask * self.average_ask
+
+    @property
+    def base_position_str(self):
+        currency = '<points>' if not self.pair else self.pair.base.code
+        return '{} {}'.format(self.base_position, currency)
+
+    @property
+    def realized_volume(self):
+        return min([self.volume_ask, self.volume_bid])
+
+    @property
+    def pnl_realized(self):
+        return (self.average_bid - self.average_ask) * self.realized_volume
+
+    @property
+    def pnl_unrealized(self):
+        if self.position >= Decimal('0'):
+            rate = self.average_ask
+        else:
+            rate = self.average_bid
+        return (self.exit_price - rate) * self.position
+
+    @property
+    def pnl(self):
+        return self.pnl_realized + self.pnl_unrealized
+
+    @property
+    def pnl_str(self):
+        currency = '<points>' if not self.pair else self.pair.base.code
+        return '{} {}'.format(self.pnl, currency)
+
+    @property
+    def pnl_btc(self):
+        return self.pnl * self.rate_btc
+
+    @property
+    def pnl_usd(self):
+        return self.pnl * self.rate_usd
+
+    @property
+    def pnl_eth(self):
+        return self.pnl * self.rate_eth
+
+    @property
+    def pnl_eur(self):
+        return self.pnl * self.rate_eur
+
+    def _set_pnl_parameters(self):
+        filter = {
+            'created_on__range': [self.date_from, self.date_to],
+            'status': Order.COMPLETED
+        }
+        ask_filter = deepcopy(filter)
+        bid_filter = deepcopy(filter)
+        ask_filter.update({'pair': self.pair})
+        opposite_pair_name = '{}{}'.format(self.pair.quote.code,
+                                           self.pair.base.code)
+        bid_filter.update({'pair__name': opposite_pair_name})
+        ask_orders = Order.objects.filter(**ask_filter)
+        self.pair_order_count = ask_orders.count()
+        if self.pair_order_count:
+            volumes_ask = ask_orders.aggregate(
+                Sum('amount_base'), Sum('amount_quote'))
+            base_volume = volumes_ask.get('amount_base__sum', Decimal('0'))
+            self.volume_ask = volumes_ask.get('amount_quote__sum',
+                                              Decimal('0'))
+            self.average_ask = base_volume / self.volume_ask
+
+        bid_orders = Order.objects.filter(**bid_filter)
+        self.opposite_pair_order_count = bid_orders.count()
+        if self.opposite_pair_order_count:
+            volumes_bid = bid_orders.aggregate(
+                Sum('amount_base'), Sum('amount_quote'))
+            quote_volume = volumes_bid.get('amount_quote__sum', Decimal('0'))
+            self.volume_bid = volumes_bid.get('amount_base__sum', Decimal('0'))
+            self.average_bid = quote_volume / self.volume_bid
+        try:
+            self.exit_price = Price.get_rate(self.pair.quote, self.pair.base)
+        except Price.DoesNotExist:
+            pass
+
+    def __str__(self):
+        asset = '<asset>' if not self.pair else self.pair.quote.code
+        currency = '<points>' if not self.pair else self.pair.base.code
+
+        return 'position {} {} | P&l {} {}'.format(
+            self.position, asset, self.pnl, currency)
+
+    def save(self):
+        if all([self.date_from, self.date_to, self.pair, not self.pk]):
+            self._set_pnl_parameters()
+            base_currency = self.pair.base
+            for quote_currency in ['BTC', 'USD', 'EUR', 'ETH']:
+                field = 'rate_{}'.format(quote_currency.lower())
+                if not getattr(self, field):
+                    try:
+                        rate = Price.get_rate(base_currency, quote_currency)
+                        setattr(self, field, rate)
+                    except Price.DoesNotExist:
+                        continue
+
+        super(PNL, self).save()

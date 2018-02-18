@@ -17,3 +17,4 @@ class SuspiciousTransactions(TimeStampedModel):
     auto_comment = models.TextField(default=None, null=True, blank=True)
     human_comment = models.TextField(default=None, null=True, blank=True)
     approved = models.BooleanField(default=False)
+    time = models.DateTimeField(null=True, blank=True)

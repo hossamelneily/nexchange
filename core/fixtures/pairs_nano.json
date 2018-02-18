@@ -1,0 +1,30 @@
+[
+{
+  "model": "core.pair",
+  "pk": 203,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 42,
+    "quote": 4,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "NANOUSD",
+    "disabled": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 204,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 42,
+    "quote": 6,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "NANOEUR",
+    "disabled": true
+  }
+}
+]

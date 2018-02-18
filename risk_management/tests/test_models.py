@@ -1,5 +1,6 @@
 from risk_management.tests.base import RiskManagementBaseTestCase
-from risk_management.models import Reserve, Account, Cover
+from django.test import TestCase
+from risk_management.models import Reserve, Account, Cover, PNL
 from decimal import Decimal
 from unittest.mock import patch
 from core.tests.base import SCRYPT_ROOT
@@ -113,3 +114,18 @@ class PropetiesTestCase(RiskManagementBaseTestCase):
             cover.amount_to_main_account,
             balance_bittrex - account.minimal_reserve
         )
+
+
+class PnlTestCase(TestCase):
+
+    def test_pnl_calc_example(self):
+        pn = PNL(volume_ask=Decimal('32'), average_ask=Decimal('99.75'),
+                 volume_bid=Decimal('13'), average_bid=Decimal('102.230769'),
+                 exit_price=Decimal('99'))
+        pn.save()
+        self.assertEqual(pn.position, Decimal('19'))
+        self.assertEqual(pn.realized_volume, Decimal('13'))
+        self.assertEqual(pn.pnl_realized, Decimal('32.249997'))
+        self.assertEqual(pn.pnl_unrealized, Decimal('-14.25'))
+        self.assertEqual(pn.pnl, Decimal('17.999997'))
+        self.assertIsInstance(pn.__str__(), str)

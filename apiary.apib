@@ -66,6 +66,25 @@ API for crypto currency exchange.
               }
             ]
 
+## Get Price [/en/api/v1/get_price/{pair_name}/{?amount_base,amount_quote}]
+
++ Parameters
+    + `pair_name`: BTCLTC (required, string) - name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC.
+    + `amount_base`:  0.01533743 (optional, double) - amount of base currency which user gets.
+    + `amount_quote`: 100 (optional, double) - amount of base currency which user sends.
+
+### Get Price [GET]
+ Get price quote of a given amount of currency, or get how much currency you would get for a given amount of currency
+
++ Response 200 (application/json)
+    + Attributes (PriceBaseQuote)
+    + Body
+
+            {
+            "amount_base": 0.01533743,
+            "amount_quote": 100.0
+            }
+
 ## Latest Ticker [/en/api/v1/price/{pair_name}/latest/{?market_code}]
 
 + Parameters
@@ -928,6 +947,10 @@ API for crypto currency exchange.
 + `rate_usd` (number, required) - order base currency rate to USD.
 + `rate_btc` (number, required) - order base currency rate to BTC.
 + `rate_eur` (number, required) - order base currency rate to EUR.
+
+## PriceBaseQuote
++ `amount_base` (number, required) - amount of base currency which user gets.
++ `amount_quote` (number, required) - amount of base currency which user sends.
 
 ## Address
 + `type` (required) - "W" for withdraw and "D" for Deposit.

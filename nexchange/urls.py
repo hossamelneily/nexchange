@@ -27,6 +27,7 @@ from core.urls import core_api_patterns
 from accounts.urls import account_urls, account_api_patterns
 from articles.urls import article_urls
 from orders.urls import order_urls, order_api_patterns
+from orders.api_views import PriceView
 from payments.urls import payment_urls
 from referrals.urls import referral_urls, referrals_api_patterns
 from support.urls import support_urls, support_api_patterns
@@ -67,6 +68,7 @@ urlpatterns = i18n_patterns(
 
     url(r'^api/v1/', include(api_patterns)),
     url(r'^api/v1/menu', core.views.ajax_menu, name='core.menu'),
+    url(r'^api/v1/get_price/(?P<pair_name>[^/.]+)/$', PriceView.as_view(), name='get_price'),
     url(r'^api/v1/breadcrumbs', core.views.ajax_crumbs,
         name='core.breadcrumbs'),
     url(r'session_security/', include('session_security.urls')),

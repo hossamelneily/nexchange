@@ -9,4 +9,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         checker = SuspiciousTransactionsChecker(do_log=False)
         for curr in ['XVG', 'BTC', 'BCH', 'LTC', 'DOGE', 'ETH']:
-            checker.run(curr)
+            try:
+                checker.run(curr)
+            except:
+                continue

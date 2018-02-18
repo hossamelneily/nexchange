@@ -2,23 +2,24 @@ import json
 from datetime import timedelta
 from decimal import Decimal
 from http.cookies import SimpleCookie
-from unittest import skip, mock
+from unittest import mock, skip
 
 import pytz
+import requests_mock
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils import timezone
+from rest_framework.test import APIClient
 
 from accounts.models import Profile
 from core.models import Address, Currency
 from core.tests.base import OrderBaseTestCase
-from ticker.tests.base import TickerBaseTestCase
+from core.tests.utils import data_provider
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
+from ticker.tests.base import TickerBaseTestCase
 from verification.models import Verification
-from core.tests.utils import data_provider
-import requests_mock
 
 
 class OrderSetAsPaidTestCase(OrderBaseTestCase):
@@ -503,3 +504,66 @@ class OrderIndexOrderTestCase(OrderBaseTestCase):
         self.assertEqual(1, len(response.context['orders'].object_list))
 
         Order.objects.filter(user=self.user).delete()
+
+
+class TestGetPrice(TickerBaseTestCase):
+
+    def tearDown(self):
+        super(TestGetPrice, self).tearDown()
+        # Purge
+        Order.objects.all().delete()
+
+    def test_return_correct_quote(self):
+        client = APIClient()
+        amount_base = 0.005
+        pair_name = 'BTCEUR'
+        get_price_quote = client.get(
+            '/en/api/v1/get_price/{}/'.format(pair_name),
+            data={'amount_base': amount_base}
+        ).data['amount_quote']
+
+        data = {
+            "amount_base": amount_base,
+            "is_default_rule": False,
+            "pair": {
+                "name": pair_name
+            },
+            "withdraw_address": {
+                "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ"
+            }
+        }
+        new_order_quote = client.post('/en/api/v1/orders/', data=data,
+                                      format='json').data['amount_quote']
+        self.assertEqual(Decimal(get_price_quote), Decimal(new_order_quote))
+
+    def test_return_correct_base(self):
+        client = APIClient()
+        amount_quote = 200
+        pair_name = 'BTCEUR'
+        get_price_base = client.get(
+            '/en/api/v1/get_price/{}/'.format(pair_name),
+            data={'amount_quote': amount_quote}
+        ).data['amount_base']
+
+        data = {
+            "amount_quote": amount_quote,
+            "is_default_rule": False,
+            "pair": {
+                "name": pair_name
+            },
+            "withdraw_address": {
+                "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ"
+            }
+        }
+        new_order_base = client.post('/en/api/v1/orders/', data=data,
+                                     format='json').data['amount_base']
+        self.assertEqual(Decimal(get_price_base), Decimal(new_order_base))
+
+    def test_does_not_create_order(self):
+        orders_before = Order.objects.count()
+        client = APIClient()
+        res = client.get('/en/api/v1/get_price/BTCEUR/',
+                         data={'amount_base': 0.005})
+        self.assertEqual(res.status_code, 200)
+        orders_after = Order.objects.count()
+        self.assertEqual(orders_before, orders_after)

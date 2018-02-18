@@ -220,7 +220,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
             return self.PROVIDED_QUOTE
 
     def set_payment_preference(self, method_name='Safe Charge'):
-        if any([self.exchange, self.pk, self.payment_preference]):
+        if any([self.pair.is_crypto, self.pk, self.payment_preference]):
             return
         self.payment_preference = PaymentPreference.objects.get(
             user__is_staff=True,
@@ -242,7 +242,6 @@ class Order(TimeStampedModel, SoftDeletableModel,
             self.exchange = False
         if not self.pk:
             self.user_provided_amount = self.get_provided_amount_option()
-            self.set_payment_preference()
             if self.amount_base:
                 self.calculate_quote_from_base()
             elif self.amount_quote:
@@ -276,6 +275,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         price.save()
 
     def calculate_from(self, _from='base', price=None):
+        self.set_payment_preference()
         if _from == 'base':
             _to = 'quote'
         elif _from == 'quote':

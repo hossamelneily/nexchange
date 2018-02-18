@@ -1,17 +1,21 @@
 from risk_management.tests.base import RiskManagementBaseTestCase
+from ticker.tests.base import TickerBaseTestCase
 from unittest.mock import patch
 from risk_management.task_summary import reserves_balance_checker_periodic,\
     account_balance_checker_invoke, reserve_balance_maintainer_invoke,\
     main_account_filler_invoke, currency_reserve_balance_checker_invoke, \
-    currency_cover_invoke, log_current_assets
-from risk_management.models import Reserve, Account, Cover, PortfolioLog
+    currency_cover_invoke, log_current_assets, calculate_pnls
+from risk_management.models import Reserve, Account, Cover, PortfolioLog,\
+    PNLSheet
 from decimal import Decimal
 from django.conf import settings
 from core.tests.utils import data_provider
-from core.models import Pair, Currency, Address
+from core.models import Pair, Currency, Address, AddressReserve
 from nexchange.api_clients.kraken import KrakenApiClient
 from nexchange.api_clients.bittrex import BittrexApiClient
 from core.tests.base import ETH_ROOT, SCRYPT_ROOT, BLAKE2_ROOT
+from orders.models import Order
+from rest_framework.test import APIClient
 
 
 class BalanceTaskTestCase(RiskManagementBaseTestCase):
@@ -423,3 +427,80 @@ class UncoveredTestCase(RiskManagementBaseTestCase):
         reserve = Reserve.objects.get(currency__code=code)
         currency_reserve_balance_checker_invoke.apply([code])
         checker.assert_called_with(reserve.pk)
+
+
+class PnlTaskTestCase(TickerBaseTestCase):
+
+    def setUp(self):
+        super(PnlTaskTestCase, self).setUp()
+        self.api_client = APIClient()
+        self._create_enough_addresses_for_test()
+        self._create_orders_for_test()
+
+    def _create_enough_addresses_for_test(self):
+        curs = Currency.objects.filter(is_crypto=True)
+        for cur in curs:
+            for i in range(50):
+                card = AddressReserve(currency=cur,
+                                      address='{}_{}'.format(cur.code, i))
+                card.save()
+
+    def _create_order_api(self, amount_base, pair_name, address):
+        order_data = {
+            "amount_base": amount_base,
+            "is_default_rule": False,
+            "pair": {
+                "name": pair_name
+            },
+            "withdraw_address": {
+                "address": address
+            }
+        }
+        order_api_url = '/en/api/v1/orders/'
+        response = self.api_client.post(
+            order_api_url, order_data, format='json'
+        )
+        order = Order.objects.get(
+            unique_reference=response.json()['unique_reference']
+        )
+        return order
+
+    def _create_orders_for_test(self):
+        some_number = 5
+        order_data = [
+            (0.1, 'BTCLTC', '17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ'),
+            (10, 'LTCBTC', 'LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4'),
+            (10, 'ETHBTC', '0x77454e832261aeed81422348efee52d5bd3a3684'),
+            (10, 'ETHLTC', '0x77454e832261aeed81422348efee52d5bd3a3684'),
+            (1, 'ETHBDG', '0x77454e832261aeed81422348efee52d5bd3a3684'),
+            (5, 'LTCBDG', 'LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4'),
+        ]
+        for data in order_data:
+            for i in range(some_number):
+                amount, pair_name, address = data
+                order = self._create_order_api(amount, pair_name, address)
+                order.status = Order.COMPLETED
+                order.save()
+
+    def test_pnl_sheet(self):
+        calculate_pnls.apply_async()
+        pnl_sheet = PNLSheet.objects.last()
+        pnls = pnl_sheet.pnl_set.all()
+        for curr in ['btc', 'usd', 'eth', 'eur']:
+            param = 'pnl_{}'.format(curr)
+            expected = sum([getattr(pnl, param) for pnl in pnls])
+            actual = getattr(pnl_sheet, param)
+            self.assertEqual(expected, actual, param)
+        btc_pnls = pnls.filter(pair__quote__code='BTC')
+        btc_base_pnls = pnls.filter(pair__base__code='BTC')
+        expected_position = sum(
+            [pnl.position for pnl in btc_pnls] +
+            [pnl.base_position for pnl in btc_base_pnls]
+        )
+        self.assertEqual(pnl_sheet.positions['BTC'], expected_position)
+        pnl_sheet.positions_str
+        pnl_sheet.__str__()
+        pnl = pnls.last()
+        pnl.position_str
+        pnl.base_position_str
+        pnl.pnl_str
