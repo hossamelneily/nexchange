@@ -135,7 +135,6 @@ dev:
           fi
     - script:
         name: Link pre-commit hook script
-        code: |
           chmod +x .pre-commit.sh
           if [ ! -d .git/hooks/ ]; then
             mkdir .git/hooks/
@@ -610,7 +609,7 @@ tests:
     - script:
         name: Backend tests
         code: |
-          DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh -c
+          DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-tests.sh -c 1
 
     - script:
         name: Selenium tests

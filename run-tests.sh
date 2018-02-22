@@ -1,13 +1,26 @@
 #!/bin/bash
 
 coverage erase
-coverage run --source="." --omit="src/**,core/tests/test_api/*,core/tests/test_api_external/*,core/tests/test_noc/*" manage.py test --failfast --failfast -v=3 --pattern="test_*.py" --settings=nexchange.settings_test
-TEST_STATUS_CODE=$?
-while getopts ":c:" opt; do
-    COVERALLS_REPO_TOKEN=Y9cfC0hPig5JrjZe4zxgvgcuoZ3AmxZYo coveralls
+DO_COVERAGE=0
+while getopts ":c:t:" arg; do
+  case $arg in
+    t)
+      TEST_PATH=$OPTARG
+      echo $TEST_PATH
+      ;;
+    c)
+      DO_COVERAGE=$OPTARG
+      ;;
+  esac
 done
-coverage report
-coverage html -d cover
+coverage run --source="." --omit="src/**,core/tests/test_api/*,core/tests/test_api_external/*,core/tests/test_noc/*" manage.py test --failfast -v=3 --pattern="test_*.py" $TEST_PATH --settings=nexchange.settings_test
+TEST_STATUS_CODE=$?
+if [ ${DO_COVERAGE} -eq 1 ]
+then
+   COVERALLS_REPO_TOKEN=Y9cfC0hPig5JrjZe4zxgvgcuoZ3AmxZYo coveralls
+   coverage report
+   coverage html -d cover
+fi
 
 #!/bin/bash
 

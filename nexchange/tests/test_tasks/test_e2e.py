@@ -32,7 +32,7 @@ from verification.models import Verification
 from payments.tests.test_api_clients.test_adv_cash import \
     BaseAdvCashAPIClientTestCase
 from risk_management.tests.base import RiskManagementBaseTestCase
-from risk_management.models import Cover
+from risk_management.models import Cover, PNLSheet, PNL
 from risk_management.task_summary import order_cover_invoke
 from unittest import skip
 
@@ -1199,3 +1199,165 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
             )
         else:
             release_coins.assert_not_called()
+
+    @patch(BITTREX_ROOT + 'release_coins')
+    @patch(ETH_ROOT + '_get_txs')
+    @patch(SCRYPT_ROOT + '_get_txs')
+    @patch('nexchange.api_clients.bittrex.Bittrex.withdraw')
+    @patch('nexchange.api_clients.bittrex.Bittrex.sell_limit')
+    @patch('nexchange.api_clients.bittrex.Bittrex.buy_limit')
+    @patch('nexchange.api_clients.bittrex.Bittrex.get_ticker')
+    @patch(SCRYPT_ROOT + 'get_balance')
+    @patch('nexchange.api_clients.bittrex.Bittrex.get_balance')
+    def test_pnl_of_cover_buy(self, _get_balance, get_balance_scrypt,
+                              get_ticker, buy_limit, sell_limit, withdraw,
+                              get_txs_scrypt, get_txs_eth, release_coins):
+        for order in Order.objects.filter(status=Order.COMPLETED):
+            order.status = Order.CANCELED
+            with patch('orders.models.Order._validate_status'):
+                order.save()
+        ask = bid = Decimal('0.0012')
+        pair_trade = Pair.objects.get(name='XVGBTC')
+        xvg = pair_trade.base
+        xvg.execute_cover = True
+        xvg.save()
+        withdraw_tx_id = '123'
+        buy_tx_id = self.generate_txn_id()
+        sell_tx_id = self.generate_txn_id()
+        self._create_order(pair_name='XVGETH', amount_base=3000)
+        order = self.order
+        mock_amount = self.order.amount_quote
+        xvg_amount = self.order.amount_base
+        balance_bittrex = xvg_amount
+        balance_main = xvg_amount / Decimal('2')
+
+        # Import mocks
+        card = self.order.deposit_address.reserve
+        get_txs_scrypt.return_value = self.get_scrypt_tx(
+            mock_amount, card.address
+        )
+        get_txs_eth.return_value = self.get_ethash_tx(mock_amount,
+                                                      card.address)
+        # Trade mocks
+        _get_balance.return_value = self._get_bittrex_get_balance_response(
+            float(balance_bittrex), available=float(balance_bittrex)
+        )
+        get_balance_scrypt.return_value = balance_main
+        withdraw.return_value = {'result': {'uuid': withdraw_tx_id}}
+        buy_limit.return_value = {'result': {'uuid': buy_tx_id}}
+        sell_limit.return_value = {'result': {'uuid': sell_tx_id}}
+        get_ticker.return_value = self._get_bittrex_get_ticker_response(
+            ask=ask, bid=bid)
+
+        self.import_txs_task.apply()
+
+        cover = Cover.objects.latest('id')
+        order.status = Order.COMPLETED
+        order.save()
+        order.refresh_from_db()
+        self.assertEqual(cover.status, cover.EXECUTED)
+        sheet = PNLSheet()
+        sheet.save()
+        expected_positions = {
+            'BTC': - cover.amount_quote,
+            'ETH': order.amount_quote
+        }
+        for key, value in sheet.positions.items():
+            expected_value = expected_positions.get(key, Decimal('0'))
+            self.assertEqual(
+                expected_value, value, 'Bad {} position'.format(key)
+            )
+        order_pnl = sheet.pnl_set.get(pair__name='ETHXVG')
+        self.assertEqual(order_pnl.position, -order.amount_base)
+        self.assertEqual(order_pnl.base_position, order.amount_quote)
+        case = 'Cover.pair - opposite, cover type - BUY'
+        cover_pnl = sheet.pnl_set.get(pair__name='BTCXVG')
+        self.assertEqual(cover_pnl.position, cover.amount_base, case)
+        self.assertEqual(cover_pnl.base_position, -cover.amount_quote, case)
+        xvgbtc_pnl = PNL(pair=pair_trade)
+        xvgbtc_pnl.save()
+        case = 'Cover.pair - pnl.pair, cover type - BUY'
+        self.assertEqual(xvgbtc_pnl.pair.name, 'XVGBTC')
+        self.assertEqual(xvgbtc_pnl.position, -cover.amount_quote, case)
+        self.assertEqual(xvgbtc_pnl.base_position, cover.amount_base, case)
+
+    @patch(BITTREX_ROOT + 'release_coins')
+    @patch(ETH_ROOT + '_get_txs')
+    @patch(SCRYPT_ROOT + '_get_txs')
+    @patch('nexchange.api_clients.bittrex.Bittrex.withdraw')
+    @patch('nexchange.api_clients.bittrex.Bittrex.sell_limit')
+    @patch('nexchange.api_clients.bittrex.Bittrex.buy_limit')
+    @patch('nexchange.api_clients.bittrex.Bittrex.get_ticker')
+    @patch(SCRYPT_ROOT + 'get_balance')
+    @patch('nexchange.api_clients.bittrex.Bittrex.get_balance')
+    def test_pnl_of_cover_sell(self, _get_balance, get_balance_scrypt,
+                               get_ticker, buy_limit, sell_limit, withdraw,
+                               get_txs_scrypt, get_txs_eth, release_coins):
+        for order in Order.objects.filter(status=Order.COMPLETED):
+            order.status = Order.CANCELED
+            with patch('orders.models.Order._validate_status'):
+                order.save()
+        ask = bid = Decimal('0.0012')
+        pair_trade = Pair.objects.get(name='XVGBTC')
+        xvg = pair_trade.base
+        xvg.execute_cover = True
+        xvg.save()
+        withdraw_tx_id = '123'
+        buy_tx_id = self.generate_txn_id()
+        sell_tx_id = self.generate_txn_id()
+        self._create_order(pair_name='ETHXVG', amount_base=3000)
+        order = self.order
+        mock_amount = self.order.amount_quote
+        xvg_amount = self.order.amount_base
+        balance_bittrex = xvg_amount
+        balance_main = xvg_amount / Decimal('2')
+
+        # Import mocks
+        card = self.order.deposit_address.reserve
+        get_txs_scrypt.return_value = self.get_scrypt_tx(
+            mock_amount, card.address
+        )
+        get_txs_eth.return_value = self.get_ethash_tx(mock_amount,
+                                                      card.address)
+        # Trade mocks
+        _get_balance.return_value = self._get_bittrex_get_balance_response(
+            float(balance_bittrex), available=float(balance_bittrex)
+        )
+        get_balance_scrypt.return_value = balance_main
+        withdraw.return_value = {'result': {'uuid': withdraw_tx_id}}
+        buy_limit.return_value = {'result': {'uuid': buy_tx_id}}
+        sell_limit.return_value = {'result': {'uuid': sell_tx_id}}
+        get_ticker.return_value = self._get_bittrex_get_ticker_response(
+            ask=ask, bid=bid)
+
+        self.import_txs_task.apply()
+
+        cover = Cover.objects.latest('id')
+        order.status = Order.COMPLETED
+        order.save()
+        order.refresh_from_db()
+        self.assertEqual(cover.status, cover.EXECUTED)
+        sheet = PNLSheet()
+        sheet.save()
+        expected_positions = {
+            'BTC': cover.amount_quote,
+            'ETH': - order.amount_base
+        }
+        for key, value in sheet.positions.items():
+            expected_value = expected_positions.get(key, Decimal('0'))
+            self.assertEqual(
+                expected_value, value, 'Bad {} position'.format(key)
+            )
+        order_pnl = sheet.pnl_set.get(pair__name='ETHXVG')
+        self.assertEqual(order_pnl.position, order.amount_quote)
+        self.assertEqual(order_pnl.base_position, -order.amount_base)
+        case = 'Cover.pair - opposite, cover type - SELL'
+        cover_pnl = sheet.pnl_set.get(pair__name='BTCXVG')
+        self.assertEqual(cover_pnl.position, - cover.amount_base, case)
+        self.assertEqual(cover_pnl.base_position, cover.amount_quote, case)
+        xvgbtc_pnl = PNL(pair=pair_trade)
+        xvgbtc_pnl.save()
+        case = 'Cover.pair - pnl.pair, cover type - SELL'
+        self.assertEqual(xvgbtc_pnl.pair.name, 'XVGBTC', case)
+        self.assertEqual(xvgbtc_pnl.position, cover.amount_quote, case)
+        self.assertEqual(xvgbtc_pnl.base_position, - cover.amount_base, case)

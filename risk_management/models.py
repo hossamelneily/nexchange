@@ -399,10 +399,14 @@ class PNL(TimeStampedModel):
                                       default=Decimal('0'))
     volume_ask = models.DecimalField(max_digits=18, decimal_places=8,
                                      default=Decimal('0'))
+    base_volume_ask = models.DecimalField(max_digits=18, decimal_places=8,
+                                          default=Decimal('0'))
     average_bid = models.DecimalField(max_digits=18, decimal_places=8,
                                       default=Decimal('0'))
     volume_bid = models.DecimalField(max_digits=18, decimal_places=8,
                                      default=Decimal('0'))
+    base_volume_bid = models.DecimalField(max_digits=18, decimal_places=8,
+                                          default=Decimal('0'))
     pair_order_count = models.IntegerField(null=True, blank=True)
     opposite_pair_order_count = models.IntegerField(null=True, blank=True)
     exit_price = models.DecimalField(max_digits=18, decimal_places=8,
@@ -427,9 +431,7 @@ class PNL(TimeStampedModel):
 
     @property
     def base_position(self):
-        return \
-            self.volume_bid * self.average_bid - \
-            self.volume_ask * self.average_ask
+        return self.base_volume_bid - self.base_volume_ask
 
     @property
     def base_position_str(self):
@@ -482,30 +484,58 @@ class PNL(TimeStampedModel):
             'created_on__range': [self.date_from, self.date_to],
             'status': Order.COMPLETED
         }
+        opposite_pair_name = '{}{}'.format(self.pair.quote.code,
+                                           self.pair.base.code)
+        cover_filter = {
+            'created_on__range': [self.date_from, self.date_to],
+            'status': Cover.EXECUTED,
+            'pair__name__in': [self.pair.name, opposite_pair_name]
+        }
+        covers = Cover.objects.filter(**cover_filter)
+        self.base_volume_ask = self.base_volume_bid = self.volume_ask = \
+            self.volume_bid = Decimal('0')
+        for cover in covers:
+            if cover.pair == self.pair:
+                if cover.cover_type == Cover.BUY:
+                    self.volume_bid += cover.amount_quote
+                    self.base_volume_bid += cover.amount_base
+                if cover.cover_type == Cover.SELL:
+                    self.volume_ask += cover.amount_quote
+                    self.base_volume_ask += cover.amount_base
+            else:
+                if cover.cover_type == Cover.BUY:
+                    self.volume_ask += cover.amount_base
+                    self.base_volume_ask += cover.amount_quote
+                if cover.cover_type == Cover.SELL:
+                    self.volume_bid += cover.amount_base
+                    self.base_volume_bid += cover.amount_quote
         ask_filter = deepcopy(filter)
         bid_filter = deepcopy(filter)
         ask_filter.update({'pair': self.pair})
-        opposite_pair_name = '{}{}'.format(self.pair.quote.code,
-                                           self.pair.base.code)
         bid_filter.update({'pair__name': opposite_pair_name})
         ask_orders = Order.objects.filter(**ask_filter)
         self.pair_order_count = ask_orders.count()
         if self.pair_order_count:
             volumes_ask = ask_orders.aggregate(
                 Sum('amount_base'), Sum('amount_quote'))
-            base_volume = volumes_ask.get('amount_base__sum', Decimal('0'))
-            self.volume_ask = volumes_ask.get('amount_quote__sum',
-                                              Decimal('0'))
-            self.average_ask = base_volume / self.volume_ask
+            self.base_volume_ask += volumes_ask.get('amount_base__sum',
+                                                    Decimal('0'))
+            self.volume_ask += volumes_ask.get('amount_quote__sum',
+                                               Decimal('0'))
+        if self.base_volume_ask > Decimal('0'):
+            self.average_ask = self.base_volume_ask / self.volume_ask
 
         bid_orders = Order.objects.filter(**bid_filter)
         self.opposite_pair_order_count = bid_orders.count()
         if self.opposite_pair_order_count:
             volumes_bid = bid_orders.aggregate(
                 Sum('amount_base'), Sum('amount_quote'))
-            quote_volume = volumes_bid.get('amount_quote__sum', Decimal('0'))
+            self.base_volume_bid = volumes_bid.get('amount_quote__sum',
+                                                   Decimal('0'))
             self.volume_bid = volumes_bid.get('amount_base__sum', Decimal('0'))
-            self.average_bid = quote_volume / self.volume_bid
+
+        if self.base_volume_bid > Decimal('0'):
+            self.average_bid = self.base_volume_bid / self.volume_bid
         try:
             self.exit_price = Price.get_rate(self.pair.quote, self.pair.base)
         except Price.DoesNotExist:
