@@ -48,6 +48,35 @@ class CurrencyTestCase(OrderBaseTestCase):
             main_r = currency.available_main_reserves
             self.assertTrue(isinstance(main_r, Decimal), '{}'.format(currency))
 
+    def test_currency_has_account_and_reserves(self):
+        path_accounts = 'risk_management/fixtures/account.json'
+        path_reserve = 'risk_management/fixtures/reserve.json'
+        path_currencies = ['core/fixtures/currency_crypto.json',
+                           'core/fixtures/currency_tokens.json']
+        currencies_data = []
+        for path in path_currencies:
+            currencies_data += json.loads(open(path).read())
+        accounts_data = json.loads(open(path_accounts).read())
+        reserve_data = json.loads(open(path_reserve).read())
+        currencies_pk = [currency['pk'] for currency in currencies_data
+                         if currency['pk'] not in [33, 41,
+                                                   38]]  # ignore RNS, GNT, OMG
+        currencies_pk_in_reserve = [reserve['fields']['currency']
+                                    for reserve in reserve_data]
+        reserves_pk = [reserve['pk'] for reserve in reserve_data]
+        reserves_pk_in_accounts = [account['fields']['reserve'] for account
+                                   in accounts_data]
+        is_currency_in_reserves = \
+            set(currencies_pk).issubset(set(currencies_pk_in_reserve))
+        self.assertTrue(is_currency_in_reserves,
+                        'Missing reserve for currency %s' %
+                        (set(currencies_pk) - set(currencies_pk_in_reserve)))
+        is_reserve_in_accounts = \
+            set(reserves_pk).issubset(set(reserves_pk_in_accounts))
+        self.assertTrue(is_reserve_in_accounts,
+                        'Missing account for reserve %s' %
+                        (set(reserves_pk) - set(reserves_pk_in_accounts)))
+
 
 class AddressReserveTest(OrderBaseTestCase):
 
@@ -142,6 +171,30 @@ class PairFixtureTestCase(OrderBaseTestCase):
                 raise ValidationError(
                     'Currency pk {} repeated in fixtures!'.format(key)
                 )
+
+    def test_crypto_pairs_fulfillment(self):
+        path = 'core/fixtures/'
+        currency_fixtures = ['currency_crypto.json', 'currency_tokens.json']
+        pair_fixture = 'pairs_cross.json'
+        pairs_data = json.loads(open(path + pair_fixture).read())
+        currency_data = []
+        for fix in currency_fixtures:
+            currency_data += json.loads(open(path + fix).read())
+        cryptos = [data for data in currency_data
+                   if data['fields']['code'] not in ['RNS', 'GNT', 'QTM']]
+        for crypto in cryptos:
+            expected_pairs_amount = len(cryptos) - 1
+            pairs = [pair for pair in pairs_data
+                     if pair['fields']['base'] == crypto['pk'] and
+                     pair['fields']['quote']
+                     not in [33, 41, 38]]  # ignore RNS, GNT, QTM pks
+            fit_pairs = []
+            for pair in pairs:
+                fit_pairs.append(pair['fields']['name'])
+            self.assertEquals(expected_pairs_amount,
+                              len(fit_pairs),
+                              '%s has not enough pairs: %s' %
+                              (crypto['fields']['code'], fit_pairs))
 
 
 class TransactionTestCase(TickerBaseTestCase):

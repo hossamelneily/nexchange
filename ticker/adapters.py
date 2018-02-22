@@ -22,6 +22,52 @@ class BaseApiAdapter:
         return self.normalize_quote(ticker)
 
 
+class BinanceAdapter(BaseApiAdapter):
+
+    PAIR_NAME_TEMPLATE = '{base}{quote}'
+    BASE_URL = 'https://api.binance.com/api/v1/'
+
+    def __init__(self):
+        super(BinanceAdapter, self).__init__()
+        self.reverse_pair = False
+
+    def get_markets(self):
+        return requests.get(self.BASE_URL + 'ticker/allBookTickers').json()
+
+    def get_quote(self, pair):
+        markets = self.get_markets()
+        all_markets = []
+        for market in markets:
+            all_markets.append(market)
+        market_dict = {market['symbol']: market for market in all_markets}
+        market = self.PAIR_NAME_TEMPLATE.format(
+            base=pair.base.code,
+            quote=pair.quote.code
+        )
+        reverse_market = self.PAIR_NAME_TEMPLATE.format(
+            quote=pair.base.code,
+            base=pair.quote.code
+        )
+        if market in market_dict:
+            self.reverse_pair = False
+            result = market_dict[market]
+        elif reverse_market in market_dict:
+            self.reverse_pair = True
+            result = market_dict[reverse_market]
+        else:
+            raise ValidationError(
+                'Ticker and reverse ticker is not available for pair '
+                '{}'.format(pair.name)
+            )
+        ask = result.get('askPrice')
+        bid = result.get('bidPrice')
+        return {
+            'reverse': self.reverse_pair,
+            'ask': ask,
+            'bid': bid,
+        }
+
+
 class KucoinAdapter(BaseApiAdapter):
 
     PAIR_NAME_TEMPLATE = '{base}-{quote}'

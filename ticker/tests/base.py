@@ -5,13 +5,15 @@ from ticker.tasks.generic.base import BaseTicker
 from ticker.task_summary import get_all_tickers
 from ticker.adapters import KrakenAdapter, CryptopiaAdapter, \
     CoinexchangeAdapter, BittrexAdapter, BitgrailAdapter, IdexAdapter, \
-    KucoinAdapter
+    KucoinAdapter, BinanceAdapter
 from ticker.tests.fixtures.coinexchange.markets import \
     response as coinex_markets_resp
 from ticker.tests.fixtures.coinexchange.market_summary import \
     response as coinex_market_summary_resp
 from ticker.tests.fixtures.kucoin.market_summary import \
     response as kucoin_market_summary_resp
+from ticker.tests.fixtures.binance.market_summary import \
+    response as binance_market_summary_resp
 import requests_mock
 from core.models import Pair
 from ticker.tests.fixtures.cryptopia_ticker import res as \
@@ -128,6 +130,8 @@ class TickerBaseTestCase(OrderBaseTestCase):
                   text='{"last": "0.000322401"}')
         mock.get(KucoinAdapter.BASE_URL + 'open/tick',
                  text=kucoin_market_summary_resp)
+        mock.get(BinanceAdapter.BASE_URL + 'ticker/allBookTickers',
+                 text=binance_market_summary_resp)
 
     def get_tickers(self, mock):
         self.mock_resources(mock)

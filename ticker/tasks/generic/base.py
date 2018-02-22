@@ -7,7 +7,7 @@ from ticker.models import Ticker
 from nexchange.tasks.base import BaseTask
 from ticker.adapters import KrakenAdapter, CryptopiaAdapter, \
     CoinexchangeAdapter, BittrexAdapter, BitgrailAdapter, IdexAdapter, \
-    KucoinAdapter
+    KucoinAdapter, BinanceAdapter
 from django.conf import settings
 
 requests_cache.install_cache('ticker_cache',
@@ -21,6 +21,8 @@ cryptopia_adapter = CryptopiaAdapter()
 coinexchange_adapter = CoinexchangeAdapter()
 idex_adapter = IdexAdapter()
 kucoin_adapter = KucoinAdapter()
+binance_adapter = BinanceAdapter()
+
 
 class BaseTicker(BaseTask):
 
@@ -88,6 +90,8 @@ class BaseTicker(BaseTask):
             return idex_adapter
         elif currency.ticker == 'kucoin':
             return kucoin_adapter
+        elif currency.ticker == 'binance':
+            return binance_adapter
         else:
             return self.bitcoin_api_adapter
 
@@ -299,3 +303,9 @@ class KucoinBaseTicker(BaseTicker):
     def __init__(self, *args, **kwargs):
         super(KucoinBaseTicker, self).__init__(*args, **kwargs)
         self.quote_api_adapter = kucoin_adapter
+
+
+class BinanceBaseTicker(BaseTicker):
+    def __init__(self, *args, **kwargs):
+        super(BinanceBaseTicker, self).__init__(*args, **kwargs)
+        self.quote_api_adapter = binance_adapter

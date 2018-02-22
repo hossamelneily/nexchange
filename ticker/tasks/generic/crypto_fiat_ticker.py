@@ -5,10 +5,11 @@ import requests_cache
 from ticker.models import Price
 from ticker.tasks.generic.base import BaseTicker,\
     KrakenBaseTicker, CryptopiaBaseTicker, CoinexchangeBaseTicker,\
-    BittrexBaseTicker, BitgrailBaseTicker, KucoinBaseTicker
+    BittrexBaseTicker, BitgrailBaseTicker, KucoinBaseTicker, \
+    BinanceBaseTicker
 from django.conf import settings
 from .base import cryptopia_adapter, coinexchange_adapter, bittrex_adapter,\
-    bitgrail_adapter, idex_adapter, kucoin_adapter
+    bitgrail_adapter, idex_adapter, kucoin_adapter, binance_adapter
 
 
 requests_cache.install_cache('btc_crypto_cache',
@@ -104,7 +105,14 @@ class CryptoFiatIdexTicker(CryptoFiatTicker, BitgrailBaseTicker):
         super(CryptoFiatIdexTicker, self).__init__(*args, **kwargs)
         self.bitcoin_api_adapter = idex_adapter
 
+
 class CryptoFiatKucoinTicker(CryptoFiatTicker, KucoinBaseTicker):
     def __init__(self, *args, **kwargs):
         super(CryptoFiatKucoinTicker, self).__init__(*args, **kwargs)
         self.bitcoin_api_adapter = kucoin_adapter
+
+
+class CryptoFiatBinanceTicker(CryptoFiatTicker, BinanceBaseTicker):
+    def __init__(self, *args, **kwargs):
+        super(CryptoFiatBinanceTicker, self).__init__(*args, **kwargs)
+        self.bitcoin_api_adapter = binance_adapter

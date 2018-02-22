@@ -82,6 +82,7 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
             ('BTCETH',),
             ('BTCBDG',),
             ('BTCEOS',),
+            ('BTCOMG',),
         )
     )
     @patch.dict(os.environ, {'RPC7_PUBLIC_KEY_C1': '0xmain_card'})
@@ -152,6 +153,7 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
             ('ETHBTC',),
             ('BDGBTC',),
             ('EOSBTC',),
+            ('OMGBTC',),
         )
     )
     @patch.dict(os.environ, {'RPC7_PUBLIC_KEY_C1': '0xmain_card'})

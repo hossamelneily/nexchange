@@ -7,12 +7,12 @@ from ticker.tasks.generic.crypto_fiat_ticker import \
     CryptoFiatKrakenTicker, CryptoFiatCryptopiaTicker, \
     CryptoFiatCoinexchangeTicker, CryptoFiatBittrexTicker,\
     CryptoFiatBitgrailTicker, CryptoFiatIdexTicker, \
-    CryptoFiatKucoinTicker
+    CryptoFiatKucoinTicker, CryptoFiatBinanceTicker
 from ticker.tasks.generic.crypto_crypto_ticker import \
     CryptoCryptoKrakenTicker, CryptoCryptoCryptopiaTicker, \
     CryptoCryptoCoinexchangeTicker, CryptoCryptoBittrexTicker,\
     CryptoCryptoBitgrailTicker, CryptoCryptoIdexTicker, \
-    CryptoCryptoKucoinTicker
+    CryptoCryptoKucoinTicker, CryptoCryptoBinanceTicker
 from nexchange.utils import get_nexchange_logger
 
 
@@ -23,6 +23,7 @@ crypto_fiat_ticker_bittrex = CryptoFiatBittrexTicker()
 crypto_fiat_ticker_bitgrail = CryptoFiatBitgrailTicker()
 crypto_fiat_ticker_idex = CryptoFiatIdexTicker()
 crypto_fiat_ticker_kucoin = CryptoFiatKucoinTicker()
+crypto_fiat_ticker_binance = CryptoFiatBinanceTicker()
 crypto_crypto_ticker_kraken = CryptoCryptoKrakenTicker()
 crypto_crypto_ticker_cryptopia = CryptoCryptoCryptopiaTicker()
 crypto_crypto_ticker_coinexchange = CryptoCryptoCoinexchangeTicker()
@@ -30,6 +31,7 @@ crypto_crypto_ticker_bittrex = CryptoCryptoBittrexTicker()
 crypto_crypto_ticker_bitgrail = CryptoCryptoBitgrailTicker()
 crypto_crypto_ticker_idex = CryptoCryptoIdexTicker()
 crypto_crypto_ticker_kucoin = CryptoCryptoKucoinTicker()
+crypto_crypto_ticker_binance = CryptoCryptoBinanceTicker()
 
 
 def get_ticker_crypto_fiat(**kwargs):
@@ -51,6 +53,8 @@ def get_ticker_crypto_fiat(**kwargs):
             ticker_api = crypto_fiat_ticker_idex
         elif pair.base.ticker == 'kucoin':
             ticker_api = crypto_fiat_ticker_kucoin
+        elif pair.base.ticker == 'binance':
+            ticker_api = crypto_fiat_ticker_binance
         else:
             ticker_api = None
             logger.error('pair {} no ticker defined'.format(pair))
@@ -80,6 +84,8 @@ def get_ticker_crypto_crypto(**kwargs):
             return crypto_crypto_ticker_idex.run(pair_pk)
         elif pair.quote.ticker == 'kucoin':
             return crypto_crypto_ticker_kucoin.run(pair_pk)
+        elif pair.quote.ticker == 'binance':
+            return crypto_crypto_ticker_binance.run(pair_pk)
         else:
             logger.error('pair {} no ticker defined'.format(pair))
     else:

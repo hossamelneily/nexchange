@@ -21,7 +21,7 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
         Cards.objects.all().delete()
         self.len_crypto_curencies = len(Currency.objects.filter(
             disabled=False, is_crypto=True).exclude(code__in=[
-                'RNS', 'GNT', 'OMG', 'QTM'])
+                'RNS', 'GNT', 'QTM'])
         )
         with requests_mock.mock() as mock:
             self.get_tickers(mock)

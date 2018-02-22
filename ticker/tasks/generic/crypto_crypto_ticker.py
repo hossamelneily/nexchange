@@ -4,7 +4,8 @@ from core.models import Pair
 from ticker.models import Price
 from ticker.tasks.generic.base import BaseTicker,\
     KrakenBaseTicker, CryptopiaBaseTicker, CoinexchangeBaseTicker,\
-    BittrexBaseTicker, BitgrailBaseTicker, IdexBaseTicker, KucoinBaseTicker
+    BittrexBaseTicker, BitgrailBaseTicker, IdexBaseTicker, KucoinBaseTicker, \
+    BinanceBaseTicker
 
 
 class CryptoCryptoTicker(BaseTicker):
@@ -104,4 +105,8 @@ class CryptoCryptoIdexTicker(CryptoCryptoTicker, IdexBaseTicker):
 
 
 class CryptoCryptoKucoinTicker(CryptoCryptoTicker, KucoinBaseTicker):
+    pass
+
+
+class CryptoCryptoBinanceTicker(CryptoCryptoTicker, BinanceBaseTicker):
     pass

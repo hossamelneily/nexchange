@@ -52,19 +52,22 @@
     "fields": {
       "code": "OMG",
       "name": "OmiseGo",
-      "ticker": "",
+      "ticker": "binance",
       "wallet": "rpc7",
       "algo": "ethash",
       "is_crypto": 1,
       "min_confirmations": 12,
       "median_confirmation": 16,
-      "minimal_amount": "10",
-      "maximal_amount": "15000.0",
+      "withdrawal_fee": "0.45",
+      "minimal_amount": "2",
+      "maximal_amount": "200.0",
       "is_token": true,
       "decimals": 18,
       "contract_address": "0xd26114cd6EE289AccF82350c8d8487fedB8A0C07",
       "created_on":"2017-09-19T19:21:42+00:00",
-      "modified_on":"2017-09-19T19:21:42+00:00"
+      "modified_on":"2017-09-19T19:21:42+00:00",
+      "unslippaged_amount": "650.0",
+      "slippage_rate": "0.000002"
     }
   },
   {
