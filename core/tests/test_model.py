@@ -99,8 +99,12 @@ class AddressReserveTest(OrderBaseTestCase):
 class PairFixtureTestCase(OrderBaseTestCase):
 
     def setUp(self):
-        super(PairFixtureTestCase, self).setUp()
+        # NOTE: avoid super() here, save() edits fixtures (i.e. save is called
+        # on enable_all_pairs)
         self.pairs = Pair.objects.all()
+
+    def tearDown(self):
+        pass
 
     def test_pair_names(self):
         for pair in self.pairs:
@@ -108,7 +112,8 @@ class PairFixtureTestCase(OrderBaseTestCase):
             pair_name_on_fixture = pair.name
             self.assertEqual(
                 pair_name_by_code, pair_name_on_fixture,
-                'pair_name on pair {} fixture .json file is bad'.format(pair)
+                'pair_name on pair {} fixture .json file is bad. Base: {} '
+                'quote {} pk {}'.format(pair, pair.base, pair.quote, pair.pk)
             )
 
     def test_crypto_pairs_fees(self):
