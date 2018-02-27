@@ -922,7 +922,7 @@
     "fee_bid": "0.0100000",
     "name": "BTCNANO",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -938,7 +938,7 @@
     "fee_bid": "0.0100000",
     "name": "NANOBTC",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -954,7 +954,7 @@
     "fee_bid": "0.0100000",
     "name": "LTCNANO",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -970,7 +970,7 @@
     "fee_bid": "0.0100000",
     "name": "NANOLTC",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -986,7 +986,7 @@
     "fee_bid": "0.0100000",
     "name": "ETHNANO",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -1002,7 +1002,7 @@
     "fee_bid": "0.0100000",
     "name": "NANOETH",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -1018,7 +1018,7 @@
     "fee_bid": "0.0100000",
     "name": "DOGENANO",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -1034,7 +1034,7 @@
     "fee_bid": "0.0100000",
     "name": "NANODOGE",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -1050,7 +1050,7 @@
     "fee_bid": "0.0100000",
     "name": "XVGNANO",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -1066,7 +1066,7 @@
     "fee_bid": "0.0100000",
     "name": "NANOXVG",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -1082,7 +1082,7 @@
     "fee_bid": "0.0100000",
     "name": "BCHNANO",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -1098,7 +1098,7 @@
     "fee_bid": "0.0200000",
     "name": "NANOBDG",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -1114,7 +1114,7 @@
     "fee_bid": "0.0400000",
     "name": "BDGNANO",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -1130,7 +1130,7 @@
     "fee_bid": "0.0200000",
     "name": "NANOEOS",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -1146,7 +1146,7 @@
     "fee_bid": "0.0200000",
     "name": "EOSNANO",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -1162,7 +1162,7 @@
     "fee_bid": "0.0100000",
     "name": "NANOBCH",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -1370,7 +1370,7 @@
     "fee_bid": "0.0200000",
     "name": "NANOOMG",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },
@@ -1386,7 +1386,7 @@
     "fee_bid": "0.0200000",
     "name": "OMGNANO",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 },

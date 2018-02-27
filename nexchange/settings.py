@@ -66,7 +66,7 @@ LANGUAGES = [
 
 # CUSTOM SETTINGS
 GATEWAY_RESOLVE_TIME = 5
-TRANSACTION_IMPORT_TIME = 10
+TRANSACTION_IMPORT_TIME = 20
 
 USER_SETS_WITHDRAW_ADDRESS_MEDIAN_TIME = 30
 TICKER_INTERVAL = 60
@@ -284,13 +284,13 @@ ORDER_RELEASE_TASKS = {
 TRANSACTION_CHECKER_TASKS = {
     'import_crypto_deposit_transactions': {
         'task': 'accounts.task_summary.import_transaction_deposit_crypto_invoke',  # noqa
-        'schedule': timedelta(seconds=10),
+        'schedule': timedelta(seconds=TRANSACTION_IMPORT_TIME),
     },
 
-    'import_crypto_deposit_transactions_uphold_blockchain': {
-        'task': 'accounts.task_summary.import_transaction_deposit_uphold_blockchain_invoke',  # noqa
-        'schedule': timedelta(seconds=10),
-    },
+    # 'import_crypto_deposit_transactions_uphold_blockchain': {
+    #     'task': 'accounts.task_summary.import_transaction_deposit_uphold_blockchain_invoke',  # noqa
+    #     'schedule': timedelta(seconds=10),
+    # },
 
     'checker_transactions': {
         'task': 'accounts.task_summary.update_pending_transactions_invoke',
@@ -333,7 +333,7 @@ CELERY_BEAT_SCHEDULE.update(TRADING_TASKS)
 CELERY_BEAT_SCHEDULE.update(AUDIT_TASKS)
 
 TASKS_TIME_LIMIT = 30
-TRANSACTION_IMPORT_TIME_LIMIT = 9
+TRANSACTION_IMPORT_TIME_LIMIT = TRANSACTION_IMPORT_TIME - 1
 RETRY_RELEASE_TIME = 600
 RETRY_RELEASE_MAX_RETRIES = 3
 CARD_CHECK_TIME = 150
