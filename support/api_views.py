@@ -16,5 +16,6 @@ class SupportViewSet(UserResourceViewSet):
             self.queryset = []
 
     def perform_create(self, serializer):
-        send_support_email.apply_async()
-        return super(SupportViewSet, self).perform_create(serializer)
+        response_object = serializer.save()
+        send_support_email.apply_async([response_object.pk])
+        return response_object

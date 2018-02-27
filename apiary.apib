@@ -500,6 +500,41 @@ API for crypto currency exchange.
               }]
             }
 
+## Create support inquiry [/en/api/v1/support/]
+
+
+### Create support inquiry [POST]
+
++ Request (application/json)
+
+    + Attributes
+        + Payload (SupportPayload)
+        + Headers (JsonHeaders)
+    + Body
+        {"name": "TestSupport",
+        "telephone": "123 000 00 00",
+        "email": "johndoe@domain.com",
+        "subject": "Test case",
+        "message": "this is only a test"
+        }
+
++ Response 201 (application/json)
+    + Attributes (MinimalSupport)
+    + Body
+
+            {
+            'unique_reference': 'SIATEV',
+            'created_on': '2018-02-22T07:48:30.718051Z',
+            'modified_on': '2018-02-22T07:48:30.719539Z',
+            'order': None,
+            'name': 'TestSupport',
+            'email': 'johndoe@domain.com',
+            'telephone': '123 000 00 00',
+            'subject': 'Test case',
+            'message': 'this is only a test',
+            'is_resolved': False
+            }
+
 ## Create Anonymous Order [/en/api/v1/orders/]
 
 
@@ -971,6 +1006,23 @@ API for crypto currency exchange.
 + `time` (nullable) - UTC time of transaction.
 + `currency` (nullable) - currency code.
 
+## SupportPayload
++ `name` (required) - name
++ `telephone` - telephone
++ `email` (required) - email
++ `subject`  - subject
++ `message` (required) - message
+
+## MinimalSupport
++ `unique_reference` (required) - unique ID of support request.
++ `created_on` (required) - when was the support inquiry made (ISO 8601)
++ `modified_on` (optional) - latest time on which this order was updated (ISO 8601).
++ `name` (required) - name
++ `telephone` - telephone
++ `email` (required) - email
++ `subject` (required) - subject
++ `message` (required) - message
++ `is_resolved` (boolean, required) - if the request is resolved
 
 ## MinimalOrder
 + `amount_base` (required) - amount of base currency which user gets.

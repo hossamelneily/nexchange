@@ -10,6 +10,7 @@ from requests import get
 from twilio.exceptions import TwilioException
 from twilio.rest import TwilioRestClient
 from django.utils.log import AdminEmailHandler
+from django.core.mail.message import EmailMessage
 from decimal import Decimal
 from Crypto import Random
 from Crypto.Cipher import AES
@@ -23,14 +24,13 @@ class Del:
         return self.comp.get(k)
 
 
-def send_email(to, subject='Nexchange', msg=None):
-    send_mail(
-        subject,
-        msg,
-        'noreply@nexchange.co.uk',
-        [to],
-        fail_silently=not settings.DEBUG,
-    )
+def send_email(to, subject='Nexchange', msg=None, reply_to=('noreply@nexchange.co.uk',)):
+    mail = EmailMessage(to=(to,),
+                        subject=subject,
+                        body=msg,
+                        reply_to=reply_to,
+                        )
+    mail.send(fail_silently=not settings.DEBUG)
 
 
 def _send_sms(msg, phone_to, from_phone):
