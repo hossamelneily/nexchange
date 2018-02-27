@@ -111,8 +111,10 @@ class ScryptRpcApiClient(BaseRpcClient):
     def check_tx(self, tx, currency):
         # this assumes that currency and node are one to one except uphold
         tx = self._get_tx(tx.tx_id, currency.wallet)
-        return tx['confirmations'] > currency.min_confirmations, tx[
-            'confirmations']
+        confirmations = tx['confirmations']
+        confirmed = all([confirmations >= currency.min_confirmations,
+                         confirmations > 0])
+        return confirmed, confirmations
 
     def _get_txs(self, node):
         txs = self.call_api(node, 'listtransactions',
@@ -434,7 +436,9 @@ class EthashRpcApiClient(BaseRpcClient):
         # FIXME: Failed transaction can still be confirmed on ETH network
         if status == 0:
             confirmations = 0
-        return confirmations > currency.min_confirmations, confirmations
+        confirmed = all([confirmations >= currency.min_confirmations,
+                         confirmations > 0])
+        return confirmed, confirmations
 
     def _get_txs(self, node):
         return self._get_txs_from_blocks(node)

@@ -64,7 +64,10 @@ def data_provider(fn_data_provider):
         def repl(self):
             for i in fn_data_provider():
                 try:
-                    fn(self, *i)
+                    if hasattr(i, '_asdict'):
+                        fn(self, **i._asdict())
+                    else:
+                        fn(self, *i)
                 except AssertionError as e:
                     print(i)
                     raise e
