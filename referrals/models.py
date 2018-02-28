@@ -39,9 +39,12 @@ class Program(TimeStampedModel):
 
 class ReferralCode(TimeStampedModel, UniqueFieldMixin):
     code = models.CharField(max_length=20, unique=True)
-    link = models.CharField(max_length=255, default=None, blank=True, null=True)
-    comment = models.CharField(max_length=255, default=None, blank=True, null=True)
-    test_scenario = models.CharField(max_length=1, default=None, blank=True, null=True)
+    link = models.CharField(max_length=255, default=None, blank=True,
+                            null=True)
+    comment = models.CharField(max_length=255, default=None, blank=True,
+                               null=True)
+    test_scenario = models.CharField(max_length=1, default=None, blank=True,
+                                     null=True)
 
     user = models.ForeignKey(User, related_name='referral_code')
     program = models.ForeignKey(Program, blank=True,
@@ -60,7 +63,8 @@ class ReferralCode(TimeStampedModel, UniqueFieldMixin):
             self.program = Program.objects.first()
 
         prefix = 'https://nexchange.io/'
-        self.link = '{}?{}={}'.format(prefix, settings.REFERRER_GET_PARAMETER, self.code)
+        self.link = '{}?{}={}'.format(prefix, settings.REFERRER_GET_PARAMETER,
+                                      self.code)
 
         super(ReferralCode, self).save(*args, **kwargs)
 
@@ -69,9 +73,6 @@ class ReferralCode(TimeStampedModel, UniqueFieldMixin):
 
 
 class Referral(IpAwareModel):
-
-    class Meta:
-       unique_together = (('ip', 'code'),)
 
     def __init__(self, *args, **kwargs):
         super(Referral, self).__init__(*args, **kwargs)
@@ -82,7 +83,7 @@ class Referral(IpAwareModel):
                                          'earn free Bitcoins'),
                              null=True)
     referee = models.ForeignKey(User, null=True, default=None,
-                                related_name='referrals_set')
+                                related_name='referrals_set', unique=True)
 
     @property
     def orders(self):
