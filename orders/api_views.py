@@ -180,5 +180,7 @@ class PriceView(APIView):
         try:
             order._validate_order_amount()
         except ValidationError as e:
-            raise APIException(detail=str(e))
+            exception = APIException(detail=str(e))
+            exception.status_code = status.HTTP_400_BAD_REQUEST
+            raise exception
         return Response(data)

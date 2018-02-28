@@ -567,3 +567,15 @@ class TestGetPrice(TickerBaseTestCase):
         self.assertEqual(res.status_code, 200)
         orders_after = Order.objects.count()
         self.assertEqual(orders_before, orders_after)
+
+    def test_bad_requests(self):
+        client = APIClient()
+        res = client.get('/en/api/v1/get_price/BTCEUR/')
+        self.assertEqual(res.status_code, 400)
+        max_amount = Currency.objects.get(code="BTC").maximal_amount
+        res = client.get('/en/api/v1/get_price/BTCEUR/',
+                         data={'amount_base': max_amount * 2 + 1})
+        self.assertEqual(res.status_code, 400)
+        res = client.get('/en/api/v1/get_price/BTCxxx/',
+                         data={'amount_base': 100})
+        self.assertEqual(res.status_code, 404)
