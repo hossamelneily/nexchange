@@ -1179,7 +1179,7 @@
     "name": "BTCOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1195,7 +1195,7 @@
     "name": "OMGBTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1211,7 +1211,7 @@
     "name": "LTCOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1227,7 +1227,7 @@
     "name": "OMGLTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1243,7 +1243,7 @@
     "name": "ETHOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1259,7 +1259,7 @@
     "name": "OMGETH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1275,7 +1275,7 @@
     "name": "DOGEOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1291,7 +1291,7 @@
     "name": "OMGDOGE",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1307,7 +1307,7 @@
     "name": "XVGOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1323,7 +1323,7 @@
     "name": "OMGXVG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1339,7 +1339,7 @@
     "name": "BCHOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1355,7 +1355,7 @@
     "name": "OMGBCH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1403,7 +1403,7 @@
     "name": "BDGOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1419,7 +1419,7 @@
     "name": "OMGBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1435,7 +1435,7 @@
     "name": "EOSOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1451,7 +1451,7 @@
     "name": "OMGEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 }
 ]
