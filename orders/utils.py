@@ -69,20 +69,18 @@ def send_money(order_pk):
 
 
 def release_order(o1):
-    from decimal import Decimal
     from core.models import Transaction
-    from nexchange.api_clients.rpc import ScryptRpcApiClient
+    from nexchange.api_clients.factory import ApiClientFactory
 
     o1.refresh_from_db()
     if o1.status >= o1.RELEASED:
         return
 
-    api = ScryptRpcApiClient()
+    factory = ApiClientFactory()
+    api = factory.get_api_client(o1.pair.base.wallet)
 
-    if o1.pair.base.code == 'BTC':
-      o1.amount_base -= Decimal(0.005)
-
-    txid, b = api.release_coins(o1.pair.base, o1.withdraw_address, o1.amount_base)
+    txid, b = api.release_coins(o1.pair.base, o1.withdraw_address,
+                                o1.amount_base)
     o1.status = o1.RELEASED
     o1.save()
     tx, created = Transaction.objects.get_or_create(
