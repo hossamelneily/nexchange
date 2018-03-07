@@ -5,7 +5,11 @@ DO_COVERAGE=0
 while getopts ":c:t:" arg; do
   case $arg in
     t)
-      TEST_PATH=$OPTARG
+      SLASH="/"
+      DOT="."
+      DOT_PY=".py"
+      TEST_PATH="${OPTARG//$SLASH/$DOT}"
+      TEST_PATH="${TEST_PATH//$DOT_PY/}"
       echo $TEST_PATH
       ;;
     c)

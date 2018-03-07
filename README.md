@@ -45,6 +45,7 @@ Tests always run when you commit, but you may want to run them mannualy sometime
 * To manually run backend tests   `./run-tests.sh`
 * To manually run backend tests and send coverage report to coveralls.io   `./run-tests.sh -c 1`
 * To manually run exact backend test   `./run-tests.sh -t <test_case>` i.e.: ```./run-tests.sh -t nexchange.tests.test_tasks.test_e2e.ExchangeOrderReleaseTaskTestCase.test_release_exchange_order```
+* To manually run exact backend test file(allows using TAB)   `./run-tests.sh -t <path_to_file>` i.e.: ```./run-tests.sh -t nexchange/tests/test_tasks/test_e2e.py```
 * To manually run Selenium UI  `./run-selenium-tests.sh`. Screenshots of the tests can be found in `nexchange/core/tests/test_ui/Screenshots`
 * To manually run API tests `./run-api-tests.sh`. More info [here](https://app.apiary.io/nexchange2/tests/runs#tutorial).
 
