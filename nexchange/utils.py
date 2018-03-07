@@ -1,12 +1,14 @@
 import sys
+import os
 import traceback
 import logging
 import base64
 import hashlib
 import string
+from requests import get
 from django.conf import settings
 from django.core.mail import send_mail
-from requests import get
+from django.core.mail.backends.smtp import EmailBackend
 from twilio.exceptions import TwilioException
 from twilio.rest import TwilioRestClient
 from django.utils.log import AdminEmailHandler
@@ -298,3 +300,18 @@ class AESCipher:
     @staticmethod
     def _unpad(s):
         return s[:-ord(s[len(s)-1:])]
+
+
+class LogEmailBackend(EmailBackend):
+
+    def __init__(self, *args, **kwargs):
+        super(LogEmailBackend, self).__init__(*args, **kwargs, host=settings.LOG_EMAIL_HOST,
+                                              port=settings.LOG_EMAIL_PORT,
+                                              username=settings.LOG_EMAIL_USER,
+                                              password=settings.LOG_EMAIL_PASSWORD)
+
+
+class LogEmailHandler(AdminEmailHandler):
+    def __init__(self):
+        super(LogEmailHandler, self).__init__(
+            email_backend='nexchange.utils.LogEmailBackend')

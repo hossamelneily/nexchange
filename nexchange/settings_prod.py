@@ -117,6 +117,11 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_USE_TLS = True
 
+LOG_EMAIL_HOST = os.getenv('LOG_EMAIL_HOST', EMAIL_HOST)
+LOG_EMAIL_PORT = os.getenv('LOG_EMAIL_PORT', EMAIL_PORT)
+LOG_EMAIL_USER = os.getenv('LOG_EMAIL_USER', EMAIL_HOST_USER)
+LOG_EMAIL_PASSWORD = os.getenv('LOG_EMAIL_PASSWORD', EMAIL_HOST_PASSWORD)
+
 # SOCIAL login
 SOCIAL_AUTH_TWITTER_KEY = os.getenv('SOCIAL_AUTH_TWITTER_KEY')
 SOCIAL_AUTH_TWITTER_SECRET = os.getenv('SOCIAL_AUTH_TWITTER_SECRET')
@@ -144,7 +149,6 @@ AXES_USERNAME_FORM_FIELD = 'username'
 AXES_COOLOFF_TIME = timedelta(minutes=5)
 
 
-# just add admin emailing
 LOGGING = {
     'version': 1,
     'handlers': {
@@ -155,7 +159,7 @@ LOGGING = {
         },
         'mail_admins': {
             'level': 'ERROR',
-            'class': 'django.utils.log.AdminEmailHandler'
+            'class': 'nexchange.utils.LogEmailHandler',
         }
     },
     'loggers': {
