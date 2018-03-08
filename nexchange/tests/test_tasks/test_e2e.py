@@ -70,8 +70,6 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
         order.refresh_from_db()
         self.assertEqual(False, p.is_complete)
         self.assertEqual(False, p.is_redeemed)
-        # self.assertEqual(Order.PAID, order.status)
-        # FIXME: CANCEL because fiat needs refactoring
         self.assertEqual(order.status, Order.CANCELED)
 
     @patch('payments.tasks.generic.base.BasePaymentChecker'
@@ -103,10 +101,6 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
         buy_order_release_by_reference_invoke.apply([p.pk])
         p.refresh_from_db()
         order.refresh_from_db()
-        self.assertEqual(True, p.is_complete)
-        # self.assertEqual(True, p.is_redeemed)
-        # self.assertEqual(Order.RELEASED, order.status)
-        # FIXME: CANCEL because fiat needs refactoring
         self.assertEqual(order.status, Order.CANCELED)
 
     def test_success_release_no_ref(self):
@@ -170,8 +164,6 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
 
         self.assertEqual(False, p.is_complete)
         self.assertEqual(False, p.is_redeemed)
-        # self.assertEqual(Order.PAID, order.status)
-        # FIXME: CANCEL because fiat needs refactoring
         self.assertEqual(order.status, Order.CANCELED)
 
     @patch('payments.tasks.generic.base.BasePaymentChecker'
@@ -219,10 +211,6 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
         p.refresh_from_db()
         order.refresh_from_db()
 
-        self.assertEqual(True, p.is_complete)
-        # self.assertEqual(True, p.is_redeemed)
-        # self.assertEqual(True, order.status == Order.RELEASED)
-        # FIXME: CANCEL because fiat needs refactoring
         self.assertEqual(order.status, Order.CANCELED)
 
     def test_success_release_no_ref(self):
@@ -333,11 +321,6 @@ class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
 
         p.refresh_from_db()
         order.refresh_from_db()
-        # self.assertEqual(True, p.is_complete)
-        # self.assertEqual(True, p.is_redeemed)
-        # self.assertIn(order.status, Order.IN_RELEASED)
-        # self.assertEquals(1, release_payment.call_count)
-        # FIXME: CANCEL because fiat needs refactoring
         self.assertEqual(order.status, Order.CANCELED)
         self.assertEquals(0, release_payment.call_count)
 
@@ -379,8 +362,6 @@ class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
         order.refresh_from_db()
         self.assertEqual(False, p.is_complete)
         self.assertEqual(False, p.is_redeemed)
-        # self.assertEqual(Order.PAID, order.status)
-        # FIXME: CANCEL because fiat needs refactoring
         self.assertEqual(order.status, Order.CANCELED)
         self.assertEquals(0, release_payment.call_count)
 
@@ -486,16 +467,7 @@ class BuyOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         # Import Payment
         run_okpay.apply()
         order.refresh_from_db()
-        # self.assertEqual(order.status, Order.PAID)
-        # FIXME: CANCEL because fiat needs refactoring
         self.assertEqual(order.status, Order.CANCELED)
-
-        # Release Order
-        payment = Payment.objects.get(reference=order.unique_reference)
-        buy_order_release_by_reference_invoke.apply([payment.pk])
-        order.refresh_from_db()
-        self.assertEqual(order.status, Order.CANCELED)
-        # self.assertEqual(order.status, Order.RELEASED)
         return order
 
     # TODO: change patch to request_mock (some problems with Uphold mocking
@@ -520,8 +492,6 @@ class BuyOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         }
         self.update_confirmation_task.apply()
         order.refresh_from_db()
-        # self.assertEqual(order.status, Order.COMPLETED)
-        # FIXME: CANCEL because fiat needs refactoring
         self.assertEqual(order.status, Order.CANCELED)
 
     @patch(UPHOLD_ROOT + 'get_transactions')
@@ -541,8 +511,6 @@ class BuyOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         reserve_txn.return_value = {'status': 'pending'}
         self.update_confirmation_task.apply()
         order.refresh_from_db()
-        # self.assertEqual(order.status, Order.RELEASED)
-        # FIXME: CANCEL because fiat needs refactoring
         self.assertEqual(order.status, Order.CANCELED)
 
 
@@ -770,8 +738,6 @@ class SofortEndToEndTestCase(BaseSofortAPITestCase,
         self.mock_transaction_history(mock, transaction_xml)
         self.payments_importer.apply()
         self.order.refresh_from_db()
-        # self.assertEqual(self.order.status, Order.PAID, pair_name)
-        # FIXME: CANCEL because fiat needs refactoring
         self.assertEqual(self.order.status, Order.CANCELED)
         p = Payment.objects.get(
             amount_cash=self.order.amount_quote,
@@ -785,22 +751,10 @@ class SofortEndToEndTestCase(BaseSofortAPITestCase,
         address = getattr(self, '{}_address'.format(pair_name[:3]))
         self._update_withdraw_address(self.order, address)
 
-        buy_order_release_by_reference_invoke.apply([p.pk])
         p.refresh_from_db()
         self.order.refresh_from_db()
 
-        self.assertEqual(True, p.is_complete)
-        # self.assertEqual(True, p.is_redeemed)
-
-        # self.assertEqual(self.order.status, Order.COMPLETED)
-        # FIXME: CANCEL because fiat needs refactoring
         self.assertEqual(self.order.status, Order.CANCELED)
-        t1 = self.order.transactions.first()
-        self.assertIsNone(t1)
-        return
-        self.assertEqual(t1.type, Transaction.WITHDRAW, pair_name)
-        self.assertEqual(t1.amount, self.order.amount_base, pair_name)
-        self.assertEqual(t1.currency, self.order.pair.base, pair_name)
 
     @data_provider(lambda: (
         (buy_order_release_by_reference_invoke,),
@@ -851,8 +805,6 @@ class SofortEndToEndTestCase(BaseSofortAPITestCase,
         self.order.refresh_from_db()
 
         self.assertNotIn(self.order.status, Order.IN_SUCCESS_RELEASED)
-        # self.assertEqual(self.order.status, Order.PAID)
-        # FIXME: CANCEL because fiat needs refactoring
         self.assertEqual(self.order.status, Order.CANCELED)
 
 
@@ -903,34 +855,8 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
                 transactions=txs_resp)
         self.payment_importer.apply()
         self.order.refresh_from_db()
-        # self.assertEqual(self.order.status, Order.PAID, name)
-        # FIXME: CANCEL because fiat needs refactoring
         self.assertEqual(self.order.status, Order.CANCELED)
         return
-        p = Payment.objects.get(
-            amount_cash=self.order.amount_quote,
-            currency=self.order.pair.quote,
-            reference=self.order.unique_reference
-        )
-
-        prepare_txn.return_value = str(time())
-        execute_txn.return_value = True
-        get_txs.return_value = json.loads(self.import_txs)
-        address = getattr(self, '{}_address'.format(pair_name[:3]))
-        self._update_withdraw_address(self.order, address)
-
-        # NOTE: buy_order_release_invoke is after withdraw address is set
-        p.refresh_from_db()
-        self.order.refresh_from_db()
-
-        self.assertEqual(True, p.is_complete, name)
-        self.assertEqual(True, p.is_redeemed, name)
-
-        self.assertEqual(self.order.status, Order.COMPLETED)
-        t1 = self.order.transactions.first()
-        self.assertEqual(t1.type, Transaction.WITHDRAW, name)
-        self.assertEqual(t1.amount, self.order.amount_base, name)
-        self.assertEqual(t1.currency, self.order.pair.base, name)
 
     @skip('FIXME: need to make reverse Fiat pairs working')
     @data_provider(lambda: (

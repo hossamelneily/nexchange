@@ -596,7 +596,7 @@ class BuyOrderReleaseFailedFlags(BaseOrderReleaseTestCase):
         with patch('payments.models.PaymentPreference.user_verified_for_buy',
                    new_callable=PropertyMock) as verified:
             verified.return_value = user_verified_for_buy
-            self.release_task.apply()
+            ref_release.apply_async([payment.pk])
         order.refresh_from_db()
         payment.refresh_from_db()
         # self.assertEqual(order.status, Order.PAID, name)

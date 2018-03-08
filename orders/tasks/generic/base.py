@@ -67,8 +67,6 @@ class BaseBuyOrderRelease(BaseOrderRelease):
 
     def do_release(self, order, payment):
         with transaction.atomic(using='default'):
-            payment.is_complete = True
-            payment.save()
             # type_ = order.pair.base.code
             order.refresh_from_db()
             if order.status not in Order.IN_RELEASED:

@@ -36,7 +36,8 @@ def buy_order_release_reference_periodic():
     for payment in Payment.objects.filter(
         is_success=True,
         is_redeemed=False,
-        flagged=False
+        flagged=False,
+        order__status=Order.PAID
     ):
         try:
             order = payment.order

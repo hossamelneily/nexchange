@@ -10,7 +10,8 @@ from core.tests.utils import data_provider
 from core.models import Transaction, Pair, Address
 from orders.models import Order
 from orders.task_summary import exchange_order_release_invoke,\
-    exchange_order_release_periodic
+    exchange_order_release_periodic, buy_order_release_reference_periodic,\
+    buy_order_release_by_reference_invoke
 from ticker.tests.base import TickerBaseTestCase
 from decimal import Decimal
 from unittest import skip
@@ -18,6 +19,7 @@ from freezegun import freeze_time
 from django.conf import settings
 from datetime import timedelta
 from payments.utils import money_format
+from payments.models import Payment, PaymentMethod, PaymentPreference
 import requests_mock
 
 
@@ -367,3 +369,73 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         exchange_order_release_periodic.apply_async()
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, self.order.PAID)
+
+    @patch('orders.tasks.generic.buy_order_release.BuyOrderReleaseByReference.'
+           'run')
+    @patch('orders.models.Order.coverable')
+    def test_buy_periodic_release_only_for_paid_orders(self, coverable,
+                                                       run_release):
+        coverable.return_value = True
+        self._create_order(pair_name='BTCEUR')
+
+        pref = PaymentPreference(
+            provider_system_id='wawytha',
+            payment_method=PaymentMethod.objects.get(
+                name__icontains='Safe Charge'
+            )
+        )
+        pref.save()
+        payment = Payment(
+            order=self.order,
+            currency=self.order.pair.quote,
+            payment_preference=pref,
+            amount_cash=self.order.amount_quote,
+            is_success=True,
+            is_redeemed=False
+        )
+        payment.save()
+        buy_order_release_reference_periodic.apply_async()
+        run_release.assert_not_called()
+        self.order.status = Order.PAID
+        self.order.save()
+        buy_order_release_reference_periodic.apply_async()
+        run_release.assert_called_once()
+
+    @patch('orders.models.Order.coverable')
+    def test_buy_release_do_not_change_parameters_on_failure(self, coverable):
+        coverable.return_value = True
+        self._create_order(pair_name='BTCEUR')
+
+        pref = PaymentPreference(
+            provider_system_id='wawytha',
+            payment_method=PaymentMethod.objects.get(
+                name__icontains='Safe Charge'
+            ),
+            user=self.order.user
+        )
+        pref.save()
+        self.order.payment_preference = pref
+        withdraw_address = Address.objects.filter(
+            type=Address.WITHDRAW, currency=self.order.pair.base
+        ).first()
+        self.order.withdraw_address = withdraw_address
+        self.order.save()
+        payment = Payment(
+            order=self.order,
+            currency=self.order.pair.quote,
+            payment_preference=pref,
+            amount_cash=self.order.amount_quote,
+            is_success=True,
+            is_redeemed=False,
+            reference=self.order.unique_reference,
+            user=self.order.user
+        )
+        payment.save()
+        buy_order_release_by_reference_invoke.apply_async([payment.pk])
+        payment_from_db = Payment.objects.latest('pk')
+        for param in ['is_redeemed', 'is_success', 'is_complete']:
+            self.assertEqual(
+                getattr(payment, param),
+                getattr(payment_from_db, param),
+                '{}'.format(param)
+            )
