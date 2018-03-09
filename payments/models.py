@@ -1,10 +1,11 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from core.common.models import SoftDeletableModel, \
-    TimeStampedModel, FlagableMixin
+    TimeStampedModel, FlagableMixin, IpAwareModel
 from core.models import Location, Country
 from core.models import BtcBase
 
@@ -263,10 +264,34 @@ class PaymentCredentials(TimeStampedModel, SoftDeletableModel):
                                     pref.identifier)
 
 
-class FailedRequest(TimeStampedModel):
+class RequestLog(IpAwareModel):
+
+    class Meta:
+        abstract = True
 
     url = models.TextField(null=True, blank=True)
     response = models.TextField(null=True, blank=True)
     payload = models.TextField(null=True, blank=True)
+    payload_json = JSONField(null=True, blank=True)
+
+
+class FailedRequest(RequestLog):
     validation_error = models.TextField(null=True, blank=True)
     order = models.ForeignKey('orders.Order')
+
+
+class PushRequest(RequestLog):
+    payment = models.ForeignKey(Payment, blank=True, null=True)
+    valid_checksum = models.BooleanField(default=False)
+    valid_timestamp = models.BooleanField(default=False)
+    valid_ip = models.BooleanField(default=False)
+    payment_created = models.BooleanField(
+        default=False,
+        help_text='It is possible to get more than one PushRequest for one '
+                  'payment. If this is True - payment was created with this '
+                  'PushRequest.'
+    )
+
+    @property
+    def is_valid(self):
+        return all([self.valid_checksum, self.valid_timestamp, self.valid_ip])

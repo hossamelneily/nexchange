@@ -16,7 +16,8 @@ from core.tests.utils import data_provider
 from nexchange.api_clients.uphold import UpholdApiClient
 from orders.models import Order
 from orders.task_summary import buy_order_release_reference_periodic
-from payments.models import Payment, PaymentMethod, PaymentPreference
+from payments.models import Payment, PaymentMethod, PaymentPreference,\
+    PushRequest
 from payments.tests.test_api_clients.base import BaseCardPmtAPITestCase
 from payments.utils import get_sha256_sign, get_payeer_desc
 from payments.payment_handlers.safe_charge import SafeChargePaymentHandler
@@ -25,6 +26,7 @@ from payments.task_summary import check_fiat_order_deposit_periodic
 import json
 from verification.models import Verification
 from collections import OrderedDict
+import datetime
 
 
 class PayeerTestCase(OrderBaseTestCase):
@@ -481,9 +483,10 @@ class SafeChargeTestCase(OrderBaseTestCase):
         self._test_paid_order(order)
 
     def _get_dmn_request_params_for_order(self, order, unique_cc, name,
-                                          status='APPROVED'):
+                                          status='APPROVED', time_stamp=None):
         order.refresh_from_db()
-        time_stamp = '2017-11-27.12:56:06'
+        time_stamp = time_stamp if time_stamp else \
+            datetime.datetime.now().strftime("%Y-%m-%d.%H:%M:%S")
         key = settings.SAFE_CHARGE_SECRET_KEY
         total_amount = str(order.amount_quote)
         currency = order.pair.quote.code
@@ -513,7 +516,11 @@ class SafeChargeTestCase(OrderBaseTestCase):
         ('ERROR', Order.INITIAL, None),
         ('DECLINED', Order.INITIAL, None)
     ))
-    def test_dmn_register(self, status, order_status, payment_success):
+    @patch('payments.views.get_client_ip')
+    def test_dmn_register(self, status, order_status, payment_success,
+                          get_client_ip):
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[2].split('-')[0]
         order = self._create_order_api()
         card_id = self.generate_txn_id()
         name = 'Sir Testalot'
@@ -536,20 +543,44 @@ class SafeChargeTestCase(OrderBaseTestCase):
             self.assertEqual(pref.provider_system_id, card_id)
             self.assertEqual(pref.secondary_identifier, name)
             self.assertEqual(payment_success, payment.is_success)
+            push_request = PushRequest.objects.get(payment=payment)
+            self.assertTrue(push_request.payment_created)
+        else:
+            push_request = PushRequest.objects.latest('id')
+            self.assertIsNone(push_request.payment)
+            self.assertFalse(push_request.payment_created)
+        self.assertTrue(push_request.valid_checksum)
         self.client.logout()
 
-    def test_release_fiat_order(self):
+    @patch('payments.views.get_client_ip')
+    def test_release_fiat_order(self, get_client_ip):
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
         order = self._create_order_api()
         card_id = self.generate_txn_id()
         name = 'Sir Testalot'
         params = self._get_dmn_request_params_for_order(order, card_id, name,
                                                         status='PENDING')
+
         url = reverse('payments.listen_safe_charge')
         res = self.client.post(url, data=params)
+        # PushRequest called second time - it is not forbidden to do that and
+        # SafeCharge is responsible for that - no us.
+        self.client.post(url, data=params)
         self.assertEqual(res.status_code, 200)
         order.refresh_from_db()
         self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
         payment = order.payment_set.get()
+        push_requests = PushRequest.objects.filter(payment=payment)
+        self.assertEqual(push_requests.count(), 2)
+        for push_request in push_requests:
+            self.assertIn('safe_charge', push_request.url)
+            self.assertIn('name', push_request.payload)
+            self.assertTrue(push_request.valid_checksum)
+        push_request1 = push_requests.get(payment_created=True)
+        push_request2 = push_requests.get(payment_created=False)
+        self.assertTrue(push_request1.created_on < push_request2.created_on)
+
         self.assertFalse(payment.is_complete)
         self.assertFalse(payment.is_success)
 
@@ -586,6 +617,72 @@ class SafeChargeTestCase(OrderBaseTestCase):
         self.assertTrue(payment.is_complete)
 
         self._test_paid_order(order)
+
+    @patch('payments.views.get_client_ip')
+    def test_try_release_fiat_with_corrupted_signature_push(self,
+                                                            get_client_ip):
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
+        order = self._create_order_api()
+        card_id = self.generate_txn_id()
+        name = 'Sir Testalot'
+        params = self._get_dmn_request_params_for_order(order, card_id, name,
+                                                        status='APPROVED')
+        params['advancedResponseChecksum'] += 's'
+
+        url = reverse('payments.listen_safe_charge')
+        self.client.post(url, data=params)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.INITIAL)
+        with self.assertRaises(Payment.DoesNotExist):
+            order.payment_set.get()
+        push_request = PushRequest.objects.latest('id')
+        self.assertFalse(push_request.valid_checksum)
+        self.assertTrue(push_request.valid_timestamp)
+        self.assertTrue(push_request.valid_ip)
+        self.assertFalse(push_request.payment_created)
+
+    @patch('payments.views.get_client_ip')
+    def test_try_release_fiat_with_bad_response_time(self, get_client_ip):
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
+        order = self._create_order_api()
+        card_id = self.generate_txn_id()
+        name = 'Sir Testalot'
+        params = self._get_dmn_request_params_for_order(
+            order, card_id, name, status='APPROVED',
+            time_stamp='2017-12-12.05:05:05')
+        url = reverse('payments.listen_safe_charge')
+        self.client.post(url, data=params)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.INITIAL)
+        with self.assertRaises(Payment.DoesNotExist):
+            order.payment_set.get()
+        push_request = PushRequest.objects.latest('id')
+        self.assertTrue(push_request.valid_checksum)
+        self.assertTrue(push_request.valid_ip)
+        self.assertFalse(push_request.valid_timestamp)
+        self.assertFalse(push_request.payment_created)
+
+    @patch('payments.views.get_client_ip')
+    def test_try_release_fiat_with_bad_ip(self, get_client_ip):
+        get_client_ip.return_value = '0.0.0.0'
+        order = self._create_order_api()
+        card_id = self.generate_txn_id()
+        name = 'Sir Testalot'
+        params = self._get_dmn_request_params_for_order(
+            order, card_id, name, status='APPROVED')
+        url = reverse('payments.listen_safe_charge')
+        self.client.post(url, data=params)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.INITIAL)
+        with self.assertRaises(Payment.DoesNotExist):
+            order.payment_set.get()
+        push_request = PushRequest.objects.latest('id')
+        self.assertTrue(push_request.valid_checksum)
+        self.assertFalse(push_request.valid_ip)
+        self.assertTrue(push_request.valid_timestamp)
+        self.assertFalse(push_request.payment_created)
 
     def test_generate_cachier_url(self):
         order = self._create_order_api()

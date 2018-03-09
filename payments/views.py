@@ -19,7 +19,8 @@ from payments.adapters import (leupay_adapter, robokassa_adapter,
                                unitpay_adapter, okpay_adapter,
                                payeer_adapter, sofort_adapter,
                                adv_cash_adapter)
-from payments.models import Payment, PaymentPreference, PaymentMethod
+from payments.models import Payment, PaymentPreference, PaymentMethod,\
+    PushRequest
 from payments.utils import get_sha256_sign
 from payments.task_summary import run_payeer, run_okpay, run_sofort, \
     run_adv_cash
@@ -28,6 +29,8 @@ from payments.api_clients.card_pmt import CardPmtAPIClient
 from core.context_processors import country_code
 from django.views.generic import View
 from django.utils.decorators import method_decorator
+from datetime import datetime
+from nexchange.utils import ip_in_iplist
 
 
 @login_required
@@ -397,6 +400,38 @@ class SafeChargeListenView(View):
             'auth_code': auth_code
         }
 
+    def _create_push_request(self, request):
+        payload = request.POST.dict()
+        ip = get_client_ip(request)
+        valid_ip = ip_in_iplist(ip, settings.SAFE_CHARGE_ALLOWED_DMN_IPS)
+        push_request = PushRequest(
+            ip=ip,
+            valid_ip=valid_ip,
+            url=request.path_info
+        )
+        if settings.DATABASES.get(
+                'default', {}).get('ENGINE') == 'django.db.backends.sqlite3':
+            push_request.payload = payload
+        else:
+            push_request.payload_json = payload
+        push_request.save()
+        return push_request
+
+    def _validate_safecharge_timestamp(self, response_ts, local_ts):
+        if not response_ts:
+            return False
+        local_timestamp = local_ts.timestamp()
+        response_timestamp = datetime.strptime(
+            response_ts,
+            '%Y-%m-%d.%H:%M:%S'
+        ).timestamp()
+        time_diff = local_timestamp - response_timestamp
+        allowed_diff = settings.\
+            SAFE_CHARGE_ALLOWED_REQUEST_TIME_STAMP_DIFFERENCE_SECONDS
+        if abs(time_diff) >= allowed_diff:
+            return False
+        return True
+
     def post(self, request):
         params = request.POST
         key = settings.SAFE_CHARGE_SECRET_KEY
@@ -416,7 +451,15 @@ class SafeChargeListenView(View):
         auth_code = params.get('AuthCode', '')
         expected_checksum = get_sha256_sign(ar_hash=to_hash, delimiter='',
                                             upper=False)
-        if checksum == expected_checksum:
+        push_request = self._create_push_request(request)
+        push_request.valid_timestamp = self._validate_safecharge_timestamp(
+            time_stamp,
+            push_request.created_on
+        )
+        push_request.valid_checksum = expected_checksum == checksum
+        push_request.save()
+        if push_request.is_valid:
+            payment = None
             order = Order.objects.get(unique_reference=product_id)
             if all([status in ['APPROVED', 'SUCCESS', 'PENDING'],
                     order.status == Order.INITIAL]):
@@ -426,11 +469,20 @@ class SafeChargeListenView(View):
                     order, pref, total_amount, currency, ppp_tx_id, tx_id,
                     auth_code
                 )
-                order.register_deposit(payment_data, crypto=False)
+                res = order.register_deposit(payment_data, crypto=False)
+                if res.get('status') == 'OK':
+                    push_request.payment_created = True
+                    push_request.save()
             if all([status in ['APPROVED', 'SUCCESS'],
                     order.status == Order.PAID_UNCONFIRMED]):
-                payment = order.payment_set.get(type=Payment.DEPOSIT)
+                if not payment:
+                    payment = order.payment_set.get(type=Payment.DEPOSIT)
                 payment.is_success = True
                 payment.save()
+            if all([status in ['APPROVED', 'SUCCESS', 'PENDING']]):
+                if not payment:
+                    payment = order.payment_set.get(type=Payment.DEPOSIT)
+                push_request.payment = payment
+                push_request.save()
 
         return HttpResponse()

@@ -16,6 +16,7 @@ from django.core.mail.message import EmailMessage
 from decimal import Decimal
 from Crypto import Random
 from Crypto.Cipher import AES
+from iptools import IpRange
 
 
 class Del:
@@ -315,3 +316,15 @@ class LogEmailHandler(AdminEmailHandler):
     def __init__(self):
         super(LogEmailHandler, self).__init__(
             email_backend='nexchange.utils.LogEmailBackend')
+
+
+def ip_in_iplist(ip, ip_list):
+    if ip in ip_list:
+        return True
+    ranges = [_ip for _ip in ip_list if '-' in _ip]
+    for range in ranges:
+        split_res = range.split('-')
+        ip_range = IpRange(split_res[0], split_res[1])
+        if ip in ip_range:
+            return True
+    return False

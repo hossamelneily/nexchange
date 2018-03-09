@@ -163,6 +163,7 @@ class SafeChargeAPIClient(BasePaymentApi):
         currency = order.pair.quote.code
         amount = str(money_format(order.amount_quote, places=2))
         total_amount = item_amount_1 = amount
+        email = 'user{}@nexchange.io'.format(order.user.pk)
         item_name_1 = _ref
         item_quantity_1 = '1'
         user_token = 'auto'
@@ -175,6 +176,7 @@ class SafeChargeAPIClient(BasePaymentApi):
         back_url = settings.SAFE_CHARGE_BACK_URL.format(_ref)
         time_stamp = datetime.now().strftime("%Y-%m-%d.%H:%M:%S")
         to_hash = (key, merchant_site_id, merchant_id, currency, total_amount,
+                   email,
                    item_name_1, item_amount_1, item_quantity_1, user_token,
                    version, user_token_id, success_url, pending_url,
                    error_url, back_url, notify_url, time_stamp)
@@ -184,6 +186,7 @@ class SafeChargeAPIClient(BasePaymentApi):
             '&merchant_id={merchant_id}' \
             '&currency={currency}' \
             '&total_amount={total_amount}' \
+            '&email={email}' \
             '&item_name_1={item_name_1}' \
             '&item_amount_1={item_amount_1}' \
             '&item_quantity_1={item_quantity_1}' \
@@ -201,6 +204,7 @@ class SafeChargeAPIClient(BasePaymentApi):
                 merchant_id=merchant_id,
                 time_stamp=time_stamp,
                 total_amount=total_amount,
+                email=quote(email),
                 currency=currency,
                 checksum=checksum,
                 item_name_1=item_name_1,

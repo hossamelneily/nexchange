@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch
 from decimal import Decimal
-from nexchange.utils import check_address_blockchain, AESCipher
+from nexchange.utils import check_address_blockchain, AESCipher, ip_in_iplist
 from payments.api_clients.ok_pay import OkPayAPI
 from payments.api_clients.payeer import PayeerAPIClient
 import requests_mock
@@ -137,3 +137,18 @@ class TestAesCypher(TestCase):
         encrypted = cipher.encrypt(raw)
         decrypted = wrong_cipher.decrypt(encrypted)
         self.assertNotEqual(raw, decrypted)
+
+
+class IpListTestCase(TestCase):
+
+    def test_ip_iplist(self):
+        ip_list = [
+            '194.247.166.0-194.247.167.255',
+            '0.0.0.0'
+        ]
+        ip_exact = '0.0.0.0'
+        self.assertTrue(ip_in_iplist(ip_exact, ip_list))
+        ip_in_range = '194.247.166.15'
+        self.assertTrue(ip_in_iplist(ip_in_range, ip_list))
+        ip_out_of_range = '194.247.165.255'
+        self.assertFalse(ip_in_iplist(ip_out_of_range, ip_list))

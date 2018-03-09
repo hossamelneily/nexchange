@@ -1,4 +1,5 @@
 from nexchange.settings_prod import *
+from nexchange.settings import SAFE_CHARGE_ALLOWED_DMN_IPS
 
 DEBUG = True
 
