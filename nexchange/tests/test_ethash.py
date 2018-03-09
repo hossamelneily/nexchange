@@ -160,6 +160,7 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
     @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
     @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
+    @patch(ETH_ROOT + 'net_listening')
     @patch('web3.eth.Eth.call')
     @patch('web3.eth.Eth.getTransactionReceipt')
     @patch('web3.eth.Eth.blockNumber')
@@ -170,7 +171,8 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
     @patch('web3.eth.Eth.getBalance')
     def test_release_ethash_order(self, pair_name, get_balance, unlock, lock,
                                   send_tx, get_tx_eth, get_block_eth,
-                                  get_tx_eth_receipt, eth_call):
+                                  get_tx_eth_receipt, eth_call, eth_listen):
+        eth_listen.return_value = True
         amount_base = 50
         pair = Pair.objects.get(name=pair_name)
         base = pair.base

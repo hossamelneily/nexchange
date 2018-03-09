@@ -540,6 +540,8 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             ('BCHDOGE', Order.BUY, True, 3),
         )
     )
+    @patch(ETH_ROOT + 'net_listening')
+    @patch(SCRYPT_ROOT + 'get_info')
     @patch('accounts.tasks.monitor_wallets.app.send_task')
     @patch(ETH_ROOT + '_get_current_block')
     @patch(ETH_ROOT + 'release_coins')
@@ -564,7 +566,9 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                     get_txs_eth, get_tx_eth,
                                     get_tx_eth_receipt,
                                     release_coins_eth, get_block_eth,
-                                    send_task):
+                                    send_task, scrypt_info, eth_listen):
+        scrypt_info.return_value = {}
+        eth_listen.return_value = True
         currency_quote_code = pair_name[base_curr_code_len:]
         currency_base_code = pair_name[0:base_curr_code_len]
         if currency_base_code == 'DOGE':

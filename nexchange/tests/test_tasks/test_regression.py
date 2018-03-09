@@ -21,6 +21,7 @@ from datetime import timedelta
 from payments.utils import money_format
 from payments.models import Payment, PaymentMethod, PaymentPreference
 import requests_mock
+from http.client import RemoteDisconnected
 
 
 class RegressionTaskTestCase(TransactionImportBaseTestCase,
@@ -33,8 +34,9 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
             import_transaction_deposit_uphold_blockchain_invoke
         self.update_confirmation_task = update_pending_transactions_invoke
 
-    def _create_PAID_order(self, txn_type=Transaction.DEPOSIT):
-        self._create_order()
+    def _create_paid_order(self, txn_type=Transaction.DEPOSIT,
+                           pair_name='ETHLTC'):
+        self._create_order(pair_name=pair_name)
         deposit_tx_id = self.generate_txn_id()
         txn_dep = Transaction(
             amount=self.order.amount_quote,
@@ -123,14 +125,17 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
             txn = self.order.transactions.first()
             self.assertEqual(txn.confirmations, blockchain_confirmations, name)
 
+    @patch(ETH_ROOT + 'net_listening')
     @patch('orders.models.Order._validate_status')
     @patch(ETH_ROOT + 'release_coins')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
     def test_release_order_only_once(self, check_tx_uphold,
-                                     release_coins_eth, _validate_status):
+                                     release_coins_eth, _validate_status,
+                                     eth_listen):
+        eth_listen.return_value = True
         _validate_status.return_value = True
         # Create order and prepare it for first release
-        order, txn_dep = self._create_PAID_order()
+        order, txn_dep = self._create_paid_order()
         release_coins_eth.return_value = self.generate_txn_id()
         # Do first release
         exchange_order_release_invoke.apply_async([txn_dep.pk])
@@ -155,14 +160,17 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         self.assertTrue(self.order.flagged)
         self.assertEqual(len(all_with_txn), 1)
 
+    @patch(ETH_ROOT + 'net_listening')
     @patch(UPHOLD_ROOT + 'execute_txn')
     @patch(UPHOLD_ROOT + 'prepare_txn')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
     def test_do_not_release_if_order_has_txn_without_type(self,
                                                           check_tx_uphold,
                                                           prepare_txn_uphold,
-                                                          execute_txn_uphold):
-        order, txn_dep = self._create_PAID_order(txn_type=None)
+                                                          execute_txn_uphold,
+                                                          eth_listen):
+        eth_listen.return_value = True
+        order, txn_dep = self._create_paid_order(txn_type=None)
         check_tx_uphold.return_value = True, 999
         prepare_txn_uphold.return_value = self.generate_txn_id()
         execute_txn_uphold.return_value = {'code': 'OK'}
@@ -181,7 +189,7 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
     @patch(EXCHANGE_ORDER_RELEASE_ROOT + 'validate')
     def test_do_not_release_flagged_order(self, validate, do_release,
                                           run_release):
-        order, txn_dep = self._create_PAID_order()
+        order, txn_dep = self._create_paid_order()
         order.flagged = True
         order.save()
         exchange_order_release_invoke.apply_async([txn_dep.pk])
@@ -344,11 +352,13 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         self.order.refresh_from_db()
         self.assertEquals(self.order.status, Order.PAID)
 
+    @patch(ETH_ROOT + 'net_listening')
     @patch('core.models.Currency.available_main_reserves',
            new_callable=PropertyMock)
-    def test_exchange_release_periodic(self, main_reserves):
+    def test_exchange_release_periodic(self, main_reserves, eth_listen):
+        eth_listen.return_value = True
         main_reserves.return_value = Decimal('10000')
-        self._create_PAID_order()
+        self._create_paid_order()
         # Do not release not enough funds
         main_reserves.return_value = self.order.amount_base - Decimal('0.1')
         exchange_order_release_periodic.apply_async()
@@ -361,7 +371,7 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         self.assertEqual(self.order.status, self.order.PRE_RELEASE)
 
     def test_exchange_release_periodic_do_not_flagged_tx(self):
-        self._create_PAID_order()
+        self._create_paid_order()
         tx = self.order.transactions.last()
         tx.flag(val='something')
         tx.refresh_from_db()
@@ -369,6 +379,112 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         exchange_order_release_periodic.apply_async()
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, self.order.PAID)
+
+    @patch(SCRYPT_ROOT + 'get_info')
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_release_after_wallet_connection_problems_scrypt(self,
+                                                             release_coins,
+                                                             scrypt_info):
+        scrypt_info.return_value = {}
+        release_coins.return_value = self.generate_txn_id(), True
+        self._create_paid_order(pair_name='BTCLTC')
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PAID)
+        # Some error raised
+        scrypt_info.side_effect = Exception('Some Error')
+        exchange_order_release_periodic.apply_async()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PAID)
+        release_coins.assert_not_called()
+        scrypt_info.assert_called_once()
+        # Release after wallet is ok
+        scrypt_info.side_effect = None
+        exchange_order_release_periodic.apply_async()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.RELEASED)
+        release_coins.assert_called_once()
+        self.assertEqual(scrypt_info.call_count, 2)
+
+    @patch(SCRYPT_ROOT + 'get_info')
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_release_on_connection_timeout_scrypt(self,
+                                                  release_coins,
+                                                  scrypt_info):
+        release_coins.return_value = self.generate_txn_id(), True
+        self._create_paid_order(pair_name='BTCLTC')
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PAID)
+        # Some error raised
+        scrypt_info.side_effect = [RemoteDisconnected('Time out!'), {}]
+        exchange_order_release_periodic.apply_async()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.RELEASED)
+        release_coins.assert_called_once()
+        self.assertEqual(scrypt_info.call_count, 2)
+
+    @patch(SCRYPT_ROOT + 'get_info')
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_do_not_release_on_bad_info_response_scrypt(self,
+                                                        release_coins,
+                                                        scrypt_info):
+        release_coins.return_value = self.generate_txn_id(), True
+        self._create_paid_order(pair_name='BTCLTC')
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PAID)
+        # Some error raised
+        scrypt_info.return_value = 'non dict type response'
+        exchange_order_release_periodic.apply_async()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PAID)
+        scrypt_info.assert_called_once()
+
+    @patch(ETH_ROOT + 'net_listening')
+    @patch(ETH_ROOT + 'release_coins')
+    def test_release_after_wallet_connection_problems_ethash(self,
+                                                             release_coins,
+                                                             eth_listen):
+        release_coins.return_value = self.generate_txn_id(), True
+        self._create_paid_order(pair_name='ETHBTC')
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PAID)
+        # Some error raised
+        eth_listen.side_effect = Exception('Some Error')
+        exchange_order_release_periodic.apply_async()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PAID)
+        release_coins.assert_not_called()
+        eth_listen.assert_called_once()
+        # Release after wallet is ok
+        eth_listen.side_effect = None
+        exchange_order_release_periodic.apply_async()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.RELEASED)
+        release_coins.assert_called_once()
+        self.assertEqual(eth_listen.call_count, 2)
+
+    @patch(ETH_ROOT + 'net_listening')
+    @patch(ETH_ROOT + 'release_coins')
+    def test_release_after_wallet_false_listening_ethash(self,
+                                                         release_coins,
+                                                         eth_listen):
+        release_coins.return_value = self.generate_txn_id(), True
+        self._create_paid_order(pair_name='ETHBTC')
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PAID)
+        # Some error raised
+        eth_listen.return_value = False
+        exchange_order_release_periodic.apply_async()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PAID)
+        release_coins.assert_not_called()
+        eth_listen.assert_called_once()
+        # Release after wallet is ok
+        eth_listen.return_value = True
+        exchange_order_release_periodic.apply_async()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.RELEASED)
+        release_coins.assert_called_once()
+        self.assertEqual(eth_listen.call_count, 2)
 
     @patch('orders.tasks.generic.buy_order_release.BuyOrderReleaseByReference.'
            'run')

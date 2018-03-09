@@ -383,8 +383,10 @@ class SafeChargeTestCase(OrderBaseTestCase):
         mock.post(url.format('api/v1/getSessionToken'),
                   text=json.dumps(token_resp))
 
+    @patch(SCRYPT_ROOT + 'get_info')
     @patch('orders.models.Order.coverable')
-    def _test_paid_order(self, order, coverable):
+    def _test_paid_order(self, order, coverable, scrypt_info):
+        scrypt_info.return_value = {}
         order.refresh_from_db()
         payment = order.payment_set.get(type=Payment.DEPOSIT)
         payment.refresh_from_db()

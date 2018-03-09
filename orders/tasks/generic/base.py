@@ -70,7 +70,7 @@ class BaseBuyOrderRelease(BaseOrderRelease):
             # type_ = order.pair.base.code
             order.refresh_from_db()
             if order.status not in Order.IN_RELEASED:
-                order.pre_release()
+                order.pre_release(api=self.api)
                 currency = order.pair.base
                 tx_data = {'order': order,
                            'address_to': order.withdraw_address,

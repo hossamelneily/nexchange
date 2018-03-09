@@ -372,6 +372,8 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             options[1].click()
             submit.click()
 
+    @patch(ETH_ROOT + 'net_listening')
+    @patch(SCRYPT_ROOT + 'get_info')
     @patch(ETH_ROOT + '_get_tx_receipt')
     @patch(ETH_ROOT + '_get_current_block')
     @patch(ETH_ROOT + '_get_tx')
@@ -387,7 +389,11 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
                                                 release_coins_eth, get_tx_eth,
                                                 get_block_eth,
                                                 get_tx_eth_receipt,
+                                                scrypt_info,
+                                                eth_listen,
                                                 add_new=False):
+        scrypt_info.return_value = {}
+        eth_listen.return_value = True
         prepare_txn.return_value = 'txid{}'.format(self.order.unique_reference)
         release_coins_scrypt.return_value = release_coins_eth.return_value = \
             prepare_txn.return_value, True

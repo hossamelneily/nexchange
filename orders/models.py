@@ -758,13 +758,20 @@ class Order(TimeStampedModel, SoftDeletableModel,
         return res
 
     @transition(field=status, source=PAID, target=PRE_RELEASE)
-    def _pre_release(self):
-        pass
+    def _pre_release(self, api=None):
+        healthy = api.health_check(self.pair.base)
+        if not healthy:
+            raise ValidationError(_(
+                'Wallet {} isin\'t working before the release'.format(
+                    self.pair.base.wallet
+                )
+            ))
+        return healthy
 
-    def pre_release(self):
+    def pre_release(self, api=None):
         res = {'status': 'OK'}
         try:
-            self._pre_release()
+            self._pre_release(api=api)
         except Exception as e:
             res = {'status': 'ERROR', 'message': '{}'.format(e)}
         self.save()

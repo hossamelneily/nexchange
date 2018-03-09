@@ -47,7 +47,7 @@ class ExchangeOrderRelease(BaseOrderRelease, ApiClientFactory):
             self.api = self.get_api_client(currency.wallet)
             order.refresh_from_db()
             if order.status not in Order.IN_RELEASED:
-                order.pre_release()
+                order.pre_release(api=self.api)
                 # Exclude because - transactions without type is possible
                 tx_data = {'order': order,
                            'address_to': order.withdraw_address,

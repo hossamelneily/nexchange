@@ -7,6 +7,7 @@ from decimal import Decimal
 from web3 import Web3, RPCProvider
 from .mappers import RpcMapper
 import os
+from http.client import RemoteDisconnected
 
 
 class BaseRpcClient(BaseWalletApiClient):
@@ -47,6 +48,9 @@ class BaseRpcClient(BaseWalletApiClient):
         except JSONRPCException as e:
             self.logger.error('JSON RPC ERROR HOST {} ERROR {}'
                               .format(self.rpc_endpoint, str(e)))
+
+    def health_check(self, currency):
+        return True
 
 
 class ScryptRpcApiClient(BaseRpcClient):
@@ -139,8 +143,19 @@ class ScryptRpcApiClient(BaseRpcClient):
         return balance
 
     def get_info(self, currency):
-        info = self.call_api(currency.wallet, 'getinfo')
+        method = 'getwalletinfo' if currency.code in ['BTC'] else 'getinfo'
+        info = self.call_api(currency.wallet, method)
         return info
+
+    def health_check(self, currency):
+        try:
+            info = self.get_info(currency)
+        except RemoteDisconnected:
+            # First request always fails after timeout.
+            # If this one fails - smth is wrong with rpc connection in general
+            info = self.get_info(currency)
+        assert isinstance(info, dict)
+        return super(ScryptRpcApiClient, self).health_check(currency)
 
     def backup_wallet(self, currency):
         path = os.path.join(settings.WALLET_BACKUP_PATH,
@@ -663,8 +678,9 @@ class EthashRpcApiClient(BaseRpcClient):
         }
         return self.call_api(node, 'eth_call', *[tx])
 
-    def load_info(self):
-        res = self.call_api('rpc7', 'eth_syncing')
-        c = res['currentBlock']
-        h = res['highestBlock']
-        return res, h - c, c / h
+    def net_listening(self, currency):
+        return self.call_api(currency.wallet, 'net_listening')
+
+    def health_check(self, currency):
+        assert self.net_listening(currency)
+        return super(EthashRpcApiClient, self).health_check(currency)
