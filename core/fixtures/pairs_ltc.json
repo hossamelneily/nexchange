@@ -10,6 +10,7 @@
     "fee_ask": "0.00000000",
     "fee_bid": "0.00000000",
     "name": "LTCUSD",
+    "test_mode": false,
     "disabled": true
   }
 },
@@ -38,6 +39,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCEUR",
+    "test_mode": false,
     "disabled": true
   }
 },
@@ -52,6 +54,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "LTCGBP",
+    "test_mode": false,
     "disabled": true
   }
 },

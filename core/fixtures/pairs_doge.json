@@ -10,6 +10,7 @@
     "fee_ask": "0.00000000",
     "fee_bid": "0.00000000",
     "name": "DOGEUSD",
+    "test_mode": false,
     "disabled": false
   }
 },
@@ -38,6 +39,7 @@
     "fee_ask": "0.00000000",
     "fee_bid": "0.00000000",
     "name": "DOGEEUR",
+    "test_mode": false,
     "disabled": false
   }
 },
@@ -52,6 +54,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "DOGEGBP",
+    "test_mode": false,
     "disabled": true
   }
 },

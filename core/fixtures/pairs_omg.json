@@ -10,6 +10,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "OMGUSD",
+    "test_mode": false,
     "disabled": true
   }
 },
@@ -24,6 +25,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "OMGEUR",
+    "test_mode": false,
     "disabled": true
   }
 }
