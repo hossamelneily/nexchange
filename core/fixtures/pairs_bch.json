@@ -55,7 +55,7 @@
     "fee_bid": "0.01000000",
     "name": "BCHGBP",
     "test_mode": false,
-    "disabled": true
+    "disabled": false
   }
 },
 {
