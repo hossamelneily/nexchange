@@ -151,7 +151,8 @@ INSTALLED_APPS = [
     'social_django',
     'django_fsm',
     'risk_management',
-    'audit'
+    'audit',
+    'oauth2_provider',
 ]
 
 
@@ -493,7 +494,8 @@ API5_KEY = ''
 API5_SECRET = ''
 
 # RPC
-RPC_IMPORT_TRANSACTIONS_COUNT = int(os.getenv('RPC_IMPORT_TRANSACTION_COUNT', 10))
+RPC_IMPORT_TRANSACTIONS_COUNT = int(os.getenv('RPC_IMPORT_TRANSACTION_COUNT',
+                                              10))
 RPC_IMPORT_BLOCK_COUNT = int(os.getenv('RPC_IMPORT_BLOCK_COUNT', 10))
 RPC_GAS_LIMIT_ETH = int(os.getenv('RPC_GAS_LIMIT_ETH', 30000))
 RPC_GAS_LIMIT_TOKEN = int(os.getenv('RPC_GAS_LIMIT_TOKEN', 70000))
@@ -537,6 +539,13 @@ CORS_ALLOW_HEADERS = default_headers + (
     REFERRER_HEADER_NAME,
 )
 
+ACCESS_TOKEN_EXPIRE_SECONDS = 5184000  # two months
+
+OAUTH2_PROVIDER = {
+    # this is the list of available scopes
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope',
+               'groups': 'Access to your groups'}
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
@@ -545,6 +554,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'nexchange.authentication.SessionAuthenticationNoCSRF',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication'
     ),
     'DEFAULT_THROTTLE_CLASSES': (
         'rest_framework.throttling.AnonRateThrottle',

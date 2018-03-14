@@ -59,4 +59,5 @@ web3>=3.16.2
 pycrypto==2.6.1
 django-extensions==1.9.9
 Werkzeug==0.14.1
+django-oauth-toolkit==1.0.0
 iptools==0.6.1

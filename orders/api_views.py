@@ -24,6 +24,10 @@ from decimal import Decimal
 from ticker.models import Price
 from core.common.api_views import DateFilterViewSet
 from referrals.middleware import ReferralMiddleWare
+from oauth2_provider.models import Application, AccessToken
+from oauthlib.common import generate_token
+from datetime import timedelta
+from django.utils import timezone
 
 referral_middleware = ReferralMiddleWare()
 
@@ -61,10 +65,28 @@ class OrderListViewSet(viewsets.ModelViewSet,
         self.queryset = Order.objects.all()
         return super(OrderListViewSet, self).get_queryset()
 
+    def _create_bearer_token(self, user):
+        app, created = Application.objects.get_or_create(
+            user=user,
+            client_type=Application.CLIENT_CONFIDENTIAL,
+            authorization_grant_type=Application.GRANT_PASSWORD,
+            name=user.username
+        )
+        expires_in = settings.ACCESS_TOKEN_EXPIRE_SECONDS
+        expires = timezone.now() + timedelta(seconds=expires_in)
+        token = AccessToken(
+            user=user,
+            token=generate_token(),
+            application=app,
+            expires=expires
+        )
+        token.save()
+
     def perform_create(self, serializer):
         if not self.request.user.is_authenticated:
             _create_anonymous_user(self.request)
             referral_middleware.process_request(self.request)
+            self._create_bearer_token(self.request.user)
         serializer.save(user=self.request.user)
 
         return super(OrderListViewSet, self).perform_create(serializer)
@@ -176,7 +198,8 @@ class PriceView(APIView):
             order = Order(pair=pair, amount_quote=amount_quote)
             order.calculate_base_from_quote()
             data = OrderedDict(
-                {'amount_base': order.amount_base, 'amount_quote': amount_quote})
+                {'amount_base': order.amount_base,
+                 'amount_quote': amount_quote})
         try:
             order._validate_order_amount()
         except ValidationError as e:

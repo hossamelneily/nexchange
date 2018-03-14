@@ -20,10 +20,11 @@ READABLE_FIELDS = ('deposit_address', 'created_on', 'from_default_rule',
                    'unique_reference', 'deposit_address',
                    'payment_window', 'payment_deadline',
                    'status_name', 'transactions', 'referral_code',
-                   'withdrawal_fee', 'withdrawal_fee_quote', 'user_provided_amount')
+                   'withdrawal_fee', 'withdrawal_fee_quote',
+                   'user_provided_amount')
 RATE_FIELDS = ('amount_usd', 'amount_btc', 'amount_eur', 'price',
                'amount_quote_fee')
-CREATE_FIELDS = ('payment_url',)
+CREATE_FIELDS = ('payment_url', 'token')
 
 
 class MetaOrder:
@@ -88,7 +89,7 @@ class CreateOrderSerializer(OrderSerializer):
         for field in READABLE_FIELDS:
             validated_data.pop(field, None)
         withdraw_address = validated_data.pop('withdraw_address')
-        pair = validated_data.pop('pair')
+        validated_data.pop('pair')
         # Just making sure
         addr_list = Address.objects.filter(address=withdraw_address['address'])
         order = Order(pair=self.pair, **validated_data)

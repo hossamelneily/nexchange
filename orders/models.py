@@ -15,7 +15,7 @@ from payments.utils import money_format
 from payments.models import Payment
 from ticker.models import Price
 from django.core.exceptions import ValidationError
-from django.db.models import Q, Sum
+from django.db.models import Q
 from math import log10, floor, ceil
 from django.utils.translation import activate
 from nexchange.utils import send_email, send_sms
@@ -24,6 +24,7 @@ from nexchange.celery import app
 from cached_property import cached_property_with_ttl
 from payments.api_clients.safe_charge import SafeChargeAPIClient
 from payments.models import PaymentPreference
+from oauth2_provider.models import AccessToken
 
 
 safe_charge_client = SafeChargeAPIClient()
@@ -875,3 +876,16 @@ class Order(TimeStampedModel, SoftDeletableModel,
             return Decimal('0.0')
         fee = self.payment_preference.payment_method.fee_deposit
         return fee * self.amount_quote
+
+    @property
+    def token(self):
+        order_count = self.user.orders.all().count()
+        if order_count > 1:
+            return
+        try:
+            token = AccessToken.objects.filter(user=self.user).latest('id')
+        except AccessToken.DoesNotExist:
+            return
+        if not token or not token.is_valid():
+            return
+        return token.token

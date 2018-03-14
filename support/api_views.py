@@ -16,6 +16,9 @@ class SupportViewSet(UserResourceViewSet):
             self.queryset = []
 
     def perform_create(self, serializer):
-        response_object = serializer.save()
+        if self.request.user.is_authenticated:
+            response_object = serializer.save(user=self.request.user)
+        else:
+            response_object = serializer.save()
         send_support_email.apply_async([response_object.pk])
         return response_object
