@@ -95,7 +95,8 @@ PAYMENT_WINDOW = 15
 MAX_EXPIRED_ORDERS_LIMIT = 3
 REFERRAL_FEE = 2
 RECENT_ORDERS_LENGTH = 20
-
+UNPAID_CANCEL_WINDOW_MINUTES = 45
+MAX_NUMBER_CANCEL_ORDER = 42
 NUMERIC_INTERNATIONAL_PREFIX = '00'
 PLUS_INTERNATIONAL_PREFIX = '+'
 
@@ -279,8 +280,11 @@ ORDER_RELEASE_TASKS = {
         'task': 'orders.task_summary.exchange_order_release_periodic',
         'schedule': timedelta(seconds=30),
     },
+    'cancel_unpaid_order_periodic': {
+        'task': 'orders.task_summary.cancel_unpaid_order_periodic',
+        'schedule': timedelta(minutes=5),
+    }
 }
-
 
 TRANSACTION_CHECKER_TASKS = {
     'import_crypto_deposit_transactions': {

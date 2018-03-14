@@ -90,3 +90,20 @@ def release_retry_invoke(self, transaction_id):
     if res.get('retry'):
         self.retry(countdown=settings.RETRY_RELEASE_TIME,
                    max_retries=settings.RETRY_RELEASE_MAX_RETRIES)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def cancel_unpaid_order_periodic():
+    orders = Order.objects.filter(
+        status=Order.INITIAL,
+        flagged=False
+    ).order_by('pk')[:settings.MAX_NUMBER_CANCEL_ORDER]
+    for order in orders:
+        cancel_unpaid_order.apply_async([order.pk])
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def cancel_unpaid_order(order_id):
+    order = Order.objects.get(pk=order_id)
+    if order.unpaid_order_expired:
+        order.cancel()

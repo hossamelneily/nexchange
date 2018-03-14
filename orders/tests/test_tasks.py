@@ -3,11 +3,14 @@ from payments.models import Payment, PaymentPreference
 from orders.task_summary import buy_order_release_by_wallet_invoke as \
     wallet_release, \
     buy_order_release_by_reference_invoke as ref_release, \
-    buy_order_release_reference_periodic as ref_periodic_release
+    buy_order_release_reference_periodic as ref_periodic_release, \
+    cancel_unpaid_order_periodic
 from orders.models import Order
 from core.models import Address, Currency, Pair, Transaction
 from core.common.models import Flag
 from decimal import Decimal
+from datetime import timedelta, datetime
+from freezegun import freeze_time
 from unittest.mock import patch, PropertyMock
 from copy import deepcopy
 from django.db import transaction
@@ -784,3 +787,39 @@ class RetryReleaseTestCase(TickerBaseTestCase):
         self.assertEqual(res, {'success': False, 'retry': False})
         self.assertTrue(txn.is_verified)
         self.assertEqual(execute_txn.call_count, 3)
+
+class CancelUnpaidOrdersTestCase(TickerBaseTestCase):
+
+    def setUp(self):
+        super(CancelUnpaidOrdersTestCase, self).setUp()
+        self._create_order()
+        self.order.status = Order.INITIAL
+        self.order.save()
+
+    def test_cancel_unpaid_orders_true(self):
+        now = datetime.now() + timedelta(minutes=60)
+        with freeze_time(now):
+            self.assertTrue(self.order.unpaid_order_expired)
+            cancel_unpaid_order_periodic.apply_async()
+            self.order.refresh_from_db()
+            self.assertEqual(self.order.status, Order.CANCELED)
+
+    def test_cancel_unpaid_orders_false(self):
+        self.assertFalse(self.order.unpaid_order_expired)
+        cancel_unpaid_order_periodic.apply_async()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.INITIAL)
+
+    def test_paid_unconfirmed_cancel_unpaid_orders_false(self):
+        now = datetime.now() + timedelta(minutes=60)
+        with freeze_time(now):
+            for status in Order.STATUS_TYPES:
+                self._create_order()
+                if status[0] == Order.INITIAL:
+                    continue
+                self.order.status = status[0]
+                self.order.save()
+                self.assertFalse(self.order.unpaid_order_expired)
+                cancel_unpaid_order_periodic.apply_async()
+                self.order.refresh_from_db()
+                self.assertEqual(self.order.status, status[0])

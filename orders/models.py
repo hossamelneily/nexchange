@@ -103,6 +103,9 @@ class Order(TimeStampedModel, SoftDeletableModel,
     amount_quote = models.DecimalField(max_digits=18, decimal_places=8,
                                        blank=True)
     payment_window = models.IntegerField(default=settings.PAYMENT_WINDOW)
+    unpaid_order_window = models.IntegerField(
+        default=settings.UNPAID_CANCEL_WINDOW_MINUTES
+    )
     user = models.ForeignKey(User, related_name='orders')
     unique_reference = models.CharField(
         max_length=settings.UNIQUE_REFERENCE_MAX_LENGTH)
@@ -505,6 +508,13 @@ class Order(TimeStampedModel, SoftDeletableModel,
                (self.status not in Order.IN_PAID + [Order.PAID_UNCONFIRMED])
 
     @property
+    def unpaid_order_expired(self):
+        """Is expired when an order has not been payed within 1hr"""
+        return (timezone.now() - self.created_on > timedelta(
+                minutes=self.unpaid_order_window + self.payment_window)
+                ) and (self.status == Order.INITIAL)
+
+    @property
     def payment_status_frozen(self):
         """return a boolean indicating if order can be updated
         Order is frozen if it is expired or has been paid
@@ -867,6 +877,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
             self._cancel()
         except Exception as e:
             res = {'status': 'ERROR', 'message': '{}'.format(e)}
+            self.flag(val=e)
         self.save()
         return res
 
