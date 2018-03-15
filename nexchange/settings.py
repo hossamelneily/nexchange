@@ -42,12 +42,8 @@ API1_USER = ''
 API1_PASS = ''
 
 ADMINS = [
-    ('Nexchange', 'nexchange@nexchange.co.uk'),
     ('Oleg', 'oleg@nexchange.co.uk'),
     ('Sarunas', 'sarunas@nexchange.co.uk'),
-    ('Karolis', 'karolis@nexchange.co.uk'),
-    ('Daniel', 'daniel@nexchange.co.uk'),
-    ('Mantas', 'daniel@nexchange.co.uk'),
 ]
 
 LOCALE_PATHS = (
@@ -111,11 +107,11 @@ REFERRAL_SESSION_KEY = REFERRER_GET_PARAMETER
 REFERRAL_TOKEN_CHARS = REFERRAL_CODE_CHARS
 
 ALLOWED_HOSTS = [
-    '127.0.0.1',
-    '10.133.23.149',
-    'localhost',
     'nexchange.io',
-    'www.nexchange.io'
+    'www.nexchange.io',
+    'n.exchange',
+    'www.n.exchange',
+    'api.n.exchange',
 ]
 
 ALLOWED_IMAGE_FILE_EXTENSIONS = ['.jpg', '.png', '.pdf']
