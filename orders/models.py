@@ -24,10 +24,12 @@ from nexchange.celery import app
 from cached_property import cached_property_with_ttl
 from payments.api_clients.safe_charge import SafeChargeAPIClient
 from payments.models import PaymentPreference
+from nexchange.api_clients.factory import ApiClientFactory
 from oauth2_provider.models import AccessToken
 
 
 safe_charge_client = SafeChargeAPIClient()
+factory = ApiClientFactory()
 
 
 class Order(TimeStampedModel, SoftDeletableModel,
@@ -55,6 +57,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     PRE_RELEASE = 14
     RELEASED = 15
     COMPLETED = 16
+    REFUNDED = 8
     STATUS_TYPES = (
         (PAID_UNCONFIRMED, _('UNCONFIRMED PAYMENT')),
         (PRE_RELEASE, _('PRE-RELEASE')),
@@ -63,11 +66,13 @@ class Order(TimeStampedModel, SoftDeletableModel,
         (PAID, _('PAID')),
         (RELEASED, _('RELEASED')),
         (COMPLETED, _('COMPLETED')),
+        (REFUNDED, _('REFUNDED')),
     )
     IN_PAID = [PAID, RELEASED, COMPLETED, PRE_RELEASE]
     IN_RELEASED = [RELEASED, COMPLETED, PRE_RELEASE]
     IN_SUCCESS_RELEASED = [RELEASED, COMPLETED]
     IN_COMPLETED = [COMPLETED]
+    REFUNDABLE_STATES = [PAID_UNCONFIRMED, PAID, PRE_RELEASE]
     _could_be_paid_msg = 'Could be paid by crypto transaction or fiat ' \
                          'payment, depending on order_type.'
     _order_status_help = (6 * '{} - {}<br/>').format(
@@ -79,7 +84,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
         'PRE_RELEASE', 'Order is prepared for RELEASE.',
         'RELEASED', 'Order is paid by service provider. ' + _could_be_paid_msg,
         'COMPLETED', 'All statuses of the order is completed',
-        'CANCELED', 'Order is canceled.'
+        'CANCELED', 'Order is canceled.',
+        'REFUNDED', 'Order is refunded',
     )
 
     PROVIDED_BASE = 0
@@ -123,6 +129,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
                                         blank=True,
                                         related_name='order_set_deposit',
                                         default=None)
+    refund_address = models.ForeignKey(
+        'core.Address', null=True, blank=True, related_name='order_set_refund',
+        default=None
+    )
     is_default_rule = models.BooleanField(default=False)
     from_default_rule = models.BooleanField(default=False)
     pair = models.ForeignKey(Pair)
@@ -184,8 +194,11 @@ class Order(TimeStampedModel, SoftDeletableModel,
     def _validate_status(self, status):
         if not self.pk:
             return
-        old_status = Order.objects.get(pk=self.pk).status
-        if old_status == Order.CANCELED and status != Order.CANCELED:
+        old_order = Order.objects.get(pk=self.pk)
+        old_status = old_order.status
+        if old_status == status:
+            return
+        elif old_status == Order.CANCELED and status != Order.CANCELED:
             raise ValidationError(
                 _('Cannot set order status to {} when it is CANCELED'.format(
                     status)))
@@ -195,7 +208,19 @@ class Order(TimeStampedModel, SoftDeletableModel,
                 return
             else:
                 raise ValidationError(
-                    _('Cannot CANCEL order which is status is not INITIAL'))
+                    _('Cannot CANCEL order which is status is {}'.format(
+                        old_order.get_status_display()
+                    ))
+                )
+        elif status == Order.REFUNDED:
+            if old_status in self.REFUNDABLE_STATES:
+                return
+            else:
+                raise ValidationError(
+                    _('Cannot REFUND order which is status is {}'.format(
+                        old_order.get_status_display()
+                    ))
+                )
         elif status < old_status:
             raise ValidationError(
                 _('Cannot set order status from {} to {}'
@@ -878,6 +903,105 @@ class Order(TimeStampedModel, SoftDeletableModel,
         except Exception as e:
             res = {'status': 'ERROR', 'message': '{}'.format(e)}
             self.flag(val=e)
+        self.save()
+        return res
+
+    @transition(field=status, source=PRE_RELEASE, target=REFUNDED)
+    @transition(field=status, source=PAID, target=REFUNDED)
+    def _refund_exchange(self):
+        old_withdraw_txs = self.transactions.exclude(
+            type=Transaction.DEPOSIT)
+        dep_tx = self.transactions.get(type='D')
+        dep_tx.flag(val='refunded')
+        currency = dep_tx.currency
+        amount = dep_tx.amount
+        address = self.refund_address
+        if currency != self.pair.quote:
+            msg = 'DEPOSIT tx currency {} is not the same as order quote {}.' \
+                  ' Order {}'.format(dep_tx.currency, self.pair.quote,
+                                     self.unique_reference)
+            self.flag(val=msg)
+            raise ValidationError(msg)
+        if amount != self.amount_quote:
+            msg = 'DEPOSIT tx amount {} is not the same as order ' \
+                  'amount_quote {}. Order {}'.format(amount, self.amount_quote,
+                                                     self.unique_reference)
+            self.flag(val=msg)
+            raise ValidationError(msg)
+        if any([not address, address.currency != self.pair.quote,
+                address == self.deposit_address]):
+            msg = 'Wrong refund address {}.Order {}'.format(
+                address, self.unique_reference
+            )
+            self.flag(val=msg)
+            raise ValidationError(msg)
+        if len(old_withdraw_txs) == 0 and dep_tx:
+            tx = Transaction(
+                amount=amount,
+                type=Transaction.REFUND,
+                currency=currency,
+                refunded_transaction=dep_tx,
+                address_to=address,
+                order=self
+            )
+            tx.save()
+            api = factory.get_api_client(currency.wallet)
+            tx_id, success = api.release_coins(currency, address, amount)
+            setattr(tx, api.TX_ID_FIELD_NAME, tx_id)
+            tx.save()
+        else:
+            msg = 'Order {} already has WITHDRAW or None type ' \
+                  'transactions {}'.format(self, old_withdraw_txs)
+            self.flag(val=msg)
+            raise ValidationError(msg)
+
+        return tx
+
+    @transition(field=status, source=PAID_UNCONFIRMED, target=REFUNDED)
+    def _refund_fiat(self):
+        payment = self.payment_set.get()
+        payment.flag(val='refunded')
+        if not payment.is_success:
+            msg = 'Cannot refund order {}. Deposit payment {} is not ' \
+                  'successful'.format(self.unique_reference, payment)
+            self.flag(val=msg)
+            raise ValidationError(msg)
+        order = payment.order
+        if order != self:
+            msg = 'Cannot refund order {}. Payment order {} is not the ' \
+                  'same'.format(self.unique_reference, order)
+            self.flag(val=msg)
+            raise ValidationError(msg)
+        params = {
+            'currency': payment.currency.code,
+            'amount': str(money_format(payment.amount_cash, places=2)),
+            'clientRequestId': 'refund_{}'.format(order.unique_reference),
+            'clientUniqueId': 'refund_{}'.format(order.unique_reference),
+            'relatedTransactionId': payment.secondary_payment_system_id,
+            'authCode': payment.auth_code
+        }
+        res = safe_charge_client.api.refundTransaction(**params)
+        status = res.get('transactionStatus', '')
+        if status != 'APPROVED':
+            msg = 'Cannot refund order {}. Attemp is not approved: {}'.format(
+                self.unique_reference, res
+            )
+            self.flag(val=msg)
+            raise ValidationError(msg)
+        payment.is_success = False
+        payment.save()
+        payment.flag(val=res)
+
+    def refund(self):
+        res = {'status': 'OK'}
+        try:
+            if self.exchange:
+                tx = self._refund_exchange()
+                res.update({'tx': tx})
+            else:
+                self._refund_fiat()
+        except Exception as e:
+            res = {'status': 'ERROR', 'message': '{}'.format(e)}
         self.save()
         return res
 

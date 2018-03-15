@@ -7,7 +7,7 @@ from core.tests.base import TransactionImportBaseTestCase
 from core.tests.base import UPHOLD_ROOT, EXCHANGE_ORDER_RELEASE_ROOT, \
     ETH_ROOT, SCRYPT_ROOT
 from core.tests.utils import data_provider
-from core.models import Transaction, Pair, Address
+from core.models import Transaction, Pair, Address, Currency
 from orders.models import Order
 from orders.task_summary import exchange_order_release_invoke,\
     exchange_order_release_periodic, buy_order_release_reference_periodic,\
@@ -22,7 +22,9 @@ from payments.utils import money_format
 from payments.models import Payment, PaymentMethod, PaymentPreference
 import requests_mock
 from http.client import RemoteDisconnected
+from nexchange.api_clients.factory import ApiClientFactory
 
+factory = ApiClientFactory()
 
 class RegressionTaskTestCase(TransactionImportBaseTestCase,
                              TickerBaseTestCase):
@@ -43,7 +45,8 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
             tx_id_api=deposit_tx_id, order=self.order,
             address_to=self.order.deposit_address,
             is_completed=True,
-            is_verified=True
+            is_verified=True,
+            currency=self.order.pair.quote
         )
         if txn_type is not None:
             txn_dep.type = txn_type
@@ -160,28 +163,53 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         self.assertTrue(self.order.flagged)
         self.assertEqual(len(all_with_txn), 1)
 
+    @data_provider(lambda: (
+        (None,),
+        (Transaction.REFUND,),
+        (Transaction.WITHDRAW,),
+    ))
     @patch(ETH_ROOT + 'net_listening')
-    @patch(UPHOLD_ROOT + 'execute_txn')
-    @patch(UPHOLD_ROOT + 'prepare_txn')
-    @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
-    def test_do_not_release_if_order_has_txn_without_type(self,
-                                                          check_tx_uphold,
-                                                          prepare_txn_uphold,
-                                                          execute_txn_uphold,
-                                                          eth_listen):
+    def test_do_not_release_if_order_first_tx_is_not_deposit(self, txn_type,
+                                                             eth_listen):
         eth_listen.return_value = True
-        order, txn_dep = self._create_paid_order(txn_type=None)
-        check_tx_uphold.return_value = True, 999
-        prepare_txn_uphold.return_value = self.generate_txn_id()
-        execute_txn_uphold.return_value = {'code': 'OK'}
+        order, txn_dep = self._create_paid_order(txn_type=txn_type)
+        txn_before = self.order.transactions.filter(
+            type=Transaction.WITHDRAW
+        )
         exchange_order_release_invoke.apply_async([txn_dep.pk])
         self.order.refresh_from_db()
         # Check things after first release
-        self.assertEqual(prepare_txn_uphold.call_count, 0)
-        self.assertIn(self.order.status, Order.IN_RELEASED)
-        all_with_txn = self.order.transactions.filter(
-            type=Transaction.WITHDRAW)
-        self.assertEqual(len(all_with_txn), 0)
+        self.assertEqual(self.order.status, Order.PRE_RELEASE)
+        txn_after = self.order.transactions.filter(
+            type=Transaction.WITHDRAW
+        )
+        self.assertEqual(txn_after.count() - txn_before.count(), 0, txn_type)
+        self.assertTrue(self.order.flagged)
+
+    @data_provider(lambda: (
+        (None,),
+        (Transaction.REFUND,),
+        (Transaction.WITHDRAW,),
+    ))
+    @patch(ETH_ROOT + 'net_listening')
+    def test_do_not_release_if_order_has_non_deposit_tx(self, txn_type,
+                                                        eth_listen):
+        eth_listen.return_value = True
+        order, txn_dep = self._create_paid_order()
+        another_tx = Transaction(type=txn_type, order=self.order,
+                                 address_to=order.withdraw_address)
+        another_tx.save()
+        txn_before = self.order.transactions.filter(
+            type=Transaction.WITHDRAW
+        )
+        exchange_order_release_invoke.apply_async([txn_dep.pk])
+        self.order.refresh_from_db()
+        # Check things after first release
+        self.assertEqual(self.order.status, Order.PRE_RELEASE)
+        txn_after = self.order.transactions.filter(
+            type=Transaction.WITHDRAW
+        )
+        self.assertEqual(txn_after.count() - txn_before.count(), 0, txn_type)
         self.assertTrue(self.order.flagged)
 
     @patch(EXCHANGE_ORDER_RELEASE_ROOT + 'run')
@@ -379,6 +407,144 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         exchange_order_release_periodic.apply_async()
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, self.order.PAID)
+
+    @data_provider(lambda: (
+        (False,),
+        (True,)
+    ))
+    @patch(ETH_ROOT + 'net_listening')
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_refund_order(self, pre_release, release_coins, eth_listen):
+        eth_listen.return_value = True
+        tx_id = self.generate_txn_id()
+        release_coins.return_value = tx_id, True
+        order, tx_dep = self._create_paid_order()
+        if pre_release:
+            api = factory.get_api_client(order.pair.base.wallet)
+            order.pre_release(api=api)
+            self.assertEqual(order.status, Order.PRE_RELEASE)
+        else:
+            self.assertEqual(order.status, Order.PAID)
+        refund_address = Address.objects.filter(
+            currency=order.pair.quote
+        ).exclude(pk=order.deposit_address.pk).first()
+        order.refund_address = refund_address
+        order.save()
+        res = order.refund()
+        self.assertEqual(res['status'], 'OK', res)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.REFUNDED)
+        txns = order.transactions.all()
+        tx_dep.refresh_from_db()
+        self.assertTrue(tx_dep.flagged)
+        self.assertEqual(2, txns.count())
+        tx_with = res['tx']
+        self.assertEqual(tx_with.amount, tx_dep.amount)
+        self.assertEqual(tx_with.amount, order.amount_quote)
+        self.assertEqual(tx_with.currency, tx_dep.currency)
+        self.assertEqual(tx_with.currency, order.pair.quote)
+        self.assertEqual(tx_with.refunded_transaction, tx_dep)
+        self.assertEqual(tx_with.order, order)
+        self.assertEqual(tx_with.type, tx_with.REFUND)
+        self.assertEqual(tx_with.address_to, order.refund_address)
+        self.assertEqual(tx_with.tx_id, tx_id)
+        order.refund()
+        release_coins.assert_called_once()
+        release_coins.assert_called_with(order.pair.quote,
+                                         order.refund_address,
+                                         order.amount_quote)
+
+    @data_provider(lambda: (
+        (Order.INITIAL,),
+        (Order.CANCELED,),
+        (Order.PAID_UNCONFIRMED,),
+        (Order.RELEASED,),
+        (Order.COMPLETED,),
+    ))
+    @patch('orders.models.Order._validate_status')
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_do_not_refund_bad_status_order(self, status, release_coins,
+                                            validate_status):
+        validate_status.return_value = True
+        tx_id = self.generate_txn_id()
+        release_coins.return_value = tx_id, True
+        order, tx_dep = self._create_paid_order()
+        order.status = status
+        refund_address = Address.objects.filter(
+            currency=order.pair.quote
+        ).exclude(pk=order.deposit_address.pk).first()
+        order.refund_address = refund_address
+        order.save()
+        res = order.refund()
+        self.assertEqual(res['status'], 'ERROR', res)
+        order.refresh_from_db()
+        self.assertEqual(order.status, status)
+        release_coins.assert_not_called()
+
+    @data_provider(lambda: (
+        (Transaction.WITHDRAW,),
+        (Transaction.REFUND,),
+        (None,),
+    ))
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_do_not_refund_order_another_tx_exists(self, tx_type,
+                                                   release_coins):
+        order, tx_dep = self._create_paid_order()
+        another_tx = Transaction(address_to=order.withdraw_address,
+                                 order=order, amount=order.amount_base,
+                                 currency=order.pair.base, type=tx_type)
+        another_tx.save()
+        refund_address = Address.objects.filter(
+            currency=order.pair.quote
+        ).exclude(pk=order.deposit_address.pk).first()
+        order.refund_address = refund_address
+        order.save()
+        res = order.refund()
+        self.assertEqual(res['status'], 'ERROR', res)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PAID)
+        txns = order.transactions.all()
+        self.assertEqual(2, txns.count())
+        release_coins.assert_not_called()
+
+    @data_provider(lambda: (
+        ({'currency': Currency.objects.get(code='EUR')},),
+        ({'amount': Decimal('123')},),
+    ))
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_do_not_refund_bad_tx_data(self, tx_data, release_coins):
+        order, tx_dep = self._create_paid_order()
+        for key, value in tx_data.items():
+            setattr(tx_dep, key, value)
+        tx_dep.save()
+        refund_address = Address.objects.filter(
+            currency=order.pair.quote
+        ).exclude(pk=order.deposit_address.pk).first()
+        order.refund_address = refund_address
+        order.save()
+        res = order.refund()
+        self.assertEqual(res['status'], 'ERROR', res)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PAID)
+        txns = order.transactions.all()
+        self.assertEqual(1, txns.count())
+        release_coins.assert_not_called()
+
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_do_not_refund_bad_refund_address(self, release_coins):
+        order, tx_dep = self._create_paid_order()
+        refund_address = Address.objects.filter(
+            currency=order.pair.base
+        ).exclude(pk=order.deposit_address.pk).first()
+        order.refund_address = refund_address
+        order.save()
+        res = order.refund()
+        self.assertEqual(res['status'], 'ERROR', res)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PAID)
+        txns = order.transactions.all()
+        self.assertEqual(1, txns.count())
+        release_coins.assert_not_called()
 
     @patch(SCRYPT_ROOT + 'get_info')
     @patch(SCRYPT_ROOT + 'release_coins')

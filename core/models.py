@@ -18,9 +18,11 @@ class BtcBase(TimeStampedModel):
 
     WITHDRAW = 'W'
     DEPOSIT = 'D'
+    REFUND = 'R'
     TYPES = (
         (WITHDRAW, 'WITHDRAW'),
         (DEPOSIT, 'DEPOSIT'),
+        (REFUND, 'REFUND'),
     )
     type = models.CharField(max_length=1,
                             choices=TYPES, null=True)
@@ -94,6 +96,9 @@ class Transaction(BtcBase, FlagableMixin):
     currency = models.ForeignKey('core.Currency', related_name='transactions',
                                  null=True, blank=True, default=None)
     admin_comment = models.CharField(max_length=200, null=True, blank=False)
+    refunded_transaction = models.ForeignKey(
+        'self', null=True, blank=True, default=None
+    )
 
     def _validate_withdraw_txn(self):
         if self.order:

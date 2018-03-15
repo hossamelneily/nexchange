@@ -25,7 +25,7 @@ from rest_framework.test import APIClient
 from payments.task_summary import check_fiat_order_deposit_periodic
 import json
 from verification.models import Verification
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 import datetime
 
 
@@ -311,6 +311,12 @@ class MastercardTestCase(BaseCardPmtAPITestCase):
                       provider_data)
         self.order.status = Order.INITIAL
         self.order.save()
+
+
+do_not_refund_fiat_order_params = namedtuple(
+    'do_not_refund_fiat_order_params',
+    ['case_name', 'payment_data', 'tx_status', 'order_status']
+)
 
 
 class SafeChargeTestCase(OrderBaseTestCase):
@@ -610,6 +616,7 @@ class SafeChargeTestCase(OrderBaseTestCase):
         self.assertEqual(res.status_code, 200)
         payment.refresh_from_db()
         self.assertTrue(payment.is_success)
+        self.assertFalse(payment.is_complete)
         check_fiat_order_deposit_periodic.apply_async()
         order.refresh_from_db()
         self.assertEqual(order.status, Order.PAID)
@@ -617,6 +624,129 @@ class SafeChargeTestCase(OrderBaseTestCase):
         self.assertTrue(payment.is_complete)
 
         self._test_paid_order(order)
+
+    @patch('payments.views.get_client_ip')
+    @patch('payments.api_clients.safe_charge.SafeCharge.refundTransaction')
+    def test_refund_fiat_order(self, refund_tx, get_client_ip):
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
+        refund_tx.return_value = {'transactionStatus': 'APPROVED'}
+        order = self._create_order_api()
+        card_id = self.generate_txn_id()
+        name = 'Sir Testalot'
+        params = self._get_dmn_request_params_for_order(order, card_id, name,
+                                                        status='APPROVED')
+        url = reverse('payments.listen_safe_charge')
+        res = self.client.post(url, data=params)
+        self.assertEqual(res.status_code, 200)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
+        payment = order.payment_set.get()
+        self.assertFalse(payment.is_complete)
+        self.assertTrue(payment.is_success)
+        res = order.refund()
+        self.assertEqual(res['status'], 'OK', res)
+        self.assertEqual(order.status, Order.REFUNDED)
+        payment.refresh_from_db()
+        self.assertTrue(payment.flagged)
+        order.refund()
+        refund_tx.assert_called_once()
+
+    @data_provider(lambda: (
+        do_not_refund_fiat_order_params(
+            case_name='Non successful payment from the customer',
+            payment_data={'is_success': False},
+            tx_status='APPROVED',
+            order_status=None
+        ),
+        do_not_refund_fiat_order_params(
+            case_name='Bad order id on payment',
+            payment_data={'order_id': 1},
+            tx_status='APPROVED',
+            order_status=None
+        ),
+        do_not_refund_fiat_order_params(
+            case_name='Error on refund call',
+            payment_data={},
+            tx_status='ERROR',
+            order_status=None
+        ),
+        do_not_refund_fiat_order_params(
+            case_name='Bad order status - INITIAL',
+            payment_data={},
+            tx_status='APPROVED',
+            order_status=Order.INITIAL
+        ),
+        do_not_refund_fiat_order_params(
+            case_name='Bad order status - PAID',
+            payment_data={},
+            tx_status='APPROVED',
+            order_status=Order.PAID
+        ),
+        do_not_refund_fiat_order_params(
+            case_name='Bad order status - CANCELED',
+            payment_data={},
+            tx_status='APPROVED',
+            order_status=Order.CANCELED
+        ),
+        do_not_refund_fiat_order_params(
+            case_name='Bad order status - PRE_RELEASE',
+            payment_data={},
+            tx_status='APPROVED',
+            order_status=Order.PRE_RELEASE
+        ),
+        do_not_refund_fiat_order_params(
+            case_name='Bad order status - RELEASED',
+            payment_data={},
+            tx_status='APPROVED',
+            order_status=Order.RELEASED
+        ),
+        do_not_refund_fiat_order_params(
+            case_name='Bad order status - COMPLETED',
+            payment_data={},
+            tx_status='APPROVED',
+            order_status=Order.COMPLETED
+        ),
+    ))
+    @patch('payments.views.get_client_ip')
+    @patch('orders.models.Order._validate_status')
+    @patch('payments.api_clients.safe_charge.SafeCharge.refundTransaction')
+    def test_do_not_refund_fiat_order(self, refund_tx, validate_status,
+                                      get_client_ip, **kwargs):
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
+        tx_status = kwargs['tx_status']
+        order_status = kwargs['order_status']
+        case_name = kwargs['case_name']
+        payment_data = kwargs['payment_data']
+        validate_status.return_value = True
+        refund_tx.return_value = {'transactionStatus': tx_status}
+        order = self._create_order_api()
+        card_id = self.generate_txn_id()
+        name = 'Sir Testalot'
+        params = self._get_dmn_request_params_for_order(order, card_id, name,
+                                                        status='APPROVED')
+        url = reverse('payments.listen_safe_charge')
+        res = self.client.post(url, data=params)
+        self.assertEqual(res.status_code, 200, case_name)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PAID_UNCONFIRMED, case_name)
+        if order_status is not None:
+            order.status = order_status
+            order.save()
+            order.refresh_from_db()
+            self.assertEqual(order.status, order_status, case_name)
+        payment = order.payment_set.get()
+        for key, value in payment_data.items():
+            setattr(payment, key, value)
+        payment.save()
+        before_status = order.status
+        res = order.refund()
+        order.refresh_from_db()
+        self.assertEqual(order.status, before_status, case_name)
+        self.assertEqual(res['status'], 'ERROR',
+                         '{}, {}'.format(res, case_name))
+        self.assertEqual(order.status, before_status, case_name)
 
     @patch('payments.views.get_client_ip')
     def test_try_release_fiat_with_corrupted_signature_push(self,
