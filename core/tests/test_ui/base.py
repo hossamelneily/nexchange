@@ -159,10 +159,6 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
 
     @requests_mock.mock()
     def otp_login(self, username, mock):
-        mock.post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            text='{\n "success": true\n}'
-        )
         self.get_repeat_on_timeout(self.url)
         self.click_element_by_name('Login', by=By.XPATH)
         self.fill_element_by_id('id_username', username)
@@ -198,10 +194,6 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
     @requests_mock.mock()
     def login_seemless(self, mock, with_email=False,
                        reject_user_verification=True):
-        mock.post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            text='{\n "success": true\n}'
-        )
         self.do_screenshot('after check method click')
         # FIXME: try wait for smth instead of sleep
         sleep(1)

@@ -20,7 +20,7 @@ from django.forms import modelformset_factory
 from verification.forms import VerificationUploadForm
 
 
-from accounts.decoratos import not_logged_in_required, recaptcha_required
+from accounts.decoratos import not_logged_in_required
 from accounts.forms import (CustomUserCreationForm, UpdateUserProfileForm,
                             UserForm, UserProfileForm)
 from referrals.models import ReferralCode
@@ -303,7 +303,6 @@ def create_anonymous_user(request):
 
 
 @csrf_exempt
-@recaptcha_required
 @not_logged_in_required
 @watch_login
 def user_get_or_create(request):

@@ -17,11 +17,7 @@ class AccountCreation {
 
             $('.user-anonymous').addClass('hidden');
 
-            if ($('.send-otp').is(':visible') || $('.send').is(':visible')) {
-                grecaptcha.execute();
-            } else {
-                window.submitCreateAcc();
-            }
+            window.submitCreateAcc();
         });
     }
 
@@ -150,7 +146,6 @@ window.submitCreateAcc = () => {
         phone: phone,
         email: email,
         login_with_email: login_with_email,
-        g_recaptcha_response: grecaptcha.getResponse()
     };
 
     accountCreation.seamlessRegistration(regPayload);

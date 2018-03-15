@@ -27,10 +27,6 @@ class TestUILogin(BaseTestUI):
     @retry(TimeoutException, tries=2, delay=1)
     @requests_mock.mock()
     def base_otp_login(self, username, push_resend, mock):
-        mock.post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            text='{\n "success": true\n}'
-        )
         self.screenpath2 = 'OTP'
         if push_resend:
             self.screenpath2 += '_resend'

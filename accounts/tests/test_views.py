@@ -329,10 +329,6 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
 
     def setUp(self):
         super(PassiveAuthenticationTestCase, self).setUp()
-        patcher = patch('accounts.decoratos.get_google_response',
-                        return_value=True)
-        patcher.start()
-        self.addCleanup(patcher.stop)
 
     def tearDown(self):
         if self.user:
@@ -717,21 +713,6 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         self.assertTrue(sms_token)
         send_sms.assert_called_once_with(self.user)
         self.assertEqual(1, send_sms.call_count)
-
-    @patch('accounts.decoratos.get_google_response')
-    @patch('accounts.views.send_auth_sms')
-    def test_sms_sent_no_recaptcha_forbidden(self, send_sms, get_google):
-        # request with no verify parameter
-        get_google.return_value = False
-        url = reverse('accounts.user_get_or_create')
-        uname = '+79259737305'
-        payload = {
-            'phone': uname,
-        }
-        self.client.get(self.logout_url)
-        res = self.client.post(url, data=payload)
-
-        self.assertEquals(res.status_code, 428)
 
     @patch('accounts.views.send_auth_sms')
     def test_sms_sent_replace_phone_spaces(self, send_sms):

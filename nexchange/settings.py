@@ -380,7 +380,6 @@ TEMPLATES = [
                 'django.template.context_processors.i18n',
                 'core.context_processors.google_analytics',
                 'core.context_processors.country_code',
-                'core.context_processors.recaptcha',
                 'core.context_processors.sms_token_length',
                 'core.context_processors.recent_orders_length',
                 'articles.context_processors.cms',

@@ -20,17 +20,8 @@
       return isVerified;
   };
 
-var doRender = function() {
-      grecaptcha.render( 'grecaptcha', {
-        'sitekey' : window.recaptchaSitekey,  // required
-        'theme' : 'light',  // optional
-        'callback': verifyRecatpchaCallback  // optional
-      });
-};
-
 module.exports = {
     verifyRecatpchaCallback:verifyRecatpchaCallback,
-    doRender: doRender,
     isVerified: getIsVerefied
 };
 
