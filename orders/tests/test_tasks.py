@@ -788,6 +788,7 @@ class RetryReleaseTestCase(TickerBaseTestCase):
         self.assertTrue(txn.is_verified)
         self.assertEqual(execute_txn.call_count, 3)
 
+
 class CancelUnpaidOrdersTestCase(TickerBaseTestCase):
 
     def setUp(self):
@@ -810,7 +811,9 @@ class CancelUnpaidOrdersTestCase(TickerBaseTestCase):
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, Order.INITIAL)
 
-    def test_paid_unconfirmed_cancel_unpaid_orders_false(self):
+    @patch('orders.models.Order._validate_status')
+    def test_paid_unconfirmed_cancel_unpaid_orders_false(self,
+                                                         validate_status):
         now = datetime.now() + timedelta(minutes=60)
         with freeze_time(now):
             for status in Order.STATUS_TYPES:
