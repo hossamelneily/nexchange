@@ -102,6 +102,7 @@ class PairFixtureTestCase(OrderBaseTestCase):
         # NOTE: avoid super() here, save() edits fixtures (i.e. save is called
         # on enable_all_pairs)
         self.pairs = Pair.objects.all()
+        self.path = 'core/fixtures/'
 
     def tearDown(self):
         pass
@@ -150,15 +151,14 @@ class PairFixtureTestCase(OrderBaseTestCase):
             self.assertEqual(p.fee_bid, bid, 'Bad fee_bid on {}'.format(p))
 
     def test_fixture_pks(self):
-        path = 'core/fixtures/'
-        fixture_files = os.listdir(path)
+        fixture_files = os.listdir(self.path)
         pair_fixtures = [name for name in fixture_files if name[:5] == 'pairs']
         currency_fixtures = [
             name for name in fixture_files if name[:8] == 'currency'
         ]
         pair_data = []
         for fix in pair_fixtures:
-            pair_data += json.loads(open(path + fix).read())
+            pair_data += json.loads(open(self.path + fix).read())
         pair_pks = [record['pk'] for record in pair_data]
         pair_counter = Counter(pair_pks)
         for key, value in pair_counter.items():
@@ -168,7 +168,7 @@ class PairFixtureTestCase(OrderBaseTestCase):
                 )
         currency_data = []
         for fix in currency_fixtures:
-            currency_data += json.loads(open(path + fix).read())
+            currency_data += json.loads(open(self.path + fix).read())
         currency_pks = [record['pk'] for record in currency_data]
         currency_counter = Counter(currency_pks)
         for key, value in currency_counter.items():
@@ -177,14 +177,13 @@ class PairFixtureTestCase(OrderBaseTestCase):
                     'Currency pk {} repeated in fixtures!'.format(key)
                 )
 
-    def test_crypto_pairs_fulfillment(self):
-        path = 'core/fixtures/'
+    def test_crypto_crypto_pairs_fulfillment(self):
         currency_fixtures = ['currency_crypto.json', 'currency_tokens.json']
         pair_fixture = 'pairs_cross.json'
-        pairs_data = json.loads(open(path + pair_fixture).read())
+        pairs_data = json.loads(open(self.path + pair_fixture).read())
         currency_data = []
         for fix in currency_fixtures:
-            currency_data += json.loads(open(path + fix).read())
+            currency_data += json.loads(open(self.path + fix).read())
         cryptos = [data for data in currency_data
                    if data['fields']['code'] not in ['RNS', 'GNT', 'QTM']]
         for crypto in cryptos:
@@ -200,6 +199,28 @@ class PairFixtureTestCase(OrderBaseTestCase):
                               len(fit_pairs),
                               '%s has not enough pairs: %s' %
                               (crypto['fields']['code'], fit_pairs))
+
+    def test_crypto_fiat_pairs_fulfillment(self):
+        currency_fixtures = ['currency_crypto.json',
+                             'currency_tokens.json']
+        currency_data = []
+        for fix in currency_fixtures:
+            currency_data += json.loads(open(self.path + fix).read())
+        cryptos = [data for data in currency_data
+                   if data['fields']['code'] not in ['RNS', 'GNT', 'QTM']]
+        for crypto in cryptos:
+            pair_fixture_filename = 'pairs_%s.json' % \
+                                    crypto['fields']['code'].lower()
+            pair_data = \
+                json.loads(open(self.path + pair_fixture_filename).read())
+            pairs = [pair for pair in pair_data
+                     if pair['fields']['base'] == crypto['pk'] and
+                     pair['fields']['quote']
+                     in [4, 6, 7]]  # USD, EUR and GBP
+            self.assertEquals(
+                len(pairs),
+                3,
+                'Not enough pairs for %s' % crypto['fields']['code'])
 
 
 class TransactionTestCase(TickerBaseTestCase):

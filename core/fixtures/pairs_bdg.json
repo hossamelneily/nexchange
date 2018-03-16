@@ -1,43 +1,43 @@
 [
 {
   "model": "core.pair",
-  "pk": 225,
+  "pk": 233,
   "fields": {
     "created_on": "2016-05-20T17:41:28Z",
     "modified_on": "2017-02-09T12:54:12.511Z",
-    "base": 42,
+    "base": 37,
     "quote": 4,
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
-    "name": "NANOUSD",
+    "name": "BDGUSD",
     "disabled": true
   }
 },
 {
   "model": "core.pair",
-  "pk": 226,
+  "pk": 234,
   "fields": {
     "created_on": "2016-05-20T17:41:28Z",
     "modified_on": "2017-02-09T12:54:12.511Z",
-    "base": 42,
+    "base": 37,
     "quote": 6,
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
-    "name": "NANOEUR",
+    "name": "BDGEUR",
     "disabled": true
   }
 },
 {
   "model": "core.pair",
-  "pk": 236,
+  "pk": 235,
   "fields": {
     "created_on": "2016-05-20T17:41:28Z",
     "modified_on": "2017-02-09T12:54:12.511Z",
-    "base": 42,
+    "base": 37,
     "quote": 7,
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
-    "name": "NANOGBP",
+    "name": "BDGGBP",
     "disabled": true
   }
 }
