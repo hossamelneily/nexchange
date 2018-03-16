@@ -3,13 +3,8 @@ import requests
 import requests_cache
 
 from ticker.models import Price
-from ticker.tasks.generic.base import BaseTicker,\
-    KrakenBaseTicker, CryptopiaBaseTicker, CoinexchangeBaseTicker,\
-    BittrexBaseTicker, BitgrailBaseTicker, KucoinBaseTicker, \
-    BinanceBaseTicker
+from ticker.tasks.generic.base import BaseTicker
 from django.conf import settings
-from .base import cryptopia_adapter, coinexchange_adapter, bittrex_adapter,\
-    bitgrail_adapter, idex_adapter, kucoin_adapter, binance_adapter
 
 
 requests_cache.install_cache('btc_crypto_cache',
@@ -27,8 +22,7 @@ class CryptoFiatTicker(BaseTicker):
                 prices['ask'], prices['bid']
             )
             price = Price(pair=self.pair, ticker=ticker, market=self.market)
-            price.save()
-            return price
+            return ticker, price
 
     def convert_fiat(self, price):
         code = self.pair.quote.code
@@ -70,49 +64,3 @@ class CryptoFiatTicker(BaseTicker):
             eur_base = Decimal(rate_info['rates'][code])
         rate = rate_usd * eur_base / Decimal(rate_info['rates']['USD'])
         return rate
-
-
-class CryptoFiatKrakenTicker(CryptoFiatTicker, KrakenBaseTicker):
-    pass
-
-
-class CryptoFiatCryptopiaTicker(CryptoFiatTicker, CryptopiaBaseTicker):
-    def __init__(self, *args, **kwargs):
-        super(CryptoFiatCryptopiaTicker, self).__init__(*args, **kwargs)
-        self.bitcoin_api_adapter = cryptopia_adapter
-
-
-class CryptoFiatCoinexchangeTicker(CryptoFiatTicker, CoinexchangeBaseTicker):
-    def __init__(self, *args, **kwargs):
-        super(CryptoFiatCoinexchangeTicker, self).__init__(*args, **kwargs)
-        self.bitcoin_api_adapter = coinexchange_adapter
-
-
-class CryptoFiatBittrexTicker(CryptoFiatTicker, BittrexBaseTicker):
-    def __init__(self, *args, **kwargs):
-        super(CryptoFiatBittrexTicker, self).__init__(*args, **kwargs)
-        self.bitcoin_api_adapter = bittrex_adapter
-
-
-class CryptoFiatBitgrailTicker(CryptoFiatTicker, BitgrailBaseTicker):
-    def __init__(self, *args, **kwargs):
-        super(CryptoFiatBitgrailTicker, self).__init__(*args, **kwargs)
-        self.bitcoin_api_adapter = bitgrail_adapter
-
-
-class CryptoFiatIdexTicker(CryptoFiatTicker, BitgrailBaseTicker):
-    def __init__(self, *args, **kwargs):
-        super(CryptoFiatIdexTicker, self).__init__(*args, **kwargs)
-        self.bitcoin_api_adapter = idex_adapter
-
-
-class CryptoFiatKucoinTicker(CryptoFiatTicker, KucoinBaseTicker):
-    def __init__(self, *args, **kwargs):
-        super(CryptoFiatKucoinTicker, self).__init__(*args, **kwargs)
-        self.bitcoin_api_adapter = kucoin_adapter
-
-
-class CryptoFiatBinanceTicker(CryptoFiatTicker, BinanceBaseTicker):
-    def __init__(self, *args, **kwargs):
-        super(CryptoFiatBinanceTicker, self).__init__(*args, **kwargs)
-        self.bitcoin_api_adapter = binance_adapter

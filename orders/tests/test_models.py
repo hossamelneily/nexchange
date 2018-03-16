@@ -27,6 +27,7 @@ from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT, ETH_ROOT
 from ticker.models import Ticker, Price
 from nexchange.api_clients.uphold import UpholdApiClient
 from ticker.tasks.generic.crypto_fiat_ticker import CryptoFiatTicker
+from ticker.tasks.generic.base import save_ticker_and_price
 import requests_mock
 from freezegun import freeze_time
 from core.tests.utils import retry
@@ -938,7 +939,8 @@ class OrderPriceTestCase(TickerBaseTestCase):
         pair_name = 'BTCUSD'
         pair = Pair.objects.get(name=pair_name)
         ticker_api = CryptoFiatTicker()
-        ticker_api.run(pair.pk, market_code='locbit')
+        ticker, price = ticker_api.run(pair.pk, market_code='locbit')
+        save_ticker_and_price(ticker, price)
         last_price = Price.objects.filter(pair=pair).last()
         self.assertFalse(last_price.market.is_main_market)
         last_main_price = Price.objects.filter(

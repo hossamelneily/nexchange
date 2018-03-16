@@ -5,9 +5,12 @@ from ticker.tests.base import TickerBaseTestCase
 from core.models import Pair, Market
 from ticker.models import Ticker
 from decimal import Decimal
-from ticker.tasks.generic.base import BaseTicker
+from ticker.tasks.generic.base import BaseTicker, \
+    KucoinAdapter, BinanceAdapter, BittrexAdapter
 from unittest.mock import patch
 from django.db.models import Q
+from ticker.task_summary import get_ticker_crypto_crypto, \
+    get_ticker_crypto_fiat
 
 
 class TestTickerTask(TickerBaseTestCase):
@@ -132,9 +135,125 @@ class TestTickerTask(TickerBaseTestCase):
         ticker_names = ['kraken', 'cryptopia', 'coinexchange', '']
         for ticker_name in ticker_names:
             pair.quote.ticker = ticker_name
-            res = api.get_api_adapter(pair)
-            if ticker_name:
-                name = res.__class__.__name__.lower()
-                self.assertIn(ticker_name, name)
-            else:
-                self.assertEqual(api.bitcoin_api_adapter, res)
+            responds = api.get_api_adapter(pair)
+            for res in responds:
+                if ticker_name:
+                    name = res.__class__.__name__.lower()
+                    self.assertIn(ticker_name, name)
+                else:
+                    self.assertEqual(api.bitcoin_api_adapter, res)
+
+    @patch('ticker.tasks.generic.base.BaseTicker.get_tickers')
+    def test_choose_ticker_crypto(self,
+                                  mock_get_tickers):
+        pairs = []
+        pairs.append(Pair.objects.get(name='BTCNANO'))
+        pairs.append(Pair.objects.get(name='NANOLTC'))
+        pairs.append(Pair.objects.get(name='BDGNANO'))
+        max_ask = 1
+        bid = 1
+        mock_get_tickers.return_value = \
+            [{'ask': Decimal(max_ask), 'bid': Decimal(bid)},
+             {'ask': Decimal(max_ask * 0.75), 'bid': Decimal(bid)},
+             {'ask': Decimal(max_ask * 0.8), 'bid': Decimal(bid)}]
+
+        for pair in pairs:
+            kwargs = {'pair_pk': pair.pk}
+            get_ticker_crypto_crypto(**kwargs)
+            price = Price.objects.filter(pair=pair).latest('id')
+            expected_ask_with_fee = \
+                Decimal(max_ask) * (Decimal('1.0') + pair.fee_ask)
+            self.assertEquals(price.ticker.ask,
+                              round(expected_ask_with_fee, 8))
+
+    @patch("ticker.tasks.generic.base.BaseTicker.handle")
+    @patch("ticker.tasks.generic.base.BaseTicker.get_tickers")
+    @patch("ticker.tasks.generic.crypto_fiat_ticker."
+           "CryptoFiatTicker.convert_fiat")
+    def test_choose_ticker_fiat(self,
+                                mock_convert_fiat,
+                                mock_get_tickers,
+                                mock_handle):
+        max_ask = 1
+        bid = 1
+        usd_ask = 10633
+        usd_bid = 9600
+        eur_ask = usd_ask * 0.82
+        eur_bid = usd_bid * 0.82
+        mock_handle.return_value = \
+            {'ask': {'price_usd': Decimal(usd_ask)},
+             'bid': {'price_usd': Decimal(usd_bid)}}
+        mock_get_tickers.return_value = \
+            [{'ask': Decimal(max_ask * 0.85), 'bid': Decimal(bid * 0.85)},
+             {'ask': Decimal(max_ask * 0.75), 'bid': Decimal(bid * 0.75)},
+             {'ask': Decimal(max_ask), 'bid': Decimal(bid)}]
+        pairs_crypto_eur = []
+        pairs_crypto_usd = []
+        pairs_crypto_eur.append(Pair.objects.get(name='NANOEUR'))
+        pairs_crypto_usd.append(Pair.objects.get(name='NANOUSD'))
+        mock_convert_fiat.return_value = \
+            {'ask': Decimal(eur_ask),
+             'bid': Decimal(eur_bid)}
+        for pair_crypto_eur in pairs_crypto_eur:
+            kwargs = {'pair_pk': pair_crypto_eur.pk}
+            get_ticker_crypto_fiat(**kwargs)
+            price = Price.objects.filter(pair=pair_crypto_eur).latest('id')
+            expected_ask_with_fee = \
+                Decimal('1.0') / Decimal(bid) * Decimal(eur_ask) * \
+                (Decimal('1.0') + pair_crypto_eur.fee_ask)
+            self.assertEquals(price.ticker.ask,
+                              round(expected_ask_with_fee, 8))
+        mock_convert_fiat.return_value = \
+            {'ask': Decimal(usd_ask),
+             'bid': Decimal(usd_bid)}
+        for pair_crypto_usd in pairs_crypto_usd:
+            kwargs = {'pair_pk': pair_crypto_usd.pk}
+            get_ticker_crypto_fiat(**kwargs)
+            price = Price.objects.filter(pair=pair_crypto_usd).latest('id')
+            expected_ask_with_fee = \
+                Decimal('1.0') / Decimal(bid) * Decimal(usd_ask) * \
+                (Decimal('1.0') + pair_crypto_usd.fee_ask)
+            self.assertEquals(price.ticker.ask,
+                              round(expected_ask_with_fee, 8))
+
+    @patch('ticker.adapters.BinanceAdapter.get_quote')
+    @patch('ticker.adapters.KucoinAdapter.get_quote')
+    @patch('ticker.adapters.BittrexAdapter.get_quote')
+    def test_ignore_broken_adapter(self,
+                                   mock_bittrex_get_quote,
+                                   mock_kucoin_get_quote,
+                                   mock_binance_get_quote):
+        pairs = []
+        pairs.append(Pair.objects.get(name='BTCNANO'))
+        pairs.append(Pair.objects.get(name='BTCOMG'))
+        kucoin_adapter = KucoinAdapter()
+        bittrex_adapter = BittrexAdapter()
+        binance_adapter = BinanceAdapter()
+        api_adapters_list = \
+            [[kucoin_adapter, bittrex_adapter],
+             [kucoin_adapter, bittrex_adapter, binance_adapter]]
+        ask = 1
+        bid = 1
+        mock_bittrex_get_quote.return_value = {
+            'reverse': False,
+            'ask': ask,
+            'bid': bid,
+        }
+        mock_binance_get_quote.return_value = {
+            'reverse': False,
+            'ask': ask * 0.5,
+            'bid': bid * 0.5,
+        }
+        mock_kucoin_get_quote.return_value = {
+            'Broken adapter'
+        }
+        self.assertEquals(
+            len(BaseTicker.get_tickers(BaseTicker,
+                                       api_adapters_list[0],
+                                       pairs[0])),
+            1)
+        self.assertEquals(
+            len(BaseTicker.get_tickers(BaseTicker,
+                                       api_adapters_list[1],
+                                       pairs[1])),
+            2)

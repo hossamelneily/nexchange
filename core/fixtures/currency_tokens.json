@@ -52,7 +52,7 @@
     "fields": {
       "code": "OMG",
       "name": "OmiseGo",
-      "ticker": "binance",
+      "ticker": "kucoin/bittrex/binance",
       "wallet": "rpc7",
       "algo": "ethash",
       "is_crypto": 1,

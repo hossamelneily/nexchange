@@ -1,6 +1,7 @@
 from decimal import Decimal
 import requests
 import requests_cache
+import numpy as np
 
 from core.models import Pair, Market
 from ticker.models import Ticker
@@ -71,38 +72,42 @@ class BaseTicker(BaseTask):
         self.ask_multip = None
         self.bid_multip = None
         self.quote_api_adapter = None
-        self.bitcoin_api_adapter = kraken_adapter
+        # self.bitcoin_api_adapter = kraken_adapter
 
     def get_api_adapter(self, pair):
-        base = 'ETH' if pair.quote.ticker in ['idex'] else 'BTC'
+        base = 'ETH' if 'idex' in pair.quote.ticker.split('/') else 'BTC'
         currency = pair.quote if pair.base.code == base else pair.base
-        if currency.ticker == 'kraken':
-            return kraken_adapter
-        elif currency.ticker == 'cryptopia':
-            return cryptopia_adapter
-        elif currency.ticker == 'coinexchange':
-            return coinexchange_adapter
-        elif currency.ticker == 'bittrex':
-            return bittrex_adapter
-        elif currency.ticker == 'bitgrail':
-            return bitgrail_adapter
-        elif currency.ticker == 'idex':
-            return idex_adapter
-        elif currency.ticker == 'kucoin':
-            return kucoin_adapter
-        elif currency.ticker == 'binance':
-            return binance_adapter
-        else:
-            return self.bitcoin_api_adapter
+        adapters = []
+        tickers = currency.ticker.split('/')
+        for ticker in tickers:
+            if ticker == 'kraken':
+                adapters.append(kraken_adapter)
+            elif ticker == 'cryptopia':
+                adapters.append(cryptopia_adapter)
+            elif ticker == 'coinexchange':
+                adapters.append(coinexchange_adapter)
+            elif ticker == 'bittrex':
+                adapters.append(bittrex_adapter)
+            elif ticker == 'bitgrail':
+                adapters.append(bitgrail_adapter)
+            elif ticker == 'idex':
+                adapters.append(idex_adapter)
+            elif ticker == 'kucoin':
+                adapters.append(kucoin_adapter)
+            elif ticker == 'binance':
+                adapters.append(binance_adapter)
+            else:
+                self.logger.warning('There is no {} adapter'.format(ticker))
+        return adapters
 
     def run(self, pair_pk, market_code='nex'):
         self.market = Market.objects.get(code=market_code)
         self.pair = Pair.objects.get(pk=pair_pk)
         self.ask_multip = self.bid_multip = Decimal('1.0')
         if self.pair.is_crypto:
-            self.get_ticker_crypto()
+            return self.get_ticker_crypto()
         else:
-            self.get_ticker_crypto_fiat()
+            return self.get_ticker_crypto_fiat()
 
     def create_ticker(self, ask, bid):
         ask = (self.ask_multip * Decimal(ask) *
@@ -111,7 +116,6 @@ class BaseTicker(BaseTask):
                (Decimal('1.0') - self.pair.fee_bid))
         ticker = Ticker(pair=self.pair, ask=ask,
                         bid=bid)
-        ticker.save()
         return ticker
 
     def _get_bitfinex_usd_ticker(self):
@@ -222,31 +226,29 @@ class BaseTicker(BaseTask):
             if all(['BTC' in [self.pair.base.code, self.pair.quote.code],
                     base == 'ETH']):
                 btceth = Pair.objects.get(name='{}ETH'.format(self.pair.base))
-                api_adapter = self.get_api_adapter(btceth)
-                ticker = api_adapter.get_normalized_quote(btceth)
+                ticker = self.get_right_ticker(btceth)
                 ask = ticker.get('ask')
                 bid = ticker.get('bid')
             elif all(['BTC' not in [self.pair.base.code, self.pair.quote.code],
-                      base == 'ETH', self.pair.base.ticker in ['idex']]):
+                      base == 'ETH', 'idex' in
+                                     self.pair.base.ticker.split('/')]):
                 cryptoeth = Pair.objects.get(
                     name='{}ETH'.format(self.pair.base.code)
                 )
-                api_adapter = self.get_api_adapter(cryptoeth)
-                cryptoeth_ticker = api_adapter.get_normalized_quote(cryptoeth)
+                cryptoeth_ticker = self.get_right_ticker(cryptoeth)
                 ask = Decimal(cryptoeth_ticker.get('ask'))
                 bid = Decimal(cryptoeth_ticker.get('bid'))
             elif all(['BTC' not in [self.pair.base.code, self.pair.quote.code],
-                      base == 'ETH', self.pair.base.ticker not in ['idex']]):
+                      base == 'ETH', 'idex' not in
+                                     self.pair.base.ticker.split('/')]):
                 btceth = Pair.objects.get(name='BTCETH')
-                api_adapter = self.get_api_adapter(btceth)
-                btceth_ticker = api_adapter.get_normalized_quote(btceth)
+                btceth_ticker = self.get_right_ticker(btceth)
                 eth_ask = Decimal(btceth_ticker.get('ask'))
                 eth_bid = Decimal(btceth_ticker.get('bid'))
                 btccrypto = Pair.objects.get(
                     name='BTC{}'.format(self.pair.base.code)
                 )
-                api_adapter = self.get_api_adapter(btccrypto)
-                btccrypto_ticker = api_adapter.get_normalized_quote(btccrypto)
+                btccrypto_ticker = self.get_right_ticker(btccrypto)
                 btc_ask = Decimal(btccrypto_ticker.get('ask'))
                 btc_bid = Decimal(btccrypto_ticker.get('bid'))
                 ask = eth_ask / btc_bid
@@ -255,57 +257,47 @@ class BaseTicker(BaseTask):
                 btccrypto = Pair.objects.get(
                     name='BTC{}'.format(self.pair.base.code)
                 )
-                api_adapter = self.get_api_adapter(btccrypto)
-                btccrypto_ticker = api_adapter.get_normalized_quote(btccrypto)
+                btccrypto_ticker = self.get_right_ticker(btccrypto)
                 ask = Decimal('1.0') / Decimal(btccrypto_ticker.get('bid'))
                 bid = Decimal('1.0') / Decimal(btccrypto_ticker.get('ask'))
             self.ask_multip = ask
             self.bid_multip = bid
 
+    def get_right_ticker(self, pair):
+        api_adapters = self.get_api_adapter(pair)
+        tickers = self.get_tickers(api_adapters, pair)
+        if len(tickers) > 1:
+            ticker = get_max_ticker(tickers)
+        else:
+            ticker = tickers[0]
+        return ticker
 
-class KrakenBaseTicker(BaseTicker):
-    def __init__(self, *args, **kwargs):
-        super(KrakenBaseTicker, self).__init__(*args, **kwargs)
-        self.quote_api_adapter = kraken_adapter
-
-
-class CryptopiaBaseTicker(BaseTicker):
-    def __init__(self, *args, **kwargs):
-        super(CryptopiaBaseTicker, self).__init__(*args, **kwargs)
-        self.quote_api_adapter = cryptopia_adapter
-
-
-class CoinexchangeBaseTicker(BaseTicker):
-    def __init__(self, *args, **kwargs):
-        super(CoinexchangeBaseTicker, self).__init__(*args, **kwargs)
-        self.quote_api_adapter = coinexchange_adapter
-
-
-class BittrexBaseTicker(BaseTicker):
-    def __init__(self, *args, **kwargs):
-        super(BittrexBaseTicker, self).__init__(*args, **kwargs)
-        self.quote_api_adapter = bittrex_adapter
+    def get_tickers(self, api_adapters, pair):
+        tickers = []
+        for api_adapter in api_adapters:
+            quote = api_adapter.get_normalized_quote(pair)
+            if quote is not None:
+                tickers.append(quote)
+            else:
+                continue
+        return tickers
 
 
-class BitgrailBaseTicker(BaseTicker):
-    def __init__(self, *args, **kwargs):
-        super(BitgrailBaseTicker, self).__init__(*args, **kwargs)
-        self.quote_api_adapter = bitgrail_adapter
+def get_max_ticker(tickers):
+    if isinstance(tickers[0], dict):
+        max_ticker = tickers[0]
+        for ticker in tickers:
+            if max_ticker['ask'] < ticker['ask']:
+                max_ticker = ticker
+        return max_ticker
+    if isinstance(tickers[0], Ticker):
+        ticker_ask_array = [ticker.ask for ticker in tickers]
+        index = np.argmax(ticker_ask_array)
+        ticker = tickers[index]
+        return int(index), ticker
 
 
-class IdexBaseTicker(BaseTicker):
-    def __init__(self, *args, **kwargs):
-        super(IdexBaseTicker, self).__init__(*args, **kwargs)
-        self.quote_api_adapter = idex_adapter
-
-
-class KucoinBaseTicker(BaseTicker):
-    def __init__(self, *args, **kwargs):
-        super(KucoinBaseTicker, self).__init__(*args, **kwargs)
-        self.quote_api_adapter = kucoin_adapter
-
-
-class BinanceBaseTicker(BaseTicker):
-    def __init__(self, *args, **kwargs):
-        super(BinanceBaseTicker, self).__init__(*args, **kwargs)
-        self.quote_api_adapter = binance_adapter
+def save_ticker_and_price(ticker, price):
+    ticker.save()
+    price.ticker = ticker
+    price.save()

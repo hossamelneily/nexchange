@@ -22,7 +22,7 @@ class PriceTestCaseTask(TickerBaseTestCase):
         currs = Currency.objects.filter(
             Q(is_crypto=True) | Q(code__in=['EUR', 'USD', 'GBP'])
         ).exclude(code__in=[
-            'GNT', 'EOS', 'OMG', 'QTM'
+            'GNT', 'EOS', 'QTM'
         ])
         for curr in currs:
             rate_c_usd = self.factory.get_rate(curr, 'USD')

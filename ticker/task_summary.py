@@ -3,35 +3,14 @@ from celery import shared_task
 from django.conf import settings
 
 from core.models import Pair
-from ticker.tasks.generic.crypto_fiat_ticker import \
-    CryptoFiatKrakenTicker, CryptoFiatCryptopiaTicker, \
-    CryptoFiatCoinexchangeTicker, CryptoFiatBittrexTicker,\
-    CryptoFiatBitgrailTicker, CryptoFiatIdexTicker, \
-    CryptoFiatKucoinTicker, CryptoFiatBinanceTicker
-from ticker.tasks.generic.crypto_crypto_ticker import \
-    CryptoCryptoKrakenTicker, CryptoCryptoCryptopiaTicker, \
-    CryptoCryptoCoinexchangeTicker, CryptoCryptoBittrexTicker,\
-    CryptoCryptoBitgrailTicker, CryptoCryptoIdexTicker, \
-    CryptoCryptoKucoinTicker, CryptoCryptoBinanceTicker
+from ticker.tasks.generic.base import save_ticker_and_price
+from ticker.tasks.generic.crypto_fiat_ticker import CryptoFiatTicker
+from ticker.tasks.generic.crypto_crypto_ticker import CryptoCryptoTicker
 from nexchange.utils import get_nexchange_logger
 
 
-crypto_fiat_ticker_kraken = CryptoFiatKrakenTicker()
-crypto_fiat_ticker_cryptopia = CryptoFiatCryptopiaTicker()
-crypto_fiat_ticker_coinexchange = CryptoFiatCoinexchangeTicker()
-crypto_fiat_ticker_bittrex = CryptoFiatBittrexTicker()
-crypto_fiat_ticker_bitgrail = CryptoFiatBitgrailTicker()
-crypto_fiat_ticker_idex = CryptoFiatIdexTicker()
-crypto_fiat_ticker_kucoin = CryptoFiatKucoinTicker()
-crypto_fiat_ticker_binance = CryptoFiatBinanceTicker()
-crypto_crypto_ticker_kraken = CryptoCryptoKrakenTicker()
-crypto_crypto_ticker_cryptopia = CryptoCryptoCryptopiaTicker()
-crypto_crypto_ticker_coinexchange = CryptoCryptoCoinexchangeTicker()
-crypto_crypto_ticker_bittrex = CryptoCryptoBittrexTicker()
-crypto_crypto_ticker_bitgrail = CryptoCryptoBitgrailTicker()
-crypto_crypto_ticker_idex = CryptoCryptoIdexTicker()
-crypto_crypto_ticker_kucoin = CryptoCryptoKucoinTicker()
-crypto_crypto_ticker_binance = CryptoCryptoBinanceTicker()
+crypto_fiat_ticker = CryptoFiatTicker()
+crypto_crypto_ticker = CryptoCryptoTicker()
 
 
 def get_ticker_crypto_fiat(**kwargs):
@@ -39,28 +18,11 @@ def get_ticker_crypto_fiat(**kwargs):
     logger = get_nexchange_logger(__name__, True, True)
     if pair_pk:
         pair = Pair.objects.get(pk=pair_pk)
-        if pair.base.ticker == 'kraken':
-            ticker_api = crypto_fiat_ticker_kraken
-        elif pair.base.ticker == 'cryptopia':
-            ticker_api = crypto_fiat_ticker_cryptopia
-        elif pair.base.ticker == 'coinexchange':
-            ticker_api = crypto_fiat_ticker_coinexchange
-        elif pair.base.ticker == 'bittrex':
-            ticker_api = crypto_fiat_ticker_bittrex
-        elif pair.base.ticker == 'bitgrail':
-            ticker_api = crypto_fiat_ticker_bitgrail
-        elif pair.base.ticker == 'idex':
-            ticker_api = crypto_fiat_ticker_idex
-        elif pair.base.ticker == 'kucoin':
-            ticker_api = crypto_fiat_ticker_kucoin
-        elif pair.base.ticker == 'binance':
-            ticker_api = crypto_fiat_ticker_binance
-        else:
-            ticker_api = None
-            logger.error('pair {} no ticker defined'.format(pair))
-        ticker_api.run(pair_pk)
+        ticker, price = crypto_fiat_ticker.run(pair_pk)
+        save_ticker_and_price(ticker, price)
         if pair.name in settings.LOCALBTC_PAIRS:
-            ticker_api.run(pair_pk, market_code='locbit')
+            ticker_loc, price_loc = crypto_fiat_ticker.run(pair_pk, market_code='locbit')
+            save_ticker_and_price(ticker_loc, price_loc)
     else:
         logger.warning('pair_pk is not defined in kwargs')
 
@@ -69,25 +31,8 @@ def get_ticker_crypto_crypto(**kwargs):
     logger = get_nexchange_logger(__name__, True, True)
     pair_pk = kwargs.get('pair_pk', None)
     if pair_pk:
-        pair = Pair.objects.get(pk=pair_pk)
-        if pair.quote.ticker == 'kraken':
-            return crypto_crypto_ticker_kraken.run(pair_pk)
-        elif pair.quote.ticker == 'cryptopia':
-            return crypto_crypto_ticker_cryptopia.run(pair_pk)
-        elif pair.quote.ticker == 'coinexchange':
-            return crypto_crypto_ticker_coinexchange.run(pair_pk)
-        elif pair.quote.ticker == 'bittrex':
-            return crypto_crypto_ticker_bittrex.run(pair_pk)
-        elif pair.quote.ticker == 'bitgrail':
-            return crypto_crypto_ticker_bitgrail.run(pair_pk)
-        elif pair.quote.ticker == 'idex':
-            return crypto_crypto_ticker_idex.run(pair_pk)
-        elif pair.quote.ticker == 'kucoin':
-            return crypto_crypto_ticker_kucoin.run(pair_pk)
-        elif pair.quote.ticker == 'binance':
-            return crypto_crypto_ticker_binance.run(pair_pk)
-        else:
-            logger.error('pair {} no ticker defined'.format(pair))
+        ticker, price = crypto_crypto_ticker.run(pair_pk)
+        save_ticker_and_price(ticker, price)
     else:
         logger.warning('pair_pk is not defined in kwargs')
 

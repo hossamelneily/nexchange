@@ -167,7 +167,7 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                               blank=True, default=None)
     algo = models.CharField(null=True, max_length=10,
                             blank=True, default=None)
-    ticker = models.CharField(null=True, max_length=20,
+    ticker = models.CharField(null=True, max_length=100,
                               blank=True, default=None)
     minimal_amount = models.DecimalField(
         max_digits=18, decimal_places=8,

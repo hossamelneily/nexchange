@@ -18,8 +18,11 @@ class BaseApiAdapter:
         return {'ask': ask, 'bid': bid}
 
     def get_normalized_quote(self, crypto_pair):
-        ticker = self.get_quote(crypto_pair)
-        return self.normalize_quote(ticker)
+        try:
+            ticker = self.get_quote(crypto_pair)
+            return self.normalize_quote(ticker)
+        except Exception:
+            return
 
 
 class BinanceAdapter(BaseApiAdapter):
