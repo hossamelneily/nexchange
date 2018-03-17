@@ -24,7 +24,8 @@ READABLE_FIELDS = ('deposit_address', 'created_on', 'from_default_rule',
                    'user_provided_amount')
 RATE_FIELDS = ('amount_usd', 'amount_btc', 'amount_eur', 'price',
                'amount_quote_fee')
-CREATE_FIELDS = ('payment_url', 'token')
+FIAT_FIELDS = ('payment_url',)
+TOKEN_FIELDS = ('token',)
 
 
 class MetaOrder:
@@ -56,14 +57,14 @@ class OrderDetailSerializer(OrderSerializer):
     price = RateSerializer(many=False, read_only=True)
 
     class Meta(MetaFlatOrder):
-        fields = MetaFlatOrder.fields + RATE_FIELDS + CREATE_FIELDS
+        fields = MetaFlatOrder.fields + RATE_FIELDS + FIAT_FIELDS
 
 
 class CreateOrderSerializer(OrderSerializer):
     class Meta(MetaOrder):
         # hack to allow seeing needed fields in
         # response from post (lines 47:51)
-        fields = BASE_FIELDS + READABLE_FIELDS + CREATE_FIELDS
+        fields = BASE_FIELDS + READABLE_FIELDS + FIAT_FIELDS + TOKEN_FIELDS
 
     def validate(self, data):
         # TODO: custom validation based on order.pair.base

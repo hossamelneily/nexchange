@@ -62,6 +62,14 @@ class Oauth2TestCase(TickerBaseTestCase):
         )
         return support
 
+    def test_no_token_on_detail_view(self):
+        order, _token = self._create_order_api()
+        response = self.api_client.get(
+            '/en/api/v1/orders/{}/'.format(order.unique_reference),
+            format='json').json()
+        resp_token = response.get('token')
+        self.assertIsNone(resp_token)
+
     def test_token_created(self):
         order, _token = self._create_order_api()
         user = order.user
