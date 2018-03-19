@@ -19,6 +19,7 @@ from core.tests.utils import data_provider
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
 from ticker.tests.base import TickerBaseTestCase
+from risk_management.models import Account
 from verification.models import Verification
 
 
@@ -508,6 +509,10 @@ class OrderIndexOrderTestCase(OrderBaseTestCase):
 
 class TestGetPrice(TickerBaseTestCase):
 
+    def setUp(self):
+        super(TestGetPrice, self).setUp()
+        self.api_client = APIClient()
+
     def tearDown(self):
         super(TestGetPrice, self).tearDown()
         # Purge
@@ -570,8 +575,6 @@ class TestGetPrice(TickerBaseTestCase):
 
     def test_bad_requests(self):
         client = APIClient()
-        res = client.get('/en/api/v1/get_price/BTCEUR/')
-        self.assertEqual(res.status_code, 400)
         max_amount = Currency.objects.get(code="BTC").maximal_amount
         res = client.get('/en/api/v1/get_price/BTCEUR/',
                          data={'amount_base': max_amount * 2 + 1})
@@ -579,3 +582,90 @@ class TestGetPrice(TickerBaseTestCase):
         res = client.get('/en/api/v1/get_price/BTCxxx/',
                          data={'amount_base': 100})
         self.assertEqual(res.status_code, 404)
+
+    def test_get_price_without_params(self):
+        res = self.api_client.get('/en/api/v1/get_price/BTCEUR/')
+        self.assertEqual(
+            res.json()['amount_quote'],
+            settings.DEFAULT_FIAT_ORDER_DEPOSIT_AMOUNT
+        )
+        res = self.api_client.get('/en/api/v1/get_price/LTCBTC/')
+        self.BTC.refresh_from_db()
+        self.assertEqual(
+            Decimal(str(res.json()['amount_quote'])),
+            settings.DEFAULT_CRYPTO_ORDER_DEPOSIT_AMOUNT_MULTIPLIER *
+            self.BTC.minimal_amount
+        )
+
+    def test_reserves_less_than_default_fiat(self):
+        btc = Currency.objects.get(code='BTC')
+        res_with_quote = self.api_client.get(
+            '/en/api/v1/get_price/BTCEUR/',
+            data={'amount_quote': settings.DEFAULT_FIAT_ORDER_DEPOSIT_AMOUNT})
+        quote_data = res_with_quote.json()
+        account = Account.objects.get(reserve__currency__code='BTC',
+                                      is_main_account=True)
+        account.available = Decimal(quote_data['amount_base']) * Decimal(0.9)
+        account.save()
+        res_default = self.api_client.get('/en/api/v1/get_price/BTCEUR/')
+        self.assertEqual(res_default.status_code, 200)
+        default_data = res_default.json()
+        self.assertTrue(
+            default_data['amount_base'] < quote_data['amount_base']
+        )
+        self.assertTrue(
+            default_data['amount_quote'] < quote_data['amount_quote']
+        )
+        # Move BTC to executable (maximal can be more thann reserves)
+        btc.execute_cover = True
+        btc.save()
+        res_default_cover = self.api_client.get('/en/api/v1/get_price/BTCEUR/')
+        self.assertEqual(res_default_cover.status_code, 200)
+        default_cover_data = res_default_cover.json()
+        self.assertEqual(
+            default_cover_data['amount_base'],
+            quote_data['amount_base']
+        )
+        self.assertEqual(
+            default_cover_data['amount_quote'],
+            quote_data['amount_quote']
+        )
+
+    def test_default_less_than_minimum_fiat(self):
+        res_with_quote = self.api_client.get(
+            '/en/api/v1/get_price/BTCEUR/',
+            data={'amount_quote': settings.DEFAULT_FIAT_ORDER_DEPOSIT_AMOUNT})
+        quote_data = res_with_quote.json()
+        self.BTC.minimal_amount = \
+            Decimal(quote_data['amount_base']) * Decimal(1.1)
+        self.BTC.save()
+        res_default = self.api_client.get('/en/api/v1/get_price/BTCEUR/')
+        self.assertEqual(res_default.status_code, 200)
+        default_data = res_default.json()
+        self.assertTrue(
+            default_data['amount_base'] > quote_data['amount_base']
+        )
+        self.assertTrue(
+            default_data['amount_quote'] > quote_data['amount_quote']
+        )
+
+    def test_maximal_quote_less_tha_default(self):
+        ltc = Currency.objects.get(code='LTC')
+        normal_default = \
+            ltc.minimal_amount * \
+            settings.DEFAULT_CRYPTO_ORDER_DEPOSIT_AMOUNT_MULTIPLIER
+        res_with_quote = self.api_client.get(
+            '/en/api/v1/get_price/BTCLTC/',
+            data={'amount_quote': normal_default})
+        quote_data = res_with_quote.json()
+        ltc.maximal_amount = normal_default * Decimal(0.8)
+        ltc.save()
+        res_default = self.api_client.get('/en/api/v1/get_price/BTCLTC/')
+        self.assertEqual(res_default.status_code, 200)
+        default_data = res_default.json()
+        self.assertTrue(
+            default_data['amount_base'] < quote_data['amount_base']
+        )
+        self.assertTrue(
+            default_data['amount_quote'] < quote_data['amount_quote']
+        )

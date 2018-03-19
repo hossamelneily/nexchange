@@ -9,6 +9,7 @@ from core.common.models import FlagableMixin
 from .validators import validate_address
 from django_countries.fields import CountryField
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.conf import settings
 
 
 class BtcBase(TimeStampedModel):
@@ -232,7 +233,7 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     @property
     def is_base_of_enabled_pair(self):
         enabled_pairs = self.base_pairs
-        if len(enabled_pairs) > 0:
+        if all([len(enabled_pairs) > 0, self.has_enough_reserves]):
             return True
         return False
 
@@ -281,6 +282,25 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                 get(is_main_account=True).available
         except ObjectDoesNotExist:
             return Decimal('0.0')
+
+    @property
+    def current_maximal_amount_to_sell(self):
+        if any([self.execute_cover,
+                self.available_main_reserves > self.maximal_amount]):
+            return self.maximal_amount
+        else:
+            return self.available_main_reserves
+
+    @property
+    def required_minimal_reserves(self):
+        return settings.MINIMAL_RESERVE_LEVEL_MULTIPLIER * self.minimal_amount
+
+    @property
+    def has_enough_reserves(self):
+        return any([
+            self.available_main_reserves >= self.required_minimal_reserves,
+            self.execute_cover
+        ])
 
     def __str__(self):
         return self.code

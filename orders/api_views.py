@@ -176,13 +176,37 @@ class PriceView(APIView):
     PAIR_DOES_NOT_EXIST = APIException(detail='pair does not exist')
     PAIR_DOES_NOT_EXIST.status_code = status.HTTP_404_NOT_FOUND
 
+    def _create_order_with_default_values(self, pair):
+        base_maximal = pair.base.current_maximal_amount_to_sell
+        base_minimal = pair.base.minimal_amount
+        quote_maximal = pair.quote.maximal_amount
+        quote_minimal = pair.quote.minimal_amount
+        if pair.is_crypto:
+            amount_quote = \
+                quote_minimal * \
+                settings.DEFAULT_CRYPTO_ORDER_DEPOSIT_AMOUNT_MULTIPLIER
+            if amount_quote >= quote_maximal:
+                amount_quote = (quote_maximal + quote_minimal) / Decimal('2')
+        else:
+            amount_quote = settings.DEFAULT_FIAT_ORDER_DEPOSIT_AMOUNT
+        order = Order(pair=pair, amount_quote=amount_quote)
+        order.calculate_base_from_quote()
+        if all([not base_minimal <= order.amount_base <= base_maximal,
+                base_maximal > base_minimal]):
+            if order.amount_base > base_maximal:
+                amount_base = (base_minimal + base_maximal) / Decimal('2')
+            else:
+                amount_base = base_minimal
+            order = Order(pair=pair, amount_base=amount_base)
+            order.calculate_quote_from_base()
+
+        return order
+
     def get(self, request, pair_name=None):
         amount_base = self.request.GET.get('amount_base', None)
         amount_quote = self.request.GET.get('amount_quote', None)
         if not pair_name:
             raise self.PAIR_REQUIRED
-        if not any((amount_base, amount_quote)):
-            raise self.BASE_OR_QUOTE_REQUIRED
         try:
             pair = Pair.objects.get(name=pair_name)
         except (ObjectDoesNotExist, MultipleObjectsReturned):
@@ -191,15 +215,15 @@ class PriceView(APIView):
             amount_base = Decimal(amount_base)
             order = Order(pair=pair, amount_base=amount_base)
             order.calculate_quote_from_base()
-            data = OrderedDict({'amount_base': amount_base,
-                                'amount_quote': order.amount_quote})
         elif amount_quote:
             amount_quote = Decimal(amount_quote)
             order = Order(pair=pair, amount_quote=amount_quote)
             order.calculate_base_from_quote()
-            data = OrderedDict(
-                {'amount_base': order.amount_base,
-                 'amount_quote': amount_quote})
+        else:
+            order = self._create_order_with_default_values(pair)
+        data = OrderedDict(
+            {'amount_base': order.amount_base,
+             'amount_quote': order.amount_quote})
         try:
             order._validate_order_amount()
         except ValidationError as e:

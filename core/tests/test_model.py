@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.conf import settings
 from core.tests.base import OrderBaseTestCase
 from core.models import AddressReserve, Currency, Pair, Transaction, Market
 from core.common.models import UniqueFieldMixin
@@ -9,6 +10,7 @@ from decimal import Decimal
 import json
 import os
 from collections import Counter
+from risk_management.models import Account
 
 
 class ValidateUniqueFieldMixinTestCase(TestCase):
@@ -76,6 +78,29 @@ class CurrencyTestCase(OrderBaseTestCase):
         self.assertTrue(is_reserve_in_accounts,
                         'Missing account for reserve %s' %
                         (set(reserves_pk) - set(reserves_pk_in_accounts)))
+
+    def test_move_currency_to_test_mode_if_reserve_below_requirements(self):
+        curr = Currency.objects.get(code='BTC')
+        account = Account.objects.get(reserve__currency=curr,
+                                      is_main_account=True)
+        self.assertFalse(curr.execute_cover)
+        self.assertTrue(curr.is_base_of_enabled_pair)
+        self.assertTrue(curr.is_base_of_enabled_pair_for_test)
+        # Set reserves level to less than minimal
+        account.available = \
+            curr.minimal_amount * settings.MINIMAL_RESERVE_LEVEL_MULTIPLIER * \
+            Decimal('0.99')
+        account.save()
+        curr.refresh_from_db()
+        self.assertFalse(curr.has_enough_reserves)
+        self.assertFalse(curr.is_base_of_enabled_pair)
+        self.assertTrue(curr.is_base_of_enabled_pair_for_test)
+        # Executable pairs can have less reserves
+        curr.execute_cover = True
+        curr.save()
+        self.assertTrue(curr.has_enough_reserves)
+        self.assertTrue(curr.is_base_of_enabled_pair)
+        self.assertTrue(curr.is_base_of_enabled_pair_for_test)
 
 
 class AddressReserveTest(OrderBaseTestCase):
