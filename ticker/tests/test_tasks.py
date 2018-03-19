@@ -137,11 +137,8 @@ class TestTickerTask(TickerBaseTestCase):
             pair.quote.ticker = ticker_name
             responds = api.get_api_adapter(pair)
             for res in responds:
-                if ticker_name:
-                    name = res.__class__.__name__.lower()
-                    self.assertIn(ticker_name, name)
-                else:
-                    self.assertEqual(api.bitcoin_api_adapter, res)
+                name = res.__class__.__name__.lower()
+                self.assertIn(ticker_name, name)
 
     @patch('ticker.tasks.generic.base.BaseTicker.get_tickers')
     def test_choose_ticker_crypto(self,

@@ -72,7 +72,6 @@ class BaseTicker(BaseTask):
         self.ask_multip = None
         self.bid_multip = None
         self.quote_api_adapter = None
-        # self.bitcoin_api_adapter = kraken_adapter
 
     def get_api_adapter(self, pair):
         base = 'ETH' if 'idex' in pair.quote.ticker.split('/') else 'BTC'
@@ -220,7 +219,11 @@ class BaseTicker(BaseTask):
             'type': self.ACTION_BUY if direction < 0 else self.ACTION_SELL
         }
 
-    def get_base_multiplier(self, base='BTC'):
+    def get_base_multiplier(self, base=None):
+        if base is None:
+            base = 'ETH' \
+                if 'idex' in self.pair.base.ticker.split('/') \
+                else 'BTC'
         ask = bid = Decimal('1.0')
         if self.pair.base.code != base and self.pair.quote.code != base:
             if all(['BTC' in [self.pair.base.code, self.pair.quote.code],
@@ -236,8 +239,14 @@ class BaseTicker(BaseTask):
                     name='{}ETH'.format(self.pair.base.code)
                 )
                 cryptoeth_ticker = self.get_right_ticker(cryptoeth)
-                ask = Decimal(cryptoeth_ticker.get('ask'))
-                bid = Decimal(cryptoeth_ticker.get('bid'))
+                eth_ask = Decimal(cryptoeth_ticker.get('ask'))
+                eth_bid = Decimal(cryptoeth_ticker.get('bid'))
+                btceth = Pair.objects.get(name='BTCETH')
+                btceth_ticker = self.get_right_ticker(btceth)
+                btc_ask = Decimal(btceth_ticker.get('ask'))
+                btc_bid = Decimal(btceth_ticker.get('bid'))
+                ask = eth_ask / btc_bid
+                bid = eth_bid / btc_ask
             elif all(['BTC' not in [self.pair.base.code, self.pair.quote.code],
                       base == 'ETH', 'idex' not in
                                      self.pair.base.ticker.split('/')]):

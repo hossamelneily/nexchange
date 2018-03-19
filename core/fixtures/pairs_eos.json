@@ -10,7 +10,8 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "EOSUSD",
-    "disabled": true
+    "test_mode": false,
+    "disabled": false
   }
 },
 {
@@ -24,7 +25,8 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "EOSEUR",
-    "disabled": true
+    "test_mode": false,
+    "disabled": false
   }
 },
 {
@@ -38,7 +40,8 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "EOSGBP",
-    "disabled": true
+    "test_mode": false,
+    "disabled": false
   }
 }
 ]

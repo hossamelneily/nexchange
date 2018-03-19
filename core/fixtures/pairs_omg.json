@@ -40,7 +40,8 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "OMGGBP",
-    "disabled": true
+    "test_mode": false,
+    "disabled": false
   }
 }
 ]
