@@ -24,8 +24,11 @@ READABLE_FIELDS = ('deposit_address', 'created_on', 'from_default_rule',
                    'user_provided_amount')
 RATE_FIELDS = ('amount_usd', 'amount_btc', 'amount_eur', 'price',
                'amount_quote_fee')
+UPDATE_FIELDS = ('refund_address',)
+CREATE_FIELDS = ('payment_url', 'token')
 FIAT_FIELDS = ('payment_url',)
 TOKEN_FIELDS = ('token',)
+
 
 
 class MetaOrder:
@@ -58,6 +61,40 @@ class OrderDetailSerializer(OrderSerializer):
 
     class Meta(MetaFlatOrder):
         fields = MetaFlatOrder.fields + RATE_FIELDS + FIAT_FIELDS
+
+
+class UpdateOrderSerializer(OrderSerializer):
+    refund_address = NestedAddressSerializer(many=False,
+                                             read_only=False, partial=True)
+
+    class Meta(MetaOrder):
+        fields = UPDATE_FIELDS
+
+    def validate(self, data):
+        if self.instance.refund_address:
+            raise ValidationError(_(
+                'Order {} already has refund address'.format(
+                    self.instance.unique_reference
+                )
+            ))
+        currency = self.instance.pair.quote.code
+        validate_address = get_validator(currency)
+        validate_address(data['refund_address']['address'])
+        return super(UpdateOrderSerializer, self).validate(data)
+
+    def update(self, instance, validated_data):
+        refund_address = validated_data.pop('refund_address')
+        addr_list = Address.objects.filter(address=refund_address['address'])
+        if not addr_list:
+            address = Address(**refund_address)
+            address.type = Address.WITHDRAW
+            address.currency = instance.pair.quote
+            address.save()
+        else:
+            address = addr_list[0]
+        instance.refund_address = address
+        instance.save()
+        return instance
 
 
 class CreateOrderSerializer(OrderSerializer):

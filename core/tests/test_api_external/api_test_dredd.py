@@ -11,6 +11,9 @@ import requests_mock
 from subprocess import call
 from django.core.urlresolvers import reverse
 from django.test import Client
+from oauth2_provider.models import AccessToken
+from datetime import timedelta
+from django.utils import timezone
 
 
 class DreddTestAPI(LiveServerTestCase, TransactionImportBaseTestCase,
@@ -67,6 +70,13 @@ class DreddTestAPI(LiveServerTestCase, TransactionImportBaseTestCase,
         self.client = Client()
         success = self.client.login(username=self.username,
                                     password=self.password)
+        expires = timezone.now() + timedelta(days=30)
+        token = AccessToken(
+            user=self.user,
+            token='3HrghbVeDUQWaOriqrXYLZmCb4cEXB',
+            expires=expires
+        )
+        token.save()
         assert success
 
     def test_dredd(self):

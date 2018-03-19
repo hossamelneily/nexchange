@@ -1,5 +1,4 @@
 from django.conf import settings
-from nexchange.permissions import NoUpdatePermission
 from orders.models import Order
 from orders.serizalizers import OrderSerializer, CreateOrderSerializer, \
     NestedPairSerializer, OrderDetailSerializer
@@ -39,7 +38,7 @@ class OrderPagination(PageNumberPagination):
 
 class OrderListViewSet(viewsets.ModelViewSet,
                        ReadOnlyCacheResponseAndETAGMixin):
-    permission_classes = (NoUpdatePermission,)
+    permission_classes = ()
     model_class = Order
     lookup_field = 'unique_reference'
     serializer_class = OrderSerializer

@@ -1,4 +1,5 @@
 from orders.api_views import OrderListViewSet
+from orders.serizalizers import UpdateOrderSerializer
 from rest_framework import permissions
 from core.common.api_views import UserResourceViewSet
 from core.common.viewsets import NoDeleteModelViewSet
@@ -44,7 +45,7 @@ class UserOrderListViewSet(OrderListViewSet):
     permission_classes = OrderListViewSet.permission_classes + \
         (permissions.IsAuthenticated,)
     serializer_class = UserOrderSerializer
-    http_method_names = ['get', 'post']
+    http_method_names = ['get', 'post', 'put']
 
     def get_queryset(self, filters=None, **kwargs):
         self.queryset = Order.objects.filter(user=self.request.user)
@@ -53,7 +54,13 @@ class UserOrderListViewSet(OrderListViewSet):
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return super(UserOrderListViewSet, self).get_serializer_class()
+        if self.request.method == 'PUT':
+            return UpdateOrderSerializer
         return UserOrderSerializer
+
+    def update(self, request, *args, **kwargs):
+        self.serializer_class = UpdateOrderSerializer
+        return super(OrderListViewSet, self).update(request, *args, **kwargs)
 
 
 class UserAddressViewSet(UserResourceViewSet):

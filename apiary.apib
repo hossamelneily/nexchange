@@ -257,10 +257,10 @@ API for crypto currency exchange.
 + Request
 
     + Attributes
-        + Headers (BaseAuthHeaders)
+        + Headers (OAuth2Headers)
     + Headers
 
-            Authorization: Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=
+            Authorization: Bearer 3HrghbVeDUQWaOriqrXYLZmCb4cEXB
 
 
 + Response 200 (application/json)
@@ -302,10 +302,10 @@ API for crypto currency exchange.
 + Request
 
     + Attributes
-        + Headers (BaseAuthHeaders)
+        + Headers (OAuth2Headers)
     + Headers
 
-            Authorization: Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=
+            Authorization: Bearer 3HrghbVeDUQWaOriqrXYLZmCb4cEXB
 
 
 + Response 200 (application/json)
@@ -364,7 +364,7 @@ API for crypto currency exchange.
             }
 
 
-## Get User Order [/en/api/v1/users/me/orders/{unique_reference}/]
+## User Order [/en/api/v1/users/me/orders/{unique_reference}/]
 
 + Parameters
     + `unique_reference`: V08PD (required, string) - unique reference of the order.
@@ -376,10 +376,10 @@ API for crypto currency exchange.
 + Request
 
     + Attributes
-        + Headers (BaseAuthHeaders)
+        + Headers (OAuth2Headers)
     + Headers
 
-            Authorization: Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=
+            Authorization: Bearer 3HrghbVeDUQWaOriqrXYLZmCb4cEXB
 
 
 + Response 200 (application/json)
@@ -430,6 +430,95 @@ API for crypto currency exchange.
               }]
             }
 
+### Update User Order [PUT]
+   Update user order.
+
++ Request (application/json)
+
+    + Attributes
+        + Headers (OAuth2Headers)
+    + Headers
+
+            Authorization: Bearer 3HrghbVeDUQWaOriqrXYLZmCb4cEXB
+            Payload: (UpdateOrderPayload)
+    + Body
+
+            {
+              "refund_address": {
+                "address": "wrong_address"
+              }
+            }
+
+
++ Response 400 (application/json)
+    + Body
+
+            {
+              "non_field_errors": [
+                "wrong_address has invalid characters for a valid Litecoin address"
+              ]
+            }
+
+
++ Request (application/json)
+
+    + Attributes
+        + Headers (OAuth2Headers)
+    + Headers
+
+            Authorization: Bearer 3HrghbVeDUQWaOriqrXYLZmCb4cEXB
+            Payload: (UpdateOrderPayload)
+    + Body
+
+            {
+              "refund_address": {
+                "address": "LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4"
+              }
+            }
+
+
++ Response 200 (application/json)
+    + Attributes (UpdateOrderResponse)
+
+    + Body
+
+            {
+              "refund_address": {
+                "type": "W",
+                "name": "",
+                "address": "LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4",
+                "currency_code": "LTC"
+              }
+            }
+
+
++ Request (application/json)
+
+    + Attributes
+        + Headers (OAuth2Headers)
+    + Headers
+
+            Authorization: Bearer 3HrghbVeDUQWaOriqrXYLZmCb4cEXB
+            Payload: (UpdateOrderPayload)
+    + Body
+
+            {
+              "refund_address": {
+                "address": "LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4"
+              }
+            }
+
+
++ Response 400 (application/json)
+    + Body
+
+            {
+              "non_field_errors": [
+                "Order V08PD already has refund address"
+              ]
+            }
+
+
 ## Create User Order [/en/api/v1/users/me/orders/]
 
 
@@ -440,7 +529,7 @@ API for crypto currency exchange.
 
     + Attributes
         + Payload (RequestOrderPayload)
-        + Headers (BaseAuthJsonHeaders)
+        + Headers (OAuth2JsonHeaders)
     + Body
 
             {
@@ -455,7 +544,7 @@ API for crypto currency exchange.
             }
     + Headers
 
-            Authorization: Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=
+            Authorization: Bearer 3HrghbVeDUQWaOriqrXYLZmCb4cEXB
 
 + Response 201 (application/json)
     + Attributes (MinimalOrder)
@@ -511,12 +600,14 @@ API for crypto currency exchange.
         + Payload (SupportPayload)
         + Headers (JsonHeaders)
     + Body
-        {"name": "TestSupport",
-        "telephone": "123 000 00 00",
-        "email": "johndoe@domain.com",
-        "subject": "Test case",
-        "message": "this is only a test"
-        }
+
+            {
+              "name": "TestSupport",
+              "telephone": "123 000 00 00",
+              "email": "johndoe@domain.com",
+              "subject": "Test case",
+              "message": "this is only a test"
+            }
 
 + Response 201 (application/json)
     + Attributes (MinimalSupport)
@@ -750,10 +841,10 @@ API for crypto currency exchange.
 + Request (aplication/json)
 
     + Attributes
-        + Headers (BaseAuthHeaders)
+        + Headers (OAuth2Headers)
     + Headers
 
-            Authorization: Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=
+            Authorization: Bearer 3HrghbVeDUQWaOriqrXYLZmCb4cEXB
 
 + Response 200 (application/json)
     + Attributes (Referrals)
@@ -1049,6 +1140,9 @@ API for crypto currency exchange.
 ## PrivateOrder (BaseOrder)
 + `status` (number, required) - order status 2 - Initial, 2 - Paid...
 
+## UpdateOrderResponse
++ `refund_address` (Address, required) - a destination address to which the funds will be dispatched upon the successful refund of the Order.
+
 ## Orders
 + `count` (number, required) - number of orders.
 + `next` (string, nullable) - link to the next page.
@@ -1081,13 +1175,17 @@ API for crypto currency exchange.
 + `pair` (Pair, required) - exchanged pair.
 + `withdraw_address` (Address, required) - a destination address to which the funds will be dispatched upon the successful completion of the Order.
 
+## UpdateOrderPayload
++ `refund_address` (Address, required) - a destination address to which the funds will be dispatched upon the successful refund of the Order.
+
+
 ## JsonHeaders
 + `Content-Type` (required) - application/json.
 + `x-referral-token` (optional) - referral code.
 
-## BaseAuthHeaders
-+ `Authorization` (required) - basic auth headers i.e. "Authorization:Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=".
+## OAuth2Headers
++ `Authorization` (required) - oAuth2 headers i.e. "Authorization:Bearer 3HrghbVeDUQWaOriqrXYLZmCb4cEXB".
 + `x-referral-token` (optional) - referral code.
 
-## BaseAuthJsonHeaders (JsonHeaders)
-+ `Authorization` (required) - basic auth headers i.e. "Authorization:Basic ZGVtbzpqZV4/QGV+eHB7SyUieSM=".
+## OAuth2JsonHeaders (JsonHeaders)
++ `Authorization` (required) - oAuth2 headers i.e. "Authorization:Bearer 3HrghbVeDUQWaOriqrXYLZmCb4cEXB".
