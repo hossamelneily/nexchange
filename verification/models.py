@@ -19,7 +19,8 @@ class Verification(TimeStampedModel, SoftDeletableModel):
     )
 
     def _get_file_name(self, filename, root):
-        if self.payment_preference:
+        if self.payment_preference and \
+                self.payment_preference.provider_system_id:
             root1 = self.payment_preference.provider_system_id
         elif self.user:
             root1 = self.user.username

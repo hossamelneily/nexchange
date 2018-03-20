@@ -1,10 +1,12 @@
-from django.db.utils import IntegrityError
-
 from core.tests.base import UserBaseTestCase
 from verification.models import Verification
+from payments.models import PaymentPreference
 
 
 class VerificationTestCase(UserBaseTestCase):
+    fixtures = [
+        'payment_method.json'
+    ]
 
     def setUp(self):
         super().setUp()
@@ -15,3 +17,16 @@ class VerificationTestCase(UserBaseTestCase):
     def test_create_verification(self):
         verification = Verification(**self.verification_data)
         verification.save()
+
+    def test_get_file_name_without_provider_system_id(self):
+        verification = Verification()
+        verification.save()
+        path1 = verification._get_file_name('name', 'root')
+        pref = PaymentPreference(payment_method_id=1)
+        pref.save()
+        self.assertIsNone(pref.provider_system_id)
+        verification.payment_preference = pref
+        verification.save()
+        path2 = verification._get_file_name('name', 'root')
+        self.assertTrue(isinstance(path2, str))
+        self.assertEqual(path1, path2)
