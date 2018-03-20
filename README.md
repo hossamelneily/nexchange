@@ -70,3 +70,34 @@ You can read more about these tests in the *readme_werker.md* on this directory.
  Which then must be reviewed, and propgated into a pull request.
 - One liners and small patches can go to `staging`, with a PR to release.
 - No commits, nor rebases on release
+
+# Running app with docker-compose
+If you want to use pycharm debugger, you are going to have to run the app with docker-compose.
+
+0. make a docker image of a running app. run `wercker dev --expose-ports` and then ` docker commit <running app container id>  onitsoft/runningapp`
+
+1. You need to set up the remote interpreter. Go to project interpreter, choose  add remote, choose docker compose, set configuration file to `docker-compose-dev.yml`, service `app`, python path: `python`. If you set environment variables here to, it is possible, that the step 3 is not necessary, but I haven't tested it:
+
+```
+POSTGRES_USER=nexchange
+POSTGRES_PASSWORD=nexchange
+POSTGRES_DB=nexchange
+POSTGIS_ENV_POSTGRES_DB=nexchange
+POSTGIS_ENV_POSTGRES_USER=nexchange
+POSTGIS_ENV_POSTGRES_PASSWORD=nexchange
+```
+2. In docker settings set /tmp folder to be mountable. Or remap folders in the `docker-compose-dev.yml` file to some mountable location.
+3. Run it with `docker-compose -f docker-compose-dev.yml up` in the project directory. If there is no errors, you are lucky. If there are complaints, that database nexchange does not exist, or the role nexchange does not exist, or that user nexchange needs to be a super user, connect to the running db container `docker exec -it ce0fb4a6e4fd bash ` from your host machine, and run
+
+```
+su postgres
+createdb nexchange
+createuser -s nexchange
+```
+4. Again go to pycharm project interpreter settings. Set path mappings local path to local project folder on the host machine and remote path to `/pipeline/source`
+
+5. In pycharm, set project build run script to `/pipeline/source/manage.py`, parameters to `runserver --settings=nexchange.settings_dev 0.0.0.0:8000` Interpreter should be set correctly to the remote interpreter by default.
+
+Thats it, now you should be able to run the project and use the inbuilt debugger.
+
+Set up [autopep8](https://github.com/hscgavin/autopep8-on-pycharm) and [isort](https://github.com/timothycrosley/isort/wiki/isort-Plugins). Use it on the files you edit. Set autopep8 `--max-line-length 79`

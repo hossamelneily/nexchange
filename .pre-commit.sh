@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RUNNING_CONTAINER=$(docker ps -q --filter name="wercker-pipeline-" --filter status=running)
+RUNNING_CONTAINER=$(docker ps -q --filter name='^/nexchange_app|wercker-pipeline-' --filter status=running)
 
 function use_running_container {
     coverage_cmd="coverage erase"
@@ -28,10 +28,28 @@ function use_wercker {
             wercker build --direct-mount --pipeline tests
 }
 
-autopep8 --in-place --aggressive --aggressive **/**/**py
+function use_docker_compose {
+    docker-compose -f docker-compose-dev.yml up &&
+    echo "started a new app container"
+}
+
+autopep8 --in-place --aggressive --aggressive `ls **/**/**.py | grep -v /migrations/`
+
+
 if [ -z "${RUNNING_CONTAINER}" ]; then
     echo -e "\e[33mDid not found a running container for the nexchange project. Starting one to execute the pre-commit hook.\e[39m"
+    use_docker_compose
+fi
+
+RUNNING_CONTAINER=$(docker ps -q --filter name='^/nexchange_app|wercker-pipeline-' --filter status=running)
+if [ -z "${RUNNING_CONTAINER}" ]; then
     use_wercker
+fi
+
+RUNNING_CONTAINER=$(docker ps -q --filter name='^/nexchange_app|wercker-pipeline-' --filter status=running)
+if [ -z "${RUNNING_CONTAINER}" ]; then
+    echo -e "\e[32m Failed to find or start an app container to run precommit hooks. Manually check whats wrong.\e[39m"
+    exit 1
 else
     echo -e "\e[32mRunning pre-commit hook inside the container with id ${RUNNING_CONTAINER}, which is believed to be nexchange dev.\e[39m"
     use_running_container

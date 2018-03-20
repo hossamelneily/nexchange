@@ -1,0 +1,43 @@
+version: '2'
+services:
+    redis:
+      image: redis:2.8.19
+      hostname: redis
+    postgis:
+        image: mdillon/postgis:9.6
+        environment:
+           - POSTGRES_USER=nexchange
+           - POSTGRES_PASSWORD=nexchange
+           - POSTGRES_DB=nexchange
+           - POSTGIS_ENV_POSTGRES_DB=nexchange
+           - POSTGIS_ENV_POSTGRES_USER=nexchange
+           - POSTGIS_ENV_POSTGRES_PASSWORD=nexchange
+
+        volumes:
+            - /tmp/nexchange/database:/var/lib/postgresql/data
+        restart: always
+    app:
+        image: onitsoft/runningapp
+        volumes:
+            - /tmp/mediafiles:/usr/share/nginx/html/media
+            - /tmp/staticfiles:/usr/share/nginx/html/static
+            - /tmp/etc/nginx/.htpasswd:/etc/nginx/.htpasswd
+            - .:/pipeline/source
+        command: /pipeline/source/entrypoint.sh
+        links:
+            - postgis
+            - redis
+        ports:
+          - "65223:65223"
+          - "8000:8000"
+          - "5555:5555"
+        restart: always
+        environment:
+           - POSTGIS_PORT_5432_TCP_ADDR=postgis
+           - POSTGRES_USER=nexchange
+           - POSTGRES_PASSWORD=nexchange
+           - POSTGRES_DB=nexchange
+           - POSTGIS_ENV_POSTGRES_DB=nexchange
+           - POSTGIS_ENV_POSTGRES_USER=nexchange
+           - POSTGIS_ENV_POSTGRES_PASSWORD=nexchange
+           - DJANGO_SETTINGS_MODULE=nexchange.settings_dev
