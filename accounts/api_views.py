@@ -1,5 +1,5 @@
 from orders.api_views import OrderListViewSet
-from orders.serizalizers import UpdateOrderSerializer
+from orders.serializers import UpdateOrderSerializer
 from rest_framework import permissions
 from core.common.api_views import UserResourceViewSet
 from core.common.viewsets import NoDeleteModelViewSet

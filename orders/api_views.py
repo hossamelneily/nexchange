@@ -1,6 +1,6 @@
 from django.conf import settings
 from orders.models import Order
-from orders.serizalizers import OrderSerializer, CreateOrderSerializer, \
+from orders.serializers import OrderSerializer, CreateOrderSerializer, \
     NestedPairSerializer, OrderDetailSerializer
 from accounts.utils import _create_anonymous_user
 from rest_framework.pagination import PageNumberPagination

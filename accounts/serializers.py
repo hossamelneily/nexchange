@@ -1,4 +1,4 @@
-from orders.serizalizers import MetaFlatOrder, OrderSerializer
+from orders.serializers import MetaFlatOrder, OrderSerializer
 from core.common.serializers import PartialModelSerializer
 from django.contrib.auth.models import User
 

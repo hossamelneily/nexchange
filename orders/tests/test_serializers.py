@@ -1,6 +1,6 @@
 from core.tests.base import OrderBaseTestCase
 from core.models import Pair
-from orders.serizalizers import CreateOrderSerializer
+from orders.serializers import CreateOrderSerializer
 from django.core.exceptions import ValidationError
 
 
