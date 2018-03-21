@@ -27,6 +27,7 @@ import json
 from verification.models import Verification
 from collections import OrderedDict, namedtuple
 import datetime
+from payments.views import SafeChargeListenView
 
 
 class PayeerTestCase(OrderBaseTestCase):
@@ -413,6 +414,14 @@ class SafeChargeTestCase(OrderBaseTestCase):
         self.assertTrue(payment.is_redeemed)
 
         self.assertEqual(Order.RELEASED, order.status)
+
+    def test_new_payment_preference_if_no_proviuder_id(self):
+        view = SafeChargeListenView()
+        pref1 = view.get_or_create_payment_preference('', '')
+        pref2 = view.get_or_create_payment_preference('', '')
+        self.assertNotEqual(pref1, pref2)
+        self.assertEqual(pref1.payment_method, pref2.payment_method)
+        self.assertIn('Safe Charge', pref1.payment_method.name)
 
     @requests_mock.mock()
     @patch(SCRYPT_ROOT + 'release_coins')

@@ -372,13 +372,20 @@ class SafeChargeListenView(View):
                                                           *args, **kwargs)
 
     def get_or_create_payment_preference(self, unique_cc, name_on_card):
-        pref_args = {'provider_system_id': unique_cc}
-        payment_pref_list = PaymentPreference.objects.filter(
-            **pref_args)
+        payment_method = PaymentMethod.objects.get(
+            name__icontains='Safe Charge')
+        pref_args = {
+            'provider_system_id': unique_cc,
+            'payment_method': payment_method
+        }
+        if unique_cc:
+            payment_pref_list = PaymentPreference.objects.filter(
+                **pref_args)
+        else:
+            payment_pref_list = None
+            pref_args.pop('provider_system_id')
         if not payment_pref_list:
             pref = PaymentPreference(**pref_args)
-            pref.payment_method = PaymentMethod.objects.get(
-                name__icontains='Safe Charge')
         else:
             pref = payment_pref_list[0]
         pref.secondary_identifier = name_on_card
