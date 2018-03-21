@@ -30,6 +30,7 @@ class BaseTicker(BaseTask):
     FIAT_RATE_RESOURCE = 'http://api.fixer.io/latest'
 
     BITFINEX_TICKER = "https://api.bitfinex.com/v1/pubticker/btcusd"
+    KRAKEN_TICKER = "https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD"
     LOCALBTC_URL =\
         "https://localbitcoins.net/{}-bitcoins-online/" \
         "ru/russian-federation/banks/.json"
@@ -118,14 +119,19 @@ class BaseTicker(BaseTask):
         return ticker
 
     def _get_bitfinex_usd_ticker(self):
-        res = requests.get(self.BITFINEX_TICKER).json()
-        return res
+        res = requests.get(self.KRAKEN_TICKER).json()
+        ask = res['result']['XXBTZUSD']['a'][0]
+        bid = res['result']['XXBTZUSD']['b'][0]
+        return {
+            'ask': ask,
+            'bid': bid
+        }
 
     def handle(self):
         use_local_btc = self.market.code == 'locbit'
         spot_data = self._get_bitfinex_usd_ticker()
-        ask = Decimal(str(spot_data.get('ask', 0)))
-        bid = Decimal(str(spot_data.get('bid', 0)))
+        ask = Decimal(str(spot_data.get('ask')))
+        bid = Decimal(str(spot_data.get('bid')))
         if use_local_btc:
             sell_spot_price = bid
             sell_price = self.get_price(sell_spot_price, self.ACTION_BUY)

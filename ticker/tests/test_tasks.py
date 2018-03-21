@@ -111,7 +111,7 @@ class TestTickerTask(TickerBaseTestCase):
     @patch('ticker.tasks.generic.base.BaseTicker.get_price')
     @patch('ticker.tasks.generic.base.BaseTicker._get_bitfinex_usd_ticker')
     def test_handle_localbtc(self, bitfinex, locbit):
-        bitfinex.return_value = {}
+        bitfinex.return_value = {'ask': '1010.1', 'bid': '1009.1'}
         locbit.return_value = {}
         pair = Pair.objects.get(name='BTCUSD')
         api = BaseTicker()

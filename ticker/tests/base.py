@@ -132,6 +132,9 @@ class TickerBaseTestCase(OrderBaseTestCase):
                  text=kucoin_market_summary_resp)
         mock.get(BinanceAdapter.BASE_URL + 'ticker/allBookTickers',
                  text=binance_market_summary_resp)
+        mock.get('https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD',
+                 json={'result': {'XXBTZUSD': {'a': ['1077.50000'],
+                                               'b': ['1069.20000']}}})
 
     def get_tickers(self, mock):
         self.mock_resources(mock)
