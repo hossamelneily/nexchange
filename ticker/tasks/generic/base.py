@@ -230,17 +230,18 @@ class BaseTicker(BaseTask):
             base = 'ETH' \
                 if 'idex' in self.pair.base.ticker.split('/') \
                 else 'BTC'
+        is_eth_based_fiat = base == 'ETH' and not self.pair.is_crypto
         ask = bid = Decimal('1.0')
         if self.pair.base.code != base and self.pair.quote.code != base:
             if all(['BTC' in [self.pair.base.code, self.pair.quote.code],
                     base == 'ETH']):
+                # Base multiplier is BTC-ETH (ETH based)
                 btceth = Pair.objects.get(name='{}ETH'.format(self.pair.base))
                 ticker = self.get_right_ticker(btceth)
                 ask = ticker.get('ask')
                 bid = ticker.get('bid')
-            elif all(['BTC' not in [self.pair.base.code, self.pair.quote.code],
-                      base == 'ETH', 'idex' in
-                                     self.pair.base.ticker.split('/')]):
+            elif is_eth_based_fiat:
+                # Base multiplier is Crypto-BTC (ETH based)
                 cryptoeth = Pair.objects.get(
                     name='{}ETH'.format(self.pair.base.code)
                 )
@@ -254,8 +255,19 @@ class BaseTicker(BaseTask):
                 ask = eth_ask / btc_bid
                 bid = eth_bid / btc_ask
             elif all(['BTC' not in [self.pair.base.code, self.pair.quote.code],
+                      base == 'ETH',
+                      'idex' in self.pair.base.ticker.split('/')]):
+                # Base multiplier is Crypto-ETH (ETH based)
+                cryptoeth = Pair.objects.get(
+                    name='{}ETH'.format(self.pair.base.code)
+                )
+                cryptoeth_ticker = self.get_right_ticker(cryptoeth)
+                ask = Decimal(cryptoeth_ticker.get('ask'))
+                bid = Decimal(cryptoeth_ticker.get('bid'))
+            elif all(['BTC' not in [self.pair.base.code, self.pair.quote.code],
                       base == 'ETH', 'idex' not in
                                      self.pair.base.ticker.split('/')]):
+                # Base multiplier is Crypto-BTC (ETH based)
                 btceth = Pair.objects.get(name='BTCETH')
                 btceth_ticker = self.get_right_ticker(btceth)
                 eth_ask = Decimal(btceth_ticker.get('ask'))
@@ -269,6 +281,7 @@ class BaseTicker(BaseTask):
                 ask = eth_ask / btc_bid
                 bid = eth_bid / btc_ask
             elif base == 'BTC':
+                # Base multiplier is CRYPTO-BTC (BTC based)
                 btccrypto = Pair.objects.get(
                     name='BTC{}'.format(self.pair.base.code)
                 )
