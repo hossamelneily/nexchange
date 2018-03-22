@@ -10,7 +10,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "NANOUSD",
-    "disabled": true
+    "disabled": false
   }
 },
 {
@@ -24,7 +24,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "NANOEUR",
-    "disabled": true
+    "disabled": false
   }
 },
 {
@@ -38,7 +38,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "NANOGBP",
-    "disabled": true
+    "disabled": false
   }
 }
 ]

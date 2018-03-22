@@ -359,10 +359,13 @@ class Blake2Proxy:
 
     def account_history(self, account, count):
         kwargs = {'account': account, 'count': str(count)}
-        res = self._call_rpc('history', **kwargs)
+        res = self._call_rpc('account_history', **kwargs)
         history = res.get('history')
         if not history:
             history = []
+        else:
+            for tx in history:
+                tx['account_to'] = account
         return history
 
     def block(self, hash):

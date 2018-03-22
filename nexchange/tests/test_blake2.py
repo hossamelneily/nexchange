@@ -97,7 +97,7 @@ class Blake2RawE2ETestCase(TransactionImportBaseTestCase,
             if all([params.get('action') == 'account_list',
                     params.get('wallet')]):
                 return {'accounts': [self.order.deposit_address.address]}
-            if all([params.get('action') == 'history',
+            if all([params.get('action') == 'account_history',
                     params.get('account'), params.get('count')]):
                 return self.get_blake2_raw_tx(mock_currency, mock_amount,
                                               card.address)

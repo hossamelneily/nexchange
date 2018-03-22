@@ -466,7 +466,6 @@ class OrderBaseTestCase(UserBaseTestCase):
             'history': [{
                 'type': 'receive',
                 'hash': self.generate_txn_id(),
-                'account': address,
                 'amount': raw_amount
             }]
         }

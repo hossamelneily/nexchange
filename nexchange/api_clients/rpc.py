@@ -209,7 +209,7 @@ class Blake2RpcApiClient(BaseRpcClient):
         _currency = self.get_currency({'wallet': node})
 
         try:
-            _address = self.get_address({'address': tx['account']})
+            _address = self.get_address({'address': tx['account_to']})
         except Address.DoesNotExist:
             _address = None
             self.logger.warning(
