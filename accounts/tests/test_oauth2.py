@@ -154,11 +154,13 @@ class Oauth2TestCase(TickerBaseTestCase):
     def test_support_user_after_order_created(self):
         support_anonymous = self._create_support_ticket_api('msg1')
         self.assertIsNone(support_anonymous.user)
+        self.assertEqual(support_anonymous.user_orders, [])
         self.api_client.logout()
         order, _token = self._create_order_api()
         self.api_client.logout()
         support = self._create_support_ticket_api('msg', token=_token)
         self.assertEqual(support.user, order.user)
+        self.assertIn(order, support.user_orders)
 
     @patch('orders.models.AccessToken.is_valid')
     def test_not_valid_token_is_not_returned(self, is_valid):

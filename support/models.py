@@ -18,6 +18,7 @@ class Support(IndexTimeStampedModel, UniqueFieldMixin):
     subject = models.CharField(_('Subject'), max_length=50,
                                null=True, blank=True)
     message = models.TextField(_('Message*'))
+    comment = models.TextField(blank=True, null=True)
     is_resolved = models.BooleanField(default=False)
     unique_reference = models.CharField(
         max_length=settings.UNIQUE_REFERENCE_MAX_LENGTH)
@@ -39,3 +40,12 @@ class Support(IndexTimeStampedModel, UniqueFieldMixin):
         verbose_name = 'Support'
         verbose_name_plural = 'Support'
         ordering = ['-created_on']
+
+    def get_user_orders(self):
+        if self.user:
+            return Order.objects.filter(user=self.user)
+        return []
+
+    @property
+    def user_orders(self):
+        return list(self.get_user_orders())
