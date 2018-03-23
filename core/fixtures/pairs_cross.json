@@ -923,7 +923,7 @@
     "name": "BTCNANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -939,7 +939,7 @@
     "name": "NANOBTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -955,7 +955,7 @@
     "name": "LTCNANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -971,7 +971,7 @@
     "name": "NANOLTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -987,7 +987,7 @@
     "name": "ETHNANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1003,7 +1003,7 @@
     "name": "NANOETH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1019,7 +1019,7 @@
     "name": "DOGENANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1035,7 +1035,7 @@
     "name": "NANODOGE",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1051,7 +1051,7 @@
     "name": "XVGNANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1067,7 +1067,7 @@
     "name": "NANOXVG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1083,7 +1083,7 @@
     "name": "BCHNANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1099,7 +1099,7 @@
     "name": "NANOBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1115,7 +1115,7 @@
     "name": "BDGNANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1131,7 +1131,7 @@
     "name": "NANOEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1147,7 +1147,7 @@
     "name": "EOSNANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1163,7 +1163,7 @@
     "name": "NANOBCH",
     "disable_ticker": false,
     "disabled":false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1371,7 +1371,7 @@
     "name": "NANOOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1387,7 +1387,7 @@
     "name": "OMGNANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
