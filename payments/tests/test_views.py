@@ -415,13 +415,27 @@ class SafeChargeTestCase(OrderBaseTestCase):
 
         self.assertEqual(Order.RELEASED, order.status)
 
-    def test_new_payment_preference_if_no_proviuder_id(self):
+    def test_new_payment_preference_if_no_provider_id(self):
+        order_ref = 'DSFGS'
         view = SafeChargeListenView()
-        pref1 = view.get_or_create_payment_preference('', '')
-        pref2 = view.get_or_create_payment_preference('', '')
+        pref1 = view.get_or_create_payment_preference('', '', '',
+                                                      'apmgw_Giropay')
+        pref2 = view.get_or_create_payment_preference('', '', '',
+                                                      'apmgw_Giropay')
+        pref3 = view.get_or_create_payment_preference('', '', order_ref,
+                                                      'apmgw_Giropay')
         self.assertNotEqual(pref1, pref2)
+        self.assertNotEqual(pref1, pref3)
+        self.assertNotEqual(pref2, pref3)
         self.assertEqual(pref1.payment_method, pref2.payment_method)
         self.assertIn('Safe Charge', pref1.payment_method.name)
+        for pref in [pref1, pref2]:
+            self.assertEqual(pref.secondary_identifier, '')
+            self.assertIsNone(pref.provider_system_id)
+            self.assertFalse(pref.is_immediate_payment)
+        self.assertIn(order_ref, pref3.secondary_identifier)
+        self.assertIn(order_ref, pref3.provider_system_id)
+        self.assertFalse(pref3.is_immediate_payment)
 
     @requests_mock.mock()
     @patch(SCRYPT_ROOT + 'release_coins')
@@ -498,7 +512,8 @@ class SafeChargeTestCase(OrderBaseTestCase):
         self._test_paid_order(order)
 
     def _get_dmn_request_params_for_order(self, order, unique_cc, name,
-                                          status='APPROVED', time_stamp=None):
+                                          status='APPROVED', time_stamp=None,
+                                          payment_method='cc_card'):
         order.refresh_from_db()
         time_stamp = time_stamp if time_stamp else \
             datetime.datetime.now().strftime("%Y-%m-%d.%H:%M:%S")
@@ -520,7 +535,8 @@ class SafeChargeTestCase(OrderBaseTestCase):
             'Status': status,
             'responseTimeStamp': time_stamp,
             'uniqueCC': unique_cc,
-            'nameOnCard': name
+            'nameOnCard': name,
+            'payment_method': payment_method
         }
         return params
 
@@ -633,6 +649,39 @@ class SafeChargeTestCase(OrderBaseTestCase):
         self.assertTrue(payment.is_complete)
 
         self._test_paid_order(order)
+
+    @patch('payments.views.get_client_ip')
+    def test_dont_set_as_paid_non_immiadiate(self, get_client_ip):
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
+        order = self._create_order_api()
+        card_id = self.generate_txn_id()
+        name = 'Sir Testalot'
+        params = self._get_dmn_request_params_for_order(
+            order, card_id, name,
+            payment_method='some_method'
+        )
+
+        url = reverse('payments.listen_safe_charge')
+        self.client.post(url, data=params)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
+
+        kyc = self._create_kyc(order.unique_reference)
+        kyc.util_status = kyc.OK
+        kyc.id_status = kyc.OK
+        kyc.save()
+        self.assertTrue(self._check_kyc(order.unique_reference))
+        self.assertTrue(self._check_kyc(order.unique_reference))
+        payment = order.payment_set.get()
+        self.assertTrue(payment.is_success)
+        pref = payment.payment_preference
+        self.assertTrue(pref.is_verified)
+        self.assertFalse(pref.is_immediate_payment)
+
+        check_fiat_order_deposit_periodic.apply_async()
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
 
     @patch('payments.views.get_client_ip')
     @patch('payments.api_clients.safe_charge.SafeCharge.refundTransaction')

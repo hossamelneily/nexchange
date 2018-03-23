@@ -70,10 +70,8 @@ urlpatterns = i18n_patterns(
     url(r'^api/v1/menu', core.views.ajax_menu, name='core.menu'),
     url(r'^api/v1/get_price/(?P<pair_name>[^/.]+)/$', PriceView.as_view(),
         name='get_price'),
-    # FIXME: this is oAuth2 urls, oAuth2 is used only seemlesly atm - those
-    # urls aren't used
-    # url(r'^api/v1/oAuth2/', include('oauth2_provider.urls',
-    #                                 namespace='oauth2_provider')),
+    url(r'^api/v1/oAuth2/', include('oauth2_provider.urls',
+                                    namespace='oauth2_provider')),
     url(r'^api/v1/breadcrumbs', core.views.ajax_crumbs,
         name='core.breadcrumbs'),
     url(r'session_security/', include('session_security.urls')),

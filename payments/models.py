@@ -131,6 +131,11 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     physical_address_owner = models.CharField(max_length=255, null=True,
                                               blank=True, default=None)
     location = models.ForeignKey(Location, blank=True, null=True)
+    is_immediate_payment = models.BooleanField(
+        default=False,
+        help_text='This should be moved to PaymentMethod when methods will '
+                  'be created automatically on Safe Charge PushRequests.'
+    )
 
     def save(self, *args, **kwargs):
         if not hasattr(self, 'payment_method'):

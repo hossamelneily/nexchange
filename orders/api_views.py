@@ -19,7 +19,7 @@ from core.models import Pair
 from django.db.models import Sum
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.exceptions import ValidationError
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from ticker.models import Price
 from core.common.api_views import DateFilterViewSet
 from referrals.middleware import ReferralMiddleWare
@@ -201,9 +201,18 @@ class PriceView(APIView):
 
         return order
 
+    def _amount_to_decimal(self, amount_name):
+        amount = self.request.GET.get(amount_name)
+        if not amount:
+            return
+        try:
+            return Decimal(amount)
+        except InvalidOperation:
+            return
+
     def get(self, request, pair_name=None):
-        amount_base = self.request.GET.get('amount_base', None)
-        amount_quote = self.request.GET.get('amount_quote', None)
+        amount_base = self._amount_to_decimal('amount_base')
+        amount_quote = self._amount_to_decimal('amount_quote')
         if not pair_name:
             raise self.PAIR_REQUIRED
         try:

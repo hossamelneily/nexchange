@@ -371,24 +371,37 @@ class SafeChargeListenView(View):
         return super(SafeChargeListenView, self).dispatch(request,
                                                           *args, **kwargs)
 
-    def get_or_create_payment_preference(self, unique_cc, name_on_card):
-        payment_method = PaymentMethod.objects.get(
+    def get_or_create_payment_preference(self, unique_cc, name_on_card,
+                                         product_id, payment_method):
+        unknown_msg = 'method: {}, order: {}'.format(
+            payment_method,
+            product_id
+        ) if product_id else ''
+        _payment_method = PaymentMethod.objects.get(
             name__icontains='Safe Charge')
         pref_args = {
             'provider_system_id': unique_cc,
-            'payment_method': payment_method
+            'payment_method': _payment_method
         }
         if unique_cc:
             payment_pref_list = PaymentPreference.objects.filter(
                 **pref_args)
         else:
             payment_pref_list = None
-            pref_args.pop('provider_system_id')
+            if unknown_msg:
+                pref_args['provider_system_id'] = unknown_msg
+            else:
+                pref_args.pop('provider_system_id')
         if not payment_pref_list:
             pref = PaymentPreference(**pref_args)
         else:
             pref = payment_pref_list[0]
-        pref.secondary_identifier = name_on_card
+        pref.secondary_identifier = \
+            name_on_card if name_on_card else unknown_msg
+        if all([payment_method in settings.SAFE_CHARGE_IMMEDIATE_METHODS,
+                unique_cc,
+                name_on_card]):
+            pref.is_immediate_payment = True
         pref.save()
         return pref
 
@@ -456,6 +469,7 @@ class SafeChargeListenView(View):
         to_hash = (key, total_amount, currency, time_stamp, ppp_tx_id, status,
                    product_id)
         auth_code = params.get('AuthCode', '')
+        payment_method = params.get('payment_method', '')
         expected_checksum = get_sha256_sign(ar_hash=to_hash, delimiter='',
                                             upper=False)
         push_request = self._create_push_request(request)
@@ -471,7 +485,9 @@ class SafeChargeListenView(View):
             if all([status in ['APPROVED', 'SUCCESS', 'PENDING'],
                     order.status == Order.INITIAL]):
                 pref = self.get_or_create_payment_preference(unique_cc,
-                                                             name_on_card)
+                                                             name_on_card,
+                                                             product_id,
+                                                             payment_method)
                 payment_data = self._prepare_payment_data(
                     order, pref, total_amount, currency, ppp_tx_id, tx_id,
                     auth_code
