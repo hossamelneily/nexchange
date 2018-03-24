@@ -115,7 +115,7 @@ ALLOWED_HOSTS = [
     'api.n.exchange',
 ]
 
-ALLOWED_IMAGE_FILE_EXTENSIONS = ['.jpg', '.png', '.pdf']
+ALLOWED_IMAGE_FILE_EXTENSIONS = ['.jpg', '.png', '.pdf', '.jpeg']
 
 
 # Application definition
