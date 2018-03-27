@@ -41,7 +41,7 @@ class CreateVerificationSerializer(serializers.ModelSerializer):
 
 class VerificationSerializer:
     class Meta(MetaVerification):
-        fields = MetaVerification.fields + ('user_visible_comment', )
+        fields = MetaVerification.fields + ('user_visible_comment', 'user', )
 
     user_visible_comment = PrivateField()
 

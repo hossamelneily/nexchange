@@ -18,10 +18,16 @@ class VerificationViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
         is_verified = False
         id_document_status = None
         residence_document_status = None
+        comment = 123
         try:
             order = Order.objects.get(**kwargs)
+            assert(self.request.user == order.user)
+
             payment = order.payment_set.get(type=Payment.DEPOSIT)
             payment_preference = payment.payment_preference
+            comment = getattr(order.user.verification_set.last(),
+                              'user_visible_comment')\
+                if self.request.user == order.user else None
             if payment_preference:
                 is_verified = payment_preference.is_verified
                 id_document_status = payment_preference.id_document_status
@@ -35,7 +41,9 @@ class VerificationViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
             'is_verified': is_verified,
             'id_document_status': id_document_status,
             'residence_document_status': residence_document_status,
+            'user_visible_comment': comment,
         }
+
         data = OrderedDict(data)
         return Response(data)
 
