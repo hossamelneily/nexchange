@@ -30,7 +30,6 @@ FIAT_FIELDS = ('payment_url',)
 TOKEN_FIELDS = ('token',)
 
 
-
 class MetaOrder:
     model = Order
     fields = BASE_FIELDS

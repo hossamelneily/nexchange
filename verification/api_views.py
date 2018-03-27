@@ -1,4 +1,4 @@
-from .serializers import CreateKycSerializer
+from .serializers import CreateVerificationSerializer, VerificationSerializer
 from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from collections import OrderedDict
@@ -7,8 +7,8 @@ from payments.models import Payment
 from orders.models import Order
 
 
-class KycViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
-                 viewsets.GenericViewSet, mixins.ListModelMixin,):
+class VerificationViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
+                          viewsets.GenericViewSet, mixins.ListModelMixin, ):
 
     model_class = Verification
     lookup_field = 'unique_reference'
@@ -45,12 +45,20 @@ class KycViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            return CreateKycSerializer
+            return CreateVerificationSerializer
+        if self.request.method == 'GET':
+            return VerificationSerializer
 
-        return super(KycViewSet, self).get_serializer_class()
+        return super(VerificationViewSet, self).get_serializer_class()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        
+        return super(VerificationViewSet, self).perform_create(serializer)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        # serializer
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         data = {'status': 'OK', 'message': 'KYC sent'}

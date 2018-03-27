@@ -3,16 +3,21 @@ from rest_framework.fields import CharField
 from .models import Verification
 from payments.models import Payment
 from orders.models import Order
+from core.common.fields import PrivateField
 
 
-class CreateKycSerializer(serializers.ModelSerializer):
+class MetaVerification:
+    model = Verification
+    fields = ('identity_document', 'utility_document', 'order_reference',
+              'full_name', 'user')
+
+
+class CreateVerificationSerializer(serializers.ModelSerializer):
 
     order_reference = CharField()
 
-    class Meta:
-        model = Verification
-        fields = ('identity_document', 'utility_document', 'order_reference',
-                  'full_name')
+    class Meta(MetaVerification):
+        pass
 
     def create(self, data):
         order_reference = data.pop('order_reference')
@@ -32,3 +37,11 @@ class CreateKycSerializer(serializers.ModelSerializer):
         # get post_save stuff in sync
         verification.refresh_from_db()
         return verification
+
+
+class VerificationSerializer:
+    class Meta(MetaVerification):
+        fields = MetaVerification.fields + ('user_visible_comment', )
+
+    user_visible_comment = PrivateField()
+

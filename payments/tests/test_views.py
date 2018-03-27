@@ -366,7 +366,7 @@ class SafeChargeTestCase(OrderBaseTestCase):
         }
         order_api_url = '/en/api/v1/kyc/'
         with patch('verification.serializers.'
-                   'CreateKycSerializer.to_internal_value') as p:
+                   'CreateVerificationSerializer.to_internal_value') as p:
             p.return_value = OrderedDict({'order_reference': ref})
             self.api_client.post(
                 order_api_url, order_data, format='json')
