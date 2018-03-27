@@ -432,6 +432,8 @@ class UncoveredTestCase(RiskManagementBaseTestCase):
 class PnlTaskTestCase(TickerBaseTestCase):
 
     def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['BTCLTC', 'LTCBTC', 'ETHBTC', 'ETHLTC',
+                                     'ETHBDG', 'LTCBDG']
         super(PnlTaskTestCase, self).setUp()
         self.api_client = APIClient()
         self._create_enough_addresses_for_test()

@@ -21,6 +21,7 @@ class Blake2RawE2ETestCase(TransactionImportBaseTestCase,
                            TickerBaseTestCase):
 
     def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['NANOBTC', 'BTCNANO']
         super(Blake2RawE2ETestCase, self).setUp()
         self.import_txs_task = import_transaction_deposit_crypto_invoke
         self.update_confirmation_task = update_pending_transactions_invoke

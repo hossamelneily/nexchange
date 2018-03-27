@@ -510,6 +510,7 @@ class OrderIndexOrderTestCase(OrderBaseTestCase):
 class TestGetPrice(TickerBaseTestCase):
 
     def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['BTCLTC', 'LTCBTC']
         super(TestGetPrice, self).setUp()
         self.api_client = APIClient()
 

@@ -42,6 +42,8 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
                            TickerBaseTestCase):
 
     def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['BTCETH', 'BTCBDG', 'BTCEOS', 'BTCOMG',
+                                     'ETHBTC', 'BDGBTC', 'EOSBTC', 'OMGBTC']
         super(EthashRawE2ETestCase, self).setUp()
         self.import_txs_task = import_transaction_deposit_crypto_invoke
         self.update_confirmation_task = update_pending_transactions_invoke

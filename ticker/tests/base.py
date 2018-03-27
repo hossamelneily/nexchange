@@ -27,6 +27,7 @@ from ticker.tests.fixtures.bitgrail.market_resp import \
 class TickerBaseTestCase(OrderBaseTestCase):
 
     DISABLE_NON_MAIN_PAIRS = True
+    ENABLED_TICKER_PAIRS = ['ETHLTC', 'LTCBTC']
     ENABLE_FIAT = []
 
     def setUp(self):
@@ -39,10 +40,9 @@ class TickerBaseTestCase(OrderBaseTestCase):
             self.get_tickers(mock)
 
     def _disable_non_crypto_tickers(self):
-        pairs = Pair.objects.all()
+        pairs = Pair.objects.exclude(name__in=self.ENABLED_TICKER_PAIRS)
         for pair in pairs:
-            if all([not pair.is_crypto,
-                    pair.quote.code not in self.ENABLE_FIAT]):
+            if all([pair.quote.code not in self.ENABLE_FIAT]):
                 pair.disable_ticker = True
                 pair.save()
 

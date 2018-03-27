@@ -118,8 +118,6 @@ class UserBaseTestCase(TestCase):
 
             m.post(RPC8_URL, json=text_callback)
 
-            self._create_an_order_for_every_crypto_currency_card(
-                self.user, amount_quote='1.1')
     # deprecated
 
     def _request_card(self, request, context):  # noqa
@@ -229,7 +227,7 @@ class UserBaseTestCase(TestCase):
     @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
     @requests_mock.mock()
     def _create_order(self, mock, order_type=Order.BUY,
-                      amount_base=0.5, pair_name='ETHLTC',
+                      amount_base=0.5, pair_name='LTCBTC',
                       payment_preference=None, user=None, amount_quote=None,
                       validate_amount=False):
         def text_callback(request, context):
@@ -277,9 +275,8 @@ class UserBaseTestCase(TestCase):
         is_quote.return_value = True
         crypto_currencies = Currency.objects.filter(is_crypto=True).exclude(
             code='RNS')
-        crypto_codes = [curr.code for curr in crypto_currencies]
-        for code in crypto_codes:
-            pair = Pair.objects.filter(quote__code=code)
+        for curr in crypto_currencies:
+            pair = Pair.objects.filter(quote__code=curr)
             if not pair:
                 continue
             pair_name = pair.first().name
@@ -815,12 +812,13 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
 
     def _create_mocks_uphold(self, amount2=Decimal('0.0'), currency1=None,
                              currency2=None, card_id=None, order=None):
-        if order is not None:
-            self.order = order
+        order = self.order if not order else order
         if len(self.order.user.addressreserve_set.all()) == 0:
             with requests_mock.mock() as mock:
                 self._mock_cards_reserve(mock)
-                self._create_an_order_for_every_crypto_currency_card()
+                self._create_an_order_for_every_crypto_currency_card(self.user)
+        if order is not None:
+            self.order = order
         self.tx_ids_api = ['12345', '54321']
         if not currency1:
             currency1 = self.order.pair.base.code

@@ -30,6 +30,7 @@ class TestReferralModel(TickerBaseTestCase):
         super(TestReferralModel, self).__init__(*args, **kwargs)
 
     def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['BTCLTC', 'LTCBTC']
         super(TestReferralModel, self).setUp()
         currencies = Currency.objects.filter(is_crypto=False)
         for curr in currencies:

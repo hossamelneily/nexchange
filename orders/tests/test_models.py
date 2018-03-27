@@ -908,6 +908,10 @@ class OrderStateMachineTestCase(TickerBaseTestCase):
 
 class TestSymmetricalOrder(TickerBaseTestCase):
 
+    def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['BTCLTC']
+        super(TestSymmetricalOrder, self).setUp()
+
     def test_demo(self):
         pair = Pair.objects.get(name='BTCLTC')
         amount_base = Decimal('0.12345678')
@@ -1041,6 +1045,7 @@ class CalculateOrderTestCase(TickerBaseTestCase):
 class CreateCoverableOrderTestCase(TickerBaseTestCase):
 
     def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['BTCLTC']
         super(CreateCoverableOrderTestCase, self).setUp()
         self.pair = Pair.objects.get(name='BTCLTC')
         self.main_account = Account.objects.get(

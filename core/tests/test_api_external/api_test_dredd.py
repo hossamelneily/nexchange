@@ -33,7 +33,7 @@ class DreddTestAPI(LiveServerTestCase, TransactionImportBaseTestCase,
 
         # This is for matching example data on apiary.apib
         self.create_user()
-        self._create_order()
+        self._create_order(pair_name='ETHLTC')
         self.order.unique_reference = 'V08PD'
         self.order.save()
         self.create_referral()

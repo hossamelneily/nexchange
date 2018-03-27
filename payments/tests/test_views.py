@@ -404,7 +404,7 @@ class SafeChargeTestCase(OrderBaseTestCase):
         self.assertTrue(payment.is_success)
         self.assertFalse(payment.is_redeemed)
 
-        self.order.refresh_from_db()
+        order.refresh_from_db()
         with patch(SCRYPT_ROOT + 'release_coins') as release_coins_scrypt:
             release_coins_scrypt.return_value = self.generate_txn_id(), True
             buy_order_release_reference_periodic.apply()

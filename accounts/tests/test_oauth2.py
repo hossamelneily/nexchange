@@ -16,6 +16,7 @@ from support.models import Support
 class Oauth2TestCase(TickerBaseTestCase):
 
     def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['BTCLTC']
         super(Oauth2TestCase, self).setUp()
         self.pair = Pair.objects.get(name='BTCLTC')
         self.api_client = APIClient()

@@ -26,10 +26,13 @@ from nexchange.api_clients.factory import ApiClientFactory
 
 factory = ApiClientFactory()
 
+
 class RegressionTaskTestCase(TransactionImportBaseTestCase,
                              TickerBaseTestCase):
 
     def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['ETHLTC', 'BTCETH', 'ETHBTC', 'LTCBCH',
+                                     'BTCLTC', 'BTCETH', 'LTCETH']
         super(RegressionTaskTestCase, self).setUp()
         self.import_txs_task = import_transaction_deposit_crypto_invoke
         self.import_txs_blockchain_task = \

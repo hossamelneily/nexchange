@@ -13,6 +13,7 @@ class TestReferralRegression(TickerBaseTestCase):
     ]
 
     def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['ETHLTC', 'BTCETH']
         super(TestReferralRegression, self).setUp()
         self.api_client = APIClient()
         program = Program.objects.get(pk=1)

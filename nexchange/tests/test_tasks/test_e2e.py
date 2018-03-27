@@ -226,8 +226,12 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
         pass
 
 
-class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase):
+class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
+                                   TickerBaseTestCase):
     def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
+                                     'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
+                                     'BTCEOS', 'BTCNANO']
         super(SellOrderReleaseTaskTestCase, self).setUp()
         self.import_txs_task = import_transaction_deposit_crypto_invoke
         self.update_confirmation_task = update_pending_transactions_invoke
@@ -518,6 +522,9 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                        TickerBaseTestCase):
 
     def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['ETHLTC', 'BTCETH', 'BTCLTC', 'LTCETH',
+                                     'ETHBTC', 'LTCBTC', 'ETHDOGE', 'DOGELTC',
+                                     'ETHBCH', 'BCHDOGE']
         super(ExchangeOrderReleaseTaskTestCase, self).setUp()
         self.import_txs_task = import_transaction_deposit_crypto_invoke
         self.update_confirmation_task = update_pending_transactions_invoke
@@ -701,6 +708,9 @@ class SofortEndToEndTestCase(BaseSofortAPITestCase,
                              TickerBaseTestCase):
 
     def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
+                                     'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
+                                     'BTCEOS', 'BTCNANO']
         super(SofortEndToEndTestCase, self).setUp()
         self.payments_importer = run_sofort
         self.sender_name = 'Sender Awesome'
@@ -813,8 +823,11 @@ class SofortEndToEndTestCase(BaseSofortAPITestCase,
 
 
 class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
-                         TransactionImportBaseTestCase):
+                         TransactionImportBaseTestCase, TickerBaseTestCase):
     def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
+                                     'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
+                                     'BTCEOS', 'BTCNANO']
         super(AdvCashE2ETestCase, self).setUp()
         self.payment_importer = run_adv_cash
         self.import_txs_task = import_transaction_deposit_crypto_invoke
@@ -1038,6 +1051,8 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
     ]
 
     def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['XVGBTC', 'BTCXVG', 'LTCXVG', 'XVGETH',
+                                     'ETHXVG']
         super(OrderCoverTaskTestCase, self).setUp()
         self.import_txs_task = import_transaction_deposit_crypto_invoke
 

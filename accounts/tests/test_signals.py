@@ -17,6 +17,9 @@ from core.tests.base import RPC8_WALLET, RPC8_PUBLIC_KEY_C1, RPC8_PORT,\
 class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
 
     def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
+                                     'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
+                                     'BTCEOS', 'BTCNANO']
         super(RenewReserveTestCase, self).setUp()
         Cards.objects.all().delete()
         self.len_crypto_curencies = len(Currency.objects.filter(
