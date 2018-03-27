@@ -190,6 +190,14 @@ class Order(TimeStampedModel, SoftDeletableModel,
                     self.pair.base.code, self.pair.base.available_main_reserves
                 ))
             )
+        if all([self.amount_quote < self.pair.quote.minimal_amount,
+                not self.pk, not self.pair.is_crypto]):
+            raise ValidationError(
+                _('Minimal amount to deposit is {} {}.'.format(
+                    self.pair.quote.minimal_amount,
+                    self.pair.quote.code
+                ))
+            )
 
     def _validate_status(self, status):
         if not self.pk:

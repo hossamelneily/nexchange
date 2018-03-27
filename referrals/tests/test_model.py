@@ -35,6 +35,7 @@ class TestReferralModel(TickerBaseTestCase):
         currencies = Currency.objects.filter(is_crypto=False)
         for curr in currencies:
             curr.maximal_amount = 50000000
+            curr.minimal_amount = 0.1
             curr.save()
         program = Program.objects.get(pk=1)
         code = ReferralCode(user=self.user, program=program)

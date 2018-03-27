@@ -193,7 +193,10 @@ class PriceView(APIView):
         if all([not base_minimal <= order.amount_base <= base_maximal,
                 base_maximal > base_minimal]):
             if order.amount_base > base_maximal:
-                amount_base = (base_minimal + base_maximal) / Decimal('2')
+                # return value between minimal and maximal possible
+                # (closer to maximal to avoid minimal quote error)
+                amount_base = \
+                    (base_minimal + Decimal('4') * base_maximal) / Decimal('5')
             else:
                 amount_base = base_minimal
             order = Order(pair=pair, amount_base=amount_base)

@@ -516,7 +516,7 @@ class WalletBaseTestCase(OrderBaseTestCase):
         mock = get_ok_pay_mock()
         self.okpay_order_data = {
             'amount_quote': Decimal(split_ok_pay_mock(mock, 'Net')),
-            'amount_base': Decimal(0.01),
+            'amount_base': Decimal(0.1),
             'pair': self.BTCEUR,
             'user': self.user,
             'admin_comment': 'tests Order',
@@ -580,7 +580,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
 
         self.order = Order(
             order_type=Order.SELL,
-            amount_base=0.1,
+            amount_base=0.2,
             pair=self.BTCEUR,
             user=self.user,
             status=Order.INITIAL,

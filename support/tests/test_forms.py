@@ -78,6 +78,7 @@ class SupportTestModelUserOrder(OrderBaseTestCase):
         currencies = Currency.objects.filter(is_crypto=False)
         for curr in currencies:
             curr.maximal_amount = 50000000
+            curr.minimal_amount = 0.1
             curr.save()
         self.factory = RequestFactory()
 

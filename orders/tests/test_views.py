@@ -30,6 +30,7 @@ class OrderSetAsPaidTestCase(OrderBaseTestCase):
         currencies = Currency.objects.filter(is_crypto=False)
         for curr in currencies:
             curr.maximal_amount = 50000000
+            curr.minimal_amount = 0.1
             curr.save()
         self.data = {
             'amount_quote': Decimal(30674.85),
@@ -131,6 +132,7 @@ class OrderPayUntilTestCase(OrderBaseTestCase):
         currencies = Currency.objects.filter(is_crypto=False)
         for curr in currencies:
             curr.maximal_amount = 50000000
+            curr.minimal_amount = 0.1
             curr.save()
 
     def test_pay_until_message_is_in_context_and_is_rendered(self):
@@ -238,6 +240,7 @@ class UpdateWithdrawAddressTestCase(TickerBaseTestCase):
         currencies = Currency.objects.filter(is_crypto=False)
         for curr in currencies:
             curr.maximal_amount = 50000000
+            curr.minimal_amount = 0.1
             curr.save()
 
         PaymentMethod.objects.all().delete()
@@ -510,9 +513,10 @@ class OrderIndexOrderTestCase(OrderBaseTestCase):
 class TestGetPrice(TickerBaseTestCase):
 
     def setUp(self):
-        self.ENABLED_TICKER_PAIRS = ['BTCLTC', 'LTCBTC']
+        self.ENABLED_TICKER_PAIRS = ['BTCLTC', 'LTCBTC', 'XVGBTC']
         super(TestGetPrice, self).setUp()
         self.api_client = APIClient()
+        self.get_price_url = '/en/api/v1/get_price/{}/'
 
     def tearDown(self):
         super(TestGetPrice, self).tearDown()
@@ -521,10 +525,10 @@ class TestGetPrice(TickerBaseTestCase):
 
     def test_return_correct_quote(self):
         client = APIClient()
-        amount_base = 0.005
+        amount_base = 0.05
         pair_name = 'BTCEUR'
         get_price_quote = client.get(
-            '/en/api/v1/get_price/{}/'.format(pair_name),
+            self.get_price_url.format(pair_name),
             data={'amount_base': amount_base}
         ).data['amount_quote']
 
@@ -547,7 +551,7 @@ class TestGetPrice(TickerBaseTestCase):
         amount_quote = 200
         pair_name = 'BTCEUR'
         get_price_base = client.get(
-            '/en/api/v1/get_price/{}/'.format(pair_name),
+            self.get_price_url.format(pair_name),
             data={'amount_quote': amount_quote}
         ).data['amount_base']
 
@@ -568,8 +572,8 @@ class TestGetPrice(TickerBaseTestCase):
     def test_does_not_create_order(self):
         orders_before = Order.objects.count()
         client = APIClient()
-        res = client.get('/en/api/v1/get_price/BTCEUR/',
-                         data={'amount_base': 0.005})
+        res = client.get(self.get_price_url.format('BTCEUR'),
+                         data={'amount_base': 0.05})
         self.assertEqual(res.status_code, 200)
         orders_after = Order.objects.count()
         self.assertEqual(orders_before, orders_after)
@@ -577,20 +581,20 @@ class TestGetPrice(TickerBaseTestCase):
     def test_bad_requests(self):
         client = APIClient()
         max_amount = Currency.objects.get(code="BTC").maximal_amount
-        res = client.get('/en/api/v1/get_price/BTCEUR/',
+        res = client.get(self.get_price_url.format('BTCEUR'),
                          data={'amount_base': max_amount * 2 + 1})
         self.assertEqual(res.status_code, 400)
-        res = client.get('/en/api/v1/get_price/BTCxxx/',
+        res = client.get(self.get_price_url.format('BTCxxx/'),
                          data={'amount_base': 100})
         self.assertEqual(res.status_code, 404)
 
     def test_get_price_without_params(self):
-        res = self.api_client.get('/en/api/v1/get_price/BTCEUR/')
+        res = self.api_client.get(self.get_price_url.format('BTCEUR'))
         self.assertEqual(
             res.json()['amount_quote'],
             settings.DEFAULT_FIAT_ORDER_DEPOSIT_AMOUNT
         )
-        res = self.api_client.get('/en/api/v1/get_price/LTCBTC/')
+        res = self.api_client.get(self.get_price_url.format('LTCBTC'))
         self.BTC.refresh_from_db()
         self.assertEqual(
             Decimal(str(res.json()['amount_quote'])),
@@ -601,14 +605,14 @@ class TestGetPrice(TickerBaseTestCase):
     def test_reserves_less_than_default_fiat(self):
         btc = Currency.objects.get(code='BTC')
         res_with_quote = self.api_client.get(
-            '/en/api/v1/get_price/BTCEUR/',
+            self.get_price_url.format('BTCEUR'),
             data={'amount_quote': settings.DEFAULT_FIAT_ORDER_DEPOSIT_AMOUNT})
         quote_data = res_with_quote.json()
         account = Account.objects.get(reserve__currency__code='BTC',
                                       is_main_account=True)
         account.available = Decimal(quote_data['amount_base']) * Decimal(0.9)
         account.save()
-        res_default = self.api_client.get('/en/api/v1/get_price/BTCEUR/')
+        res_default = self.api_client.get(self.get_price_url.format('BTCEUR'))
         self.assertEqual(res_default.status_code, 200)
         default_data = res_default.json()
         self.assertTrue(
@@ -620,7 +624,9 @@ class TestGetPrice(TickerBaseTestCase):
         # Move BTC to executable (maximal can be more thann reserves)
         btc.execute_cover = True
         btc.save()
-        res_default_cover = self.api_client.get('/en/api/v1/get_price/BTCEUR/')
+        res_default_cover = self.api_client.get(
+            self.get_price_url.format('BTCEUR')
+        )
         self.assertEqual(res_default_cover.status_code, 200)
         default_cover_data = res_default_cover.json()
         self.assertEqual(
@@ -634,13 +640,13 @@ class TestGetPrice(TickerBaseTestCase):
 
     def test_default_less_than_minimum_fiat(self):
         res_with_quote = self.api_client.get(
-            '/en/api/v1/get_price/BTCEUR/',
+            self.get_price_url.format('BTCEUR'),
             data={'amount_quote': settings.DEFAULT_FIAT_ORDER_DEPOSIT_AMOUNT})
         quote_data = res_with_quote.json()
         self.BTC.minimal_amount = \
             Decimal(quote_data['amount_base']) * Decimal(1.1)
         self.BTC.save()
-        res_default = self.api_client.get('/en/api/v1/get_price/BTCEUR/')
+        res_default = self.api_client.get(self.get_price_url.format('BTCEUR'))
         self.assertEqual(res_default.status_code, 200)
         default_data = res_default.json()
         self.assertTrue(
@@ -656,12 +662,12 @@ class TestGetPrice(TickerBaseTestCase):
             ltc.minimal_amount * \
             settings.DEFAULT_CRYPTO_ORDER_DEPOSIT_AMOUNT_MULTIPLIER
         res_with_quote = self.api_client.get(
-            '/en/api/v1/get_price/BTCLTC/',
+            self.get_price_url.format('BTCLTC'),
             data={'amount_quote': normal_default})
         quote_data = res_with_quote.json()
         ltc.maximal_amount = normal_default * Decimal(0.8)
         ltc.save()
-        res_default = self.api_client.get('/en/api/v1/get_price/BTCLTC/')
+        res_default = self.api_client.get(self.get_price_url.format('BTCLTC'))
         self.assertEqual(res_default.status_code, 200)
         default_data = res_default.json()
         self.assertTrue(
@@ -670,3 +676,19 @@ class TestGetPrice(TickerBaseTestCase):
         self.assertTrue(
             default_data['amount_quote'] < quote_data['amount_quote']
         )
+
+    def test_raise_error_on_less_than_minimal_fiat(self):
+        EUR = Currency.objects.get(code='EUR')
+        minimal_amount = EUR.minimal_amount
+        res = self.api_client.get(
+            self.get_price_url.format('BTCEUR'),
+            data={'amount_quote': minimal_amount * Decimal(0.9)})
+        self.assertEqual(res.status_code, 400)
+
+    def test_do_not_raise_error_on_less_than_minimal_crypto(self):
+        BTC = Currency.objects.get(code='BTC')
+        minimal_amount = BTC.minimal_amount
+        res = self.api_client.get(
+            self.get_price_url.format('XVGBTC'),
+            data={'amount_quote': minimal_amount * Decimal(0.9)})
+        self.assertEqual(res.status_code, 200)
