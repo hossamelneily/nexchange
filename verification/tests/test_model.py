@@ -30,3 +30,14 @@ class VerificationTestCase(UserBaseTestCase):
         path2 = verification._get_file_name('name', 'root')
         self.assertTrue(isinstance(path2, str))
         self.assertEqual(path1, path2)
+
+    def test_get_file_name_remove_special_characters(self):
+        verification = Verification()
+        verification.save()
+        pref = PaymentPreference(payment_method_id=1,
+                                 provider_system_id='/a=b}c')
+        pref.save()
+        verification.payment_preference = pref
+        verification.save()
+        path = verification._get_file_name('name', 'root')
+        self.assertIn('abc', path)

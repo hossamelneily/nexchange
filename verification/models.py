@@ -26,6 +26,7 @@ class Verification(TimeStampedModel, SoftDeletableModel):
             root1 = self.user.username
         else:
             root1 = 'all'
+        root1 = ''.join(e for e in root1 if e.isalnum())
         return '/'.join([root1, root, filename])
 
     def identity_file_name(self, filename, root='verification/identity_docs'):
