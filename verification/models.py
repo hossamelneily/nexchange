@@ -54,6 +54,8 @@ class Verification(TimeStampedModel, SoftDeletableModel):
     note = models.CharField(max_length=30, null=True, blank=True)
     user_visible_comment = models.CharField(max_length=255,
                                             null=True, blank=True)
+    user_input_comment = models.CharField(max_length=255,
+                                          null=True, blank=True)
 
     def id_doc(self):
         if self.identity_document:

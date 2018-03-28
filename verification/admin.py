@@ -10,7 +10,7 @@ class VerificationAdmin(admin.ModelAdmin):
                     'name_on_card', 'unique_cc')
     readonly_fields = ('identity_document', 'utility_document', 'name_on_card',
                        'unique_cc', 'payment_preference', 'id_doc',
-                       'residence_doc', 'user')
+                       'residence_doc', 'user', 'user_input_comment')
 
     search_fields = ('note', 'full_name', 'id_status', 'util_status',
                      'payment_preference__secondary_identifier')
