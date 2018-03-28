@@ -62,8 +62,8 @@ class VerificationViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
         return super(VerificationViewSet, self).get_serializer_class()
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
         return super(VerificationViewSet, self).perform_create(serializer)
 
     def create(self, request, *args, **kwargs):
