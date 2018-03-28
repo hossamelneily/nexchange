@@ -7,7 +7,7 @@
       "name": "USD",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00",
-      "maximal_amount": "500",
+      "maximal_amount": "1000",
       "minimal_amount": "50"
     }
   },
@@ -30,7 +30,7 @@
       "name": "EUR",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00",
-      "maximal_amount": "500",
+      "maximal_amount": "1000",
       "minimal_amount": "50"
     }
   },
@@ -42,7 +42,7 @@
       "name": "GBP",
       "created_on":"2016-05-20T17:41:28+00:00",
       "modified_on":"2016-05-20T17:41:28+00:00",
-      "maximal_amount": "500",
+      "maximal_amount": "1000",
       "minimal_amount": "50"
     }
   },

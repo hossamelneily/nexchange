@@ -6,14 +6,16 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from core.common.models import SoftDeletableModel, \
     TimeStampedModel, FlagableMixin, IpAwareModel
-from core.models import Location, Country
-from core.models import BtcBase
+from core.models import Location, Country, BtcBase, Currency
 
 
 class PaymentMethodManager(models.Manager):
 
     def get_by_natural_key(self, bin_code):
         return self.get(bin=bin_code)
+
+
+DEFAULT_FEE_CURRENCY_PK = 4  # USD
 
 
 class PaymentMethod(TimeStampedModel, SoftDeletableModel):
@@ -71,6 +73,10 @@ class PaymentMethod(TimeStampedModel, SoftDeletableModel):
         help_text='Specifies the countires for which this payment method is '
                   'allowed. If there is no countries specified then it is '
                   'allowed for all of them')
+    minimal_fee_amount = models.DecimalField(max_digits=5, decimal_places=2,
+                                             null=True, blank=True, default=3)
+    minimal_fee_currency = models.ForeignKey(Currency,
+                                             default=DEFAULT_FEE_CURRENCY_PK)
 
     @property
     def auto_checkout(self):

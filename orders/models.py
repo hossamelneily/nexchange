@@ -418,22 +418,37 @@ class Order(TimeStampedModel, SoftDeletableModel,
                 decimal_places = 8
         return decimal_places
 
+    def _get_minimal_payment_method_fee(self, currency):
+        payment_method = self.payment_preference.payment_method
+        min_fee = payment_method.minimal_fee_amount
+        min_curr = payment_method.minimal_fee_currency
+        return Price.convert_amount(min_fee, min_curr, currency)
+
+    @property
+    def minimal_payment_method_fee_quote(self):
+        return self._get_minimal_payment_method_fee(self.pair.quote)
+
+    @property
+    def minimal_payment_method_fee_base(self):
+        return self.minimal_payment_method_fee_quote / self.price.rate
+
     def add_payment_fee_to_amount_base(self, amount_base):
-        amount_base -= self.withdrawal_fee
-
-        if not self.payment_preference:
-            return amount_base
-
-        base = Decimal('1.0')
-        method = self.payment_preference.payment_method
-        fee = method.fee_deposit
-        amount_base = amount_base * (base - fee)
-        return amount_base
+        if any([not self.payment_preference, self.pair.is_crypto]):
+            res = amount_base
+        else:
+            method = self.payment_preference.payment_method
+            fee = method.fee_deposit
+            fee_amount = fee * amount_base
+            if fee_amount >= self.minimal_payment_method_fee_base:
+                res = amount_base - fee_amount
+            else:
+                res = amount_base - self.minimal_payment_method_fee_base
+        return res - self.withdrawal_fee
 
     def add_payment_fee_to_amount_quote(self, amount_quote):
         amount_quote += self.withdrawal_fee_quote
 
-        if not self.payment_preference:
+        if any([not self.payment_preference, self.pair.is_crypto]):
             return amount_quote
 
         base = Decimal('1.0')
@@ -447,8 +462,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
             fee = self.payment_preference.payment_method.fee_withdraw
             if method.pays_withdraw_fee == method.MERCHANT:
                 fee = -fee
-        amount_quote = amount_quote / (base - fee)
-        return amount_quote
+        res = amount_quote / (base - fee)
+        if res - amount_quote < self.minimal_payment_method_fee_quote:
+            res = amount_quote + self.minimal_payment_method_fee_quote
+        return res
 
     @property
     def coverable(self):

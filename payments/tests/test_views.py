@@ -28,6 +28,7 @@ from verification.models import Verification
 from collections import OrderedDict, namedtuple
 import datetime
 from payments.views import SafeChargeListenView
+from ticker.models import Price
 
 
 class PayeerTestCase(OrderBaseTestCase):
@@ -921,7 +922,51 @@ class SafeChargeTestCase(OrderBaseTestCase):
         expected_ticker_amount_quote = \
             (order.amount_quote - order.withdrawal_fee_quote) * \
             (Decimal('1.0') - fee)
-        self.assertEqual(expected_ticker_amount_quote,
-                         order.ticker_amount_quote)
+        # Allow inacuracy due to limited decimal places
+        self.assertTrue(
+            abs((expected_ticker_amount_quote - order.ticker_amount_quote) /
+                expected_ticker_amount_quote) < Decimal('0.0001'))
         self.assertEqual(order.amount_quote, Decimal(amount_quote))
         self.assertAlmostEqual(order.amount_base, amount_base, 3)
+
+    @patch('orders.models.Order.get_current_slippage')
+    def test_payment_fee_minimal_fee(self, get_slippage):
+        get_slippage.return_value = Decimal('0')
+        # base fee
+        amount_quote = Decimal('10')
+        order_data = {
+            "amount_quote": amount_quote,
+            "is_default_rule": False,
+            "pair": {
+                "name": "BTCEUR"
+            },
+            "withdraw_address": {
+                "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ"
+            }
+        }
+        order = self._create_order_api(order_data=order_data)
+        pref = order.payment_preference
+        p_method = pref.payment_method
+        fee = p_method.fee_deposit
+        minimal_fee = Price.convert_amount(p_method.minimal_fee_amount,
+                                           p_method.minimal_fee_currency,
+                                           order.pair.quote)
+        rate = order.price.rate
+        self.assertTrue(fee * amount_quote < minimal_fee)
+        expected_amount_base = \
+            ((amount_quote - minimal_fee - order.withdrawal_fee_quote) / rate)
+        self.assertAlmostEqual(order.amount_base, expected_amount_base, 7)
+        # base fee
+        amount_base = order.amount_base
+        order_data = {
+            "amount_base": amount_base,
+            "is_default_rule": False,
+            "pair": {
+                "name": "BTCEUR"
+            },
+            "withdraw_address": {
+                "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ"
+            }
+        }
+        order2 = self._create_order_api(order_data=order_data)
+        self.assertEqual(order.amount_quote, order2.amount_quote)

@@ -509,7 +509,8 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
     def test_ticker_amount_equal_to_amount_quote(self):
         self.assertEqual(
             self.order.amount_quote,
-            self.order.ticker_amount_quote + self.order.withdrawal_fee_quote
+            self.order.ticker_amount_quote + self.order.withdrawal_fee_quote +
+            self.order.minimal_payment_method_fee_quote
         )
         # https://github.com/onitsoft/nexchange/pull/348 remove following line
         # after this PR merge
@@ -712,11 +713,14 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
              ),
         )
     )
+    @patch('orders.models.Order._get_minimal_payment_method_fee')
     @patch('orders.models.Order.dynamic_decimal_places')
     def test_recommended_quote_decimal_places(self, name, order_data,
                                               ticker_data,
                                               properties_to_check,
-                                              dynamic_decimal_places):
+                                              dynamic_decimal_places,
+                                              get_minimal_fee):
+        get_minimal_fee.return_value = Decimal('0.00001')
         dynamic_decimal_places.return_value = True
         ticker_data['pair'] = order_data['pair']
         ticker = Ticker(**ticker_data)
