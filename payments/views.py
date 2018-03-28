@@ -373,7 +373,7 @@ class SafeChargeListenView(View):
 
     def get_or_create_payment_preference(self, unique_cc, name_on_card,
                                          product_id, payment_method):
-        unknown_msg = 'method: {}, order: {}'.format(
+        unknown_msg = 'method_{}_order_{}'.format(
             payment_method,
             product_id
         ) if product_id else ''
