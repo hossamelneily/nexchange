@@ -18,24 +18,26 @@ class VerificationViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
         is_verified = False
         id_document_status = None
         residence_document_status = None
-        comment = 123
+        comment = None
         try:
             order = Order.objects.get(**kwargs)
-            assert(self.request.user == order.user)
 
             payment = order.payment_set.get(type=Payment.DEPOSIT)
             payment_preference = payment.payment_preference
-            comment = getattr(order.user.verification_set.last(),
-                              'user_visible_comment')\
-                if self.request.user == order.user else None
             if payment_preference:
                 is_verified = payment_preference.is_verified
                 id_document_status = payment_preference.id_document_status
                 residence_document_status = \
                     payment_preference.residence_document_status
+                last_verification = payment_preference.verification_set.last()
+                if last_verification:
+                    comment = last_verification.user_visible_comment \
+                        if self.request.user == order.user else None
         except Payment.DoesNotExist:
             pass
         except Order.DoesNotExist:
+            pass
+        except AssertionError:
             pass
         data = {
             'is_verified': is_verified,
@@ -61,7 +63,7 @@ class VerificationViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-        
+
         return super(VerificationViewSet, self).perform_create(serializer)
 
     def create(self, request, *args, **kwargs):

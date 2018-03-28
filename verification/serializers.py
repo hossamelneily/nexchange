@@ -9,7 +9,7 @@ from core.common.fields import PrivateField
 class MetaVerification:
     model = Verification
     fields = ('identity_document', 'utility_document', 'order_reference',
-              'full_name', 'user')
+              'full_name')
 
 
 class CreateVerificationSerializer(serializers.ModelSerializer):
@@ -41,7 +41,6 @@ class CreateVerificationSerializer(serializers.ModelSerializer):
 
 class VerificationSerializer:
     class Meta(MetaVerification):
-        fields = MetaVerification.fields + ('user_visible_comment', 'user', )
+        fields = MetaVerification.fields + ('user_visible_comment',)
 
     user_visible_comment = PrivateField()
-
