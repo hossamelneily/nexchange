@@ -3,8 +3,55 @@ from django.db import models
 from verification.validators import validate_image_extension
 
 from core.common.models import SoftDeletableModel, TimeStampedModel
+from core.models import Currency
 from payments.models import PaymentPreference
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
+
+
+class VerificationTier(TimeStampedModel):
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+
+    @property
+    def trade_limits(self):
+        return self.tradelimit_set.all()
+
+    def __str__(self):
+        return '{}: {}'.format(self.name, self.description)
+
+
+class TradeLimit(TimeStampedModel):
+    WITHDRAW = 'W'
+    DEPOSIT = 'D'
+    LIMIT_TYPES = (
+        (WITHDRAW, 'WITHDRAW'),
+        (DEPOSIT, 'DEPOSIT'),
+    )
+    FIAT = 'F'
+    CRYPTO = 'C'
+    TRADE_TYPES = (
+        (FIAT, 'FIAT'),
+        (CRYPTO, 'CRYPTO'),
+    )
+    limit_type = models.CharField(max_length=1, choices=LIMIT_TYPES)
+    trade_type = models.CharField(max_length=1, choices=TRADE_TYPES)
+    tier = models.ForeignKey(VerificationTier)
+    amount = models.DecimalField(max_digits=18, decimal_places=8)
+    days = models.IntegerField()
+    currency = models.ForeignKey(Currency)
+
+    def __str__(self):
+        return _(
+            '{trade_type}: {limit_type} {amount:.1f} {currency} per {days} '
+            'days'
+        ).format(
+            trade_type=self.get_trade_type_display(),
+            limit_type=self.get_limit_type_display(),
+            amount=self.amount,
+            currency=self.currency.code,
+            days=self.days
+        )
 
 
 class Verification(TimeStampedModel, SoftDeletableModel):
@@ -79,3 +126,17 @@ class Verification(TimeStampedModel, SoftDeletableModel):
 
     id_doc.allow_tags = True
     residence_doc.allow_tags = True
+
+    def set_verification_tier_to_obj(self, obj):
+        obj.refresh_from_db()
+        if obj.is_verified:
+            tier = VerificationTier.objects.get(name='Tier 1')
+        else:
+            tier = VerificationTier.objects.get(name='Tier 0')
+        obj.tier = tier
+        obj.save()
+
+    def save(self):
+        super(Verification, self).save()
+        if self.payment_preference:
+            self.set_verification_tier_to_obj(self.payment_preference)

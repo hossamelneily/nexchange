@@ -1,0 +1,40 @@
+[
+{
+  "model": "verification.verificationtier",
+  "pk": 2,
+  "fields": {
+    "created_on": "2018-03-12T16:13:38.107Z",
+    "modified_on": "2018-03-12T16:13:38.107Z",
+    "name": "Tier 1",
+    "description": "KYC approved"
+  }
+},
+{
+  "model": "verification.tradelimit",
+  "pk": 2,
+  "fields": {
+    "created_on": "2018-03-12T16:14:30.516Z",
+    "modified_on": "2018-03-12T16:14:30.516Z",
+    "limit_type": "D",
+    "trade_type": "F",
+    "tier": 2,
+    "amount": "500.00000000",
+    "days": 1,
+    "currency": 4
+  }
+},
+{
+  "model": "verification.tradelimit",
+  "pk": 3,
+  "fields": {
+    "created_on": "2018-03-12T16:15:12.644Z",
+    "modified_on": "2018-03-12T16:15:12.644Z",
+    "limit_type": "D",
+    "trade_type": "F",
+    "tier": 2,
+    "amount": "1000.00000000",
+    "days": 30,
+    "currency": 4
+  }
+}
+]

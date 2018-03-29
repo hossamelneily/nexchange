@@ -24,9 +24,10 @@ from payments.payment_handlers.safe_charge import SafeChargePaymentHandler
 from rest_framework.test import APIClient
 from payments.task_summary import check_fiat_order_deposit_periodic
 import json
-from verification.models import Verification
+from verification.models import Verification, VerificationTier
 from collections import OrderedDict, namedtuple
 import datetime
+from freezegun import freeze_time
 from payments.views import SafeChargeListenView
 from ticker.models import Price
 
@@ -341,8 +342,7 @@ class SafeChargeTestCase(OrderBaseTestCase):
     def _create_order_api(self, set_pref=False, order_data=None):
         if not order_data:
             order_data = {
-                "amount_base": 3,
-                "is_default_rule": False,
+                "amount_quote": 100,
                 "pair": {
                     "name": "BTCEUR"
                 },
@@ -929,16 +929,17 @@ class SafeChargeTestCase(OrderBaseTestCase):
         self.assertEqual(order.amount_quote, Decimal(amount_quote))
         self.assertAlmostEqual(order.amount_base, amount_base, 3)
 
-    @patch('orders.models.Order.get_current_slippage')
-    def test_payment_fee_minimal_fee(self, get_slippage):
-        get_slippage.return_value = Decimal('0')
-        # base fee
-        amount_quote = Decimal('10')
+    @patch('payments.views.get_client_ip')
+    def test_do_not_set_as_paid_order_out_of_daily_limit(self, get_client_ip):
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
+        tier1 = VerificationTier.objects.get(name='Tier 1')
+        trade_limit = tier1.trade_limits.get(days=1)
+
         order_data = {
-            "amount_quote": amount_quote,
-            "is_default_rule": False,
-            "pair": {
-                "name": "BTCEUR"
+            'amount_quote': trade_limit.amount * Decimal(0.9),
+            'pair': {
+                'name': 'BTC{}'.format(trade_limit.currency.code)
             },
             "withdraw_address": {
                 "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ"
@@ -970,3 +971,141 @@ class SafeChargeTestCase(OrderBaseTestCase):
         }
         order2 = self._create_order_api(order_data=order_data)
         self.assertEqual(order.amount_quote, order2.amount_quote)
+
+    @patch('payments.views.get_client_ip')
+    def test_set_verification_tiers(self, get_client_ip):
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
+        tier0 = VerificationTier.objects.get(name='Tier 0')
+        tier1 = VerificationTier.objects.get(name='Tier 1')
+        order = self._create_order_api()
+        card_id = self.generate_txn_id()
+        name = 'Sir Testalot'
+        params = self._get_dmn_request_params_for_order(order, card_id, name)
+
+        url = reverse('payments.listen_safe_charge')
+        self.client.post(url, data=params)
+        kyc = self._create_kyc(order.unique_reference)
+        pref = kyc.payment_preference
+        # Check with Confirmed KYC, but payment PENDING
+        self.assertEqual(pref.tier, tier0)
+        kyc.util_status = kyc.OK
+        kyc.id_status = kyc.OK
+        kyc.save()
+        pref.refresh_from_db()
+        self.assertEqual(pref.tier, tier1)
+
+    @patch('payments.views.get_client_ip')
+    def test_do_not_set_as_paid_order_out_of_daily_limit(self, get_client_ip):
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
+        tier1 = VerificationTier.objects.get(name='Tier 1')
+        trade_limit = tier1.trade_limits.get(days=1)
+
+        order_data = {
+            'amount_quote': trade_limit.amount * Decimal(0.9),
+            'pair': {
+                'name': 'BTC{}'.format(trade_limit.currency.code)
+            },
+            "withdraw_address": {
+                "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ"
+            }
+        }
+
+        # Create first Order
+        order1 = self._create_order_api(order_data=order_data)
+        card_id = self.generate_txn_id()
+        name = 'Sir Testalot'
+        params = self._get_dmn_request_params_for_order(order1, card_id, name)
+
+        url = reverse('payments.listen_safe_charge')
+        self.client.post(url, data=params)
+        kyc = self._create_kyc(order1.unique_reference)
+        kyc.util_status = kyc.OK
+        kyc.id_status = kyc.OK
+        kyc.save()
+        check_fiat_order_deposit_periodic.apply_async()
+        order1.refresh_from_db()
+        self.assertEqual(order1.status, Order.PAID)
+        # Create second order (over the daily limit)
+        order2 = self._create_order_api(order_data=order_data)
+        params = self._get_dmn_request_params_for_order(order2, card_id, name)
+        self.client.post(url, data=params)
+        order2.refresh_from_db()
+        self.assertEqual(order1.payment_set.get().payment_preference,
+                         order2.payment_set.get().payment_preference)
+        check_fiat_order_deposit_periodic.apply_async()
+        order2.refresh_from_db()
+        self.assertEqual(order2.status, Order.PAID_UNCONFIRMED)
+
+        now = datetime.datetime.now() + datetime.timedelta(days=1, seconds=1)
+        with freeze_time(now):
+            check_fiat_order_deposit_periodic.apply_async()
+            order2.refresh_from_db()
+            self.assertEqual(order2.status, Order.PAID)
+
+    @patch('payments.views.get_client_ip')
+    def test_do_not_set_as_paid_order_out_of_monthly_limit(self,
+                                                           get_client_ip):
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
+        tier1 = VerificationTier.objects.get(name='Tier 1')
+        daily_limit = tier1.trade_limits.get(days=1)
+        monthly_limit = tier1.trade_limits.get(days=30)
+        # Set monthly as double daily limit
+        monthly_limit.amount = daily_limit.amount * Decimal('2')
+        monthly_limit.currency = daily_limit.currency
+        monthly_limit.save()
+
+        order_data = {
+            'amount_quote': daily_limit.amount * Decimal(0.9),
+            'pair': {
+                'name': 'BTC{}'.format(monthly_limit.currency.code)
+            },
+            "withdraw_address": {
+                "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ"
+            }
+        }
+
+        # Create first order
+        order1 = self._create_order_api(order_data=order_data)
+        card_id = self.generate_txn_id()
+        name = 'Sir Testalot'
+        params = self._get_dmn_request_params_for_order(order1, card_id, name)
+
+        url = reverse('payments.listen_safe_charge')
+        self.client.post(url, data=params)
+        kyc = self._create_kyc(order1.unique_reference)
+        kyc.util_status = kyc.OK
+        kyc.id_status = kyc.OK
+        kyc.save()
+        check_fiat_order_deposit_periodic.apply_async()
+        order1.refresh_from_db()
+        self.assertEqual(order1.status, Order.PAID)
+        # Create second order. After 1 day - both monthly and daily limits
+        # should pass
+        order2 = self._create_order_api(order_data=order_data)
+        params = self._get_dmn_request_params_for_order(order2, card_id, name)
+        self.client.post(url, data=params)
+
+        now = datetime.datetime.now() + datetime.timedelta(days=1, seconds=1)
+        with freeze_time(now):
+            check_fiat_order_deposit_periodic.apply_async()
+            order2.refresh_from_db()
+            self.assertEqual(order2.status, Order.PAID)
+        # Create Third order. After 2 day - both monthly and daily limits
+        # should pass
+        order3 = self._create_order_api(order_data=order_data)
+        params = self._get_dmn_request_params_for_order(order3, card_id, name)
+        self.client.post(url, data=params)
+
+        now = datetime.datetime.now() + datetime.timedelta(days=2, seconds=1)
+        with freeze_time(now):
+            check_fiat_order_deposit_periodic.apply_async()
+            order3.refresh_from_db()
+            self.assertEqual(order3.status, Order.PAID_UNCONFIRMED)
+        now = datetime.datetime.now() + datetime.timedelta(days=30, seconds=1)
+        with freeze_time(now):
+            check_fiat_order_deposit_periodic.apply_async()
+            order3.refresh_from_db()
+            self.assertEqual(order3.status, Order.PAID)

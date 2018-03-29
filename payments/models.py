@@ -4,8 +4,11 @@ from django.contrib.postgres.fields import JSONField
 
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
+from decimal import Decimal
 from core.common.models import SoftDeletableModel, \
     TimeStampedModel, FlagableMixin, IpAwareModel
+from ticker.models import Price
+from django.utils.timezone import now, timedelta
 from core.models import Location, Country, BtcBase, Currency
 
 
@@ -137,6 +140,8 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     physical_address_owner = models.CharField(max_length=255, null=True,
                                               blank=True, default=None)
     location = models.ForeignKey(Location, blank=True, null=True)
+    tier = models.ForeignKey('verification.VerificationTier', blank=True,
+                             null=True)
     is_immediate_payment = models.BooleanField(
         default=False,
         help_text='This should be moved to PaymentMethod when methods will '
@@ -206,6 +211,27 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
             if ver.util_status == ver.OK:
                 util_status = True
             if id_status and util_status:
+                return True
+        return False
+
+    @property
+    def successful_payments(self):
+        return self.payment_set.filter(is_success=True)
+
+    @property
+    def out_of_limit(self):
+        limits = self.tier.trade_limits.all()
+        for limit in limits:
+            relevant = now() - timedelta(days=limit.days)
+            payments = self.successful_payments.filter(
+                created_on__gte=relevant
+            )
+            total_amount = Decimal('0')
+            for payment in payments:
+                total_amount += Price.convert_amount(
+                    payment.amount_cash, payment.currency,
+                    limit.currency)
+            if total_amount > limit.amount:
                 return True
         return False
 

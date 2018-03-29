@@ -129,6 +129,11 @@ dev:
           python manage.py loaddata risk_management/fixtures/reserve.json
           python manage.py loaddata risk_management/fixtures/account.json
     - script:
+        name: Django import verification fixtures
+        code: |
+          python manage.py loaddata verification/fixtures/tier0.json
+          python manage.py loaddata verification/fixtures/tier1.json
+    - script:
         name: Django import Articles fixtures
         code: |
           if [ ! -z $LOCAL_CMS ] && [ ${LOCAL_CMS} -eq 1 ]
@@ -427,6 +432,8 @@ build:
           python /usr/src/app/manage.py loaddata referrals/fixtures/program.json
           python /usr/src/app/manage.py loaddata risk_management/fixtures/reserve.json
           python /usr/src/app/manage.py loaddata risk_management/fixtures/account.json
+          python /usr/src/app/manage.py loaddata verification/fixtures/tier0.json
+          python /usr/src/app/manage.py loaddata verification/fixtures/tier1.json
           echo "To load the 'withdraw_address' fixture, uncomment the next line"
           # python manage.py loaddata core/fixtures/withdraw_address.json
           python manage.py loaddata core/fixtures/pairs_cross.json

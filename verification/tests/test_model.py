@@ -6,7 +6,9 @@ from payments.models import PaymentPreference
 class VerificationTestCase(UserBaseTestCase):
     fixtures = [
         'currency_fiat.json',
-        'payment_method.json'
+        'payment_method.json',
+        'tier0.json',
+        'tier1.json'
     ]
 
     def setUp(self):

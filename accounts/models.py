@@ -12,7 +12,7 @@ from core.models import Address
 from orders.models import Order
 from payments.models import FailedRequest
 from referrals.models import ReferralCode
-from verification.models import Verification
+from verification.models import Verification, VerificationTier
 from django.core.exceptions import ValidationError
 
 
@@ -70,6 +70,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     )
     anonymous_login = models.BooleanField(default=False)
     cards_validity_approved = models.BooleanField(default=False)
+    tier = models.ForeignKey(VerificationTier, blank=True, null=True)
 
     @property
     def has_withdraw_address(self):
