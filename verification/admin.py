@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from verification.models import Verification
+from verification.models import Verification, VerificationTier, TradeLimit
 
 
 @admin.register(Verification)
@@ -26,3 +26,13 @@ class VerificationAdmin(admin.ModelAdmin):
         if obj.payment_preference:
             unique_cc = obj.payment_preference.provider_system_id
         return unique_cc
+
+
+@admin.register(VerificationTier)
+class VerificationTierAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(TradeLimit)
+class TradeLimitAdmin(admin.ModelAdmin):
+    pass
