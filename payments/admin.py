@@ -20,7 +20,22 @@ class PaymentAdmin(admin.ModelAdmin):
     raw_id_fields = ('order',)
 
 
+@admin.register(PaymentPreference)
+class PaymentPreferenceAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        'payment_method', 'secondary_identifier', 'provider_system_id',
+        'is_verified', 'out_of_limit', 'total_payments_usd', 'currency',
+        'buy_enabled', 'sell_enabled', 'location', 'cvv', 'ccexp',
+        'physical_address_owner', 'bic', 'physical_address_bank', 'name',
+        'beneficiary'
+    )
+    list_display = ('payment_method', 'secondary_identifier',
+                    'provider_system_id', 'is_verified',
+                    'out_of_limit', 'is_immediate_payment', 'tier',
+                    'total_payments_usd')
+    raw_id_fields = ('user',)
+
+
 admin.site.register(PaymentMethod)
-admin.site.register(PaymentPreference)
 admin.site.register(FailedRequest)
 admin.autodiscover()

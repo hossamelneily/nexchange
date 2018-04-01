@@ -29,7 +29,6 @@ from collections import OrderedDict, namedtuple
 import datetime
 from freezegun import freeze_time
 from payments.views import SafeChargeListenView
-from ticker.models import Price
 
 
 class PayeerTestCase(OrderBaseTestCase):
@@ -930,49 +929,6 @@ class SafeChargeTestCase(OrderBaseTestCase):
         self.assertAlmostEqual(order.amount_base, amount_base, 3)
 
     @patch('payments.views.get_client_ip')
-    def test_do_not_set_as_paid_order_out_of_daily_limit(self, get_client_ip):
-        get_client_ip.return_value = \
-            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
-        tier1 = VerificationTier.objects.get(name='Tier 1')
-        trade_limit = tier1.trade_limits.get(days=1)
-
-        order_data = {
-            'amount_quote': trade_limit.amount * Decimal(0.9),
-            'pair': {
-                'name': 'BTC{}'.format(trade_limit.currency.code)
-            },
-            "withdraw_address": {
-                "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ"
-            }
-        }
-        order = self._create_order_api(order_data=order_data)
-        pref = order.payment_preference
-        p_method = pref.payment_method
-        fee = p_method.fee_deposit
-        minimal_fee = Price.convert_amount(p_method.minimal_fee_amount,
-                                           p_method.minimal_fee_currency,
-                                           order.pair.quote)
-        rate = order.price.rate
-        self.assertTrue(fee * amount_quote < minimal_fee)
-        expected_amount_base = \
-            ((amount_quote - minimal_fee - order.withdrawal_fee_quote) / rate)
-        self.assertAlmostEqual(order.amount_base, expected_amount_base, 7)
-        # base fee
-        amount_base = order.amount_base
-        order_data = {
-            "amount_base": amount_base,
-            "is_default_rule": False,
-            "pair": {
-                "name": "BTCEUR"
-            },
-            "withdraw_address": {
-                "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ"
-            }
-        }
-        order2 = self._create_order_api(order_data=order_data)
-        self.assertEqual(order.amount_quote, order2.amount_quote)
-
-    @patch('payments.views.get_client_ip')
     def test_set_verification_tiers(self, get_client_ip):
         get_client_ip.return_value = \
             settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
@@ -1001,6 +957,10 @@ class SafeChargeTestCase(OrderBaseTestCase):
             settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
         tier1 = VerificationTier.objects.get(name='Tier 1')
         trade_limit = tier1.trade_limits.get(days=1)
+        other_limits = tier1.trade_limits.exclude(pk=trade_limit.pk)
+        for limit in other_limits:
+            limit.amount = trade_limit.amount * Decimal(100)
+            limit.save()
 
         order_data = {
             'amount_quote': trade_limit.amount * Decimal(0.9),

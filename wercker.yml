@@ -133,6 +133,8 @@ dev:
         code: |
           python manage.py loaddata verification/fixtures/tier0.json
           python manage.py loaddata verification/fixtures/tier1.json
+          python manage.py loaddata verification/fixtures/tier2.json
+          python manage.py loaddata verification/fixtures/tier3.json
     - script:
         name: Django import Articles fixtures
         code: |
@@ -434,6 +436,8 @@ build:
           python /usr/src/app/manage.py loaddata risk_management/fixtures/account.json
           python /usr/src/app/manage.py loaddata verification/fixtures/tier0.json
           python /usr/src/app/manage.py loaddata verification/fixtures/tier1.json
+          python /usr/src/app/manage.py loaddata verification/fixtures/tier2.json
+          python /usr/src/app/manage.py loaddata verification/fixtures/tier3.json
           echo "To load the 'withdraw_address' fixture, uncomment the next line"
           # python manage.py loaddata core/fixtures/withdraw_address.json
           python manage.py loaddata core/fixtures/pairs_cross.json

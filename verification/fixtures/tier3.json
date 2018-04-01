@@ -1,0 +1,26 @@
+[
+{
+  "model": "verification.verificationtier",
+  "pk": 4,
+  "fields": {
+    "created_on": "2018-03-12T16:04:25.975Z",
+    "modified_on": "2018-03-12T16:13:30.054Z",
+    "name": "Tier 3",
+    "description": "Tier 3"
+  }
+},
+{
+  "model": "verification.tradelimit",
+  "pk": 5,
+  "fields": {
+    "created_on": "2018-03-12T16:10:02.819Z",
+    "modified_on": "2018-03-12T16:10:02.819Z",
+    "limit_type": "D",
+    "trade_type": "F",
+    "tier": 4,
+    "amount": "5000.00000000",
+    "days": 30,
+    "currency": 4
+  }
+}
+]

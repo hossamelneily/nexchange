@@ -119,7 +119,7 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         max_length=100, null=True, blank=True, unique=True
     )
     # Optional, sometimes we need this to confirm
-    identifier = models.CharField(max_length=100)
+    identifier = models.CharField(max_length=100, blank=True, null=True)
     secondary_identifier = models.CharField(max_length=100,
                                             default=None,
                                             null=True,
@@ -218,19 +218,36 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     def successful_payments(self):
         return self.payment_set.filter(is_success=True)
 
-    @property
-    def out_of_limit(self):
-        limits = self.tier.trade_limits.all()
-        for limit in limits:
-            relevant = now() - timedelta(days=limit.days)
+    def get_successful_payments_amount(self, currency=None, days=None):
+        if not currency:
+            currency = Currency.objects.get(code='USD')
+        if days:
+            relevant = now() - timedelta(days=days)
             payments = self.successful_payments.filter(
                 created_on__gte=relevant
             )
-            total_amount = Decimal('0')
-            for payment in payments:
-                total_amount += Price.convert_amount(
-                    payment.amount_cash, payment.currency,
-                    limit.currency)
+        else:
+            payments = self.successful_payments
+        total_amount = Decimal('0')
+        for payment in payments:
+            total_amount += Price.convert_amount(
+                payment.amount_cash, payment.currency,
+                currency)
+        return total_amount
+
+    @property
+    def total_payments_usd(self):
+        return self.get_successful_payments_amount()
+
+    @property
+    def out_of_limit(self):
+        if not self.tier:
+            return True
+        limits = self.tier.trade_limits.all()
+        for limit in limits:
+            total_amount = self.get_successful_payments_amount(
+                days=limit.days, currency=limit.currency
+            )
             if total_amount > limit.amount:
                 return True
         return False

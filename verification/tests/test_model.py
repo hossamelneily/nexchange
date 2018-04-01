@@ -8,7 +8,9 @@ class VerificationTestCase(UserBaseTestCase):
         'currency_fiat.json',
         'payment_method.json',
         'tier0.json',
-        'tier1.json'
+        'tier1.json',
+        'tier2.json',
+        'tier3.json'
     ]
 
     def setUp(self):
