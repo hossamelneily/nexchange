@@ -606,8 +606,12 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         get_tx_scrypt.return_value = {
             'confirmations': confs
         }
-        get_tx_eth_receipt.return_value = {'status': 1}
-        get_tx_eth.return_value = {'blockNumber': 0}
+        get_tx_eth.return_value = self.get_ethash_tx_raw(
+            self.ETH, Decimal('1'), '0x', block_number=0
+        )
+        get_tx_eth_receipt.return_value = self.get_ethash_tx_receipt_raw(
+            self.ETH, Decimal('1'), status=1
+        )
         get_block_eth.return_value = confs
         self.import_txs_task.apply()
         prepare_txn_uphold.return_value = release_coins_scrypt.return_value = \

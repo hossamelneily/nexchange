@@ -344,6 +344,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         self._reserve_txn_uphold = self.patcher_uphold_reserve_txn.start()
         self._reserve_txn_uphold.return_value = {'status': 'completed'}
         self.ethash_client = EthashRpcApiClient()
+        self.default_eth_from = '0x1ff21eca1c3ba96ed53783ab9c92ffbf77862584'
 
     def tearDown(self):
         super(OrderBaseTestCase, self).tearDown()
@@ -435,7 +436,10 @@ class OrderBaseTestCase(UserBaseTestCase):
             'currency_code': 'ETH',
         }]
 
-    def get_ethash_tx_raw(self, currency, amount, address):
+    def get_ethash_tx_raw(self, currency, amount, address, block_number=1,
+                          _from=None):
+        if _from is None:
+            _from = self.default_eth_from
         if currency.is_token:
             main_value = 0
             main_to = currency.contract_address
@@ -450,13 +454,39 @@ class OrderBaseTestCase(UserBaseTestCase):
             main_to = address
             input = '0x'
         return {
-            'transactions': [{
-                'hash': self.generate_txn_id(),
-                'input': input,
-                'nonce': 0,
-                'to': main_to,
-                'value': main_value
-            }]
+            'hash': self.generate_txn_id(),
+            'input': input,
+            'nonce': 0,
+            'to': main_to,
+            'from': _from,
+            'value': main_value,
+            'blockNumber': block_number
+        }
+
+    def get_ethash_tx_receipt_raw(self, currency, amount, status=1, _to='0x',
+                                  _from=None, successful_logs=True):
+
+        value = int(
+            Decimal(amount) * Decimal('1e{}'.format(currency.decimals))
+        )
+        if _from is None:
+            _from = self.default_eth_from
+        if currency.is_token:
+            return {
+                'status': status,
+                'logs': [{
+                    'data': hex(value) if successful_logs else '0x',
+                    'topics': [_from, _to] if successful_logs else []
+                }]
+            }
+        else:
+            return {'status': status}
+
+    def get_ethash_block_raw(self, currency, amount, address):
+        return {
+            'transactions': [
+                self.get_ethash_tx_raw(currency, amount, address)
+            ]
         }
 
     def get_blake2_raw_tx(self, currency, amount, address):

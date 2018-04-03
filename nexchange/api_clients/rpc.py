@@ -447,12 +447,10 @@ class EthashRpcApiClient(BaseRpcClient):
         highest_block = self._get_current_block(node)
         confirmations = highest_block - tx_data.get('blockNumber')
         receipt = self._get_tx_receipt(tx_id, node)
-        status = receipt.get('status', 0)
+        status = self._check_eth_tx_status(tx_data, receipt)
         # FIXME: Failed transaction can still be confirmed on ETH network
-        if status == 0:
-            confirmations = 0
         confirmed = all([confirmations >= currency.min_confirmations,
-                         confirmations > 0])
+                         confirmations > 0, status])
         return confirmed, confirmations
 
     def _get_txs(self, node):
@@ -684,3 +682,34 @@ class EthashRpcApiClient(BaseRpcClient):
     def health_check(self, currency):
         assert self.net_listening(currency)
         return super(EthashRpcApiClient, self).health_check(currency)
+
+    def _check_eth_tx_status(self, tx_data, tx_receipt):
+        receipt_status = tx_receipt.get('status', 0) == 1
+        if not receipt_status:
+            return receipt_status
+        tx_input = tx_data['input']
+        to, value = self._get_transfer_data_from_eth_input(tx_input)
+        if to and value:
+            value_status = to_status = from_status = False
+            _from = tx_data.get('from')
+            for r_log in tx_receipt.get('logs', []):
+                value_status = value == int(r_log.get('data', '0x'), 16)
+                int_topics = [int(topic, 16) for topic in r_log['topics']]
+                to_status = int(to, 16) in int_topics
+                from_status = int(_from, 16) in int_topics
+                if value_status and to_status and from_status:
+                    break
+        else:
+            return receipt_status
+
+        return receipt_status and value_status and to_status and from_status
+
+    def _get_transfer_data_from_eth_input(self, tx_input):
+        decoded_input = self.decode_transaction_input(tx_input)
+        to, value = None, None
+        if decoded_input[0] in self.ERC20_TRANSFER_FINCTIONS:
+            to = self._strip_address_padding(
+                decoded_input[1][0]
+            )
+            value = int(decoded_input[1][1], 16)
+        return to, value

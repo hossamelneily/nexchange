@@ -395,8 +395,12 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         get_tx_scrypt.return_value = {
             'confirmations': confs
         }
-        get_tx_eth.return_value = {'blockNumber': 0}
-        get_tx_eth_receipt.return_value = {'status': 1}
+        get_tx_eth.return_value = self.get_ethash_tx_raw(
+            self.ETH, Decimal(1), '0x', block_number=0
+        )
+        get_tx_eth_receipt.return_value = self.get_ethash_tx_receipt_raw(
+            self.ETH, Decimal(1), status=1
+        )
         get_block_eth.return_value = confs
         execute_txn.return_value = {'code': 'OK'}
         address_id = 'span-withdraw-{}'.format(self.order.pk)
@@ -545,8 +549,12 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         get_tx_scrypt.return_value = {
             'confirmations': confs
         }
-        get_tx_eth.return_value = {'blockNumber': 0}
-        get_tx_eth_receipt.return_value = {'status': 1}
+        get_tx_eth.return_value = self.get_ethash_tx_raw(
+            self.ETH, amount, '0x', block_number=0
+        )
+        get_tx_eth_receipt.return_value = self.get_ethash_tx_receipt_raw(
+            self.ETH, amount, status=1
+        )
         get_block_eth.return_value = confs
 
     def do_screenshot(self, filename, refresh=False):
