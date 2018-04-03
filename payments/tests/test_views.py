@@ -29,6 +29,7 @@ from collections import OrderedDict, namedtuple
 import datetime
 from freezegun import freeze_time
 from payments.views import SafeChargeListenView
+from ticker.tests.base import TickerBaseTestCase
 
 
 class PayeerTestCase(OrderBaseTestCase):
@@ -322,7 +323,7 @@ do_not_refund_fiat_order_params = namedtuple(
 )
 
 
-class SafeChargeTestCase(OrderBaseTestCase):
+class SafeChargeTestCase(TickerBaseTestCase):
 
     def setUp(self):
         super(SafeChargeTestCase, self).setUp()
@@ -338,15 +339,17 @@ class SafeChargeTestCase(OrderBaseTestCase):
         self.payment_handler = SafeChargePaymentHandler()
         self.api_client = APIClient()
 
-    def _create_order_api(self, set_pref=False, order_data=None):
+    def _create_order_api(self, set_pref=False, order_data=None,
+                          pair_name='BTCEUR',
+                          address='17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ'):
         if not order_data:
             order_data = {
                 "amount_quote": 100,
                 "pair": {
-                    "name": "BTCEUR"
+                    "name": pair_name
                 },
                 "withdraw_address": {
-                    "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ"
+                    "address": address
                 }
             }
         order_api_url = '/en/api/v1/orders/'
@@ -585,17 +588,23 @@ class SafeChargeTestCase(OrderBaseTestCase):
         self.assertTrue(push_request.valid_checksum)
         self.client.logout()
 
+    @patch('risk_management.task_summary.OrderCover.run')
     @patch('payments.views.get_client_ip')
-    def test_release_fiat_order(self, get_client_ip):
+    def test_release_fiat_order(self, get_client_ip, cover_run):
         get_client_ip.return_value = \
             settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
-        order = self._create_order_api()
+        # XVG is coverable
+        order = self._create_order_api(
+            pair_name='XVGEUR',
+            address='D6BpZ4pP17JDsjpSWVrB2Hpa4oCi5mLfua'
+        )
         card_id = self.generate_txn_id()
         name = 'Sir Testalot'
         params = self._get_dmn_request_params_for_order(order, card_id, name,
                                                         status='PENDING')
 
         url = reverse('payments.listen_safe_charge')
+        cover_run.assert_not_called()
         res = self.client.post(url, data=params)
         # PushRequest called second time - it is not forbidden to do that and
         # SafeCharge is responsible for that - no us.
@@ -606,6 +615,7 @@ class SafeChargeTestCase(OrderBaseTestCase):
         payment = order.payment_set.get()
         push_requests = PushRequest.objects.filter(payment=payment)
         self.assertEqual(push_requests.count(), 2)
+        self.assertEqual(cover_run.call_count, 1)
         for push_request in push_requests:
             self.assertIn('safe_charge', push_request.url)
             self.assertIn('name', push_request.payload)
