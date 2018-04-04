@@ -7,8 +7,8 @@
     "modified_on": "2017-03-01T12:49:29.090Z",
     "base": 3,
     "quote": 4,
-    "fee_ask": "0.00000000",
-    "fee_bid": "0.00000000",
+    "fee_ask": "0.04000000",
+    "fee_bid": "0.04000000",
     "name": "ETHUSD",
     "test_mode": false,
     "disabled": false
@@ -36,8 +36,8 @@
     "modified_on": "2017-03-01T12:49:29.098Z",
     "base": 3,
     "quote": 6,
-    "fee_ask": "0.00000000",
-    "fee_bid": "0.00000000",
+    "fee_ask": "0.01000000",
+    "fee_bid": "0.01000000",
     "name": "ETHEUR",
     "test_mode": false,
     "disabled": false

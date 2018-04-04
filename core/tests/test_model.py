@@ -145,7 +145,12 @@ class PairFixtureTestCase(OrderBaseTestCase):
     def test_crypto_pairs_fees(self):
         major_pair_fee = Decimal('0.005')  # 0.5%
         minor_pair_fee = Decimal('0.01')  # 1.0%
-        pairs = [p for p in Pair.objects.all() if p.is_crypto]
+        pairs = [
+            p for p in Pair.objects.exclude(
+                base__code='RNS'
+            ).exclude(
+                quote__code='RNS'
+            ) if p.is_crypto or p.quote.code in ['USD', 'EUR', 'GBP']]
         token_pairs = [p for p in pairs if p.contains_token]
         non_token_pairs = [p for p in pairs if not p.contains_token]
         for p in non_token_pairs:
@@ -154,6 +159,8 @@ class PairFixtureTestCase(OrderBaseTestCase):
                 fee = major_pair_fee
             else:
                 fee = minor_pair_fee
+            if 'USD' in p.name:
+                fee += Decimal('0.03')
             self.assertEqual(p.fee_ask, fee, 'Bad fee_ask on {}'.format(p))
             self.assertEqual(p.fee_bid, fee, 'Bad fee_bid on {}'.format(p))
         for p in token_pairs:
@@ -172,6 +179,9 @@ class PairFixtureTestCase(OrderBaseTestCase):
                 ask = fee
             else:
                 ask = bid = fee
+            if 'USD' in p.name:
+                ask += Decimal('0.03')
+                bid += Decimal('0.03')
             self.assertEqual(p.fee_ask, ask, 'Bad fee_ask on {}'.format(p))
             self.assertEqual(p.fee_bid, bid, 'Bad fee_bid on {}'.format(p))
 
