@@ -500,7 +500,7 @@ class EthashRpcApiClient(BaseRpcClient):
                     value = main_value
                     to = main_to
                     currency_code = currency.code
-                if not currency_code:
+                if not currency_code or not isinstance(to, str):
                     continue
                 if all([to.lower() not in [acc.lower() for acc in accounts]]):
                     continue
