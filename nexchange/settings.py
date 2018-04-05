@@ -79,6 +79,7 @@ PAIR_CACHE_LIFETIME = 3600
 
 PAYMENT_WINDOW_SAFETY_INTERVAL = timedelta(seconds=60)
 PAYMENT_DEFAULT_SEEK_INTERVAL = timedelta(hours=12)
+KYC_WAIT_INTERVAL = timedelta(hours=12)
 SMS_TOKEN_VALIDITY = timedelta(minutes=5)
 SMS_TOKEN_CHARS = '1234567890'
 REFERRAL_CODE_LENGTH = 10
@@ -266,6 +267,10 @@ PAYMENT_CHECKER_TASKS = {
         'task': 'payments.task_summary.check_fiat_order_deposit_periodic',
         'schedule': timedelta(seconds=PAYMENT_IMPORT_INTERVAL),
     },
+    'check_payments_for_refund_periodic': {
+        'task': 'payments.task_summary.check_payments_for_refund_periodic',
+        'schedule': timedelta(hours=1),
+    },
 }
 
 ORDER_RELEASE_TASKS = {
@@ -340,7 +345,7 @@ RETRY_RELEASE_TIME = 600
 RETRY_RELEASE_MAX_RETRIES = 3
 CARD_CHECK_TIME = 150
 RETRY_CARD_CHECK_MAX_RETRIES = 5
-THIRD_PARTY_TRADE_TIME = 10
+THIRD_PARTY_TRADE_TIME = 300
 
 
 MIDDLEWARE_CLASSES = [
