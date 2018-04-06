@@ -18,7 +18,7 @@ BASE_FIELDS = ('amount_base', 'is_default_rule',
                'unique_reference', 'amount_quote', 'pair', 'withdraw_address')
 READABLE_FIELDS = ('deposit_address', 'created_on', 'from_default_rule',
                    'unique_reference', 'deposit_address',
-                   'payment_window', 'payment_deadline',
+                   'payment_window', 'payment_deadline', 'kyc_deadline',
                    'status_name', 'transactions', 'referral_code',
                    'withdrawal_fee', 'withdrawal_fee_quote',
                    'user_provided_amount')

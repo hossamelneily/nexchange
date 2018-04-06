@@ -549,6 +549,12 @@ class Order(TimeStampedModel, SoftDeletableModel,
         return self.created_on + timedelta(minutes=self.payment_window)
 
     @property
+    def kyc_deadline(self):
+        payment = self.payment_set.last()
+        if payment:
+            return payment.kyc_void_time
+
+    @property
     def expired(self):
         """Is expired if payment_deadline is exceeded and it's not paid yet"""
         # TODO: validate this business rule
