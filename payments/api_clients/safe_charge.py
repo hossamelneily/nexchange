@@ -110,6 +110,19 @@ class SafeCharge:
         return self._request(endpoint, mandatory_fields,
                              mandatory_tree_fields, checksum_fields, **kwargs)
 
+    def voidTransaction(self, **kwargs):
+        endpoint = 'api/v1/voidTransaction'
+        mandatory_fields = [
+            'currency', 'amount', 'clientRequestId', 'clientUniqueId',
+            'relatedTransactionId', 'authCode'
+        ]
+        mandatory_tree_fields = {}
+        checksum_fields = ['clientRequestId', 'clientUniqueId', 'amount',
+                           'currency', 'relatedTransactionId', 'authCode',
+                           'comment', 'urlDetails']
+        return self._request(endpoint, mandatory_fields,
+                             mandatory_tree_fields, checksum_fields, **kwargs)
+
     def purchase(self, **kwargs):
         endpoint = 'api/v1/purchase'
         mandatory_fields = [

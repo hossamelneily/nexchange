@@ -983,9 +983,9 @@ class Order(TimeStampedModel, SoftDeletableModel,
         return tx
 
     @transition(field=status, source=PAID_UNCONFIRMED, target=REFUNDED)
-    def _refund_fiat(self):
+    def _refund_fiat(self, refund_type='void'):
         payment = self.payment_set.get()
-        payment.flag(val='refunded')
+        payment.flag(val=refund_type)
         if not payment.is_success:
             msg = 'Cannot refund order {}. Deposit payment {} is not ' \
                   'successful'.format(self.unique_reference, payment)
@@ -1000,12 +1000,17 @@ class Order(TimeStampedModel, SoftDeletableModel,
         params = {
             'currency': payment.currency.code,
             'amount': str(money_format(payment.amount_cash, places=2)),
-            'clientRequestId': 'refund_{}'.format(order.unique_reference),
-            'clientUniqueId': 'refund_{}'.format(order.unique_reference),
+            'clientRequestId': '{}_{}'.format(refund_type,
+                                              order.unique_reference),
+            'clientUniqueId': '{}_{}'.format(refund_type,
+                                             order.unique_reference),
             'relatedTransactionId': payment.secondary_payment_system_id,
             'authCode': payment.auth_code
         }
-        res = safe_charge_client.api.refundTransaction(**params)
+        if refund_type == 'refund':
+            res = safe_charge_client.api.refundTransaction(**params)
+        elif refund_type == 'void':
+            res = safe_charge_client.api.voidTransaction(**params)
         status = res.get('transactionStatus', '')
         if status != 'APPROVED':
             msg = 'Cannot refund order {}. Attemp is not approved: {}'.format(
@@ -1017,14 +1022,14 @@ class Order(TimeStampedModel, SoftDeletableModel,
         payment.save()
         payment.flag(val=res)
 
-    def refund(self):
+    def refund(self, refund_type='void'):
         res = {'status': 'OK'}
         try:
             if self.exchange:
                 tx = self._refund_exchange()
                 res.update({'tx': tx})
             else:
-                self._refund_fiat()
+                self._refund_fiat(refund_type=refund_type)
         except Exception as e:
             res = {'status': 'ERROR', 'message': '{}'.format(e)}
         self.save()

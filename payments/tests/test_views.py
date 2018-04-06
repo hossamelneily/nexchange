@@ -23,7 +23,7 @@ from payments.utils import get_sha256_sign, get_payeer_desc
 from payments.payment_handlers.safe_charge import SafeChargePaymentHandler
 from rest_framework.test import APIClient
 from payments.task_summary import check_fiat_order_deposit_periodic,\
-    check_payments_for_refund_periodic
+    check_payments_for_refund_periodic, check_payments_for_void_periodic
 import json
 from verification.models import Verification, VerificationTier
 from collections import OrderedDict, namedtuple
@@ -697,11 +697,11 @@ class SafeChargeTestCase(TickerBaseTestCase):
         self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
 
     @patch('payments.views.get_client_ip')
-    @patch('payments.api_clients.safe_charge.SafeCharge.refundTransaction')
-    def test_refund_fiat_order(self, refund_tx, get_client_ip):
+    @patch('payments.api_clients.safe_charge.SafeCharge.voidTransaction')
+    def test_void_fiat_order(self, void_tx, get_client_ip):
         get_client_ip.return_value = \
             settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
-        refund_tx.return_value = {'transactionStatus': 'APPROVED'}
+        void_tx.return_value = {'transactionStatus': 'APPROVED'}
         order = self._create_order_api()
         card_id = self.generate_txn_id()
         name = 'Sir Testalot'
@@ -721,11 +721,46 @@ class SafeChargeTestCase(TickerBaseTestCase):
         payment.refresh_from_db()
         self.assertTrue(payment.flagged)
         order.refund()
-        refund_tx.assert_called_once()
+        void_tx.assert_called_once()
 
     @patch('payments.views.get_client_ip')
+    @patch('payments.api_clients.safe_charge.SafeCharge.voidTransaction')
     @patch('payments.api_clients.safe_charge.SafeCharge.refundTransaction')
-    def test_refund_fiat_order_with_task(self, refund_tx, get_client_ip):
+    def test_void_fiat_order_with_task(self, refund_tx, void_tx,
+                                       get_client_ip):
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
+        void_tx.return_value = {'transactionStatus': 'APPROVED'}
+        order = self._create_order_api()
+        card_id = self.generate_txn_id()
+        name = 'Sir Testalot'
+        params = self._get_dmn_request_params_for_order(order, card_id, name,
+                                                        status='APPROVED')
+        url = reverse('payments.listen_safe_charge')
+        res = self.client.post(url, data=params)
+        self.assertEqual(res.status_code, 200)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
+        payment = order.payment_set.get()
+        self.assertFalse(payment.is_complete)
+        self.assertTrue(payment.is_success)
+        check_payments_for_void_periodic.apply_async()
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
+        now = datetime.datetime.now() + settings.KYC_WAIT_VOID_INTERVAL
+        with freeze_time(now):
+            self.assertTrue(payment.kyc_wait_void_period_expired)
+            check_payments_for_void_periodic.apply_async()
+            order.refresh_from_db()
+            self.assertEqual(order.status, Order.REFUNDED)
+        refund_tx.assert_not_called()
+        void_tx.assert_called_once()
+
+    @patch('payments.views.get_client_ip')
+    @patch('payments.api_clients.safe_charge.SafeCharge.voidTransaction')
+    @patch('payments.api_clients.safe_charge.SafeCharge.refundTransaction')
+    def test_refund_fiat_order_with_task(self, refund_tx, void_tx,
+                                         get_client_ip):
         get_client_ip.return_value = \
             settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
         refund_tx.return_value = {'transactionStatus': 'APPROVED'}
@@ -745,20 +780,23 @@ class SafeChargeTestCase(TickerBaseTestCase):
         check_payments_for_refund_periodic.apply_async()
         order.refresh_from_db()
         self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
-        now = datetime.datetime.now() + settings.KYC_WAIT_INTERVAL
+        now = datetime.datetime.now() + settings.KYC_WAIT_REFUND_INTERVAL
         with freeze_time(now):
-            self.assertTrue(payment.kyc_wait_period_expired)
+            self.assertTrue(payment.kyc_wait_refund_period_expired)
             check_payments_for_refund_periodic.apply_async()
             order.refresh_from_db()
             self.assertEqual(order.status, Order.REFUNDED)
+        refund_tx.assert_called_once()
+        void_tx.assert_not_called()
 
     @patch('payments.views.get_client_ip')
+    @patch('payments.api_clients.safe_charge.SafeCharge.voidTransaction')
     @patch('payments.api_clients.safe_charge.SafeCharge.refundTransaction')
     def test_do_not_auto_refund_fiat_order_with_verification(self, refund_tx,
+                                                             void_tx,
                                                              get_client_ip):
         get_client_ip.return_value = \
             settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
-        refund_tx.return_value = {'transactionStatus': 'APPROVED'}
         order = self._create_order_api()
         card_id = self.generate_txn_id()
         name = 'Sir Testalot'
@@ -775,12 +813,47 @@ class SafeChargeTestCase(TickerBaseTestCase):
         self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
         self._create_kyc(order.unique_reference)
 
-        now = datetime.datetime.now() + settings.KYC_WAIT_INTERVAL
+        now = datetime.datetime.now() + settings.KYC_WAIT_REFUND_INTERVAL
         with freeze_time(now):
-            self.assertFalse(payment.kyc_wait_period_expired)
+            self.assertFalse(payment.kyc_wait_refund_period_expired)
             check_payments_for_refund_periodic.apply_async()
             order.refresh_from_db()
             self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
+        refund_tx.assert_not_called()
+        void_tx.assert_not_called()
+
+    @patch('payments.views.get_client_ip')
+    @patch('payments.api_clients.safe_charge.SafeCharge.voidTransaction')
+    @patch('payments.api_clients.safe_charge.SafeCharge.refundTransaction')
+    def test_do_not_auto_void_fiat_order_with_verification(self, refund_tx,
+                                                           void_tx,
+                                                           get_client_ip):
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
+        order = self._create_order_api()
+        card_id = self.generate_txn_id()
+        name = 'Sir Testalot'
+        params = self._get_dmn_request_params_for_order(order, card_id, name,
+                                                        status='APPROVED')
+        url = reverse('payments.listen_safe_charge')
+        res = self.client.post(url, data=params)
+        self.assertEqual(res.status_code, 200)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
+        payment = order.payment_set.get()
+        self.assertFalse(payment.is_complete)
+        self.assertTrue(payment.is_success)
+        self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
+        self._create_kyc(order.unique_reference)
+
+        now = datetime.datetime.now() + settings.KYC_WAIT_VOID_INTERVAL
+        with freeze_time(now):
+            self.assertFalse(payment.kyc_wait_void_period_expired)
+            check_payments_for_void_periodic.apply_async()
+            order.refresh_from_db()
+            self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
+        refund_tx.assert_not_called()
+        void_tx.assert_not_called()
 
     @data_provider(lambda: (
         do_not_refund_fiat_order_params(

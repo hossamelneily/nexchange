@@ -161,6 +161,8 @@ class PairFixtureTestCase(OrderBaseTestCase):
                 fee = minor_pair_fee
             if 'USD' in p.name:
                 fee += Decimal('0.03')
+            if 'GBP' in p.name:
+                fee += Decimal('0.01')
             self.assertEqual(p.fee_ask, fee, 'Bad fee_ask on {}'.format(p))
             self.assertEqual(p.fee_bid, fee, 'Bad fee_bid on {}'.format(p))
         for p in token_pairs:
@@ -182,6 +184,9 @@ class PairFixtureTestCase(OrderBaseTestCase):
             if 'USD' in p.name:
                 ask += Decimal('0.03')
                 bid += Decimal('0.03')
+            elif 'GBP' in p.name:
+                ask += Decimal('0.01')
+                bid += Decimal('0.01')
             self.assertEqual(p.fee_ask, ask, 'Bad fee_ask on {}'.format(p))
             self.assertEqual(p.fee_bid, bid, 'Bad fee_bid on {}'.format(p))
 

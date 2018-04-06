@@ -79,7 +79,8 @@ PAIR_CACHE_LIFETIME = 3600
 
 PAYMENT_WINDOW_SAFETY_INTERVAL = timedelta(seconds=60)
 PAYMENT_DEFAULT_SEEK_INTERVAL = timedelta(hours=12)
-KYC_WAIT_INTERVAL = timedelta(hours=12)
+KYC_WAIT_REFUND_INTERVAL = timedelta(hours=12)
+KYC_WAIT_VOID_INTERVAL = timedelta(hours=1)
 SMS_TOKEN_VALIDITY = timedelta(minutes=5)
 SMS_TOKEN_CHARS = '1234567890'
 REFERRAL_CODE_LENGTH = 10
@@ -270,6 +271,10 @@ PAYMENT_CHECKER_TASKS = {
     'check_payments_for_refund_periodic': {
         'task': 'payments.task_summary.check_payments_for_refund_periodic',
         'schedule': timedelta(hours=1),
+    },
+    'check_payments_for_void_periodic': {
+        'task': 'payments.task_summary.check_payments_for_void_periodic',
+        'schedule': timedelta(minutes=2),
     },
 }
 
@@ -639,7 +644,7 @@ CREDIT_CARD_IS_TEST = False
 CARDPMT_TEST_MODE = False
 
 # Safe Charge
-SAFE_CHARGE_IMMEDIATE_METHODS = ['cc_card']
+SAFE_CHARGE_IMMEDIATE_METHODS = ['cc_card', 'apmgw_Sofort']
 SAFE_CHARGE_ALLOWED_REQUEST_TIME_STAMP_DIFFERENCE_SECONDS = 2
 SAFE_CHARGE_ALLOWED_DMN_IPS = [
     '91.220.189.12-91.220.189.16',

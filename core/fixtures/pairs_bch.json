@@ -51,8 +51,8 @@
     "modified_on": "2017-03-01T12:49:29.101Z",
     "base": 36,
     "quote": 7,
-    "fee_ask": "0.01000000",
-    "fee_bid": "0.01000000",
+    "fee_ask": "0.02000000",
+    "fee_bid": "0.02000000",
     "name": "BCHGBP",
     "test_mode": false,
     "disabled": false

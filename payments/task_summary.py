@@ -6,7 +6,7 @@ from payments.tasks.generic.adv_cash import AdvCashPaymentChecker
 from payments.tasks.generic.order_checker.base import \
     BaseFiatOrderDepositChecker
 from payments.tasks.generic.payment_checker.base import \
-    BasePaymentRefundChecker
+    BasePaymentRefundChecker, BasePaymentVoidChecker
 from django.conf import settings
 from celery import shared_task
 from nexchange.utils import get_nexchange_logger
@@ -74,10 +74,33 @@ def check_payments_for_refund_periodic():
             is_success=True,
             flagged=False,
             order__status=Order.PAID_UNCONFIRMED
-        ) if p.kyc_wait_period_expired
+        ) if p.kyc_wait_refund_period_expired
     ]
     for payment in payments:
         try:
             check_payments_for_refund_invoke.apply_async([payment.pk])
+        except Exception as e:
+            logger.logger.info(e)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def check_payments_for_void_invoke(payment_pk):
+    task = BasePaymentVoidChecker()
+    task.run(payment_pk)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def check_payments_for_void_periodic():
+    logger = get_nexchange_logger('Periodic Fiat Order Refund Checker')
+    payments = [
+        p for p in Payment.objects.filter(
+            is_success=True,
+            flagged=False,
+            order__status=Order.PAID_UNCONFIRMED
+        ) if p.kyc_wait_void_period_expired
+    ]
+    for payment in payments:
+        try:
+            check_payments_for_void_invoke.apply_async([payment.pk])
         except Exception as e:
             logger.logger.info(e)

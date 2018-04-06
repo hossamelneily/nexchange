@@ -301,19 +301,29 @@ class Payment(BtcBase, SoftDeletableModel, FlagableMixin):
                                    self.payment_preference)
 
     @property
-    def kyc_due_time(self):
-        return self.created_on + settings.KYC_WAIT_INTERVAL
+    def kyc_refund_time(self):
+        return self.created_on + settings.KYC_WAIT_REFUND_INTERVAL
 
     @property
-    def kyc_wait_period_expired(self):
-        due_date_passed = now() > self.kyc_due_time
-        kyc_sent = user_email = False
-        if self.payment_preference \
-                and self.payment_preference.verification_set.count():
-            kyc_sent = True
-        if self.user and self.user.email:
-            user_email = True
+    def kyc_void_time(self):
+        return self.created_on + settings.KYC_WAIT_VOID_INTERVAL
+
+    @property
+    def kyc_wait_refund_period_expired(self):
+        due_date_passed = now() > self.kyc_refund_time
+        kyc_sent = \
+            self.payment_preference \
+            and self.payment_preference.verification_set.count()
+        user_email = self.user and self.user.email
         return due_date_passed and not kyc_sent and not user_email
+
+    @property
+    def kyc_wait_void_period_expired(self):
+        due_date_passed = now() > self.kyc_void_time
+        kyc_sent = \
+            self.payment_preference \
+            and self.payment_preference.verification_set.count()
+        return due_date_passed and not kyc_sent
 
 
 class PaymentCredentials(TimeStampedModel, SoftDeletableModel):
