@@ -3,13 +3,13 @@ from datetime import datetime, timezone
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.conf import settings
 
 from core.common.models import SoftDeletableModel, TimeStampedModel
 from core.common.models import FlagableMixin
 from .validators import validate_address
 from django_countries.fields import CountryField
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.conf import settings
 
 
 class BtcBase(TimeStampedModel):
@@ -20,10 +20,12 @@ class BtcBase(TimeStampedModel):
     WITHDRAW = 'W'
     DEPOSIT = 'D'
     REFUND = 'R'
+    REFERRAL_PAYOUT = 'P'
     TYPES = (
         (WITHDRAW, 'WITHDRAW'),
         (DEPOSIT, 'DEPOSIT'),
         (REFUND, 'REFUND'),
+        (REFERRAL_PAYOUT, 'Referral Payout')
     )
     type = models.CharField(max_length=1,
                             choices=TYPES, null=True)
@@ -87,7 +89,8 @@ class Transaction(BtcBase, FlagableMixin):
     address_to = models.ForeignKey('core.Address',
                                    related_name='txs_to')
     # TODO: how to handle cancellation?
-    order = models.ForeignKey('orders.Order', related_name='transactions')
+    order = models.ForeignKey('orders.Order', related_name='transactions',
+                              null=True, blank=True)
     is_verified = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
     amount = models.DecimalField(null=False, max_digits=18, decimal_places=8,
@@ -97,6 +100,7 @@ class Transaction(BtcBase, FlagableMixin):
     currency = models.ForeignKey('core.Currency', related_name='transactions',
                                  null=True, blank=True, default=None)
     admin_comment = models.CharField(max_length=200, null=True, blank=False)
+    user = models.ForeignKey(User, null=True, blank=True)
     refunded_transaction = models.ForeignKey(
         'self', null=True, blank=True, default=None
     )
@@ -282,6 +286,10 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                 get(is_main_account=True).available
         except ObjectDoesNotExist:
             return Decimal('0.0')
+
+    @property
+    def minimal_referral_payout(self):
+        return self.minimal_amount * settings.REFERRAL_MINIMAL_PAYOUT_MULTIPLIER  # noqa
 
     @property
     def current_maximal_amount_to_sell(self):

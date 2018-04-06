@@ -1,11 +1,13 @@
-from core.tests.base import TransactionImportBaseTestCase, ETH_ROOT
+from core.tests.base import TransactionImportBaseTestCase, ETH_ROOT,\
+    OrderBaseTestCase, SCRYPT_ROOT
 from core.models import Address, Currency, AddressReserve, Transaction
 from accounts.task_summary import import_transaction_deposit_crypto_invoke,\
-    check_transaction_card_balance_invoke
+    check_transaction_card_balance_invoke, payout_referrals_invoke
 from ticker.tests.base import TickerBaseTestCase
+from ticker.models import Price
 import requests_mock
 from django.contrib.auth.models import User
-from accounts.models import Profile
+from accounts.models import Profile, Balance
 from accounts.tasks.generic.addressreserve_monitor.base import ReserveMonitor
 from core.tests.utils import data_provider
 from unittest.mock import patch
@@ -15,6 +17,8 @@ from nexchange.api_clients.rpc import EthashRpcApiClient
 from accounts.task_summary import update_pending_transactions_invoke
 import os
 from decimal import Decimal
+from freezegun import freeze_time
+from django.utils.timezone import now, timedelta
 
 RPC7_KEY1 = '0xmain'
 
@@ -263,3 +267,137 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
         check_card.return_value = {'retry': False}
         check_transaction_card_balance_invoke.apply([tx.pk])
         self.assertEqual(check_card.call_count, 1)
+
+
+class BalancePayoutTestCase(OrderBaseTestCase):
+
+    def setUp(self):
+        super(BalancePayoutTestCase, self).setUp()
+        self.enough_amount = self.BTC.minimal_amount * (
+            settings.REFERRAL_MINIMAL_PAYOUT_MULTIPLIER + Decimal('0.1')
+        )
+        self.profile = self.user.profile
+        self.profile.do_auto_referral_payouts = True
+        self.profile.affiliate_address = self.user.address_set.filter(
+            currency__code='BTC').last()
+        self.profile.save()
+
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_balance_payout(self, release_coins):
+        tx_id = '123'
+        release_coins.return_value = tx_id, True
+        amount = self.enough_amount
+        balance = Balance(user=self.user, currency=self.BTC, balance=amount)
+        balance.save()
+        payout_referrals_invoke.apply_async()
+        release_coins.assert_called_with(
+            self.BTC,
+            self.profile.affiliate_address,
+            amount
+        )
+        balance.refresh_from_db()
+        self.assertEqual(balance.balance, Decimal(0))
+        tx = Transaction.objects.get(tx_id=tx_id)
+        self.assertEqual(tx.amount, amount)
+        self.assertEqual(tx.currency, self.BTC)
+        self.assertEqual(tx.type, Transaction.REFERRAL_PAYOUT)
+
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_no_affiliate_address_no_balance_payout(self, release_coins):
+        amount = self.enough_amount
+        self.profile.affiliate_address = None
+        self.profile.save()
+        balance = Balance(user=self.user, currency=self.BTC, balance=amount)
+        balance.save()
+        payout_referrals_invoke.apply_async()
+        balance.refresh_from_db()
+        self.assertEqual(balance.balance, amount)
+        release_coins.assert_not_called()
+
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_not_allowed_auto_payouts_no_balance_payout(self, release_coins):
+        amount = self.enough_amount
+        self.profile.do_auto_referral_payouts = False
+        self.profile.save()
+        balance = Balance(user=self.user, currency=self.BTC, balance=amount)
+        balance.save()
+        payout_referrals_invoke.apply_async()
+        balance.refresh_from_db()
+        self.assertEqual(balance.balance, amount)
+        release_coins.assert_not_called()
+
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_not_btc_affiliate_address_no_balance_payout(self, release_coins):
+        tx_id = '123'
+        release_coins.return_value = tx_id, True
+        amount = self.enough_amount
+        self.profile.affiliate_address = self.user.address_set.filter(
+            currency__code='LTC').last()
+        self.profile.save()
+        balance = Balance(user=self.user, currency=self.BTC, balance=amount)
+        balance.save()
+        payout_referrals_invoke.apply_async()
+        balance.refresh_from_db()
+        self.assertEqual(balance.balance, amount)
+        release_coins.assert_not_called()
+
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_not_btc_balance_no_balance_payout(self, release_coins):
+        tx_id = '123'
+        release_coins.return_value = tx_id, True
+        amount = self.enough_amount
+        balance = Balance(user=self.user, currency=self.EUR, balance=amount)
+        balance.save()
+        payout_referrals_invoke.apply_async()
+        balance.refresh_from_db()
+        self.assertEqual(balance.balance, amount)
+        release_coins.assert_not_called()
+
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_less_than_minimal_no_balance_payout(self, release_coins):
+        tx_id = '123'
+        release_coins.return_value = tx_id, True
+        amount = \
+            self.BTC.minimal_amount * \
+            (settings.REFERRAL_MINIMAL_PAYOUT_MULTIPLIER - Decimal('0.01'))
+        balance = Balance(user=self.user, currency=self.BTC, balance=amount)
+        balance.save()
+        payout_referrals_invoke.apply_async()
+        balance.refresh_from_db()
+        self.assertAlmostEqual(balance.balance, amount, 8)
+        release_coins.assert_not_called()
+
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_do_not_pay_more_than_monthly_limit(self, release_coins):
+        amount = Price.convert_amount(
+            settings.REFERRAL_PAYOUT_30_DAYS_LIMIT_USD * Decimal('1.1'),
+            'USD', 'BTC'
+        )
+
+        balance = Balance(user=self.user, currency=self.BTC, balance=amount)
+        balance.save()
+        release_coins.return_value = self.generate_txn_id(), True
+        # First Payout
+        payout_referrals_invoke.apply_async()
+        release_coins.assert_called_once()
+        balance.refresh_from_db()
+        self.assertEqual(balance.balance, Decimal('0'))
+        # Balance Gain
+        new_amount = amount * Decimal('0.5')
+        balance.balance = new_amount
+        balance.save()
+        # Second Payout
+        release_coins.return_value = self.generate_txn_id(), True
+        payout_referrals_invoke.apply_async()
+        balance.refresh_from_db()
+        release_coins.assert_called_once()
+        self.assertAlmostEqual(balance.balance, new_amount, 8)
+        release_coins.assert_called_once()
+        # Third Payout after 31 days
+        after_month = now() + timedelta(days=31)
+        with freeze_time(after_month):
+            release_coins.return_value = self.generate_txn_id(), True
+            payout_referrals_invoke.apply_async()
+            balance.refresh_from_db()
+            self.assertEqual(balance.balance, Decimal('0'))
+            self.assertEqual(release_coins.call_count, 2)

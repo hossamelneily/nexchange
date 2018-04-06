@@ -22,7 +22,7 @@ class PairAdmin(admin.ModelAdmin):
 
 class TranmsactionAdmin(admin.ModelAdmin):
     list_display = ('amount', 'currency', 'type', 'order')
-    raw_id_fields = ('order', 'address_from', 'address_to')
+    raw_id_fields = ('order', 'address_from', 'address_to', 'user')
 
 
 class MarketAdmin(admin.ModelAdmin):
