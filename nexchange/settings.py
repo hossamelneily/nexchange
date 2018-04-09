@@ -155,8 +155,6 @@ INSTALLED_APPS = [
     'risk_management',
     'audit',
     'oauth2_provider',
-    'django_otp',
-    'django_otp.plugins.otp_totp',
 ]
 
 
@@ -377,8 +375,6 @@ MIDDLEWARE_CLASSES = [
     'core.middleware.TimezoneMiddleware',
     'core.middleware.LastSeenMiddleware',
     'social_django.middleware.SocialAuthExceptionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django_otp.middleware.OTPMiddleware',
 ]
 
 ROOT_URLCONF = 'nexchange.urls'
@@ -527,8 +523,6 @@ DEFAULT_RPC_USER = ''
 DEFAULT_RPC_PASS = ''
 DEFAULT_RPC_HOST = ''
 
-#OTP
-OTP_TOTP_ISSUER = 'N.EXCHANGE'
 
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 TWILIO_PHONE_FROM_UK = '+447481341915'

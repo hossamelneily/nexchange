@@ -21,8 +21,6 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.i18n import javascript_catalog
-from django_otp.admin import OTPAdminSite
-
 
 import core.views
 from core.urls import core_api_patterns
@@ -35,9 +33,6 @@ from referrals.urls import referral_urls, referrals_api_patterns
 from support.urls import support_urls, support_api_patterns
 from ticker.urls import ticker_api_patterns
 from verification.urls import verification_urls, kyc_api_patterns
-
-# TODO: uncomment once OTP configured for all users
-# admin.site.__class__ = OTPAdminSite
 
 js_info_dict = {
     'domain': 'djangojs',

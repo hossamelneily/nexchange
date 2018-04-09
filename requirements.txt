@@ -62,5 +62,3 @@ Werkzeug==0.14.1
 django-oauth-toolkit==1.0.0
 iptools==0.6.1
 numpy==1.14.1
-django-otp==0.4.3
-qrcode==6.0
