@@ -15,7 +15,7 @@ def calculate_pre_revenue(sender, instance, **kwargs):
 def calculate_post_revenue(sender, instance, **kwargs):
     referral = instance.user.referrals_set.last()
     if referral and instance.status == Order.COMPLETED:
-        revenue_from_trade = instance.amount_base * referral.referral_percent
+        revenue_from_trade = referral.revenue - instance.old_referral_revenue
 
         balance, created = \
             Balance.objects.get_or_create(user=referral.code.user,

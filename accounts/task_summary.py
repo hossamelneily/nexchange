@@ -5,7 +5,6 @@ from .tasks.monitor_wallets import import_transaction_deposit_crypto
 from .tasks.generic.tx_importer.uphold import UpholdTransactionImporter
 from .tasks.generic.tx_importer.uphold_blockchain import \
     UpholdBlockchainTransactionImporter
-from .tasks.generic.referrals_payout.balance_payout import BalancePayoutTask
 from .tasks.generic.tx_importer.scrypt import ScryptTransactionImporter, \
     EthashTransactionImporter, Blake2TransactionImporter
 from django.conf import settings
@@ -96,9 +95,3 @@ def check_transaction_card_balance_invoke(self, tx_id):
 @shared_task(time_limit=settings.TRANSACTION_IMPORT_TIME_LIMIT)
 def import_transaction_deposit_uphold_blockchain_invoke():
     return import_transaction_deposit_crypto(UpholdBlockchainTransactionImporter)
-
-
-@shared_task(time_limit=settings.TRANSACTION_IMPORT_TIME_LIMIT)
-def payout_referrals_invoke():
-    task = BalancePayoutTask()
-    task.run()
