@@ -8,15 +8,12 @@ from phonenumber_field.validators import validate_international_phonenumber
 
 from core.common.models import (SoftDeletableModel, TimeStampedModel,
                                 UniqueFieldMixin)
-from core.models import Address, Transaction
+from core.models import Address
 from orders.models import Order
 from payments.models import FailedRequest
 from referrals.models import ReferralCode
 from verification.models import Verification, VerificationTier
 from django.core.exceptions import ValidationError
-from django.utils.timezone import now, timedelta
-from decimal import Decimal
-from ticker.models import Price
 
 
 class NexchangeUser(User):
@@ -73,29 +70,6 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     )
     anonymous_login = models.BooleanField(default=False)
     cards_validity_approved = models.BooleanField(default=False)
-    do_auto_referral_payouts = models.BooleanField(default=False)
-
-    def get_referral_payouts(self, **kwargs):
-        # It is possible that we will use more when one affiliate address
-        kwargs.update({
-            'user': self.user,
-            'type': Transaction.REFERRAL_PAYOUT
-        })
-        return Transaction.objects.filter(**kwargs)
-
-    @property
-    def last_30_days_payout_usd(self):
-        relevant = now() - timedelta(days=30)
-        txs = self.get_referral_payouts(**{'created_on__gte': relevant})
-        total_payout = Decimal('0')
-        for tx in txs:
-            total_payout += Price.convert_amount(tx.amount, tx.currency, 'USD')
-        return total_payout
-
-    @property
-    def monthly_payout_limit_exceeded(self):
-        return self.last_30_days_payout_usd > settings.REFERRAL_PAYOUT_30_DAYS_LIMIT_USD  # noqa
-      
     tier = models.ForeignKey(VerificationTier, blank=True, null=True)
 
     @property

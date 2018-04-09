@@ -13,13 +13,13 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import os
 import sys
 from datetime import timedelta
-from decimal import Decimal
 
 from django.core.urlresolvers import reverse_lazy
 from corsheaders.defaults import default_headers
 from django.utils.translation import ugettext_lazy as _
 import dj_database_url
 import logging
+from decimal import Decimal
 
 # SECRET KEY TEST
 SECRET_KEY = 'zsl4+4%(%=0@f*tkf0f2u%dt&v&h_-g5mw*o25i$480=3qcb2k'
@@ -108,8 +108,6 @@ REFERRER_HEADER_NAME = 'x-referral-token'
 REFERRER_HEADER_INDEX = 'HTTP_X_REFERRAL_TOKEN'
 REFERRAL_SESSION_KEY = REFERRER_GET_PARAMETER
 REFERRAL_TOKEN_CHARS = REFERRAL_CODE_CHARS
-REFERRAL_MINIMAL_PAYOUT_MULTIPLIER = Decimal('5')
-REFERRAL_PAYOUT_30_DAYS_LIMIT_USD = Decimal('500')
 
 ALLOWED_HOSTS = [
     'nexchange.io',
@@ -246,10 +244,6 @@ CORE_TASKS = {
     'renew_cards_reserve': {
         'task': 'accounts.task_summary.renew_cards_reserve_invoke',
         'schedule': timedelta(seconds=60),
-    },
-    'payout_referrals_invoke': {
-        'task': 'accounts.task_summary.payout_referrals_invoke',
-        'schedule': timedelta(hours=24),
     },
 }
 

@@ -144,16 +144,13 @@ class Referral(IpAwareModel):
         return self.code.program
 
     @property
-    def referral_percent(self):
-        return Decimal(self.program.percent_first_degree)
-
-    @property
     def revenue(self,):
         # TODO: implement program and change to dynamic
         if not self.turnover:
             return 0
 
-        res = Decimal(self.turnover) * self.referral_percent
+        res = Decimal(self.turnover) * \
+            Decimal(self.program.percent_first_degree)
         return round(res, 8)
 
     def __str__(self):

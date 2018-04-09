@@ -9,8 +9,6 @@ from core.tests.base import OrderBaseTestCase
 from ticker.tests.base import TickerBaseTestCase
 from ticker.models import Price
 from accounts.models import Balance
-from unittest import skip
-from rest_framework.test import APIClient
 
 
 class TestReferralModel(TickerBaseTestCase):
@@ -77,27 +75,6 @@ class TestReferralModel(TickerBaseTestCase):
             Decimal(
                 self.referral.program.percent_first_degree),
             8)
-        self.api_client = APIClient()
-
-    def _create_order_api(self, name='ETHLTC', ref_code='123'):
-        order_data = {
-            "amount_base": 3,
-            "is_default_rule": False,
-            "pair": {
-                "name": name
-            },
-            "withdraw_address": {
-                "address": "0x77454e832261aeed81422348efee52d5bd3a3684"
-            }
-        }
-        self.api_client.credentials(HTTP_X_REFERRAL_TOKEN=ref_code)
-        order_api_url = '/en/api/v1/orders/'
-        response = self.api_client.post(order_api_url, order_data,
-                                        format='json')
-        order = Order.objects.get(
-            unique_reference=response.json()['unique_reference']
-        )
-        return order
 
     def test_count_active(self):
         self.assertEqual(self.test_subjects,
@@ -146,84 +123,36 @@ class TestReferralModel(TickerBaseTestCase):
         self.assertNotEqual(self.revenue, balance.balance)
         self.assertEqual(adapted_balance, balance.balance)
 
-    @skip('saving time because test is not implemented yet')
     def test_not_turnover_active_if_program_exceed(self):
         pass
 
-    @skip('saving time because test is not implemented yet')
     def test_completed_added_to_balance(self):
         pass
 
-    @skip('saving time because test is not implemented yet')
     def test_not_added_to_balance_if_program_exceed(self):
         pass
 
-    @skip('saving time because test is not implemented yet')
     def obeys_ppl_limit(self):
         pass
 
-    @skip('saving time because test is not implemented yet')
     def test_obeys_volume_limit(self):
         pass
 
-    @skip('saving time because test is not implemented yet')
     def test_obeys_lifespan_limit(self):
         pass
 
     # MIDDLEWARE STUFF
-    @skip('saving time because test is not implemented yet')
     def test_cannot_refer_self(self):
         pass
 
-    @skip('saving time because test is not implemented yet')
     def can_refer_new_user(self):
         pass
 
-    @skip('saving time because test is not implemented yet')
     def can_refer_old_empty_user(self):
         pass
 
-    @skip('saving time because test is not implemented yet')
     def cannot_refer_active_user(self):
         pass
 
-    @skip('saving time because test is not implemented yet')
     def cannot_be_referred_by_two_users(self):
         pass
-
-    def test_different_curr_balance(self):
-        balance_currency = 'ETH'
-        balances = Balance.objects.filter(user=self.user)
-        for balance in balances:
-            balance.balance = Decimal('0')
-            balance.save()
-        referral_code = self.user.referral_code.last()
-        old_refs_count = referral_code.referral_set.filter(
-            code=referral_code
-        ).count()
-        order = self._create_order_api(
-            name='{}LTC'.format(balance_currency),
-            ref_code=referral_code.code
-        )
-        order.status = Order.COMPLETED
-        order.save()
-        Referral.objects.filter()
-        self.assertEqual(
-            old_refs_count + 1,
-            referral_code.referral_set.filter(code=referral_code).count()
-        )
-        referral = referral_code.referral_set.latest('pk')
-        balances = Balance.objects.filter(user=self.user)
-        for balance in balances:
-            if balance.currency.code == balance_currency:
-                self.assertEqual(
-                    balance.balance,
-                    order.amount_base * referral.referral_percent
-                )
-                self.assertAlmostEqual(
-                    referral.revenue,
-                    balance.balance / Price.get_rate('BTC', 'ETH'),
-                    8
-                )
-            else:
-                self.assertEqual(balance.balance, Decimal('0'))
