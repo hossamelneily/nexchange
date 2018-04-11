@@ -19,7 +19,7 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
     def setUp(self):
         self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
                                      'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
-                                     'BTCEOS', 'BTCNANO']
+                                     'BTCEOS', 'BTCNANO', 'BTCZEC']
         super(RenewReserveTestCase, self).setUp()
         Cards.objects.all().delete()
         self.len_crypto_curencies = len(Currency.objects.filter(

@@ -231,7 +231,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
     def setUp(self):
         self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
                                      'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
-                                     'BTCEOS', 'BTCNANO']
+                                     'BTCEOS', 'BTCNANO', 'BTCZEC']
         super(SellOrderReleaseTaskTestCase, self).setUp()
         self.import_txs_task = import_transaction_deposit_crypto_invoke
         self.update_confirmation_task = update_pending_transactions_invoke
@@ -714,7 +714,7 @@ class SofortEndToEndTestCase(BaseSofortAPITestCase,
     def setUp(self):
         self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
                                      'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
-                                     'BTCEOS', 'BTCNANO']
+                                     'BTCEOS', 'BTCNANO', 'BTCZEC']
         super(SofortEndToEndTestCase, self).setUp()
         self.payments_importer = run_sofort
         self.sender_name = 'Sender Awesome'
@@ -831,7 +831,7 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
     def setUp(self):
         self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
                                      'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
-                                     'BTCEOS', 'BTCNANO']
+                                     'BTCEOS', 'BTCNANO', 'BTCZEC']
         super(AdvCashE2ETestCase, self).setUp()
         self.payment_importer = run_adv_cash
         self.import_txs_task = import_transaction_deposit_crypto_invoke

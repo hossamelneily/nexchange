@@ -146,5 +146,5 @@ class AuditTaksTestCase(AuditBaseTestCase):
         self.checker_all.apply_async()
         currs = Currency.objects.filter(
             is_crypto=True, is_token=False
-        ).exclude(code__in=['RNS', 'XRB', 'NANO'])
+        ).exclude(code__in=['RNS', 'NANO'])
         self.assertEqual(checker_run.call_count, len(currs))

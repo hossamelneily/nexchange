@@ -62,8 +62,8 @@ class ScryptRpcApiClient(BaseRpcClient):
 
     def __init__(self):
         super(ScryptRpcApiClient, self).__init__()
-        self.related_nodes = ['rpc2', 'rpc3', 'rpc4', 'rpc5', 'rpc6']
-        self.related_coins = ['DOGE', 'XVG', 'BCH', 'BTC', 'LTC']
+        self.related_nodes = ['rpc2', 'rpc3', 'rpc4', 'rpc5', 'rpc6', 'rpc9']
+        self.related_coins = ['DOGE', 'XVG', 'BCH', 'BTC', 'LTC', 'ZEC']
 
     def lock(self, api, **kwargs):
         encrypt_fn = getattr(api, self.LOCK_WALLET)
@@ -170,7 +170,7 @@ class Blake2RpcApiClient(BaseRpcClient):
     def __init__(self):
         super(Blake2RpcApiClient, self).__init__()
         self.related_nodes = ['rpc8']
-        self.related_coins = ['XRB']
+        self.related_coins = ['NANO']
 
     def get_api(self, node):
         self.rpc_endpoint, kwargs = RpcMapper.get_rpc_addr(node)

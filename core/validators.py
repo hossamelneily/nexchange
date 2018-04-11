@@ -115,10 +115,21 @@ def validate_nano(value):
 
     if not p.match(value):
         raise ValidationError(
-            _('%(value)s has invalid characters for a valid Ethereum address'),
+            _('%(value)s has invalid characters for a valid Nano address'),
             params={'value': value},
         )
     # TODO: add ETH hash validation
+
+
+def validate_zec(value):
+    p = re.compile('^t[1-9A-Za-z]{34}$')
+    p.match(value)
+
+    if not p.match(value):
+        raise ValidationError(
+            _('%(value)s has invalid characters for a valid Tether address'),
+            params={'value': value},
+        )
 
 
 def validate_address(value):
@@ -129,6 +140,8 @@ def validate_address(value):
     elif value[:1] == 'L':
         validate_ltc(value)
     elif value[:1] == 'D':
+        validate_doge(value)
+    elif value[:1] == 't':
         validate_doge(value)
     else:
         validate_bc(value)
@@ -156,5 +169,7 @@ def get_validator(code):
         return validate_xvg
     elif code == 'NANO':
         return validate_nano
+    elif code == 'ZEC':
+        return validate_zec
 
     return validate_non_address

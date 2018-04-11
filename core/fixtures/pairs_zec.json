@@ -1,0 +1,47 @@
+[
+{
+  "model": "core.pair",
+  "pk": 257,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 43,
+    "quote": 4,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "ZECUSD",
+    "test_mode": true,
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 258,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 43,
+    "quote": 6,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "ZECEUR",
+    "test_mode": true,
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 259,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 43,
+    "quote": 7,
+    "fee_ask": "0.0200000",
+    "fee_bid": "0.0200000",
+    "name": "ZECGBP",
+    "test_mode": true,
+    "disabled": false
+  }
+}
+]

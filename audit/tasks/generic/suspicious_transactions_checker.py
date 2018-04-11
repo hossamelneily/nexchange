@@ -107,7 +107,7 @@ class SuspiciousTransactionsChecker(BaseTask):
                     other_txs.append(tx_data_decoded)
             return {'out_txs': out_txs, 'in_txs': in_txs,
                     'other_txs': other_txs}
-        if currency in ['XVG', 'BTC', 'BCH', 'DOGE', 'LTC']:
+        if currency in ['XVG', 'BTC', 'BCH', 'DOGE', 'LTC', 'ZEC']:
             _currency = Currency.objects.get(code=currency)
             client = ScryptRpcApiClient()
             txs = client.call_api(_currency.wallet,

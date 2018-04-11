@@ -12,6 +12,7 @@ assert \
     != scrypt_client.related_nodes[2] \
     != scrypt_client.related_nodes[3] \
     != scrypt_client.related_nodes[4] \
+    != scrypt_client.related_nodes[5] \
     != ethash_client.related_nodes[0] \
     != blake2_client.related_nodes[0]
 clients_lookup = {
@@ -20,6 +21,7 @@ clients_lookup = {
     scrypt_client.related_nodes[2]: scrypt_client,
     scrypt_client.related_nodes[3]: scrypt_client,
     scrypt_client.related_nodes[4]: scrypt_client,
+    scrypt_client.related_nodes[5]: scrypt_client,
     ethash_client.related_nodes[0]: ethash_client,
     blake2_client.related_nodes[0]: blake2_client,
 }
