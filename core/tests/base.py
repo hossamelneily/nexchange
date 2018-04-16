@@ -28,6 +28,7 @@ from nexchange.api_clients.rpc import EthashRpcApiClient
 
 UPHOLD_ROOT = 'nexchange.api_clients.uphold.Uphold.'
 SCRYPT_ROOT = 'nexchange.api_clients.rpc.ScryptRpcApiClient.'
+ZCASH_ROOT = 'nexchange.api_clients.rpc.ZcashRpcApiClient.'
 ETH_ROOT = 'nexchange.api_clients.rpc.EthashRpcApiClient.'
 BLAKE2_ROOT = 'nexchange.api_clients.rpc.Blake2RpcApiClient.'
 BITTREX_ROOT = 'nexchange.api_clients.bittrex.BittrexApiClient.'
@@ -175,6 +176,10 @@ class UserBaseTestCase(TestCase):
             mock.patch(SCRYPT_ROOT + 'backup_wallet',
                        new=addr_response)
         self.rpc_mock_backup.start()
+        self.zcash_mock_backup = \
+            mock.patch(ZCASH_ROOT + 'backup_wallet',
+                       new=addr_response)
+        self.zcash_mock_backup.start()
 
         self.rpc_eth_mock_addr = \
             mock.patch('web3.personal.Personal.newAccount',
@@ -361,6 +366,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         self.rpc_mock_backup.stop()
         self.mock_rpc_txs.stop()
         self.rpc_eth_mock_addr.stop()
+        self.zcash_mock_backup.stop()
 
     @classmethod
     def setUpClass(cls):
@@ -659,6 +665,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.RNS = Currency.objects.get(code='RNS')
         self.DOGE = Currency.objects.get(code='DOGE')
         self.BCH = Currency.objects.get(code='BCH')
+        self.ZEC = Currency.objects.get(code='ZEC')
         self.BTC_address = self._create_withdraw_adress(
             self.BTC, '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi')
         self.LTC_address = self._create_withdraw_adress(
@@ -671,6 +678,9 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             self.DOGE, 'DPjMRpkNKEfnYVHqmAan4FbriqP4DyUt2u')
         self.BCH_address = self._create_withdraw_adress(
             self.BCH, '142banESr9veN2RkFg6k67AjDdCepdmVLm')
+        self.ZEC_address = self._create_withdraw_adress(
+            self.ZEC, 't1a7HFeidzBswwdXaFV1gKtSphn41rLcEmK'
+        )
 
     def _read_fixture(self):
         path_addr_fixture = os.path.join(settings.BASE_DIR,

@@ -57,13 +57,10 @@ class ScryptRpcApiClient(BaseRpcClient):
     LOCK_WALLET = 'walletlock'
     UNLOCK_WALLET = 'walletpassphrase'
 
-    LOCK_WALLET = 'walletlock'
-    UNLOCK_WALLET = 'walletpassphrase'
-
     def __init__(self):
         super(ScryptRpcApiClient, self).__init__()
-        self.related_nodes = ['rpc2', 'rpc3', 'rpc4', 'rpc5', 'rpc6', 'rpc9']
-        self.related_coins = ['DOGE', 'XVG', 'BCH', 'BTC', 'LTC', 'ZEC']
+        self.related_nodes = ['rpc2', 'rpc3', 'rpc4', 'rpc5', 'rpc6']
+        self.related_coins = ['DOGE', 'XVG', 'BCH', 'BTC', 'LTC']
 
     def lock(self, api, **kwargs):
         encrypt_fn = getattr(api, self.LOCK_WALLET)
@@ -713,3 +710,13 @@ class EthashRpcApiClient(BaseRpcClient):
             )
             value = int(decoded_input[1][1], 16)
         return to, value
+
+
+class ZcashRpcApiClient(ScryptRpcApiClient):
+    def __init__(self):
+        super(ZcashRpcApiClient, self).__init__()
+        self.related_nodes = ['rpc9']
+        self.related_coins = ['ZEC']
+
+    def backup_wallet(self, currency):
+        self.call_api(currency.wallet, 'backupwallet', currency)

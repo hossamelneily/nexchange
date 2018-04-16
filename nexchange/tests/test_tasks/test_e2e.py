@@ -524,7 +524,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
     def setUp(self):
         self.ENABLED_TICKER_PAIRS = ['ETHLTC', 'BTCETH', 'BTCLTC', 'LTCETH',
                                      'ETHBTC', 'LTCBTC', 'ETHDOGE', 'DOGELTC',
-                                     'ETHBCH', 'BCHDOGE']
+                                     'ETHBCH', 'BCHDOGE', 'ZECBTC', 'BTCZEC']
         super(ExchangeOrderReleaseTaskTestCase, self).setUp()
         self.import_txs_task = import_transaction_deposit_crypto_invoke
         self.update_confirmation_task = update_pending_transactions_invoke
@@ -539,12 +539,12 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             ('LTCETH', Order.BUY, True, 3),
             ('ETHBTC', Order.BUY, False, 3),
             ('LTCBTC', Order.BUY, True, 3),
-            # ('BTCRNS', Order.BUY, True, 3),
-            # ('LTCRNS', Order.BUY, True, 3),
             ('ETHDOGE', Order.BUY, True, 3),
             ('DOGELTC', Order.BUY, True, 4),
             ('ETHBCH', Order.BUY, True, 3),
             ('BCHDOGE', Order.BUY, True, 3),
+            ('ZECBTC', Order.BUY, True, 3),
+            ('BTCZEC', Order.BUY, True, 3),
         )
     )
     @patch(ETH_ROOT + 'net_listening')

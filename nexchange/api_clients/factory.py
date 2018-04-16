@@ -1,5 +1,6 @@
 from .uphold import UpholdApiClient
-from .rpc import ScryptRpcApiClient, EthashRpcApiClient, Blake2RpcApiClient
+from .rpc import ScryptRpcApiClient, EthashRpcApiClient,\
+    Blake2RpcApiClient, ZcashRpcApiClient
 from .bittrex import BittrexApiClient
 from .kraken import KrakenApiClient
 
@@ -11,6 +12,7 @@ class ApiClientFactory:
     BITTREX = BittrexApiClient()
     KRAKEN = KrakenApiClient()
     BLAKE2 = Blake2RpcApiClient()
+    ZCASH = ZcashRpcApiClient()
 
     @classmethod
     def get_api_client(cls, node):
@@ -26,3 +28,5 @@ class ApiClientFactory:
             return cls.ETHASH
         elif node in cls.BLAKE2.related_nodes:
             return cls.BLAKE2
+        elif node in cls.ZCASH.related_nodes:
+            return cls.ZCASH
