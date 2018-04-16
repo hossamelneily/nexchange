@@ -37,7 +37,8 @@ from ticker.urls import ticker_api_patterns
 from verification.urls import verification_urls, kyc_api_patterns
 
 # TODO: uncomment once OTP configured for all users
-admin.site.__class__ = OTPAdminSite
+if not settings.DEBUG:
+    admin.site.__class__ = OTPAdminSite
 
 js_info_dict = {
     'domain': 'djangojs',
