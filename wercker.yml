@@ -404,7 +404,7 @@ build:
           export RPC_RPC9_PORT=${RPC_RPC9_PORT}
           export RPC_RPC9_HOST=${RPC_RPC9_HOST}
           export RPC9_PUBLIC_KEY_C1=${RPC9_PUBLIC_KEY_C1}
-          export RPC_RPC_K=${RPC_RPC9_K}
+          export RPC_RPC9_K=${RPC_RPC9_K}
 
           # RPC settings
           export RPC_IMPORT_TRANSACTIONS_COUNT=${RPC_IMPORT_TRANSACTION_COUNT}
