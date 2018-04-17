@@ -922,8 +922,8 @@
     "fee_bid": "0.0100000",
     "name": "BTCNANO",
     "disable_ticker": false,
-    "disabled": false,
-    "test_mode": false
+    "disabled": true,
+    "test_mode": true
   }
 },
 {
@@ -954,8 +954,8 @@
     "fee_bid": "0.0100000",
     "name": "LTCNANO",
     "disable_ticker": false,
-    "disabled": false,
-    "test_mode": false
+    "disabled": true,
+    "test_mode": true
   }
 },
 {
@@ -986,8 +986,8 @@
     "fee_bid": "0.0100000",
     "name": "ETHNANO",
     "disable_ticker": false,
-    "disabled": false,
-    "test_mode": false
+    "disabled": true,
+    "test_mode": true
   }
 },
 {
@@ -1018,8 +1018,8 @@
     "fee_bid": "0.0100000",
     "name": "DOGENANO",
     "disable_ticker": false,
-    "disabled": false,
-    "test_mode": false
+    "disabled": true,
+    "test_mode": true
   }
 },
 {
@@ -1050,8 +1050,8 @@
     "fee_bid": "0.0100000",
     "name": "XVGNANO",
     "disable_ticker": false,
-    "disabled": false,
-    "test_mode": false
+    "disabled": true,
+    "test_mode": true
   }
 },
 {
@@ -1082,8 +1082,8 @@
     "fee_bid": "0.0100000",
     "name": "BCHNANO",
     "disable_ticker": false,
-    "disabled": false,
-    "test_mode": false
+    "disabled": true,
+    "test_mode": true
   }
 },
 {
@@ -1114,8 +1114,8 @@
     "fee_bid": "0.0400000",
     "name": "BDGNANO",
     "disable_ticker": false,
-    "disabled": false,
-    "test_mode": false
+    "disabled": true,
+    "test_mode": true
   }
 },
 {
@@ -1146,8 +1146,8 @@
     "fee_bid": "0.0200000",
     "name": "EOSNANO",
     "disable_ticker": false,
-    "disabled": false,
-    "test_mode": false
+    "disabled": true,
+    "test_mode": true
   }
 },
 {
@@ -1386,8 +1386,8 @@
     "fee_bid": "0.0200000",
     "name": "OMGNANO",
     "disable_ticker": false,
-    "disabled": false,
-    "test_mode": false
+    "disabled": true,
+    "test_mode": true
   }
 },
 {
@@ -1770,7 +1770,7 @@
     "fee_bid": "0.0100000",
     "name": "ZECNANO",
     "disable_ticker": false,
-    "disabled": false,
+    "disabled": true,
     "test_mode": true
   }
 }
