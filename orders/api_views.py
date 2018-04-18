@@ -119,7 +119,7 @@ class VolumeViewSet(ReadOnlyCacheResponseAndETAGMixin, DateFilterViewSet):
         queryset = self.get_queryset(hours=hours)
         data = OrderedDict({'hours': hours})
         volume_data = []
-        pairs = Pair.objects.filter(disabled=False)
+        pairs = Pair.objects.all()
         total_base = total_quote = 0
         for pair in pairs:
             try:

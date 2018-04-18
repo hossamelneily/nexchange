@@ -4,9 +4,11 @@ from unittest.mock import patch
 from risk_management.task_summary import reserves_balance_checker_periodic,\
     account_balance_checker_invoke, reserve_balance_maintainer_invoke,\
     main_account_filler_invoke, currency_reserve_balance_checker_invoke, \
-    currency_cover_invoke, log_current_assets, calculate_pnls
+    currency_cover_invoke, log_current_assets, calculate_pnls, \
+    disable_currency_base, disable_currency_quote,\
+    enable_currency_base, enable_currency_quote
 from risk_management.models import Reserve, Account, Cover, PortfolioLog,\
-    PNLSheet
+    PNLSheet, DisabledCurrency
 from decimal import Decimal
 from django.conf import settings
 from core.tests.utils import data_provider
@@ -506,3 +508,56 @@ class PnlTaskTestCase(TickerBaseTestCase):
         pnl.position_str
         pnl.base_position_str
         pnl.pnl_str
+
+
+class CurrencyDisablingTestCase(RiskManagementBaseTestCase):
+    DISABLE_CURR_TESTS = [disable_currency_quote, disable_currency_base,
+                          enable_currency_base, enable_currency_quote]
+
+    @staticmethod
+    def apply_tasks():
+        for task in CurrencyDisablingTestCase.DISABLE_CURR_TESTS:
+            task()
+
+    def make_assertions(self, base_pairs, quote_pairs, expected_state_base, expected_state_quote):
+        for pair in quote_pairs:
+            self.assertTrue(pair.disabled == expected_state_quote)
+
+        for pair in base_pairs:
+            self.assertTrue(pair.disabled == expected_state_base)
+
+    @data_provider(lambda: (
+            ('LTC', True, False),
+            ('LTC', True, True),
+            ('LTC', False, True),
+            ('LTC', False, False),
+        )
+    )
+    def test_currency_disable_re_enable(self, currency_code, disabled_state_quote_initial,
+                                        disabled_state_base_initial):
+        ltc = Currency.objects.get(code=currency_code)
+
+        # This assumes only one DisabledCurrency of kind exists
+        DisabledCurrency.objects.all().delete()
+
+        disabled_curr =\
+            DisabledCurrency.objects.create(currency=ltc,
+                                            disable_quote=disabled_state_quote_initial,
+                                            disable_base=disabled_state_base_initial)
+
+        CurrencyDisablingTestCase.apply_tasks()
+        quote_pairs = Pair.objects.filter(quote__code=currency_code)
+        base_pairs = Pair.objects.filter(base__code=currency_code)
+        self.make_assertions(base_pairs, quote_pairs,
+                             disabled_state_base_initial,
+                             disabled_state_quote_initial)
+
+        DisabledCurrency.objects.filter(pk=disabled_curr.pk)\
+            .update(disable_quote=not disabled_state_quote_initial,
+                    disable_base=not disabled_state_base_initial)
+        CurrencyDisablingTestCase.apply_tasks()
+        quote_pairs = Pair.objects.filter(quote__code=currency_code)
+        base_pairs = Pair.objects.filter(base__code=currency_code)
+        self.make_assertions(base_pairs, quote_pairs,
+                             not disabled_state_base_initial,
+                             not disabled_state_quote_initial)

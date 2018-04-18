@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from risk_management.models import Reserve, Account, Cover, ReserveLog,\
-    PortfolioLog, PNL, PNLSheet
+    PortfolioLog, PNL, PNLSheet, DisabledCurrency
 
 
 @admin.register(Reserve)
@@ -59,3 +59,9 @@ class PNLSheetAdmin(admin.ModelAdmin):
     list_display = ('date_from', 'date_to')
     readonly_fields = ('pnl_btc', 'pnl_eth', 'pnl_eur',
                        'pnl_usd', 'positions', 'positions_str')
+
+
+@admin.register(DisabledCurrency)
+class DisabledCurrencyAdmin(admin.ModelAdmin):
+    list_display = ('currency', 'disable_quote', 'disable_base', 'user_visible_reason',
+                    'admin_comment', 'created_on', 'modified_on', )

@@ -14,6 +14,9 @@ from risk_management.tasks.generic.currency_cover import CurrencyCover
 from risk_management.tasks.generic.order_cover import OrderCover
 from django.utils.timezone import now, timedelta
 
+from core.models import Pair
+from risk_management.models import DisabledCurrency
+
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 @get_task(task_cls=AccountBalanceChecker)
@@ -86,3 +89,36 @@ def calculate_pnls():
     date_to = now()
     new_sheet = PNLSheet(date_from=date_from, date_to=date_to)
     new_sheet.save()
+
+
+def set_active_status(curr, trade_direction, active=True):
+    pairs = Pair.objects.filter(**{trade_direction: curr})
+    pairs.update(disabled=not active)
+
+
+def pair_helper(trade_direction, active=True):
+    prop = 'disable_{}'.format(trade_direction)
+    disabled = DisabledCurrency.objects.filter(**{prop: not active})
+
+    for curr in disabled:
+        set_active_status(curr.currency, trade_direction, active)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def disable_currency_quote():
+    return pair_helper('quote', False)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def enable_currency_base():
+    return pair_helper('base', True)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def disable_currency_base():
+    return pair_helper('base', False)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def enable_currency_quote():
+    return pair_helper('quote', True)

@@ -562,3 +562,14 @@ class PNL(TimeStampedModel):
                         continue
 
         super(PNL, self).save()
+
+
+class DisabledCurrency(TimeStampedModel):
+    currency = models.OneToOneField(Currency, unique=True,
+                                    blank=False, null=False)
+    disable_quote = models.BooleanField(default=True)
+    disable_base = models.BooleanField(default=True)
+    user_visible_reason = models.CharField(max_length=255, blank=True, null=True)
+    admin_comment = models.CharField(max_length=255, blank=True, null=True)
+    machine_comment = models.CharField(max_length=255, blank=True, null=True)
+

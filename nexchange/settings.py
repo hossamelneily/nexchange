@@ -336,6 +336,25 @@ AUDIT_TASKS = {
     },
 }
 
+PAIR_DISABLING_TASKS = {
+    'disable_quote': {
+        'task': 'risk_management.task_summary.disable_currency_quote',
+        'schedule': timedelta(seconds=60),
+    },
+    'enable_quote': {
+        'task': 'risk_management.task_summary.enable_currency_quote',
+        'schedule': timedelta(seconds=60),
+    },
+    'disable_base': {
+        'task': 'risk_management.task_summary.disable_currency_base',
+        'schedule': timedelta(seconds=60),
+    },
+    'enable_base': {
+        'task': 'risk_management.task_summary.enable_currency_base',
+        'schedule': timedelta(seconds=60),
+    }
+}
+
 CELERY_BEAT_SCHEDULE = {}
 
 CELERY_BEAT_SCHEDULE.update(CORE_TASKS)
