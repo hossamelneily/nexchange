@@ -26,6 +26,7 @@ from payments.api_clients.safe_charge import SafeChargeAPIClient
 from payments.models import PaymentPreference
 from nexchange.api_clients.factory import ApiClientFactory
 from oauth2_provider.models import AccessToken
+from decimal import InvalidOperation
 
 
 safe_charge_client = SafeChargeAPIClient()
@@ -289,10 +290,26 @@ class Order(TimeStampedModel, SoftDeletableModel,
         super(Order, self).save(*args, **kwargs)
 
     def calculate_quote_from_base(self, price=None):
-        self.calculate_from(_from='base', price=price)
+        try:
+            self.calculate_from(_from='base', price=price)
+        except InvalidOperation:
+            raise ValidationError(
+                _('It is not possible to receive {} {}'.format(
+                    self.amount_base,
+                    self.pair.base.code
+                ))
+            )
 
     def calculate_base_from_quote(self, price=None):
-        self.calculate_from(_from='quote', price=price)
+        try:
+            self.calculate_from(_from='quote', price=price)
+        except InvalidOperation:
+            raise ValidationError(
+                _('It is not possible to deposit {} {}'.format(
+                    self.amount_quote,
+                    self.pair.quote.code
+                ))
+            )
 
     def set_slippage(self, price, amount, amount_type):
         currency = self.pair.base

@@ -12,7 +12,8 @@ from rest_framework_extensions.mixins import (
 )
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import APIException, \
+    ValidationError as RestValidationError
 from rest_framework import status
 from collections import OrderedDict
 from core.models import Pair
@@ -27,6 +28,7 @@ from oauth2_provider.models import Application, AccessToken
 from oauthlib.common import generate_token
 from datetime import timedelta
 from django.utils import timezone
+from django.utils.translation import ugettext as _
 
 referral_middleware = ReferralMiddleWare()
 
@@ -165,14 +167,10 @@ class VolumeViewSet(ReadOnlyCacheResponseAndETAGMixin, DateFilterViewSet):
 
 class PriceView(APIView):
 
-    PAIR_REQUIRED = APIException(detail='pair_name is required')
+    PAIR_REQUIRED = APIException(detail=_('pair_name is required'))
     PAIR_REQUIRED.status_code = status.HTTP_400_BAD_REQUEST
 
-    BASE_OR_QUOTE_REQUIRED = APIException(
-        detail='Either amount_quote or amount_base is required')
-    BASE_OR_QUOTE_REQUIRED.status_code = status.HTTP_400_BAD_REQUEST
-
-    PAIR_DOES_NOT_EXIST = APIException(detail='pair does not exist')
+    PAIR_DOES_NOT_EXIST = APIException(detail=_('pair does not exist'))
     PAIR_DOES_NOT_EXIST.status_code = status.HTTP_404_NOT_FOUND
 
     def _create_order_with_default_values(self, pair):
@@ -213,7 +211,7 @@ class PriceView(APIView):
         except InvalidOperation:
             return
 
-    def get(self, request, pair_name=None):
+    def _get(self, request, pair_name=None):
         amount_base = self._amount_to_decimal('amount_base')
         amount_quote = self._amount_to_decimal('amount_quote')
         if not pair_name:
@@ -235,10 +233,11 @@ class PriceView(APIView):
         data = OrderedDict(
             {'amount_base': order.amount_base,
              'amount_quote': order.amount_quote})
-        try:
-            order._validate_order_amount()
-        except ValidationError as e:
-            exception = APIException(detail=str(e))
-            exception.status_code = status.HTTP_400_BAD_REQUEST
-            raise exception
+        order._validate_order_amount()
         return Response(data)
+
+    def get(self, request, pair_name=None):
+        try:
+            return self._get(request, pair_name=pair_name)
+        except ValidationError as e:
+            raise RestValidationError({'detail': e.message})
