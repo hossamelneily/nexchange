@@ -514,10 +514,14 @@ class CurrencyDisablingTestCase(RiskManagementBaseTestCase):
     DISABLE_CURR_TESTS = [disable_currency_quote, disable_currency_base,
                           enable_currency_base, enable_currency_quote]
 
+    def tearDown(self):
+        DisabledCurrency.objects.all().delete()
+        super(CurrencyDisablingTestCase, self).tearDown()
+
     @staticmethod
     def apply_tasks():
         for task in CurrencyDisablingTestCase.DISABLE_CURR_TESTS:
-            task()
+            task.apply()
 
     def make_assertions(self, base_pairs, quote_pairs, expected_state_base, expected_state_quote):
         for pair in quote_pairs:
@@ -561,3 +565,18 @@ class CurrencyDisablingTestCase(RiskManagementBaseTestCase):
         self.make_assertions(base_pairs, quote_pairs,
                              not disabled_state_base_initial,
                              not disabled_state_quote_initial)
+
+    def test_do_not_enable_if_disabled(self):
+        eth = Currency.objects.get(code='ETH')
+        nano = Currency.objects.get(code='NANO')
+        DisabledCurrency.objects.create(currency=eth)
+        DisabledCurrency.objects.create(currency=nano, disable_base=False)
+
+        CurrencyDisablingTestCase.apply_tasks()
+
+        eth_pairs = Pair.objects.filter(quote__code='ETH')
+
+        for pair in eth_pairs:
+            self.assertTrue(pair.disabled)
+
+

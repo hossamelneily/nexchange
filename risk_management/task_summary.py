@@ -93,7 +93,16 @@ def calculate_pnls():
 
 def set_active_status(curr, trade_direction, active=True):
     pairs = Pair.objects.filter(**{trade_direction: curr})
-    pairs.update(disabled=not active)
+    counter_trade_direction = 'base' if trade_direction == 'quote' else 'quote'
+    counter_prop = 'disable_{}'.format(counter_trade_direction)
+    for pair in pairs:
+        counter_curr = getattr(pair, counter_trade_direction)
+        pair.disabled = not active or not \
+            (active
+             and not DisabledCurrency.
+             objects.filter(**{'currency': counter_curr,
+                               counter_prop: True}).count())
+        pair.save()
 
 
 def pair_helper(trade_direction, active=True):
