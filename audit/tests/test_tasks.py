@@ -98,7 +98,7 @@ class AuditTaksTestCase(AuditBaseTestCase):
         for tx in txs:
             tx = txs.last()
             currency_code = 'ETH' if tx.tx_id == hash else 'BDG'
-            self.assertEqual(tx.amount, amount)
+            self.assertEqual(tx.amount, - amount)
             self.assertEqual(tx.currency.code, currency_code)
             self.assertEqual(tx.address_from, _from)
             self.assertEqual(tx.address_to, _to)
@@ -134,7 +134,7 @@ class AuditTaksTestCase(AuditBaseTestCase):
         self.assertEqual(len(txs), 1)
         for tx in txs:
             tx = txs.last()
-            self.assertEqual(tx.amount, amount)
+            self.assertEqual(tx.amount, - amount)
             self.assertEqual(tx.currency.code, currency_code)
             self.assertIsNone(tx.address_from)
             self.assertEqual(tx.address_to, _to)

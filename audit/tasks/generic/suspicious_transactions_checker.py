@@ -44,6 +44,16 @@ class SuspiciousTransactionsChecker(BaseTask):
                 '1F41mU67RW65dP8r7SeDBMXt7QU9v8ftK6': 'own'
             },
         }
+        cold_addresses = {
+            'BTC': {
+                '1F41mU67RW65dP8r7SeDBMXt7QU9v8ftK6': 'own'
+            }
+        }
+        main_addresses = {
+            'BTC': {
+                '13mkbEWnPafyzEBsJq82ceY4Zom9quUAbU': 'own'
+            }
+        }
         out_txs, in_txs, other_txs = [], [], []
         if currency == 'ETH':
             client = EthashRpcApiClient()
@@ -97,6 +107,7 @@ class SuspiciousTransactionsChecker(BaseTask):
                 if tx_data_decoded['from'].lower() == main_account.lower():
                     tx_data_decoded['internal'] = \
                         True if tx_data_decoded['to'] in accounts else False
+                    tx_data_decoded['amount'] = - tx_data_decoded['amount']
                     out_txs.append(tx_data_decoded)
                 elif tx_data_decoded['to'].lower() == main_account.lower():
                     tx_data_decoded['internal'] = \
@@ -116,8 +127,12 @@ class SuspiciousTransactionsChecker(BaseTask):
             out_txs = [tx for tx in txs if tx.get('category') == 'send']
             for tx in out_txs:
                 tx['internal'] = True if tx['address'] in internal_addresses.get(currency, []) else False  # noqa
-
+            for tx in out_txs:
+                tx['to_cold_storage'] = True if tx['address'] in cold_addresses.get(currency, []) else False  # noqa
             in_txs = [tx for tx in txs if tx.get('category') == 'receive']
+            for tx in in_txs:
+                tx['to_main_address'] = True if tx['address'] in main_addresses.get(currency, []) else False  # noqa
+
             other_txs = [
                 tx for tx in txs if tx.get('category') not in ['send',
                                                                'receive']
@@ -129,26 +144,32 @@ class SuspiciousTransactionsChecker(BaseTask):
         blockchain_txs = self.get_wallet_transactions(currency=currency_code)
         out_txs = blockchain_txs['out_txs']
         in_txs = blockchain_txs['in_txs']  # noqa
+        # Skip ETH due to its resend_to_main_transactions
+        to_main = [] if currency_code == 'ETH' else [
+            tx for tx in in_txs if tx.get('to_main_address')
+        ]
         other_txs = blockchain_txs['other_txs']
         db_txs = self.get_db_transactions(currency=currency_code)
         self._log('Check Out {}'.format(currency_code))
         i = 1
         total_amount = Decimal('0')
-        for tx in out_txs + other_txs:
+        for tx in out_txs + other_txs + to_main:
             tx_id = tx.get('tx_id', tx.get('txid'))
             time_stamp = tx.get('time_stamp', tx.get('time'))
             amount = tx['amount']
             report = False
             msg = ''
             internal = tx.get('internal')
+            to_cold_storage = tx.get('to_cold_storage')
+            to_main = tx.get('to_main_address')
             tx_currency = tx.get('currency_code', currency_code)
             _from = tx.get('from')
             _to = tx.get('to', tx.get('address'))
             tx_db = db_txs.get(tx_id)
             if not tx_db:
-                if not internal:
+                if to_cold_storage or to_main or not internal:
                     report = True
-                    msg += '*tx_id not fount in DB'
+                    msg += '*tx_id not found in DB'
             else:
                 # 99.99 rule due to XVG wallet lack of last to decimal places
                 if all([abs(amount) != tx_db['amount'],
@@ -177,7 +198,7 @@ class SuspiciousTransactionsChecker(BaseTask):
                     tx_id=tx_id
                 )
                 if created:
-                    sus_tx.amount = abs(amount)
+                    sus_tx.amount = amount
                     curr = Currency.objects.get(code=tx_currency)
                     sus_tx.currency = curr
                     sus_tx.address_from = _from
@@ -185,6 +206,9 @@ class SuspiciousTransactionsChecker(BaseTask):
                     sus_tx.auto_comment = msg
                     if time_stamp:
                         sus_tx.time = datetime.fromtimestamp(int(time_stamp))
+                    if to_cold_storage:
+                        sus_tx.human_comment = 'To Cold Storage'
+                        sus_tx.approved = True
                     sus_tx.save()
 
                 i += 1
