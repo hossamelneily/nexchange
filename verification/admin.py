@@ -1,13 +1,15 @@
 from django.contrib import admin
 
 from verification.models import Verification, VerificationTier, TradeLimit
+from orders.models import Order
+from payments.models import Payment
 
 
 @admin.register(Verification)
 class VerificationAdmin(admin.ModelAdmin):
 
-    list_display = ('id_status', 'util_status', 'full_name', 'note',
-                    'name_on_card', 'unique_cc')
+    list_display = ('created_on', 'id_status', 'util_status', 'full_name',
+                    'note', 'name_on_card', 'unique_cc')
     readonly_fields = ('identity_document', 'utility_document', 'name_on_card',
                        'unique_cc', 'payment_preference', 'id_doc',
                        'residence_doc', 'user', 'user_input_comment',
@@ -15,7 +17,25 @@ class VerificationAdmin(admin.ModelAdmin):
                        'is_immediate_payment', 'tier')
 
     search_fields = ('note', 'full_name', 'id_status', 'util_status',
-                     'payment_preference__secondary_identifier')
+                     'payment_preference__secondary_identifier',
+                     'payment_preference__provider_system_id',
+                     'user__username',
+                     'payment_preference__user__username')
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super(VerificationAdmin, self).\
+            get_search_results(request, queryset, search_term)
+        try:
+            orders = Order.objects.filter(exchange=False,
+                                          unique_reference=search_term)
+            if orders:
+                payments = Payment.objects.filter(order__in=orders)
+                prefs = [p.payment_preference for p in payments]
+                queryset |= self.model.objects.filter(
+                    payment_preference__in=prefs)
+        except Exception:
+            pass
+        return queryset, use_distinct
 
     def name_on_card(self, obj):
         name = ''
