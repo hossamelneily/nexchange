@@ -148,10 +148,10 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
     @patch('nexchange.api_clients.bittrex.Bittrex.get_balance')
     def test_reserve_balance_maintainer_buy_xvg(self, _get_balance, get_ticker,
                                                 sell_limit, buy_limit):
-        balance = self.reserve.min_expected_balance - Decimal('1.0')
+        balance = self.reserve.min_expected_level - Decimal('1.0')
         _get_balance.return_value = self._get_bittrex_get_balance_response(
-            float(balance))
-        diff = self.reserve.expected_balance - balance
+            float(balance), available=float(balance))
+        diff = self.reserve.target_level - balance
         ask = Decimal('0.001')
         get_ticker.return_value = self._get_bittrex_get_ticker_response(
             ask=ask)
@@ -170,8 +170,8 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
                                              rpc_balance):
         rpc_balance.return_value = '0.0'
         reserve = Reserve.objects.get(currency__code='DOGE')
-        balance_min = reserve.min_expected_balance - Decimal('1.0')
-        balance_max = reserve.max_expected_balance + Decimal('1.0')
+        balance_min = reserve.min_expected_level - Decimal('1.0')
+        balance_max = reserve.max_expected_level + Decimal('1.0')
         ask = bid = '0.001'
         self.add_order_params = None
         self.pair_name = None
@@ -195,7 +195,7 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
         q_public.side_effect = side_public
         q_private.side_effect = side_private
         for balance in [balance_min, balance_max]:
-            diff = reserve.expected_balance - balance
+            diff = reserve.target_level - balance
             order_type = 'sell' if diff < 0 else 'buy'
             diff = abs(diff)
             self.balance = balance
@@ -213,10 +213,10 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
     def test_reserve_balance_maintainer_sell_xvg(self, _get_balance,
                                                  get_ticker, sell_limit,
                                                  buy_limit):
-        balance = self.reserve.max_expected_balance + Decimal('1.0')
+        balance = self.reserve.max_expected_level + Decimal('1.0')
         _get_balance.return_value = self._get_bittrex_get_balance_response(
-            float(balance))
-        diff = balance - self.reserve.expected_balance
+            float(balance), available=float(balance))
+        diff = balance - self.reserve.target_level
         bid = Decimal('0.001')
         get_ticker.return_value = self._get_bittrex_get_ticker_response(
             bid=bid)
@@ -235,9 +235,9 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
     def test_reserve_balance_maintainer_none_xvg(self, _get_balance,
                                                  get_ticker, sell_limit,
                                                  buy_limit):
-        balance = self.reserve.expected_balance
+        balance = self.reserve.target_level
         _get_balance.return_value = self._get_bittrex_get_balance_response(
-            float(balance))
+            float(balance), available=float(balance))
         sell_limit.return_value = {'message': 'mock SELL'}
         buy_limit.return_value = {'message': 'mock BUY'}
         reserve_balance_maintainer_invoke.apply_async([self.reserve.pk])
@@ -252,7 +252,7 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
     def test_fill_main_account_xvg(self, _get_balance, get_ticker,
                                    buy_limit, withdraw):
         account_from = self.reserve.account_set.get(wallet='api3')
-        balance = self.reserve.expected_balance
+        balance = self.reserve.target_level
         amount = balance * Decimal('2.0')
         _get_balance.return_value = self._get_bittrex_get_balance_response(
             float(balance))
@@ -278,7 +278,7 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
     def test_fill_main_account_doge(self, q_public, q_private):
         account_from = Account.objects.get(reserve__currency__code='DOGE',
                                            wallet='api2')
-        self.balance = account_from.reserve.expected_balance
+        self.balance = account_from.reserve.target_level
         amount = self.balance * Decimal('2')
         ask = bid = '0.001'
         self.add_order_params = self.withdraw_params = None

@@ -7,8 +7,58 @@ from freezegun import freeze_time
 from decimal import Decimal
 
 from .base import TickerBaseTestCase
-from core.models import Currency
-from ticker.models import Price
+from core.models import Currency, Pair
+from ticker.models import Price, Ticker
+from django.test import TestCase
+from django.core.exceptions import ValidationError
+
+
+class PriceValidatorsTestCase(TestCase):
+
+    fixtures = [
+        'market.json',
+        'currency_crypto.json',
+        'currency_tokens.json',
+        'pairs_cross.json',
+    ]
+
+    def setUp(self):
+        super(PriceValidatorsTestCase, self).setUp()
+        self.pair = Pair.objects.get(name='LTCBTC')
+
+    def test_do_not_create_price_without_ticker(self):
+        with self.assertRaises(ValidationError):
+            Price.objects.create(pair=self.pair)
+
+    def test_do_not_save_ticker_too_big_difference(self):
+        patch.stopall()
+        self.assertEqual(Ticker.objects.all().count(), 0)
+        ask = Decimal('1.1')
+        bid = Decimal('0.9')
+        Ticker.objects.create(pair=self.pair, ask=ask, bid=bid)
+        self.assertEqual(Ticker.objects.all().count(), 1)
+        Ticker.objects.create(pair=self.pair, ask=ask, bid=bid)
+        self.assertEqual(Ticker.objects.all().count(), 2)
+        positive_multiplier = \
+            Decimal('1.0001') + settings.TICKER_ALLOWED_CHANGE
+        negative_multiplier = \
+            Decimal('0.99990') - settings.TICKER_ALLOWED_CHANGE
+        with self.assertRaises(ValidationError):
+            Ticker.objects.create(
+                pair=self.pair, ask=ask * positive_multiplier, bid=bid
+            )
+        with self.assertRaises(ValidationError):
+            Ticker.objects.create(
+                pair=self.pair, ask=ask * negative_multiplier, bid=bid
+            )
+        with self.assertRaises(ValidationError):
+            Ticker.objects.create(
+                pair=self.pair, ask=ask, bid=bid * positive_multiplier
+            )
+        with self.assertRaises(ValidationError):
+            Ticker.objects.create(
+                pair=self.pair, ask=ask, bid=bid * negative_multiplier
+            )
 
 
 class PriceTestCaseTask(TickerBaseTestCase):

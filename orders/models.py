@@ -18,7 +18,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from math import log10, floor, ceil
 from django.utils.translation import activate
-from nexchange.utils import send_email, send_sms
+from nexchange.utils import send_email, send_sms, get_nexchange_logger
 from django_fsm import FSMIntegerField, transition
 from nexchange.celery import app
 from cached_property import cached_property_with_ttl
@@ -31,6 +31,8 @@ from decimal import InvalidOperation
 
 safe_charge_client = SafeChargeAPIClient()
 factory = ApiClientFactory()
+logger = get_nexchange_logger('Order logger', with_email=True,
+                              with_console=True)
 
 
 class Order(TimeStampedModel, SoftDeletableModel,
@@ -237,10 +239,46 @@ class Order(TimeStampedModel, SoftDeletableModel,
         else:
             return
 
+    def _validate_pair(self):
+        if not self.pk:
+            self.pair.refresh_from_db()
+            self.pair.validate_enabled()
+            self.pair.validate_user(self.user)
+
+    def _validate_price(self):
+        if not self.pk and self.price.expired:
+            error_msg = 'Pair {} is temporarily unavailable.'.format(
+                self.pair.name
+            )
+            logger.warning('{}. Ticker expired !!!'.format(error_msg))
+            raise ValidationError(
+                _(error_msg.format(self.pair.name))
+            )
+
+    def _validate_reserves(self):
+        error_msg = 'Pair {} is temporarily unavailable.'.format(
+            self.pair.name
+        )
+        if not self.pk:
+            base_reserves = self.pair.base.available_reserves
+            min_base_reserves = self.pair.base.reserve.minimum_level
+            if base_reserves < min_base_reserves:
+                logger.warning('{}. Base Reserves too low.'.format(error_msg))
+                raise ValidationError(_(error_msg))
+            quote_reserves = self.pair.quote.available_reserves
+            min_quote_reserves = self.pair.quote.reserve.maximum_level
+            if quote_reserves > min_quote_reserves:
+                logger.warning('{}. Quote Reserves too high.'.format(
+                    error_msg
+                ))
+                logger.warning(error_msg)
+                raise ValidationError(_(error_msg))
+
     def _validate_fields(self):
         self._types_range_constraint(self.order_type, self.TYPES)
         self._types_range_constraint(self.status, self.STATUS_TYPES)
         self._validate_status(self.status)
+        self._validate_pair()
         if all([not self.amount_base, not self.amount_quote]):
             raise ValidationError(
                 _('One of amount_quote and amount_base is required.'))
@@ -286,6 +324,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
                 self.calculate_base_from_quote()
 
         self._validate_order_amount()
+        self._validate_price()
+        self._validate_reserves()
 
         super(Order, self).save(*args, **kwargs)
 

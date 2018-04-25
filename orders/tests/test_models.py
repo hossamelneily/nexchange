@@ -32,7 +32,7 @@ import requests_mock
 from freezegun import freeze_time
 from core.tests.utils import retry
 from rest_framework.test import APIClient
-from risk_management.models import Account
+from risk_management.models import Account, DisabledCurrency, Reserve
 
 
 class OrderBasicFieldsTestCase(OrderBaseTestCase):
@@ -745,8 +745,9 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
         self.assertEqual(expected_amount, real_amount, name)
 
     def test_invalid_order_than_base_amount_less_than_minimal(self):
-        self.data['amount_base'] = \
-            self.data['pair'].base.minimal_amount / Decimal('2.0')
+        pair = self.data['pair']
+        pair.refresh_from_db()
+        self.data['amount_base'] = pair.base.minimal_amount / Decimal('2.0')
         with self.assertRaises(ValidationError):
             order = Order(**self.data)
             order.save()
@@ -1110,3 +1111,196 @@ class CreateCoverableOrderTestCase(TickerBaseTestCase):
         base.save()
         order = self._create_order_api(amount_base=amount_base)
         self.assertFalse(order.coverable)
+
+
+class DisableOrderCreationTestCase(TickerBaseTestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(DisableOrderCreationTestCase, self).__init__(*args, **kwargs)
+        self.api_client = APIClient()
+        self.addresses = {
+            'LTC': 'LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4',
+            'BTC': '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2',
+            'BCH': '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2',
+        }
+        self.user_reason = 'Suspended till the end of Ragnarok.'
+
+    def setUp(self):
+        self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'LTCBCH', 'BCHLTC', 'BCHXVG']
+        patch.stopall()
+        super(DisableOrderCreationTestCase, self).setUp()
+        self.patcher_validate_balance = patch(
+            'orders.models.Order._validate_order_amount'
+        )
+        self.patcher_validate_balance.start()
+        self.ltc_disabled_currency = DisabledCurrency.objects.create(
+            currency=Currency.objects.get(code='LTC'),
+            user_visible_reason=self.user_reason,
+            disable_quote=False,
+            disable_base=False
+        )
+        self.btc_disabled_currency = DisabledCurrency.objects.create(
+            currency=Currency.objects.get(code='BTC'),
+            user_visible_reason=self.user_reason,
+            disable_quote=False,
+            disable_base=False
+        )
+        self.disabled_currencies = [
+            self.ltc_disabled_currency,
+            self.btc_disabled_currency
+        ]
+
+    def tearDown(self):
+        super(DisableOrderCreationTestCase, self).tearDown()
+        self.patcher_validate_balance.stop()
+
+    def _change_disablers(self, disable=False):
+        for curr in self.disabled_currencies:
+            curr.disable_base = disable
+            curr.disable_quote = disable
+            curr.save()
+
+    def _create_order_api(self, **kwargs):
+        order_data = {
+            'pair': {
+                'name': kwargs.pop('pair_name', 'LTCBTC')
+            },
+            'withdraw_address': {
+                'address': kwargs.pop('address', self.addresses['LTC'])
+            }
+        }
+        order_data.update(kwargs)
+        order_api_url = '/en/api/v1/orders/'
+        return self.api_client.post(order_api_url, order_data, format='json')
+
+    def test_create_order_with_non_active_disabled_currency(self):
+        self.ltc_disabled_currency.disable_quote = True
+        self.ltc_disabled_currency.disable_base = False
+        self.ltc_disabled_currency.save()
+        self.btc_disabled_currency.disable_quote = False
+        self.btc_disabled_currency.disable_base = True
+        self.btc_disabled_currency.save()
+        res_ok = self._create_order_api(
+            pair_name='LTCBTC',
+            amount_base=1,
+            address=self.addresses['LTC']
+        )
+        self.assertEqual(res_ok.status_code, 201)
+
+    @data_provider(lambda: (
+        ('LTC', 'BCH'),
+        ('BCH', 'LTC'),
+    ))
+    def test_do_not_create_order_with_disabled_currency(self, base, quote):
+        self._change_disablers(disable=True)
+        res = self._create_order_api(
+            pair_name='{}{}'.format(base, quote),
+            amount_quote=1,
+            address=self.addresses[base]
+        )
+        self.assertEqual(res.status_code, 400)
+        errors = res.json().pop('non_field_errors', [])
+        errors_text = ''.join(errors)
+        self.assertIn(self.user_reason, errors_text)
+
+    @data_provider(lambda: (
+        ('LTC', 'BCH'),
+        ('BCH', 'LTC'),
+        ('BCH', 'XVG'),
+    ))
+    def test_do_not_create_order_disabled_on_currency_model(self, base, quote):
+        self._change_disablers(disable=False)
+        pair = Pair.objects.get(name='{}{}'.format(base, quote))
+        pair.base.disabled = True
+        pair.base.save()
+        res = self._create_order_api(
+            pair_name=pair.name,
+            amount_quote=1,
+            address=self.addresses[base]
+        )
+        self.assertEqual(res.status_code, 400)
+
+    def test_allow_save_after_disabling(self):
+        base = self.disabled_currencies[0].currency.code
+        quote = self.disabled_currencies[1].currency.code
+        self._change_disablers(disable=False)
+        res = self._create_order_api(
+            pair_name='{}{}'.format(base, quote),
+            amount_quote=1,
+            address=self.addresses[base]
+        )
+        self.assertEqual(res.status_code, 201)
+        order = Order.objects.get(
+            unique_reference=res.json()['unique_reference']
+        )
+        self._change_disablers(disable=True)
+        self.assertIsNone(order.save())
+
+    def test_mode_only_with_allowance(self):
+        res1 = self._create_order_api(amount_quote=1)
+        self.assertEqual(res1.status_code, 201)
+        order = Order.objects.get(
+            unique_reference=res1.json()['unique_reference']
+        )
+        pair = order.pair
+        pair.test_mode = True
+        pair.save()
+        profile = order.user.profile
+        self.assertFalse(profile.can_use_test_mode)
+        res2 = self._create_order_api(amount_quote=1)
+        self.assertEqual(res2.status_code, 400)
+        profile.can_use_test_mode = True
+        profile.save()
+        res3 = self._create_order_api(amount_quote=1)
+        self.assertEqual(res3.status_code, 201)
+
+    def test_price_is_new(self):
+        self.patcher_validate_order_create_price.stop()
+        res1 = self._create_order_api(amount_quote=1)
+        order = Order.objects.get(
+            unique_reference=res1.json()['unique_reference']
+        )
+        self.assertEqual(res1.status_code, 201)
+        now = datetime.now() + settings.TICKER_EXPIRATION_INTERVAL
+        with freeze_time(now):
+            res2 = self._create_order_api(amount_quote=1)
+            self.assertEqual(res2.status_code, 400)
+            self.assertIsNone(order.save())
+
+    def test_do_not_sell_lower_than_min_reserves(self):
+        self.patcher_validate_order_reserve.stop()
+        pair = Pair.objects.get(name='LTCBTC')
+        reserve = Reserve.objects.get(currency=pair.base)
+        mininum_level = reserve.minimum_level
+        accounts = reserve.account_set.all()
+        min_per_account_available = mininum_level / Decimal(accounts.count())
+        for acc in accounts:
+            acc.available = min_per_account_available * Decimal(0.9)
+            acc.save()
+        res = self._create_order_api(
+            pair_name=pair.name,
+            amount_quote=1,
+            address=self.addresses[pair.base.code]
+        )
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(pair.base.is_base_of_enabled_pair)
+        self.assertTrue(pair.base.is_base_of_enabled_pair_for_test)
+
+    def test_do_not_buy_higher_than_max_reserves(self):
+        self.patcher_validate_order_reserve.stop()
+        pair = Pair.objects.get(name='LTCBTC')
+        reserve = Reserve.objects.get(currency=pair.quote)
+        maximum_level = reserve.maximum_level
+        accounts = reserve.account_set.all()
+        max_per_account_available = maximum_level / Decimal(accounts.count())
+        for acc in accounts:
+            acc.available = max_per_account_available * Decimal(1.1)
+            acc.save()
+        res = self._create_order_api(
+            pair_name=pair.name,
+            amount_quote=1,
+            address=self.addresses[pair.base.code]
+        )
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(pair.quote.is_quote_of_enabled_pair)
+        self.assertTrue(pair.quote.is_quote_of_enabled_pair_for_test)

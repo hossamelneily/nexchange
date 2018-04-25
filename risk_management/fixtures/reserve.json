@@ -7,8 +7,11 @@
     "modified_on": "2017-10-04T12:57:37.855Z",
     "currency": 35,
     "is_limit_reserve": true,
-    "expected_balance": "1000.0",
-    "margin_balance": "200.0"
+    "target_level": "30000.0",
+    "allowed_diff": "3000.0",
+    "minimum_level": "1000",
+    "maximum_level": "100000",
+    "minimum_main_account_level": "500"
   }
 },
 {
@@ -18,7 +21,12 @@
     "created_on": "2017-10-04T12:57:37.855Z",
     "modified_on": "2017-10-04T12:57:37.855Z",
     "currency": 1,
-    "is_limit_reserve": false
+    "is_limit_reserve": false,
+    "target_level": "5.0",
+    "allowed_diff": "1.0",
+    "minimum_level": "0.3",
+    "maximum_level": "10",
+    "minimum_main_account_level": "0.005"
   }
 },
 {
@@ -28,7 +36,12 @@
     "created_on": "2017-10-04T12:57:37.855Z",
     "modified_on": "2017-10-04T12:57:37.855Z",
     "currency": 2,
-    "is_limit_reserve": false
+    "is_limit_reserve": false,
+    "target_level": "30",
+    "allowed_diff": "3.0",
+    "minimum_level": "2",
+    "maximum_level": "100",
+    "minimum_main_account_level": "0.1"
   }
 },
 {
@@ -38,7 +51,12 @@
     "created_on": "2017-10-04T12:57:37.855Z",
     "modified_on": "2017-10-04T12:57:37.855Z",
     "currency": 3,
-    "is_limit_reserve": false
+    "is_limit_reserve": false,
+    "target_level": "30",
+    "allowed_diff": "3.0",
+    "minimum_level": "2",
+    "maximum_level": "100",
+    "minimum_main_account_level": "0.05"
   }
 },
 {
@@ -48,7 +66,12 @@
     "created_on": "2017-10-04T12:57:37.855Z",
     "modified_on": "2017-10-04T12:57:37.855Z",
     "currency": 36,
-    "is_limit_reserve": false
+    "is_limit_reserve": false,
+    "target_level": "5",
+    "allowed_diff": "1",
+    "minimum_level": "0.5",
+    "maximum_level": "15",
+    "minimum_main_account_level": "0.05"
   }
 },
 {
@@ -58,9 +81,12 @@
     "created_on": "2017-10-04T12:57:37.855Z",
     "modified_on": "2017-10-04T12:57:37.855Z",
     "currency": 34,
-    "expected_balance": "3500.0",
-    "margin_balance": "500.0",
-    "is_limit_reserve": true
+    "is_limit_reserve": true,
+    "target_level": "200000",
+    "allowed_diff": "20000",
+    "minimum_level": "5000",
+    "maximum_level": "700000",
+    "minimum_main_account_level": "1000"
   }
 },
 {
@@ -70,7 +96,12 @@
     "created_on": "2017-10-04T12:57:37.855Z",
     "modified_on": "2017-10-04T12:57:37.855Z",
     "currency": 37,
-    "is_limit_reserve": false
+    "is_limit_reserve": false,
+    "target_level": "40000",
+    "allowed_diff": "10000",
+    "minimum_level": "1000",
+    "maximum_level": "150000",
+    "minimum_main_account_level": "750"
   }
 },
 {
@@ -79,10 +110,13 @@
   "fields": {
     "created_on": "2017-10-04T12:57:37.855Z",
     "modified_on": "2017-10-04T12:57:37.855Z",
-    "expected_balance": "3500.0",
-    "margin_balance": "500.0",
     "currency": 40,
-    "is_limit_reserve": false
+    "is_limit_reserve": false,
+    "target_level": "200",
+    "allowed_diff": "20",
+    "minimum_level": "20",
+    "maximum_level": "500",
+    "minimum_main_account_level": "5"
   }
 },
 {
@@ -92,9 +126,12 @@
     "created_on": "2017-10-04T12:57:37.855Z",
     "modified_on": "2017-10-04T12:57:37.855Z",
     "currency": 42,
-    "expected_balance": "3500.0",
-    "margin_balance": "500.0",
-    "is_limit_reserve": false
+    "is_limit_reserve": false,
+    "target_level": "400",
+    "allowed_diff": "20",
+    "minimum_level": "20",
+    "maximum_level": "1000",
+    "minimum_main_account_level": "0.05"
   }
 },
 {
@@ -104,9 +141,12 @@
     "created_on": "2017-10-04T12:57:37.855Z",
     "modified_on": "2017-10-04T12:57:37.855Z",
     "currency": 39,
-    "expected_balance": "3500.0",
-    "margin_balance": "500.0",
-    "is_limit_reserve": false
+    "is_limit_reserve": false,
+    "target_level": "100",
+    "allowed_diff": "20",
+    "minimum_level": "20",
+    "maximum_level": "500",
+    "minimum_main_account_level": "5"
   }
 },
 {
@@ -116,9 +156,12 @@
     "created_on": "2017-10-04T12:57:37.855Z",
     "modified_on": "2017-10-04T12:57:37.855Z",
     "currency": 43,
-    "expected_balance": "50.0",
-    "margin_balance": "20.0",
-    "is_limit_reserve": false
+    "is_limit_reserve": false,
+    "target_level": "10",
+    "allowed_diff": "2",
+    "minimum_level": "2",
+    "maximum_level": "50",
+    "minimum_main_account_level": "0.05"
   }
 }
 ]

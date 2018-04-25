@@ -71,6 +71,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     anonymous_login = models.BooleanField(default=False)
     cards_validity_approved = models.BooleanField(default=False)
     tier = models.ForeignKey(VerificationTier, blank=True, null=True)
+    can_use_test_mode = models.BooleanField(default=False)
 
     @property
     def has_withdraw_address(self):

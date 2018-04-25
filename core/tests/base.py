@@ -71,6 +71,18 @@ class UserBaseTestCase(TestCase):
     def setUp(self):
         enable_all_pairs()
         set_big_reserves()
+        self.patcher_validate_order_reserve = patch(
+            'orders.models.Order._validate_reserves'
+        )
+        self.patcher_validate_order_reserve.start()
+        self.patcher_validate_order_create_price = patch(
+            'orders.models.Order._validate_price'
+        )
+        self.patcher_validate_order_create_price.start()
+        self.patcher_validate_ticker_diff = patch(
+            'ticker.models.Ticker._validate'
+        )
+        self.patcher_validate_ticker_diff.start()
         self.logout_url = reverse('accounts.logout')
         self.username = '+491628290463'
         self.password = '123Mudar'
@@ -96,6 +108,16 @@ class UserBaseTestCase(TestCase):
                                     password=self.password)
         assert success
         super(UserBaseTestCase, self).setUp()
+
+    def tearDown(self):
+        super(UserBaseTestCase, self).tearDown()
+        for patcher in [self.patcher_validate_order_reserve,
+                        self.patcher_validate_order_create_price,
+                        self.patcher_validate_ticker_diff]:
+            try:
+                patcher.stop()
+            except RuntimeError:
+                continue
 
     @patch('orders.models.Order.calculate_quote_from_base')
     def create_main_user(self, convert_cash):

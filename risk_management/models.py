@@ -16,10 +16,19 @@ from copy import deepcopy
 class Reserve(TimeStampedModel):
     currency = models.ForeignKey(Currency)
     is_limit_reserve = models.BooleanField(default=False)
-    expected_balance = models.DecimalField(max_digits=18, decimal_places=8,
-                                           default=Decimal('0'))
-    margin_balance = models.DecimalField(max_digits=18, decimal_places=8,
-                                         default=Decimal('0'))
+    target_level = models.DecimalField(max_digits=18, decimal_places=8,
+                                       default=Decimal('0'))
+    allowed_diff = models.DecimalField(max_digits=18, decimal_places=8,
+                                       default=Decimal('0'))
+    maximum_level = models.DecimalField(
+        max_digits=18, decimal_places=8, default=Decimal('0')
+    )
+    minimum_level = models.DecimalField(
+        max_digits=18, decimal_places=8, default=Decimal('0')
+    )
+    minimum_main_account_level = models.DecimalField(
+        max_digits=18, decimal_places=8, default=Decimal('0')
+    )
 
     def __str__(self):
         return '{} reserve'.format(self.currency.code)
@@ -46,28 +55,40 @@ class Reserve(TimeStampedModel):
         return self.sum_account_field('available')
 
     @property
-    def min_expected_balance(self):
-        return self.expected_balance - self.margin_balance
+    def min_expected_level(self):
+        return self.target_level - self.allowed_diff
 
     @property
-    def max_expected_balance(self):
-        return self.expected_balance + self.margin_balance
+    def max_expected_level(self):
+        return self.target_level + self.allowed_diff
 
     @property
-    def has_expected_balance(self):
-        if self.min_expected_balance <= self.balance <= self.max_expected_balance:  # noqa
+    def has_target_level(self):
+        if self.min_expected_level <= self.available <= self.max_expected_level:  # noqa
             return True
         return False
 
     @property
-    def diff_from_expected_balance(self):
-        return self.balance - self.expected_balance
+    def below_minimum_level(self):
+        return self.available < self.minimum_level
+
+    @property
+    def over_maximum_level(self):
+        return self.available > self.maximum_level
+
+    @property
+    def is_allowed_level(self):
+        return not self.is_too_low_level and not self.is_too_high_level
+
+    @property
+    def diff_from_target_level(self):
+        return self.available - self.target_level
 
     @property
     def needed_trade_move(self):
-        diff = self.diff_from_expected_balance
+        diff = self.diff_from_target_level
         trade_type = None
-        if not self.has_expected_balance and self.is_limit_reserve:
+        if not self.has_target_level and self.is_limit_reserve:
             if diff > Decimal('0.0'):
                 trade_type = 'SELL'
             else:
@@ -77,6 +98,10 @@ class Reserve(TimeStampedModel):
     @property
     def main_account(self):
         return self.account_set.get(is_main_account=True)
+
+    @property
+    def can_increase_balance(self):
+        return self.available < self.maximal_level
 
 
 class PortfolioLog(TimeStampedModel):
@@ -569,7 +594,7 @@ class DisabledCurrency(TimeStampedModel):
                                     blank=False, null=False)
     disable_quote = models.BooleanField(default=True)
     disable_base = models.BooleanField(default=True)
-    user_visible_reason = models.CharField(max_length=255, blank=True, null=True)
+    user_visible_reason = models.CharField(max_length=255, blank=True,
+                                           null=True)
     admin_comment = models.CharField(max_length=255, blank=True, null=True)
     machine_comment = models.CharField(max_length=255, blank=True, null=True)
-

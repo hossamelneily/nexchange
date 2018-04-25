@@ -7,6 +7,13 @@ from core.models import Pair, Market, Currency
 from core.common.models import IndexTimeStampedModel
 from decimal import Decimal
 from payments.utils import money_format
+from django.utils import timezone
+from django.utils.translation import ugettext as _
+from django.core.exceptions import ValidationError
+from nexchange.utils import get_nexchange_logger
+
+LOGGER = get_nexchange_logger('Ticker Logger', with_email=True,
+                              with_console=True)
 
 
 class Ticker(IndexTimeStampedModel):
@@ -17,6 +24,33 @@ class Ticker(IndexTimeStampedModel):
     @property
     def rate(self):
         return (self.ask + self.bid) / 2
+
+    def _validate(self):
+        if self.pk:
+            return
+        try:
+            latest = Ticker.objects.filter(pair=self.pair).latest('id')
+        except self.DoesNotExist:
+            return
+        for field in ['ask', 'bid']:
+            value = Decimal(getattr(self, field))
+            previous_value = Decimal(getattr(latest, field))
+            diff = abs(value - previous_value) / previous_value
+            if diff > settings.TICKER_ALLOWED_CHANGE:
+                msg = \
+                    'Too big ticker {field} change (from {value} to ' \
+                    '{previous_value}). Pair: {pair}'.format(
+                        field=field,
+                        value=value,
+                        previous_value=previous_value,
+                        pair=self.pair.name
+                    )
+                LOGGER.error(msg)
+                raise ValidationError(_(msg))
+
+    def save(self, *args, **kwargs):
+        self._validate()
+        super(Ticker, self).save(*args, **kwargs)
 
 
 DEFAULT_MARKET_PK = 1
@@ -31,10 +65,15 @@ class Price(IndexTimeStampedModel):
     slippage = models.DecimalField(max_digits=18, decimal_places=8,
                                    default=Decimal('0'))
 
-    def save(self):
+    def _validate(self):
+        if not self.pk and not self.ticker:
+            raise ValidationError(_('Ticker is required for Price.'))
+
+    def save(self, *args, **kwargs):
+        self._validate()
         if self.pair:
             self.slippage = self.pair.base.current_slippage
-        super(Price, self).save()
+        super(Price, self).save(*args, **kwargs)
 
     @classmethod
     def _get_currency(cls, currency):
@@ -113,6 +152,14 @@ class Price(IndexTimeStampedModel):
     @cached_property_with_ttl(ttl=settings.TICKER_INTERVAL)
     def rate_eur(self):
         return self.get_rate(self.pair.base, 'EUR')
+
+    @property
+    def price_expiration_date(self):
+        return self.created_on + settings.TICKER_EXPIRATION_INTERVAL
+
+    @property
+    def expired(self):
+        return timezone.now() > self.price_expiration_date
 
     def __str__(self):
         return '{} {}'.format(self.pair, self.created_on)

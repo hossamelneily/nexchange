@@ -129,3 +129,18 @@ class PnlTestCase(TestCase):
         self.assertEqual(pn.pnl_unrealized, Decimal('-14.25'))
         self.assertEqual(pn.pnl, Decimal('17.999997'))
         self.assertIsInstance(pn.__str__(), str)
+
+
+class FixtureTestCase(RiskManagementBaseTestCase):
+
+    def test_check_reserve_levels_non_zero(self):
+        reserves = Reserve.objects.all()
+        fields = ['minimum_level', 'maximum_level', 'target_level',
+                  'allowed_diff', 'minimum_main_account_level']
+        for reserve in reserves:
+            for field in fields:
+                value = getattr(reserve, field)
+                error_msg = '{} of {}(currency pk {}) is 0'.format(
+                    field, reserve.currency.code, reserve.currency.pk
+                )
+                self.assertTrue(value > Decimal(0), error_msg)

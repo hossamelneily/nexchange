@@ -7,7 +7,7 @@ from risk_management.models import Reserve, Account, Cover, ReserveLog,\
 @admin.register(Reserve)
 class ReserveAdmin(admin.ModelAdmin):
     readonly_fields = ('currency', 'balance', 'available', 'pending')
-    list_display = ('currency', 'expected_balance', 'margin_balance',
+    list_display = ('currency', 'target_level', 'allowed_diff',
                     'needed_trade_move', 'is_limit_reserve', 'balance')
     search_fields = ('currency__code', 'currency__name')
 

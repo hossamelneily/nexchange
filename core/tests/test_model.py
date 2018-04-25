@@ -1,5 +1,4 @@
 from django.test import TestCase
-from django.conf import settings
 from core.tests.base import OrderBaseTestCase
 from core.models import AddressReserve, Currency, Pair, Transaction, Market
 from core.common.models import UniqueFieldMixin
@@ -79,17 +78,19 @@ class CurrencyTestCase(OrderBaseTestCase):
                         'Missing account for reserve %s' %
                         (set(reserves_pk) - set(reserves_pk_in_accounts)))
 
-    def test_move_currency_to_test_mode_if_reserve_below_requirements(self):
+    def test_move_currency_to_test_mode_if_account_below_requirements(self):
         curr = Currency.objects.get(code='BTC')
         account = Account.objects.get(reserve__currency=curr,
                                       is_main_account=True)
+        # Set minimu level as 0
+        account.reserve.minimum_level = Decimal('0')
+        account.reserve.save()
         self.assertFalse(curr.execute_cover)
         self.assertTrue(curr.is_base_of_enabled_pair)
         self.assertTrue(curr.is_base_of_enabled_pair_for_test)
         # Set reserves level to less than minimal
         account.available = \
-            curr.minimal_amount * settings.MINIMAL_RESERVE_LEVEL_MULTIPLIER * \
-            Decimal('0.99')
+            account.reserve.minimum_main_account_level * Decimal('0.99')
         account.save()
         curr.refresh_from_db()
         self.assertFalse(curr.has_enough_reserves)

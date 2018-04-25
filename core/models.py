@@ -9,7 +9,7 @@ from core.common.models import FlagableMixin
 from .validators import validate_address
 from django_countries.fields import CountryField
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.conf import settings
+from django.utils.translation import ugettext as _
 
 
 class BtcBase(TimeStampedModel):
@@ -247,7 +247,7 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     @property
     def is_quote_of_enabled_pair(self):
         enabled_pairs = self.quote_pairs
-        if len(enabled_pairs) > 0:
+        if all([len(enabled_pairs) > 0, not self.has_too_much_reserves]):
             return True
         return False
 
@@ -269,11 +269,15 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                     self.is_quote_of_enabled_pair_for_test])
 
     @property
-    def available_reserves(self):
+    def reserve(self):
         try:
-            return self.reserve_set.get().available
+            return self.reserve_set.get()
         except ObjectDoesNotExist:
-            return Decimal('0.0')
+            return
+
+    @property
+    def available_reserves(self):
+        return getattr(self.reserve, 'available', Decimal('0'))
 
     @property
     def available_main_reserves(self):
@@ -292,15 +296,19 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
             return self.available_main_reserves
 
     @property
-    def required_minimal_reserves(self):
-        return settings.MINIMAL_RESERVE_LEVEL_MULTIPLIER * self.minimal_amount
-
-    @property
     def has_enough_reserves(self):
-        return any([
-            self.available_main_reserves >= self.required_minimal_reserves,
+        is_too_low_level = getattr(self.reserve, 'below_minimum_level', False)
+        minimum_account_level = getattr(
+            self.reserve, 'minimum_main_account_level', Decimal('0')
+        )
+        return not is_too_low_level and any([
+            self.available_main_reserves >= minimum_account_level,
             self.execute_cover
         ])
+
+    @property
+    def has_too_much_reserves(self):
+        return getattr(self.reserve, 'over_maximum_level', False)
 
     def __str__(self):
         return self.code
@@ -365,6 +373,38 @@ class Pair(TimeStampedModel):
         if self.base.is_token or self.quote.is_token:
             return True
         return False
+
+    def check_currency_disabled(self, currency_type):
+        currency = getattr(self, currency_type)
+        disabled_currency = getattr(currency, 'disabledcurrency', None)
+        disable_with_task = getattr(
+            disabled_currency, 'disable_{}'.format(currency_type), False
+        )
+        disabled = disable_with_task or currency.disabled
+        user_reason = getattr(disabled_currency, 'user_visible_reason', None)
+        full_reason = '{currency_code}: {user_reason}'.format(
+            currency_code=currency.code,
+            user_reason=user_reason
+        ) if user_reason and disable_with_task else None
+        return disabled, full_reason
+
+    def validate_enabled(self):
+        error_msg = '{} is not currently a supported Pair.'.format(self.name)
+        currency_types = ['base', 'quote']
+        disabled_types = []
+        for currency_type in currency_types:
+            disabled, reason = self.check_currency_disabled(currency_type)
+            if disabled:
+                error_msg += ' {}'.format(reason) if reason else ''
+                disabled_types.append(currency_type)
+        if self.disabled or disabled_types:
+            raise ValidationError(_(error_msg))
+
+    def validate_user(self, user):
+        error_msg = 'Not allowed to use test mode.'
+        user.refresh_from_db()
+        if self.test_mode and not user.profile.can_use_test_mode:
+            raise ValidationError(_(error_msg))
 
 
 class Country(models.Model):
