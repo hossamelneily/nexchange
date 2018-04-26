@@ -24,6 +24,7 @@
     "quote": 5,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHRUB",
     "disabled": true
   }
@@ -68,6 +69,7 @@
     "quote": 8,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHJPY",
     "disabled": true
   }
@@ -82,6 +84,7 @@
     "quote": 9,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHHRK",
     "disabled": true
   }
@@ -96,6 +99,7 @@
     "quote": 10,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHCHF",
     "disabled": true
   }
@@ -110,6 +114,7 @@
     "quote": 11,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHPLN",
     "disabled": true
   }
@@ -124,6 +129,7 @@
     "quote": 12,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHRON",
     "disabled": true
   }
@@ -138,6 +144,7 @@
     "quote": 13,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHBGN",
     "disabled": true
   }
@@ -152,6 +159,7 @@
     "quote": 14,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHCZK",
     "disabled": true
   }
@@ -166,6 +174,7 @@
     "quote": 15,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHAUD",
     "disabled": true
   }
@@ -180,6 +189,7 @@
     "quote": 16,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHCAD",
     "disabled": true
   }
@@ -194,6 +204,7 @@
     "quote": 17,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHNOK",
     "disabled": true
   }
@@ -208,6 +219,7 @@
     "quote": 18,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHSEK",
     "disabled": true
   }
@@ -222,6 +234,7 @@
     "quote": 19,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHDKK",
     "disabled": true
   }
@@ -236,6 +249,7 @@
     "quote": 20,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHHUF",
     "disabled": true
   }
@@ -250,6 +264,7 @@
     "quote": 21,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHTRY",
     "disabled": true
   }
@@ -264,6 +279,7 @@
     "quote": 22,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHZAR",
     "disabled": true
   }
@@ -278,6 +294,7 @@
     "quote": 23,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHNZD",
     "disabled": true
   }
@@ -292,6 +309,7 @@
     "quote": 24,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHBRL",
     "disabled": true
   }
@@ -306,6 +324,7 @@
     "quote": 25,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHIDR",
     "disabled": true
   }
@@ -320,6 +339,7 @@
     "quote": 26,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHILS",
     "disabled": true
   }
@@ -334,6 +354,7 @@
     "quote": 27,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHINR",
     "disabled": true
   }
@@ -348,6 +369,7 @@
     "quote": 28,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHKRW",
     "disabled": true
   }
@@ -362,6 +384,7 @@
     "quote": 29,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHMXN",
     "disabled": true
   }
@@ -376,6 +399,7 @@
     "quote": 30,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHMYR",
     "disabled": true
   }
@@ -390,6 +414,7 @@
     "quote": 31,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHPHP",
     "disabled": true
   }
@@ -404,6 +429,7 @@
     "quote": 32,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "ETHTHB",
     "disabled": true
   }

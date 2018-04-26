@@ -350,6 +350,9 @@ class Pair(TimeStampedModel):
         default=False, help_text='Opt-out this Pair ticker gathering.'
     )
     test_mode = models.BooleanField(default=True)
+    disable_volume = models.BooleanField(
+        default=False, help_text='Opt-out this Pair on Volume endpoint.'
+    )
 
     def save(self, *args, **kwargs):
         self.name = '{}{}'.format(self.base, self.quote)

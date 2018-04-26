@@ -9,6 +9,7 @@
     "quote": 4,
     "fee_ask": "0.00000000",
     "fee_bid": "0.00000000",
+    "disable_volume": true,
     "name": "RNSUSD",
     "disable_ticker": true,
     "disabled": true
@@ -25,6 +26,7 @@
     "fee_ask": "0.00000000",
     "fee_bid": "0.00000000",
     "name": "RNSRUB",
+    "disable_volume": true,
     "disable_ticker": true,
     "disabled": true
   }
@@ -40,6 +42,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSEUR",
+    "disable_volume": true,
     "disable_ticker": true,
     "disabled": true
   }
@@ -54,6 +57,7 @@
     "quote": 7,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSGBP",
     "disable_ticker": true,
     "disabled": true
@@ -70,6 +74,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSJPY",
+    "disable_volume": true,
     "disable_ticker": true,
     "disabled": true
   }
@@ -85,6 +90,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSHRK",
+    "disable_volume": true,
     "disable_ticker": true,
     "disabled": true
   }
@@ -100,6 +106,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSCHF",
+    "disable_volume": true,
     "disable_ticker": true,
     "disabled": true
   }
@@ -115,6 +122,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSPLN",
+    "disable_volume": true,
     "disable_ticker": true,
     "disabled": true
   }
@@ -130,6 +138,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSRON",
+    "disable_volume": true,
     "disable_ticker": true,
     "disabled": true
   }
@@ -144,6 +153,7 @@
     "quote": 13,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSBGN",
     "disable_ticker": true,
     "disabled": true
@@ -159,6 +169,7 @@
     "quote": 14,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSCZK",
     "disable_ticker": true,
     "disabled": true
@@ -174,6 +185,7 @@
     "quote": 15,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSAUD",
     "disable_ticker": true,
     "disabled": true
@@ -190,6 +202,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "RNSCAD",
+    "disable_volume": true,
     "disable_ticker": true,
     "disabled": true
   }
@@ -204,6 +217,7 @@
     "quote": 17,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSNOK",
     "disable_ticker": true,
     "disabled": true
@@ -219,6 +233,7 @@
     "quote": 18,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSSEK",
     "disable_ticker": true,
     "disabled": true
@@ -234,6 +249,7 @@
     "quote": 19,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSDKK",
     "disable_ticker": true,
     "disabled": true
@@ -249,6 +265,7 @@
     "quote": 20,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSHUF",
     "disable_ticker": true,
     "disabled": true
@@ -264,6 +281,7 @@
     "quote": 21,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSTRY",
     "disable_ticker": true,
     "disabled": true
@@ -279,6 +297,7 @@
     "quote": 22,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSZAR",
     "disable_ticker": true,
     "disabled": true
@@ -294,6 +313,7 @@
     "quote": 23,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSNZD",
     "disable_ticker": true,
     "disabled": true
@@ -309,6 +329,7 @@
     "quote": 24,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSBRL",
     "disable_ticker": true,
     "disabled": true
@@ -324,6 +345,7 @@
     "quote": 25,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSIDR",
     "disable_ticker": true,
     "disabled": true
@@ -339,6 +361,7 @@
     "quote": 26,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSILS",
     "disable_ticker": true,
     "disabled": true
@@ -354,6 +377,7 @@
     "quote": 27,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSINR",
     "disable_ticker": true,
     "disabled": true
@@ -369,6 +393,7 @@
     "quote": 28,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSKRW",
     "disable_ticker": true,
     "disabled": true
@@ -384,6 +409,7 @@
     "quote": 29,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSMXN",
     "disable_ticker": true,
     "disabled": true
@@ -399,6 +425,7 @@
     "quote": 30,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSMYR",
     "disable_ticker": true,
     "disabled": true
@@ -414,6 +441,7 @@
     "quote": 31,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSPHP",
     "disable_ticker": true,
     "disabled": true
@@ -429,6 +457,7 @@
     "quote": 32,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "RNSTHB",
     "disable_ticker": true,
     "disabled": true

@@ -25,7 +25,8 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "BCHRUB",
-    "disabled": true
+    "disabled": true,
+    "disable_volume": true
   }
 },
 {
@@ -69,6 +70,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "BCHJPY",
+    "disable_volume": true,
     "disabled": true
   }
 }

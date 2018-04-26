@@ -121,17 +121,17 @@ class VolumeViewSet(ReadOnlyCacheResponseAndETAGMixin, DateFilterViewSet):
         queryset = self.get_queryset(hours=hours)
         data = OrderedDict({'hours': hours})
         volume_data = []
-        pairs = Pair.objects.all()
+        pairs = Pair.objects.filter(disable_volume=False)
         total_base = total_quote = 0
         for pair in pairs:
             try:
                 rate_base = self.get_rate(pair.base)
                 rate_quote = self.get_rate(pair.quote)
+                last_ask = Price.objects.filter(
+                    pair=pair, market__is_main_market=True
+                ).latest('id').rate
             except Price.DoesNotExist:
                 continue
-            last_ask = Price.objects.filter(
-                pair=pair, market__is_main_market=True
-            ).latest('id').rate
             volume = queryset.filter(pair=pair).aggregate(
                 Sum('amount_base'), Sum('amount_quote'))
             base_volume = volume['amount_base__sum']

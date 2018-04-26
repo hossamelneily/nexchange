@@ -25,6 +25,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "BTCRUB",
+    "disable_volume": true,
     "disabled": true
   }
 },
@@ -68,6 +69,7 @@
     "quote": 8,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCJPY",
     "disabled": true
   }
@@ -82,6 +84,7 @@
     "quote": 9,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCHRK",
     "disabled": true
   }
@@ -96,6 +99,7 @@
     "quote": 10,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCCHF",
     "disabled": true
   }
@@ -110,6 +114,7 @@
     "quote": 11,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCPLN",
     "disabled": true
   }
@@ -123,6 +128,7 @@
     "base": 1,
     "quote": 12,
     "fee_ask": "0.01000000",
+    "disable_volume": true,
     "fee_bid": "0.01000000",
     "name": "BTCRON",
     "disabled": true
@@ -138,6 +144,7 @@
     "quote": 13,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCBGN",
     "disabled": true
   }
@@ -152,6 +159,7 @@
     "quote": 14,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCCZK",
     "disabled": true
   }
@@ -166,6 +174,7 @@
     "quote": 15,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCAUD",
     "disabled": true
   }
@@ -180,6 +189,7 @@
     "quote": 16,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCCAD",
     "disabled": true
   }
@@ -194,6 +204,7 @@
     "quote": 17,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCNOK",
     "disabled": true
   }
@@ -208,6 +219,7 @@
     "quote": 18,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCSEK",
     "disabled": true
   }
@@ -222,6 +234,7 @@
     "quote": 19,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCDKK",
     "disabled": true
   }
@@ -236,6 +249,7 @@
     "quote": 20,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCHUF",
     "disabled": true
   }
@@ -250,6 +264,7 @@
     "quote": 21,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCTRY",
     "disabled": true
   }
@@ -265,6 +280,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "BTCZAR",
+    "disable_volume": true,
     "disabled": true
   }
 },
@@ -279,6 +295,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "BTCNZD",
+    "disable_volume": true,
     "disabled": true
   }
 },
@@ -292,6 +309,7 @@
     "quote": 24,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCBRL",
     "disabled": true
   }
@@ -306,6 +324,7 @@
     "quote": 25,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCIDR",
     "disabled": true
   }
@@ -320,6 +339,7 @@
     "quote": 26,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCILS",
     "disabled": true
   }
@@ -334,6 +354,7 @@
     "quote": 27,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCINR",
     "disabled": true
   }
@@ -348,6 +369,7 @@
     "quote": 28,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCKRW",
     "disabled": true
   }
@@ -361,6 +383,7 @@
     "base": 1,
     "quote": 29,
     "fee_ask": "0.01000000",
+    "disable_volume": true,
     "fee_bid": "0.01000000",
     "name": "BTCMXN",
     "disabled": true
@@ -376,6 +399,7 @@
     "quote": 30,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCMYR",
     "disabled": true
   }
@@ -390,6 +414,7 @@
     "quote": 31,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
+    "disable_volume": true,
     "name": "BTCPHP",
     "disabled": true
   }
@@ -405,6 +430,7 @@
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
     "name": "BTCTHB",
+    "disable_volume": true,
     "disabled": true
   }
 }

@@ -260,19 +260,23 @@ class Order(TimeStampedModel, SoftDeletableModel,
             self.pair.name
         )
         if not self.pk:
-            base_reserves = self.pair.base.available_reserves
-            min_base_reserves = self.pair.base.reserve.minimum_level
-            if base_reserves < min_base_reserves:
-                logger.warning('{}. Base Reserves too low.'.format(error_msg))
-                raise ValidationError(_(error_msg))
-            quote_reserves = self.pair.quote.available_reserves
-            min_quote_reserves = self.pair.quote.reserve.maximum_level
-            if quote_reserves > min_quote_reserves:
-                logger.warning('{}. Quote Reserves too high.'.format(
-                    error_msg
-                ))
-                logger.warning(error_msg)
-                raise ValidationError(_(error_msg))
+            if self.pair.base.is_crypto:
+                base_reserves = self.pair.base.available_reserves
+                min_base_reserves = self.pair.base.reserve.minimum_level
+                if base_reserves < min_base_reserves:
+                    logger.warning(
+                        '{}. Base Reserves too low.'.format(error_msg)
+                    )
+                    raise ValidationError(_(error_msg))
+            if self.pair.quote.is_crypto:
+                quote_reserves = self.pair.quote.available_reserves
+                min_quote_reserves = self.pair.quote.reserve.maximum_level
+                if quote_reserves > min_quote_reserves:
+                    logger.warning('{}. Quote Reserves too high.'.format(
+                        error_msg
+                    ))
+                    logger.warning(error_msg)
+                    raise ValidationError(_(error_msg))
 
     def _validate_fields(self):
         self._types_range_constraint(self.order_type, self.TYPES)
