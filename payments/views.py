@@ -23,7 +23,7 @@ from payments.models import Payment, PaymentPreference, PaymentMethod,\
     PushRequest
 from payments.utils import get_sha256_sign
 from payments.task_summary import run_payeer, run_okpay, run_sofort, \
-    run_adv_cash
+    run_adv_cash, set_preference_for_verifications_invoke
 from decimal import Decimal
 from payments.api_clients.card_pmt import CardPmtAPIClient
 from core.context_processors import country_code
@@ -396,6 +396,7 @@ class SafeChargeListenView(View):
         if not payment_pref_list:
             pref = PaymentPreference(**pref_args)
             pref.tier_id = 1
+            pref.save()
         else:
             pref = payment_pref_list[0]
         pref.secondary_identifier = \
@@ -499,6 +500,7 @@ class SafeChargeListenView(View):
                     push_request.payment_created = True
                     push_request.save()
                     order_cover_invoke.apply_async([order.pk])
+                set_preference_for_verifications_invoke.apply([pref.pk])
             if all([status in ['APPROVED', 'SUCCESS'],
                     order.status == Order.PAID_UNCONFIRMED]):
                 if not payment:

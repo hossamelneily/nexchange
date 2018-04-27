@@ -177,9 +177,9 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
             return False
         return True
 
-    @property
-    def id_document_status(self):
-        verifications = self.verification_set.all()
+    def _get_id_document_status(self, verifications=None):
+        if verifications is None:
+            verifications = self.verification_set.all()
         if not verifications:
             return
         model = verifications.model
@@ -190,8 +190,12 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
             if status in statuses:
                 return status
 
-    def _get_utility_document_status(self):
-        verifications = self.verification_set.all()
+    def id_document_status(self):
+        return self._get_id_document_status()
+
+    def _get_utility_document_status(self, verifications=None):
+        if verifications is None:
+            verifications = self.verification_set.all()
         if not verifications:
             return
         model = verifications.model
@@ -210,11 +214,15 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     def util_document_status(self):
         return self._get_utility_document_status()
 
-    def get_payment_preference_document_status(self, document_type_name):
-        prop_name = '{}_document_status'.format(document_type_name.lower())
+    def get_payment_preference_document_status(self, document_type_name,
+                                               verifications=None):
+        if verifications is None:
+            verifications = self.verification_set.all()
+        prop_name = '_get_{}_document_status'.format(
+            document_type_name.lower()
+        )
         if hasattr(self, prop_name):
-            return getattr(self, prop_name)
-        verifications = self.verification_set.all()
+            return getattr(self, prop_name)(verifications=verifications)
         if not verifications:
             return
         model = verifications.model
@@ -330,6 +338,29 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
             for doc in whitelist_docs if doc.whitelisted_address
         ]
         return _addresses
+
+    @property
+    def approved_verifications(self):
+        vers = self.verification_set.all()
+        return [v for v in vers if v.has_approved_documents]
+
+    @property
+    def bad_name_verifications(self):
+        return [
+            v for v in self.approved_verifications
+            if v.full_name != self.secondary_identifier
+        ]
+
+    @property
+    def name_on_card_matches(self):
+        # Approve if we dont have secondary_identifier (name)
+        if not self.secondary_identifier:
+            return True
+        vers = self.approved_verifications
+        for v in vers:
+            if v.full_name != self.secondary_identifier:
+                return False
+        return True
 
     def __str__(self):
         return "{} {}".format(self.payment_method.name,

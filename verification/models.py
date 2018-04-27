@@ -246,6 +246,15 @@ class Verification(TimeStampedModel, SoftDeletableModel):
                 return True
         return False
 
+    @property
+    def approved_documents(self):
+        return self.verificationdocument_set.filter(document_status=self.OK)
+
+    @property
+    def has_approved_documents(self):
+        has_approved_docs = self.approved_documents.count() > 0
+        return self.util_status or self.id_status or has_approved_docs
+
 
 class DocumentType(TimeStampedModel, SoftDeletableModel):
 

@@ -21,7 +21,9 @@ class VerificationAdmin(admin.ModelAdmin):
                     'full_name', 'note', 'user',
                     'name_on_card', 'unique_cc')
     readonly_fields = ('identity_document', 'utility_document', 'note',
-                       'name_on_card', 'unique_cc', 'payment_preference',
+                       'name_on_card', 'name_on_card_matches',
+                       'bad_name_verifications', 'unique_cc',
+                       'payment_preference',
                        'id_doc', 'residence_doc', 'user', 'user_input_comment',
                        'total_payments_usd', 'out_of_limit',
                        'is_immediate_payment', 'tier', 'util_status',
@@ -56,6 +58,14 @@ class VerificationAdmin(admin.ModelAdmin):
 
     def name_on_card(self, obj):
         return self._get_payment_preference_field(obj, 'secondary_identifier')
+
+    def name_on_card_matches(self, obj):
+        return self._get_payment_preference_field(obj, 'name_on_card_matches')
+
+    def bad_name_verifications(self, obj):
+        records = self._get_payment_preference_field(obj,
+                                                     'bad_name_verifications')
+        return [record.pk for record in records]
 
     def unique_cc(self, obj):
         return self._get_payment_preference_field(obj, 'provider_system_id')

@@ -1,4 +1,5 @@
-from payments.models import Payment
+from payments.models import Payment, PaymentPreference
+from verification.models import Verification
 from payments.tasks.generic.ok_pay import OkPayPaymentChecker
 from payments.tasks.generic.payeer import PayeerPaymentChecker
 from payments.tasks.generic.sofort import SofortPaymentChecker
@@ -104,3 +105,19 @@ def check_payments_for_void_periodic():
             check_payments_for_void_invoke.apply_async([payment.pk])
         except Exception as e:
             logger.logger.info(e)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def set_preference_for_verifications_invoke(preference_id):
+    pref = PaymentPreference.objects.get(pk=preference_id)
+    payments = pref.payment_set.all()
+    order_refs = [
+        getattr(p.order, 'unique_reference', None) for p in payments if p.order
+    ]
+    if not order_refs:
+        return
+    vers = Verification.objects.filter(payment_preference__isnull=True,
+                                       note__in=order_refs)
+    for ver in vers:
+        ver.payment_preference = pref
+        ver.save()

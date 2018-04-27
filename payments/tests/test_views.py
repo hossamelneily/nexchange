@@ -620,6 +620,8 @@ class SafeChargeTestCase(TickerBaseTestCase):
             pair_name='XVGEUR',
             address='D6BpZ4pP17JDsjpSWVrB2Hpa4oCi5mLfua'
         )
+
+        before_kyc = self._create_kyc(order.unique_reference)
         card_id = self.generate_txn_id()
         name = 'Sir Testalot'
         params = self._get_dmn_request_params_for_order(order, card_id, name,
@@ -635,6 +637,9 @@ class SafeChargeTestCase(TickerBaseTestCase):
         order.refresh_from_db()
         self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
         payment = order.payment_set.get()
+        before_kyc.refresh_from_db()
+        self.assertEqual(before_kyc.payment_preference,
+                         payment.payment_preference)
         push_requests = PushRequest.objects.filter(payment=payment)
         self.assertEqual(push_requests.count(), 2)
         self.assertEqual(cover_run.call_count, 1)
@@ -663,6 +668,7 @@ class SafeChargeTestCase(TickerBaseTestCase):
         # Check with Confirmed KYC, but payment PENDING
         kyc.util_status = kyc.OK
         kyc.id_status = kyc.OK
+        kyc.full_name = name
         kyc.save()
         self.assertTrue(self._check_kyc(order.unique_reference))
         check_fiat_order_deposit_periodic.apply_async()
@@ -1147,6 +1153,7 @@ class SafeChargeTestCase(TickerBaseTestCase):
         kyc = self._create_kyc(order1.unique_reference)
         kyc.util_status = kyc.OK
         kyc.id_status = kyc.OK
+        kyc.full_name = name
         kyc.save()
         check_fiat_order_deposit_periodic.apply_async()
         order1.refresh_from_db()
@@ -1202,6 +1209,7 @@ class SafeChargeTestCase(TickerBaseTestCase):
         kyc = self._create_kyc(order1.unique_reference)
         kyc.util_status = kyc.OK
         kyc.id_status = kyc.OK
+        kyc.full_name = name
         kyc.save()
         check_fiat_order_deposit_periodic.apply_async()
         order1.refresh_from_db()
@@ -1330,6 +1338,8 @@ class SafeChargeTestCase(TickerBaseTestCase):
         pref = whitelisted_order.payment_set.get().payment_preference
         # Approve all documents of the first order
         kyc = self._create_kyc(whitelisted_order.unique_reference)
+        kyc.full_name = name
+        kyc.save()
         docs = kyc.verificationdocument_set.all()
         for doc in docs:
             doc.document_status = kyc.OK
@@ -1348,6 +1358,8 @@ class SafeChargeTestCase(TickerBaseTestCase):
         self.assertEqual(other_order.status, Order.PAID_UNCONFIRMED)
         # White list other order
         other_kyc = self._create_kyc(other_order.unique_reference)
+        other_kyc.full_name = name
+        other_kyc.save()
         whitelist_selfie = other_kyc.verificationdocument_set.get(
             document_type__name='WHITELIST_SELFIE'
         )

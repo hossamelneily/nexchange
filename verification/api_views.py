@@ -3,7 +3,7 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from collections import OrderedDict
 from verification.models import Verification, DocumentType
-from payments.models import Payment
+from payments.models import Payment, PaymentPreference
 from orders.models import Order
 
 
@@ -21,6 +21,7 @@ class VerificationViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
         out_of_limit = None
         limits = None
         data = {}
+        order = None
         try:
             order = Order.objects.get(**kwargs)
 
@@ -45,10 +46,27 @@ class VerificationViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
                 if last_verification:
                     comment = last_verification.user_visible_comment \
                         if _show_private_data else None
-        except Payment.DoesNotExist:
-            pass
-        except Order.DoesNotExist:
-            pass
+        except (Order.DoesNotExist, Payment.DoesNotExist):
+            refs = [kwargs['unique_reference']]
+            if order:
+                refs = [o.unique_reference for o in Order.objects.filter(
+                    user=order.user
+                )]
+            vers = Verification.objects.filter(note__in=refs)
+            dummy_pref = PaymentPreference()
+            _residence_status = dummy_pref._get_utility_document_status(
+                verifications=vers
+            )
+            residence_document_status = Verification.STATUSES_TO_API[
+                _residence_status
+            ]
+            for doc_type in DocumentType.objects.all():
+                key = '{}_document_status'.format(doc_type.name.lower())
+                _status = \
+                    dummy_pref.get_payment_preference_document_status(
+                        doc_type.name, verifications=vers
+                    )
+                data[key] = Verification.STATUSES_TO_API[_status]
         except AssertionError:
             pass
         data.update({
