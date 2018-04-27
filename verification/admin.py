@@ -8,7 +8,8 @@ from payments.models import Payment
 
 class VerificationInline(admin.TabularInline):
     model = VerificationDocument
-    readonly_fields = ('document_type', 'document_file', 'download_document')
+    readonly_fields = ('document_type', 'document_file', 'download_document',
+                       'whitelisted_address')
 
 
 @admin.register(Verification)
