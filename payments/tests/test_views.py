@@ -26,11 +26,14 @@ from payments.task_summary import check_fiat_order_deposit_periodic,\
     check_payments_for_refund_periodic, check_payments_for_void_periodic
 import json
 from verification.models import Verification, VerificationTier
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 import datetime
 from freezegun import freeze_time
 from payments.views import SafeChargeListenView
 from ticker.tests.base import TickerBaseTestCase
+
+from PIL import Image
+import tempfile
 
 
 class PayeerTestCase(OrderBaseTestCase):
@@ -340,6 +343,15 @@ class SafeChargeTestCase(TickerBaseTestCase):
         self.payment_handler = SafeChargePaymentHandler()
         self.api_client = APIClient()
 
+    def tearDown(self):
+        super(SafeChargeTestCase, self).tearDown()
+
+    def _create_image(self):
+        with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as f:
+            image = Image.new('RGB', (10, 10), 'white')
+            image.save(f, 'PNG')
+        return open(f.name, 'rb')
+
     def _create_order_api(self, set_pref=False, order_data=None,
                           pair_name='BTCEUR',
                           address='17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ'):
@@ -365,15 +377,24 @@ class SafeChargeTestCase(TickerBaseTestCase):
         return order
 
     def _create_kyc(self, ref):
+        id_doc = self._create_image()
+        util_doc = self._create_image()
+        selfie = self._create_image()
+        whitelist_selfie = self._create_image()
         order_data = {
             "order_reference": ref,
+            "identity_document": id_doc,
+            "utility_document": util_doc,
+            "selfie": selfie,
+            "whitelist_selfie": whitelist_selfie
         }
         order_api_url = '/en/api/v1/kyc/'
-        with patch('verification.serializers.'
-                   'CreateVerificationSerializer.to_internal_value') as p:
-            p.return_value = OrderedDict({'order_reference': ref})
-            self.api_client.post(
-                order_api_url, order_data, format='json')
+        self.api_client.post(
+            order_api_url, order_data, format='multipart'
+        )
+        id_doc.close()
+        util_doc.close()
+        selfie.close()
         kyc = Verification.objects.latest('id')
         return kyc
 
@@ -1212,3 +1233,129 @@ class SafeChargeTestCase(TickerBaseTestCase):
             check_fiat_order_deposit_periodic.apply_async()
             order3.refresh_from_db()
             self.assertEqual(order3.status, Order.PAID)
+
+    @patch('payments.views.get_client_ip')
+    def test_approve_documents_and_check_tier(self, get_client_ip):
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
+        order = self._create_order_api(
+            pair_name='XVGEUR',
+            address='D6BpZ4pP17JDsjpSWVrB2Hpa4oCi5mLfua'
+        )
+        card_id = self.generate_txn_id()
+        name = 'Sir Testalot'
+        params = self._get_dmn_request_params_for_order(order, card_id, name,
+                                                        status='APPROVED')
+
+        url = reverse('payments.listen_safe_charge')
+        res = self.client.post(url, data=params)
+        self.assertEqual(res.status_code, 200)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
+        pref = order.payment_set.get().payment_preference
+        self.assertFalse(pref.is_verified)
+        self.assertEqual(pref.tier.level, 0)
+        # Upload kyc
+        kyc = self._create_kyc(order.unique_reference)
+        docs = kyc.verificationdocument_set.all()
+        id_doc = docs.get(document_type__name='ID')
+        util_doc = docs.get(document_type__name='UTIL')
+        selfie = docs.get(document_type__name='SELFIE')
+        whitelist_selfie = docs.get(document_type__name='WHITELIST_SELFIE')
+        # id OK, util PENDING, selfie PENDING
+        id_doc.document_status = id_doc.OK
+        id_doc.save()
+        pref.refresh_from_db()
+        self.assertFalse(pref.is_verified)
+        self.assertEqual(pref.tier.level, 0)
+        # id OK, util OK, selfie PENDING
+        util_doc.document_status = id_doc.OK
+        util_doc.save()
+        pref.refresh_from_db()
+        self.assertTrue(pref.is_verified)
+        self.assertEqual(pref.tier.level, 1)
+        # id OK, util OK, selfie OK
+        selfie.document_status = id_doc.OK
+        selfie.save()
+        pref.refresh_from_db()
+        self.assertTrue(pref.is_verified)
+        self.assertEqual(pref.tier.level, 2)
+        # id OK, util OK, selfie OK, whitelist_selfie OK
+        self.assertNotIn(order.withdraw_address, pref.whitelisted_addresses)
+        whitelist_selfie.document_status = id_doc.OK
+        whitelist_selfie.save()
+        pref.refresh_from_db()
+        self.assertTrue(pref.is_verified)
+        self.assertEqual(pref.tier.level, 3)
+        self.assertEqual(whitelist_selfie.whitelisted_address,
+                         order.withdraw_address)
+        self.assertIn(order.withdraw_address, pref.whitelisted_addresses)
+
+    def test_create_on_verification_per_order(self):
+        order = self._create_order_api(
+            pair_name='XVGEUR',
+            address='D6BpZ4pP17JDsjpSWVrB2Hpa4oCi5mLfua'
+        )
+        kyc1 = self._create_kyc(order.unique_reference)
+        kyc2 = self._create_kyc(order.unique_reference)
+        self.assertEqual(kyc1, kyc2)
+
+    @patch('risk_management.task_summary.OrderCover.run')
+    @patch('payments.views.get_client_ip')
+    def test_release_whitelisted_order(self, get_client_ip, cover_run):
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
+        # XVG is coverable
+        whitelisted_order = self._create_order_api(
+            pair_name='XVGEUR',
+            address='D6BpZ4pP17JDsjpSWVrB2Hpa4oCi5mLfua'
+        )
+        other_order = self._create_order_api(
+            pair_name='XVGEUR',
+            address='DRVpPLkb1Vvxk7FY4RejcTFVDiR2eWznRW'
+        )
+        card_id = self.generate_txn_id()
+        name = 'Sir Testalot'
+        white_params = self._get_dmn_request_params_for_order(
+            whitelisted_order, card_id, name, status='APPROVED')
+        other_params = self._get_dmn_request_params_for_order(
+            other_order, card_id, name, status='APPROVED')
+        url = reverse('payments.listen_safe_charge')
+        for params in [white_params, other_params]:
+            res = self.client.post(url, data=params)
+            self.assertEqual(res.status_code, 200)
+        for order in [whitelisted_order, other_order]:
+            order.refresh_from_db()
+            self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
+        pref = whitelisted_order.payment_set.get().payment_preference
+        # Approve all documents of the first order
+        kyc = self._create_kyc(whitelisted_order.unique_reference)
+        docs = kyc.verificationdocument_set.all()
+        for doc in docs:
+            doc.document_status = kyc.OK
+            doc.save()
+        # Run task
+        check_fiat_order_deposit_periodic.apply_async()
+        # Check statuses (first order must be PAID second not - because
+        # address is not in whitelist
+        self.assertIn(whitelisted_order.withdraw_address,
+                      pref.whitelisted_addresses)
+        whitelisted_order.refresh_from_db()
+        self.assertEqual(whitelisted_order.status, Order.PAID)
+        self.assertNotIn(other_order.withdraw_address,
+                         pref.whitelisted_addresses)
+        order.refresh_from_db()
+        self.assertEqual(other_order.status, Order.PAID_UNCONFIRMED)
+        # White list other order
+        other_kyc = self._create_kyc(other_order.unique_reference)
+        whitelist_selfie = other_kyc.verificationdocument_set.get(
+            document_type__name='WHITELIST_SELFIE'
+        )
+        whitelist_selfie.document_status = kyc.OK
+        whitelist_selfie.save()
+        self.assertIn(other_order.withdraw_address,
+                      pref.whitelisted_addresses)
+        # Run task again
+        check_fiat_order_deposit_periodic.apply_async()
+        order.refresh_from_db()
+        self.assertEqual(other_order.status, Order.PAID)

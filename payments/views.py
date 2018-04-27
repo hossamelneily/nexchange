@@ -395,6 +395,7 @@ class SafeChargeListenView(View):
                 pref_args.pop('provider_system_id')
         if not payment_pref_list:
             pref = PaymentPreference(**pref_args)
+            pref.tier_id = 1
         else:
             pref = payment_pref_list[0]
         pref.secondary_identifier = \

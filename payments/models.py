@@ -10,6 +10,7 @@ from core.common.models import SoftDeletableModel, \
 from ticker.models import Price
 from django.utils.timezone import now, timedelta
 from core.models import Location, Country, BtcBase, Currency
+from verification.models import VerificationDocument
 
 
 class PaymentMethodManager(models.Manager):
@@ -181,24 +182,48 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         verifications = self.verification_set.all()
         if not verifications:
             return
-        if verifications.filter(id_status='OK'):
-            return 'APPROVED'
-        if verifications.filter(id_status='PENDING'):
-            return 'PENDING'
-        if verifications.filter(id_status='REJECTED'):
-            return 'REJECTED'
+        model = verifications.model
+        statuses = [
+            v.id_document_status for v in verifications
+        ]
+        for status in [model.OK, model.PENDING, model.REJECTED]:
+            if status in statuses:
+                return status
 
-    @property
-    def residence_document_status(self):
+    def _get_utility_document_status(self):
         verifications = self.verification_set.all()
         if not verifications:
             return
-        if verifications.filter(util_status='OK'):
-            return 'APPROVED'
-        if verifications.filter(util_status='PENDING'):
-            return 'PENDING'
-        if verifications.filter(util_status='REJECTED'):
-            return 'REJECTED'
+        model = verifications.model
+        statuses = [
+            v.util_document_status for v in verifications
+        ]
+        for status in [model.OK, model.PENDING, model.REJECTED]:
+            if status in statuses:
+                return status
+
+    @property
+    def residence_document_status(self):
+        return self._get_utility_document_status()
+
+    @property
+    def util_document_status(self):
+        return self._get_utility_document_status()
+
+    def get_payment_preference_document_status(self, document_type_name):
+        prop_name = '{}_document_status'.format(document_type_name.lower())
+        if hasattr(self, prop_name):
+            return getattr(self, prop_name)
+        verifications = self.verification_set.all()
+        if not verifications:
+            return
+        model = verifications.model
+        statuses = [
+            v.get_document_status(document_type_name) for v in verifications
+        ]
+        for status in [model.OK, model.PENDING, model.REJECTED]:
+            if status in statuses:
+                return status
 
     @property
     def is_verified(self):
@@ -206,9 +231,9 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         id_status = False
         util_status = False
         for ver in verifications:
-            if ver.id_status == ver.OK:
+            if ver.id_is_approved:
                 id_status = True
-            if ver.util_status == ver.OK:
+            if ver.util_is_approved:
                 util_status = True
             if id_status and util_status:
                 return True
@@ -240,6 +265,42 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         return self.get_successful_payments_amount()
 
     @property
+    def trade_limits_info(self):
+        info = {}
+        limits_info = []
+        if not self.tier:
+            return info
+        limits = self.tier.trade_limits.all()
+        for limit in limits:
+            total_amount = self.get_successful_payments_amount(
+                days=limit.days, currency=limit.currency
+            )
+            msg = \
+                '{total:.2f} {currency} out of allowed {limit_amount:.2f} ' \
+                '{currency} per {days} day{plural}'.format(
+                    total=total_amount,
+                    currency=limit.currency,
+                    limit_amount=limit.amount,
+                    days=limit.days,
+                    plural='s' if limit.days > 1 else ''
+                )
+            out_of_limit = total_amount > limit.amount
+            limits_info.append({
+                'message': msg,
+                'out_of_limit': out_of_limit,
+                'days': limit.days,
+                'amount': limit.amount,
+                'currency': limit.currency.code,
+                'total_amount': total_amount,
+            })
+        info['trade_limits'] = limits_info
+        info['tier'] = {
+            'name': self.tier.name,
+            'upgrade_note': self.tier.upgrade_note
+        }
+        return info
+
+    @property
     def out_of_limit(self):
         if not self.tier:
             return True
@@ -251,6 +312,24 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
             if total_amount > limit.amount:
                 return True
         return False
+
+    @property
+    def verification_documents(self):
+        return VerificationDocument.objects.filter(
+            verification__in=self.verification_set.all()
+        )
+
+    @property
+    def whitelisted_addresses(self):
+        whitelist_docs = self.verification_documents.filter(
+            document_type__whitelisted_address_required=True,
+            document_status=VerificationDocument.OK
+        )
+        _addresses = [
+            doc.whitelisted_address
+            for doc in whitelist_docs if doc.whitelisted_address
+        ]
+        return _addresses
 
     def __str__(self):
         return "{} {}".format(self.payment_method.name,

@@ -36,6 +36,7 @@ from support.urls import support_urls, support_api_patterns
 from ticker.urls import ticker_api_patterns
 from verification.urls import verification_urls, kyc_api_patterns
 
+
 if not settings.DEBUG:
     admin.site.__class__ = OTPAdminSite
 
@@ -89,6 +90,11 @@ urlpatterns.append(
 )
 
 if settings.DEBUG:
+    if settings.DEBUG:
+        urlpatterns += static(settings.STATIC_URL,
+                              document_root=settings.STATIC_ROOT)
+        urlpatterns += static(settings.MEDIA_URL,
+                              document_root=settings.MEDIA_ROOT)
     # pragma: no cover
     urlpatterns += static('/cover', document_root=os.path.join(
         settings.BASE_DIR, 'cover'))

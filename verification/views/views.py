@@ -14,7 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import CreateView
 
 from verification.forms import VerificationUploadForm
-from verification.models import Verification
+from verification.models import Verification, VerificationDocument
 
 from verification.views.common import LoginRestrictedView
 
@@ -53,10 +53,23 @@ class Upload(LoginRestrictedView, CreateView):
 @login_required
 def download(request, file_name):
 
-    verification = Verification.objects.filter(
+    verifications = Verification.objects.filter(
         Q(identity_document=file_name) | Q(utility_document=file_name)
     )
-    if all([not verification[0].user == request.user,
+    verification_docs = VerificationDocument.objects.filter(
+        document_file=file_name
+    )
+    if verifications:
+        verification = verifications.latest('id')
+    elif verification_docs:
+        doc = verification_docs.latest('id')
+        verification = doc.verification
+    else:
+        return HttpResponseForbidden(
+            _('Verification not found')
+        )
+
+    if all([not verification.user == request.user,
             not request.user.is_staff]):
         return HttpResponseForbidden(
             _('You don\'t have permission to download this document')

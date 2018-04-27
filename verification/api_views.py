@@ -2,7 +2,7 @@ from .serializers import CreateVerificationSerializer, VerificationSerializer
 from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from collections import OrderedDict
-from verification.models import Verification
+from verification.models import Verification, DocumentType
 from payments.models import Payment
 from orders.models import Order
 
@@ -16,35 +16,48 @@ class VerificationViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
 
     def retrieve(self, request, *args, **kwargs):
         is_verified = False
-        id_document_status = None
         residence_document_status = None
         comment = None
+        out_of_limit = None
+        limits = None
+        data = {}
         try:
             order = Order.objects.get(**kwargs)
 
             payment = order.payment_set.get(type=Payment.DEPOSIT)
             payment_preference = payment.payment_preference
             if payment_preference:
+                _show_private_data = \
+                    self.request.user == order.user or \
+                    self.request.user.is_staff
                 is_verified = payment_preference.is_verified
-                id_document_status = payment_preference.id_document_status
-                residence_document_status = \
+                residence_document_status = Verification.STATUSES_TO_API[
                     payment_preference.residence_document_status
+                ]
+                for doc_type in DocumentType.objects.all():
+                    key = '{}_document_status'.format(doc_type.name.lower())
+                    _status = payment_preference.get_payment_preference_document_status(doc_type.name)  # noqa
+                    data[key] = Verification.STATUSES_TO_API[_status]
+                out_of_limit = payment_preference.out_of_limit
+                limits = payment_preference.trade_limits_info \
+                    if _show_private_data else None
                 last_verification = payment_preference.verification_set.last()
                 if last_verification:
                     comment = last_verification.user_visible_comment \
-                        if self.request.user == order.user else None
+                        if _show_private_data else None
         except Payment.DoesNotExist:
             pass
         except Order.DoesNotExist:
             pass
         except AssertionError:
             pass
-        data = {
+        data.update({
             'is_verified': is_verified,
-            'id_document_status': id_document_status,
             'residence_document_status': residence_document_status,
             'user_visible_comment': comment,
-        }
+            'out_of_limit': out_of_limit,
+            'limits_message': limits,
+        })
 
         data = OrderedDict(data)
         return Response(data)

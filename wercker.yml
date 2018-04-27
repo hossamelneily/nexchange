@@ -132,6 +132,7 @@ dev:
     - script:
         name: Django import verification fixtures
         code: |
+          python manage.py loaddata verification/fixtures/document_type.json
           python manage.py loaddata verification/fixtures/tier0.json
           python manage.py loaddata verification/fixtures/tier1.json
           python manage.py loaddata verification/fixtures/tier2.json
@@ -443,6 +444,7 @@ build:
           python /usr/src/app/manage.py loaddata referrals/fixtures/program.json
           python /usr/src/app/manage.py loaddata risk_management/fixtures/reserve.json
           python /usr/src/app/manage.py loaddata risk_management/fixtures/account.json
+          python /usr/src/app/manage.py loaddata verification/fixtures/document_type.json
           python /usr/src/app/manage.py loaddata verification/fixtures/tier0.json
           python /usr/src/app/manage.py loaddata verification/fixtures/tier1.json
           python /usr/src/app/manage.py loaddata verification/fixtures/tier2.json
