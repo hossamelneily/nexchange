@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='verificationtier',
             name='level',
-            field=models.IntegerField(default=1, unique=True),
+            field=models.IntegerField(default=1),
             preserve_default=False,
         ),
         migrations.AddField(

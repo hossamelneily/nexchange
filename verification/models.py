@@ -11,7 +11,7 @@ from django.utils.translation import ugettext as _
 class VerificationTier(TimeStampedModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
-    level = models.IntegerField(unique=True)
+    level = models.IntegerField()
     upgrade_note = models.CharField(max_length=255, default='Contact Support')
     required_documents = models.ManyToManyField(
         'verification.DocumentType'
