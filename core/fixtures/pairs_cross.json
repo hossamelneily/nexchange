@@ -925,8 +925,8 @@
     "fee_bid": "0.0100000",
     "name": "BTCNANO",
     "disable_ticker": false,
-    "disabled": true,
-    "test_mode": true
+    "disabled": false,
+    "test_mode": false
   }
 },
 {
@@ -957,8 +957,8 @@
     "fee_bid": "0.0100000",
     "name": "LTCNANO",
     "disable_ticker": false,
-    "disabled": true,
-    "test_mode": true
+    "disabled": false,
+    "test_mode": false
   }
 },
 {
@@ -989,8 +989,8 @@
     "fee_bid": "0.0100000",
     "name": "ETHNANO",
     "disable_ticker": false,
-    "disabled": true,
-    "test_mode": true
+    "disabled": false,
+    "test_mode": false
   }
 },
 {
@@ -1021,8 +1021,8 @@
     "fee_bid": "0.0100000",
     "name": "DOGENANO",
     "disable_ticker": false,
-    "disabled": true,
-    "test_mode": true
+    "disabled": false,
+    "test_mode": false
   }
 },
 {
@@ -1053,8 +1053,8 @@
     "fee_bid": "0.0100000",
     "name": "XVGNANO",
     "disable_ticker": false,
-    "disabled": true,
-    "test_mode": true
+    "disabled": false,
+    "test_mode": false
   }
 },
 {
@@ -1085,8 +1085,8 @@
     "fee_bid": "0.0100000",
     "name": "BCHNANO",
     "disable_ticker": false,
-    "disabled": true,
-    "test_mode": true
+    "disabled": false,
+    "test_mode": false
   }
 },
 {
@@ -1117,8 +1117,8 @@
     "fee_bid": "0.0400000",
     "name": "BDGNANO",
     "disable_ticker": false,
-    "disabled": true,
-    "test_mode": true
+    "disabled": false,
+    "test_mode": false
   }
 },
 {
@@ -1149,8 +1149,8 @@
     "fee_bid": "0.0200000",
     "name": "EOSNANO",
     "disable_ticker": false,
-    "disabled": true,
-    "test_mode": true
+    "disabled": false,
+    "test_mode": false
   }
 },
 {
@@ -1165,7 +1165,7 @@
     "fee_bid": "0.0100000",
     "name": "NANOBCH",
     "disable_ticker": false,
-    "disabled":false,
+    "disabled": false,
     "test_mode": false
   }
 },
@@ -1470,7 +1470,7 @@
     "name": "BTCZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1486,7 +1486,7 @@
     "name": "ZECBTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1502,7 +1502,7 @@
     "name": "LTCZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1518,7 +1518,7 @@
     "name": "ZECLTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1534,7 +1534,7 @@
     "name": "ETHZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1550,7 +1550,7 @@
     "name": "ZECETH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1566,7 +1566,7 @@
     "name": "DOGEZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1582,7 +1582,7 @@
     "name": "ZECDOGE",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1598,7 +1598,7 @@
     "name": "XVGZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1614,7 +1614,7 @@
     "name": "ZECXVG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1630,7 +1630,7 @@
     "name": "BCHZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1646,7 +1646,7 @@
     "name": "ZECBCH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1662,7 +1662,7 @@
     "name": "BDGZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1678,7 +1678,7 @@
     "name": "ZECBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1694,7 +1694,7 @@
     "name": "OMGZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1710,7 +1710,7 @@
     "name": "ZECOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1726,7 +1726,7 @@
     "name": "EOSZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1742,7 +1742,7 @@
     "name": "ZECEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1758,7 +1758,7 @@
     "name": "NANOZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1773,8 +1773,8 @@
     "fee_bid": "0.0100000",
     "name": "ZECNANO",
     "disable_ticker": false,
-    "disabled": true,
-    "test_mode": true
+    "disabled": false,
+    "test_mode": false
   }
 }
 ]

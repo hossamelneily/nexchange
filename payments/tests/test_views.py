@@ -1013,7 +1013,8 @@ class SafeChargeTestCase(TickerBaseTestCase):
             order, card_id, name, status='APPROVED',
             time_stamp='2017-12-12.05:05:05')
         url = reverse('payments.listen_safe_charge')
-        self.client.post(url, data=params)
+        res = self.client.post(url, data=params)
+        self.assertEqual(res.status_code, 400)
         order.refresh_from_db()
         self.assertEqual(order.status, Order.INITIAL)
         with self.assertRaises(Payment.DoesNotExist):

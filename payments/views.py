@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import login_required
 
 from django.core.urlresolvers import reverse
 from django.http import (HttpResponseNotFound, HttpResponse, JsonResponse,
-                         HttpResponseRedirect, HttpResponseForbidden)
+                         HttpResponseRedirect, HttpResponseForbidden,
+                         HttpResponseBadRequest)
 from django.shortcuts import redirect
 from django.template.loader import get_template
 from django.utils import translation
@@ -512,5 +513,5 @@ class SafeChargeListenView(View):
                     payment = order.payment_set.get(type=Payment.DEPOSIT)
                 push_request.payment = payment
                 push_request.save()
-
-        return HttpResponse()
+            return HttpResponse()
+        return HttpResponseBadRequest()

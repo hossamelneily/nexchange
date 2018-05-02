@@ -10,7 +10,7 @@
     "fee_ask": "0.0400000",
     "fee_bid": "0.0400000",
     "name": "ZECUSD",
-    "test_mode": true,
+    "test_mode": false,
     "disabled": false
   }
 },
@@ -25,7 +25,7 @@
     "fee_ask": "0.0100000",
     "fee_bid": "0.0100000",
     "name": "ZECEUR",
-    "test_mode": true,
+    "test_mode": false,
     "disabled": false
   }
 },
@@ -40,7 +40,7 @@
     "fee_ask": "0.0200000",
     "fee_bid": "0.0200000",
     "name": "ZECGBP",
-    "test_mode": true,
+    "test_mode": false,
     "disabled": false
   }
 }
