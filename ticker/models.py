@@ -45,7 +45,7 @@ class Ticker(IndexTimeStampedModel):
                         previous_value=previous_value,
                         pair=self.pair.name
                     )
-                LOGGER.error(msg)
+                LOGGER.info(msg)
                 raise ValidationError(_(msg))
 
     def save(self, *args, **kwargs):
