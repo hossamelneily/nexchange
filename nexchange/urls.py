@@ -35,7 +35,7 @@ from referrals.urls import referral_urls, referrals_api_patterns
 from support.urls import support_urls, support_api_patterns
 from ticker.urls import ticker_api_patterns
 from verification.urls import verification_urls, kyc_api_patterns
-
+from ico.urls import ico_api_patterns
 
 if not settings.DEBUG:
     admin.site.__class__ = OTPAdminSite
@@ -56,7 +56,8 @@ js_info_dict = {
 
 api_patterns = ticker_api_patterns + referrals_api_patterns \
     + order_api_patterns + account_api_patterns + \
-    core_api_patterns + support_api_patterns + kyc_api_patterns
+    core_api_patterns + support_api_patterns + kyc_api_patterns + \
+    ico_api_patterns
 
 
 urlpatterns = i18n_patterns(

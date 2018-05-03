@@ -144,6 +144,7 @@ INSTALLED_APPS = [
     'payments',
     'articles',
     'verification',
+    'ico',
     'session_security',
     'axes',
     'guardian',
