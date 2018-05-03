@@ -4,6 +4,7 @@ from verification.models import Verification, VerificationTier, TradeLimit,\
     VerificationDocument, DocumentType
 from orders.models import Order
 from payments.models import Payment
+from django.contrib.admin import SimpleListFilter
 
 
 class VerificationInline(admin.TabularInline):
@@ -12,12 +13,36 @@ class VerificationInline(admin.TabularInline):
                        'whitelisted_address')
 
 
+class PendingFilter(SimpleListFilter):
+    title = 'status'
+    parameter_name = 'status'
+
+    def lookups(self, request, model_admin):
+        return [
+            ('PENDING', 'PENDING'),
+            ('BAD NAME', 'BAD NAME'),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value() == 'PENDING':
+            return queryset.filter(pk__in=[
+                v.pk for v in queryset if v.has_pending_documents
+            ])
+        if self.value() == 'BAD NAME':
+            return queryset.filter(pk__in=[
+                v.pk for v in queryset if v.has_approved_documents and
+                v.has_bad_name
+            ])
+        return queryset
+
+
 @admin.register(Verification)
 class VerificationAdmin(admin.ModelAdmin):
     inlines = [
         VerificationInline,
     ]
 
+    list_filter = (PendingFilter,)
     list_display = ('created_on', 'id_document_status', 'util_document_status',
                     'full_name', 'note', 'user',
                     'name_on_card', 'unique_cc')
@@ -26,7 +51,8 @@ class VerificationAdmin(admin.ModelAdmin):
                        'bad_name_verifications', 'unique_cc',
                        'payment_preference',
                        'id_doc', 'residence_doc', 'user', 'user_input_comment',
-                       'total_payments_usd', 'out_of_limit',
+                       'total_payments_usd', 'total_payments_usd_1day',
+                       'total_payments_usd_30days', 'out_of_limit',
                        'is_immediate_payment', 'tier', 'util_status',
                        'id_status')
 
@@ -73,6 +99,20 @@ class VerificationAdmin(admin.ModelAdmin):
 
     def total_payments_usd(self, obj):
         return self._get_payment_preference_field(obj, 'total_payments_usd')
+
+    def total_payments_usd_1day(self, obj):
+        fn = self._get_payment_preference_field(
+            obj, 'get_successful_payments_amount'
+        )
+        if callable(fn):
+            return fn(days=1)
+
+    def total_payments_usd_30days(self, obj):
+        fn = self._get_payment_preference_field(
+            obj, 'get_successful_payments_amount'
+        )
+        if callable(fn):
+            return fn(days=30)
 
     def out_of_limit(self, obj):
         return self._get_payment_preference_field(obj, 'out_of_limit')

@@ -1345,6 +1345,13 @@ class SafeChargeTestCase(TickerBaseTestCase):
         for doc in docs:
             doc.document_status = kyc.OK
             doc.save()
+        # make preference out of limit
+        pref.refresh_from_db()
+        trade_limits = pref.tier.trade_limits.all()
+        for _limit in trade_limits:
+            # make limit less than order amount(preference - out of limit)
+            _limit.amount = order.amount_quote * Decimal('0.9')
+            _limit.save()
         # Run task
         check_fiat_order_deposit_periodic.apply_async()
         # Check statuses (first order must be PAID second not - because

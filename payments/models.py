@@ -348,7 +348,7 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     def bad_name_verifications(self):
         return [
             v for v in self.approved_verifications
-            if v.full_name != self.secondary_identifier
+            if v.has_bad_name
         ]
 
     @property

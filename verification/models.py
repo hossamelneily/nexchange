@@ -141,7 +141,7 @@ class Verification(TimeStampedModel, SoftDeletableModel):
                                  blank=True, default=PENDING)
     util_status = models.CharField(choices=STATUSES, max_length=10, null=True,
                                    blank=True, default=PENDING)
-    full_name = models.CharField(max_length=30, null=True, blank=True)
+    full_name = models.CharField(max_length=30, null=True, blank=False)
     note = models.CharField(max_length=30, null=True, blank=True)
     user_visible_comment = models.CharField(max_length=255,
                                             null=True, blank=True)
@@ -253,7 +253,29 @@ class Verification(TimeStampedModel, SoftDeletableModel):
     @property
     def has_approved_documents(self):
         has_approved_docs = self.approved_documents.count() > 0
-        return self.util_status or self.id_status or has_approved_docs
+        return self.OK in [
+            self.util_status, self.id_status
+        ] or has_approved_docs
+
+    @property
+    def pending_documents(self):
+        return self.verificationdocument_set.filter(
+            document_status=self.PENDING
+        )
+
+    @property
+    def has_pending_documents(self):
+        has_pending_docs = self.pending_documents.count() > 0
+        return self.PENDING in [
+            self.util_status, self.id_status
+        ] or has_pending_docs
+
+    @property
+    def has_bad_name(self):
+        if not self.payment_preference \
+                or not self.payment_preference.secondary_identifier:
+            return False
+        return self.full_name != self.payment_preference.secondary_identifier
 
 
 class DocumentType(TimeStampedModel, SoftDeletableModel):
