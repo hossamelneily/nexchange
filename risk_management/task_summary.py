@@ -24,13 +24,13 @@ def account_balance_checker_invoke(account_id, task=None):
     task.run(account_id)
 
 
-@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+@shared_task(time_limit=settings.FAST_TASKS_TIME_LIMIT)
 @get_task(task_cls=ReserveBalanceChecker)
 def reserve_balance_checker_invoke(reserve_id, task=None):
     task.run(reserve_id)
 
 
-@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+@shared_task(time_limit=settings.FAST_TASKS_TIME_LIMIT)
 def currency_reserve_balance_checker_invoke(currency_code):
     reserve = Reserve.objects.get(currency__code=currency_code)
     reserve_balance_checker_invoke.apply([reserve.pk])
@@ -40,7 +40,7 @@ def currency_reserve_balance_checker_invoke(currency_code):
 def reserves_balance_checker_periodic():
     reserves = Reserve.objects.all()
     for reserve in reserves:
-        reserve_balance_checker_invoke.apply([reserve.pk])
+        reserve_balance_checker_invoke.apply_async([reserve.pk])
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
