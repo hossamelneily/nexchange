@@ -25,12 +25,16 @@ class Ticker(IndexTimeStampedModel):
     def rate(self):
         return (self.ask + self.bid) / 2
 
-    def _validate(self):
+    def _validate_change(self):
         if self.pk:
             return
         try:
-            latest = Ticker.objects.filter(pair=self.pair).latest('id')
-        except self.DoesNotExist:
+            price = Price.objects.filter(
+                pair=self.pair,
+                market__is_main_market=True
+            ).latest('id')
+            latest = price.ticker
+        except Price.DoesNotExist:
             return
         for field in ['ask', 'bid']:
             value = Decimal(getattr(self, field))
@@ -49,7 +53,8 @@ class Ticker(IndexTimeStampedModel):
                 raise ValidationError(_(msg))
 
     def save(self, *args, **kwargs):
-        self._validate()
+        if kwargs.pop('validate_change', True):
+            self._validate_change()
         super(Ticker, self).save(*args, **kwargs)
 
 

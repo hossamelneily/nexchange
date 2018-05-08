@@ -35,9 +35,13 @@ class PriceValidatorsTestCase(TestCase):
         self.assertEqual(Ticker.objects.all().count(), 0)
         ask = Decimal('1.1')
         bid = Decimal('0.9')
-        Ticker.objects.create(pair=self.pair, ask=ask, bid=bid)
+        ticker1 = Ticker(pair=self.pair, ask=ask, bid=bid)
+        ticker1.save()
+        Price.objects.create(pair=self.pair, ticker=ticker1)
         self.assertEqual(Ticker.objects.all().count(), 1)
-        Ticker.objects.create(pair=self.pair, ask=ask, bid=bid)
+        ticker2 = Ticker(pair=self.pair, ask=ask, bid=bid)
+        ticker2.save()
+        Price.objects.create(pair=self.pair, ticker=ticker2)
         self.assertEqual(Ticker.objects.all().count(), 2)
         positive_multiplier = \
             Decimal('1.0001') + settings.TICKER_ALLOWED_CHANGE
@@ -59,6 +63,12 @@ class PriceValidatorsTestCase(TestCase):
             Ticker.objects.create(
                 pair=self.pair, ask=ask, bid=bid * negative_multiplier
             )
+        self.assertEqual(Ticker.objects.all().count(), 2)
+        # no raise with kwarg
+        ticker3 = Ticker(pair=self.pair, ask=ask,
+                         bid=bid * negative_multiplier)
+        ticker3.save(validate_change=False)
+        self.assertEqual(Ticker.objects.all().count(), 3)
 
 
 class PriceTestCaseTask(TickerBaseTestCase):

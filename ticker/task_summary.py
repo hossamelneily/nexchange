@@ -21,8 +21,10 @@ def get_ticker_crypto_fiat(**kwargs):
         ticker, price = crypto_fiat_ticker.run(pair_pk)
         save_ticker_and_price(ticker, price)
         if pair.name in settings.LOCALBTC_PAIRS:
-            ticker_loc, price_loc = crypto_fiat_ticker.run(pair_pk, market_code='locbit')
-            save_ticker_and_price(ticker_loc, price_loc)
+            ticker_loc, price_loc = crypto_fiat_ticker.run(
+                pair_pk, market_code='locbit'
+            )
+            save_ticker_and_price(ticker_loc, price_loc, validate_change=False)
     else:
         logger.warning('pair_pk is not defined in kwargs')
 

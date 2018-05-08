@@ -80,7 +80,7 @@ class UserBaseTestCase(TestCase):
         )
         self.patcher_validate_order_create_price.start()
         self.patcher_validate_ticker_diff = patch(
-            'ticker.models.Ticker._validate'
+            'ticker.models.Ticker._validate_change'
         )
         self.patcher_validate_ticker_diff.start()
         self.logout_url = reverse('accounts.logout')

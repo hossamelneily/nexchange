@@ -325,7 +325,7 @@ def get_max_ticker(tickers):
         return int(index), ticker
 
 
-def save_ticker_and_price(ticker, price):
-    ticker.save()
+def save_ticker_and_price(ticker, price, validate_change=True):
+    ticker.save(validate_change=validate_change)
     price.ticker = ticker
     price.save()
