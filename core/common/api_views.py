@@ -45,8 +45,16 @@ class DataPointsFilterViewSet(DateFilterViewSet):
         if 'data_points' in params:
             original_len = len(res)
 
-            data_points = int(self.request.query_params.get('data_points'))
-            if data_points < original_len:
+            try:
+                data_points = round(
+                    float(self.request.query_params.get('data_points'))
+                )
+            except ValueError:
+                data_points = 0
+
+            if data_points <= 0:
+                res = self.queryset.none()
+            elif data_points < original_len:
                 pks = []
                 step = original_len / data_points
                 number = 0
