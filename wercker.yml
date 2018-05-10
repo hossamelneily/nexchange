@@ -108,6 +108,7 @@ dev:
           python manage.py loaddata core/fixtures/pairs_bdg.json
           python manage.py loaddata core/fixtures/pairs_eos.json
           python manage.py loaddata core/fixtures/pairs_zec.json
+          python manage.py loaddata core/fixtures/pairs_usdt.json
     - script:
         name: Django import Payment Methods fixture
         code: |
@@ -407,6 +408,14 @@ build:
           export RPC9_PUBLIC_KEY_C1=${RPC9_PUBLIC_KEY_C1}
           export RPC_RPC9_K=${RPC_RPC9_K}
 
+          #RPC10
+          export RPC_RPC10_USER=${RPC_RPC10_USER}
+          export RPC_RPC10_PASSWORD=${RPC_RPC10_PASSWORD}
+          export RPC_RPC10_PORT=${RPC_RPC10_PORT}
+          export RPC_RPC10_HOST=${RPC_RPC10_HOST}
+          export RPC10_PUBLIC_KEY_C1=${RPC10_PUBLIC_KEY_C1}
+          export RPC_RPC10_K=${RPC_RPC10_K}
+
           # RPC settings
           export RPC_IMPORT_TRANSACTIONS_COUNT=${RPC_IMPORT_TRANSACTION_COUNT}
           export RPC_IMPORT_BLOCK_COUNT=${RPC_IMPORT_BLOCK_COUNT}
@@ -464,6 +473,7 @@ build:
           python manage.py loaddata core/fixtures/pairs_bdg.json
           python manage.py loaddata core/fixtures/pairs_eos.json
           python manage.py loaddata core/fixtures/pairs_zec.json
+          python manage.py loaddata core/fixtures/pairs_usdt.json
 
           if [ ! -z $CMS_FROM_FIXTURE] && [ ${CMS_FROM_FIXTURE} -eq 1 ]
           then

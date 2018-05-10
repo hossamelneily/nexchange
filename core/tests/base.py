@@ -29,6 +29,7 @@ from nexchange.api_clients.rpc import EthashRpcApiClient
 UPHOLD_ROOT = 'nexchange.api_clients.uphold.Uphold.'
 SCRYPT_ROOT = 'nexchange.api_clients.rpc.ScryptRpcApiClient.'
 ZCASH_ROOT = 'nexchange.api_clients.rpc.ZcashRpcApiClient.'
+OMNI_ROOT = 'nexchange.api_clients.rpc.OmniRpcApiClient.'
 ETH_ROOT = 'nexchange.api_clients.rpc.EthashRpcApiClient.'
 BLAKE2_ROOT = 'nexchange.api_clients.rpc.Blake2RpcApiClient.'
 BITTREX_ROOT = 'nexchange.api_clients.bittrex.BittrexApiClient.'
@@ -202,6 +203,10 @@ class UserBaseTestCase(TestCase):
             mock.patch(ZCASH_ROOT + 'backup_wallet',
                        new=addr_response)
         self.zcash_mock_backup.start()
+        self.omni_mock_backup = \
+            mock.patch(OMNI_ROOT + 'backup_wallet',
+                       new=addr_response)
+        self.omni_mock_backup.start()
 
         self.rpc_eth_mock_addr = \
             mock.patch('web3.personal.Personal.newAccount',
@@ -331,6 +336,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         'pairs_bdg.json',
         'pairs_eos.json',
         'pairs_zec.json',
+        'pairs_usdt.json',
         'payment_method.json',
         'payment_preference.json',
         'reserve.json',
@@ -392,6 +398,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         self.mock_rpc_txs.stop()
         self.rpc_eth_mock_addr.stop()
         self.zcash_mock_backup.stop()
+        self.omni_mock_backup.stop()
 
     @classmethod
     def setUpClass(cls):
@@ -457,6 +464,37 @@ class OrderBaseTestCase(UserBaseTestCase):
                 'txid': 'tx{}{}'.format(time(), randint(1, 999))
             }
         }
+
+    def get_omni_tx(self, value, address):
+        return [{
+            'data': {},
+            'to': address,
+            'value': value,
+            'tx_id': self.generate_txn_id(),
+            'currency_code': 'USDT',
+        }]
+
+    def get_omni_tx_raw_unconfirmed(self, amount, address):
+        return {
+            'amount': amount,
+            'blocktime': 1524571252,
+            'confirmations': 4,
+            'fee': '0.00008640',
+            'propertyid': 31,
+            'propertyname': 'TetherUS',
+            'sendingaddress': address,
+            'referenceaddress': address,
+            'txid': self.generate_txn_id(),
+            'type': 'Simple Send',
+            'type_int': 0,
+            'version': 0,
+            'valid': False
+        }
+
+    def get_omni_tx_raw_confirmed(self, tx):
+        tx['confirmations'] = 7
+        tx['valid'] = True
+        return tx
 
     def get_ethash_tx(self, amount, address):
         value = Web3.toWei(amount, 'ether')
@@ -619,6 +657,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         'pairs_bdg.json',
         'pairs_eos.json',
         'pairs_zec.json',
+        'pairs_usdt.json',
         'payment_method.json',
         'payment_preference.json',
         'reserve.json',
@@ -691,6 +730,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.DOGE = Currency.objects.get(code='DOGE')
         self.BCH = Currency.objects.get(code='BCH')
         self.ZEC = Currency.objects.get(code='ZEC')
+        self.USDT = Currency.objects.get(code='USDT')
         self.BTC_address = self._create_withdraw_adress(
             self.BTC, '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi')
         self.LTC_address = self._create_withdraw_adress(
@@ -705,6 +745,9 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             self.BCH, '142banESr9veN2RkFg6k67AjDdCepdmVLm')
         self.ZEC_address = self._create_withdraw_adress(
             self.ZEC, 't1a7HFeidzBswwdXaFV1gKtSphn41rLcEmK'
+        )
+        self.USDT_address = self._create_withdraw_adress(
+            self.USDT, '1AzrxFRwxGmXPeSum9Bsisv7XxhSAeANwH'
         )
 
     def _read_fixture(self):

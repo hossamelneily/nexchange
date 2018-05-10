@@ -121,6 +121,17 @@ def validate_nano(value):
     # TODO: add ETH hash validation
 
 
+def validate_usdt(value):
+    p = re.compile('^1[1-9A-Za-z]{33}$')
+    p.match(value)
+
+    if not p.match(value):
+        raise ValidationError(
+            _('%(value)s has invalid characters for a valid Tether address'),
+            params={'value': value},
+        )
+
+
 def validate_zec(value):
     p = re.compile('^t[1-9A-Za-z]{34}$')
     p.match(value)
@@ -142,7 +153,8 @@ def validate_address(value):
     elif value[:1] == 'D':
         validate_doge(value)
     elif value[:1] == 't':
-        validate_doge(value)
+        validate_zec(value)
+    #TODO: USDT starts with 1 like btc
     else:
         validate_bc(value)
 
@@ -171,5 +183,7 @@ def get_validator(code):
         return validate_nano
     elif code == 'ZEC':
         return validate_zec
+    elif code == 'USDT':
+        return validate_usdt
 
     return validate_non_address

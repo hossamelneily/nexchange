@@ -7,7 +7,7 @@ from .tasks.generic.tx_importer.uphold_blockchain import \
     UpholdBlockchainTransactionImporter
 from .tasks.generic.tx_importer.scrypt import ScryptTransactionImporter, \
     EthashTransactionImporter, Blake2TransactionImporter,\
-    ZcashTransactionImporter
+    ZcashTransactionImporter, OmniTransactionImporter
 from django.conf import settings
 from celery import shared_task
 from core.models import AddressReserve
@@ -38,6 +38,11 @@ def import_transaction_deposit_zcash_invoke():
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def import_transaction_deposit_omni_invoke():
+    return import_transaction_deposit_crypto(OmniTransactionImporter)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def import_transaction_deposit_ethash_invoke():
     return import_transaction_deposit_crypto(EthashTransactionImporter)
 
@@ -54,6 +59,7 @@ def import_transaction_deposit_uphold_invoke():
 all_importers = [
     import_transaction_deposit_scrypt_invoke,
     import_transaction_deposit_zcash_invoke,
+    import_transaction_deposit_omni_invoke,
     import_transaction_deposit_ethash_invoke,
     import_transaction_deposit_blake2_invoke
 ]

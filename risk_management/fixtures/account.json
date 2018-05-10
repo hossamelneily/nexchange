@@ -207,12 +207,36 @@
 },
 {
   "model": "risk_management.account",
+  "pk": 17,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 10,
+    "wallet": "rpc7",
+    "trading_allowed": false,
+    "is_main_account": true
+  }
+},
+{
+  "model": "risk_management.account",
   "pk": 18,
   "fields": {
     "created_on": "2017-10-04T12:58:09.529Z",
     "modified_on": "2017-10-04T12:58:09.529Z",
     "reserve": 11,
     "wallet": "rpc9",
+    "trading_allowed": false,
+    "is_main_account": true
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 19,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 12,
+    "wallet": "rpc10",
     "trading_allowed": false,
     "is_main_account": true
   }

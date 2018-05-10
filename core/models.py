@@ -199,6 +199,8 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         default=Decimal('1.00'),
         help_text='Maximal amount that can be set as order base.')
     is_token = models.BooleanField(default=False)
+    property_id = models.IntegerField(max_length=3, unique=True, null=True,
+                                      blank=True)
     contract_address = models.CharField(max_length=42, unique=True, null=True,
                                         blank=True)
     decimals = models.IntegerField(default=8)

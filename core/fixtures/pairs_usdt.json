@@ -1,0 +1,47 @@
+[
+{
+  "model": "core.pair",
+  "pk": 282,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 4,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "USDTUSD",
+    "test_mode": true,
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 283,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 6,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "USDTEUR",
+    "test_mode": true,
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 284,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 7,
+    "fee_ask": "0.0500000",
+    "fee_bid": "0.0500000",
+    "name": "USDTGBP",
+    "test_mode": true,
+    "disabled": false
+  }
+}
+]

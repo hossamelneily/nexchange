@@ -53,9 +53,10 @@ class BaseApiClient:
         raise NotImplementedError()
 
     def get_txs(self, node=None, txs=None):
-        return len(txs), \
-            [self.parse_tx(tx, node)
-                for tx in txs if self.filter_tx(tx)]
+        _txs = [self.parse_tx(tx, node) for tx in txs
+                if self.filter_tx(tx)]
+        txs = [tx for tx in _txs if tx is not None]
+        return len(txs), txs
 
     def check_tx(self, tx, node):
         raise NotImplementedError()
@@ -224,9 +225,10 @@ class BaseWalletApiClient(BaseApiClient):
         raise NotImplementedError()
 
     def get_txs(self, node=None, txs=None):
-        return len(txs), \
-            [self.parse_tx(tx, node)
-                for tx in txs if self.filter_tx(tx)]
+        _txs = [self.parse_tx(tx, node) for tx in txs
+                if self.filter_tx(tx)]
+        txs = [tx for tx in _txs if tx is not None]
+        return len(txs), txs
 
     def check_tx(self, tx, node):
         raise NotImplementedError()

@@ -13,7 +13,7 @@ from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
     import_transaction_deposit_uphold_blockchain_invoke
 from core.models import Address, Transaction, Currency, Pair
 from core.tests.base import TransactionImportBaseTestCase
-from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT, ETH_ROOT, BITTREX_ROOT
+from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT, ETH_ROOT, BITTREX_ROOT, OMNI_ROOT
 from core.tests.base import WalletBaseTestCase
 from core.tests.utils import data_provider, get_ok_pay_mock
 from orders.models import Order
@@ -231,7 +231,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
     def setUp(self):
         self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
                                      'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
-                                     'BTCEOS', 'BTCNANO', 'BTCZEC']
+                                     'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT']
         super(SellOrderReleaseTaskTestCase, self).setUp()
         self.import_txs_task = import_transaction_deposit_crypto_invoke
         self.update_confirmation_task = update_pending_transactions_invoke
@@ -524,7 +524,8 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
     def setUp(self):
         self.ENABLED_TICKER_PAIRS = ['ETHLTC', 'BTCETH', 'BTCLTC', 'LTCETH',
                                      'ETHBTC', 'LTCBTC', 'ETHDOGE', 'DOGELTC',
-                                     'ETHBCH', 'BCHDOGE', 'ZECBTC', 'BTCZEC']
+                                     'ETHBCH', 'BCHDOGE', 'ZECBTC', 'BTCZEC',
+                                     'BTCUSDT']
         super(ExchangeOrderReleaseTaskTestCase, self).setUp()
         self.import_txs_task = import_transaction_deposit_crypto_invoke
         self.update_confirmation_task = update_pending_transactions_invoke
@@ -545,6 +546,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             ('BCHDOGE', Order.BUY, True, 3),
             ('ZECBTC', Order.BUY, True, 3),
             ('BTCZEC', Order.BUY, True, 3),
+            ('BTCUSDT', Order.BUY, True, 3),
         )
     )
     @patch(ETH_ROOT + 'net_listening')
@@ -558,6 +560,9 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
     @patch(SCRYPT_ROOT + 'release_coins')
     @patch(SCRYPT_ROOT + '_get_tx')
     @patch(SCRYPT_ROOT + '_get_txs')
+    @patch(OMNI_ROOT + 'release_coins')
+    @patch(OMNI_ROOT + '_get_tx')
+    @patch(OMNI_ROOT + '_get_txs')
     @patch(UPHOLD_ROOT + 'execute_txn')
     @patch(UPHOLD_ROOT + 'prepare_txn')
     @patch(UPHOLD_ROOT + 'get_transactions')
@@ -568,6 +573,8 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                     get_txs_uphold,
                                     prepare_txn_uphold,
                                     execute_txn_uphold,
+                                    get_txs_omni, get_tx_omni,
+                                    release_coins_omni,
                                     get_txs_scrypt, get_tx_scrypt,
                                     release_coins_scrypt,
                                     get_txs_eth, get_tx_eth,
@@ -588,7 +595,6 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         mock_amount = self.order.amount_quote
         withdraw_currency_code = currency_base_code
         mock_currency = Currency.objects.get(code=mock_currency_code)
-
         card = self.order.deposit_address.reserve
 
         if mock_currency.wallet == 'api1':
@@ -601,8 +607,12 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                                           card.address)
             get_txs_scrypt.return_value = self.get_scrypt_tx(mock_amount,
                                                              card.address)
+            get_txs_omni.return_value = self.get_omni_tx(mock_amount,
+                                                         card.address)
         confs = 249
         check_tx_uphold.return_value = True, confs
+        get_tx_omni.return_value = self.get_omni_tx_raw_confirmed(
+            self.get_omni_tx_raw_unconfirmed(mock_amount, card.address))
         get_tx_scrypt.return_value = {
             'confirmations': confs
         }
@@ -615,10 +625,9 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         get_block_eth.return_value = confs
         self.import_txs_task.apply()
         prepare_txn_uphold.return_value = release_coins_scrypt.return_value = \
-            release_coins_eth.return_value = \
+            release_coins_eth.return_value = release_coins_omni.return_value =\
             'txid_{}{}'.format(time(), randint(1, 999))
         execute_txn_uphold.return_value = {'code': 'OK'}
-
         self.order.refresh_from_db()
         self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
         self.update_confirmation_task.apply()
@@ -714,7 +723,7 @@ class SofortEndToEndTestCase(BaseSofortAPITestCase,
     def setUp(self):
         self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
                                      'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
-                                     'BTCEOS', 'BTCNANO', 'BTCZEC']
+                                     'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT']
         super(SofortEndToEndTestCase, self).setUp()
         self.payments_importer = run_sofort
         self.sender_name = 'Sender Awesome'
@@ -831,7 +840,7 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
     def setUp(self):
         self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
                                      'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
-                                     'BTCEOS', 'BTCNANO', 'BTCZEC']
+                                     'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT']
         super(AdvCashE2ETestCase, self).setUp()
         self.payment_importer = run_adv_cash
         self.import_txs_task = import_transaction_deposit_crypto_invoke

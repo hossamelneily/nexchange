@@ -1,5 +1,5 @@
 from nexchange.api_clients.rpc import ScryptRpcApiClient, EthashRpcApiClient,\
-    Blake2RpcApiClient, ZcashRpcApiClient
+    Blake2RpcApiClient, ZcashRpcApiClient, OmniRpcApiClient
 from nexchange.api_clients.uphold import UpholdApiClient
 from orders.models import Order
 from decimal import Decimal
@@ -39,6 +39,13 @@ class ZcashRpcMixin:
     def __init__(self):
         self.api = ZcashRpcApiClient()
         super(ZcashRpcMixin, self).__init__()
+
+
+class OmniRpcMixin:
+
+    def __init__(self):
+        self.api = OmniRpcApiClient()
+        super(OmniRpcMixin, self).__init__()
 
 
 class EthashRpcMixin:

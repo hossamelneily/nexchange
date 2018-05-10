@@ -1776,5 +1776,357 @@
     "disabled": false,
     "test_mode": false
   }
+},
+{
+  "model": "core.pair",
+  "pk": 260,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 1,
+    "quote": 44,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "BTCUSDT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 261,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 1,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "USDTBTC",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 262,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 2,
+    "quote": 44,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "LTCUSDT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 263,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 2,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "USDTLTC",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 264,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 3,
+    "quote": 44,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "ETHUSDT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 265,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 3,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "USDTETH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 266,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 34,
+    "quote": 44,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "DOGEUSDT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 267,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 34,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "USDTDOGE",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 268,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 35,
+    "quote": 44,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "XVGUSDT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 269,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 35,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "USDTXVG",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 270,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 36,
+    "quote": 44,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "BCHUSDT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 271,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 36,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "USDTBCH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 272,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 37,
+    "quote": 44,
+    "fee_ask": "0.0500000",
+    "fee_bid": "0.0700000",
+    "name": "BDGUSDT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 273,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 37,
+    "fee_ask": "0.0700000",
+    "fee_bid": "0.0500000",
+    "name": "USDTBDG",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 274,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 39,
+    "quote": 44,
+    "fee_ask": "0.0500000",
+    "fee_bid": "0.0500000",
+    "name": "OMGUSDT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 275,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 39,
+    "fee_ask": "0.0500000",
+    "fee_bid": "0.0500000",
+    "name": "USDTOMG",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 276,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 40,
+    "quote": 44,
+    "fee_ask": "0.0500000",
+    "fee_bid": "0.0500000",
+    "name": "EOSUSDT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 277,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 40,
+    "fee_ask": "0.0500000",
+    "fee_bid": "0.0500000",
+    "name": "USDTEOS",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 278,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 42,
+    "quote": 44,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "NANOUSDT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 279,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 42,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "USDTNANO",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 280,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 43,
+    "quote": 44,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "ZECUSDT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 281,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 43,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "USDTZEC",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
 }
 ]
