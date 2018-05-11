@@ -1255,7 +1255,7 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
             order.status = Order.CANCELED
             with patch('orders.models.Order._validate_status'):
                 order.save()
-        ask = bid = Decimal('0.0012')
+        ask = bid = Decimal('0.000012')
         pair_trade = Pair.objects.get(name='XVGBTC')
         xvg = pair_trade.base
         xvg.execute_cover = True

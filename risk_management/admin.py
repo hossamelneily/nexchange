@@ -47,7 +47,9 @@ class PortfolioLogAdmin(admin.ModelAdmin):
 @admin.register(PNL)
 class PNLAdmin(admin.ModelAdmin):
     list_display = ('pnl_sheet', 'date_from', 'date_to', 'pair', 'volume_ask',
-                    'volume_bid', 'average_ask', 'average_bid', 'exit_price')
+                    'volume_bid', 'average_ask', 'average_bid', 'exit_price',
+                    'realized_volume', 'pnl_realized', 'pnl_unrealized',
+                    'pnl_str')
     readonly_fields = ('position_str', 'base_position_str', 'realized_volume',
                        'pnl_realized', 'pnl_unrealized', 'pnl_str', 'pnl_btc',
                        'pnl_usd', 'pnl_eth', 'pnl_eur')
@@ -56,7 +58,7 @@ class PNLAdmin(admin.ModelAdmin):
 
 @admin.register(PNLSheet)
 class PNLSheetAdmin(admin.ModelAdmin):
-    list_display = ('date_from', 'date_to')
+    list_display = ('date_from', 'date_to', 'positions_str')
     readonly_fields = ('pnl_btc', 'pnl_eth', 'pnl_eur',
                        'pnl_usd', 'positions', 'positions_str')
 

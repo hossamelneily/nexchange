@@ -444,9 +444,29 @@ class PNL(TimeStampedModel):
                                    default=Decimal('0'), blank=True)
     rate_eth = models.DecimalField(max_digits=18, decimal_places=8,
                                    default=Decimal('0'), blank=True)
+    position = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'))
+    base_position = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'))
+    realized_volume = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'))
+    pnl_realized = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'))
+    pnl_unrealized = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'))
+    pnl = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'))
+    pnl_btc = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'))
+    pnl_usd = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'))
+    pnl_eth = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'))
+    pnl_eur = models.DecimalField(max_digits=18, decimal_places=8,
+                                   default=Decimal('0'))
 
     @property
-    def position(self):
+    def _position(self):
         return self.volume_ask - self.volume_bid
 
     @property
@@ -455,7 +475,7 @@ class PNL(TimeStampedModel):
         return '{} {}'.format(self.position, asset)
 
     @property
-    def base_position(self):
+    def _base_position(self):
         return self.base_volume_bid - self.base_volume_ask
 
     @property
@@ -464,24 +484,24 @@ class PNL(TimeStampedModel):
         return '{} {}'.format(self.base_position, currency)
 
     @property
-    def realized_volume(self):
+    def _realized_volume(self):
         return min([self.volume_ask, self.volume_bid])
 
     @property
-    def pnl_realized(self):
-        return (self.average_bid - self.average_ask) * self.realized_volume
+    def _pnl_realized(self):
+        return (self.average_bid - self.average_ask) * self._realized_volume
 
     @property
-    def pnl_unrealized(self):
-        if self.position >= Decimal('0'):
+    def _pnl_unrealized(self):
+        if self._position >= Decimal('0'):
             rate = self.average_ask
         else:
             rate = self.average_bid
-        return (self.exit_price - rate) * self.position
+        return (self.exit_price - rate) * self._position
 
     @property
-    def pnl(self):
-        return self.pnl_realized + self.pnl_unrealized
+    def _pnl(self):
+        return self._pnl_realized + self._pnl_unrealized
 
     @property
     def pnl_str(self):
@@ -489,20 +509,20 @@ class PNL(TimeStampedModel):
         return '{} {}'.format(self.pnl, currency)
 
     @property
-    def pnl_btc(self):
-        return self.pnl * self.rate_btc
+    def _pnl_btc(self):
+        return self._pnl * self.rate_btc
 
     @property
-    def pnl_usd(self):
-        return self.pnl * self.rate_usd
+    def _pnl_usd(self):
+        return self._pnl * self.rate_usd
 
     @property
-    def pnl_eth(self):
-        return self.pnl * self.rate_eth
+    def _pnl_eth(self):
+        return self._pnl * self.rate_eth
 
     @property
-    def pnl_eur(self):
-        return self.pnl * self.rate_eur
+    def _pnl_eur(self):
+        return self._pnl * self.rate_eur
 
     def _set_pnl_parameters(self):
         filter = {
@@ -566,10 +586,24 @@ class PNL(TimeStampedModel):
         except Price.DoesNotExist:
             pass
 
+    def _set_pnl_properties(self):
+        props = {
+            'position': self._position,
+            'base_position': self._base_position,
+            'realized_volume': self._realized_volume,
+            'pnl_realized': self._pnl_realized,
+            'pnl_unrealized': self._pnl_unrealized,
+            'pnl': self._pnl,
+            'pnl_usd': self._pnl_usd,
+            'pnl_eth': self._pnl_eth,
+            'pnl_eur': self._pnl_eur
+        }
+        for field, prop in props.items():
+            setattr(self, field, prop)
+
     def __str__(self):
         asset = '<asset>' if not self.pair else self.pair.quote.code
         currency = '<points>' if not self.pair else self.pair.base.code
-
         return 'position {} {} | P&l {} {}'.format(
             self.position, asset, self.pnl, currency)
 
@@ -585,7 +619,7 @@ class PNL(TimeStampedModel):
                         setattr(self, field, rate)
                     except Price.DoesNotExist:
                         continue
-
+        self._set_pnl_properties()
         super(PNL, self).save()
 
 

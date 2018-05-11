@@ -123,11 +123,11 @@ class PnlTestCase(TestCase):
                  volume_bid=Decimal('13'), average_bid=Decimal('102.230769'),
                  exit_price=Decimal('99'))
         pn.save()
-        self.assertEqual(pn.position, Decimal('19'))
-        self.assertEqual(pn.realized_volume, Decimal('13'))
-        self.assertEqual(pn.pnl_realized, Decimal('32.249997'))
-        self.assertEqual(pn.pnl_unrealized, Decimal('-14.25'))
-        self.assertEqual(pn.pnl, Decimal('17.999997'))
+        self.assertEqual(pn._position, Decimal('19'))
+        self.assertEqual(pn._realized_volume, Decimal('13'))
+        self.assertEqual(pn._pnl_realized, Decimal('32.249997'))
+        self.assertEqual(pn._pnl_unrealized, Decimal('-14.25'))
+        self.assertEqual(pn._pnl, Decimal('17.999997'))
         self.assertIsInstance(pn.__str__(), str)
 
 
