@@ -775,18 +775,24 @@ class OmniRpcApiClient(ScryptRpcApiClient):
         tx = self.call_api(node, 'omni_gettransaction', *[tx_id])
         return tx
 
-    def coin_card_mapper(self, node):
-        account_env = '{}_PUBLIC_KEY_C1'.format(node.upper())
-        account = os.getenv(account_env, None)
-        return account
+    def get_accounts(self, node):
+        return self.call_api(node, 'getaddressesbyaccount', *[""])
+
+    def get_main_address(self, currency):
+        node = currency.wallet
+        address = os.getenv('{}_PUBLIC_KEY_C1'.format(node.upper()))
+        all_accounts = self.get_accounts(node)
+        assert address in all_accounts, \
+            'Main address must be in get_accounts resp {}'.format(currency)
+        return address
 
     def _form_transaction(self, currency, address, amount, **kwargs):
-        node = currency.wallet
         if isinstance(address, Address):
             address_to = address.address
         else:
             address_to = address
-        address_from = kwargs.get('address_from', self.coin_card_mapper(node))
+        main_address = self.get_main_address(currency)
+        address_from = kwargs.get('address_from', main_address)
 
         tx = {
             'fromaddress': address_from,
@@ -805,16 +811,18 @@ class OmniRpcApiClient(ScryptRpcApiClient):
         success = True
         return tx_id, success
 
-    def get_balance(self, currency, address):
-        balance = self.call_api(currency.wallet, 'omni_getbalance', address, currency.property_id)
+    def get_balance(self, currency, account=None):
+        if not isinstance(currency, Currency):
+            currency = Currency.objects.get(code=currency)
+        if account is None:
+            account = self.get_main_address(currency)
+        balance = self.call_api(currency.wallet, 'omni_getbalance',
+                                *[account, currency.property_id])
         return balance
 
     def get_info(self, currency):
         info = self.call_api(currency.wallet, 'omni_getinfo')
         return info
-
-    def get_account_addresses(self, node):
-        return self.call_api(node, 'getaddressesbyaccount', '')
 
     def _get_txs(self, node):
         txs = self._get_txs_from_blocks(node)
@@ -822,9 +830,6 @@ class OmniRpcApiClient(ScryptRpcApiClient):
 
     def filter_tx(self, tx):
         return True
-
-    def get_accounts(self, node):
-        return self.call_api(node, 'listaccounts')
 
     def _get_current_block(self, node):
         res = self.call_api(node, 'omni_getinfo')
