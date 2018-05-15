@@ -29,6 +29,7 @@ from core.urls import core_api_patterns
 from accounts.urls import account_urls, account_api_patterns
 from articles.urls import article_urls
 from orders.urls import order_urls, order_api_patterns
+from risk_management.urls import risk_management_api_patterns
 from orders.api_views import PriceView
 from payments.urls import payment_urls
 from referrals.urls import referral_urls, referrals_api_patterns
@@ -57,7 +58,7 @@ js_info_dict = {
 api_patterns = ticker_api_patterns + referrals_api_patterns \
     + order_api_patterns + account_api_patterns + \
     core_api_patterns + support_api_patterns + kyc_api_patterns + \
-    ico_api_patterns
+    risk_management_api_patterns + ico_api_patterns
 
 
 urlpatterns = i18n_patterns(

@@ -37,6 +37,12 @@ class PairSerializer(serializers.ModelSerializer):
                   'test_mode')
 
 
+class SimplePairSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pair
+        fields = ('name',)
+
+
 class NestedPairSerializer(serializers.ModelSerializer):
     base = CurrencySerializer(many=False, read_only=True)
     quote = CurrencySerializer(many=False, read_only=True)

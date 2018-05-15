@@ -1,0 +1,72 @@
+FORMAT: 1A
+HOST: https://api.nexchange.io/
+# nexchange
+
+API for crypto currency exchange.
+
+## Get PNL [/en/api/v1/risk_management/pnl/]
+
+
+### Get PNL [GET]
+ Get all PNLs.
+
++ Response 200 (application/json)
+    + Body
+
+            {
+              "results": [
+                {
+                  "date_from": "2018-05-10T14:50:47+02:00",
+                  "date_to": "2018-05-11T14:50:47+02:00",
+                  "period": "1 day, 0:00:00",
+                  "pair": {
+                    "name": "BCHEOS"
+                  },
+                  "average_ask": "0.00000000",
+                  "average_bid": "0.00000000",
+                  "volume_ask": "0.00000000",
+                  "volume_bid": "0.00000000",
+                  "base_volume_ask": "0.00000000",
+                  "base_volume_bid": "0.00000000",
+                  "exit_price": "0.01097638",
+                  "rate_btc": "0.15910957",
+                  "rate_usd": "1354.05325445",
+                  "rate_eur": "1139.76342280",
+                  "rate_eth": "2.00374268"
+                }
+              ]
+            }
+
+## Get PNLSheet [/en/api/v1/risk_management/pnl_sheet/]
+
+
+### Get PNLSheet [GET]
+ Get all PNLSheets.
+
++ Response 200 (application/json)
+    + Body
+
+            {
+              "results": [
+                {
+                  "date_from": "2018-05-10T14:50:47+02:00",
+                  "date_to": "2018-05-11T14:50:47+02:00",
+                  "period": "1 day, 0:00:00",
+                  "pnl_btc": 0.10978511,
+                  "pnl_usd": 934.16884333,
+                  "positions": {
+                      "BTC": 4.21500625,
+                      "LTC": 236.23747123,
+                      "ETH": -105.0,
+                      "EOS": 231.52715615
+                  },
+                  "btc_pnls": {
+                      "BTCLTC": 0.01592232,
+                      "ETHEOS": 0.00722171,
+                      "BTCETH": 0.0263495,
+                      "LTCETH": 0.06029158
+                  }
+                }
+              ]
+            }
+

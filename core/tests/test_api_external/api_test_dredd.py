@@ -84,3 +84,10 @@ class DreddTestAPI(LiveServerTestCase, TransactionImportBaseTestCase,
                             self.url])
         if exit_status == 1:
             sys.exit(1)
+
+    def test_dredd_private(self):
+        exit_status = call(
+            ['./node_modules/.bin/dredd', 'apiary-private.apib', self.url]
+        )
+        if exit_status == 1:
+            sys.exit(1)

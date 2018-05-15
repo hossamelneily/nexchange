@@ -348,6 +348,10 @@ class PNLSheet(TimeStampedModel):
         return Decimal(sum([getattr(log, field_name) for log in reserve_logs]))
 
     @property
+    def period(self):
+        return str(self.date_to - self.date_from)
+
+    @property
     def pnl_btc(self):
         return self.sum_pnls_field('pnl_btc')
 
@@ -364,9 +368,13 @@ class PNLSheet(TimeStampedModel):
         return self.sum_pnls_field('pnl_eth')
 
     @property
+    def non_null_pnls(self):
+        return self.pnl_set.filter(pair__isnull=False).exclude(position=0)
+
+    @property
     def positions(self):
         res = {}
-        pnls = self.pnl_set.filter(pair__isnull=False)
+        pnls = self.non_null_pnls
         for pnl in pnls:
             pnl_positions = {
                 pnl.pair.base.code: pnl.base_position,
@@ -378,6 +386,10 @@ class PNLSheet(TimeStampedModel):
                 else:
                     res.update({key: value})
         return res
+
+    @property
+    def btc_pnls(self):
+        return {pnl.pair.name: pnl.pnl_btc for pnl in self.non_null_pnls}
 
     @property
     def positions_str(self):
@@ -447,23 +459,23 @@ class PNL(TimeStampedModel):
     position = models.DecimalField(max_digits=18, decimal_places=8,
                                    default=Decimal('0'))
     base_position = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'))
+                                        default=Decimal('0'))
     realized_volume = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'))
+                                          default=Decimal('0'))
     pnl_realized = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'))
+                                       default=Decimal('0'))
     pnl_unrealized = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'))
+                                         default=Decimal('0'))
     pnl = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'))
+                              default=Decimal('0'))
     pnl_btc = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'))
+                                  default=Decimal('0'))
     pnl_usd = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'))
+                                  default=Decimal('0'))
     pnl_eth = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'))
+                                  default=Decimal('0'))
     pnl_eur = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'))
+                                  default=Decimal('0'))
 
     @property
     def _position(self):
@@ -523,6 +535,10 @@ class PNL(TimeStampedModel):
     @property
     def _pnl_eur(self):
         return self._pnl * self.rate_eur
+
+    @property
+    def period(self):
+        return str(self.date_to - self.date_from)
 
     def _set_pnl_parameters(self):
         filter = {
@@ -596,7 +612,8 @@ class PNL(TimeStampedModel):
             'pnl': self._pnl,
             'pnl_usd': self._pnl_usd,
             'pnl_eth': self._pnl_eth,
-            'pnl_eur': self._pnl_eur
+            'pnl_eur': self._pnl_eur,
+            'pnl_btc': self._pnl_btc
         }
         for field, prop in props.items():
             setattr(self, field, prop)
