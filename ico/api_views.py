@@ -25,7 +25,7 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
                 if user:
                     instance.users.add(user)
 
-            orders = Order.objects.filter(withdraw_adress__address=
+            orders = Order.objects.filter(withdraw_address__address=
                                           instance.sending_address)
 
             for order in orders:
