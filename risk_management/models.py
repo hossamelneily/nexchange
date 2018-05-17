@@ -335,6 +335,9 @@ class Cover(TimeStampedModel):
 
 class PNLSheet(TimeStampedModel):
 
+    class Meta:
+        ordering = ['-created_on']
+
     def get_defult_date_from():
         return now() - timedelta(hours=24)
 
@@ -422,6 +425,9 @@ class PNLSheet(TimeStampedModel):
 
 
 class PNL(TimeStampedModel):
+
+    class Meta:
+        ordering = ['-created_on']
 
     def get_defult_date_from():
         return now() - timedelta(hours=24)
