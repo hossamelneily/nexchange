@@ -40,7 +40,7 @@ def check_uphold_txn_status_with_blockchain(tx, tx_completed,
 
 
 def _update_pending_transaction(tx, logger, next_tasks=None):
-    currency_to = tx.address_to.currency
+    currency_to = tx.currency
     api = ApiClientFactory.get_api_client(currency_to.wallet)
     order = tx.order
 
