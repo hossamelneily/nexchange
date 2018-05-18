@@ -1,5 +1,5 @@
 from nexchange.api_clients.rpc import ScryptRpcApiClient, EthashRpcApiClient,\
-    Blake2RpcApiClient, ZcashRpcApiClient, OmniRpcApiClient
+    Blake2RpcApiClient, ZcashRpcApiClient, OmniRpcApiClient, CryptonightRpcApiClient
 
 
 scrypt_client = ScryptRpcApiClient()
@@ -7,6 +7,7 @@ ethash_client = EthashRpcApiClient()
 blake2_client = Blake2RpcApiClient()
 zcash_client = ZcashRpcApiClient()
 omni_client = OmniRpcApiClient()
+cryptonight_client = CryptonightRpcApiClient()
 
 assert \
     scrypt_client.related_nodes[0] \
@@ -17,7 +18,9 @@ assert \
     != zcash_client.related_nodes[0] \
     != omni_client.related_nodes[0] \
     != ethash_client.related_nodes[0] \
-    != blake2_client.related_nodes[0]
+    != blake2_client.related_nodes[0] \
+    != cryptonight_client.related_nodes[0]
+
 clients_lookup = {
     scrypt_client.related_nodes[0]: scrypt_client,
     scrypt_client.related_nodes[1]: scrypt_client,
@@ -28,6 +31,7 @@ clients_lookup = {
     omni_client.related_nodes[0]: omni_client,
     ethash_client.related_nodes[0]: ethash_client,
     blake2_client.related_nodes[0]: blake2_client,
+    cryptonight_client.related_nodes[0]: cryptonight_client,
 }
 
 

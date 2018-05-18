@@ -40,7 +40,10 @@ def encrypted_endpoint(fn):
     @wraps(fn)
     def wrapper(self, *args, **kwargs):
         try:
-            node = args[0].wallet
+            try:
+                node = args[0].wallet
+            except AttributeError:
+                node = args[0]
             api = self.get_api(node)
             rpc_pass = RpcMapper.get_pass(node)
             self.unlock(api, rpc_pass, **{'node': node})

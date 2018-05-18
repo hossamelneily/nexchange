@@ -32,6 +32,7 @@ ZCASH_ROOT = 'nexchange.api_clients.rpc.ZcashRpcApiClient.'
 OMNI_ROOT = 'nexchange.api_clients.rpc.OmniRpcApiClient.'
 ETH_ROOT = 'nexchange.api_clients.rpc.EthashRpcApiClient.'
 BLAKE2_ROOT = 'nexchange.api_clients.rpc.Blake2RpcApiClient.'
+CRYPTONIGHT_ROOT = 'nexchange.api_clients.rpc.CryptonightRpcApiClient.'
 BITTREX_ROOT = 'nexchange.api_clients.bittrex.BittrexApiClient.'
 
 EXCHANGE_ORDER_RELEASE_ROOT = 'orders.tasks.generic.exchange_order_release.' \
@@ -44,6 +45,7 @@ RPC8_USER = 'user'
 RPC8_WALLET = '1234'
 RPC8_PUBLIC_KEY_C1 = 'xrb_1maincard'
 RPC8_URL = 'http://{}:{}@{}/'.format(RPC8_USER, RPC8_PASSWORD, RPC8_HOST)
+RPC11_URL = 'http://{}/json_rpc'.format(RPC8_HOST)
 
 
 class UserBaseTestCase(TestCase):
@@ -139,11 +141,22 @@ class UserBaseTestCase(TestCase):
                 if all([params.get('action') == 'account_create',
                         params.get('wallet')]):
                     return {'account': self._get_id('xrb_')}
+                if params.get('method') == 'create_address':
+                    return {'id': 0,
+                            'jsonrpc': '2.0',
+                            'result': {
+                                'address': self._get_id('4'),
+                                'address_index': 6}
+                            }
+                if params.get('method') == 'open_wallet':
+                    return {'id': 0, 'jsonrpc': '2.0', 'result': {}}
+                if params.get('method') == 'stop_wallet':
+                    return {'id': 0, 'jsonrpc': '2.0', 'result': {}}
 
             m.post(RPC8_URL, json=text_callback)
+            m.post(RPC11_URL, json=text_callback)
 
     # deprecated
-
     def _request_card(self, request, context):  # noqa
         post_params = {}
         params = request._request.body.split('&')
@@ -237,8 +250,20 @@ class UserBaseTestCase(TestCase):
             if all([params.get('action') == 'account_create',
                     params.get('wallet')]):
                 return {'account': self._get_id('xrb_')}
+            if params.get('method') == 'create_address':
+                return {'id': 0,
+                        'jsonrpc': '2.0',
+                        'result': {
+                            'address': self._get_id('4'),
+                            'address_index': 6}
+                        }
+            if params.get('method') == 'open_wallet':
+                return {'id': 0, 'jsonrpc': '2.0', 'result': {}}
+            if params.get('method') == 'stop_wallet':
+                return {'id': 0, 'jsonrpc': '2.0', 'result': {}}
 
         _mock.post(RPC8_URL, json=text_callback)
+        _mock.post(RPC11_URL, json=text_callback)
         # renos_coin = Currency.objects.get(code='RNS')
         _mock.post(
             'https://api.uphold.com/v0/me/cards/',
@@ -257,19 +282,38 @@ class UserBaseTestCase(TestCase):
     @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
     @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
+    @patch.dict(os.environ, {'RPC11_PUBLIC_KEY_C1': RPC8_PUBLIC_KEY_C1})
+    @patch.dict(os.environ, {'RPC_RPC11_WALLET_NAME': RPC8_WALLET})
+    @patch.dict(os.environ, {'RPC_RPC11_WALLET_PORT': RPC8_PORT})
+    @patch.dict(os.environ, {'RPC_RPC11_PASSWORD': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC11_K': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC11_USER': RPC8_USER})
+    @patch.dict(os.environ, {'RPC_RPC11_HOST': RPC8_HOST})
+    @patch.dict(os.environ, {'RPC_RPC11_PORT': RPC8_PORT})
     @requests_mock.mock()
     def _create_order(self, mock, order_type=Order.BUY,
                       amount_base=0.5, pair_name='LTCBTC',
                       payment_preference=None, user=None, amount_quote=None,
-                      validate_amount=False):
+                      validate_amount=False, payment_id=None):
         def text_callback(request, context):
             body = request._request.body
             params = json.loads(body)
             if all([params.get('action') == 'account_create',
                     params.get('wallet')]):
                 return {'account': self._get_id('xrb_')}
-
+            if params.get('method') == 'create_address':
+                return {'id': 0,
+                        'jsonrpc': '2.0',
+                        'result': {
+                            'address': self._get_id('4'),
+                            'address_index': 6}
+                        }
+            if params.get('method') == 'open_wallet':
+                return {'id': 0, 'jsonrpc': '2.0', 'result': {}}
+            if params.get('method') == 'stop_wallet':
+                return {'id': 0, 'jsonrpc': '2.0', 'result': {}}
         mock.post(RPC8_URL, json=text_callback)
+        mock.post(RPC11_URL, json=text_callback)
 
         pair = Pair.objects.get(name=pair_name)
         if user is None:
@@ -301,6 +345,14 @@ class UserBaseTestCase(TestCase):
     @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
     @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
+    @patch.dict(os.environ, {'RPC11_PUBLIC_KEY_C1': RPC8_PUBLIC_KEY_C1})
+    @patch.dict(os.environ, {'RPC_RPC11_WALLET_NAME': RPC8_WALLET})
+    @patch.dict(os.environ, {'RPC_RPC11_WALLET_PORT': RPC8_PORT})
+    @patch.dict(os.environ, {'RPC_RPC11_PASSWORD': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC11_K': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC11_USER': RPC8_USER})
+    @patch.dict(os.environ, {'RPC_RPC11_HOST': RPC8_HOST})
+    @patch.dict(os.environ, {'RPC_RPC11_PORT': RPC8_PORT})
     @patch('core.models.Currency.is_quote_of_enabled_pair')
     def _create_an_order_for_every_crypto_currency_card(self, user, is_quote,
                                                         amount_quote=None):
@@ -337,6 +389,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         'pairs_eos.json',
         'pairs_zec.json',
         'pairs_usdt.json',
+        'pairs_xmr.json',
         'payment_method.json',
         'payment_preference.json',
         'reserve.json',
@@ -358,6 +411,7 @@ class OrderBaseTestCase(UserBaseTestCase):
     RATE_EUR = 70.00
 
     def setUp(self):
+
         super(OrderBaseTestCase, self).setUp()
         enable_all_pairs()
         self.patcher_twilio_send_sms = patch(
@@ -491,6 +545,39 @@ class OrderBaseTestCase(UserBaseTestCase):
             'valid': False
         }
 
+    def get_cryptonight_raw_txs(self, currency, amount, address, block_height):
+        raw_amount = str(int(amount * (10 ** currency.decimals)))
+        return {
+            'id': 0,
+            'jsonrpc': '2.0',
+            'result': {
+                'in': [{
+                    'address': address,
+                    'amount': raw_amount,
+                    'double_spend_seen': False,
+                    'fee': 950700000,
+                    'height': block_height,
+                    'note': '',
+                    'payment_id': '721da362ac080b07',
+                    'subaddr_index': {'major': 0, 'minor': 0},
+                    'timestamp': 1525336581,
+                    'txid': self.generate_txn_id(),
+                    'type': 'in',
+                    'unlock_time': 0
+                }]
+            }
+        }
+
+    def get_cryptonight_raw_tx(self, raw_txs):
+        tx_data = raw_txs['result']['in'][0]
+        return {
+            'id': 0,
+            'jsonrpc': '2.0',
+            'result': {
+                'transfer': tx_data
+            }
+        }
+
     def get_omni_tx_raw_confirmed(self, tx):
         tx['confirmations'] = 7
         tx['valid'] = True
@@ -568,6 +655,9 @@ class OrderBaseTestCase(UserBaseTestCase):
                 'amount': raw_amount
             }]
         }
+
+    def get_cryptonight_tx(self, raw_tx):
+        return raw_tx['result']['in']
 
     def get_scrypt_tx(self, amount, address):
         return [{
@@ -658,6 +748,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         'pairs_eos.json',
         'pairs_zec.json',
         'pairs_usdt.json',
+        'pairs_xmr.json',
         'payment_method.json',
         'payment_preference.json',
         'reserve.json',
@@ -731,6 +822,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.BCH = Currency.objects.get(code='BCH')
         self.ZEC = Currency.objects.get(code='ZEC')
         self.USDT = Currency.objects.get(code='USDT')
+        self.XMR = Currency.objects.get(code='XMR')
         self.BTC_address = self._create_withdraw_adress(
             self.BTC, '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi')
         self.LTC_address = self._create_withdraw_adress(
@@ -749,6 +841,9 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.USDT_address = self._create_withdraw_adress(
             self.USDT, '1AzrxFRwxGmXPeSum9Bsisv7XxhSAeANwH'
         )
+        self.XMR_address = self._create_withdraw_adress(
+            self.XMR, '41pLNkSGSJK8pWAG9dd57YcWB82gH5ucHNEPnGt1FBN59P'
+                      'rdYqKUGB1SfZxGQPcYcDEbctmpN2kpVbtupm6yCRf16oXkjuY')
 
     def _read_fixture(self):
         path_addr_fixture = os.path.join(settings.BASE_DIR,

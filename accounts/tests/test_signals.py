@@ -19,7 +19,8 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
     def setUp(self):
         self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
                                      'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
-                                     'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT']
+                                     'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
+                                     'BTCXMR']
         super(RenewReserveTestCase, self).setUp()
         Cards.objects.all().delete()
         self.len_crypto_curencies = len(Currency.objects.filter(
@@ -39,6 +40,14 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
     @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
     @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
+    @patch.dict(os.environ, {'RPC11_PUBLIC_KEY_C1': RPC8_PUBLIC_KEY_C1})
+    @patch.dict(os.environ, {'RPC_RPC11_WALLET_NAME': RPC8_WALLET})
+    @patch.dict(os.environ, {'RPC_RPC11_WALLET_PORT': RPC8_PORT})
+    @patch.dict(os.environ, {'RPC_RPC11_PASSWORD': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC11_K': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC11_USER': RPC8_USER})
+    @patch.dict(os.environ, {'RPC_RPC11_HOST': RPC8_HOST})
+    @patch.dict(os.environ, {'RPC_RPC11_PORT': RPC8_PORT})
     @requests_mock.mock()
     def test_expected_reserve_default(self, mock):
         self._mock_cards_reserve(mock)

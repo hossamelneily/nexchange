@@ -189,7 +189,7 @@
       "slippage_rate": "3.57142857e-5"
     }
   },
-    {
+  {
     "model": "core.currency",
     "pk": 44,
     "fields": {
@@ -209,6 +209,28 @@
       "modified_on":"2017-09-19T19:21:42+00:00",
       "unslippaged_amount": "5000",
       "slippage_rate": "1.78571429e-7"
+    }
+  },
+  {
+    "model": "core.currency",
+      "pk": 45,
+      "fields": {
+      "code": "XMR",
+      "name": "monero",
+      "ticker": "binance/kraken/bittrex",
+      "wallet": "rpc11",
+      "algo": "cryptonight",
+      "withdrawal_fee": "0.011",
+      "is_crypto": 1,
+      "min_confirmations": 10,
+      "median_confirmation": 10,
+      "minimal_amount": "0.1",
+      "maximal_amount": "15.0",
+      "decimals": 12,
+      "created_on":"2017-09-19T19:21:42+00:00",
+      "modified_on":"2017-09-19T19:21:42+00:00",
+      "unslippaged_amount": "6",
+      "slippage_rate": "3.12500e-5"
     }
   }
 ]

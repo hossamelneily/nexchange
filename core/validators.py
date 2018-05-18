@@ -143,6 +143,17 @@ def validate_zec(value):
         )
 
 
+def validate_xmr(value):
+    p = re.compile('^[4|8][0-9a-zA-Z]{94}$')
+    p.match(value)
+
+    if not p.match(value):
+        raise ValidationError(
+            _('%(value)s has invalid characters for a valid Monero address'),
+            params={'value': value},
+        )
+
+
 def validate_address(value):
     if value[:2] == '0x':
         validate_eth(value)
@@ -154,7 +165,8 @@ def validate_address(value):
         validate_doge(value)
     elif value[:1] == 't':
         validate_zec(value)
-    #TODO: USDT starts with 1 like btc
+    elif value[:1] in ['4', '8']:
+        validate_xmr(value)
     else:
         validate_bc(value)
 
@@ -164,6 +176,17 @@ def validate_non_address(value):
         _('%(value)s is an invalid address'),
         params={'value': value},
     )
+
+
+def validate_xmr_payment_id(value):
+    p = re.compile('^(?=[0-9A-Za-z]*$)(?:.{16}|.{64})$')
+    p.match(value)
+
+    if not p.match(value):
+        raise ValidationError(
+            _('%(value)s has invalid characters for a valid Monero payment id'),
+            params={'value': value},
+        )
 
 
 def get_validator(code):
@@ -185,5 +208,7 @@ def get_validator(code):
         return validate_zec
     elif code == 'USDT':
         return validate_usdt
+    elif code == 'XMR':
+        return validate_xmr
 
     return validate_non_address

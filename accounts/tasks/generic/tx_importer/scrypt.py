@@ -1,5 +1,5 @@
 from nexchange.api_clients.mixins import EthashRpcMixin, ScryptRpcMixin,\
-    Blake2RpcMixin, ZcashRpcMixin, OmniRpcMixin
+    Blake2RpcMixin, ZcashRpcMixin, OmniRpcMixin, CryptonightRpcMixin
 from .base import BaseTransactionImporter
 
 
@@ -31,3 +31,9 @@ class Blake2TransactionImporter(Blake2RpcMixin, BaseTransactionImporter):
     def __init__(self):
         BaseTransactionImporter.__init__(self)
         Blake2RpcMixin.__init__(self)
+
+
+class CryptonightTransactionImporter(CryptonightRpcMixin, BaseTransactionImporter):
+    def __init__(self):
+        BaseTransactionImporter.__init__(self)
+        CryptonightRpcMixin.__init__(self)

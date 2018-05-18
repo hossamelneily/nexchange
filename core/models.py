@@ -59,7 +59,7 @@ class Address(BtcBase, SoftDeletableModel):
                                 blank=True, default=None, related_name='addr')
     name = models.CharField(max_length=100, blank=True)
     # TODO: what if two different users want to withdraw to the same address?
-    address = models.CharField(max_length=64, unique=True,
+    address = models.CharField(max_length=127, unique=True,
                                validators=[validate_address])
     user = models.ForeignKey(User, blank=True, null=True)
     currency = models.ForeignKey('core.Currency', blank=True, null=True)
@@ -166,7 +166,7 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                                          default=0.00)
     wallet = models.CharField(null=True, max_length=10,
                               blank=True, default=None)
-    algo = models.CharField(null=True, max_length=10,
+    algo = models.CharField(null=True, max_length=15,
                             blank=True, default=None)
     ticker = models.CharField(null=True, max_length=100,
                               blank=True, default=None)
@@ -199,8 +199,7 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         default=Decimal('1.00'),
         help_text='Maximal amount that can be set as order base.')
     is_token = models.BooleanField(default=False)
-    property_id = models.IntegerField(max_length=3, unique=True, null=True,
-                                      blank=True)
+    property_id = models.IntegerField(unique=True, null=True, blank=True)
     contract_address = models.CharField(max_length=42, unique=True, null=True,
                                         blank=True)
     decimals = models.IntegerField(default=8)

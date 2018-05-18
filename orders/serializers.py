@@ -11,11 +11,11 @@ from core.models import Address, Pair
 from django.core.exceptions import ValidationError
 from rest_framework.exceptions import ValidationError as RestValidationError
 from django.utils.translation import ugettext_lazy as _
-from core.validators import get_validator
+from core.validators import get_validator, validate_xmr_payment_id
 
 
-BASE_FIELDS = ('amount_base', 'is_default_rule',
-               'unique_reference', 'amount_quote', 'pair', 'withdraw_address')
+BASE_FIELDS = ('amount_base', 'is_default_rule', 'unique_reference',
+               'payment_id', 'amount_quote', 'pair', 'withdraw_address')
 READABLE_FIELDS = ('deposit_address', 'created_on', 'from_default_rule',
                    'unique_reference', 'deposit_address',
                    'payment_window', 'payment_deadline', 'kyc_deadline',
@@ -119,6 +119,8 @@ class CreateOrderSerializer(OrderSerializer):
         currency = pair_obj.base.code
         validate_address = get_validator(currency)
         validate_address(data['withdraw_address']['address'])
+        if 'payment_id' in data:
+            validate_xmr_payment_id(data['payment_id'])
 
         return super(CreateOrderSerializer, self).validate(data)
 
@@ -126,6 +128,7 @@ class CreateOrderSerializer(OrderSerializer):
         for field in READABLE_FIELDS:
             validated_data.pop(field, None)
         withdraw_address = validated_data.pop('withdraw_address')
+
         validated_data.pop('pair')
         # Just making sure
         addr_list = Address.objects.filter(address=withdraw_address['address'])
@@ -139,6 +142,8 @@ class CreateOrderSerializer(OrderSerializer):
             address = addr_list[0]
 
         order.withdraw_address = address
+        if validated_data.get('payment_id'):
+            order.payment_id = validated_data.pop('payment_id')
         try:
             order.save()
             # get post_save stuff in sync

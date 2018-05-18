@@ -188,9 +188,15 @@ class OmniRawE2ETestCase(TransactionImportBaseTestCase,
     @patch(OMNI_ROOT + 'get_balance')
     @patch(OMNI_ROOT + 'release_coins')
     @patch(OMNI_ROOT + 'health_check')
-    def test_release_omni_order(self, pair_name, mock_health_check, mock_release_coins,
+    @patch('orders.models.Order._validate_order_amount')
+    @patch('orders.models.Order.coverable')
+    def test_release_omni_order(self, pair_name, is_coverable,
+                                mock_validate_order_amount,
+                                mock_health_check, mock_release_coins,
                                 mock_get_balance, mock_get_txs, mock_get_tx):
         mock_health_check.return_value = True
+        is_coverable.return_value = True
+        mock_validate_order_amount.start()
         amount_base = 10
         with_tx_id = self.generate_txn_id()
         mock_release_coins.return_value = with_tx_id, True
@@ -200,7 +206,7 @@ class OmniRawE2ETestCase(TransactionImportBaseTestCase,
                                             withdraw_address)
         mock_get_balance.return_value = {
             "balance": "100.00000000",
-            "reserved": "0.00000000"
+            "ulocked_balance": "100.00000000"
         }
         mock_amount = self.order.amount_quote
 

@@ -33,7 +33,8 @@ class UserCreationTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
     def setUp(self):
         self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
                                      'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
-                                     'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT']
+                                     'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
+                                     'BTCXMR']
         super(UserCreationTestCase, self).setUp()
         with requests_mock.mock() as mock:
             self.get_tickers(mock)

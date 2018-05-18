@@ -15,7 +15,8 @@ from core.tests.utils import data_provider
 from core.models import Pair, Currency, Address, AddressReserve
 from nexchange.api_clients.kraken import KrakenApiClient
 from nexchange.api_clients.bittrex import BittrexApiClient
-from core.tests.base import ETH_ROOT, SCRYPT_ROOT, BLAKE2_ROOT, OMNI_ROOT
+from core.tests.base import ETH_ROOT, SCRYPT_ROOT, BLAKE2_ROOT, \
+    OMNI_ROOT, CRYPTONIGHT_ROOT
 from orders.models import Order
 from rest_framework.test import APIClient
 
@@ -32,9 +33,11 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
     @patch(SCRYPT_ROOT + 'get_balance')
     @patch(ETH_ROOT + 'get_balance')
     @patch(OMNI_ROOT + 'get_balance')
+    @patch(CRYPTONIGHT_ROOT + 'get_balance')
     @patch('nexchange.api_clients.bittrex.Bittrex.get_balance')
     def test_check_all_reserves_balances(self, get_balance_bit,
-                                         get_balance_eth, get_balance_omni,
+                                         get_balance_cryptonight,
+                                         get_balance_omni, get_balance_eth,
                                          get_balance_rpc,
                                          get_balance_kraken,
                                          get_card, get_balance_blake2):
@@ -45,7 +48,7 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
             balance, available, pending)
         get_balance_rpc.return_value = get_balance_eth.return_value = \
             get_balance_blake2.return_value = get_balance_omni.return_value = \
-            Decimal(str(balance))
+            get_balance_cryptonight.return_value = Decimal(str(balance))
         get_balance_kraken.return_value = {'result': {'XXDG': str(balance)}}
         get_card.return_value = {'balance': Decimal(balance),
                                  'available': Decimal(available)}

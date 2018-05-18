@@ -50,7 +50,8 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
     def setUp(self):
         self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
                                      'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
-                                     'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT']
+                                     'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
+                                     'BTCXMR']
         super(AddressReserveMonitorTestCase, self).setUp()
         with requests_mock.mock() as m:
             self._mock_cards_reserve(m)

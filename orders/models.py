@@ -27,7 +27,7 @@ from payments.models import PaymentPreference
 from nexchange.api_clients.factory import ApiClientFactory
 from oauth2_provider.models import AccessToken
 from decimal import InvalidOperation
-
+from core.validators import validate_xmr_payment_id
 
 safe_charge_client = SafeChargeAPIClient()
 factory = ApiClientFactory()
@@ -135,6 +135,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
     refund_address = models.ForeignKey(
         'core.Address', null=True, blank=True, related_name='order_set_refund',
         default=None
+    )
+    payment_id = models.CharField(
+        max_length=64, null=True, blank=True, default=None,
+        validators=[validate_xmr_payment_id]
     )
     is_default_rule = models.BooleanField(default=False)
     from_default_rule = models.BooleanField(default=False)
@@ -286,6 +290,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
         if all([not self.amount_base, not self.amount_quote]):
             raise ValidationError(
                 _('One of amount_quote and amount_base is required.'))
+        if all([self.pair.base != Currency.objects.get(code='XMR'),
+                self.payment_id is not None]):
+            raise ValidationError(
+                _('Payment id is currently used only for Monero address'))
 
     def clean(self, *args, **kwargs):
         self._validate_fields()
@@ -326,7 +334,6 @@ class Order(TimeStampedModel, SoftDeletableModel,
                 self.calculate_quote_from_base()
             elif self.amount_quote:
                 self.calculate_base_from_quote()
-
         self._validate_order_amount()
         self._validate_price()
         self._validate_reserves()
@@ -923,8 +930,11 @@ class Order(TimeStampedModel, SoftDeletableModel,
             tx = Transaction(**tx_data)
             tx.save()
 
+            payment_id = self.payment_id \
+                if self.payment_id is not None \
+                else None
             tx_id, success = api.release_coins(currency, self.withdraw_address,
-                                               amount)
+                                               amount, payment_id=payment_id)
             setattr(tx, api.TX_ID_FIELD_NAME, tx_id)
             tx.save()
         else:

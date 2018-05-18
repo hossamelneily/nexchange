@@ -2128,5 +2128,389 @@
     "disabled": false,
     "test_mode": true
   }
+},
+{
+  "model": "core.pair",
+  "pk": 285,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 1,
+    "quote": 45,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BTCXMR",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 286,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 45,
+    "quote": 1,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XMRBTC",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 287,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 2,
+    "quote": 45,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "LTCXMR",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 288,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 45,
+    "quote": 2,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XMRLTC",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 289,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 3,
+    "quote": 45,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "ETHXMR",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 290,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 45,
+    "quote": 3,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XMRETH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 291,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 34,
+    "quote": 45,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DOGEXMR",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 292,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 45,
+    "quote": 34,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XMRDOGE",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 293,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 35,
+    "quote": 45,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XVGXMR",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 294,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 45,
+    "quote": 35,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XMRXVG",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 295,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 36,
+    "quote": 45,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BCHXMR",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 296,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 45,
+    "quote": 36,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XMRBCH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 297,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 42,
+    "quote": 45,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "NANOXMR",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 298,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 45,
+    "quote": 42,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XMRNANO",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 299,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 37,
+    "quote": 45,
+    "fee_ask": "0.0200000",
+    "fee_bid": "0.0400000",
+    "name": "BDGXMR",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 300,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 45,
+    "quote": 37,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0200000",
+    "name": "XMRBDG",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 301,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 39,
+    "quote": 45,
+    "fee_ask": "0.0200000",
+    "fee_bid": "0.0200000",
+    "name": "OMGXMR",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 302,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 45,
+    "quote": 39,
+    "fee_ask": "0.0200000",
+    "fee_bid": "0.0200000",
+    "name": "XMROMG",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 303,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 40,
+    "quote": 45,
+    "fee_ask": "0.0200000",
+    "fee_bid": "0.0200000",
+    "name": "EOSXMR",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 304,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 45,
+    "quote": 40,
+    "fee_ask": "0.0200000",
+    "fee_bid": "0.0200000",
+    "name": "XMREOS",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 305,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 43,
+    "quote": 45,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "ZECXMR",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 306,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 45,
+    "quote": 43,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XMRZEC",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 307,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 45,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "USDTXMR",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 308,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 45,
+    "quote": 44,
+    "fee_ask": "0.0400000",
+    "fee_bid": "0.0400000",
+    "name": "XMRUSDT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
 }
 ]

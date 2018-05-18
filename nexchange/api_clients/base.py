@@ -1,8 +1,10 @@
 from nexchange.utils import get_nexchange_logger
 from core.models import Currency, Address, AddressReserve
 from bitcoinrpc.authproxy import JSONRPCException
+from requests.auth import HTTPDigestAuth
 from django.conf import settings
 from .decorators import log_errors
+import inspect
 import requests
 import json
 
@@ -132,10 +134,8 @@ class BaseWalletApiClient(BaseApiClient):
                 self.logger.info(
                     "new card currency: {}, address: {}".format(
                         curr.code, address_res['address']))
-
                 count = AddressReserve.objects \
                     .filter(user=None, currency=curr, disabled=False).count()
-
             if renewed:
                 self.backup_wallet(curr)
 
@@ -191,7 +191,7 @@ class BaseWalletApiClient(BaseApiClient):
 
     def backup_wallet(self, currency):
         pass
-      
+
     def revert_tx_mapper(self):
         self.mapper.start = self.start
         self.mapper.save()
@@ -387,3 +387,91 @@ class Blake2Proxy:
         kwargs = {'wallet': wallet, 'password': password}
         return self._call_rpc('password_enter', **kwargs)
 
+
+class CryptonightProxy:
+    def __init__(self, wallet_name, wallet_port, timeout=1, **kwargs):
+        self.part_url = '{protocol}://{host}:'.format(**kwargs)
+        self.port = kwargs.get('port')
+        self.wallet_name = wallet_name
+        self.wallet_port = wallet_port
+        self.timeout = timeout
+        self.user = kwargs.get('user')
+        self.password = kwargs.get('passwd')
+
+    def _call_rpc(self, method, **kwargs):
+        caller_func_name = inspect.stack()[1][3]
+        port = self.port if \
+            caller_func_name in ['get_info', 'getblockcount'] \
+            else self.wallet_port
+        self.url = self.part_url + port + '/json_rpc'
+        try:
+            res = requests.post(self.url,
+                                data=json.dumps({'method': method, **kwargs}),
+                                auth=HTTPDigestAuth(self.user, self.password),
+                                timeout=self.timeout)
+        except requests.ConnectTimeout:
+            raise JSONRPCException('Timeout, Cryptonight wallet might be down')
+        if res.status_code != 200:
+            raise JSONRPCException('Bad status code: {}'.format(res))
+        if res.json().get('error'):
+            raise Exception('There was an error: {}'.
+                            format(res.json().get('error')))
+        try:
+            return res.json()['result']
+        except KeyError:
+            return res.json()
+
+    def get_info(self):
+        return self._call_rpc('get_info')
+
+    def getblockcount(self):
+        return self._call_rpc('getblockcount')
+
+    def create_wallet(self, filename, password):
+        kwargs = {'params': {'filename': filename,
+                             'password': password,
+                             'language': 'English'}}
+        return self._call_rpc('create_wallet', **kwargs)
+
+    def open_wallet(self, password):
+        kwargs = {'params': {'filename': self.wallet_name,
+                             'password': password}}
+        return self._call_rpc('open_wallet', **kwargs)
+
+    def stop_wallet(self):
+        return self._call_rpc('stop_wallet')
+
+    def getbalance(self):
+        return self._call_rpc('getbalance')
+
+    def create_address(self):
+        kwargs = {'params': {'account_index': 0}}
+        address = self._call_rpc('create_address', **kwargs).get('address')
+        if not address:
+            raise JSONRPCException('Account is None.')
+        else:
+            return address
+
+    def get_transfers(self, is_in):
+        kwargs = {'params': {'pool': True, 'in': is_in}}
+        return self._call_rpc('get_transfers', **kwargs)
+
+    def transfer(self, address, amount, payment_id):
+        # NOTE transfer can be done to multiple addresses at the time
+        kwargs = {'params': {
+            "destinations": [{
+                "amount": amount,
+                "address": address,
+            }],
+            "payment_id": payment_id,
+            "mixin": 4,
+            "get_tx_key": True}
+        }
+        return self._call_rpc('transfer', **kwargs).get('tx_hash')
+
+    def get_transfer_by_txid(self, txid):
+        kwargs = {'params': {'txid': txid}}
+        return self._call_rpc('get_transfer_by_txid', **kwargs)
+
+    def getheight(self):
+        return self._call_rpc('getheight')
