@@ -11,6 +11,10 @@ from django.core.exceptions import ValidationError
 from django.db.models import Sum
 from django.utils.timezone import now, timedelta
 from copy import deepcopy
+from nexchange.api_clients.bittrex import BittrexApiClient
+
+
+bittrex_api = BittrexApiClient()
 
 
 class Reserve(TimeStampedModel):
@@ -34,7 +38,7 @@ class Reserve(TimeStampedModel):
         return '{} reserve'.format(self.currency.code)
 
     def sum_account_field(self, field_name):
-        accounts = self.account_set.all()
+        accounts = self.account_set.filter(disabled=False)
         if accounts:
             res = accounts.aggregate(models.Sum(field_name))
             sum = res.get('{}__sum'.format(field_name))
@@ -77,10 +81,6 @@ class Reserve(TimeStampedModel):
         return self.available > self.maximum_level
 
     @property
-    def is_allowed_level(self):
-        return not self.is_too_low_level and not self.is_too_high_level
-
-    @property
     def diff_from_target_level(self):
         return self.available - self.target_level
 
@@ -98,10 +98,6 @@ class Reserve(TimeStampedModel):
     @property
     def main_account(self):
         return self.account_set.get(is_main_account=True)
-
-    @property
-    def can_increase_balance(self):
-        return self.available < self.maximal_level
 
 
 class PortfolioLog(TimeStampedModel):
@@ -149,6 +145,18 @@ class PortfolioLog(TimeStampedModel):
         for key, value in assets.items():
             res += ' {0:.1f}% {1:s} |'.format(value * 100, key)
         return res
+
+    @property
+    def all_reserves(self):
+        return self.reservelog_set.all()
+
+    @property
+    def sell_reserves(self):
+        return [r for r in self.all_reserves if r.needed_trade_type == 'SELL']
+
+    @property
+    def buy_reserves(self):
+        return [r for r in self.all_reserves if r.needed_trade_type == 'BUY']
 
     def __str__(self):
         return '{}'.format(self.pk)
@@ -201,6 +209,57 @@ class ReserveLog(TimeStampedModel):
     def available_eur(self):
         return self.available * self.rate_eur
 
+    @property
+    def min_expected_level(self):
+        return self.reserve.min_expected_level
+
+    @property
+    def max_expected_level(self):
+        return self.reserve.max_expected_level
+
+    @property
+    def has_target_level(self):
+        if self.min_expected_level <= self.available <= self.max_expected_level:  # noqa
+            return True
+        return False
+
+    @property
+    def below_minimum_level(self):
+        return self.available < self.reserve.minimum_level
+
+    @property
+    def over_maximum_level(self):
+        return self.available > self.reserve.maximum_level
+
+    @property
+    def diff_from_target_level(self):
+        return self.available - self.reserve.target_level
+
+    @property
+    def diff_from_target_level_btc(self):
+        return self.diff_from_target_level * self.rate_btc
+
+    @property
+    def needed_trade_type(self):
+        diff = self.diff_from_target_level
+        trade_type = None
+        if not self.has_target_level:
+            if diff > Decimal('0.0'):
+                trade_type = 'SELL'
+            else:
+                trade_type = 'BUY'
+        return trade_type
+
+    @property
+    def needed_trade_move(self):
+        diff = self.diff_from_target_level
+        trade_type = self.needed_trade_type
+        return {'trade_type': trade_type, 'amount': abs(diff)}
+
+    def __str__(self):
+        return '{0}, diff: {1:.3f}'.format(self.reserve.currency.code,
+                                           self.diff_from_target_level)
+
 
 class Account(TimeStampedModel):
     reserve = models.ForeignKey(Reserve)
@@ -218,6 +277,9 @@ class Account(TimeStampedModel):
                                           default=Decimal('0'))
     trading_allowed = models.BooleanField(default=False)
     is_main_account = models.BooleanField(default=False)
+    disabled = models.BooleanField(default=False)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    healthy = models.BooleanField(default=False)
 
     @property
     def diff_from_required_reserve(self):
@@ -238,7 +300,8 @@ class Account(TimeStampedModel):
         super(Account, self).save(*args, **kwargs)
 
     def __str__(self):
-        return '{} {} account'.format(self.reserve.currency.code, self.wallet)
+        return '{} {} account'.format(self.reserve.currency.code,
+                                      self.description)
 
 
 class Cover(TimeStampedModel):
@@ -274,6 +337,8 @@ class Cover(TimeStampedModel):
                                 db_index=True)
     account = models.ForeignKey(Account, null=True)
     status = FSMIntegerField(choices=STATUS_TYPES, default=INITIAL)
+    reserve_cover = models.ForeignKey('risk_management.ReservesCover',
+                                      blank=True, null=True)
 
     @transition(field=status, source=INITIAL, target=PRE_EXECUTED)
     def _pre_execute(self):
@@ -655,3 +720,184 @@ class DisabledCurrency(TimeStampedModel):
                                            null=True)
     admin_comment = models.CharField(max_length=255, blank=True, null=True)
     machine_comment = models.CharField(max_length=255, blank=True, null=True)
+
+
+class ReservesCoverSettings(TimeStampedModel):
+
+    currencies = models.ManyToManyField(Currency, related_name='currencies')
+    default = models.BooleanField(default=False)
+    coverable_part = models.DecimalField(
+        max_digits=18, decimal_places=8, default=Decimal('1'),
+        help_text='1 - 100%. Which part of required amount of reserve '
+                  'difference from target_level to cover.'
+    )
+
+
+class ReservesCover(TimeStampedModel):
+
+    settings = models.ForeignKey(ReservesCoverSettings, null=True, blank=True)
+    portfolio_log = models.ForeignKey(PortfolioLog, blank=True)
+    pair = models.ForeignKey(
+        Pair,
+        blank=True,
+        null=True,
+        help_text='Pair that is suggested to trade according to the reserve '
+                  'levels.'
+    )
+    amount_quote = models.DecimalField(max_digits=18, decimal_places=8,
+                                       default=Decimal('0'))
+    amount_base = models.DecimalField(max_digits=18, decimal_places=8,
+                                      default=Decimal('0'))
+
+    def _get_suggested_trade(self):
+        buy_reserves = {
+            p.diff_from_target_level_btc: p
+            for p in self.buy_reserves_filtered
+        }
+        sell_reserves = {
+            p.diff_from_target_level_btc: p
+            for p in self.sell_reserves_filtered
+        }
+        if not buy_reserves or not sell_reserves:
+            return None, None, None
+        min_buy = min(buy_reserves)
+        max_sell = max(sell_reserves)
+        base_log = buy_reserves[min_buy]
+        quote_log = sell_reserves[max_sell]
+        pair = Pair.objects.get(base=base_log.reserve.currency,
+                                quote=quote_log.reserve.currency)
+        abs_buy = abs(min_buy)
+        abs_sell = abs(max_sell)
+        amount_btc = abs_sell if abs_sell < abs_buy else abs_buy
+        _amount_quote = \
+            quote_log.diff_from_target_level * amount_btc / abs_sell
+        _amount_base = abs(
+            base_log.diff_from_target_level * amount_btc / abs_buy
+        )
+        coverable_part = self.settings.coverable_part
+        amount_base = _amount_base * coverable_part
+        amount_quote = _amount_quote * coverable_part
+        return pair, amount_base, amount_quote
+
+    def set_default_settings(self):
+        # try except is to avoid adding fixtures
+        try:
+            settings = ReservesCoverSettings.objects.get(default=True)
+        except ReservesCoverSettings.DoesNotExist:
+            settings = ReservesCoverSettings.objects.create(default=True)
+            settings.currencies.add(
+                Currency.objects.get(code='BTC'),
+                Currency.objects.get(code='XVG'),
+                Currency.objects.get(code='DOGE'),
+            )
+        self.settings = settings
+
+    def save(self, *args, **kwargs):
+        if not self.pk and not self.settings:
+            self.set_default_settings()
+        if not self.pk and not self.portfolio_log_id:
+            portfolio_log = PortfolioLog()
+            portfolio_log.save()
+            self.portfolio_log = portfolio_log
+            _pair, _amount_base, _amount_quote = self._get_suggested_trade()
+            if _pair and _amount_quote and _amount_base:
+                self.pair, self.amount_quote, self.amount_base = \
+                    _pair, _amount_quote, _amount_base
+        super(ReservesCover, self).save(*args, **kwargs)
+
+    def create_cover_objects(self):
+        if not self.pair or not self.pk or self.cover_set.all():
+            return
+        suggested_pairs = bittrex_api.get_api_pairs_for_pair(self.pair)
+        reverse_pair = self.pair.reverse_pair
+        if self.pair in suggested_pairs:
+            cover = Cover()
+            cover.cover_type = Cover.BUY
+            cover.reserve_cover = self
+            pair_data = suggested_pairs[self.pair]
+            cover.currency = pair_data['main_currency']
+            if cover.currency != self.pair.base:
+                # just to skip if smth unexpected happens
+                return
+            cover.pair = self.pair
+            cover.amount_base = self.amount_base
+            cover.rate = bittrex_api.get_rate(self.pair, rate_type='Ask')
+
+            cover.amount_quote = cover.amount_base * cover.rate
+            cover.save()
+            self.amount_quote = cover.amount_quote
+            self.save()
+            return
+        elif reverse_pair in suggested_pairs:
+            _pair = reverse_pair
+            cover = Cover()
+            cover.cover_type = Cover.SELL
+            cover.reserve_cover = self
+            pair_data = suggested_pairs[_pair]
+            cover.currency = pair_data['main_currency']
+            if cover.currency != _pair.base:
+                # just to skip if smth unexpected happens
+                return
+            cover.pair = _pair
+            cover.amount_base = self.amount_quote
+            cover.rate = bittrex_api.get_rate(_pair, rate_type='Bid')
+
+            cover.amount_quote = cover.amount_base * cover.rate
+            cover.save()
+            self.amount_base = cover.amount_quote
+            self.save()
+            return
+
+        if 'BTC' in self.pair.name:
+            return
+        base_btc = Pair.objects.get(base=self.pair.base, quote__code='BTC')
+        quote_btc = Pair.objects.get(base=self.pair.quote,
+                                     quote__code='BTC')
+        if quote_btc in suggested_pairs and base_btc in suggested_pairs:
+            cover_base = Cover()
+            cover_quote = Cover()
+            cover_base.cover_type = Cover.BUY
+            cover_quote.cover_type = Cover.SELL
+            cover_base.reserve_cover = cover_quote.reserve_cover = self
+            base_pair_data = suggested_pairs[base_btc]
+            quote_pair_data = suggested_pairs[quote_btc]
+            cover_base.currency = base_pair_data['main_currency']
+            cover_quote.currency = quote_pair_data['main_currency']
+            if cover_base.currency != base_btc.base or \
+                    cover_quote.currency != quote_btc.base:
+                # just to skip if smth unexpected happens
+                return
+            cover_base.pair = base_btc
+            cover_quote.pair = quote_btc
+            cover_quote.amount_base = self.amount_quote
+            cover_base.rate = bittrex_api.get_rate(base_btc, rate_type='Ask')
+            cover_quote.rate = bittrex_api.get_rate(quote_btc, rate_type='Bid')
+            cover_quote.amount_quote = cover_base.amount_quote = \
+                cover_quote.amount_base * cover_quote.rate
+            cover_base.amount_base = cover_base.amount_quote / cover_base.rate
+            cover_quote.save()
+            cover_base.save()
+            self.amount_base = cover_base.amount_base
+            self.save()
+
+    @property
+    def sell_reserves(self):
+        return self.portfolio_log.sell_reserves
+
+    @property
+    def sell_reserves_filtered(self):
+        currencies = self.settings.currencies.all() if self.settings else []
+        return [
+            l for l in self.sell_reserves if l.reserve.currency in currencies
+        ]
+
+    @property
+    def buy_reserves(self):
+        return self.portfolio_log.buy_reserves
+
+    @property
+    def buy_reserves_filtered(self):
+        currencies = self.settings.currencies.all() if self.settings else []
+        return [
+            l for l in self.buy_reserves if l.reserve.currency in currencies
+        ]

@@ -16,17 +16,22 @@ class BaseAccountManagerTask(BaseTask, ApiClientFactory):
 
     def update_account_balance(self, account):
         api = self.get_api_client(account.wallet)
-        balance_res = api.get_balance(account.reserve.currency)
+        try:
+            balance_res = api.get_balance(account.reserve.currency)
 
-        if isinstance(balance_res, dict):
-            for attr, value in balance_res.items():
-                setattr(account, attr, value)
-        else:
-            account.balance = account.available = Decimal(str(balance_res))
+            if isinstance(balance_res, dict):
+                for attr, value in balance_res.items():
+                    setattr(account, attr, value)
+            else:
+                account.balance = account.available = Decimal(str(balance_res))
+            account.healthy = True
+        except Exception:
+            self.logger.info('Smth is wrong with')
+            account.healthy = False
         account.save()
 
     def update_reserve_accounts_balances(self, reserve):
-        for account in reserve.account_set.all():
+        for account in reserve.account_set.filter(disabled=False):
             error_msg = 'Cannot update account {} balance. error: {}'
             try:
                 self.update_account_balance(account)
@@ -57,7 +62,9 @@ class BaseAccountManagerTask(BaseTask, ApiClientFactory):
     def send_funds_to_main_account(self, account, amount=None, do_trade=False):
         api = self.get_api_client(account.wallet)
         currency = account.reserve.currency
-        main_account_address = api.coin_address_mapper(currency.code)
+        currency_api = self.get_api_client(currency.wallet)
+        assert currency_api.health_check(currency)
+        main_account_address = currency_api.get_main_address(currency)
         self.update_account_balance(account)
         account.refresh_from_db()
         if not amount:

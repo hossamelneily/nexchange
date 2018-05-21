@@ -1291,7 +1291,7 @@ class DisableOrderCreationTestCase(TickerBaseTestCase):
         pair = Pair.objects.get(name='LTCBTC')
         reserve = Reserve.objects.get(currency=pair.quote)
         maximum_level = reserve.maximum_level
-        accounts = reserve.account_set.all()
+        accounts = reserve.account_set.filter(disabled=False)
         max_per_account_available = maximum_level / Decimal(accounts.count())
         for acc in accounts:
             acc.available = max_per_account_available * Decimal(1.1)

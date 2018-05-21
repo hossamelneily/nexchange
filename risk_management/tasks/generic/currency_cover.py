@@ -7,7 +7,7 @@ from decimal import Decimal
 class CurrencyCover(BaseAccountManagerTask):
 
     # FIXME: Should be removed after all coins trading works
-    ALLOWED_COINS = ['XVG']
+    ALLOWED_COINS = ['XVG', 'ZEC']
 
     def run(self, currency_code, amount):
         if amount >= Decimal('0'):

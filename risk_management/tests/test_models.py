@@ -6,6 +6,9 @@ from unittest.mock import patch
 from core.tests.base import SCRYPT_ROOT
 from core.models import Pair
 from risk_management.task_summary import reserves_balance_checker_periodic
+from collections import Counter
+import json
+from django.core.exceptions import ValidationError
 
 
 class PropetiesTestCase(RiskManagementBaseTestCase):
@@ -132,6 +135,25 @@ class PnlTestCase(TestCase):
 
 
 class FixtureTestCase(RiskManagementBaseTestCase):
+
+    def setUp(self):
+        super(FixtureTestCase, self).setUp()
+        self.path = 'risk_management/fixtures/'
+
+    def _test_fixture_pks(self, model):
+        _data = []
+        _data += json.loads(open('{}{}.json'.format(self.path, model)).read())
+        _pks = [record['pk'] for record in _data]
+        _counter = Counter(_pks)
+        for key, value in _counter.items():
+            if value != 1:
+                raise ValidationError(
+                    '{} pk {} repeated in fixtures!'.format(model, key)
+                )
+
+    def test_fixture_pks(self):
+        for model in ['account', 'reserve']:
+            self._test_fixture_pks(model)
 
     def test_check_reserve_levels_non_zero(self):
         reserves = Reserve.objects.all()

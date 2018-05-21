@@ -378,6 +378,14 @@ class Pair(TimeStampedModel):
             return True
         return False
 
+    @property
+    def reverse_pair(self):
+        try:
+            return Pair.objects.get(base=self.quote, quote=self.base)
+        except self.DoesNotExist:
+            return
+
+
     def check_currency_disabled(self, currency_type):
         currency = getattr(self, currency_type)
         disabled_currency = getattr(currency, 'disabledcurrency', None)

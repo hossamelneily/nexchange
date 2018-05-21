@@ -10,7 +10,6 @@ from risk_management.task_summary import reserves_balance_checker_periodic,\
 from risk_management.models import Reserve, Account, Cover, PortfolioLog,\
     PNLSheet, DisabledCurrency
 from decimal import Decimal
-from django.conf import settings
 from core.tests.utils import data_provider
 from core.models import Pair, Currency, Address, AddressReserve
 from nexchange.api_clients.kraken import KrakenApiClient
@@ -19,12 +18,21 @@ from core.tests.base import ETH_ROOT, SCRYPT_ROOT, BLAKE2_ROOT, \
     OMNI_ROOT, CRYPTONIGHT_ROOT
 from orders.models import Order
 from rest_framework.test import APIClient
+import os
+
+
+RPC2_PUBLIC_KEY_C1 = 'DOGEaddress'
+RPC3_PUBLIC_KEY_C1 = 'VERGEaddress'
 
 
 class BalanceTaskTestCase(RiskManagementBaseTestCase):
 
     def setUp(self):
         super(BalanceTaskTestCase, self).setUp()
+        accounts = Account.objects.all()
+        for account in accounts:
+            account.disabled = False
+            account.save()
         self.reserve = Reserve.objects.get(currency__code='XVG')
 
     @patch(BLAKE2_ROOT + 'get_balance')
@@ -169,11 +177,12 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
         buy_limit.assert_called_with(
             'BTC-{}'.format(self.reserve.currency), diff, ask)
 
+    @patch('nexchange.api_clients.bittrex.Bittrex.get_ticker')
     @patch('nexchange.api_clients.rpc.ScryptRpcApiClient.get_balance')
     @patch('nexchange.api_clients.kraken.krakenex.API.query_private')
     @patch('nexchange.api_clients.kraken.krakenex.API.query_public')
     def test_reserve_balance_maintainer_doge(self, q_public, q_private,
-                                             rpc_balance):
+                                             rpc_balance, get_ticker):
         rpc_balance.return_value = '0.0'
         reserve = Reserve.objects.get(currency__code='DOGE')
         balance_min = reserve.min_expected_level - Decimal('1.0')
@@ -198,6 +207,10 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
                 return {
                     'result': {'refid': 'AGB25DS-KHKBDX-OHDST7'}, 'error': []
                 }
+        get_ticker.return_value = self._get_bittrex_get_ticker_response(
+            ask=Decimal(ask) * Decimal('1.1'),
+            bid=Decimal(ask) * Decimal('0.9'),
+        )
         q_public.side_effect = side_public
         q_private.side_effect = side_private
         for balance in [balance_min, balance_max]:
@@ -251,12 +264,18 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
         self.assertEqual(sell_limit.call_count, 0)
         self.assertEqual(get_ticker.call_count, 0)
 
+    @patch.dict(os.environ, {'RPC3_PUBLIC_KEY_C1': RPC3_PUBLIC_KEY_C1})
+    @patch(SCRYPT_ROOT + 'get_info')
+    @patch(SCRYPT_ROOT + 'get_accounts')
     @patch('nexchange.api_clients.bittrex.Bittrex.withdraw')
     @patch('nexchange.api_clients.bittrex.Bittrex.buy_limit')
     @patch('nexchange.api_clients.bittrex.Bittrex.get_ticker')
     @patch('nexchange.api_clients.bittrex.Bittrex.get_balance')
     def test_fill_main_account_xvg(self, _get_balance, get_ticker,
-                                   buy_limit, withdraw):
+                                   buy_limit, withdraw, get_accounts,
+                                   scrypt_info):
+        scrypt_info.return_value = {}
+        get_accounts.return_value = [RPC3_PUBLIC_KEY_C1]
         account_from = self.reserve.account_set.get(wallet='api3')
         balance = self.reserve.target_level
         amount = balance * Decimal('2.0')
@@ -276,12 +295,18 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
         withdraw.assert_called_with(
             self.reserve.currency.code,
             amount,
-            settings.RPC3_PUBLIC_KEY_C1
+            RPC3_PUBLIC_KEY_C1
         )
 
+    @patch.dict(os.environ, {'RPC2_PUBLIC_KEY_C1': RPC2_PUBLIC_KEY_C1})
+    @patch(SCRYPT_ROOT + 'get_info')
+    @patch(SCRYPT_ROOT + 'get_accounts')
     @patch('nexchange.api_clients.kraken.krakenex.API.query_private')
     @patch('nexchange.api_clients.kraken.krakenex.API.query_public')
-    def test_fill_main_account_doge(self, q_public, q_private):
+    def test_fill_main_account_doge(self, q_public, q_private, get_accounts,
+                                    scrypt_info):
+        scrypt_info.return_value = {}
+        get_accounts.return_value = [RPC2_PUBLIC_KEY_C1]
         account_from = Account.objects.get(reserve__currency__code='DOGE',
                                            wallet='api2')
         self.balance = account_from.reserve.target_level
@@ -322,7 +347,7 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
         )
         self.assertEqual(
             self.withdraw_params,
-            {'key': settings.RPC2_PUBLIC_KEY_C1, 'amount': str(amount),
+            {'key': RPC2_PUBLIC_KEY_C1, 'amount': str(amount),
              'asset': 'XXDG'}
         )
 

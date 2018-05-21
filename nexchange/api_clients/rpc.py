@@ -52,6 +52,17 @@ class BaseRpcClient(BaseWalletApiClient):
     def health_check(self, currency):
         return True
 
+    def get_accounts(self, node, **kwargs):
+        raise NotImplementedError
+
+    def get_main_address(self, currency):
+        node = currency.wallet
+        address = os.getenv('{}_PUBLIC_KEY_C1'.format(node.upper()))
+        all_accounts = self.get_accounts(node)
+        assert address in all_accounts,\
+            'Main address must be in get_accounts resp {}'.format(currency)
+        return address
+
 
 class ScryptRpcApiClient(BaseRpcClient):
     LOCK_WALLET = 'walletlock'
@@ -121,6 +132,9 @@ class ScryptRpcApiClient(BaseRpcClient):
         txs = self.call_api(node, 'listtransactions',
                             *["", settings.RPC_IMPORT_TRANSACTIONS_COUNT])
         return txs
+
+    def get_accounts(self, node):
+        return self.call_api(node, 'getaddressesbyaccount', *[""])
 
     @log_errors
     @track_tx_mapper
@@ -457,8 +471,7 @@ class Blake2RpcApiClient(BaseRpcClient):
     def resend_funds_to_main_card(self, address, currency):
         if not isinstance(currency, Currency):
             currency = Currency.objects.get(code=currency)
-        node = currency.wallet
-        main_address = self.coin_card_mapper(node)
+        main_address = self.get_main_address(currency)
         amount = self.get_balance(currency, account=address).get(
             'available', Decimal('0')
         )
@@ -750,7 +763,7 @@ class EthashRpcApiClient(BaseRpcClient):
             currency = Currency.objects.get(code=currency)
         node = currency.wallet
         total_gas = self.get_total_gas_price(currency.is_token)
-        main_address = self.coin_card_mapper(node)
+        main_address = self.get_main_address(currency)
         balance = self.get_balance(currency, account=address)
         if currency.is_token:
             main_currency = Currency.objects.get(
@@ -763,7 +776,6 @@ class EthashRpcApiClient(BaseRpcClient):
 
         if any([amount <= 0, main_balance < total_gas]):
             return {'success': False, 'retry': True}
-        assert main_address.lower() in [acc.lower() for acc in self.get_accounts(node)]  # noqa
         try:
             tx_id, success = self.release_coins(currency, main_address,
                                                 amount, address_from=address)
@@ -851,6 +863,15 @@ class EthashRpcApiClient(BaseRpcClient):
             )
             value = int(decoded_input[1][1], 16)
         return to, value
+
+    def get_main_address(self, currency):
+        node = currency.wallet
+        address = os.getenv('{}_PUBLIC_KEY_C1'.format(node.upper()))
+        all_accounts = self.get_accounts(node)
+        all_accounts_lower = [acc.lower() for acc in all_accounts]  # noqa
+        assert address.lower() in all_accounts_lower,\
+            'Main address must be in get_accounts resp {}'.format(currency)
+        return address
 
 
 class ZcashRpcApiClient(ScryptRpcApiClient):

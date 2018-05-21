@@ -15,7 +15,8 @@ from risk_management.tasks.generic.order_cover import OrderCover
 from django.utils.timezone import now, timedelta
 
 from core.models import Pair
-from risk_management.models import DisabledCurrency
+from risk_management.models import DisabledCurrency, Cover, ReservesCover
+from nexchange.api_clients.bittrex import BittrexApiClient
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
@@ -131,3 +132,29 @@ def disable_currency_base():
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def enable_currency_quote():
     return pair_helper('quote', True)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def execute_cover(cover_pk):
+    api = BittrexApiClient()
+    cover = Cover.objects.get(pk=cover_pk)
+    cover.pre_execute()
+    cover.execute(api)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def execute_reserves_cover(reserves_cover_pk):
+    r_cover = ReservesCover.objects.get(pk=reserves_cover_pk)
+    # First SELL than BUY
+    covers = r_cover.cover_set.all().order_by('cover_type')
+    for i, cover in enumerate(covers):
+        execute_cover.apply_async(
+            args=[cover.pk],
+            countdown=settings.THIRD_PARTY_TRADE_TIME * i
+        )
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def create_reserves_cover_covers(reserves_cover_pk):
+    r_cover = ReservesCover.objects.get(pk=reserves_cover_pk)
+    r_cover.create_cover_objects()

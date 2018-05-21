@@ -1104,6 +1104,8 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
             ('XVGETH', 3000, 'amount_base'),
         )
     )
+    @patch(SCRYPT_ROOT + 'get_info')
+    @patch(SCRYPT_ROOT + 'get_main_address')
     @patch(BITTREX_ROOT + 'release_coins')
     @patch(ETH_ROOT + '_get_txs')
     @patch(SCRYPT_ROOT + '_get_txs')
@@ -1116,8 +1118,10 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
     def test_create_xvg_cover(self, pair_name, amount_base, trade_amount_key,
                               _get_balance, get_balance_scrypt, get_ticker,
                               buy_limit, sell_limit, withdraw,
-                              get_txs_scrypt, get_txs_eth, release_coins):
-
+                              get_txs_scrypt, get_txs_eth, release_coins,
+                              get_main_address, scrypt_info):
+        scrypt_info.return_value = {}
+        get_main_address.return_value = verge_address = 'VERGEaddress'
         ask = bid = Decimal('0.0012')
         pair_trade = Pair.objects.get(name='XVGBTC')
         xvg = pair_trade.base
@@ -1179,7 +1183,7 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
             main_account = cover.account.reserve.account_set.get(
                 is_main_account=True)
             release_coins.assert_called_with(
-                pair_trade.base, settings.RPC3_PUBLIC_KEY_C1,
+                pair_trade.base, verge_address,
                 balance_bittrex - balance_main + main_account.minimal_reserve
             )
         else:

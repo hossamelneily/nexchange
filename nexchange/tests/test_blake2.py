@@ -97,7 +97,8 @@ class Blake2RawE2ETestCase(TransactionImportBaseTestCase,
             params = json.loads(body)
             if all([params.get('action') == 'account_list',
                     params.get('wallet')]):
-                return {'accounts': [self.order.deposit_address.address]}
+                return {'accounts': [self.order.deposit_address.address,
+                                     RPC8_PUBLIC_KEY_C1]}
             if all([params.get('action') == 'account_history',
                     params.get('account'), params.get('count')]):
                 return self.get_blake2_raw_tx(mock_currency, mock_amount,

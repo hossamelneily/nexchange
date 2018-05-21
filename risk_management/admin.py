@@ -1,7 +1,8 @@
 from django.contrib import admin
 
 from risk_management.models import Reserve, Account, Cover, ReserveLog,\
-    PortfolioLog, PNL, PNLSheet, DisabledCurrency
+    PortfolioLog, PNL, PNLSheet, DisabledCurrency, ReservesCover, \
+    ReservesCoverSettings
 
 
 @admin.register(Reserve)
@@ -15,10 +16,10 @@ class ReserveAdmin(admin.ModelAdmin):
 @admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
     readonly_fields = ('reserve', 'wallet', 'balance', 'available', 'pending')
-    list_display = ('reserve', 'wallet', 'balance', 'available', 'pending',
-                    'is_main_account')
+    list_display = ('reserve', 'description', 'balance', 'available',
+                    'pending', 'is_main_account', 'disabled', 'healthy')
     search_fields = ('wallet', 'reserve__currency__name',
-                     'reserve__currency__code')
+                     'reserve__currency__code', 'description')
 
 
 @admin.register(Cover)
@@ -65,5 +66,25 @@ class PNLSheetAdmin(admin.ModelAdmin):
 
 @admin.register(DisabledCurrency)
 class DisabledCurrencyAdmin(admin.ModelAdmin):
-    list_display = ('currency', 'disable_quote', 'disable_base', 'user_visible_reason',
-                    'admin_comment', 'created_on', 'modified_on', )
+    list_display = ('currency', 'disable_quote', 'disable_base',
+                    'user_visible_reason', 'admin_comment', 'created_on',
+                    'modified_on', )
+
+
+class CoverInline(admin.TabularInline):
+    model = Cover
+
+
+@admin.register(ReservesCover)
+class ReservesCoverAdmin(admin.ModelAdmin):
+    inlines = (CoverInline,)
+    list_display = ('portfolio_log',)
+    readonly_fields = (
+        'sell_reserves_filtered', 'buy_reserves_filtered', 'sell_reserves',
+        'buy_reserves'
+    )
+
+
+@admin.register(ReservesCoverSettings)
+class ReservesCoverSettingsAdmin(admin.ModelAdmin):
+    pass

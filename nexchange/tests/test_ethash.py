@@ -118,7 +118,7 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
         mock_amount = self.order.amount_quote
 
         card = self.order.deposit_address.reserve
-        get_accounts.return_value = [card.address]
+        get_accounts.return_value = [card.address.upper()]
 
         get_txs_eth_raw.return_value = self.get_ethash_block_raw(
             mock_currency, mock_amount, card.address

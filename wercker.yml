@@ -161,7 +161,7 @@ dev:
           npm run build-dev &
           npm run watch &
           tail -n 50 -f /var/log/*.log &
-          newrelic-admin run-program python manage.py runserver_plus 0.0.0.0:8000
+          newrelic-admin run-program python manage.py runserver 0.0.0.0:8000
         reload: false
 
 build:

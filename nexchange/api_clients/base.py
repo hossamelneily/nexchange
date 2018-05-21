@@ -84,26 +84,6 @@ class BaseApiClient:
         return {'success': False, 'retry': False}
 
 
-class BaseTradeApiClient(BaseApiClient):
-
-    def trade_type_rate_type_mapper(self, trade_type):
-        if trade_type.upper() == 'SELL':
-            return 'Bid'
-        if trade_type.upper() == 'BUY':
-            return 'Ask'
-
-    def coin_address_mapper(self, code):
-        if code == 'XVG':
-            return settings.API3_PUBLIC_KEY_C1
-        elif code == 'DOGE':
-            return settings.RPC2_PUBLIC_KEY_C1
-
-    def trade_limit(self, pair, amount, trade_type, rate=None):
-        trade_fn = getattr(self, '{}_limit'.format(trade_type.lower()))
-        res = trade_fn(pair, amount, rate=rate)
-        return res
-
-
 class BaseWalletApiClient(BaseApiClient):
 
     def renew_cards_reserve(self,
@@ -262,12 +242,6 @@ class BaseTradeApiClient(BaseApiClient):
         if trade_type.upper() == 'BUY':
             return 'Ask'
 
-    def coin_address_mapper(self, code):
-        if code == 'XVG':
-            return settings.RPC3_PUBLIC_KEY_C1
-        elif code == 'DOGE':
-            return settings.RPC2_PUBLIC_KEY_C1
-
     def trade_limit(self, pair, amount, trade_type, rate=None):
         trade_fn = getattr(self, '{}_limit'.format(trade_type.lower()))
         res = trade_fn(pair, amount, rate=rate)
@@ -276,12 +250,17 @@ class BaseTradeApiClient(BaseApiClient):
 
 class Blake2Proxy:
 
-    def __init__(self, url):
+    def __init__(self, url, timeout=1):
         self.url = url
+        self.timeout = timeout
 
     def _call_rpc(self, action, **kwargs):
-        res = requests.post(self.url,
-                            data=json.dumps({'action': action, **kwargs}))
+        try:
+            res = requests.post(self.url,
+                                data=json.dumps({'action': action, **kwargs}),
+                                timeout=self.timeout)
+        except requests.ConnectTimeout:
+            raise JSONRPCException('Timeout, Blake2 wallet might be down')
         if res.status_code != 200:
             raise JSONRPCException('Bad status code: {}'.format(res))
         return res.json()

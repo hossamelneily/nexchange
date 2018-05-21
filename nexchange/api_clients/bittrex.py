@@ -2,7 +2,7 @@ from .base import BaseTradeApiClient
 from bittrex.bittrex import Bittrex
 from django.conf import settings
 from decimal import Decimal
-from core.models import Address, Currency
+from core.models import Address, Currency, Pair
 
 
 class BittrexApiClient(BaseTradeApiClient):
@@ -14,16 +14,71 @@ class BittrexApiClient(BaseTradeApiClient):
         self.related_nodes = ['api3']
         self.api = self.get_api()
 
+    def _get_api_currency_code(self, currency_code):
+        if currency_code == 'BCH':
+            return 'BCC'
+        return currency_code
+
+    def _get_currency_by_api_code(self, api_currency_code):
+        code = 'BCH' if api_currency_code == 'BCC' else api_currency_code
+        return Currency.objects.get(code=code)
+
+    def get_api_pairs_for_pair(self, pair):
+        reverse_pair = pair.reverse_pair
+        markets = self.get_all_active_pairs()
+        for _pair in pair, reverse_pair:
+            _name = self.get_api_pair_name(_pair)
+            if _name in markets:
+                return {
+                    _pair: {
+                        'api_pair_name': _name,
+                        'main_currency': self._get_currency_by_api_code(
+                            markets[_name]
+                        )
+                    }
+                }
+        base_btc = Pair.objects.get(base=pair.base, quote__code='BTC')
+        quote_btc = Pair.objects.get(base=pair.quote, quote__code='BTC')
+        res = {}
+        for _pair in base_btc, quote_btc:
+            _name = self.get_api_pair_name(_pair)
+            if _name in markets:
+                res.update(
+                    {_pair: {
+                        'api_pair_name': _name,
+                        'main_currency': self._get_currency_by_api_code(
+                            markets[_name]
+                        )
+                    }}
+                )
+        return res
+
+    def get_api_pair_name(self, pair):
+        return self.PAIR_NAME_TEMPLATE.format(
+            base=self._get_api_currency_code(pair.base.code),
+            quote=self._get_api_currency_code(pair.quote.code)
+        )
+
+    def get_all_active_pairs(self):
+        markets = self.api.get_markets().get('result', [])
+        return {
+            m.get('MarketName'): m.get('MarketCurrency') for m in markets if m[
+                'IsActive'
+            ]
+        }
+
     def get_api(self):
         if not self.api:
             self.api = Bittrex(settings.API3_KEY, settings.API3_SECRET)
         return self.api
 
     def get_balance(self, currency):
-        raw_res = self.api.get_balance(currency.code)
+        raw_res = self.api.get_balance(self._get_api_currency_code(
+            currency.code
+        ))
         result = raw_res.get('result', {})
         res = {
-            key.lower(): Decimal(str(value))
+            key.lower(): Decimal(str(value if value else 0))
             for key, value in result.items() if key in ['Pending', 'Balance',
                                                         'Available']
         }
@@ -31,8 +86,8 @@ class BittrexApiClient(BaseTradeApiClient):
 
     def get_ticker(self, pair):
         market = self.PAIR_NAME_TEMPLATE.format(
-            base=pair.base.code,
-            quote=pair.quote.code
+            base=self._get_api_currency_code(pair.base.code),
+            quote=self._get_api_currency_code(pair.quote.code)
         )
         res = self.api.get_ticker(market)
         return res
@@ -44,8 +99,8 @@ class BittrexApiClient(BaseTradeApiClient):
 
     def buy_limit(self, pair, amount, rate=None):
         market = self.PAIR_NAME_TEMPLATE.format(
-            base=pair.base.code,
-            quote=pair.quote.code
+            base=self._get_api_currency_code(pair.base.code),
+            quote=self._get_api_currency_code(pair.quote.code)
         )
         if not rate:
             rate = self.get_rate(pair, rate_type='Ask')
@@ -54,8 +109,8 @@ class BittrexApiClient(BaseTradeApiClient):
 
     def sell_limit(self, pair, amount, rate=None):
         market = self.PAIR_NAME_TEMPLATE.format(
-            base=pair.base.code,
-            quote=pair.quote.code
+            base=self._get_api_currency_code(pair.base.code),
+            quote=self._get_api_currency_code(pair.quote.code)
         )
         if not rate:
             rate = self.get_rate(pair, rate_type='Bid')
@@ -68,7 +123,8 @@ class BittrexApiClient(BaseTradeApiClient):
             currency = currency.code
         if isinstance(address, Address):
             address = address.address
-        res = self.api.withdraw(currency, amount, address)
+        _currency = self._get_api_currency_code(currency)
+        res = self.api.withdraw(_currency, amount, address)
         self.logger.info('Response from Bittrex withdraw: {}'.format(res))
         success = res.get('success', False)
         if success:
