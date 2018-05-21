@@ -38,9 +38,12 @@ class PairSerializer(serializers.ModelSerializer):
 
 
 class SimplePairSerializer(serializers.ModelSerializer):
+    base = CurrencyNameSerializer()
+    quote = CurrencyNameSerializer()
+
     class Meta:
         model = Pair
-        fields = ('name',)
+        fields = ('name', 'base', 'quote')
 
 
 class NestedPairSerializer(serializers.ModelSerializer):

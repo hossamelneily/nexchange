@@ -1,7 +1,8 @@
 from django.conf import settings
+from core.serializers import SimplePairSerializer
 from orders.models import Order
 from orders.serializers import OrderSerializer, CreateOrderSerializer, \
-    NestedPairSerializer, OrderDetailSerializer
+    OrderDetailSerializer
 from accounts.utils import _create_anonymous_user
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import viewsets
@@ -98,6 +99,10 @@ class VolumeViewSet(ReadOnlyCacheResponseAndETAGMixin, DateFilterViewSet):
     model_class = Order
     http_method_names = ['get']
 
+    def __init__(self, *args, **kwargs):
+        super(VolumeViewSet, self).__init__(*args, **kwargs)
+        self.price_cache = {}
+
     @method_decorator(cache_page(settings.VOLUME_CACHE_LIFETIME))
     def dispatch(self, *args, **kwargs):
         return super(VolumeViewSet, self).dispatch(*args, **kwargs)
@@ -110,10 +115,14 @@ class VolumeViewSet(ReadOnlyCacheResponseAndETAGMixin, DateFilterViewSet):
                                                        **kwargs)
 
     def get_rate(self, currency):
-        return Price.get_rate('BTC', currency)
+        if currency not in self.price_cache:
+            _price = Price.get_rate('BTC', currency)
+            self.price_cache.update({currency: _price})
+        return self.price_cache[currency]
 
     def list(self, request):
         params = self.request.query_params
+        self.price_cache = {}
         if 'hours' in params:
             hours = float(self.request.query_params.get('hours'))
         else:
@@ -144,7 +153,7 @@ class VolumeViewSet(ReadOnlyCacheResponseAndETAGMixin, DateFilterViewSet):
             quote_volume_btc = round(quote_volume / rate_quote, 8)
             total_base += base_volume_btc
             total_quote += quote_volume_btc
-            pair_data = NestedPairSerializer(pair).data
+            pair_data = SimplePairSerializer(pair).data
             pair_data = OrderedDict({
                 'base_volume': base_volume,
                 'quote_volume': quote_volume,
