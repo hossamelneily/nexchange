@@ -16,6 +16,12 @@ class CurrencySerializer(serializers.ModelSerializer):
                   'withdrawal_fee')
 
 
+class SimpleCurrencySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Currency
+        fields = ('code', 'name')
+
+
 class CurrencyNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Currency
@@ -38,8 +44,8 @@ class PairSerializer(serializers.ModelSerializer):
 
 
 class SimplePairSerializer(serializers.ModelSerializer):
-    base = CurrencyNameSerializer()
-    quote = CurrencyNameSerializer()
+    base = SimpleCurrencySerializer()
+    quote = SimpleCurrencySerializer()
 
     class Meta:
         model = Pair
