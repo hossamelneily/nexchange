@@ -73,6 +73,10 @@ class DisabledCurrencyAdmin(admin.ModelAdmin):
 
 class CoverInline(admin.TabularInline):
     model = Cover
+    readonly_fields = (
+        'cover_type', 'pair', 'currency', 'amount_base', 'amount_quote',
+        'rate', 'cover_id', 'account', 'status', 'orders',
+    )
 
 
 @admin.register(ReservesCover)

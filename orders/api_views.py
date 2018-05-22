@@ -2,7 +2,7 @@ from django.conf import settings
 from core.serializers import SimplePairSerializer
 from orders.models import Order
 from orders.serializers import OrderSerializer, CreateOrderSerializer, \
-    OrderDetailSerializer
+    OrderDetailSerializer, OrderListSerializer
 from accounts.utils import _create_anonymous_user
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import viewsets
@@ -50,6 +50,7 @@ class OrderListViewSet(viewsets.ModelViewSet,
 
     @method_decorator(cache_page(settings.ORDER_CACHE_LIFETIME))
     def list(self, request, *args, **kwargs):
+        self.serializer_class = OrderListSerializer
         return super(OrderListViewSet, self).list(request, *args, **kwargs)
 
     @never_cache

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from core.serializers import NestedAddressSerializer,\
     NestedReadOnlyAddressSerializer, NestedPairSerializer, \
-    TransactionSerializer
+    TransactionSerializer, SimplePairSerializer
 from referrals.serializers import ReferralCodeSerializer
 from ticker.serializers import RateSerializer
 
@@ -52,6 +52,10 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta(MetaFlatOrder):
         fields = MetaFlatOrder.fields
+
+
+class OrderListSerializer(OrderSerializer):
+    pair = SimplePairSerializer(many=False, read_only=False)
 
 
 class OrderDetailSerializer(OrderSerializer):
