@@ -117,7 +117,7 @@ class ScryptRpcApiClient(BaseRpcClient):
         return tx['category'] == 'receive'
 
     def _get_tx(self, tx_id, node):
-        tx = self.call_api(node, 'gettransactions', *[tx_id])
+        tx = self.call_api(node, 'gettransaction', *[tx_id])
         return tx
 
     def check_tx(self, tx, currency):
@@ -144,7 +144,7 @@ class ScryptRpcApiClient(BaseRpcClient):
 
     @encrypted_endpoint
     def release_coins(self, currency, address, amount, **kwargs):
-        tx_id = self.call_api(currency.wallet, 'transfer',
+        tx_id = self.call_api(currency.wallet, 'sendtoaddress',
                               *[address.address, amount])
         success = True
         return tx_id, success

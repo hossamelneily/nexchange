@@ -123,7 +123,7 @@ class CreateOrderSerializer(OrderSerializer):
         currency = pair_obj.base.code
         validate_address = get_validator(currency)
         validate_address(data['withdraw_address']['address'])
-        if 'payment_id' in data:
+        if data.get('payment_id'):
             validate_xmr_payment_id(data['payment_id'])
 
         return super(CreateOrderSerializer, self).validate(data)
@@ -132,11 +132,14 @@ class CreateOrderSerializer(OrderSerializer):
         for field in READABLE_FIELDS:
             validated_data.pop(field, None)
         withdraw_address = validated_data.pop('withdraw_address')
+        payment_id = validated_data.pop('payment_id', None)
 
         validated_data.pop('pair')
         # Just making sure
         addr_list = Address.objects.filter(address=withdraw_address['address'])
         order = Order(pair=self.pair, **validated_data)
+        if payment_id:
+            order.payment_id = payment_id
         if not addr_list:
             address = Address(**withdraw_address)
             address.type = Address.WITHDRAW
@@ -146,8 +149,6 @@ class CreateOrderSerializer(OrderSerializer):
             address = addr_list[0]
 
         order.withdraw_address = address
-        if validated_data.get('payment_id'):
-            order.payment_id = validated_data.pop('payment_id')
         try:
             order.save()
             # get post_save stuff in sync

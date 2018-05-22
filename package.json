@@ -21,7 +21,7 @@
     "file-loader": "^0.10.1",
     "font-awesome": "^4.7.0",
     "highcharts": "^5.0.7",
-    "highcharts-more": "^0.1.2",
+    "highcharts-more": "0.1.2",
     "intl-tel-input": "^11.0.4",
     "jquery": "^1.11.3",
     "jquery-ui": "^1.11.3",
