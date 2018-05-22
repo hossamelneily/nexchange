@@ -20,6 +20,7 @@ class VerificationViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
         comment = None
         out_of_limit = None
         limits = None
+        whitelisted_addresses = []
         data = {}
         order = None
         try:
@@ -39,9 +40,24 @@ class VerificationViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
                     key = '{}_document_status'.format(doc_type.name.lower())
                     _status = payment_preference.get_payment_preference_document_status(doc_type.name)  # noqa
                     data[key] = Verification.STATUSES_TO_API[_status]
-                out_of_limit = payment_preference.out_of_limit
+                whitelisted_addresses = \
+                    payment_preference.whitelisted_addresses
+                whitelisted = order.withdraw_address in whitelisted_addresses
+                out_of_limit = \
+                    payment_preference.out_of_limit and not whitelisted
                 limits = payment_preference.trade_limits_info \
                     if _show_private_data else None
+                if limits:
+                    limits.update({
+                        'whitelisted_addresses': [
+                            a.address for a in whitelisted_addresses
+                        ],
+                        'whitelisted_addresses_info': {
+                            k.address: Verification.STATUSES_TO_API[v]
+                            for k, v in payment_preference.
+                            whitelisted_addresses_info.items()
+                        }
+                    })
                 last_verification = payment_preference.verification_set.last()
                 if last_verification:
                     comment = last_verification.user_visible_comment \

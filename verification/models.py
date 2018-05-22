@@ -52,6 +52,15 @@ class VerificationTier(TimeStampedModel):
         return True
 
     @property
+    def documents_to_upgrade(self):
+        required_pks = [d.pk for d in self.required_documents.all()]
+        try:
+            next_tier = VerificationTier.objects.get(level=self.level + 1)
+        except VerificationTier.DoesNotExist:
+            return VerificationDocument.objects.none()
+        return next_tier.required_documents.exclude(pk__in=required_pks)
+
+    @property
     def trade_limits(self):
         return self.tradelimit_set.all()
 

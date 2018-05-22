@@ -304,7 +304,10 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         info['trade_limits'] = limits_info
         info['tier'] = {
             'name': self.tier.name,
-            'upgrade_note': self.tier.upgrade_note
+            'upgrade_note': self.tier.upgrade_note,
+            'upgrade_documents': [
+                d.api_key for d in self.tier.documents_to_upgrade
+            ]
         }
         return info
 
@@ -338,6 +341,29 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
             for doc in whitelist_docs if doc.whitelisted_address
         ]
         return _addresses
+
+    @property
+    def whitelisted_addresses_info(self):
+        res = {}
+        _docs = self.verification_documents.filter(
+            document_type__whitelisted_address_required=True
+        )
+        model = _docs.model
+        _addresses = [
+            doc.whitelisted_address
+            for doc in _docs if doc.whitelisted_address
+        ]
+        for _address in _addresses:
+            statuses = [
+                d.document_status for d in _docs.filter(
+                    whitelisted_address=_address
+                )
+            ]
+            for status in [model.OK, model.PENDING, model.REJECTED]:
+                if status in statuses:
+                    res.update({_address: status})
+                    break
+        return res
 
     @property
     def approved_verifications(self):
