@@ -662,9 +662,12 @@ class PNL(TimeStampedModel):
         if self.opposite_pair_order_count:
             volumes_bid = bid_orders.aggregate(
                 Sum('amount_base'), Sum('amount_quote'))
-            self.base_volume_bid = volumes_bid.get('amount_quote__sum',
-                                                   Decimal('0'))
-            self.volume_bid = volumes_bid.get('amount_base__sum', Decimal('0'))
+            self.base_volume_bid += volumes_bid.get(
+                'amount_quote__sum', Decimal('0')
+            )
+            self.volume_bid += volumes_bid.get(
+                'amount_base__sum', Decimal('0')
+            )
 
         if self.base_volume_bid > Decimal('0'):
             self.average_bid = self.base_volume_bid / self.volume_bid
