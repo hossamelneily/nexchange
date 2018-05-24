@@ -45,8 +45,7 @@ class VerificationViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
                 whitelisted = order.withdraw_address in whitelisted_addresses
                 out_of_limit = \
                     payment_preference.out_of_limit and not whitelisted
-                limits = payment_preference.trade_limits_info \
-                    if _show_private_data else None
+                limits = payment_preference.trade_limits_info
                 if limits:
                     limits.update({
                         'whitelisted_addresses': [
