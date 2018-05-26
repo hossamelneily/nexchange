@@ -9,7 +9,7 @@ from .validators import validate_image_extension
 
 class MetaVerification:
     model = Verification
-    fields = ('order_reference', 'full_name', 'user_input_comment')
+    fields = ('order_reference', 'user_input_comment')
 
 
 class CreateVerificationSerializer(serializers.ModelSerializer):

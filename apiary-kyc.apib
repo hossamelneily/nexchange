@@ -1,0 +1,158 @@
+FORMAT: 1A
+HOST: https://api.nexchange.io/
+
+# nexchange-kyc
+
+KYC API documentation.
+
+## KYC details [/en/api/v1/kyc/{unique_reference}/]
+
++ Parameters
+    + `unique_reference`: V08PD (required, string) - unique reference of the order.
+
+### Get KYC status [GET]
+ Get KYC status of an order.
+
++ Request
+
+    + Attributes
+        + Headers (OAuth2Headers)
+    + Headers
+
+            Authorization: Bearer 3HrghbVeDUQWaOriqrXYLZmCb4cEXB
+
++ Response 200 (application/json)
+    + Attributes (KycDetails)
+    + Body
+
+            {
+               "id_document_status": "PENDING",
+               "util_document_status": "REJECTED",
+               "selfie_document_status": "UNDEFINED",
+               "whitelist_selfie_document_status": "APPROVED",
+               "is_verified": false,
+               "residence_document_status": "REJECTED",
+               "user_visible_comment": "Utility document rejected because name isin't maching the name on credit card.",
+               "out_of_limit": false,
+               "limits_message": {
+                  "trade_limits": [
+                     {
+                        "message": "117.59 USD out of allowed 1000.00 USD per 30 days",
+                        "out_of_limit": false,
+                        "days": 30,
+                        "amount": 1000.0,
+                        "currency": "USD",
+                        "total_amount": 117.59002141827314
+                     }
+                  ],
+                  "tier": {
+                     "name": "Tier 0",
+                     "upgrade_note": "Upload ID and Proof of Residence",
+                     "upgrade_documents": [
+                        "identity_document",
+                        "utility_document"
+                     ]
+                  },
+                  "whitelisted_addresses": [
+                     "D6BpZ4pP17JDsjpSWVrB2Hpa4oCi5mLfua"
+                  ],
+                  "whitelisted_addresses_info": {
+                     "D6BpZ4pP17JDsjpSWVrB2Hpa4oCi5mLfua": "APPROVED"
+                  }
+               }
+            }
+
+## KYC upload [/en/api/v1/kyc/]
+
+### Upload KYC documents [POST]
+   CUpload KYC documents
+
++ Request (multipart/form-data)
+
+    + Attributes
+        + Headers (OAuth2Headers)
+        + Attributes (KycPayload)
+    + Body
+
+            {
+                "order_reference": "V08PD",
+                "user_input_comment": "my documents are fine.",
+                "id_document": <id.png>,
+                "util_document": <util.png>,
+                "selfie": <selfie.png>,
+                "whitelis_selfie": <w_selfie.png>,
+            }
+
+    + Headers
+
+            Authorization: Bearer 3HrghbVeDUQWaOriqrXYLZmCb4cEXB
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+               "status": "OK",
+               "message": "KYC sent"
+            }
+
+
+# Data Structures
+
+# Document
+
+# KycPayload
++ `order_reference` (required) - unique reference of the order.
++ `user_input_comment` (optional) - user message to system administrator.
++ `id_document` (Document, optional) - copy of identity document.
++ `util_document` (Document, optional) - copy of utility bill of the payer (user name and address must be presented).
++ `selfie_document` (Document, optional) - selfie of the payer holding credit card (first digit and last 4 digits visible) and today's date written on the paper.
++ `whitelist_selfie_document` (Document, optional) - selfie of the payer holding paper crypto currency address written on the paper.
+
+
+
+# TradeLimit
++ `message` (required) - message about the trade limit.
++ `out_of_limit` (boolean, required) - true if total payments amount is not over this trade_limit.
++ `days` (number, required) - number of days for which payments amount is calculated.
++ `amount` (number, required) - amount which is allowed to trade per amount of days.
++ `currency` (required) - currency in which trade limit is calculated.
++ `total_amount` (number, required) - total amount of payments per amount of days (already traded).
+
+
+
+# Tier
++ `name` (required) - name of the tier.
++ `upgrade_note` (required) - note about what needs to be done in order to upgrade to next tier.
++ `upgrade_documents` (array[string], required) - list of documents which need to be approved for upgrading to next tier.
+
+# LimitsMsg
++ `trade_limits` (array[TradeLimit], required) - current trade limits.
++ `tier` (Tier, required) - current tier.
++ `whitelisted_addresses` (array[string], required) - array of whitelisted addresses.
++ `whitelisted_addresses_info` (object, required) - object of submitted addresses for whitelisting (address: status).
+
+
+# KycDetails
++ `id_document_status` (required) - identity document status. The document should confirm identity of the payer.
++ `util_document_status` (required) - residense/utility document status. The document should confirm the place of residence.
++ `selfie_document_status` (required) - selfie document status. Selfie of the payer holding credit card (first digit and last 4 digits visible) and today's date written on the paper.
++ `whitelist_selfie_document_status` (required) - whitelist selfie document status. Selfie of the payer holding paper crypto currency address written on the paper.
++ `util_document_status` (required) - DEPRECATED (same as util_document_status).
++ `is_verified` (boolean, required) - shows if id and util documents are approved. Withdrawals are holted when this is equal to false.
++ `user_visible_comment` (required) - comment for the user.
++ `out_of_limit` (boolean, required) - true if total payments amount is not over any trade_limit or address of the order is whitelisted. Withdrawals are holted when this is equal to true
++ `limits_message` (LimitsMsg, optional) - information about current trade limits.
+
+
+## JsonHeaders
++ `Content-Type` (required) - application/json.
++ `x-referral-token` (optional) - referral code.
+
+## OAuth2Headers
++ `Authorization` (required) - oAuth2 headers i.e. "Authorization:Bearer 3HrghbVeDUQWaOriqrXYLZmCb4cEXB".
++ `x-referral-token` (optional) - referral code.
+
+## OAuth2JsonHeaders (JsonHeaders)
++ `Authorization` (required) - oAuth2 headers i.e. "Authorization:Bearer 3HrghbVeDUQWaOriqrXYLZmCb4cEXB".
+
