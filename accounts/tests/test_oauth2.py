@@ -15,11 +15,12 @@ from support.models import Support
 
 class Oauth2TestCase(TickerBaseTestCase):
 
-    def setUp(self):
-        self.ENABLED_TICKER_PAIRS = ['BTCLTC']
-        super(Oauth2TestCase, self).setUp()
-        self.pair = Pair.objects.get(name='BTCLTC')
-        self.api_client = APIClient()
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = ['BTCLTC']
+        super(Oauth2TestCase, cls).setUpClass()
+        cls.pair = Pair.objects.get(name='BTCLTC')
+        cls.api_client = APIClient()
 
     def _create_order_api(self, amount_base=3, token=None):
         order_data = {

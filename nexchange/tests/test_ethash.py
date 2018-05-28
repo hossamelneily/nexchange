@@ -17,6 +17,7 @@ from accounts import task_summary as account_tasks
 from django.conf import settings
 from decimal import Decimal
 from collections import namedtuple
+from risk_management.models import Reserve
 
 
 ethash_check_tx_params = namedtuple(
@@ -49,14 +50,32 @@ class EthashClientTestCase(TestCase):
 class EthashRawE2ETestCase(TransactionImportBaseTestCase,
                            TickerBaseTestCase):
 
-    def setUp(self):
-        self.ENABLED_TICKER_PAIRS = ['BTCETH', 'BTCBDG', 'BTCEOS', 'BTCOMG',
-                                     'ETHBTC', 'BDGBTC', 'EOSBTC', 'OMGBTC']
-        super(EthashRawE2ETestCase, self).setUp()
-        self.import_txs_task = import_transaction_deposit_crypto_invoke
-        self.update_confirmation_task = update_pending_transactions_invoke
-        self.api_client = APIClient()
-        self.api = EthashRpcApiClient()
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = \
+            ['BTCETH', 'BTCBDG', 'BTCEOS', 'BTCOMG',
+             'ETHBTC', 'BDGBTC', 'EOSBTC', 'OMGBTC',
+             'KCSBTC', 'BNBBTC', 'KNCBTC',
+             'BTCKCS', 'BTCBNB', 'BTCKNC']
+        super(EthashRawE2ETestCase, cls).setUpClass()
+        cls.import_txs_task = import_transaction_deposit_crypto_invoke
+        cls.update_confirmation_task = update_pending_transactions_invoke
+        cls.api_client = APIClient()
+        cls.api = EthashRpcApiClient()
+
+        cls.reserves = Reserve.objects.all()
+        for r in cls.reserves:
+            for account in r.account_set.filter(disabled=False):
+                if account.wallet != 'rpc7':
+                    account.disabled = True
+                    account.save()
+
+    @classmethod
+    def tearDownClass(cls):
+        for r in cls.reserves:
+            for account in r.account_set.filter(disabled=True):
+                account.disabled = False
+                account.save()
 
     def _create_paid_order_api(self, pair_name, amount_base, address):
         order_data = {
@@ -72,6 +91,7 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
         order_api_url = '/en/api/v1/orders/'
         response = self.api_client.post(
             order_api_url, order_data, format='json')
+
         order = Order.objects.get(
             unique_reference=response.json()['unique_reference']
         )
@@ -94,6 +114,9 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
             ('BTCBDG',),
             ('BTCEOS',),
             ('BTCOMG',),
+            ('BTCKCS',),
+            ('BTCBNB',),
+            ('BTCKNC',),
         )
     )
     @patch.dict(os.environ, {'RPC7_PUBLIC_KEY_C1': '0xmain_card'})
@@ -113,6 +136,7 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
                               send_task, is_quote):
         is_quote.return_value = True
         amount_base = 0.5
+
         self._create_order(pair_name=pair_name, amount_base=amount_base)
         mock_currency = self.order.pair.quote
         mock_amount = self.order.amount_quote
@@ -171,6 +195,9 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
             ('BDGBTC',),
             ('EOSBTC',),
             ('OMGBTC',),
+            ('KCSBTC',),
+            ('BNBBTC',),
+            ('KNCBTC',),
         )
     )
     @patch.dict(os.environ, {'RPC7_PUBLIC_KEY_C1': '0xmain_card'})
@@ -178,17 +205,16 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
     @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
     @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
     @patch(ETH_ROOT + 'net_listening')
-    @patch('web3.eth.Eth.call')
     @patch('web3.eth.Eth.getTransactionReceipt')
     @patch('web3.eth.Eth.blockNumber')
     @patch('web3.eth.Eth.getTransaction')
     @patch('web3.eth.Eth.sendTransaction')
     @patch('web3.personal.Personal.lockAccount')
     @patch('web3.personal.Personal.unlockAccount')
-    @patch('web3.eth.Eth.getBalance')
+    @patch(ETH_ROOT + 'get_balance')
     def test_release_ethash_order(self, pair_name, get_balance, unlock, lock,
                                   send_tx, get_tx_eth, get_block_eth,
-                                  get_tx_eth_receipt, eth_call, eth_listen):
+                                  get_tx_eth_receipt, eth_listen):
         eth_listen.return_value = True
         amount_base = 50
         pair = Pair.objects.get(name=pair_name)
@@ -200,9 +226,7 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
             pair_name, amount_base,
             '0x77454e832261aeed81422348efee52d5bd3a3684'
         )
-        value = 2 * amount_base * (10**order.pair.base.decimals)
-        get_balance.return_value = value
-        eth_call.return_value = hex(value)
+        get_balance.return_value = amount_base * 2
         reserves_balance_checker_periodic.apply()
         send_tx.return_value = self.generate_txn_id()
         exchange_order_release_periodic.apply()

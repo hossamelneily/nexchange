@@ -7,7 +7,6 @@ from django.contrib.staticfiles.testing import LiveServerTestCase
 from core.tests.base import TransactionImportBaseTestCase, OrderBaseTestCase
 from referrals.models import ReferralCode, Referral
 from ticker.tests.base import TickerBaseTestCase
-import requests_mock
 from subprocess import call
 from django.core.urlresolvers import reverse
 from django.test import Client
@@ -23,14 +22,15 @@ class DreddTestAPI(LiveServerTestCase, TransactionImportBaseTestCase,
         'program.json'
     ]
 
-    def setUp(self):
-        self.DISABLE_NON_MAIN_PAIRS = False
-        super(DreddTestAPI, self).setUp()
-        self.url = self.live_server_url
-        with requests_mock.mock() as mock:
-            self._mock_cards_reserve(mock)
-            renew_cards_reserve_invoke.apply()
+    @classmethod
+    def setUpClass(cls):
+        cls.DISABLE_NON_MAIN_PAIRS = False
+        super(DreddTestAPI, cls).setUpClass()
+        renew_cards_reserve_invoke.apply()
+        cls.url = cls.live_server_url
 
+    def setUp(self):
+        super(DreddTestAPI, self).setUp()
         # This is for matching example data on apiary.apib
         self.create_user()
         self._create_order(pair_name='ETHLTC')

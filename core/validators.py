@@ -184,13 +184,15 @@ def validate_xmr_payment_id(value):
 
     if not p.match(value):
         raise ValidationError(
-            _('%(value)s has invalid characters for a valid Monero payment id'),
+            _('%(value)s has invalid characters '
+              'for a valid Monero payment id'),
             params={'value': value},
         )
 
 
 def get_validator(code):
-    if code in ['ETH', 'BDG', 'OMG', 'GNT', 'QTM', 'EOS']:
+    if code in ['ETH', 'BDG', 'OMG', 'GNT', 'QTM',
+                'EOS', 'KCS', 'BNB', 'KNC']:
         return validate_eth
     elif code in ['BTC', 'BCH']:
         return validate_btc

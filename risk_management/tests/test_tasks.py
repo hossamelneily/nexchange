@@ -464,11 +464,16 @@ class UncoveredTestCase(RiskManagementBaseTestCase):
 
 class PnlTaskTestCase(TickerBaseTestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = \
+            ['BTCLTC', 'LTCBTC', 'ETHBTC', 'ETHLTC',
+             'ETHBDG', 'LTCBDG']
+        super(PnlTaskTestCase, cls).setUpClass()
+        cls.api_client = APIClient()
+
     def setUp(self):
-        self.ENABLED_TICKER_PAIRS = ['BTCLTC', 'LTCBTC', 'ETHBTC', 'ETHLTC',
-                                     'ETHBDG', 'LTCBDG']
         super(PnlTaskTestCase, self).setUp()
-        self.api_client = APIClient()
         self._create_enough_addresses_for_test()
         self._create_orders_for_test()
 
@@ -554,21 +559,22 @@ class CurrencyDisablingTestCase(RiskManagementBaseTestCase):
         for task in CurrencyDisablingTestCase.DISABLE_CURR_TESTS:
             task.apply()
 
-    def make_assertions(self, base_pairs, quote_pairs, expected_state_base, expected_state_quote):
+    def make_assertions(self, base_pairs, quote_pairs, expected_state_base,
+                        expected_state_quote):
         for pair in quote_pairs:
             self.assertTrue(pair.disabled == expected_state_quote)
 
         for pair in base_pairs:
             self.assertTrue(pair.disabled == expected_state_base)
 
-    @data_provider(lambda: (
-            ('LTC', True, False),
-            ('LTC', True, True),
-            ('LTC', False, True),
-            ('LTC', False, False),
-        )
+    @data_provider(
+        lambda: (('LTC', True, False),
+                 ('LTC', True, True),
+                 ('LTC', False, True),
+                 ('LTC', False, False),)
     )
-    def test_currency_disable_re_enable(self, currency_code, disabled_state_quote_initial,
+    def test_currency_disable_re_enable(self, currency_code,
+                                        disabled_state_quote_initial,
                                         disabled_state_base_initial):
         ltc = Currency.objects.get(code=currency_code)
 
@@ -576,9 +582,11 @@ class CurrencyDisablingTestCase(RiskManagementBaseTestCase):
         DisabledCurrency.objects.all().delete()
 
         disabled_curr =\
-            DisabledCurrency.objects.create(currency=ltc,
-                                            disable_quote=disabled_state_quote_initial,
-                                            disable_base=disabled_state_base_initial)
+            DisabledCurrency.objects.create(
+                currency=ltc,
+                disable_quote=disabled_state_quote_initial,
+                disable_base=disabled_state_base_initial
+            )
 
         CurrencyDisablingTestCase.apply_tasks()
         quote_pairs = Pair.objects.filter(quote__code=currency_code)
@@ -609,5 +617,3 @@ class CurrencyDisablingTestCase(RiskManagementBaseTestCase):
 
         for pair in eth_pairs:
             self.assertTrue(pair.disabled)
-
-

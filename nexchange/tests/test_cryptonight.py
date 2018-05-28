@@ -12,9 +12,9 @@ import os
 from rest_framework.test import APIClient
 import requests_mock
 import json
-from core.tests.base import CRYPTONIGHT_ROOT, RPC8_PUBLIC_KEY_C1, RPC8_WALLET, \
+from core.tests.base import RPC8_PUBLIC_KEY_C1, RPC8_WALLET, \
     RPC8_PORT, RPC8_PASSWORD, RPC8_USER, RPC8_HOST
-from accounts import task_summary as account_tasks
+from risk_management.models import Reserve
 
 RPC11_URL = 'http://{}/json_rpc'.format(RPC8_HOST)
 
@@ -22,14 +22,30 @@ RPC11_URL = 'http://{}/json_rpc'.format(RPC8_HOST)
 class CryptonightRawE2ETestCase(TransactionImportBaseTestCase,
                                 TickerBaseTestCase):
 
-    def setUp(self):
-        self.ENABLED_TICKER_PAIRS = ['XMRBTC', 'BTCXMR']
-        super(CryptonightRawE2ETestCase, self).setUp()
-        self.import_txs_task = import_transaction_deposit_crypto_invoke
-        self.update_confirmation_task = update_pending_transactions_invoke
-        self.api_client = APIClient()
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = ['XMRBTC', 'BTCXMR']
+        super(CryptonightRawE2ETestCase, cls).setUpClass()
+        cls.import_txs_task = import_transaction_deposit_crypto_invoke
+        cls.update_confirmation_task = update_pending_transactions_invoke
+        cls.api_client = APIClient()
 
-    def _create_paid_order_api(self, pair_name, amount_base, address, payment_id):
+        cls.reserves = Reserve.objects.all()
+        for r in cls.reserves:
+            for account in r.account_set.filter(disabled=False):
+                if account.wallet != 'rpc11':
+                    account.disabled = True
+                    account.save()
+
+    @classmethod
+    def tearDownClass(cls):
+        for r in cls.reserves:
+            for account in r.account_set.filter(disabled=True):
+                account.disabled = False
+                account.save()
+
+    def _create_paid_order_api(self, pair_name, amount_base,
+                               address, payment_id):
         order_data = {
             "amount_base": amount_base,
             "is_default_rule": False,
@@ -167,7 +183,8 @@ class CryptonightRawE2ETestCase(TransactionImportBaseTestCase,
                         "fee": 939900000,
                         "multisig_txset": "",
                         "tx_hash": with_tx_id,
-                        "tx_key": "63e660b49ff678fa6f7f4a103977d96646f4c564c0c37e9bed50d019939cae06",
+                        "tx_key": "63e660b49ff678fa6f7f4a103977d96646"
+                                  "f4c564c0c37e9bed50d019939cae06",
                     }
                 }
             if params.get('method') == 'open_wallet':
@@ -220,9 +237,12 @@ class CryptonightRawE2ETestCase(TransactionImportBaseTestCase,
             ('incorrect0123456789ABCDEF',),
             ('01234567incorrect89ABCDEF',),
             ('01234@6789AB*DEF',),
-            ('0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF',),
-            ('incorrect0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF',),
-            ('789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF',),
+            ('0123456789ABCDEF0123456789ABCDEF0123456789'
+             'ABCDEF0123456789ABCDEF',),
+            ('incort0123456789ABCDEF0123456789ABCDEF0123'
+             '456789ABCDEF0123456789ABCDEF',),
+            ('789ABCDEF0123456789ABCDEF0123456789ABCDEF0'
+             '123456789ABCDEF',),
             ('',),
         )
     )

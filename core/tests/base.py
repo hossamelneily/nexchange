@@ -390,6 +390,9 @@ class OrderBaseTestCase(UserBaseTestCase):
         'pairs_zec.json',
         'pairs_usdt.json',
         'pairs_xmr.json',
+        'pairs_kcs.json',
+        'pairs_bnb.json',
+        'pairs_knc.json',
         'payment_method.json',
         'payment_preference.json',
         'reserve.json',
@@ -458,6 +461,11 @@ class OrderBaseTestCase(UserBaseTestCase):
     def setUpClass(cls):
         super(OrderBaseTestCase, cls).setUpClass()
 
+        cls.patcher_validate_ticker_diff = patch(
+            'ticker.models.Ticker._validate_change'
+        )
+        cls.patcher_validate_ticker_diff.start()
+
         price_api_mock = mock.Mock()
         price_api_mock.return_value = None
         mock.patch.object(Price, 'get_eur_rate', price_api_mock)
@@ -503,6 +511,7 @@ class OrderBaseTestCase(UserBaseTestCase):
 
         cls.price_eur = Price(pair=cls.BTCEUR, ticker=ticker_eur)
         cls.price_eur.save()
+        cls.patcher_validate_ticker_diff.stop()
 
     def get_uphold_tx(self, currency_code, amount, card_id):
         return {
@@ -749,6 +758,9 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         'pairs_zec.json',
         'pairs_usdt.json',
         'pairs_xmr.json',
+        'pairs_kcs.json',
+        'pairs_bnb.json',
+        'pairs_knc.json',
         'payment_method.json',
         'payment_preference.json',
         'reserve.json',

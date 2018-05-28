@@ -11,6 +11,7 @@ from core.models import Currency, Pair
 from ticker.models import Price, Ticker
 from django.test import TestCase
 from django.core.exceptions import ValidationError
+import requests_mock
 
 
 class PriceValidatorsTestCase(TestCase):
@@ -32,6 +33,10 @@ class PriceValidatorsTestCase(TestCase):
 
     def test_do_not_save_ticker_too_big_difference(self):
         patch.stopall()
+        for ticker in Ticker.objects.all():
+            price = Price.objects.get(ticker=ticker)
+            price.delete()
+            ticker.delete()
         self.assertEqual(Ticker.objects.all().count(), 0)
         ask = Decimal('1.1')
         bid = Decimal('0.9')
@@ -73,17 +78,20 @@ class PriceValidatorsTestCase(TestCase):
 
 class PriceTestCaseTask(TickerBaseTestCase):
 
-    def setUp(self):
-        self.DISABLE_NON_MAIN_PAIRS = False
-        super(PriceTestCaseTask, self).setUp()
-        self.factory = Price
+    @classmethod
+    def setUpClass(cls):
+        cls.DISABLE_NON_MAIN_PAIRS = False
+        super(PriceTestCaseTask, cls).setUpClass()
+        cls.factory = Price
 
-    def test_get_rate(self):
+    @requests_mock.mock()
+    def test_get_rate(self, mock):
         currs = Currency.objects.filter(
             Q(is_crypto=True) | Q(code__in=['EUR', 'USD', 'GBP'])
         ).exclude(code__in=[
             'GNT', 'EOS', 'QTM'
         ])
+        self.get_tickers(mock)
         for curr in currs:
             rate_c_usd = self.factory.get_rate(curr, 'USD')
             rate_usd_c = self.factory.get_rate('USD', curr)

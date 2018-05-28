@@ -15,18 +15,19 @@ from ticker.task_summary import get_ticker_crypto_crypto, \
 
 class TestTickerTask(TickerBaseTestCase):
 
-    def setUp(self):
-        self.DISABLE_NON_MAIN_PAIRS = False
-        super(TestTickerTask, self).setUp()
-        self.main_ticker = self.BTCUSD
-        self.main_ticker.disable_ticker = False
-        self.main_ticker.save()
-        self.disabled_ticker = self.BTCEUR
-        self.disabled_ticker.disable_ticker = True
-        self.disabled_ticker.save()
+    @classmethod
+    def setUpClass(cls):
+        cls.DISABLE_NON_MAIN_PAIRS = False
+        super(TestTickerTask, cls).setUpClass()
+        cls.main_ticker = cls.BTCUSD
+        cls.main_ticker.disable_ticker = False
+        cls.main_ticker.save()
+        cls.disabled_ticker = cls.BTCEUR
+        cls.disabled_ticker.disable_ticker = True
+        cls.disabled_ticker.save()
 
     @requests_mock.mock()
-    def test_create_enabled_ticker(self, m):
+    def test_create_enabled_ticker(self, mock):
         # FIXME: remove after tokens tickers created
         enabled_pairs = Pair.objects.filter(disable_ticker=False)
         pending_tokens = []
@@ -38,7 +39,7 @@ class TestTickerTask(TickerBaseTestCase):
         before_loc = len(Price.objects.filter(pair=self.main_ticker,
                                               market__code='locbit'))
         before_all = len(Price.objects.filter(market__code='nex'))
-        self.get_tickers(m)
+        self.get_tickers(mock)
         after = len(Price.objects.filter(pair=self.main_ticker,
                                          market__code='nex'))
         after_loc = len(Price.objects.filter(pair=self.main_ticker,
@@ -48,33 +49,27 @@ class TestTickerTask(TickerBaseTestCase):
         self.assertEqual(before_loc + 1, after_loc)
         self.assertEqual(before_all + enabled_pairs_count, after_all)
 
-    @requests_mock.mock()
-    def test_do_not_create_disabled_ticker(self, m):
+    def test_do_not_create_disabled_ticker(self):
         before = len(Price.objects.filter(pair=self.disabled_ticker))
-        self.get_tickers(m)
         after = len(Price.objects.filter(pair=self.disabled_ticker))
         self.assertEqual(before, after)
 
-    @requests_mock.mock()
-    def test_ask_is_more_then_bid(self, m):
+    def test_ask_is_more_than_bid(self):
         self.disabled_ticker.disable_ticker = False
         self.disabled_ticker.save()
-        self.get_tickers(m)
         tickers = Ticker.objects.all()
         for ticker in tickers:
             self.assertTrue(
                 ticker.ask > ticker.bid,
-                'ask({}) is not bigger then bid({}) on {}'.format(
+                'ask({}) is not bigger than bid({}) on {}'.format(
                     ticker.ask, ticker.bid, ticker.pair
                 )
             )
 
-    @requests_mock.mock()
-    def test_tickers_are_not_inverted(self, m):
+    def test_tickers_are_not_inverted(self):
         ''' This test case assumes that BTC is the most expensive currency '''
         self.disabled_ticker.disable_ticker = False
         self.disabled_ticker.save()
-        self.get_tickers(m)
         tickers_base_btc = Ticker.objects.filter(pair__base=self.BTC)
         for ticker in tickers_base_btc:
             self.assertTrue(

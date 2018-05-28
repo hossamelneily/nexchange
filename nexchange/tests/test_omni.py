@@ -1,7 +1,7 @@
 from core.tests.base import TransactionImportBaseTestCase
 from ticker.tests.base import TickerBaseTestCase
 from core.tests.utils import data_provider
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from accounts.task_summary import import_transaction_deposit_crypto_invoke,\
     update_pending_transactions_invoke
 from orders.task_summary import exchange_order_release_periodic
@@ -13,6 +13,7 @@ from rest_framework.test import APIClient
 from core.tests.base import OMNI_ROOT
 from nexchange.api_clients.factory import ApiClientFactory
 from collections import namedtuple
+from risk_management.models import Reserve
 
 RPC10_PASSWORD = 'password'
 RPC10_K = 'password'
@@ -37,14 +38,29 @@ omni_parse_tx_params = namedtuple(
 class OmniRawE2ETestCase(TransactionImportBaseTestCase,
                          TickerBaseTestCase):
 
-    def setUp(self):
-        self.ENABLED_TICKER_PAIRS = ['USDTBTC', 'BTCUSDT']
-        super(OmniRawE2ETestCase, self).setUp()
-        self.import_txs_task = import_transaction_deposit_crypto_invoke
-        self.update_confirmation_task = update_pending_transactions_invoke
-        self.factory = ApiClientFactory()
-        self.api_client = APIClient()
-        self.USDT = Currency.objects.get(code='USDT')
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = ['USDTBTC', 'BTCUSDT']
+        super(OmniRawE2ETestCase, cls).setUpClass()
+        cls.import_txs_task = import_transaction_deposit_crypto_invoke
+        cls.update_confirmation_task = update_pending_transactions_invoke
+        cls.factory = ApiClientFactory()
+        cls.api_client = APIClient()
+        cls.USDT = Currency.objects.get(code='USDT')
+
+        cls.reserves = Reserve.objects.all()
+        for r in cls.reserves:
+            for account in r.account_set.filter(disabled=False):
+                if account.wallet != 'rpc10':
+                    account.disabled = True
+                    account.save()
+
+    @classmethod
+    def tearDownClass(cls):
+        for r in cls.reserves:
+            for account in r.account_set.filter(disabled=True):
+                account.disabled = False
+                account.save()
 
     def _create_paid_order_api(self, pair_name, amount_base, address):
         order_data = {
@@ -76,10 +92,12 @@ class OmniRawE2ETestCase(TransactionImportBaseTestCase,
         order.confirm_deposit(tx)
         return order
 
-    @data_provider(lambda: (
+    @data_provider(
+        lambda: (
             omni_check_tx_params(
                 case_name='Too less confirmations, not confirmed',
-                tx_count=1, min_confs=12,
+                tx_count=1,
+                min_confs=12,
                 expected_return=(False, 1),
                 propertyid=31,
                 type_int=0,
@@ -117,7 +135,8 @@ class OmniRawE2ETestCase(TransactionImportBaseTestCase,
                 type_int=1,
                 valid=False
             ),
-    ))
+        )
+    )
     @patch(OMNI_ROOT + '_get_tx')
     def test_check_tx_omni(self, mock_get_tx, **kwargs):
         tx = Transaction(tx_id='123')
@@ -227,3 +246,4 @@ class OmniRawE2ETestCase(TransactionImportBaseTestCase,
         self.update_confirmation_task.apply()
         order.refresh_from_db()
         self.assertEqual(order.status, Order.COMPLETED, pair_name)
+        mock_validate_order_amount.stop()

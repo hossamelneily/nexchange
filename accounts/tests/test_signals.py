@@ -16,19 +16,19 @@ from core.tests.base import RPC8_WALLET, RPC8_PUBLIC_KEY_C1, RPC8_PORT,\
 
 class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
 
-    def setUp(self):
-        self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
-                                     'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
-                                     'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
-                                     'BTCXMR']
-        super(RenewReserveTestCase, self).setUp()
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = \
+            ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
+             'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
+             'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
+             'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC']
+        super(RenewReserveTestCase, cls).setUpClass()
         Cards.objects.all().delete()
-        self.len_crypto_curencies = len(Currency.objects.filter(
-            disabled=False, is_crypto=True).exclude(code__in=[
-                'RNS', 'GNT', 'QTM'])
-        )
-        with requests_mock.mock() as mock:
-            self.get_tickers(mock)
+        cls.len_crypto_curencies = \
+            len(Currency.objects.filter(
+                disabled=False, is_crypto=True
+            ).exclude(code__in=['RNS', 'GNT', 'QTM']))
 
     @patch.dict(os.environ, {'RPC8_PUBLIC_KEY_C1': RPC8_PUBLIC_KEY_C1})
     @patch.dict(os.environ, {'RPC8_WALLET': RPC8_WALLET})

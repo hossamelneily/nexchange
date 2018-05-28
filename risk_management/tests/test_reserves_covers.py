@@ -41,9 +41,14 @@ class ReservesCoversTestCase(RiskManagementBaseTestCase, TickerBaseTestCase):
 
     fixtures = TickerBaseTestCase.fixtures
 
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = \
+            ['DOGEXVG', 'DOGEBTC', 'XVGBTC', 'BTCXVG',
+             'BTCDOGE', 'XVGDOGE']
+        super(ReservesCoversTestCase, cls).setUpClass()
+
     def setUp(self):
-        self.ENABLED_TICKER_PAIRS = ['DOGEXVG', 'DOGEBTC', 'XVGBTC', 'BTCXVG',
-                                     'BTCDOGE', 'XVGDOGE']
         super(ReservesCoversTestCase, self).setUp()
         self.doge_reserve = Reserve.objects.get(currency__code='DOGE')
         self.xvg_reserve = Reserve.objects.get(currency__code='XVG')

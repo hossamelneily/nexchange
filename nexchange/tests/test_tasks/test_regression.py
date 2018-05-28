@@ -30,14 +30,16 @@ factory = ApiClientFactory()
 class RegressionTaskTestCase(TransactionImportBaseTestCase,
                              TickerBaseTestCase):
 
-    def setUp(self):
-        self.ENABLED_TICKER_PAIRS = ['ETHLTC', 'BTCETH', 'ETHBTC', 'LTCBCH',
-                                     'BTCLTC', 'BTCETH', 'LTCETH']
-        super(RegressionTaskTestCase, self).setUp()
-        self.import_txs_task = import_transaction_deposit_crypto_invoke
-        self.import_txs_blockchain_task = \
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = \
+            ['ETHLTC', 'BTCETH', 'ETHBTC', 'LTCBCH',
+             'BTCLTC', 'BTCETH', 'LTCETH']
+        super(RegressionTaskTestCase, cls).setUpClass()
+        cls.import_txs_task = import_transaction_deposit_crypto_invoke
+        cls.import_txs_blockchain_task = \
             import_transaction_deposit_uphold_blockchain_invoke
-        self.update_confirmation_task = update_pending_transactions_invoke
+        cls.update_confirmation_task = update_pending_transactions_invoke
 
     def _create_paid_order(self, txn_type=Transaction.DEPOSIT,
                            pair_name='ETHLTC'):

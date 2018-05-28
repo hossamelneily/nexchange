@@ -30,12 +30,16 @@ from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT, ETH_ROOT
 class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
                  TickerBaseTestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = ['ETHLTC', 'BTCETH', 'LTCBTC', 'LTCDOGE',
+                                    'DOGEBTC']
+        super(BaseTestUI, cls).setUpClass()
+
     @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
     @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
     def setUp(self):
-        self.ENABLED_TICKER_PAIRS = ['ETHLTC', 'BTCETH', 'LTCBTC', 'LTCDOGE',
-                                     'DOGEBTC']
         super(BaseTestUI, self).setUp()
         self.workflow = self.__class__.__name__.split('TestUI')[1].upper()
         self.screenpath2 = self._testMethodName.split('test_')[1].upper()

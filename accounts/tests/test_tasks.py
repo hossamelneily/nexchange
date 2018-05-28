@@ -22,9 +22,13 @@ RPC7_KEY1 = '0xmain'
 class TransactionImportTaskTestCase(TransactionImportBaseTestCase,
                                     TickerBaseTestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        super(TransactionImportTaskTestCase, cls).setUpClass()
+        cls.run_method = import_transaction_deposit_crypto_invoke.apply
+
     def setUp(self):
         super(TransactionImportTaskTestCase, self).setUp()
-        self.run_method = import_transaction_deposit_crypto_invoke.apply
 
     @skip('Uphold is not used anymore')
     def test_create_transactions_with_task(self):
@@ -39,19 +43,22 @@ class TransactionImportTaskTestCase(TransactionImportBaseTestCase,
             type=Address.DEPOSIT
         )
 
-        with requests_mock.mock() as mock:
-            self.get_tickers(mock)
         self.base_test_create_transactions_with_task(self.run_method)
 
 
 class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
                                     TickerBaseTestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = \
+            ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
+             'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
+             'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
+             'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC']
+        super(AddressReserveMonitorTestCase, cls).setUpClass()
+
     def setUp(self):
-        self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
-                                     'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
-                                     'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
-                                     'BTCXMR']
         super(AddressReserveMonitorTestCase, self).setUp()
         with requests_mock.mock() as m:
             self._mock_cards_reserve(m)

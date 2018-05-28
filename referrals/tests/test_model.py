@@ -1,6 +1,5 @@
 from random import randint
 from decimal import Decimal
-import requests_mock
 
 from core.models import Pair, Currency
 from orders.models import Order
@@ -29,8 +28,12 @@ class TestReferralModel(TickerBaseTestCase):
         self.turnover = Decimal('0.0')
         super(TestReferralModel, self).__init__(*args, **kwargs)
 
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = ['BTCLTC', 'LTCBTC']
+        super(TestReferralModel, cls).setUpClass()
+
     def setUp(self):
-        self.ENABLED_TICKER_PAIRS = ['BTCLTC', 'LTCBTC']
         super(TestReferralModel, self).setUp()
         currencies = Currency.objects.filter(is_crypto=False)
         for curr in currencies:
@@ -94,9 +97,7 @@ class TestReferralModel(TickerBaseTestCase):
         self.assertEqual(round(self.turnover, 8),
                          self.referral.turnover)
 
-    @requests_mock.mock()
-    def test_partial_turnover(self, mock):
-        self.get_tickers(mock)
+    def test_partial_turnover(self):
         amount_base = Decimal('11.11')
         pair = Pair.objects.get(name='LTCBTC')
         rate = Price.objects.filter(pair__name='BTCLTC').last().ticker.rate

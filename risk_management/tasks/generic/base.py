@@ -18,15 +18,15 @@ class BaseAccountManagerTask(BaseTask, ApiClientFactory):
         api = self.get_api_client(account.wallet)
         try:
             balance_res = api.get_balance(account.reserve.currency)
-
             if isinstance(balance_res, dict):
                 for attr, value in balance_res.items():
                     setattr(account, attr, value)
             else:
                 account.balance = account.available = Decimal(str(balance_res))
             account.healthy = True
-        except Exception:
-            self.logger.info('Smth is wrong with')
+        except Exception as e:
+            self.logger.info('Smth is wrong with \'{}.get_balance\': {}'.
+                             format(api.__class__.__name__, e))
             account.healthy = False
         account.save()
 

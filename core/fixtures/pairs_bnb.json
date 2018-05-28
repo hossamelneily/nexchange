@@ -1,0 +1,47 @@
+[
+{
+  "model": "core.pair",
+  "pk": 369,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 47,
+    "quote": 4,
+    "fee_ask": "0.0500000",
+    "fee_bid": "0.0500000",
+    "name": "BNBUSD",
+    "test_mode": true,
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 370,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 47,
+    "quote": 6,
+    "fee_ask": "0.0200000",
+    "fee_bid": "0.0200000",
+    "name": "BNBEUR",
+    "test_mode": true,
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 371,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 47,
+    "quote": 7,
+    "fee_ask": "0.0300000",
+    "fee_bid": "0.0300000",
+    "name": "BNBGBP",
+    "test_mode": true,
+    "disabled": false
+  }
+}
+]

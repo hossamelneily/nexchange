@@ -1,4 +1,5 @@
 from core.tests.base import TransactionImportBaseTestCase
+from risk_management.models import Reserve
 from ticker.tests.base import TickerBaseTestCase
 from core.tests.utils import data_provider
 from unittest.mock import patch
@@ -20,12 +21,27 @@ from accounts import task_summary as account_tasks
 class Blake2RawE2ETestCase(TransactionImportBaseTestCase,
                            TickerBaseTestCase):
 
-    def setUp(self):
-        self.ENABLED_TICKER_PAIRS = ['NANOBTC', 'BTCNANO']
-        super(Blake2RawE2ETestCase, self).setUp()
-        self.import_txs_task = import_transaction_deposit_crypto_invoke
-        self.update_confirmation_task = update_pending_transactions_invoke
-        self.api_client = APIClient()
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = ['NANOBTC', 'BTCNANO']
+        super(Blake2RawE2ETestCase, cls).setUpClass()
+        cls.import_txs_task = import_transaction_deposit_crypto_invoke
+        cls.update_confirmation_task = update_pending_transactions_invoke
+        cls.api_client = APIClient()
+
+        cls.reserves = Reserve.objects.all()
+        for r in cls.reserves:
+            for account in r.account_set.filter(disabled=False):
+                if account.wallet != 'rpc8':
+                    account.disabled = True
+                    account.save()
+
+    @classmethod
+    def tearDownClass(cls):
+        for r in cls.reserves:
+            for account in r.account_set.filter(disabled=True):
+                account.disabled = False
+                account.save()
 
     def _query_to_dict(self, query):
         res = {}

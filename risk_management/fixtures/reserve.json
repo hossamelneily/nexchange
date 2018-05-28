@@ -193,5 +193,50 @@
     "maximum_level": "50",
     "minimum_main_account_level": "0.05"
   }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 14,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 46,
+    "is_limit_reserve": false,
+    "target_level": "400",
+    "allowed_diff": "80",
+    "minimum_level": "80",
+    "maximum_level": "1990",
+    "minimum_main_account_level": "397"
+  }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 15,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 47,
+    "is_limit_reserve": false,
+    "target_level": "119",
+    "allowed_diff": "21",
+    "minimum_level": "21",
+    "maximum_level": "593",
+    "minimum_main_account_level": "118"
+  }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 16,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 48,
+    "is_limit_reserve": false,
+    "target_level": "798",
+    "allowed_diff": "160",
+    "minimum_level": "160",
+    "maximum_level": "3991",
+    "minimum_main_account_level": "798"
+  }
 }
 ]

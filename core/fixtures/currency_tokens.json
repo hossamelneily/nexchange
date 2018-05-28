@@ -82,7 +82,7 @@
       "is_crypto": 1,
       "min_confirmations": 12,
       "median_confirmation": 16,
-      "withdrawal_fee": "0.8",
+      "withdrawal_fee": "0.35",
       "minimal_amount": "2",
       "maximal_amount": "200",
       "decimals": 18,
@@ -113,6 +113,78 @@
       "contract_address": "0x9a642d6b3368ddc662CA244bAdf32cDA716005BC",
       "created_on":"2017-09-19T19:21:42+00:00",
       "modified_on":"2017-09-19T19:21:42+00:00"
+    }
+  },
+  {
+  "model": "core.currency",
+  "pk": 46,
+  "fields": {
+    "code": "KCS",
+    "name": "KuCoin Shares",
+    "ticker": "kucoin",
+    "wallet": "rpc7",
+    "algo": "ethash",
+    "is_crypto": 1,
+    "min_confirmations": 12,
+    "median_confirmation": 16,
+    "decimals": 6,
+    "withdrawal_fee": "1.2",
+    "minimal_amount": "20",
+    "maximal_amount": "650.0",
+    "is_token": true,
+    "contract_address": "0x039b5649a59967e3e936d7471f9c3700100ee1ab",
+    "created_on":"2017-09-19T19:21:42+00:00",
+    "modified_on":"2017-09-19T19:21:42+00:00",
+    "unslippaged_amount": "107",
+    "slippage_rate": "0.0000117"
+    }
+  },
+  {
+  "model": "core.currency",
+  "pk": 47,
+  "fields": {
+    "code": "BNB",
+    "name": "Binance Coin",
+    "ticker": "binance",
+    "wallet": "rpc7",
+    "algo": "ethash",
+    "is_crypto": 1,
+    "min_confirmations": 12,
+    "median_confirmation": 16,
+    "decimals": 18,
+    "withdrawal_fee": "0.3",
+    "minimal_amount": "3",
+    "maximal_amount": "200.0",
+    "is_token": true,
+    "contract_address": "0xB8c77482e45F1F44dE1745F52C74426C631bDD52",
+    "created_on":"2017-09-19T19:21:42+00:00",
+    "modified_on":"2017-09-19T19:21:42+00:00",
+    "unslippaged_amount": "4.125",
+    "slippage_rate": "0.000303"
+    }
+  },
+  {
+  "model": "core.currency",
+  "pk": 48,
+  "fields": {
+    "code": "KNC",
+    "name": "KyberNetwork",
+    "ticker": "binance/kucoin",
+    "wallet": "rpc7",
+    "algo": "ethash",
+    "is_crypto": 1,
+    "min_confirmations": 12,
+    "median_confirmation": 16,
+    "decimals": 18,
+    "withdrawal_fee": "2.7",
+    "minimal_amount": "20",
+    "maximal_amount": "1000.0",
+    "is_token": true,
+    "contract_address": "0xdd974d5c2e2928dea5f71b9825b8b646686bd200",
+    "created_on":"2017-09-19T19:21:42+00:00",
+    "modified_on":"2017-09-19T19:21:42+00:00",
+    "unslippaged_amount": "1250",
+    "slippage_rate": "5e-7"
     }
   }
 ]

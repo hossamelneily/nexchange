@@ -30,20 +30,18 @@ class ProfileAttributeTestCase(OrderBaseTestCase):
 
 class UserCreationTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
 
-    def setUp(self):
-        self.ENABLED_TICKER_PAIRS = ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
-                                     'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
-                                     'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
-                                     'BTCXMR']
-        super(UserCreationTestCase, self).setUp()
-        with requests_mock.mock() as mock:
-            self.get_tickers(mock)
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = \
+            ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
+             'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
+             'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
+             'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC']
+        super(UserCreationTestCase, cls).setUpClass()
 
-    @requests_mock.mock()
-    def test_user_count_exceeds_reserve_cards(self, mock):
+    def test_user_count_exceeds_reserve_cards(self):
         loop_num = settings.CARDS_RESERVE_COUNT * 2
         for i in range(loop_num):
-            self._mock_cards_reserve(mock)
             user = User(username='User Alot{}'.format(i))
             user.save()
             profile = Profile(user=user)

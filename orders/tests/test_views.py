@@ -512,11 +512,12 @@ class OrderIndexOrderTestCase(OrderBaseTestCase):
 
 class TestGetPrice(TickerBaseTestCase):
 
-    def setUp(self):
-        self.ENABLED_TICKER_PAIRS = ['BTCLTC', 'LTCBTC', 'XVGBTC']
-        super(TestGetPrice, self).setUp()
-        self.api_client = APIClient()
-        self.get_price_url = '/en/api/v1/get_price/{}/'
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = ['BTCLTC', 'LTCBTC', 'XVGBTC']
+        super(TestGetPrice, cls).setUpClass()
+        cls.api_client = APIClient()
+        cls.get_price_url = '/en/api/v1/get_price/{}/'
 
     def tearDown(self):
         super(TestGetPrice, self).tearDown()

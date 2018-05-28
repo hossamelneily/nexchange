@@ -367,5 +367,44 @@
     "is_main_account": false,
     "description": "Bittrex"
   }
+},
+{
+  "model": "risk_management.account",
+  "pk": 29,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 14,
+    "wallet": "rpc7",
+    "trading_allowed": false,
+    "is_main_account": true,
+    "description": "Main wallet"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 30,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 15,
+    "wallet": "rpc7",
+    "trading_allowed": false,
+    "is_main_account": true,
+    "description": "Main wallet"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 31,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 16,
+    "wallet": "rpc7",
+    "trading_allowed": false,
+    "is_main_account": true,
+    "description": "Main wallet"
+  }
 }
 ]
