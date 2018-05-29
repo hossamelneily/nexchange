@@ -10,7 +10,7 @@
     "fee_ask": "0.0500000",
     "fee_bid": "0.0500000",
     "name": "KCSUSD",
-    "test_mode": true,
+    "test_mode": false,
     "disabled": false
   }
 },
@@ -25,7 +25,7 @@
     "fee_ask": "0.0200000",
     "fee_bid": "0.0200000",
     "name": "KCSEUR",
-    "test_mode": true,
+    "test_mode": false,
     "disabled": false
   }
 },
@@ -40,7 +40,7 @@
     "fee_ask": "0.0300000",
     "fee_bid": "0.0300000",
     "name": "KCSGBP",
-    "test_mode": true,
+    "test_mode": false,
     "disabled": false
   }
 }
