@@ -206,7 +206,7 @@
     "allowed_diff": "80",
     "minimum_level": "80",
     "maximum_level": "1990",
-    "minimum_main_account_level": "397"
+    "minimum_main_account_level": "5"
   }
 },
 {
@@ -221,7 +221,7 @@
     "allowed_diff": "21",
     "minimum_level": "21",
     "maximum_level": "593",
-    "minimum_main_account_level": "118"
+    "minimum_main_account_level": "2"
   }
 },
 {
@@ -236,7 +236,7 @@
     "allowed_diff": "160",
     "minimum_level": "160",
     "maximum_level": "3991",
-    "minimum_main_account_level": "798"
+    "minimum_main_account_level": "10"
   }
 }
 ]
