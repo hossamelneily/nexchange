@@ -329,9 +329,18 @@ TRADING_TASKS = {
         'task': 'risk_management.task_summary.log_current_assets',
         'schedule': timedelta(seconds=600),
     },
-    'calculate_pnls': {
-        'task': 'risk_management.task_summary.calculate_pnls',
-        'schedule': timedelta(hours=24),
+    # Primary hours to avoid running tasks at the same time
+    'calculate_pnls_1day_invoke': {
+        'task': 'risk_management.task_summary.calculate_pnls_1day_invoke',
+        'schedule': timedelta(hours=2),
+    },
+    'calculate_pnls_7days_invoke': {
+        'task': 'risk_management.task_summary.calculate_pnls_7days_invoke',
+        'schedule': timedelta(hours=7, minutes=5),
+    },
+    'calculate_pnls_30days_invoke': {
+        'task': 'risk_management.task_summary.calculate_pnls_30days_invoke',
+        'schedule': timedelta(hours=23, minutes=10),
     },
 }
 
@@ -374,6 +383,7 @@ CELERY_BEAT_SCHEDULE.update(AUDIT_TASKS)
 CELERY_BEAT_SCHEDULE.update(PAIR_DISABLING_TASKS)
 
 TASKS_TIME_LIMIT = 30
+REPORT_TASKS_TIME_LIMIT = 200
 FAST_TASKS_TIME_LIMIT = 3
 TRANSACTION_IMPORT_TIME_LIMIT = TRANSACTION_IMPORT_TIME - 1
 RETRY_RELEASE_TIME = 600
@@ -381,6 +391,7 @@ RETRY_RELEASE_MAX_RETRIES = 3
 CARD_CHECK_TIME = 150
 RETRY_CARD_CHECK_MAX_RETRIES = 5
 THIRD_PARTY_TRADE_TIME = 300
+COVER_TASK_MAX_RETRIES = 15
 
 
 MIDDLEWARE_CLASSES = [

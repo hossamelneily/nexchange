@@ -523,7 +523,7 @@ class PnlTaskTestCase(TickerBaseTestCase):
                 order.save()
 
     def test_pnl_sheet(self):
-        calculate_pnls.apply_async()
+        calculate_pnls.apply_async([1])
         pnl_sheet = PNLSheet.objects.last()
         pnls = pnl_sheet.pnl_set.all()
         for curr in ['btc', 'usd', 'eth', 'eur']:

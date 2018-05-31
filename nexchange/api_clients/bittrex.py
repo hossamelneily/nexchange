@@ -117,6 +117,14 @@ class BittrexApiClient(BaseTradeApiClient):
         res = self.api.sell_limit(market, amount, rate)
         return res
 
+    def get_main_address(self, currency):
+        raw_res = self.api.get_deposit_address(self._get_api_currency_code(
+            currency.code
+        ))
+        result = raw_res.get('result', {})
+        address = result.get('Address', None)
+        return address if address else None
+
     def release_coins(self, currency, address, amount):
         tx_id = None
         if isinstance(currency, Currency):

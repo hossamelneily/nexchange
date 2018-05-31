@@ -83,6 +83,12 @@ class BaseApiClient:
                 tx.currency, tx))
         return {'success': False, 'retry': False}
 
+    def get_main_address(self, currency):
+        raise NotImplementedError()
+
+    def health_check(self, currency):
+        return True
+
 
 class BaseWalletApiClient(BaseApiClient):
 

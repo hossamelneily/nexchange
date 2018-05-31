@@ -53,13 +53,14 @@ class PNLAdmin(admin.ModelAdmin):
                     'pnl_str')
     readonly_fields = ('position_str', 'base_position_str', 'realized_volume',
                        'pnl_realized', 'pnl_unrealized', 'pnl_str', 'pnl_btc',
-                       'pnl_usd', 'pnl_eth', 'pnl_eur')
+                       'pnl_usd', 'pnl_eth', 'pnl_eur',
+                       'average_base_position_price')
     search_fields = ('pair__name',)
 
 
 @admin.register(PNLSheet)
 class PNLSheetAdmin(admin.ModelAdmin):
-    list_display = ('date_from', 'date_to', 'positions_str')
+    list_display = ('days', 'date_from', 'date_to', 'positions_str')
     readonly_fields = ('pnl_btc', 'pnl_eth', 'pnl_eur',
                        'pnl_usd', 'positions', 'positions_str')
 
@@ -77,18 +78,21 @@ class CoverInline(admin.TabularInline):
         'cover_type', 'pair', 'currency', 'amount_base', 'amount_quote',
         'rate', 'cover_id', 'account', 'status', 'orders',
     )
+    can_delete = False
 
 
 @admin.register(ReservesCover)
 class ReservesCoverAdmin(admin.ModelAdmin):
     inlines = (CoverInline,)
-    list_display = ('portfolio_log',)
+    list_display = ('created_on', 'pair', 'amount_base', 'amount_quote')
     readonly_fields = (
+        'pair', 'amount_quote', 'amount_base', 'rate', 'acquisition_rate',
+        'static_rate_change_str', 'pnl_rates',
         'sell_reserves_filtered', 'buy_reserves_filtered', 'sell_reserves',
-        'buy_reserves'
+        'buy_reserves', 'portfolio_log', 'pnl_sheets'
     )
 
 
 @admin.register(ReservesCoverSettings)
 class ReservesCoverSettingsAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('currencies_str', 'coverable_str', 'default',)

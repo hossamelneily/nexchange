@@ -1146,6 +1146,8 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
                               buy_limit, sell_limit, withdraw,
                               get_txs_scrypt, get_txs_eth, release_coins,
                               get_main_address, scrypt_info):
+        internal_tx_id = self.generate_txn_id()
+        release_coins.return_value = internal_tx_id, True
         scrypt_info.return_value = {}
         get_main_address.return_value = verge_address = 'VERGEaddress'
         ask = bid = Decimal('0.0012')
@@ -1208,10 +1210,20 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
             release_coins.assert_called_once()
             main_account = cover.account.reserve.account_set.get(
                 is_main_account=True)
-            release_coins.assert_called_with(
-                pair_trade.base, verge_address,
+            _currency = pair_trade.base
+            _amount = \
                 balance_bittrex - balance_main + main_account.minimal_reserve
-            )
+            _address = verge_address
+            tx = Transaction.objects.latest('id')
+            self.assertEqual(tx.type, Transaction.INTERNAL)
+            self.assertEqual(tx.amount, _amount)
+            self.assertEqual(tx.currency, _currency)
+            self.assertEqual(tx.address_to.address, _address)
+            self.assertEqual(tx.tx_id, internal_tx_id)
+            self.assertTrue(tx.is_verified)
+            self.assertTrue(tx.is_completed)
+            self.assertEqual(tx.order, self.order)
+            release_coins.assert_called_with(_currency, tx.address_to, _amount)
         else:
             release_coins.assert_not_called()
 

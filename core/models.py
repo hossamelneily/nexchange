@@ -20,10 +20,12 @@ class BtcBase(TimeStampedModel):
     WITHDRAW = 'W'
     DEPOSIT = 'D'
     REFUND = 'R'
+    INTERNAL = 'I'
     TYPES = (
         (WITHDRAW, 'WITHDRAW'),
         (DEPOSIT, 'DEPOSIT'),
         (REFUND, 'REFUND'),
+        (INTERNAL, 'INTERNAL'),
     )
     type = models.CharField(max_length=1,
                             choices=TYPES, null=True)
@@ -51,9 +53,11 @@ class AddressReserve(models.Model):
 class Address(BtcBase, SoftDeletableModel):
     WITHDRAW = 'W'
     DEPOSIT = 'D'
+    INTERNAL = 'I'
     TYPES = (
         (WITHDRAW, 'WITHDRAW'),
         (DEPOSIT, 'DEPOSIT'),
+        (INTERNAL, 'INTERNAL'),
     )
     reserve = models.ForeignKey('AddressReserve', null=True,
                                 blank=True, default=None, related_name='addr')
@@ -87,7 +91,8 @@ class Transaction(BtcBase, FlagableMixin):
     address_to = models.ForeignKey('core.Address',
                                    related_name='txs_to')
     # TODO: how to handle cancellation?
-    order = models.ForeignKey('orders.Order', related_name='transactions')
+    order = models.ForeignKey('orders.Order', related_name='transactions',
+                              null=True, blank=True)
     is_verified = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
     amount = models.DecimalField(null=False, max_digits=18, decimal_places=8,
@@ -100,6 +105,8 @@ class Transaction(BtcBase, FlagableMixin):
     refunded_transaction = models.ForeignKey(
         'self', null=True, blank=True, default=None
     )
+    reserves_cover = models.ForeignKey('risk_management.ReservesCover',
+                                       blank=True, null=True)
 
     def _validate_withdraw_txn(self):
         if self.order:
@@ -384,7 +391,6 @@ class Pair(TimeStampedModel):
             return Pair.objects.get(base=self.quote, quote=self.base)
         except self.DoesNotExist:
             return
-
 
     def check_currency_disabled(self, currency_type):
         currency = getattr(self, currency_type)

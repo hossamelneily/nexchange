@@ -921,7 +921,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
                 )
             )
         old_withdraw_txs = self.transactions.exclude(
-            type=Transaction.DEPOSIT)
+            type__in=[Transaction.DEPOSIT, Transaction.INTERNAL])
         tx_type = tx_data.get('type')
         if tx_type != Transaction.WITHDRAW:
             msg = 'Bad Transaction type'
@@ -1012,7 +1012,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     @transition(field=status, source=PAID, target=REFUNDED)
     def _refund_exchange(self):
         old_withdraw_txs = self.transactions.exclude(
-            type=Transaction.DEPOSIT)
+            type__in=[Transaction.DEPOSIT, Transaction.INTERNAL])
         dep_tx = self.transactions.get(type='D')
         dep_tx.flag(val='refunded')
         currency = dep_tx.currency

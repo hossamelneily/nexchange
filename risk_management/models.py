@@ -12,6 +12,7 @@ from django.db.models import Sum
 from django.utils.timezone import now, timedelta
 from copy import deepcopy
 from nexchange.api_clients.bittrex import BittrexApiClient
+from payments.utils import money_format
 
 
 bittrex_api = BittrexApiClient()
@@ -285,6 +286,21 @@ class Account(TimeStampedModel):
     def diff_from_required_reserve(self):
         return self.available - self.required_reserve
 
+    def get_same_api_wallet(self, currency):
+        try:
+            return Account.objects.get(reserve__currency=currency,
+                                       wallet=self.wallet)
+        except Account.DoesNotExist:
+            return
+
+    def available_to_trade(self, currency=None):
+        if currency is None:
+            currency = self.reserve.currency
+        account = self.get_same_api_wallet(currency)
+        if not account or not self.trading_allowed:
+            return Decimal('0')
+        return account.available
+
     @property
     def diff_from_minimal_reserve(self):
         return self.available - self.minimal_reserve
@@ -337,8 +353,8 @@ class Cover(TimeStampedModel):
                                 db_index=True)
     account = models.ForeignKey(Account, null=True)
     status = FSMIntegerField(choices=STATUS_TYPES, default=INITIAL)
-    reserve_cover = models.ForeignKey('risk_management.ReservesCover',
-                                      blank=True, null=True)
+    reserves_cover = models.ForeignKey('risk_management.ReservesCover',
+                                       blank=True, null=True)
 
     @transition(field=status, source=INITIAL, target=PRE_EXECUTED)
     def _pre_execute(self):
@@ -378,6 +394,35 @@ class Cover(TimeStampedModel):
         return res
 
     @property
+    def required_currency_amount_to_cover(self):
+        if self.status == self.INITIAL and self.account:
+            if self.cover_type == self.BUY:
+                _currency = self.pair.quote
+                _amount = self.amount_quote
+            else:
+                _currency = self.pair.base
+                _amount = self.amount_base
+            return _currency, _amount
+        return None, Decimal('0')
+
+    @property
+    def missing_currency_amount_to_cover(self):
+        _currency, _amount = self.required_currency_amount_to_cover
+        if _currency:
+            _available = self.account.available_to_trade(_currency)
+            if _amount > _available:
+                return _currency, _amount - _available
+
+        return None, Decimal('0')
+
+    @property
+    def coverable(self):
+        _currency, _amount = self.missing_currency_amount_to_cover
+        if _currency:
+            return False
+        return True
+
+    @property
     def amount_to_main_account(self):
         account = self.account
         main_account = self.account.reserve.main_account
@@ -410,6 +455,8 @@ class PNLSheet(TimeStampedModel):
         blank=True, null=True, default=get_defult_date_from
     )
     date_to = models.DateTimeField(blank=True, null=True, default=now)
+    days = models.DecimalField(max_digits=18, decimal_places=8,
+                               default=Decimal('0'))
 
     def sum_pnls_field(self, field_name):
         reserve_logs = self.pnl_set.all()
@@ -467,9 +514,15 @@ class PNLSheet(TimeStampedModel):
             res += ' {0:.1f} {1:s} |'.format(value, key)
         return res
 
-    def save(self):
+    def save(self, *args, **kwargs):
+        if self.days == Decimal('0'):
+            self.days = \
+                (self.date_to - self.date_from).total_seconds() / (3600 * 24)
+        elif not self.pk:
+            self.date_from = self.date_to - timedelta(days=self.days)
+
         create_pnls = False if self.pk else True
-        res = super(PNLSheet, self).save()
+        res = super(PNLSheet, self).save(*args, **kwargs)
         if create_pnls:
             crypto = Currency.objects.filter(is_crypto=True).exclude(
                 code__in=['RNS']).order_by('pk')
@@ -502,6 +555,8 @@ class PNL(TimeStampedModel):
         blank=True, null=True, default=get_defult_date_from
     )
     date_to = models.DateTimeField(blank=True, null=True, default=now)
+    days = models.DecimalField(max_digits=18, decimal_places=8,
+                               default=Decimal('0'))
     pair = models.ForeignKey(Pair, blank=True, null=True)
     average_ask = models.DecimalField(max_digits=18, decimal_places=8,
                                       default=Decimal('0'))
@@ -699,6 +754,11 @@ class PNL(TimeStampedModel):
             self.position, asset, self.pnl, currency)
 
     def save(self):
+        if self.days == Decimal('0'):
+            self.days = \
+                (self.date_to - self.date_from).total_seconds() / (3600 * 24)
+        elif not self.pk:
+            self.date_from = self.date_to - timedelta(days=self.days)
         if all([self.date_from, self.date_to, self.pair, not self.pk]):
             self._set_pnl_parameters()
             base_currency = self.pair.base
@@ -712,6 +772,22 @@ class PNL(TimeStampedModel):
                         continue
         self._set_pnl_properties()
         super(PNL, self).save()
+
+    @property
+    def average_base_position_price(self):
+        if self.base_position and self.position:
+            return money_format(
+                abs(self.position / self.base_position),
+                places=8
+            )
+
+    @property
+    def average_position_price(self):
+        if self.base_position and self.position:
+            return money_format(
+                abs(self.base_position / self.position),
+                places=8
+            )
 
 
 class DisabledCurrency(TimeStampedModel):
@@ -735,6 +811,17 @@ class ReservesCoverSettings(TimeStampedModel):
                   'difference from target_level to cover.'
     )
 
+    @property
+    def currencies_str(self):
+        return ' '.join([c.code for c in self.currencies.all()])
+
+    @property
+    def coverable_str(self):
+        return '{:.1f}%'.format(self.coverable_part * Decimal('100'))
+
+    def __str__(self):
+        return '{}, {}'.format(self.currencies_str, self.coverable_str)
+
 
 class ReservesCover(TimeStampedModel):
 
@@ -751,6 +838,7 @@ class ReservesCover(TimeStampedModel):
                                        default=Decimal('0'))
     amount_base = models.DecimalField(max_digits=18, decimal_places=8,
                                       default=Decimal('0'))
+    pnl_sheets = models.ManyToManyField(PNLSheet)
 
     def _get_suggested_trade(self):
         buy_reserves = {
@@ -806,7 +894,11 @@ class ReservesCover(TimeStampedModel):
             if _pair and _amount_quote and _amount_base:
                 self.pair, self.amount_quote, self.amount_base = \
                     _pair, _amount_quote, _amount_base
+        is_new = True if not self.pk else False
         super(ReservesCover, self).save(*args, **kwargs)
+        if is_new:
+            self.create_cover_objects()
+            self.set_default_pnl_sheets()
 
     def create_cover_objects(self):
         if not self.pair or not self.pk or self.cover_set.all():
@@ -816,9 +908,13 @@ class ReservesCover(TimeStampedModel):
         if self.pair in suggested_pairs:
             cover = Cover()
             cover.cover_type = Cover.BUY
-            cover.reserve_cover = self
+            cover.reserves_cover = self
             pair_data = suggested_pairs[self.pair]
             cover.currency = pair_data['main_currency']
+            cover.account = Account.objects.get(
+                description='Bittrex',
+                reserve__currency=cover.currency
+            )
             if cover.currency != self.pair.base:
                 # just to skip if smth unexpected happens
                 return
@@ -835,9 +931,13 @@ class ReservesCover(TimeStampedModel):
             _pair = reverse_pair
             cover = Cover()
             cover.cover_type = Cover.SELL
-            cover.reserve_cover = self
+            cover.reserves_cover = self
             pair_data = suggested_pairs[_pair]
             cover.currency = pair_data['main_currency']
+            cover.account = Account.objects.get(
+                description='Bittrex',
+                reserve__currency=cover.currency
+            )
             if cover.currency != _pair.base:
                 # just to skip if smth unexpected happens
                 return
@@ -861,11 +961,19 @@ class ReservesCover(TimeStampedModel):
             cover_quote = Cover()
             cover_base.cover_type = Cover.BUY
             cover_quote.cover_type = Cover.SELL
-            cover_base.reserve_cover = cover_quote.reserve_cover = self
+            cover_base.reserves_cover = cover_quote.reserves_cover = self
             base_pair_data = suggested_pairs[base_btc]
             quote_pair_data = suggested_pairs[quote_btc]
             cover_base.currency = base_pair_data['main_currency']
             cover_quote.currency = quote_pair_data['main_currency']
+            cover_base.account = Account.objects.get(
+                description='Bittrex',
+                reserve__currency=cover_base.currency
+            )
+            cover_quote.account = Account.objects.get(
+                description='Bittrex',
+                reserve__currency=cover_quote.currency
+            )
             if cover_base.currency != base_btc.base or \
                     cover_quote.currency != quote_btc.base:
                 # just to skip if smth unexpected happens
@@ -882,6 +990,66 @@ class ReservesCover(TimeStampedModel):
             cover_base.save()
             self.amount_base = cover_base.amount_base
             self.save()
+
+    @property
+    def rate(self):
+        if self.amount_quote and self.amount_base:
+            return money_format(
+                abs(self.amount_base / self.amount_quote),
+                places=8
+            )
+
+    @property
+    def pnls(self):
+        return PNL.objects.filter(pnl_sheet__in=self.pnl_sheets.all(),
+                                  pair__in=[self.pair, self.pair.reverse_pair])
+
+    @property
+    def pnl_rates(self):
+        res = {}
+        for pnl in self.pnls:
+            res.update({
+                int(pnl.pnl_sheet.days): {
+                    'pair': pnl.pair.name,
+                    'rate': pnl.average_position_price,
+                    'base_rate': pnl.average_base_position_price,
+                    'position': pnl.position,
+                    'base_position': pnl.base_position
+                }
+            })
+        return res
+
+    @property
+    def matched_pnl(self):
+        for pnl in self.pnls.order_by('days'):
+            if pnl.pair == self.pair:
+                if pnl.position > self.amount_quote:
+                    return pnl
+            elif pnl.pair == self.pair.reverse_pair:
+                if pnl.base_position > self.amount_quote:
+                    return pnl
+
+    @property
+    def acquisition_rate(self):
+        pnl = self.matched_pnl
+        if pnl:
+            if pnl.pair == self.pair:
+                return pnl.average_position_price
+            elif pnl.pair == self.pair.reverse_pair:
+                return pnl.average_base_position_price
+
+    @property
+    def static_rate_change(self):
+        if self.acquisition_rate and self.rate:
+            return money_format(
+                (self.rate - self.acquisition_rate) / self.rate,
+                places=8
+            )
+
+    @property
+    def static_rate_change_str(self):
+        if self.static_rate_change:
+            return ' {0:.3f}%'.format(self.static_rate_change * Decimal(100))
 
     @property
     def sell_reserves(self):
@@ -904,3 +1072,19 @@ class ReservesCover(TimeStampedModel):
         return [
             l for l in self.buy_reserves if l.reserve.currency in currencies
         ]
+
+    def get_last_pnl_sheet(self, days=1):
+        try:
+            return PNLSheet.objects.filter(days=days).latest('id')
+        except PNLSheet.DoesNotExist:
+            return
+
+    def set_default_pnl_sheets(self):
+        for days in [1, 7, 30]:
+            sheet = self.get_last_pnl_sheet(days=days)
+            if sheet:
+                self.pnl_sheets.add(sheet)
+
+    @property
+    def first_cover(self):
+        return self.cover_set.all().order_by('cover_type').first()

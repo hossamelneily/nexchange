@@ -1,6 +1,6 @@
 from nexchange.tasks.base import BaseTask
 from nexchange.api_clients.factory import ApiClientFactory
-from core.models import Pair
+from core.models import Pair, Transaction, Address
 from decimal import Decimal
 
 
@@ -78,3 +78,48 @@ class BaseAccountManagerTask(BaseTask, ApiClientFactory):
                                 amount)
         self.update_account_balance(account)
         return res
+
+    def _assert_account_currency(self, currency, account):
+        assert currency == account.reserve.currency,\
+            'transfer currency {} but account pk {}_currency is {}'.format(
+                currency.code,
+                account.pk,
+                account.reserve.currency.code
+            )
+
+    def get_or_create_internal_address(self, _address, currency):
+        address, success = Address.objects.get_or_create(
+            address=_address, currency=currency, type=Address.INTERNAL
+        )
+        return address
+
+    def _create_internal_tx_obj(self, currency, address_to, amount):
+        tx = Transaction(
+            currency=currency,
+            amount=amount,
+            address_to=address_to,
+            type=Transaction.INTERNAL
+        )
+        tx.save()
+        return tx
+
+    def transfer(self, currency, account_from, account_to, amount):
+        self._assert_account_currency(currency, account_from)
+        self._assert_account_currency(currency, account_to)
+        api_from = self.get_api_client(account_from.wallet)
+        api_to = self.get_api_client(account_to.wallet)
+        assert api_from.health_check(currency)
+        assert api_to.health_check(currency)
+        _address = api_to.get_main_address(currency)
+        assert _address
+        address_to = self.get_or_create_internal_address(_address, currency)
+        tx = self._create_internal_tx_obj(currency, address_to, amount)
+        tx_id, success = api_from.release_coins(currency, address_to, amount)
+        if success:
+            tx.tx_id = tx_id
+            tx.is_verified = True
+            tx.is_completed = True
+            tx.save()
+        else:
+            tx.flag(val='error while making internal transfer')
+        return tx

@@ -49,9 +49,6 @@ class BaseRpcClient(BaseWalletApiClient):
             self.logger.error('JSON RPC ERROR HOST {} ERROR {}'
                               .format(self.rpc_endpoint, str(e)))
 
-    def health_check(self, currency):
-        return True
-
     def get_accounts(self, node, **kwargs):
         raise NotImplementedError
 
@@ -144,8 +141,9 @@ class ScryptRpcApiClient(BaseRpcClient):
 
     @encrypted_endpoint
     def release_coins(self, currency, address, amount, **kwargs):
+        _address = getattr(address, 'address', address)
         tx_id = self.call_api(currency.wallet, 'sendtoaddress',
-                              *[address.address, amount])
+                              *[_address, amount])
         success = True
         return tx_id, success
 
@@ -215,9 +213,9 @@ class CryptonightRpcApiClient(BaseRpcClient):
     def create_address(self, currency):
         address = self.call_api(currency.wallet, 'create_address')
         return {
-                'currency': currency,
-                'address': address
-            }
+            'currency': currency,
+            'address': address
+        }
 
     def parse_tx(self, tx, node=None):
         _currency = self.get_currency({'wallet': node})
@@ -279,11 +277,13 @@ class CryptonightRpcApiClient(BaseRpcClient):
 
     @encrypted_endpoint
     def release_coins(self, currency, address, amount, **kwargs):
+        _address = getattr(address, 'address', address)
         payment_id = kwargs.get('payment_id')
-        amount_atoms = Decimal(amount) * Decimal('1e{}'.format(currency.decimals))
+        amount_atoms = \
+            Decimal(amount) * Decimal('1e{}'.format(currency.decimals))
         amount_atoms = round(amount_atoms, 0)
         tx_id = self.call_api(currency.wallet, 'transfer',
-                              *[address.address, int(amount_atoms), payment_id])
+                              *[_address, int(amount_atoms), payment_id])
         success = True
         return tx_id, success
 
@@ -294,7 +294,8 @@ class CryptonightRpcApiClient(BaseRpcClient):
         unlocked_balance_raw = res['unlocked_balance']
         decimals = currency.decimals
         balance = Decimal(balance_raw) / Decimal('1e{}'.format(decimals))
-        unlocked_balance = Decimal(unlocked_balance_raw) / Decimal('1e{}'.format(decimals))
+        unlocked_balance = \
+            Decimal(unlocked_balance_raw) / Decimal('1e{}'.format(decimals))
         return {'balance': balance, 'unlocked_balance': unlocked_balance}
 
     def get_info(self, currency):
@@ -419,10 +420,7 @@ class Blake2RpcApiClient(BaseRpcClient):
     @encrypted_endpoint
     def release_coins(self, currency, address, amount, **kwargs):
         node = currency.wallet
-        if isinstance(address, Address):
-            address_to = address.address
-        else:
-            address_to = address
+        address_to = getattr(address, 'address', address)
         address_from = kwargs.get('address_from', self.coin_card_mapper(node))
         wallet = self.coin_wallet_mapper(node)
         raw_amount = str(int(
@@ -674,10 +672,7 @@ class EthashRpcApiClient(BaseRpcClient):
 
     def _form_transaction(self, currency, address, amount, **kwargs):
         node = currency.wallet
-        if isinstance(address, Address):
-            address_to = address.address
-        else:
-            address_to = address
+        address_to = getattr(address, 'address', address)
         address_from = kwargs.get('address_from', self.coin_card_mapper(node))
 
         if currency.is_token:

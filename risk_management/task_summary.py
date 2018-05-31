@@ -9,14 +9,17 @@ from risk_management.tasks.generic.reserve_balance_checker import \
 from risk_management.tasks.generic.reserve_balance_maintainer import \
     ReserveBalanceMaintainer
 from risk_management.tasks.generic.main_account_filler import MainAccountFiller
+from risk_management.tasks.generic.internal_transfers_maker import \
+    InternalTransfersMaker
 from risk_management.models import Reserve, PortfolioLog, PNLSheet
 from risk_management.tasks.generic.currency_cover import CurrencyCover
 from risk_management.tasks.generic.order_cover import OrderCover
-from django.utils.timezone import now, timedelta
 
 from core.models import Pair
 from risk_management.models import DisabledCurrency, Cover, ReservesCover
 from nexchange.api_clients.bittrex import BittrexApiClient
+from nexchange.celery import app
+from decimal import Decimal
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
@@ -57,12 +60,24 @@ def main_account_filler_invoke(account_id, amount=None, do_trade=False):
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def internal_transfer_invoke(currency_id, account_from_id, account_to_id,
+                             amount, order_id=None, reserves_cover_id=None):
+    task = InternalTransfersMaker()
+    return task.run(currency_id, account_from_id, account_to_id, amount,
+                    order_id=order_id, reserves_cover_id=reserves_cover_id)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def order_cover_invoke(order_id):
     task = OrderCover()
     cover, send_to_main, amount = task.run(order_id)
     if send_to_main and amount:
-        main_account_filler_invoke.apply_async(
-            [cover.account.pk, amount],
+        account_from = cover.account
+        currency = account_from.reserve.currency
+        account_to = account_from.reserve.main_account
+        internal_transfer_invoke.apply_async(
+            args=[currency.pk, account_from.pk, account_to.pk, amount],
+            kwargs={'order_id': order_id},
             countdown=settings.THIRD_PARTY_TRADE_TIME
         )
 
@@ -84,12 +99,25 @@ def log_current_assets():
     new_log.save()
 
 
-@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def calculate_pnls():
-    date_from = now() - timedelta(hours=24)
-    date_to = now()
-    new_sheet = PNLSheet(date_from=date_from, date_to=date_to)
+@shared_task(time_limit=settings.REPORT_TASKS_TIME_LIMIT)
+def calculate_pnls(days):
+    new_sheet = PNLSheet(days=days)
     new_sheet.save()
+
+
+@shared_task(time_limit=settings.FAST_TASKS_TIME_LIMIT)
+def calculate_pnls_1day_invoke():
+    calculate_pnls.apply_async([1])
+
+
+@shared_task(time_limit=settings.FAST_TASKS_TIME_LIMIT)
+def calculate_pnls_7days_invoke():
+    calculate_pnls.apply_async([7])
+
+
+@shared_task(time_limit=settings.FAST_TASKS_TIME_LIMIT)
+def calculate_pnls_30days_invoke():
+    calculate_pnls.apply_async([30])
 
 
 def set_active_status(curr, trade_direction, active=True):
@@ -99,8 +127,7 @@ def set_active_status(curr, trade_direction, active=True):
     for pair in pairs:
         counter_curr = getattr(pair, counter_trade_direction)
         pair.disabled = not active or not \
-            (active
-             and not DisabledCurrency.
+            (active and not DisabledCurrency.
              objects.filter(**{'currency': counter_curr,
                                counter_prop: True}).count())
         pair.save()
@@ -142,19 +169,31 @@ def execute_cover(cover_pk):
     cover.execute(api)
 
 
-@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def execute_reserves_cover(reserves_cover_pk):
+@app.task(bind=True)
+def execute_reserves_cover(self, reserves_cover_pk):
+    retry = False
     r_cover = ReservesCover.objects.get(pk=reserves_cover_pk)
-    # First SELL than BUY
-    covers = r_cover.cover_set.all().order_by('cover_type')
-    for i, cover in enumerate(covers):
-        execute_cover.apply_async(
-            args=[cover.pk],
-            countdown=settings.THIRD_PARTY_TRADE_TIME * i
+    first_cover = r_cover.first_cover
+    txs = r_cover.transaction_set.all()
+    if not first_cover.coverable and not txs:
+        currency, _amount = first_cover.missing_currency_amount_to_cover
+        # plus 1% to avoid failure due to not enough fee
+        amount = _amount * Decimal('1.01')
+        account_to = first_cover.account.get_same_api_wallet(currency=currency)
+        account_from = account_to.reserve.main_account
+        tx = internal_transfer_invoke(
+            currency.pk, account_from.pk, account_to.pk, amount,
+            reserves_cover_id=r_cover.pk
         )
-
-
-@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
-def create_reserves_cover_covers(reserves_cover_pk):
-    r_cover = ReservesCover.objects.get(pk=reserves_cover_pk)
-    r_cover.create_cover_objects()
+        assert tx.reserves_cover == r_cover
+    covers = r_cover.cover_set.filter(
+        status=Cover.INITIAL
+    ).order_by('cover_type')
+    for i, cover in enumerate(covers):
+        if cover.coverable:
+            execute_cover.apply_async(args=[cover.pk])
+        else:
+            retry = True
+    if retry:
+        self.retry(countdown=settings.THIRD_PARTY_TRADE_TIME,
+                   max_retries=settings.RETRY_RELEASE_MAX_RETRIES)
