@@ -104,6 +104,9 @@ def protected_serve(request, path, document_root=None, show_indexes=False):
 
 urlpatterns += static(settings.MEDIA_URL, protected_serve,
                       document_root=settings.MEDIA_ROOT)
+# protected_media to test
+urlpatterns += static('/protected_media/', protected_serve,
+                      document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
 
