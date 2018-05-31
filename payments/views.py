@@ -374,7 +374,8 @@ class SafeChargeListenView(View):
                                                           *args, **kwargs)
 
     def get_or_create_payment_preference(self, unique_cc, name_on_card,
-                                         product_id, payment_method):
+                                         product_id, payment_method,
+                                         push_request=None):
         unknown_msg = 'method_{}_order_{}'.format(
             payment_method,
             product_id
@@ -406,6 +407,8 @@ class SafeChargeListenView(View):
                 unique_cc,
                 name_on_card]):
             pref.is_immediate_payment = True
+        if push_request:
+            pref.push_request = push_request
         pref.save()
         return pref
 
@@ -488,10 +491,13 @@ class SafeChargeListenView(View):
             order = Order.objects.get(unique_reference=product_id)
             if all([status in ['APPROVED', 'SUCCESS', 'PENDING'],
                     order.status == Order.INITIAL]):
-                pref = self.get_or_create_payment_preference(unique_cc,
-                                                             name_on_card,
-                                                             product_id,
-                                                             payment_method)
+                pref = self.get_or_create_payment_preference(
+                    unique_cc,
+                    name_on_card,
+                    product_id,
+                    payment_method,
+                    push_request=push_request
+                )
                 payment_data = self._prepare_payment_data(
                     order, pref, total_amount, currency, ppp_tx_id, tx_id,
                     auth_code

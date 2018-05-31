@@ -6,6 +6,7 @@ from core.common.models import SoftDeletableModel, TimeStampedModel
 from core.models import Currency
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
+from audit_log.models import AuthStampedModel
 
 
 class VerificationTier(TimeStampedModel):
@@ -101,7 +102,7 @@ class TradeLimit(TimeStampedModel):
         )
 
 
-class Verification(TimeStampedModel, SoftDeletableModel):
+class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel):
 
     REJECTED = 'REJECTED'
     PENDING = 'PENDING'
@@ -150,7 +151,7 @@ class Verification(TimeStampedModel, SoftDeletableModel):
                                  blank=True, default=PENDING)
     util_status = models.CharField(choices=STATUSES, max_length=10, null=True,
                                    blank=True, default=PENDING)
-    full_name = models.CharField(max_length=30, null=True, blank=False)
+    full_name = models.CharField(max_length=127, null=True, blank=False)
     note = models.CharField(max_length=30, null=True, blank=True)
     user_visible_comment = models.CharField(max_length=255,
                                             null=True, blank=True)
@@ -298,7 +299,8 @@ class DocumentType(TimeStampedModel, SoftDeletableModel):
         return self.name
 
 
-class VerificationDocument(TimeStampedModel, SoftDeletableModel):
+class VerificationDocument(TimeStampedModel, SoftDeletableModel,
+                           AuthStampedModel):
 
     REJECTED = Verification.REJECTED
     PENDING = Verification.PENDING
@@ -315,6 +317,12 @@ class VerificationDocument(TimeStampedModel, SoftDeletableModel):
         else:
             root1 = 'all'
         return '/'.join([root1, root, filename])
+
+    def image_tag(self):
+        return '<img src="/media/{}" />'.format(self.document_file.name)
+
+    image_tag.short_description = 'Image'
+    image_tag.allow_tags = True
 
     def document_file_name(self, filename):
         return self._get_file_name(filename)

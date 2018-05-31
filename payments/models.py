@@ -148,6 +148,8 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         help_text='This should be moved to PaymentMethod when methods will '
                   'be created automatically on Safe Charge PushRequests.'
     )
+    push_request = models.ForeignKey('payments.PushRequest', blank=True,
+                                     null=True)
 
     def save(self, *args, **kwargs):
         if not hasattr(self, 'payment_method'):
@@ -510,3 +512,14 @@ class PushRequest(RequestLog):
     @property
     def is_valid(self):
         return all([self.valid_checksum, self.valid_timestamp, self.valid_ip])
+
+    @property
+    def main_payload_data(self):
+        res = {}
+        for key in ['nameOnCard', 'cardNumber', 'client_ip', 'country',
+                    'uniqueCC', 'payment_method']:
+            value = self.payload_json.get(key)
+            if value:
+                res.update({key: value})
+
+        return res

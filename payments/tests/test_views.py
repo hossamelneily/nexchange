@@ -602,6 +602,7 @@ class SafeChargeTestCase(TickerBaseTestCase):
             self.assertEqual(pref.secondary_identifier, name)
             self.assertEqual(payment_success, payment.is_success)
             push_request = PushRequest.objects.get(payment=payment)
+            self.assertEqual(pref.push_request, push_request)
             self.assertTrue(push_request.payment_created)
         else:
             push_request = PushRequest.objects.latest('id')

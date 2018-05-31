@@ -22,6 +22,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.i18n import javascript_catalog
 from django_otp.admin import OTPAdminSite
+from django.views.static import serve
+from django.http import HttpResponseForbidden
 
 
 import core.views
@@ -37,6 +39,7 @@ from support.urls import support_urls, support_api_patterns
 from ticker.urls import ticker_api_patterns
 from verification.urls import verification_urls, kyc_api_patterns
 from ico.urls import ico_api_patterns
+from django.contrib.auth.decorators import login_required
 
 if not settings.DEBUG:
     admin.site.__class__ = OTPAdminSite
@@ -91,13 +94,21 @@ urlpatterns.append(
     url(r'oauth/', include('social_django.urls', namespace='oauth.social'))
 )
 
+
+@login_required
+def protected_serve(request, path, document_root=None, show_indexes=False):
+    if not request.user.is_staff:
+        return HttpResponseForbidden()
+    return serve(request, path, document_root, show_indexes)
+
+
+urlpatterns += static(settings.MEDIA_URL, protected_serve,
+                      document_root=settings.MEDIA_ROOT)
+
 if settings.DEBUG:
-    if settings.DEBUG:
-        urlpatterns += static(settings.STATIC_URL,
-                              document_root=settings.STATIC_ROOT)
-        urlpatterns += static(settings.MEDIA_URL,
-                              document_root=settings.MEDIA_ROOT)
-    # pragma: no cover
+
+    urlpatterns += static(settings.STATIC_URL,
+                          document_root=settings.STATIC_ROOT)
     urlpatterns += static('/cover', document_root=os.path.join(
         settings.BASE_DIR, 'cover'))
 

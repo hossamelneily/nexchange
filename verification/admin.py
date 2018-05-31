@@ -9,7 +9,7 @@ from django.contrib.admin import SimpleListFilter
 
 class VerificationInline(admin.TabularInline):
     model = VerificationDocument
-    readonly_fields = ('document_type', 'document_file', 'download_document',
+    readonly_fields = ('image_tag', 'document_file', 'download_document',
                        'whitelisted_address')
 
 
@@ -46,15 +46,15 @@ class VerificationAdmin(admin.ModelAdmin):
     list_display = ('created_on', 'id_document_status', 'util_document_status',
                     'full_name', 'note', 'user',
                     'name_on_card', 'unique_cc')
-    readonly_fields = ('identity_document', 'utility_document', 'note',
-                       'name_on_card', 'name_on_card_matches',
-                       'bad_name_verifications', 'unique_cc',
-                       'payment_preference',
-                       'id_doc', 'residence_doc', 'user', 'user_input_comment',
-                       'total_payments_usd', 'total_payments_usd_1day',
-                       'total_payments_usd_30days', 'out_of_limit',
-                       'is_immediate_payment', 'tier', 'util_status',
-                       'id_status')
+    readonly_fields = (
+        'identity_document', 'utility_document', 'note', 'name_on_card',
+        'name_on_card_matches', 'bad_name_verifications', 'unique_cc',
+        'main_card_data', 'payment_preference', 'id_doc', 'residence_doc',
+        'user', 'user_input_comment', 'total_payments_usd',
+        'total_payments_usd_1day', 'total_payments_usd_30days', 'out_of_limit',
+        'is_immediate_payment', 'tier', 'util_status', 'id_status',
+        'modified_by', 'created_by'
+    )
 
     search_fields = ('note', 'full_name', 'id_status', 'util_status',
                      'payment_preference__secondary_identifier',
@@ -82,6 +82,12 @@ class VerificationAdmin(admin.ModelAdmin):
         if obj.payment_preference:
             res = getattr(obj.payment_preference, param_name)
         return res
+
+    def main_card_data(self, obj):
+        push_request = self._get_payment_preference_field(obj, 'push_request')
+        if push_request:
+            return push_request.main_payload_data
+        return {}
 
     def name_on_card(self, obj):
         return self._get_payment_preference_field(obj, 'secondary_identifier')
@@ -136,14 +142,17 @@ class TradeLimitAdmin(admin.ModelAdmin):
 
 @admin.register(VerificationDocument)
 class VerificationDocumentAdmin(admin.ModelAdmin):
-    list_display = ('document_status', 'document_type', 'full_name', 'note',
-                    'user', 'name_on_card', 'unique_cc')
-    readonly_fields = ('document_type', 'document_file', 'download_document',
-                       'note', 'verification', 'name_on_card',
-                       'unique_cc', 'payment_preference', 'user',
-                       'user_input_comment',
-                       'total_payments_usd', 'out_of_limit',
-                       'is_immediate_payment', 'tier')
+    list_display = (
+        'document_status', 'document_type', 'full_name', 'note', 'user',
+        'name_on_card', 'unique_cc'
+    )
+    readonly_fields = (
+        'image_tag', 'document_type', 'document_file', 'download_document',
+        'note', 'verification', 'name_on_card', 'unique_cc',
+        'payment_preference', 'user', 'user_input_comment',
+        'total_payments_usd', 'out_of_limit', 'is_immediate_payment', 'tier',
+        'modified_by', 'created_by'
+    )
 
     def _get_verification_field(self, obj, param_name):
         res = ''

@@ -401,6 +401,7 @@ MIDDLEWARE_CLASSES = [
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django_otp.middleware.OTPMiddleware',
+    'audit_log.middleware.UserLoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'nexchange.urls'

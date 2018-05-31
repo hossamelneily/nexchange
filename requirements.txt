@@ -64,4 +64,4 @@ iptools==0.6.1
 numpy==1.14.1
 django-otp==0.4.3
 qrcode==6.0
-
+django-audit-log==0.7.0

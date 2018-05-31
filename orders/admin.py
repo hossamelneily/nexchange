@@ -3,6 +3,7 @@ from django.contrib import admin
 from orders.models import Order
 
 
+@admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
 
     readonly_fields = (
@@ -13,11 +14,11 @@ class OrderAdmin(admin.ModelAdmin):
         'is_default_rule', 'from_default_rule', 'exchange')
 
     search_fields = ('unique_reference', 'pair__base__code',
-                     'pair__quote__code', 'pair__name', 'user__username')
+                     'pair__quote__code', 'pair__name', 'user__username',
+                     'deposit_address__address', 'withdraw_address__address',
+                     'refund_address__address'
+                     )
 
     list_display = ('unique_reference', 'user', 'pair', 'amount_base',
                     'amount_quote', 'withdraw_address', 'deposit_address',
                     'payment_id', 'status', 'created_on', 'flagged', 'expired')
-
-
-admin.site.register(Order, OrderAdmin)
