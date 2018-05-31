@@ -319,7 +319,9 @@ class VerificationDocument(TimeStampedModel, SoftDeletableModel,
         return '/'.join([root1, root, filename])
 
     def image_tag(self):
-        return '<img src="/media/{}" />'.format(self.document_file.name)
+        return '<img src="/protected_media/{}" />'.format(
+            self.document_file.name
+        )
 
     image_tag.short_description = 'Image'
     image_tag.allow_tags = True

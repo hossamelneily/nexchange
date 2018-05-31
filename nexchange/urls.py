@@ -24,6 +24,7 @@ from django.views.i18n import javascript_catalog
 from django_otp.admin import OTPAdminSite
 from django.views.static import serve
 from django.http import HttpResponseForbidden
+import re
 
 
 import core.views
@@ -102,13 +103,17 @@ def protected_serve(request, path, document_root=None, show_indexes=False):
     return serve(request, path, document_root, show_indexes)
 
 
-urlpatterns += static(settings.MEDIA_URL, protected_serve,
-                      document_root=settings.MEDIA_ROOT)
 # protected_media to test
-urlpatterns += static('/protected_media/', protected_serve,
-                      document_root=settings.MEDIA_ROOT)
+urlpatterns.append(
+    url(r'^%s(?P<path>.*)$' % re.escape('/protected_media/'.lstrip('/')),
+        protected_serve,
+        kwargs={'document_root': settings.MEDIA_ROOT})
+)
 
 if settings.DEBUG:
+
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)
 
     urlpatterns += static(settings.STATIC_URL,
                           document_root=settings.STATIC_ROOT)
