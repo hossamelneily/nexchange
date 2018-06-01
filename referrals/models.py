@@ -62,7 +62,7 @@ class ReferralCode(TimeStampedModel, UniqueFieldMixin):
         if not self.program:
             self.program = Program.objects.first()
 
-        prefix = 'https://nexchange.io/'
+        prefix = 'https://n.exchange/'
         self.link = '{}?{}={}'.format(prefix, settings.REFERRER_GET_PARAMETER,
                                       self.code)
 

@@ -160,9 +160,8 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel):
 
     def id_doc(self):
         if self.identity_document:
-            link = '<a href="{}">"Download ID"</a>'.format(
-                reverse('verification.download',
-                        kwargs={'file_name': self.identity_document.name}),
+            link = '<a href="/protected_media/{}">"ID Link"</a>'.format(
+                self.identity_document.name
             )
         else:
             link = '-'
@@ -170,9 +169,8 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel):
 
     def residence_doc(self):
         if self.utility_document:
-            link = '<a href="{}">"Download UTIL"</a>'.format(
-                reverse('verification.download',
-                        kwargs={'file_name': self.utility_document.name}),
+            link = '<a href="/protected_media/{}">"UTIL Link"</a>'.format(
+                self.utility_document.name
             )
         else:
             link = '-'

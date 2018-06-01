@@ -9,8 +9,8 @@ from django.contrib.admin import SimpleListFilter
 
 class VerificationInline(admin.TabularInline):
     model = VerificationDocument
-    readonly_fields = ('image_tag', 'document_file', 'download_document',
-                       'whitelisted_address')
+    exclude = ('document_file',)
+    readonly_fields = ('image_tag', 'whitelisted_address')
 
 
 class PendingFilter(SimpleListFilter):
@@ -46,8 +46,9 @@ class VerificationAdmin(admin.ModelAdmin):
     list_display = ('created_on', 'id_document_status', 'util_document_status',
                     'full_name', 'note', 'user',
                     'name_on_card', 'unique_cc')
+    exclude = ('identity_document', 'utility_document')
     readonly_fields = (
-        'identity_document', 'utility_document', 'note', 'name_on_card',
+        'note', 'name_on_card',
         'name_on_card_matches', 'bad_name_verifications', 'unique_cc',
         'main_card_data', 'payment_preference', 'id_doc', 'residence_doc',
         'user', 'user_input_comment', 'total_payments_usd',
@@ -146,8 +147,9 @@ class VerificationDocumentAdmin(admin.ModelAdmin):
         'document_status', 'document_type', 'full_name', 'note', 'user',
         'name_on_card', 'unique_cc'
     )
+    exclude = ('document_file',)
     readonly_fields = (
-        'image_tag', 'document_type', 'document_file', 'download_document',
+        'image_tag', 'document_type',
         'note', 'verification', 'name_on_card', 'unique_cc',
         'payment_preference', 'user', 'user_input_comment',
         'total_payments_usd', 'out_of_limit', 'is_immediate_payment', 'tier',
