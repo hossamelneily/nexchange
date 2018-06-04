@@ -7,6 +7,7 @@ from ticker.tasks.generic.base import save_ticker_and_price
 from ticker.tasks.generic.crypto_fiat_ticker import CryptoFiatTicker
 from ticker.tasks.generic.crypto_crypto_ticker import CryptoCryptoTicker
 from nexchange.utils import get_nexchange_logger
+from time import time
 
 
 crypto_fiat_ticker = CryptoFiatTicker()

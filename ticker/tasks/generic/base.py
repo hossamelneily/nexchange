@@ -28,6 +28,10 @@ binance_adapter = BinanceAdapter()
 class BaseTicker(BaseTask):
 
     FIAT_RATE_RESOURCE = 'http://api.fixer.io/latest'
+    FIAT_RATE_RESOURCE = \
+        'http://data.fixer.io/api/latest?access_key={}'.format(
+            settings.FIXER_ACCESS_KEY
+        )
 
     BITFINEX_TICKER = "https://api.bitfinex.com/v1/pubticker/btcusd"
     KRAKEN_TICKER = "https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD"

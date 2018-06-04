@@ -334,6 +334,8 @@ build:
           export SAFE_CHARGE_ERROR_URL=${SAFE_CHARGE_ERROR_URL}
           export SAFE_CHARGE_PENDING_URL=${SAFE_CHARGE_PENDING_URL}
           export SAFE_CHARGE_BACK_URL=${SAFE_CHARGE_BACK_URL}
+          # Fixer (fiat rates)
+          export FIXER_ACCESS_KEY=${FIXER_ACCESS_KEY}
           # Smtp
           export EMAIL_HOST=${EMAIL_HOST}
           export EMAIL_HOST_USER=${EMAIL_HOST_USER}

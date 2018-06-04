@@ -5,6 +5,8 @@ import requests_cache
 from ticker.models import Price
 from ticker.tasks.generic.base import BaseTicker
 from django.conf import settings
+if settings.DEBUG:
+    from ticker.tests.fixtures.fixer import resp as fixer_response
 
 
 requests_cache.install_cache('btc_crypto_cache',
@@ -54,7 +56,21 @@ class CryptoFiatTicker(BaseTicker):
         return prices
 
     def get_fixer_info(self):
-        rate_info = requests.get(self.FIAT_RATE_RESOURCE).json()
+        if settings.DEBUG:
+            rate_info = fixer_response
+        else:
+            _resp = requests.get(self.FIAT_RATE_RESOURCE)
+            if _resp.status_code == 104:
+                # maximum calls per month level reached
+                self.pair.test_mode = True
+                self.pair.disable_ticker = True
+                self.pair.save()
+                self.logger.warning(
+                    '{} disabled due to maximum fixer.io '
+                    'api calls reached'.format(self.pair.name))
+            if not _resp.status_code == 200:
+                return
+            rate_info = _resp.json()
         return rate_info
 
     def usd_to_fiat(self, code, rate_usd, rate_info):
