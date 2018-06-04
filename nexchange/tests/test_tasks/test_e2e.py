@@ -236,7 +236,9 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
              'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
              'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
-             'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC']
+             'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC',
+             'BTCBIX', 'BTCHT', 'BTCCOSS', 'BTCBNT',
+             'BTCCOB']
         super(SellOrderReleaseTaskTestCase, cls).setUpClass()
         cls.import_txs_task = import_transaction_deposit_crypto_invoke
         cls.update_confirmation_task = update_pending_transactions_invoke
@@ -536,7 +538,8 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
              'ETHBTC', 'LTCBTC', 'ETHDOGE', 'DOGELTC',
              'ETHBCH', 'BCHDOGE', 'ZECBTC', 'BTCZEC',
              'BTCUSDT', 'XMRBTC', 'BTCXMR', 'BTCKCS',
-             'BTCBNB', 'BTCKNC']
+             'BTCBNB', 'BTCKNC', 'BTCBIX', 'BTCHT',
+             'BTCCOSS', 'BTCBNT', 'BTCCOB']
         super(ExchangeOrderReleaseTaskTestCase, cls).setUpClass()
         cls.import_txs_task = import_transaction_deposit_crypto_invoke
         cls.update_confirmation_task = update_pending_transactions_invoke
@@ -764,7 +767,9 @@ class SofortEndToEndTestCase(BaseSofortAPITestCase,
             ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
              'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
              'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
-             'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC']
+             'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC',
+             'BTCBIX', 'BTCHT', 'BTCCOSS', 'BTCBNT',
+             'BTCCOB']
         super(SofortEndToEndTestCase, cls).setUpClass()
 
     def setUp(self):
@@ -888,7 +893,9 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
             ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
              'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
              'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
-             'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC']
+             'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC',
+             'BTCBIX', 'BTCHT', 'BTCCOSS', 'BTCBNT',
+             'BTCCOB']
         super(AdvCashE2ETestCase, cls).setUpClass()
         cls.payment_importer = run_adv_cash
         cls.import_txs_task = import_transaction_deposit_crypto_invoke

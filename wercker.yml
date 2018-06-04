@@ -113,6 +113,11 @@ dev:
           python manage.py loaddata core/fixtures/pairs_kcs.json
           python manage.py loaddata core/fixtures/pairs_bnb.json
           python manage.py loaddata core/fixtures/pairs_knc.json
+          python manage.py loaddata core/fixtures/pairs_ht.json
+          python manage.py loaddata core/fixtures/pairs_bix.json
+          python manage.py loaddata core/fixtures/pairs_bnt.json
+          python manage.py loaddata core/fixtures/pairs_coss.json
+          python manage.py loaddata core/fixtures/pairs_cob.json
     - script:
         name: Django import Payment Methods fixture
         code: |
@@ -494,6 +499,11 @@ build:
           python manage.py loaddata core/fixtures/pairs_kcs.json
           python manage.py loaddata core/fixtures/pairs_bnb.json
           python manage.py loaddata core/fixtures/pairs_knc.json
+          python manage.py loaddata core/fixtures/pairs_ht.json
+          python manage.py loaddata core/fixtures/pairs_bix.json
+          python manage.py loaddata core/fixtures/pairs_bnt.json
+          python manage.py loaddata core/fixtures/pairs_coss.json
+          python manage.py loaddata core/fixtures/pairs_cob.json
 
           if [ ! -z $CMS_FROM_FIXTURE] && [ ${CMS_FROM_FIXTURE} -eq 1 ]
           then

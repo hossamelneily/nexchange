@@ -1,0 +1,47 @@
+[
+{
+  "model": "core.pair",
+  "pk": 513,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 51,
+    "quote": 4,
+    "fee_ask": "0.0500000",
+    "fee_bid": "0.0500000",
+    "name": "BNTUSD",
+    "test_mode": true,
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 514,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 51,
+    "quote": 6,
+    "fee_ask": "0.0200000",
+    "fee_bid": "0.0200000",
+    "name": "BNTEUR",
+    "test_mode": true,
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 515,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 51,
+    "quote": 7,
+    "fee_ask": "0.0300000",
+    "fee_bid": "0.0300000",
+    "name": "BNTGBP",
+    "test_mode": true,
+    "disabled": false
+  }
+}
+]

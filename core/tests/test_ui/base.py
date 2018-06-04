@@ -570,13 +570,13 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
             self.wait_page_load()
         path = os.path.join(
             self.screenpath, self.workflow, self.screenpath2)
-        filename = '{}({}). {} ({:.2f}s)'.format(
+        status = '{}({}). {} ({:.2f}s)'.format(
             self.screenshot_no, self.screenshot_overall_no, filename, diff
         )
         self.mkdir(path)
         self.screenshot_no += 1
         self.screenshot_overall_no += 1
-        print('{}/{}: {}'.format(self.workflow, self.screenpath2, filename))
+        print('{}/{}: {}'.format(self.workflow, self.screenpath2, status))
         if self.issavescreen:
             self.driver.get_screenshot_as_file(
                 os.path.join(path, filename + '.png'))

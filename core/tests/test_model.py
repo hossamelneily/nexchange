@@ -174,10 +174,10 @@ class PairFixtureTestCase(OrderBaseTestCase):
             else:
                 fee = 2 * minor_pair_fee
 
-            if p.quote.code == 'BDG':
+            if p.quote.code in ['BDG', 'BIX', 'HT', 'COSS', 'COB']:
                 ask = Decimal('2') * fee
                 bid = fee
-            elif p.base.code == 'BDG':
+            elif p.base.code in ['BDG', 'BIX', 'HT', 'COSS', 'COB']:
                 bid = Decimal('2') * fee
                 ask = fee
             else:
@@ -238,7 +238,7 @@ class PairFixtureTestCase(OrderBaseTestCase):
                 fit_pairs.append(pair['fields']['name'])
             self.assertEquals(expected_pairs_amount,
                               len(fit_pairs),
-                              '%s has not enough pairs: %s' %
+                              '%s has not right amount of pairs: %s' %
                               (crypto['fields']['code'], fit_pairs))
 
     def test_crypto_fiat_pairs_fulfillment(self):

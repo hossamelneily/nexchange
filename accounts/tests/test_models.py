@@ -36,7 +36,9 @@ class UserCreationTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
             ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
              'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
              'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
-             'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC']
+             'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC',
+             'BTCBIX', 'BTCHT', 'BTCCOSS', 'BTCBNT',
+             'BTCCOB']
         super(UserCreationTestCase, cls).setUpClass()
 
     def test_user_count_exceeds_reserve_cards(self):

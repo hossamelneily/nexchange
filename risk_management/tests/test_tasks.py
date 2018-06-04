@@ -475,7 +475,12 @@ class PnlTaskTestCase(TickerBaseTestCase):
     def setUp(self):
         super(PnlTaskTestCase, self).setUp()
         self._create_enough_addresses_for_test()
+        patcher_validate_order_amount = patch(
+            'orders.models.Order._validate_order_amount'
+        )
+        patcher_validate_order_amount.start()
         self._create_orders_for_test()
+        patcher_validate_order_amount.stop()
 
     def _create_enough_addresses_for_test(self):
         curs = Currency.objects.filter(is_crypto=True)

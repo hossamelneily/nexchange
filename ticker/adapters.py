@@ -25,6 +25,251 @@ class BaseApiAdapter:
             return
 
 
+class CobinhoodAdapter(BaseApiAdapter):
+
+    PAIR_NAME_TEMPLATE = '{base}-{quote}'
+    BASE_URL = 'https://api.cobinhood.com/v1/market/'
+
+    def __init__(self):
+        super(CobinhoodAdapter, self).__init__()
+        self.reverse_pair = False
+
+    def get_markets(self):
+        return requests.get(
+            self.BASE_URL + 'tickers'
+        ).json()['result']['tickers']
+
+    def get_quote(self, pair):
+        markets = self.get_markets()
+        all_markets = []
+        for market in markets:
+            all_markets.append(market)
+        market_dict = {
+            market['trading_pair_id']: market for market in all_markets
+        }
+        market = self.PAIR_NAME_TEMPLATE.format(
+            base=pair.base.code,
+            quote=pair.quote.code
+        )
+        reverse_market = self.PAIR_NAME_TEMPLATE.format(
+            quote=pair.base.code,
+            base=pair.quote.code
+        )
+        if market in market_dict:
+            self.reverse_pair = False
+            result = market_dict[market]
+        elif reverse_market in market_dict:
+            self.reverse_pair = True
+            result = market_dict[reverse_market]
+        else:
+            raise ValidationError(
+                'Ticker and reverse ticker is not available for pair '
+                '{}'.format(pair.name)
+            )
+        ask = result.get('lowest_ask')
+        bid = result.get('highest_bid')
+        return {
+            'reverse': self.reverse_pair,
+            'ask': ask,
+            'bid': bid,
+        }
+
+
+class HitBTCAdapter(BaseApiAdapter):
+
+    PAIR_NAME_TEMPLATE = '{base}{quote}'
+    BASE_URL = 'https://api.hitbtc.com/api/2/public/'
+
+    def __init__(self):
+        super(HitBTCAdapter, self).__init__()
+        self.reverse_pair = False
+
+    def get_markets(self):
+        return requests.get(self.BASE_URL + 'ticker').json()
+
+    def get_quote(self, pair):
+        markets = self.get_markets()
+        all_markets = []
+        for market in markets:
+            all_markets.append(market)
+        market_dict = {market['symbol']: market for market in all_markets}
+        market = self.PAIR_NAME_TEMPLATE.format(
+            base=pair.base.code,
+            quote=pair.quote.code
+        )
+        reverse_market = self.PAIR_NAME_TEMPLATE.format(
+            quote=pair.base.code,
+            base=pair.quote.code
+        )
+        if market in market_dict:
+            self.reverse_pair = False
+            result = market_dict[market]
+        elif reverse_market in market_dict:
+            self.reverse_pair = True
+            result = market_dict[reverse_market]
+        else:
+            raise ValidationError(
+                'Ticker and reverse ticker is not available for pair '
+                '{}'.format(pair.name)
+            )
+        ask = result.get('ask')
+        bid = result.get('bid')
+        return {
+            'reverse': self.reverse_pair,
+            'ask': ask,
+            'bid': bid,
+        }
+
+
+class COSSAdapter(BaseApiAdapter):
+    pass
+
+
+class BancorAdapter(BaseApiAdapter):
+    pass
+
+
+class BiboxAdapter(BaseApiAdapter):
+
+    def __init__(self):
+        super(BiboxAdapter, self).__init__()
+        self.reverse_pair = False
+
+    PAIR_NAME_TEMPLATE = '{base}_{quote}'
+    BASE_URL = 'https://api.bibox.com/v1/mdata?cmd='
+
+    def get_markets(self):
+        return requests.get(
+            self.BASE_URL + 'pairList'
+        ).json()['result']
+
+    def check_if_pair_is_available(self, pair):
+        markets = self.get_markets()
+        names = [market.get('pair') for market in markets]
+        market = self.PAIR_NAME_TEMPLATE.format(
+            base=pair.base.code,
+            quote=pair.quote.code
+        )
+        reverse_market = self.PAIR_NAME_TEMPLATE.format(
+            quote=pair.base.code,
+            base=pair.quote.code
+        )
+        pair_available = market in names
+        reverse_pair_available = reverse_market in names
+        return {'pair_available': pair_available,
+                'reverse_pair_available': reverse_pair_available}
+
+    def get_ticker(self, pair, reverse_pair=False):
+        market = self.PAIR_NAME_TEMPLATE.format(
+            base=pair.base.code,
+            quote=pair.quote.code
+        )
+        if reverse_pair:
+            market = self.PAIR_NAME_TEMPLATE.format(
+                quote=pair.base.code,
+                base=pair.quote.code
+            )
+        return requests.get(
+            self.BASE_URL + 'ticker&pair={}'.format(market)).json()
+
+    def get_quote(self, pair):
+        in_result = self.check_if_pair_is_available(pair)
+        pair_available = in_result.get('pair_available')
+        reverse_pair_available = in_result.get('reverse_pair_available')
+        if pair_available:
+            self.reverse_pair = False
+        elif reverse_pair_available:
+            self.reverse_pair = True
+        else:
+            raise ValidationError(
+                'Ticker and reverse ticker is not available for pair '
+                '{}'.format(pair.name)
+            )
+        ticker = self.get_ticker(pair, reverse_pair=self.reverse_pair)
+        result = ticker.get('result')
+        ask = result.get('sell')
+        bid = result.get('buy')
+        return {
+            'reverse': self.reverse_pair,
+            'ask': ask,
+            'bid': bid,
+        }
+
+
+class HuobiAdapter(BaseApiAdapter):
+
+    PAIR_NAME_TEMPLATE = '{base}{quote}'
+    BASE_URL = 'https://api.huobi.pro/'
+
+    def __init__(self):
+        super(HuobiAdapter, self).__init__()
+        self.reverse_pair = False
+
+    def get_markets(self):
+        return requests.get(
+            self.BASE_URL + 'v1/common/symbols'
+        ).json()['data']
+
+    def check_if_pair_is_available(self, pair):
+        markets = self.get_markets()
+        names = [
+            '{}{}'.format(
+                market.get('base-currency'),
+                market.get('quote-currency')
+            ) for market in markets
+        ]
+        market = self.PAIR_NAME_TEMPLATE.format(
+            base=pair.base.code,
+            quote=pair.quote.code
+        ).lower()
+        reverse_market = self.PAIR_NAME_TEMPLATE.format(
+            quote=pair.base.code,
+            base=pair.quote.code
+        ).lower()
+        pair_available = market in names
+        reverse_pair_available = reverse_market in names
+        return {'pair_available': pair_available,
+                'reverse_pair_available': reverse_pair_available}
+
+    def get_ticker(self, pair, reverse_pair=False):
+        market = self.PAIR_NAME_TEMPLATE.format(
+            base=pair.base.code,
+            quote=pair.quote.code
+        )
+        if reverse_pair:
+            market = self.PAIR_NAME_TEMPLATE.format(
+                quote=pair.base.code,
+                base=pair.quote.code
+            )
+        return requests.get(
+            self.BASE_URL +
+            'market/detail/merged?symbol={}'.format(market.lower())
+        ).json()
+
+    def get_quote(self, pair):
+        in_result = self.check_if_pair_is_available(pair)
+        pair_available = in_result.get('pair_available')
+        reverse_pair_available = in_result.get('reverse_pair_available')
+        if pair_available:
+            self.reverse_pair = False
+        elif reverse_pair_available:
+            self.reverse_pair = True
+        else:
+            raise ValidationError(
+                'Ticker and reverse ticker is not available for pair '
+                '{}'.format(pair.name)
+            )
+        ticker = self.get_ticker(pair, reverse_pair=self.reverse_pair)
+        result = ticker.get('tick')
+        ask = result.get('ask')[0]
+        bid = result.get('bid')[0]
+        return {
+            'reverse': self.reverse_pair,
+            'ask': ask,
+            'bid': bid,
+        }
+
+
 class BinanceAdapter(BaseApiAdapter):
 
     PAIR_NAME_TEMPLATE = '{base}{quote}'

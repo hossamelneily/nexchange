@@ -55,8 +55,10 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
         cls.ENABLED_TICKER_PAIRS = \
             ['BTCETH', 'BTCBDG', 'BTCEOS', 'BTCOMG',
              'ETHBTC', 'BDGBTC', 'EOSBTC', 'OMGBTC',
-             'KCSBTC', 'BNBBTC', 'KNCBTC',
-             'BTCKCS', 'BTCBNB', 'BTCKNC']
+             'KCSBTC', 'BNBBTC', 'KNCBTC', 'BTCBIX',
+             'BTCKCS', 'BTCBNB', 'BTCKNC', 'BIXBTC',
+             'BTCHT', 'BTCCOSS', 'BTCBNT', 'BTCCOB',
+             'HTBTC', 'COSSBTC', 'BNTBTC', 'COBBTC']
         super(EthashRawE2ETestCase, cls).setUpClass()
         cls.import_txs_task = import_transaction_deposit_crypto_invoke
         cls.update_confirmation_task = update_pending_transactions_invoke
@@ -117,6 +119,11 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
             ('BTCKCS',),
             ('BTCBNB',),
             ('BTCKNC',),
+            ('BTCHT',),
+            ('BTCBIX',),
+            ('BTCBNT',),
+            ('BTCCOSS',),
+            ('BTCCOB',),
         )
     )
     @patch.dict(os.environ, {'RPC7_PUBLIC_KEY_C1': '0xmain_card'})
@@ -198,6 +205,11 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
             ('KCSBTC',),
             ('BNBBTC',),
             ('KNCBTC',),
+            ('HTBTC',),
+            ('BIXBTC',),
+            ('BNTBTC',),
+            ('COSSBTC',),
+            ('COBBTC',),
         )
     )
     @patch.dict(os.environ, {'RPC7_PUBLIC_KEY_C1': '0xmain_card'})

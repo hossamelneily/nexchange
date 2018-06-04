@@ -5,7 +5,8 @@ from ticker.tasks.generic.base import BaseTicker
 from ticker.task_summary import get_all_tickers
 from ticker.adapters import KrakenAdapter, CryptopiaAdapter, \
     CoinexchangeAdapter, BittrexAdapter, BitgrailAdapter, IdexAdapter, \
-    KucoinAdapter, BinanceAdapter
+    KucoinAdapter, BinanceAdapter, CobinhoodAdapter, BiboxAdapter, \
+    HuobiAdapter, HitBTCAdapter
 from ticker.tests.fixtures.coinexchange.markets import \
     response as coinex_markets_resp
 from ticker.tests.fixtures.coinexchange.market_summary import \
@@ -22,6 +23,14 @@ from ticker.tests.fixtures.bittrex.market_resp import \
     resp as bittrex_market_resp
 from ticker.tests.fixtures.bitgrail.market_resp import \
     resp as bitgrail_market_resp
+from ticker.tests.fixtures.cobinhood.market_resp import \
+    resp as cobinhood_market_resp
+from ticker.tests.fixtures.huobi.market_resp import \
+    resp as huobi_market_resp
+from ticker.tests.fixtures.bibox.market_resp import \
+    resp as bibox_market_resp
+from ticker.tests.fixtures.hitbtc.market_resp import \
+    resp as hitbtc_market_resp
 
 
 class TickerBaseTestCase(OrderBaseTestCase):
@@ -39,9 +48,6 @@ class TickerBaseTestCase(OrderBaseTestCase):
             cls._disable_non_crypto_tickers()
         with requests_mock.mock() as mock:
             cls.get_tickers(mock)
-
-    def setUp(self):
-        super(TickerBaseTestCase, self).setUp()
 
     @classmethod
     def _disable_non_crypto_tickers(cls):
@@ -119,6 +125,30 @@ class TickerBaseTestCase(OrderBaseTestCase):
                 url,
                 text=resp_text
             )
+        bibox_pairs = Pair.objects.filter(name__in=['BIXBTC', 'BIXETH'])
+        for pair in bibox_pairs:
+            ask = 0.00014323
+            bid = 0.00014272
+            # ask = 7006.7264574
+            # bid = 6981.7775606
+
+            pair_name = '{}_{}'.format(pair.base.code, pair.quote.code)
+            url = BiboxAdapter.BASE_URL + 'ticker&pair={}'.format(pair_name)
+            resp_text = '{"result":{"pair":"BIX_BTC", "buy":"0.00014323", ' \
+                        '"sell":"0.00014323"},"cmd":"ticker"}'
+            mock.get(url, text=resp_text)
+
+        huobi_pairs = Pair.objects.filter(name__in=['HTBTC', 'BTCHT'])
+        for pair in huobi_pairs:
+            ask = 0.000517040000000000
+            bid = 0.000516570000000000
+            pair_name = '{}{}'.format(pair.quote.code, pair.base.code).lower()
+            url = HuobiAdapter.BASE_URL + 'market/detail/merged?symbol={}'\
+                .format(pair_name)
+            resp_text = \
+                '{{"status":"ok","tick":{{"ask":[{},245.020000000000000000],' \
+                '"bid":[{},8.510000000000000000]}}}}'.format(ask, bid)
+            mock.get(url, text=resp_text)
         mock.get(BittrexAdapter.BASE_URL + 'getmarkets',
                  text=bittrex_market_resp)
         mock.get(BitgrailAdapter.BASE_URL + 'markets',
@@ -140,6 +170,14 @@ class TickerBaseTestCase(OrderBaseTestCase):
                  text=kucoin_market_summary_resp)
         mock.get(BinanceAdapter.BASE_URL + 'ticker/allBookTickers',
                  text=binance_market_summary_resp)
+        mock.get(CobinhoodAdapter.BASE_URL + 'tickers',
+                 text=cobinhood_market_resp)
+        mock.get(BiboxAdapter.BASE_URL + 'pairList',
+                 text=bibox_market_resp)
+        mock.get(HuobiAdapter.BASE_URL + 'v1/common/symbols',
+                 text=huobi_market_resp)
+        mock.get(HitBTCAdapter.BASE_URL + 'ticker',
+                 text=hitbtc_market_resp)
         mock.get('https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD',
                  json={'result': {'XXBTZUSD': {'a': ['1077.50000'],
                                                'b': ['1069.20000']}}})

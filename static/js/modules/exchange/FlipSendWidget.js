@@ -21,10 +21,17 @@ class FlipSendWidget {
             currencyTo = pair.substring(0, startOfFrom),
             currencyFrom = pair.substring(startOfFrom);
         // FIXME: hardcoded DOGE coin selector
-        if (currencyTo.toUpperCase() === 'DOG' || currencyTo.toUpperCase() === 'NAN') {
-            startOfFrom = 4;
+        if (currencyTo.toUpperCase().substring(0, 2) === 'HT') {
+            startOfFrom = 2;
             currencyTo = pair.substring(0, startOfFrom);
             currencyFrom = pair.substring(startOfFrom);
+        }
+        if (currencyTo.toUpperCase() === 'DOG' ||
+            currencyTo.toUpperCase() === 'NAN' ||
+            currencyTo.toUpperCase() === 'COS') {
+                startOfFrom = 4;
+                currencyTo = pair.substring(0, startOfFrom);
+                currencyFrom = pair.substring(startOfFrom);
 		}
 
         $('.currency-from').val(currencyFrom); 
@@ -156,11 +163,21 @@ class FlipSendWidget {
 		// FIXME: hardcoded DOGE coin selector
         let baseCodeLength = 3,
 		    quoteCodeLength = 3;
-        if (pair.substring(0, 4).toUpperCase() === 'DOGE' || pair.substring(0, 4).toUpperCase() === 'NANO') {
-			baseCodeLength = 4;
+        if (pair.substring(0, 4).toUpperCase() === 'DOGE' ||
+            pair.substring(0, 4).toUpperCase() === 'NANO' ||
+            pair.substring(0, 4).toUpperCase() === 'COSS') {
+			    baseCodeLength = 4;
 		}
-        if (pair.substring(3).toUpperCase() === 'DOGE' || pair.substring(3).toUpperCase() === 'NANO') {
-            quoteCodeLength = 4;
+        if (pair.substring(3).toUpperCase() === 'DOGE' ||
+            pair.substring(3).toUpperCase() === 'NANO' ||
+            pair.substring(3).toUpperCase() === 'COSS') {
+                quoteCodeLength = 4;
+        }
+        if (pair.substring(0, 2).toUpperCase() === 'HT') {
+			baseCodeLength = 2;
+		}
+        if (pair.substring(2).toUpperCase() === 'HT') {
+            quoteCodeLength = 2;
         }
 		let reversePair = Extractor.reversePair(pair, baseCodeLength),
 			title = Extractor.getTitleFromPair(reversePair, quoteCodeLength);

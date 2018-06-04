@@ -55,7 +55,9 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
             ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
              'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
              'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
-             'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC']
+             'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC',
+             'BTCBIX', 'BTCHT', 'BTCCOSS', 'BTCBNT',
+             'BTCCOB']
         super(AddressReserveMonitorTestCase, cls).setUpClass()
 
     def setUp(self):

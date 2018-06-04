@@ -238,5 +238,80 @@
     "maximum_level": "3991",
     "minimum_main_account_level": "10"
   }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 17,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 49,
+    "is_limit_reserve": false,
+    "target_level": "395",
+    "allowed_diff": "79",
+    "minimum_level": "79",
+    "maximum_level": "1980",
+    "minimum_main_account_level": "5"
+  }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 18,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 50,
+    "is_limit_reserve": false,
+    "target_level": "1390",
+    "allowed_diff": "278",
+    "minimum_level": "278",
+    "maximum_level": "6956",
+    "minimum_main_account_level": "10"
+  }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 19,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 51,
+    "is_limit_reserve": false,
+    "target_level": "390",
+    "allowed_diff": "78",
+    "minimum_level": "78",
+    "maximum_level": "1952",
+    "minimum_main_account_level": "5"
+  }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 20,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 52,
+    "is_limit_reserve": false,
+    "target_level": "9428",
+    "allowed_diff": "1884",
+    "minimum_level": "1884",
+    "maximum_level": "47166",
+    "minimum_main_account_level": "100"
+  }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 21,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 53,
+    "is_limit_reserve": false,
+    "target_level": "20485",
+    "allowed_diff": "4100",
+    "minimum_level": "4100",
+    "maximum_level": "102482",
+    "minimum_main_account_level": "200"
+  }
 }
 ]

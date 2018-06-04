@@ -8,7 +8,8 @@ from ticker.models import Ticker
 from nexchange.tasks.base import BaseTask
 from ticker.adapters import KrakenAdapter, CryptopiaAdapter, \
     CoinexchangeAdapter, BittrexAdapter, BitgrailAdapter, IdexAdapter, \
-    KucoinAdapter, BinanceAdapter
+    KucoinAdapter, BinanceAdapter, CobinhoodAdapter, BiboxAdapter, \
+    HuobiAdapter, HitBTCAdapter
 from django.conf import settings
 
 requests_cache.install_cache('ticker_cache',
@@ -23,6 +24,10 @@ coinexchange_adapter = CoinexchangeAdapter()
 idex_adapter = IdexAdapter()
 kucoin_adapter = KucoinAdapter()
 binance_adapter = BinanceAdapter()
+cobinhood_adapter = CobinhoodAdapter()
+bibox_adapter = BiboxAdapter()
+huobi_adapter = HuobiAdapter()
+hitbtc_adapter = HitBTCAdapter()
 
 
 class BaseTicker(BaseTask):
@@ -100,6 +105,14 @@ class BaseTicker(BaseTask):
                 adapters.append(kucoin_adapter)
             elif ticker == 'binance':
                 adapters.append(binance_adapter)
+            elif ticker == 'cobinhood':
+                adapters.append(cobinhood_adapter)
+            elif ticker == 'bibox':
+                adapters.append(bibox_adapter)
+            elif ticker == 'huobi':
+                adapters.append(huobi_adapter)
+            elif ticker == 'hitbtc':
+                adapters.append(hitbtc_adapter)
             else:
                 self.logger.warning('There is no {} adapter'.format(ticker))
         return adapters

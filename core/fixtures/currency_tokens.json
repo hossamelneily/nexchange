@@ -5,7 +5,7 @@
     "fields": {
       "code": "BDG",
       "name": "BitDegree",
-      "ticker": "idex",
+      "ticker": "idex/hitbtc",
       "wallet": "rpc7",
       "algo": "ethash",
       "is_crypto": 1,
@@ -185,6 +185,126 @@
     "modified_on":"2017-09-19T19:21:42+00:00",
     "unslippaged_amount": "1250",
     "slippage_rate": "5e-7"
+    }
+  },
+  {
+  "model": "core.currency",
+  "pk": 49,
+  "fields": {
+    "code": "HT",
+    "name": "Huobi Token",
+    "ticker": "huobi",
+    "wallet": "rpc7",
+    "algo": "ethash",
+    "is_crypto": 1,
+    "min_confirmations": 12,
+    "median_confirmation": 16,
+    "decimals": 18,
+    "withdrawal_fee": "1",
+    "minimal_amount": "2",
+    "maximal_amount": "580",
+    "is_token": true,
+    "contract_address": "0x6f259637dcd74c767781e37bc6133cd6a68aa161",
+    "created_on":"2017-09-19T19:21:42+00:00",
+    "modified_on":"2017-09-19T19:21:42+00:00",
+    "unslippaged_amount": "800",
+    "slippage_rate": "0.0000015"
+    }
+  },
+  {
+  "model": "core.currency",
+  "pk": 50,
+  "fields": {
+    "code": "BIX",
+    "name": "Bibox Token",
+    "ticker": "bibox",
+    "wallet": "rpc7",
+    "algo": "ethash",
+    "is_crypto": 1,
+    "min_confirmations": 12,
+    "median_confirmation": 16,
+    "decimals": 18,
+    "withdrawal_fee": "3.5",
+    "minimal_amount": "5",
+    "maximal_amount": "2000",
+    "is_token": true,
+    "contract_address": "0xb3104b4b9da82025e8b9f8fb28b3553ce2f67069",
+    "created_on":"2017-09-19T19:21:42+00:00",
+    "modified_on":"2017-09-19T19:21:42+00:00",
+    "unslippaged_amount": "1000",
+    "slippage_rate": "0.0000046"
+    }
+  },
+  {
+  "model": "core.currency",
+  "pk": 51,
+  "fields": {
+    "code": "BNT",
+    "name": "Bancor",
+    "ticker": "binance/bittrex/hitbtc",
+    "wallet": "rpc7",
+    "algo": "ethash",
+    "is_crypto": 1,
+    "min_confirmations": 12,
+    "median_confirmation": 16,
+    "decimals": 18,
+    "withdrawal_fee": "1",
+    "minimal_amount": "1.5",
+    "maximal_amount": "570",
+    "is_token": true,
+    "contract_address": "0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c",
+    "created_on":"2017-09-19T19:21:42+00:00",
+    "modified_on":"2017-09-19T19:21:42+00:00",
+    "unslippaged_amount": "20",
+    "slippage_rate": "0.0000122"
+    }
+  },
+  {
+  "model": "core.currency",
+  "pk": 52,
+  "fields": {
+    "code": "COSS",
+    "name": "COSS",
+    "ticker": "hitbtc",
+    "wallet": "rpc7",
+    "algo": "ethash",
+    "is_crypto": 1,
+    "min_confirmations": 12,
+    "median_confirmation": 16,
+    "decimals": 18,
+    "withdrawal_fee": "25",
+    "minimal_amount": "35",
+    "maximal_amount": "13700",
+    "is_token": true,
+    "contract_address": "0x9e96604445ec19ffed9a5e8dd7b50a29c899a10c",
+    "created_on":"2017-09-19T19:21:42+00:00",
+    "modified_on":"2017-09-19T19:21:42+00:00",
+    "unslippaged_amount": "35000",
+    "slippage_rate": "0.0008964"
+    }
+  },
+  {
+  "model": "core.currency",
+  "pk": 53,
+  "fields": {
+    "code": "COB",
+    "name": "Cobinhood",
+    "ticker": "cobinhood",
+    "wallet": "rpc7",
+    "algo": "ethash",
+    "is_crypto": 1,
+    "min_confirmations": 12,
+    "median_confirmation": 16,
+    "decimals": 18,
+    "withdrawal_fee": "55",
+    "minimal_amount": "80",
+    "maximal_amount": "32500",
+    "is_token": true,
+    "contract_address": "0xb2f7eb1f2c37645be61d73953035360e768d81e6",
+    "created_on":"2017-09-19T19:21:42+00:00",
+    "modified_on":"2017-09-19T19:21:42+00:00",
+    "unslippaged_amount": "7500",
+    "slippage_rate": "0.0000803"
     }
   }
 ]

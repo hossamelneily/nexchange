@@ -406,5 +406,70 @@
     "is_main_account": true,
     "description": "Main wallet"
   }
+},
+{
+  "model": "risk_management.account",
+  "pk": 32,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 17,
+    "wallet": "rpc7",
+    "trading_allowed": false,
+    "is_main_account": true,
+    "description": "Main wallet"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 33,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 18,
+    "wallet": "rpc7",
+    "trading_allowed": false,
+    "is_main_account": true,
+    "description": "Main wallet"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 34,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 19,
+    "wallet": "rpc7",
+    "trading_allowed": false,
+    "is_main_account": true,
+    "description": "Main wallet"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 35,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 20,
+    "wallet": "rpc7",
+    "trading_allowed": false,
+    "is_main_account": true,
+    "description": "Main wallet"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 36,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 21,
+    "wallet": "rpc7",
+    "trading_allowed": false,
+    "is_main_account": true,
+    "description": "Main wallet"
+  }
 }
 ]
