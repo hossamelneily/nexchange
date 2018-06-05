@@ -3868,7 +3868,7 @@
     "name": "BTCHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -3884,7 +3884,7 @@
     "name": "HTBTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -3900,7 +3900,7 @@
     "name": "LTCHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -3916,7 +3916,7 @@
     "name": "HTLTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -3932,7 +3932,7 @@
     "name": "ETHHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -3948,7 +3948,7 @@
     "name": "HTETH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -3964,7 +3964,7 @@
     "name": "DOGEHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -3980,7 +3980,7 @@
     "name": "HTDOGE",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -3996,7 +3996,7 @@
     "name": "XVGHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4012,7 +4012,7 @@
     "name": "HTXVG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4028,7 +4028,7 @@
     "name": "BCHHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4044,7 +4044,7 @@
     "name": "HTBCH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4060,7 +4060,7 @@
     "name": "NANOHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4076,7 +4076,7 @@
     "name": "HTNANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4092,7 +4092,7 @@
     "name": "ZECHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4108,7 +4108,7 @@
     "name": "HTZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4188,7 +4188,7 @@
     "name": "BDGHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4204,7 +4204,7 @@
     "name": "HTBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },{
   "model": "core.pair",
@@ -4219,7 +4219,7 @@
     "name": "OMGHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4235,7 +4235,7 @@
     "name": "HTOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4251,7 +4251,7 @@
     "name": "EOSHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4267,7 +4267,7 @@
     "name": "HTEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4283,7 +4283,7 @@
     "name": "KCSHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4299,7 +4299,7 @@
     "name": "HTKCS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4315,7 +4315,7 @@
     "name": "BNBHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4331,7 +4331,7 @@
     "name": "HTBNB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4347,7 +4347,7 @@
     "name": "KNCHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4363,7 +4363,7 @@
     "name": "HTKNC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4379,7 +4379,7 @@
     "name": "BTCBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4395,7 +4395,7 @@
     "name": "BIXBTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4411,7 +4411,7 @@
     "name": "LTCBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4427,7 +4427,7 @@
     "name": "BIXLTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4443,7 +4443,7 @@
     "name": "ETHBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4459,7 +4459,7 @@
     "name": "BIXETH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4475,7 +4475,7 @@
     "name": "DOGEBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4491,7 +4491,7 @@
     "name": "BIXDOGE",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4507,7 +4507,7 @@
     "name": "XVGBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4523,7 +4523,7 @@
     "name": "BIXXVG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4539,7 +4539,7 @@
     "name": "BCHBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4555,7 +4555,7 @@
     "name": "BIXBCH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4571,7 +4571,7 @@
     "name": "NANOBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4587,7 +4587,7 @@
     "name": "BIXNANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4603,7 +4603,7 @@
     "name": "ZECBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4619,7 +4619,7 @@
     "name": "BIXZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4699,7 +4699,7 @@
     "name": "BDGBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4715,7 +4715,7 @@
     "name": "BIXBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4731,7 +4731,7 @@
     "name": "OMGBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4747,7 +4747,7 @@
     "name": "BIXOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4763,7 +4763,7 @@
     "name": "EOSBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4779,7 +4779,7 @@
     "name": "BIXEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4795,7 +4795,7 @@
     "name": "KCSBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4811,7 +4811,7 @@
     "name": "BIXKCS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4827,7 +4827,7 @@
     "name": "BNBBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4843,7 +4843,7 @@
     "name": "BIXBNB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4859,7 +4859,7 @@
     "name": "KNCBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4875,7 +4875,7 @@
     "name": "BIXKNC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4891,7 +4891,7 @@
     "name": "HTBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4907,7 +4907,7 @@
     "name": "BIXHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4923,7 +4923,7 @@
     "name": "BTCBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4939,7 +4939,7 @@
     "name": "BNTBTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4955,7 +4955,7 @@
     "name": "LTCBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4971,7 +4971,7 @@
     "name": "BNTLTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4987,7 +4987,7 @@
     "name": "ETHBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5003,7 +5003,7 @@
     "name": "BNTETH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5019,7 +5019,7 @@
     "name": "DOGEBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5035,7 +5035,7 @@
     "name": "BNTDOGE",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5051,7 +5051,7 @@
     "name": "XVGBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5067,7 +5067,7 @@
     "name": "BNTXVG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5083,7 +5083,7 @@
     "name": "BCHBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5099,7 +5099,7 @@
     "name": "BNTBCH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5115,7 +5115,7 @@
     "name": "NANOBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5131,7 +5131,7 @@
     "name": "BNTNANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5147,7 +5147,7 @@
     "name": "ZECBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5163,7 +5163,7 @@
     "name": "BNTZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5243,7 +5243,7 @@
     "name": "BDGBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5259,7 +5259,7 @@
     "name": "BNTBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5275,7 +5275,7 @@
     "name": "OMGBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5291,7 +5291,7 @@
     "name": "BNTOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5307,7 +5307,7 @@
     "name": "EOSBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5323,7 +5323,7 @@
     "name": "BNTEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5339,7 +5339,7 @@
     "name": "KCSBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5355,7 +5355,7 @@
     "name": "BNTKCS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5371,7 +5371,7 @@
     "name": "BNBBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5387,7 +5387,7 @@
     "name": "BNTBNB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5403,7 +5403,7 @@
     "name": "KNCBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5419,7 +5419,7 @@
     "name": "BNTKNC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5435,7 +5435,7 @@
     "name": "HTBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5451,7 +5451,7 @@
     "name": "BNTHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5467,7 +5467,7 @@
     "name": "BIXBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5483,7 +5483,7 @@
     "name": "BNTBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5499,7 +5499,7 @@
     "name": "BTCCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5515,7 +5515,7 @@
     "name": "COSSBTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5531,7 +5531,7 @@
     "name": "LTCCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5547,7 +5547,7 @@
     "name": "COSSLTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5563,7 +5563,7 @@
     "name": "ETHCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5579,7 +5579,7 @@
     "name": "COSSETH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5595,7 +5595,7 @@
     "name": "DOGECOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5611,7 +5611,7 @@
     "name": "COSSDOGE",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5627,7 +5627,7 @@
     "name": "XVGCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5643,7 +5643,7 @@
     "name": "COSSXVG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5659,7 +5659,7 @@
     "name": "BCHCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5675,7 +5675,7 @@
     "name": "COSSBCH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5691,7 +5691,7 @@
     "name": "NANOCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5707,7 +5707,7 @@
     "name": "COSSNANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5723,7 +5723,7 @@
     "name": "ZECCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5739,7 +5739,7 @@
     "name": "COSSZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5819,7 +5819,7 @@
     "name": "BDGCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5835,7 +5835,7 @@
     "name": "COSSBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5851,7 +5851,7 @@
     "name": "OMGCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5867,7 +5867,7 @@
     "name": "COSSOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5883,7 +5883,7 @@
     "name": "EOSCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5899,7 +5899,7 @@
     "name": "COSSEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5915,7 +5915,7 @@
     "name": "KCSCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5931,7 +5931,7 @@
     "name": "COSSKCS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5947,7 +5947,7 @@
     "name": "BNBCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5963,7 +5963,7 @@
     "name": "COSSBNB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5979,7 +5979,7 @@
     "name": "KNCCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5995,7 +5995,7 @@
     "name": "COSSKNC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6011,7 +6011,7 @@
     "name": "HTCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6027,7 +6027,7 @@
     "name": "COSSHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6043,7 +6043,7 @@
     "name": "BIXCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6059,7 +6059,7 @@
     "name": "COSSBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6075,7 +6075,7 @@
     "name": "BNTCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6091,7 +6091,7 @@
     "name": "COSSBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6107,7 +6107,7 @@
     "name": "BTCCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6123,7 +6123,7 @@
     "name": "COBBTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6139,7 +6139,7 @@
     "name": "LTCCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6155,7 +6155,7 @@
     "name": "COBLTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6171,7 +6171,7 @@
     "name": "ETHCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6187,7 +6187,7 @@
     "name": "COBETH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6203,7 +6203,7 @@
     "name": "DOGECOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6219,7 +6219,7 @@
     "name": "COBDOGE",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6235,7 +6235,7 @@
     "name": "XVGCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6251,7 +6251,7 @@
     "name": "COBXVG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6267,7 +6267,7 @@
     "name": "BCHCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6283,7 +6283,7 @@
     "name": "COBBCH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6299,7 +6299,7 @@
     "name": "NANOCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6315,7 +6315,7 @@
     "name": "COBNANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6331,7 +6331,7 @@
     "name": "ZECCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6347,7 +6347,7 @@
     "name": "COBZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6427,7 +6427,7 @@
     "name": "BDGCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6443,7 +6443,7 @@
     "name": "COBBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6459,7 +6459,7 @@
     "name": "OMGCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6475,7 +6475,7 @@
     "name": "COBOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6491,7 +6491,7 @@
     "name": "EOSCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6507,7 +6507,7 @@
     "name": "COBEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6523,7 +6523,7 @@
     "name": "KCSCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6539,7 +6539,7 @@
     "name": "COBKCS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6555,7 +6555,7 @@
     "name": "BNBCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6571,7 +6571,7 @@
     "name": "COBBNB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6587,7 +6587,7 @@
     "name": "KNCCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6603,7 +6603,7 @@
     "name": "COBKNC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6619,7 +6619,7 @@
     "name": "HTCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6635,7 +6635,7 @@
     "name": "COBHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6651,7 +6651,7 @@
     "name": "BIXCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6667,7 +6667,7 @@
     "name": "COBBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6683,7 +6683,7 @@
     "name": "BNTCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6699,7 +6699,7 @@
     "name": "COBBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6715,7 +6715,7 @@
     "name": "COSSCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6731,7 +6731,7 @@
     "name": "COBCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 }
 ]

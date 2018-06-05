@@ -249,7 +249,7 @@
     "is_limit_reserve": false,
     "target_level": "395",
     "allowed_diff": "79",
-    "minimum_level": "79",
+    "minimum_level": "15",
     "maximum_level": "1980",
     "minimum_main_account_level": "5"
   }
@@ -264,9 +264,9 @@
     "is_limit_reserve": false,
     "target_level": "1390",
     "allowed_diff": "278",
-    "minimum_level": "278",
+    "minimum_level": "55",
     "maximum_level": "6956",
-    "minimum_main_account_level": "10"
+    "minimum_main_account_level": "15"
   }
 },
 {
@@ -279,7 +279,7 @@
     "is_limit_reserve": false,
     "target_level": "390",
     "allowed_diff": "78",
-    "minimum_level": "78",
+    "minimum_level": "15",
     "maximum_level": "1952",
     "minimum_main_account_level": "5"
   }
@@ -294,7 +294,7 @@
     "is_limit_reserve": false,
     "target_level": "9428",
     "allowed_diff": "1884",
-    "minimum_level": "1884",
+    "minimum_level": "400",
     "maximum_level": "47166",
     "minimum_main_account_level": "100"
   }
@@ -309,7 +309,7 @@
     "is_limit_reserve": false,
     "target_level": "20485",
     "allowed_diff": "4100",
-    "minimum_level": "4100",
+    "minimum_level": "1400",
     "maximum_level": "102482",
     "minimum_main_account_level": "200"
   }
