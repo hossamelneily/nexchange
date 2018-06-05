@@ -30,7 +30,6 @@ from ticker.tasks.generic.crypto_fiat_ticker import CryptoFiatTicker
 from ticker.tasks.generic.base import save_ticker_and_price
 import requests_mock
 from freezegun import freeze_time
-from core.tests.utils import retry
 from rest_framework.test import APIClient
 from risk_management.models import Account, DisabledCurrency, Reserve
 
@@ -397,13 +396,11 @@ class OrderUniqueReferenceTestsCase(OrderBaseTestCase):
         return lambda:\
             ((lambda data: Order(**data), i) for i in range(x))
 
-    @skip('unique_reference is not unique yet')
-    @retry(AssertionError, tries=3, delay=1)
     @data_provider(get_data_provider(None, 2))
-    @patch('core.common.models.UniqueFieldMixin.gen_unique_value')
+    @patch('core.common.models.UniqueFieldMixin.get_random_unique_reference')
     def test_unique_token_creation(self, order_gen, counter,
-                                   mock_gen_unique_value):
-        mock_gen_unique_value.side_effect = ['AAA111', 'AAA111']
+                                   mock_get_random_ur):
+        mock_get_random_ur.side_effect = ['AA111', 'aa111', 'aA111', 'BB2B2']
         order = order_gen(self.data)
         order.save()
         objects = Order.objects.filter(unique_reference=order.unique_reference)
@@ -412,8 +409,9 @@ class OrderUniqueReferenceTestsCase(OrderBaseTestCase):
 
     @data_provider(get_data_provider(None, 2))
     @patch('core.common.models.UniqueFieldMixin.gen_unique_value')
-    def test_timing_token_creation(self, order_gen, counter, mock_gen_unique_value):
-        mock_gen_unique_value.side_effect = ['CCC333', 'DDD444']
+    def test_timing_token_creation(self, order_gen, counter,
+                                   mock_gen_unique_value):
+        mock_gen_unique_value.side_effect = ['OCC333', 'ODD444']
         max_execution = 0.5
         start = time.time()
         order = order_gen(self.data)

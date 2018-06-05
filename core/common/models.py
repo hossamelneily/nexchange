@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 from safedelete import (DELETED_INVISIBLE, DELETED_VISIBLE_BY_PK, SOFT_DELETE,
                         safedelete_manager_factory, safedelete_mixin_factory)
+from django.utils.crypto import get_random_string
 
 SoftDeleteMixin = safedelete_mixin_factory(policy=SOFT_DELETE,
                                            visibility=DELETED_VISIBLE_BY_PK)
@@ -24,8 +25,12 @@ class NexchangeModel(models.Model):
 
 class UniqueFieldMixin:
 
-    def gen_unique_value(self, val_gen,
-                         set_len_gen, start_len):
+    def get_random_unique_reference(self, x):
+        return get_random_string(x)
+
+    def gen_unique_value(self, generate_string,
+                         get_objects_amount_by_ref,
+                         start_len):
         failed_count = 0
         max_len = start_len
         prefix = self.__class__.__name__[:1]
@@ -35,10 +40,10 @@ class UniqueFieldMixin:
                 failed_count = 0
                 max_len += 1
 
-            val = val_gen(max_len)
-            cnt_unq = set_len_gen(val)
-            if cnt_unq == 0:
-                return prefix + val
+            value = (prefix + generate_string(max_len)).upper()
+            count_repetitive = get_objects_amount_by_ref(value)
+            if count_repetitive == 0:
+                return value
             else:
                 failed_count += 1
 

@@ -4,7 +4,6 @@ from django.db import models
 from core.common.models import IndexTimeStampedModel, UniqueFieldMixin
 from django.utils.translation import ugettext_lazy as _
 from orders.models import Order
-from django.utils.crypto import get_random_string
 
 
 class Support(IndexTimeStampedModel, UniqueFieldMixin):
@@ -30,10 +29,10 @@ class Support(IndexTimeStampedModel, UniqueFieldMixin):
         if not self.unique_reference:
             self.unique_reference = \
                 self.gen_unique_value(
-                    lambda x: get_random_string(x),
+                    lambda x: self.get_random_unique_reference(x),
                     lambda x: Order.objects.filter(unique_reference=x).count(),
                     settings.UNIQUE_REFERENCE_LENGTH
-                ).upper()
+                )
         super(Support, self).save(*args, **kwargs)
 
     class Meta:

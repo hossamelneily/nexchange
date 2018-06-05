@@ -10,21 +10,40 @@ import json
 import os
 from collections import Counter
 from risk_management.models import Account
+from unittest.mock import patch
 
 
 class ValidateUniqueFieldMixinTestCase(TestCase):
 
-    def test_detects_uniqe_value_colision(self):
+    def test_detects_unique_value_colision(self):
         class UnlikelyModel(UniqueFieldMixin):
             pass
 
         model = UnlikelyModel()
-        unq = model.gen_unique_value(
+        unique_ref = model.gen_unique_value(
             lambda x: 'A' * x,
-            lambda x: 1 if x == 'A' else 0,
+            lambda x: 1 if x == 'UA' else 0,
             1
         )
-        self.assertEqual(unq, 'UAA')
+        self.assertEqual(unique_ref, 'UAA')
+
+    @patch('core.common.models.UniqueFieldMixin.get_random_unique_reference')
+    def test_unique_reference_is_upper(self, mock_get_random_ur):
+
+        class UnlikelyModel(UniqueFieldMixin):
+            pass
+
+        model = UnlikelyModel()
+        string_array = ['Aa111', 'bdAcs', 'gggg2']
+        prefix = model.__class__.__name__[:1]
+        for string in string_array:
+            mock_get_random_ur.return_value = string
+            unique_ref = model.gen_unique_value(
+                lambda x: model.get_random_unique_reference(5),
+                lambda x: 0,
+                5
+            )
+            self.assertEqual(unique_ref, prefix + string.upper())
 
 
 class CurrencyTestCase(OrderBaseTestCase):

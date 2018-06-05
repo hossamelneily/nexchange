@@ -2,7 +2,6 @@ from decimal import Decimal
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils.crypto import get_random_string
 
 from core.common.models import (IpAwareModel, TimeStampedModel,
                                 UniqueFieldMixin)
@@ -53,10 +52,10 @@ class ReferralCode(TimeStampedModel, UniqueFieldMixin):
     def save(self, *args, **kwargs):
         if not self.code:
             self.code = self.gen_unique_value(
-                lambda x: get_random_string(x),
+                lambda x: self.get_random_unique_reference(x),
                 lambda x: ReferralCode.objects.filter(code=x).count(),
                 settings.REFERRAL_CODE_LENGTH
-            ).upper()
+            )
         else:
             self.code = urlquote(self.code)
         if not self.program:
