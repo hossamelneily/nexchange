@@ -42,7 +42,7 @@ mock
 requests-cache>=0.4.13
 xmltodict>=0.10.2
 python-bitcoinrpc
-urllib3
+urllib3==1.22
 pillow
 -e git+https://github.com/SarunasAzna/django-loginurl.git#egg=loginurl
 social-auth-app-django==1.1.0
@@ -55,7 +55,7 @@ django-fsm==2.6.0
 -e git+https://github.com/ericsomdahl/python-bittrex.git#egg=bittrex
 -e git+https://github.com/SarunasAzna/poloniex.git#egg=poloniex
 cached-property>=1.3.1
-eth-utils==0.7.0
+eth-utils==0.7.1
 web3==3.16.5
 pycrypto==2.6.1
 django-extensions==1.9.9
@@ -65,3 +65,4 @@ numpy==1.14.1
 django-otp==0.4.3
 qrcode==6.0
 django-audit-log==0.7.0
+rlp==0.6.0
