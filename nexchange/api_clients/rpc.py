@@ -634,7 +634,7 @@ class EthashRpcApiClient(BaseRpcClient):
                 main_value = tx_data.get('value')
                 if main_value == 0:
                     _currency = Currency.objects.filter(
-                        contract_address=main_to).last()
+                        contract_address__iexact=main_to).last()
                     currency_code = _currency.code if _currency else ''
                     input = tx_data.get('input')
                     decoded_input = self.decode_transaction_input(input)
