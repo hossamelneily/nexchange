@@ -24,9 +24,10 @@ class RpcMapper:
                 'YWg/yNaX+S3wjX7t0K1bl/GgZZtxSKU7OXrXQqoPjMUil6JxU7+Q=',
         'rpc9': 'PbGnX+pDzdNZOVZ9EefGrBFMw9c8oTJxddtWsjbNINDJOai5zvK3spG'
                 'YWg/yNaX+S3wjX7t0K1bl/GgZZtxSKU7OXrXQqoPjMUil6JxU7+Q=',
-        'rpc10': 'PbGnX+pDzdNZOVZ9EefGrBFMw9c8oTJxddtWsjbNINDJOai5zvK3spG'
-                 'YWg/yNaX+S3wjX7t0K1bl/GgZZtxSKU7OXrXQqoPjMUil6JxU7+Q=',
-        'rpc11': 'CdsNAykgsP43zJRu/tutomoJ7f9hKgUmt1d3W66vAnJmNSWnlTt4Bah7Iy5414RQ',
+        'rpc10': 'mBQWVSiDMvzm99XLs+ITzHFtdOh5bIQIvDCJCN59xGdsdbXuJqG/P'
+                 'A8r8H8DTQlzVz3Gun+BZKWqDra8k83mVL8SY2KgGWPKSU9R3wsQHaI=',
+        'rpc11': 'ksYmnwGF7AClBVJ07BY8vECSZsayGfkLvfRtCWK4dJk/OibladXxmc6PE'
+                 'wocGNhjgw89HDMkGzmS1HoZoaxAOaakHqJZX4R1crQ6ljtMFas=',
     }
 
     @classmethod
