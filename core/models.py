@@ -67,6 +67,7 @@ class Address(BtcBase, SoftDeletableModel):
                                validators=[validate_address])
     user = models.ForeignKey(User, blank=True, null=True)
     currency = models.ForeignKey('core.Currency', blank=True, null=True)
+    blocked = models.BooleanField(default=False)
 
     def __str__(self):
         return '{} {}'.format(self.address, self.name)

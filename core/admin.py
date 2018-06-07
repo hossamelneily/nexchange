@@ -7,6 +7,7 @@ from core.common.models import Flag
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
     list_display = ('address', 'user', 'currency', 'disabled')
+    raw_id_fields = ('reserve', 'user',)
     search_fields = (
         'currency__code', 'address'
     )

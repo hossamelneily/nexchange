@@ -281,11 +281,18 @@ class Order(TimeStampedModel, SoftDeletableModel,
                     logger.warning(error_msg)
                     raise ValidationError(_(error_msg))
 
+    def _validate_address(self):
+        if not self.pk and getattr(self.withdraw_address, 'blocked', False):
+            raise ValidationError(_('Address {} is blocked.'.format(
+                self.withdraw_address.address
+            )))
+
     def _validate_fields(self):
         self._types_range_constraint(self.order_type, self.TYPES)
         self._types_range_constraint(self.status, self.STATUS_TYPES)
         self._validate_status(self.status)
         self._validate_pair()
+        self._validate_address()
         if all([not self.amount_base, not self.amount_quote]):
             raise ValidationError(
                 _('One of amount_quote and amount_base is required.'))
