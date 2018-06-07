@@ -130,6 +130,7 @@ def validate_usdt(value):
             _('%(value)s has invalid characters for a valid Tether address'),
             params={'value': value},
         )
+    validate_bc(value)
 
 
 def validate_zec(value):
@@ -154,6 +155,20 @@ def validate_xmr(value):
         )
 
 
+def validate_bch(value):
+    p = re.compile('^bitcoincash:q[0-9a-z]{41}$')
+    p.match(value)
+
+    if not p.match(value):
+        p = re.compile('^(1|3)[1-9A-Za-z]{25,34}$')
+        validate_bc(value)
+        if not p.match(value):
+            raise ValidationError(
+                _('%(value)s has invalid characters for a valid Bitcoin Cash address'),
+                params={'value': value},
+            )
+
+
 def validate_address(value):
     if value[:2] == '0x':
         validate_eth(value)
@@ -167,6 +182,8 @@ def validate_address(value):
         validate_zec(value)
     elif value[:1] in ['4', '8']:
         validate_xmr(value)
+    elif value[:13] == 'bitcoincash:q':
+        validate_bch(value)
     else:
         validate_bc(value)
 
@@ -195,7 +212,7 @@ def get_validator(code):
                 'EOS', 'KCS', 'BNB', 'KNC', 'BIX',
                 'HT', 'BNT', 'COSS', 'COB']:
         return validate_eth
-    elif code in ['BTC', 'BCH']:
+    elif code in ['BTC']:
         return validate_btc
     elif code == 'LTC':
         return validate_ltc
@@ -213,5 +230,7 @@ def get_validator(code):
         return validate_usdt
     elif code == 'XMR':
         return validate_xmr
+    elif code == 'BCH':
+        return validate_bch
 
     return validate_non_address

@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 
 from core.validators import validate_address, validate_eth, validate_btc,\
-    validate_ltc, get_validator
+    validate_ltc, get_validator, validate_bch
 from core.tests.utils import data_provider
 from core.models import Currency
 from core.tests.base import OrderBaseTestCase
@@ -13,6 +13,7 @@ class ValidateBCTestCase(OrderBaseTestCase):
         self.ltc_address = 'LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA'
         self.btc_address = '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi'
         self.eth_address = '0x8116546AaC209EB58c5B531011ec42DD28EdFb71'
+        self.bch_address = 'bitcoincash:qrlt24dt99gc9r7veal5rst8pc0m9zm3egadel8e6p'
 
     def tearDown(self):
         pass
@@ -27,11 +28,15 @@ class ValidateBCTestCase(OrderBaseTestCase):
 
     @data_provider(lambda: (
         ('LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA', validate_ltc,
-         [validate_btc, validate_eth]),
+         [validate_btc, validate_eth, validate_bch]),
         ('1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi', validate_btc,
          [validate_ltc, validate_eth]),
         ('0x8116546AaC209EB58c5B531011ec42DD28EdFb71', validate_eth,
-         [validate_ltc, validate_btc]),
+         [validate_ltc, validate_btc, validate_bch]),
+        ('bitcoincash:qrlt24dt99gc9r7veal5rst8pc0m9zm3egadel8e6p', validate_bch,
+         [validate_ltc, validate_btc, validate_eth]),
+        ('35qL43qYwLdKtnR7yMfGNDvzv6WyZ8yT2n', validate_bch,
+         [validate_ltc, validate_eth]),
     ))
     def test_validate_different_address(self, address, validator,
                                         fail_validators):
