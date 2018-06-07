@@ -11,7 +11,7 @@ from core.tests.utils import data_provider
 from unittest.mock import patch
 from django.conf import settings
 from unittest import skip
-from nexchange.api_clients.rpc import EthashRpcApiClient
+from nexchange.rpc.ethash import EthashRpcApiClient
 from accounts.task_summary import update_pending_transactions_invoke
 import os
 from decimal import Decimal

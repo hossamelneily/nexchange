@@ -1,8 +1,11 @@
 from __future__ import absolute_import
 from django.conf import settings
-from nexchange.api_clients.rpc import ScryptRpcApiClient, EthashRpcApiClient,\
-    Blake2RpcApiClient, ZcashRpcApiClient, OmniRpcApiClient, \
-    CryptonightRpcApiClient
+from nexchange.rpc.scrypt import ScryptRpcApiClient
+from nexchange.rpc.ethash import EthashRpcApiClient
+from nexchange.rpc.blake2 import Blake2RpcApiClient
+from nexchange.rpc.zcash import ZcashRpcApiClient
+from nexchange.rpc.omni import OmniRpcApiClient
+from nexchange.rpc.cryptonight import CryptonightRpcApiClient
 
 scrypt_client = ScryptRpcApiClient()
 zcash_client = ZcashRpcApiClient()

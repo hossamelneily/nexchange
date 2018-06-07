@@ -24,15 +24,15 @@ import re
 from unittest.mock import patch
 from random import randint
 from web3 import Web3
-from nexchange.api_clients.rpc import EthashRpcApiClient
+from nexchange.rpc.ethash import EthashRpcApiClient
 
 UPHOLD_ROOT = 'nexchange.api_clients.uphold.Uphold.'
-SCRYPT_ROOT = 'nexchange.api_clients.rpc.ScryptRpcApiClient.'
-ZCASH_ROOT = 'nexchange.api_clients.rpc.ZcashRpcApiClient.'
-OMNI_ROOT = 'nexchange.api_clients.rpc.OmniRpcApiClient.'
-ETH_ROOT = 'nexchange.api_clients.rpc.EthashRpcApiClient.'
-BLAKE2_ROOT = 'nexchange.api_clients.rpc.Blake2RpcApiClient.'
-CRYPTONIGHT_ROOT = 'nexchange.api_clients.rpc.CryptonightRpcApiClient.'
+SCRYPT_ROOT = 'nexchange.rpc.scrypt.ScryptRpcApiClient.'
+ZCASH_ROOT = 'nexchange.rpc.zcash.ZcashRpcApiClient.'
+OMNI_ROOT = 'nexchange.rpc.omni.OmniRpcApiClient.'
+ETH_ROOT = 'nexchange.rpc.ethash.EthashRpcApiClient.'
+BLAKE2_ROOT = 'nexchange.rpc.blake2.Blake2RpcApiClient.'
+CRYPTONIGHT_ROOT = 'nexchange.rpc.cryptonight.CryptonightRpcApiClient.'
 BITTREX_ROOT = 'nexchange.api_clients.bittrex.BittrexApiClient.'
 
 EXCHANGE_ORDER_RELEASE_ROOT = 'orders.tasks.generic.exchange_order_release.' \

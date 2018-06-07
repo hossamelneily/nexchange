@@ -1,15 +1,16 @@
 from unittest import TestCase, mock
-from nexchange.api_clients.rpc import ScryptRpcApiClient
+from nexchange.rpc.scrypt import ScryptRpcApiClient
 from core.models import Currency, Address
 
 
-@mock.patch('nexchange.api_clients.rpc.ScryptRpcApiClient.lock')
-@mock.patch('nexchange.api_clients.rpc.ScryptRpcApiClient.unlock')
-@mock.patch('nexchange.api_clients.rpc.ScryptRpcApiClient.call_api')
-@mock.patch('nexchange.api_clients.rpc.ScryptRpcApiClient.get_api')
+@mock.patch('nexchange.rpc.scrypt.ScryptRpcApiClient.lock')
+@mock.patch('nexchange.rpc.scrypt.ScryptRpcApiClient.unlock')
+@mock.patch('nexchange.rpc.scrypt.ScryptRpcApiClient.call_api')
+@mock.patch('nexchange.rpc.scrypt.ScryptRpcApiClient.get_api')
 @mock.patch('nexchange.api_clients.mappers.RpcMapper.get_pass')
 class TestRpcEncryption(TestCase):
-    def test_release_call_encrypt(self, get_pass, get_api, call_api, unlock, lock):
+    def test_release_call_encrypt(self, get_pass, get_api,
+                                  call_api, unlock, lock):
         get_pass.return_value = 'randomPass'
         get_api.return_value = mock.MagicMock()
         api = ScryptRpcApiClient()
@@ -21,7 +22,8 @@ class TestRpcEncryption(TestCase):
         self.assertEqual(unlock.call_count, 1)
         get_api.assert_called_with('rpc5')
 
-    def test_release_call_decrypt(self, get_pass, get_api, call_api, unlock, lock):
+    def test_release_call_decrypt(self, get_pass, get_api,
+                                  call_api, unlock, lock):
         get_pass.return_value = 'randomPass'
         get_api.return_value = mock.MagicMock()
         api = ScryptRpcApiClient()
@@ -34,9 +36,9 @@ class TestRpcEncryption(TestCase):
         get_api.assert_called_with('rpc5')
 
 
-@mock.patch('nexchange.api_clients.rpc.ScryptRpcApiClient.lock')
-@mock.patch('nexchange.api_clients.rpc.ScryptRpcApiClient.unlock')
-@mock.patch('nexchange.api_clients.rpc.ScryptRpcApiClient.call_api')
+@mock.patch('nexchange.rpc.scrypt.ScryptRpcApiClient.lock')
+@mock.patch('nexchange.rpc.scrypt.ScryptRpcApiClient.unlock')
+@mock.patch('nexchange.rpc.scrypt.ScryptRpcApiClient.call_api')
 class TestRpcNonEncryption(TestCase):
     def test_balance_not_call_encrypt_decrypt(self, call_api, unlock, lock):
         api = ScryptRpcApiClient()
@@ -53,4 +55,3 @@ class TestRpcNonEncryption(TestCase):
         self.assertEqual(call_api.call_count, 1)
         self.assertEqual(unlock.call_count, 0)
         self.assertEqual(lock.call_count, 0)
-

@@ -1,7 +1,8 @@
 from core.models import Transaction, Currency
 from orders.models import Order
 from nexchange.tasks.base import BaseTask
-from nexchange.api_clients.rpc import EthashRpcApiClient, ScryptRpcApiClient
+from nexchange.rpc.ethash import EthashRpcApiClient
+from nexchange.rpc.scrypt import ScryptRpcApiClient
 from audit.models import SuspiciousTransactions
 import requests
 import os

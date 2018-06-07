@@ -130,7 +130,7 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
             self.assertEqual(account.available, Decimal(str(balance)), name)
             self.assertEqual(account.pending, Decimal('0.0'), name)
 
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient.get_balance')
+    @patch('nexchange.rpc.scrypt.ScryptRpcApiClient.get_balance')
     @patch('nexchange.api_clients.bittrex.Bittrex.get_balance')
     @patch('nexchange.api_clients.kraken.krakenex.API.query_private')
     @patch('nexchange.api_clients.uphold.Uphold.get_card')
@@ -178,7 +178,7 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
             'BTC-{}'.format(self.reserve.currency), diff, ask)
 
     @patch('nexchange.api_clients.bittrex.Bittrex.get_ticker')
-    @patch('nexchange.api_clients.rpc.ScryptRpcApiClient.get_balance')
+    @patch('nexchange.rpc.scrypt.ScryptRpcApiClient.get_balance')
     @patch('nexchange.api_clients.kraken.krakenex.API.query_private')
     @patch('nexchange.api_clients.kraken.krakenex.API.query_public')
     def test_reserve_balance_maintainer_doge(self, q_public, q_private,

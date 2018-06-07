@@ -1,5 +1,5 @@
 from unittest import TestCase
-from nexchange.api_clients.rpc import EthashRpcApiClient
+from nexchange.rpc.ethash import EthashRpcApiClient
 from core.tests.base import TransactionImportBaseTestCase
 from ticker.tests.base import TickerBaseTestCase
 from core.tests.utils import data_provider
