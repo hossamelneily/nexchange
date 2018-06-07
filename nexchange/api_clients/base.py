@@ -406,6 +406,11 @@ class CryptonightProxy:
         except KeyError:
             return res.json()
 
+    def getaddress(self):
+        res = self._call_rpc('getaddress')
+        accounts = [r.get('address') for r in res.get('addresses')]
+        return accounts
+
     def get_info(self):
         return self._call_rpc('get_info')
 

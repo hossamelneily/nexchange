@@ -217,6 +217,10 @@ class CryptonightRpcApiClient(BaseRpcClient):
             'address': address
         }
 
+    @encrypted_endpoint
+    def get_accounts(self, node, **kwargs):
+        return self.call_api(node, 'getaddress')
+
     def parse_tx(self, tx, node=None):
         _currency = self.get_currency({'wallet': node})
         try:
