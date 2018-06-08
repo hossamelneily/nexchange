@@ -1,7 +1,7 @@
-from nexchange.api_clients.decorators import track_tx_mapper, log_errors, encrypted_endpoint
+from nexchange.api_clients.decorators import \
+    track_tx_mapper, log_errors, encrypted_endpoint
 from nexchange.rpc.scrypt import ScryptRpcApiClient
 from core.models import Address, Currency
-from django.conf import settings
 import os
 
 
@@ -12,16 +12,10 @@ class OmniRpcApiClient(ScryptRpcApiClient):
         self.related_coins = ['USDT']
 
     def is_correct_token(self, tx, currency):
-        if tx['propertyid'] == currency.property_id:
-            return True
-        else:
-            return False
+        return True if tx['propertyid'] == currency.property_id else False
 
     def is_simple_send_type(self, tx):
-        if tx['type_int'] == 0:
-            return True
-        else:
-            return False
+        return True if tx['type_int'] == 0 else False
 
     def is_tx_vald(self, tx):
         return tx['valid']
@@ -91,7 +85,8 @@ class OmniRpcApiClient(ScryptRpcApiClient):
     def release_coins(self, currency, address, amount, **kwargs):
         tx = self._form_transaction(currency, address, amount, **kwargs)
         tx_id = self.call_api(currency.wallet, 'omni_send',
-                              *[tx])
+                              *[tx['fromaddress'], tx['toaddress'],
+                                tx['propertyid'], str(tx['amount'])])
         success = True
         return tx_id, success
 
@@ -109,8 +104,24 @@ class OmniRpcApiClient(ScryptRpcApiClient):
         return info
 
     def _get_txs(self, node):
-        txs = self._get_txs_from_blocks(node)
-        return txs
+        txs = self.call_api(node, 'omni_listtransactions')
+        currency = Currency.objects.get(
+            code=self.related_coins[self.related_nodes.index(node)]
+        )
+        main_address = self.get_main_address(currency)
+        in_txs = [tx for tx in txs
+                  if tx.get('referenceaddress') == main_address]
+        res = []
+        for in_tx in in_txs:
+            res.append({
+                'data': in_tx,
+                'currency_code': currency.code,
+                'to': in_tx['referenceaddress'],
+                'from': in_tx['sendingaddress'],
+                'value': in_tx['amount'],
+                'tx_id': in_tx['txid']
+            })
+        return res
 
     def filter_tx(self, tx):
         return True
@@ -118,51 +129,6 @@ class OmniRpcApiClient(ScryptRpcApiClient):
     def _get_current_block(self, node):
         res = self.call_api(node, 'omni_getinfo')
         return res.get('block')
-
-    def _get_txs_from_blocks(self, node, start_block_number=None,
-                             end_block_number=None, accounts=None):
-        res = []
-        currency = Currency.objects.get(
-            code=self.related_coins[self.related_nodes.index(node)]
-        )
-        accounts = accounts if accounts \
-            else self.call_api(node,
-                               'getaddressesbyaccount',
-                               '')
-        if end_block_number is None:
-            end_block_number = self._get_current_block(node)
-
-        if start_block_number is None:
-            start_block_number = \
-                end_block_number - settings.RPC_IMPORT_BLOCK_COUNT
-
-        for i in range(start_block_number, end_block_number + 1):
-            txs_hashes = self.call_api(node, 'omni_listblocktransactions', i)
-            if not txs_hashes:
-                continue
-            for tx_hash in txs_hashes:
-                tx = self._get_tx(tx_hash, node)
-                tx_id = tx.get('txid')
-                main_to = tx.get('referenceaddress')
-                _from = tx.get('sendingaddress')
-                main_value = tx.get('amount')
-
-                value = main_value
-                to = main_to
-                currency_code = currency.code
-                if not currency_code or not isinstance(to, str):
-                    continue
-                if all([to.lower() not in [acc.lower() for acc in accounts]]):
-                    continue
-                res.append({
-                    'data': tx,
-                    'currency_code': currency_code,
-                    'to': to,
-                    'from': _from,
-                    'value': value,
-                    'tx_id': tx_id
-                })
-        return res
 
     @log_errors
     @track_tx_mapper
