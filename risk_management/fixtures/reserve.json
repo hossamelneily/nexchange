@@ -174,9 +174,9 @@
     "is_limit_reserve": false,
     "target_level": "2355",
     "allowed_diff": "236",
-    "minimum_level": "470",
+    "minimum_level": "75",
     "maximum_level": "11774",
-    "minimum_main_account_level": "15"
+    "minimum_main_account_level": "20"
   }
 },
 {

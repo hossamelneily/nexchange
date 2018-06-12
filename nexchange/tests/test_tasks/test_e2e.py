@@ -537,9 +537,9 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             ['ETHLTC', 'BTCETH', 'BTCLTC', 'LTCETH',
              'ETHBTC', 'LTCBTC', 'ETHDOGE', 'DOGELTC',
              'ETHBCH', 'BCHDOGE', 'ZECBTC', 'BTCZEC',
-             'BTCUSDT', 'XMRBTC', 'BTCXMR', 'BTCKCS',
-             'BTCBNB', 'BTCKNC', 'BTCBIX', 'BTCHT',
-             'BTCCOSS', 'BTCBNT', 'BTCCOB']
+             'USDTBTC', 'BTCUSDT', 'XMRBTC', 'BTCXMR',
+             'BTCKCS', 'BTCBNB', 'BTCKNC', 'BTCBIX',
+             'BTCHT', 'BTCCOSS', 'BTCBNT', 'BTCCOB']
         super(ExchangeOrderReleaseTaskTestCase, cls).setUpClass()
         cls.import_txs_task = import_transaction_deposit_crypto_invoke
         cls.update_confirmation_task = update_pending_transactions_invoke
@@ -560,6 +560,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             ('BCHDOGE', Order.BUY, True, 3),
             ('ZECBTC', Order.BUY, True, 3),
             ('BTCZEC', Order.BUY, True, 3),
+            ('USDTBTC', Order.BUY, True, 4),
             ('BTCUSDT', Order.BUY, True, 3),
             ('XMRBTC', Order.BUY, True, 3),
             ('BTCXMR', Order.BUY, True, 3),
@@ -579,6 +580,8 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
     @patch(OMNI_ROOT + 'release_coins')
     @patch(OMNI_ROOT + '_get_tx')
     @patch(OMNI_ROOT + '_get_txs')
+    @patch(OMNI_ROOT + 'get_accounts')
+    @patch(OMNI_ROOT + 'get_info')
     @patch(CRYPTONIGHT_ROOT + 'release_coins')
     @patch(CRYPTONIGHT_ROOT + '_get_tx')
     @patch(CRYPTONIGHT_ROOT + '_get_txs')
@@ -590,14 +593,14 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
     @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
     def test_release_exchange_order(self, pair_name, order_type,
                                     release_with_periodic, base_curr_code_len,
-                                    check_tx_uphold,
-                                    get_txs_uphold,
+                                    check_tx_uphold, get_txs_uphold,
                                     prepare_txn_uphold,
                                     execute_txn_uphold,
                                     cryptonight_info,
                                     get_current_block_cryptonight,
                                     get_txs_cryptonight, get_tx_cryptonight,
                                     release_coins_cryptonight,
+                                    omni_info, get_accounts_omni,
                                     get_txs_omni, get_tx_omni,
                                     release_coins_omni,
                                     get_txs_scrypt, get_tx_scrypt,
@@ -606,12 +609,15 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                     get_tx_eth_receipt,
                                     release_coins_eth, get_block_eth,
                                     send_task, scrypt_info, eth_listen):
-        scrypt_info.return_value = cryptonight_info.return_value = {}
+        scrypt_info.return_value = cryptonight_info.return_value = \
+            omni_info.return_value = {}
         eth_listen.return_value = True
         currency_quote_code = pair_name[base_curr_code_len:]
         currency_base_code = pair_name[0:base_curr_code_len]
         if currency_base_code == 'DOGE':
             amount_base = 1001
+        elif currency_base_code == 'USDT':
+            amount_base = 50
         else:
             amount_base = 0.5
         self._create_order(order_type=order_type, pair_name=pair_name,
@@ -639,8 +645,16 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                                           card.address)
             get_txs_scrypt.return_value = self.get_scrypt_tx(mock_amount,
                                                              card.address)
-            get_txs_omni.return_value = self.get_omni_tx(mock_amount,
-                                                         card.address)
+            omni_tx = self.get_omni_raw_txs(mock_amount, card.address)[0]
+            get_txs_omni.return_value = \
+                [{
+                    'data': omni_tx,
+                    'currency_code': mock_currency_code,
+                    'to': card.address,
+                    'from': omni_tx['sendingaddress'],
+                    'value': mock_amount,
+                    'tx_id': omni_tx['txid']
+                }]
             get_txs_cryptonight.return_value = get_cryptonight_txs_result
         confs = 249
         check_tx_uphold.return_value = True, confs
@@ -649,8 +663,8 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         get_current_block_cryptonight.return_value = \
             {'height': block_height + 11}
 
-        get_tx_omni.return_value = self.get_omni_tx_raw_confirmed(
-            self.get_omni_tx_raw_unconfirmed(mock_amount, card.address))
+        get_tx_omni.return_value = \
+            self.get_omni_tx_raw_confirmed(mock_amount, card.address)
         get_tx_scrypt.return_value = {
             'confirmations': confs
         }
@@ -661,6 +675,8 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             self.ETH, Decimal('1'), status=1
         )
         get_block_eth.return_value = confs
+        get_accounts_omni.return_value = [card.address]
+
         self.import_txs_task.apply()
         prepare_txn_uphold.return_value = release_coins_scrypt.return_value = \
             release_coins_eth.return_value = \
@@ -669,17 +685,21 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             'txid_{}{}'.format(time(), randint(1, 999))
         execute_txn_uphold.return_value = {'code': 'OK'}
         self.order.refresh_from_db()
-
         self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
-
         self.update_confirmation_task.apply()
-        self.assertEqual(2, send_task.call_count, pair_name)
+        pair = Pair.objects.get(name=pair_name)
+        send_task_expected_call_count = 2 \
+            if pair.quote.is_token or pair.quote.code == 'USDT' else 1
+        self.assertEqual(send_task_expected_call_count,
+                         send_task.call_count,
+                         pair_name)
 
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, Order.PAID, pair_name)
         address = getattr(self, '{}_address'.format(withdraw_currency_code))
         self._update_withdraw_address(self.order, address)
         self.order.refresh_from_db()
+
         self.assertIn(self.order.status, Order.IN_RELEASED, pair_name)
         t1 = self.order.transactions.first()
         t2 = self.order.transactions.last()

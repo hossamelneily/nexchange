@@ -1,7 +1,9 @@
 from nexchange.api_clients.decorators import \
     track_tx_mapper, log_errors, encrypted_endpoint
 from nexchange.rpc.scrypt import ScryptRpcApiClient
-from core.models import Address, Currency
+from core.models import Address, Currency, AddressReserve
+from django.conf import settings
+from decimal import Decimal
 import os
 
 
@@ -17,7 +19,7 @@ class OmniRpcApiClient(ScryptRpcApiClient):
     def is_simple_send_type(self, tx):
         return True if tx['type_int'] == 0 else False
 
-    def is_tx_vald(self, tx):
+    def is_tx_valid(self, tx):
         return tx['valid']
 
     def check_tx(self, tx, currency):
@@ -27,7 +29,7 @@ class OmniRpcApiClient(ScryptRpcApiClient):
                          confirmations > 0,
                          self.is_correct_token(tx, currency),
                          self.is_simple_send_type(tx),
-                         self.is_tx_vald(tx)])
+                         self.is_tx_valid(tx)])
         return confirmed, confirmations
 
     def parse_tx(self, tx, node=None):
@@ -90,14 +92,51 @@ class OmniRpcApiClient(ScryptRpcApiClient):
         success = True
         return tx_id, success
 
+    def add_btc_to_card(self, card_pk):
+        card = AddressReserve.objects.get(pk=card_pk)
+        node = card.currency.wallet
+        address = card.address
+        main_currency = Currency.objects.get(
+            code=self.related_coins[self.related_nodes.index(node)]
+        )
+        amount = settings.RPC_BTC_PRICE
+        return self.release_coins(main_currency, address, amount)
+
+    def check_card_balance(self, card_pk, **kwargs):
+        card = AddressReserve.objects.get(pk=card_pk)
+        res = self.resend_funds_to_main_card(card.address, card.currency.code)
+        return res
+
+    def get_total_btc_price(self):
+        return settings.RPC_BTC_PRICE
+
+    def resend_funds_to_main_card(self, address, currency):
+        if not isinstance(currency, Currency):
+            currency = Currency.objects.get(code=currency)
+        main_address = self.get_main_address(currency)
+        total_btc_price = self.get_total_btc_price()
+        amount = self.get_balance(currency, account=address).get(
+            'available', Decimal('0')
+        ) - total_btc_price
+
+        if amount <= 0:
+            return {'success': False, 'retry': True}
+        tx_id, success = self.release_coins(currency, main_address,
+                                            amount, address_from=address)
+        retry = not success
+        return {'success': success, 'retry': retry, 'tx_id': tx_id}
+
     def get_balance(self, currency, account=None):
         if not isinstance(currency, Currency):
             currency = Currency.objects.get(code=currency)
         if account is None:
             account = self.get_main_address(currency)
-        balance = self.call_api(currency.wallet, 'omni_getbalance',
-                                *[account, currency.property_id])
-        return balance
+        res = self.call_api(currency.wallet, 'omni_getbalance',
+                            *[account, currency.property_id])
+        balance = Decimal(res.get('balance', '0'))
+        pending = Decimal(res.get('reserved', '0'))
+        available = balance - pending
+        return {'balance': balance, 'pending': pending, 'available': available}
 
     def get_info(self, currency):
         info = self.call_api(currency.wallet, 'omni_getinfo')
@@ -108,9 +147,8 @@ class OmniRpcApiClient(ScryptRpcApiClient):
         currency = Currency.objects.get(
             code=self.related_coins[self.related_nodes.index(node)]
         )
-        main_address = self.get_main_address(currency)
         in_txs = [tx for tx in txs
-                  if tx.get('referenceaddress') == main_address]
+                  if tx.get('referenceaddress') in self.get_accounts(node)]
         res = []
         for in_tx in in_txs:
             res.append({
@@ -125,10 +163,6 @@ class OmniRpcApiClient(ScryptRpcApiClient):
 
     def filter_tx(self, tx):
         return True
-
-    def _get_current_block(self, node):
-        res = self.call_api(node, 'omni_getinfo')
-        return res.get('block')
 
     @log_errors
     @track_tx_mapper

@@ -1,4 +1,4 @@
-from core.tests.base import TransactionImportBaseTestCase, ETH_ROOT
+from core.tests.base import TransactionImportBaseTestCase, ETH_ROOT, OMNI_ROOT
 from core.models import Address, Currency, AddressReserve, Transaction
 from accounts.task_summary import import_transaction_deposit_crypto_invoke,\
     check_transaction_card_balance_invoke
@@ -12,11 +12,13 @@ from unittest.mock import patch
 from django.conf import settings
 from unittest import skip
 from nexchange.rpc.ethash import EthashRpcApiClient
+from nexchange.rpc.omni import OmniRpcApiClient
 from accounts.task_summary import update_pending_transactions_invoke
 import os
 from decimal import Decimal
 
 RPC7_KEY1 = '0xmain'
+RPC10_KEY1 = 'USDT_address'
 
 
 class TransactionImportTaskTestCase(TransactionImportBaseTestCase,
@@ -70,8 +72,10 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
             self.profile = Profile(user=self.user)
             self.profile.save()
         self.currency = Currency.objects.get(code='ETH')
-        self.client = EthashRpcApiClient()
-        self.monitor = ReserveMonitor(self.client, wallet='rpc7')
+        self.client_ethash = EthashRpcApiClient()
+        self.monitor_eth = ReserveMonitor(self.client_ethash, wallet='rpc7')
+        self.client_omni = OmniRpcApiClient()
+        self.monitor_omni = ReserveMonitor(self.client_omni, wallet='rpc10')
         self.url_base = 'https://api.uphold.com/v0/me/cards/'
         with requests_mock.mock() as mock:
             self.get_tickers(mock)
@@ -182,48 +186,91 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
          {'retry': True, 'success': False}, False),
         ('Release error', 'ETH', '1.1', '0.1',
          1, {'retry': True, 'success': False}, True),
+        ('Send funds, balance more than 0', 'USDT', '1.1', '0.1',
+         1, {'retry': False, 'success': True}, False),
+        ('Do not release, balance == 0', 'USDT', '0.0', '0', 0,
+         {'retry': True, 'success': False}, False),
     ),)
     @patch.dict(os.environ, {'RPC7_PUBLIC_KEY_C1': RPC7_KEY1})
     @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
     @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
+    @patch.dict(os.environ, {'RPC10_PUBLIC_KEY_C1': RPC10_KEY1})
     @patch(ETH_ROOT + 'get_accounts')
     @patch('web3.eth.Eth.call')
     @patch('web3.eth.Eth.getBalance')
     @patch(ETH_ROOT + 'release_coins')
+    @patch(OMNI_ROOT + 'release_coins')
+    @patch(OMNI_ROOT + 'get_accounts')
+    @patch(OMNI_ROOT + 'get_balance')
     def test_send_funds_to_main_card(self, name, curr_code,
                                      amount, amount_main, release_call_count,
                                      resend_funds_res, raise_value_error,
-                                     release_coins, get_balance,
-                                     get_balance_erc20, get_accs):
-        get_accs.return_value = [RPC7_KEY1.upper()]
+                                     get_balance_omni,
+                                     get_accs_omni, release_coins_omni,
+                                     release_coins_eth, get_balance_eth,
+                                     get_balance_erc20, get_accs_eth):
+        get_accs_eth.return_value = [RPC7_KEY1.upper()]
+        get_accs_omni.return_value = [RPC10_KEY1]
         if raise_value_error:
-            release_coins.side_effect = ValueError('Locked wallet')
+            release_coins_eth.side_effect = release_coins_omni.side_effect = \
+                ValueError('Locked wallet')
         else:
-            release_coins.return_value = self.generate_txn_id(), True
+            release_coins_eth.return_value = \
+                release_coins_omni.return_value = \
+                self.generate_txn_id(), True
         card = self.user.addressreserve_set.get(currency__code=curr_code)
         currency = Currency.objects.get(code=curr_code)
-        value = int(Decimal(amount) * (10 ** currency.decimals))
-        get_balance_erc20.return_value = hex(value)
-        if currency.is_token:
-            main_value = int(Decimal(amount_main) * (10 ** 18))
-            get_balance.return_value = main_value
-        else:
-            get_balance.return_value = value
-        res1 = self.monitor.client.resend_funds_to_main_card(card.card_id,
-                                                             curr_code)
-        res2 = self.monitor.client.check_card_balance(card.pk)
-        self.assertEqual(release_coins.call_count, release_call_count * 2,
-                         name)
-        amount_to_send = Decimal(amount) - self.client.get_total_gas_price(
-            currency.is_token
-        )
-        if currency.is_token:
-            amount_to_send = Decimal(amount)
-        if release_call_count:
-            release_coins.assert_called_with(
-                currency, '0xmain', amount_to_send, address_from=card.address
+        value_eth = int(Decimal(amount) * (10 ** currency.decimals))
+        value_omni = Decimal(amount)
+
+        if currency.wallet == 'rpc7':
+            get_balance_erc20.return_value = hex(value_eth)
+            if currency.is_token:
+                main_value = int(Decimal(amount_main) * (10 ** 18))
+                get_balance_eth.return_value = main_value
+            else:
+                get_balance_eth.return_value = value_eth
+
+            res1 = self.monitor_eth.client.resend_funds_to_main_card(
+                card.card_id,
+                curr_code
             )
+            res2 = self.monitor_eth.client.check_card_balance(card.pk)
+            self.assertEqual(release_coins_eth.call_count,
+                             release_call_count * 2,
+                             name)
+            amount_to_send = Decimal(
+                amount) - self.client_ethash.get_total_gas_price(
+                currency.is_token
+            )
+            if currency.is_token:
+                amount_to_send = Decimal(amount)
+            if release_call_count:
+                release_coins_eth.assert_called_with(
+                    currency, '0xmain', amount_to_send,
+                    address_from=card.address
+                )
+        elif currency.wallet == 'rpc10':
+            get_balance_omni.return_value = {'balance': value_omni,
+                                             'pending': 0,
+                                             'available': value_omni}
+
+            res1 = self.monitor_omni.client.resend_funds_to_main_card(
+                card.card_id,
+                curr_code
+            )
+            res2 = self.monitor_omni.client.check_card_balance(card.pk)
+            self.assertEqual(release_coins_omni.call_count,
+                             release_call_count * 2,
+                             name)
+            amount_to_send = \
+                Decimal(amount) - self.client_omni.get_total_btc_price()
+            if release_call_count:
+                release_coins_omni.assert_called_with(
+                    currency, RPC10_KEY1, amount_to_send,
+                    address_from=card.address
+                )
 
         for key, val in resend_funds_res.items():
             self.assertEqual(res1[key], val, name)

@@ -443,6 +443,7 @@ build:
           export RPC_GAS_LIMIT_ETH=${RPC_GAS_LIMIT_ETH}
           export RPC_GAS_LIMIT_TOKEN=${RPC_GAS_LIMIT_TOKEN}
           export RPC_GAS_PRICE=${RPC_GAS_PRICE}
+          export RPC_BTC_PRICE=${RPC_BTC_PRICE}
 
           # SOCIAL login
           export SOCIAL_AUTH_TWITTER_KEY=${SOCIAL_AUTH_TWITTER_KEY}

@@ -533,31 +533,32 @@ class OrderBaseTestCase(UserBaseTestCase):
             }
         }
 
-    def get_omni_tx(self, value, address):
+    def get_omni_raw_txs(self, value, address):
         return [{
-            'data': {},
-            'to': address,
-            'value': value,
-            'tx_id': self.generate_txn_id(),
-            'currency_code': 'USDT',
+            'txid': self.generate_txn_id(),
+            'fee': '0.00002896',
+            'sendingaddress': '17vzvhu6QMUTVYxz7M5TBmXPYbVQQ9mGcZ',
+            'referenceaddress': address,
+            'ismine': True,
+            'type_int': 0,
+            'type': 'Simple Send',
+            'propertyid': 31,
+            'amount': value,
+            'valid': True,
+            'confirmations': 1
         }]
 
-    def get_omni_tx_raw_unconfirmed(self, amount, address):
-        return {
-            'amount': amount,
-            'blocktime': 1524571252,
-            'confirmations': 4,
-            'fee': '0.00008640',
-            'propertyid': 31,
-            'propertyname': 'TetherUS',
-            'sendingaddress': address,
-            'referenceaddress': address,
-            'txid': self.generate_txn_id(),
-            'type': 'Simple Send',
-            'type_int': 0,
-            'version': 0,
-            'valid': False
-        }
+    def get_omni_tx_raw_confirmed(self, value, address):
+        tx = self.get_omni_raw_txs(value, address)[0]
+        tx['confirmations'] = 7
+        tx['valid'] = True
+        return tx
+
+    def get_omni_tx_raw_unconfirmed(self, value, address):
+        tx = self.get_omni_raw_txs(value, address)[0]
+        tx['confirmations'] = 1
+        tx['valid'] = False
+        return tx
 
     def get_cryptonight_raw_txs(self, currency, amount, address, block_height):
         raw_amount = str(int(amount * (10 ** currency.decimals)))
@@ -591,11 +592,6 @@ class OrderBaseTestCase(UserBaseTestCase):
                 'transfer': tx_data
             }
         }
-
-    def get_omni_tx_raw_confirmed(self, tx):
-        tx['confirmations'] = 7
-        tx['valid'] = True
-        return tx
 
     def get_ethash_tx(self, amount, address):
         value = Web3.toWei(amount, 'ether')
