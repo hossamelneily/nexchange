@@ -21,12 +21,15 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
                 instance.users.add(self.request.user)
 
             if instance.email:
-                user = User.objects.get(email=instance.email)
-                if user:
+                try:
+                    user = User.objects.get(email=instance.email)
                     instance.users.add(user)
+                except User.DoesNotExist:
+                    pass
 
-            orders = Order.objects.filter(withdraw_address__address=
-                                          instance.sending_address)
+            orders = Order.objects.filter(
+                withdraw_address__address=instance.sending_address
+            )
 
             for order in orders:
                 instance.orders.add(order)
