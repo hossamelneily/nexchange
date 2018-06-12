@@ -247,7 +247,7 @@ def execute_reserves_cover(self, reserves_cover_pk, periodic_settings_pk=None):
             retry = True
     if retry:
         self.retry(countdown=settings.THIRD_PARTY_TRADE_TIME,
-                   max_retries=settings.RETRY_RELEASE_MAX_RETRIES)
+                   max_retries=settings.COVER_TASK_MAX_RETRIES)
     elif periodic_settings_pk:
         periodic_settings.current_reserves_cover = None
         periodic_settings.save()
