@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from risk_management.models import Reserve, Account, Cover, ReserveLog,\
     PortfolioLog, PNL, PNLSheet, DisabledCurrency, ReservesCover, \
-    ReservesCoverSettings
+    ReservesCoverSettings, PeriodicReservesCoverSettings
 
 
 @admin.register(Reserve)
@@ -84,7 +84,8 @@ class CoverInline(admin.TabularInline):
 @admin.register(ReservesCover)
 class ReservesCoverAdmin(admin.ModelAdmin):
     inlines = (CoverInline,)
-    list_display = ('created_on', 'pair', 'amount_base', 'amount_quote')
+    list_display = ('created_on', 'settings', 'pair', 'amount_base',
+                    'amount_quote', 'static_rate_change_str', 'discard')
     readonly_fields = (
         'pair', 'amount_quote', 'amount_base', 'rate', 'acquisition_rate',
         'static_rate_change_str', 'pnl_rates',
@@ -96,3 +97,8 @@ class ReservesCoverAdmin(admin.ModelAdmin):
 @admin.register(ReservesCoverSettings)
 class ReservesCoverSettingsAdmin(admin.ModelAdmin):
     list_display = ('currencies_str', 'coverable_str', 'default',)
+
+
+@admin.register(PeriodicReservesCoverSettings)
+class PeriodicReservesCoverSettingsAdmin(admin.ModelAdmin):
+    list_display = ('settings', 'str_minimum_rate_change',)

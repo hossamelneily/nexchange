@@ -13,9 +13,12 @@ from django.utils.timezone import now, timedelta
 from copy import deepcopy
 from nexchange.api_clients.bittrex import BittrexApiClient
 from payments.utils import money_format
+from audit_log.models import AuthStampedModel
+from nexchange.api_clients.factory import ApiClientFactory
 
 
-bittrex_api = BittrexApiClient()
+BITTREX_API = BittrexApiClient()
+API_FACTORY = ApiClientFactory()
 
 
 class Reserve(TimeStampedModel):
@@ -329,10 +332,12 @@ class Cover(TimeStampedModel):
         (BUY, 'BUY'),
     )
 
+    CANCELED = -1
     INITIAL = 1
     PRE_EXECUTED = 5
     EXECUTED = 9
     STATUS_TYPES = (
+        (CANCELED, _('CANCELED')),
         (INITIAL, _('INITIAL')),
         (PRE_EXECUTED, _('PRE-EXECUTED')),
         (EXECUTED, _('EXECUTED')),
@@ -355,6 +360,28 @@ class Cover(TimeStampedModel):
     status = FSMIntegerField(choices=STATUS_TYPES, default=INITIAL)
     reserves_cover = models.ForeignKey('risk_management.ReservesCover',
                                        blank=True, null=True)
+
+    def recalculate(self):
+        if not self.status == self.INITIAL:
+            raise ValidationError(
+                _('Cannot recalculate cover  in state {}').format(
+                    self.get_status_display()
+                )
+            )
+        if not self.account:
+            raise ValidationError(_('Cannot recalculate cover which has '
+                                    'no Account'))
+        if not self.pair:
+            raise ValidationError(_('Cannot recalculate cover which has '
+                                    'no Pair'))
+        _api = API_FACTORY.get_api_client(self.account.wallet)
+        if self.cover_type == self.BUY:
+            self.rate = _api.get_rate(self.pair, rate_type='Ask')
+            self.amount_base = self.amount_quote / self.rate
+        elif self.cover_type == self.SELL:
+            self.rate = _api.get_rate(self.pair, rate_type='Bid')
+            self.amount_quote = self.amount_base * self.rate
+        self.save()
 
     @transition(field=status, source=INITIAL, target=PRE_EXECUTED)
     def _pre_execute(self):
@@ -819,6 +846,11 @@ class ReservesCoverSettings(TimeStampedModel):
     def coverable_str(self):
         return '{:.1f}%'.format(self.coverable_part * Decimal('100'))
 
+    def save(self, *args, **kwargs):
+        if self.coverable_part > Decimal('1'):
+            raise ValidationError('Coverable Part Cannot be more than 1')
+        super(ReservesCoverSettings, self).save(*args, **kwargs)
+
     def __str__(self):
         return '{}, {}'.format(self.currencies_str, self.coverable_str)
 
@@ -839,6 +871,32 @@ class ReservesCover(TimeStampedModel):
     amount_base = models.DecimalField(max_digits=18, decimal_places=8,
                                       default=Decimal('0'))
     pnl_sheets = models.ManyToManyField(PNLSheet)
+    discard = models.BooleanField(default=False)
+    comment = models.CharField(max_length=255, null=True, blank=True)
+
+    def recalculate_covers(self):
+        _covers = self.cover_set.filter(status=Cover.INITIAL)
+        if not _covers:
+            return
+        _all_covers = self.cover_set.all()
+        assert _covers.count() == _all_covers.count()
+        for c in _covers:
+            c.recalculate()
+        _count = _covers.count()
+        if _count == 2:
+            _buy_cover = _covers.get(cover_type=Cover.BUY)
+            _sell_cover = _covers.get(cover_type=Cover.SELL)
+            self.amount_base = _buy_cover.amount_base
+            self.amount_quote = _sell_cover.amount_base
+        elif _count == 1:
+            _cover = _covers.get()
+            if _cover.cover_type == Cover.BUY:
+                self.amount_base = _cover.amount_base
+                self.amount_quote = _cover.amount_quote
+            elif _cover.cover_type == Cover.SELL:
+                self.amount_base = _cover.amount_quote
+                self.amount_quote = _cover.amount_base
+        self.save()
 
     def _get_suggested_trade(self):
         buy_reserves = {
@@ -903,7 +961,7 @@ class ReservesCover(TimeStampedModel):
     def create_cover_objects(self):
         if not self.pair or not self.pk or self.cover_set.all():
             return
-        suggested_pairs = bittrex_api.get_api_pairs_for_pair(self.pair)
+        suggested_pairs = BITTREX_API.get_api_pairs_for_pair(self.pair)
         reverse_pair = self.pair.reverse_pair
         if self.pair in suggested_pairs:
             cover = Cover()
@@ -920,7 +978,7 @@ class ReservesCover(TimeStampedModel):
                 return
             cover.pair = self.pair
             cover.amount_base = self.amount_base
-            cover.rate = bittrex_api.get_rate(self.pair, rate_type='Ask')
+            cover.rate = BITTREX_API.get_rate(self.pair, rate_type='Ask')
 
             cover.amount_quote = cover.amount_base * cover.rate
             cover.save()
@@ -943,7 +1001,7 @@ class ReservesCover(TimeStampedModel):
                 return
             cover.pair = _pair
             cover.amount_base = self.amount_quote
-            cover.rate = bittrex_api.get_rate(_pair, rate_type='Bid')
+            cover.rate = BITTREX_API.get_rate(_pair, rate_type='Bid')
 
             cover.amount_quote = cover.amount_base * cover.rate
             cover.save()
@@ -981,8 +1039,8 @@ class ReservesCover(TimeStampedModel):
             cover_base.pair = base_btc
             cover_quote.pair = quote_btc
             cover_quote.amount_base = self.amount_quote
-            cover_base.rate = bittrex_api.get_rate(base_btc, rate_type='Ask')
-            cover_quote.rate = bittrex_api.get_rate(quote_btc, rate_type='Bid')
+            cover_base.rate = BITTREX_API.get_rate(base_btc, rate_type='Ask')
+            cover_quote.rate = BITTREX_API.get_rate(quote_btc, rate_type='Bid')
             cover_quote.amount_quote = cover_base.amount_quote = \
                 cover_quote.amount_base * cover_quote.rate
             cover_base.amount_base = cover_base.amount_quote / cover_base.rate
@@ -1001,8 +1059,13 @@ class ReservesCover(TimeStampedModel):
 
     @property
     def pnls(self):
-        return PNL.objects.filter(pnl_sheet__in=self.pnl_sheets.all(),
-                                  pair__in=[self.pair, self.pair.reverse_pair])
+        return PNL.objects.filter(
+            pnl_sheet__in=self.pnl_sheets.all(),
+            pair__in=[
+                self.pair,
+                getattr(self.pair, 'reverse_pair', None)
+            ]
+        )
 
     @property
     def pnl_rates(self):
@@ -1032,7 +1095,7 @@ class ReservesCover(TimeStampedModel):
     @property
     def acquisition_rate(self):
         pnl = self.matched_pnl
-        if pnl:
+        if pnl and self.pair:
             if pnl.pair == self.pair:
                 return pnl.average_position_price
             elif pnl.pair == self.pair.reverse_pair:
@@ -1048,8 +1111,8 @@ class ReservesCover(TimeStampedModel):
 
     @property
     def static_rate_change_str(self):
-        if self.static_rate_change:
-            return ' {0:.3f}%'.format(self.static_rate_change * Decimal(100))
+        if self.static_rate_change is not None:
+            return '{0:.3f}%'.format(self.static_rate_change * Decimal(100))
 
     @property
     def sell_reserves(self):
@@ -1088,3 +1151,22 @@ class ReservesCover(TimeStampedModel):
     @property
     def first_cover(self):
         return self.cover_set.all().order_by('cover_type').first()
+
+
+class PeriodicReservesCoverSettings(TimeStampedModel, AuthStampedModel):
+    settings = models.ForeignKey(ReservesCoverSettings)
+    current_reserves_cover = models.ForeignKey(ReservesCover, blank=True,
+                                               null=True)
+    minimum_rate_change = models.DecimalField(max_digits=18, decimal_places=8,
+                                              default=Decimal('0.05'))
+
+    @property
+    def acceptable_rate(self):
+        _change = getattr(self.current_reserves_cover, 'static_rate_change',
+                          None)
+        _min_change = self.minimum_rate_change
+        if _change and _change >= _min_change:
+            return True
+
+    def str_minimum_rate_change(self):
+        return ' {0:.3f}%'.format(self.minimum_rate_change * Decimal(100))

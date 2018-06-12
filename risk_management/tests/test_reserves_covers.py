@@ -1,15 +1,22 @@
 from risk_management.tests.base import RiskManagementBaseTestCase
 from ticker.tests.base import TickerBaseTestCase
-from risk_management.models import ReservesCover, Reserve, Cover
+from risk_management.models import ReservesCover, Reserve, Cover,\
+    PeriodicReservesCoverSettings, ReservesCoverSettings
 from decimal import Decimal
-from risk_management.task_summary import execute_reserves_cover
+from risk_management.task_summary import execute_reserves_cover,\
+    calculate_pnls_1day_invoke, calculate_pnls_7days_invoke,\
+    calculate_pnls_30days_invoke, periodic_reserve_cover_invoke
 import requests_mock
 from ticker.tests.fixtures.bittrex.market_resp import \
     resp as bittrex_market_resp
 from ticker.adapters import BittrexAdapter
-from core.models import Pair
+from core.models import Pair, Currency
 from core.tests.base import SCRYPT_ROOT, BITTREX_ROOT
 from unittest.mock import patch
+
+
+DOGE_ASK = 0.00000054
+DOGE_BID = 0.00000053
 
 
 def bittrex_rate_callback(request, context):
@@ -24,7 +31,7 @@ def bittrex_rate_callback(request, context):
         res = {
             'success': True,
             'result': {
-                'Bid': 0.00000053, 'Ask': 0.00000054
+                'Bid': DOGE_BID, 'Ask': DOGE_ASK
             }
         }
     elif query == 'market=btc-xvg':
@@ -104,7 +111,7 @@ class ReservesCoversTestCase(RiskManagementBaseTestCase, TickerBaseTestCase):
         mock.get('https://bittrex.com/api/v1.1/market/buylimit',
                  json={'success': True, 'result': {'uuid': buy_id}})
         with patch('risk_management.models.'
-                   'bittrex_api.get_api_pairs_for_pair') as pair_resp:
+                   'BITTREX_API.get_api_pairs_for_pair') as pair_resp:
             pair_resp.return_value = self.bad_main_currency_resp
             bad_reserve_cover = ReservesCover()
             bad_reserve_cover.save()
@@ -183,7 +190,7 @@ class ReservesCoversTestCase(RiskManagementBaseTestCase, TickerBaseTestCase):
         mock.get('https://bittrex.com/api/v1.1/market/buylimit',
                  json={'success': True, 'result': {'uuid': buy_id}})
         with patch('risk_management.models.'
-                   'bittrex_api.get_api_pairs_for_pair') as pair_resp:
+                   'BITTREX_API.get_api_pairs_for_pair') as pair_resp:
             pair_resp.return_value = self.bad_main_currency_resp
             bad_reserve_cover = ReservesCover()
             bad_reserve_cover.save()
@@ -246,7 +253,7 @@ class ReservesCoversTestCase(RiskManagementBaseTestCase, TickerBaseTestCase):
         mock.get('https://bittrex.com/api/v1.1/market/selllimit',
                  json={'success': True, 'result': {'uuid': sell_id}})
         with patch('risk_management.models.'
-                   'bittrex_api.get_api_pairs_for_pair') as pair_resp:
+                   'BITTREX_API.get_api_pairs_for_pair') as pair_resp:
             pair_resp.return_value = self.bad_main_currency_resp
             bad_reserve_cover = ReservesCover()
             bad_reserve_cover.save()
@@ -284,7 +291,9 @@ class ReservesCoversTestCase(RiskManagementBaseTestCase, TickerBaseTestCase):
         self.assertEqual(sell_cover.cover_id, sell_id)
         self.assertEqual(sell_cover.status, Cover.EXECUTED)
 
-    def test_reserves_cover_settings_remove_currencies(self):
+    @patch('risk_management.models.ReservesCover.create_cover_objects')
+    def test_reserves_cover_settings_remove_currencies(self, create_covers):
+        create_covers.return_value = None
         self._set_level(self.btc_reserve, diff=-2)
         self._set_level(self.xvg_reserve, diff=2)
         reserve_cover = ReservesCover()
@@ -305,3 +314,97 @@ class ReservesCoversTestCase(RiskManagementBaseTestCase, TickerBaseTestCase):
     def test_create_clear_cover(self):
         reserve_cover = ReservesCover()
         reserve_cover.save()
+
+    @requests_mock.mock()
+    @patch('risk_management.task_summary.execute_reserves_cover.retry')
+    @patch(BITTREX_ROOT + 'get_main_address')
+    @patch(BITTREX_ROOT + 'health_check')
+    @patch(SCRYPT_ROOT + 'health_check')
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_create_periodic_cover_doge_btc(self, mock, release_coins,
+                                            s_health, b_health, b_main_address,
+                                            retry_patch):
+        _settings = ReservesCoverSettings(coverable_part=0.7)
+        _settings.save()
+        _settings.currencies.add(
+            Currency.objects.get(code='BTC'),
+            Currency.objects.get(code='DOGE'),
+        )
+        _periodic_settings = PeriodicReservesCoverSettings(settings=_settings)
+        _periodic_settings.save()
+        internal_tx_id = self.generate_txn_id()
+        s_health.return_value = b_health.return_value = True
+        b_main_address.return_value = 'bittrex_addrerss'
+        release_coins.return_value = internal_tx_id, True
+        mock.get(BittrexAdapter.BASE_URL + 'getmarkets',
+                 text=bittrex_market_resp)
+        self._set_level(self.doge_reserve, diff=-2)
+        self._set_level(self.btc_reserve, diff=2)
+        # Create order bigger than reserves diff (to have PNLS)
+        self._create_order(
+            pair_name='DOGEBTC',
+            amount_base=abs(
+                self.doge_reserve.diff_from_target_level * Decimal(1.1)
+            )
+        )
+        self.order.status = self.order.COMPLETED
+        self.order.save()
+        self.order.amount_quote = \
+            self.order.amount_base * Decimal(str(DOGE_ASK))
+        self.order.save()
+
+        mock.get(BittrexAdapter.BASE_URL + 'getticker',
+                 json=bittrex_rate_callback)
+        buy_id = self.generate_txn_id()
+        mock.get('https://bittrex.com/api/v1.1/market/buylimit',
+                 json={'success': True, 'result': {'uuid': buy_id}})
+        # Try periodic cover with 0%
+        self.order.amount_quote = \
+            self.order.amount_base * Decimal(str(DOGE_ASK))
+        self.order.save()
+        calculate_pnls_1day_invoke.apply_async()
+        calculate_pnls_7days_invoke.apply_async()
+        calculate_pnls_30days_invoke.apply_async()
+        periodic_reserve_cover_invoke.apply_async()
+        r_cover1 = ReservesCover.objects.latest('id')
+        self.assertEqual(r_cover1.static_rate_change, Decimal(0))
+        self.assertTrue(r_cover1.discard)
+        _cover1 = r_cover1.cover_set.get()
+        self.assertEqual(_cover1.status, _cover1.INITIAL)
+        _periodic_settings.refresh_from_db()
+        self.assertIsNone(_periodic_settings.current_reserves_cover)
+        # Try periodic cover with minimum_reserves_change +
+        _rate = \
+            Decimal(DOGE_ASK) \
+            * (Decimal('1') + _periodic_settings.minimum_rate_change) \
+            * Decimal('1.01')
+        self.order.amount_quote = self.order.amount_base * _rate
+        self.order.save()
+        calculate_pnls_1day_invoke.apply_async()
+        calculate_pnls_7days_invoke.apply_async()
+        calculate_pnls_30days_invoke.apply_async()
+        periodic_reserve_cover_invoke.apply_async()
+        r_cover2 = ReservesCover.objects.latest('id')
+        self.assertGreater(r_cover2.static_rate_change,
+                           _periodic_settings.minimum_rate_change)
+        self.assertFalse(r_cover2.discard)
+        _periodic_settings.refresh_from_db()
+        self.assertEqual(_periodic_settings.current_reserves_cover, r_cover2)
+        _cover2 = r_cover2.cover_set.get()
+        self.assertEqual(_cover2.status, _cover2.INITIAL)
+        # Execute
+        _account = _cover2.account.get_same_api_wallet(_cover2.pair.quote)
+        _account.available = _cover2.amount_quote
+        _account.save()
+        execute_reserves_cover.apply_async(
+            args=[r_cover1.pk],
+            kwargs={'periodic_settings_pk': _periodic_settings.pk}
+        )
+        execute_reserves_cover.apply_async(
+            args=[r_cover2.pk],
+            kwargs={'periodic_settings_pk': _periodic_settings.pk}
+        )
+        _cover1 = r_cover1.cover_set.get()
+        _cover2 = r_cover2.cover_set.get()
+        self.assertEqual(_cover1.status, _cover1.INITIAL)
+        self.assertEqual(_cover2.status, _cover2.EXECUTED)

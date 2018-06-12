@@ -329,18 +329,21 @@ TRADING_TASKS = {
         'task': 'risk_management.task_summary.log_current_assets',
         'schedule': timedelta(seconds=600),
     },
-    # Primary hours to avoid running tasks at the same time
     'calculate_pnls_1day_invoke': {
         'task': 'risk_management.task_summary.calculate_pnls_1day_invoke',
-        'schedule': timedelta(hours=2),
+        'schedule': timedelta(minutes=3, seconds=15),
     },
     'calculate_pnls_7days_invoke': {
         'task': 'risk_management.task_summary.calculate_pnls_7days_invoke',
-        'schedule': timedelta(hours=7, minutes=5),
+        'schedule': timedelta(minutes=7, seconds=37),
     },
     'calculate_pnls_30days_invoke': {
         'task': 'risk_management.task_summary.calculate_pnls_30days_invoke',
-        'schedule': timedelta(hours=23, minutes=10),
+        'schedule': timedelta(minutes=11, seconds=51),
+    },
+    'periodic_reserve_cover_invoke': {
+        'task': 'risk_management.task_summary.periodic_reserve_cover_invoke',
+        'schedule': timedelta(hours=1),
     },
 }
 
@@ -391,7 +394,7 @@ RETRY_RELEASE_MAX_RETRIES = 3
 CARD_CHECK_TIME = 150
 RETRY_CARD_CHECK_MAX_RETRIES = 5
 THIRD_PARTY_TRADE_TIME = 300
-COVER_TASK_MAX_RETRIES = 15
+COVER_TASK_MAX_RETRIES = 9
 
 
 MIDDLEWARE_CLASSES = [

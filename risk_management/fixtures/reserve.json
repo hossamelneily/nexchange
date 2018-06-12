@@ -22,10 +22,10 @@
     "modified_on": "2017-10-04T12:57:37.855Z",
     "currency": 1,
     "is_limit_reserve": false,
-    "target_level": "5.0",
-    "allowed_diff": "1.0",
+    "target_level": "10.0",
+    "allowed_diff": "2.0",
     "minimum_level": "0.3",
-    "maximum_level": "10",
+    "maximum_level": "15",
     "minimum_main_account_level": "0.005"
   }
 },
