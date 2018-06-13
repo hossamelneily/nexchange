@@ -175,6 +175,7 @@ def periodic_reserve_cover_invoke():
     periodic_reserve_cover = PeriodicReservesCoverSettings.objects.filter(
         current_reserves_cover__isnull=True
     )
+
     for p in periodic_reserve_cover:
         rc = ReservesCover(settings=p.settings)
         rc.save()
