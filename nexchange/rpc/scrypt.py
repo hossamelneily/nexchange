@@ -4,6 +4,7 @@ from core.models import Address
 from django.conf import settings
 import os
 from http.client import RemoteDisconnected
+from decimal import Decimal
 
 
 class ScryptRpcApiClient(BaseRpcClient):
@@ -91,6 +92,13 @@ class ScryptRpcApiClient(BaseRpcClient):
                               *[_address, amount])
         success = True
         return tx_id, success
+
+    def get_unspent_address_balance(self, node, address, min_confs=1):
+        _address = getattr(address, 'address', address)
+        res = self.call_api(node, 'listunspent')
+        return Decimal(
+            sum([x['amount'] for x in res if x['address'] == _address and x['confirmations'] > min_confs])  # noqa
+        )
 
     def get_balance(self, currency):
         balance = self.call_api(currency.wallet, 'getbalance')
