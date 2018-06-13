@@ -36,7 +36,7 @@ class OmniRpcApiClient(ScryptRpcApiClient):
         _currency = self.get_currency({'code': tx['currency_code']})
         to = tx['to']
         try:
-            _address = self.get_address({'address': to.lower()})
+            _address = self.get_address({'address': to})
         except Address.DoesNotExist:
             _address = None
             self.logger.warning(
