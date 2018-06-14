@@ -7,8 +7,8 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 40,
     "quote": 4,
-    "fee_ask": "0.0500000",
-    "fee_bid": "0.0500000",
+    "fee_ask": "0.0300000",
+    "fee_bid": "0.0300000",
     "name": "EOSUSD",
     "test_mode": false,
     "disabled": false
@@ -22,8 +22,8 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 40,
     "quote": 6,
-    "fee_ask": "0.0200000",
-    "fee_bid": "0.0200000",
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
     "name": "EOSEUR",
     "test_mode": false,
     "disabled": false
@@ -37,9 +37,24 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 40,
     "quote": 7,
+    "fee_ask": "0.02000000",
+    "fee_bid": "0.02000000",
+    "name": "EOSGBP",
+    "test_mode": false,
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 606,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 40,
+    "quote": 8,
     "fee_ask": "0.0300000",
     "fee_bid": "0.0300000",
-    "name": "EOSGBP",
+    "name": "EOSJPY",
     "test_mode": false,
     "disabled": false
   }

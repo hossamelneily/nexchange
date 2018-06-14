@@ -553,7 +553,8 @@ class PNLSheet(TimeStampedModel):
         if create_pnls:
             crypto = Currency.objects.filter(is_crypto=True).exclude(
                 code__in=['RNS']).order_by('pk')
-            codes = [curr.code for curr in crypto] + ['EUR', 'USD', 'GBP']
+            codes = [curr.code for curr in crypto] + ['EUR', 'USD', 'GBP',
+                                                      'JPY']
             names = []
             for i, code_base in enumerate(codes):
                 for code_quote in codes[i + 1:]:

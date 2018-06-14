@@ -7,8 +7,8 @@
     "modified_on": "2017-03-01T12:49:28.852Z",
     "base": 1,
     "quote": 4,
-    "fee_ask": "0.04000000",
-    "fee_bid": "0.04000000",
+    "fee_ask": "0.03000000",
+    "fee_bid": "0.03000000",
     "name": "BTCUSD",
     "test_mode": false,
     "disabled": false
@@ -37,8 +37,8 @@
     "modified_on": "2017-03-01T12:49:28.860Z",
     "base": 1,
     "quote": 6,
-    "fee_ask": "0.01000000",
-    "fee_bid": "0.01000000",
+    "fee_ask": "0.00500000",
+    "fee_bid": "0.00500000",
     "name": "BTCEUR",
     "test_mode": false,
     "disabled": false
@@ -67,11 +67,11 @@
     "modified_on": "2017-03-01T12:49:28.868Z",
     "base": 1,
     "quote": 8,
-    "fee_ask": "0.01000000",
-    "fee_bid": "0.01000000",
-    "disable_volume": true,
+    "fee_ask": "0.03000000",
+    "fee_bid": "0.03000000",
+    "disable_volume": false,
     "name": "BTCJPY",
-    "disabled": true
+    "disabled": false
   }
 },
 {

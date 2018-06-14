@@ -11,6 +11,7 @@ import os
 from collections import Counter
 from risk_management.models import Account
 from unittest.mock import patch
+from django.db.models import Max
 
 
 class ValidateUniqueFieldMixinTestCase(TestCase):
@@ -170,41 +171,45 @@ class PairFixtureTestCase(OrderBaseTestCase):
                 base__code='RNS'
             ).exclude(
                 quote__code='RNS'
-            ) if p.is_crypto or p.quote.code in ['USD', 'EUR', 'GBP']]
+            ) if p.is_crypto or p.quote.code in ['USD', 'EUR', 'GBP', 'JPY']]
         token_pairs = [p for p in pairs if p.contains_token]
         non_token_pairs = [p for p in pairs if not p.contains_token]
         for p in non_token_pairs:
             if p.name in ['BTCLTC', 'LTCBTC', 'ETHBTC', 'BTCETH', 'BCHBTC',
-                          'BTCBCH']:
+                          'BTCBCH', 'BTCEUR']:
                 fee = major_pair_fee
             else:
                 fee = minor_pair_fee
-            if 'USD' in p.name:
-                fee += Decimal('0.03')
-            if 'GBP' in p.name:
+            if p.quote.code in ['USD', 'JPY']:
+                fee += Decimal('0.02')
+            if 'GBP' == p.quote.code:
                 fee += Decimal('0.01')
             self.assertEqual(p.fee_ask, fee, 'Bad fee_ask on {}'.format(p))
             self.assertEqual(p.fee_bid, fee, 'Bad fee_bid on {}'.format(p))
         for p in token_pairs:
-            if 'ETH' in p.name:
-                fee = minor_pair_fee
-            elif 'BTC' in p.name:
-                fee = minor_pair_fee + major_pair_fee
-            else:
-                fee = 2 * minor_pair_fee
+            # if 'ETH' in p.name:
+            #     fee = minor_pair_fee
+            # elif 'BTC' in p.name:
+            #     fee = minor_pair_fee + major_pair_fee
+            # else:
+            #     fee = 2 * minor_pair_fee
+            #  ICO fees
+            fee = minor_pair_fee
 
-            if p.quote.code in ['BDG', 'BIX', 'HT', 'COSS', 'COB']:
-                ask = Decimal('2') * fee
-                bid = fee
-            elif p.base.code in ['BDG', 'BIX', 'HT', 'COSS', 'COB']:
-                bid = Decimal('2') * fee
-                ask = fee
-            else:
-                ask = bid = fee
-            if 'USD' in p.name:
-                ask += Decimal('0.03')
-                bid += Decimal('0.03')
-            elif 'GBP' in p.name:
+            # if p.quote.code in ['BDG', 'BIX', 'HT', 'COSS', 'COB']:
+            #     ask = Decimal('2') * fee
+            #     bid = fee
+            # elif p.base.code in ['BDG', 'BIX', 'HT', 'COSS', 'COB']:
+            #     bid = Decimal('2') * fee
+            #     ask = fee
+            # else:
+            #     ask = bid = fee
+            #  ICO fees
+            ask = bid = fee
+            if p.quote.code in ['USD', 'JPY']:
+                ask += Decimal('0.02')
+                bid += Decimal('0.02')
+            elif 'GBP' == p.quote.code:
                 ask += Decimal('0.01')
                 bid += Decimal('0.01')
             self.assertEqual(p.fee_ask, ask, 'Bad fee_ask on {}'.format(p))
@@ -276,11 +281,16 @@ class PairFixtureTestCase(OrderBaseTestCase):
             pairs = [pair for pair in pair_data
                      if pair['fields']['base'] == crypto['pk'] and
                      pair['fields']['quote']
-                     in [4, 6, 7]]  # USD, EUR and GBP
+                     in [4, 6, 7, 8]]  # USD, EUR, GBP and JPY
             self.assertEquals(
                 len(pairs),
-                3,
+                4,
                 'Not enough pairs for %s' % crypto['fields']['code'])
+
+    def test_consecutive_pairs(self):
+        pairs = Pair.objects.all()
+        max_pk = pairs.aggregate(Max('pk'))['pk__max']
+        self.assertEqual(pairs.count(), max_pk)
 
 
 class TransactionTestCase(TickerBaseTestCase):

@@ -7,8 +7,8 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 39,
     "quote": 4,
-    "fee_ask": "0.0500000",
-    "fee_bid": "0.0500000",
+    "fee_ask": "0.0300000",
+    "fee_bid": "0.0300000",
     "name": "OMGUSD",
     "test_mode": false,
     "disabled": false
@@ -22,8 +22,8 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 39,
     "quote": 6,
-    "fee_ask": "0.0200000",
-    "fee_bid": "0.0200000",
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
     "name": "OMGEUR",
     "test_mode": false,
     "disabled": false
@@ -37,9 +37,24 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 39,
     "quote": 7,
+    "fee_ask": "0.0200000",
+    "fee_bid": "0.0200000",
+    "name": "OMGGBP",
+    "test_mode": false,
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 611,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 39,
+    "quote": 8,
     "fee_ask": "0.0300000",
     "fee_bid": "0.0300000",
-    "name": "OMGGBP",
+    "name": "OMGJPY",
     "test_mode": false,
     "disabled": false
   }

@@ -53,7 +53,9 @@
       "code": "JPY",
       "name": "JPY",
       "created_on":"2016-05-20T17:41:28+00:00",
-      "modified_on":"2016-05-20T17:41:28+00:00"
+      "modified_on":"2016-05-20T17:41:28+00:00",
+      "maximal_amount": "100000",
+      "minimal_amount": "6000"
     }
   },
   {
