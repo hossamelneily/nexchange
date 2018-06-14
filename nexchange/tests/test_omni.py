@@ -10,7 +10,7 @@ from orders.models import Order, Currency
 from core.models import Transaction
 import os
 from rest_framework.test import APIClient
-from core.tests.base import OMNI_ROOT
+from core.tests.base import OMNI_ROOT, SCRYPT_ROOT
 from nexchange.api_clients.factory import ApiClientFactory
 from collections import namedtuple
 from risk_management.models import Reserve
@@ -206,7 +206,7 @@ class OmniRawE2ETestCase(TransactionImportBaseTestCase,
         self.assertEqual(self.order.status, Order.PAID, pair_name)
         # Check Send BTC
         task, tx_id = send_task.call_args[0]
-        with patch(OMNI_ROOT + 'release_coins') as release_coins:
+        with patch(SCRYPT_ROOT + 'release_coins') as release_coins:
             getattr(
                 account_tasks,
                 task.split('accounts.task_summary.')[1]

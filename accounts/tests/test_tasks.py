@@ -203,9 +203,11 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
     @patch(OMNI_ROOT + 'release_coins')
     @patch(OMNI_ROOT + 'get_accounts')
     @patch(OMNI_ROOT + 'get_balance')
+    @patch(OMNI_ROOT + 'get_unspent_address_balance')
     def test_send_funds_to_main_card(self, name, curr_code,
                                      amount, amount_main, release_call_count,
                                      resend_funds_res, raise_value_error,
+                                     get_unspent_address_balance_omni,
                                      get_balance_omni,
                                      get_accs_omni, release_coins_omni,
                                      release_coins_eth, get_balance_eth,
@@ -256,6 +258,7 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
                                              'pending': 0,
                                              'available': value_omni}
 
+            get_unspent_address_balance_omni.return_value = Decimal(0.00005000)
             res1 = self.monitor_omni.client.resend_funds_to_main_card(
                 card.card_id,
                 curr_code
@@ -265,7 +268,7 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
                              release_call_count * 2,
                              name)
             amount_to_send = \
-                Decimal(amount) - self.client_omni.get_total_btc_price()
+                get_balance_omni.return_value.get('available', Decimal('0'))
             if release_call_count:
                 release_coins_omni.assert_called_with(
                     currency, RPC10_KEY1, amount_to_send,

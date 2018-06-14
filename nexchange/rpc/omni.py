@@ -94,37 +94,36 @@ class OmniRpcApiClient(ScryptRpcApiClient):
 
     def add_btc_to_card(self, card_pk):
         card = AddressReserve.objects.get(pk=card_pk)
-        node = card.currency.wallet
         address = card.address
-        main_currency = Currency.objects.get(
-            code=self.related_coins[self.related_nodes.index(node)]
-        )
+        currency = Currency.objects.get(code='USDT')
         amount = settings.RPC_BTC_PRICE
-        return self.release_coins(main_currency, address, amount)
+        return super(OmniRpcApiClient, self).release_coins(
+            currency, address, amount
+        )
 
     def check_card_balance(self, card_pk, **kwargs):
         card = AddressReserve.objects.get(pk=card_pk)
         res = self.resend_funds_to_main_card(card.address, card.currency.code)
         return res
 
-    def get_total_btc_price(self):
-        return settings.RPC_BTC_PRICE
-
     def resend_funds_to_main_card(self, address, currency):
         if not isinstance(currency, Currency):
             currency = Currency.objects.get(code=currency)
-        main_address = self.get_main_address(currency)
-        total_btc_price = self.get_total_btc_price()
-        amount = self.get_balance(currency, account=address).get(
-            'available', Decimal('0')
-        ) - total_btc_price
+        btc_avail = self.get_unspent_address_balance(currency.wallet, address)
+        if btc_avail != 0 and btc_avail >= settings.RPC_BTC_PRICE:
+            main_address = self.get_main_address(currency)
+            amount = self.get_balance(currency, account=address).get(
+                'available', Decimal('0')
+            )
 
-        if amount <= 0:
+            if amount <= 0:
+                return {'success': False, 'retry': True}
+            tx_id, success = self.release_coins(currency, main_address,
+                                                amount, address_from=address)
+            retry = not success
+            return {'success': success, 'retry': retry, 'tx_id': tx_id}
+        else:
             return {'success': False, 'retry': True}
-        tx_id, success = self.release_coins(currency, main_address,
-                                            amount, address_from=address)
-        retry = not success
-        return {'success': success, 'retry': retry, 'tx_id': tx_id}
 
     def get_balance(self, currency, account=None):
         if not isinstance(currency, Currency):

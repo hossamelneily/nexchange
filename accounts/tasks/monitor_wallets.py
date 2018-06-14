@@ -78,8 +78,11 @@ def _update_pending_transaction(tx, logger, next_tasks=None):
                 # TODO: implement me as next task
                 # Orders are released by periodic release
                 # next_tasks.add((exchange_order_release_invoke, tx.pk,))
+                card_check_time = settings.CARD_CHECK_TIME_BTC \
+                    if tx.order.pair.quote.code == 'USDT' \
+                    else settings.CARD_CHECK_TIME
                 app.send_task(CHECK_CARD_BALANCE_TASK, [tx.pk],
-                              countdown=settings.CARD_CHECK_TIME)
+                              countdown=card_check_time)
                 if tx.order.pair.quote.is_token:
                     app.send_task(SEND_GAS_TASK, [tx.pk])
                 if tx.order.pair.quote.code == "USDT":
