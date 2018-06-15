@@ -6,6 +6,7 @@ from decimal import Decimal
 from web3 import Web3, RPCProvider
 from nexchange.api_clients.mappers import RpcMapper
 import os
+from time import sleep
 
 
 class EthashRpcApiClient(BaseRpcClient):
@@ -302,7 +303,15 @@ class EthashRpcApiClient(BaseRpcClient):
                                                 amount, address_from=address)
             retry = not success
         except ValueError:
-            return {'success': False, 'retry': True}
+            # Hack to deal with mysterious wallet locks
+            sleep(1)
+            try:
+                tx_id, success = self.release_coins(currency, main_address,
+                                                    amount,
+                                                    address_from=address)
+                retry = not success
+            except ValueError:
+                return {'success': False, 'retry': True}
         return {'success': success, 'retry': retry, 'tx_id': tx_id}
 
     def pad_left(self, value, width=64):
