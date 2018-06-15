@@ -1790,7 +1790,7 @@
     "name": "BTCUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1806,7 +1806,7 @@
     "name": "USDTBTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1822,7 +1822,7 @@
     "name": "LTCUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1838,7 +1838,7 @@
     "name": "USDTLTC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1854,7 +1854,7 @@
     "name": "ETHUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1870,7 +1870,7 @@
     "name": "USDTETH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1886,7 +1886,7 @@
     "name": "DOGEUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1902,7 +1902,7 @@
     "name": "USDTDOGE",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1918,7 +1918,7 @@
     "name": "XVGUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1934,7 +1934,7 @@
     "name": "USDTXVG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1950,7 +1950,7 @@
     "name": "BCHUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1966,7 +1966,7 @@
     "name": "USDTBCH",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1982,7 +1982,7 @@
     "name": "BDGUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -1998,7 +1998,7 @@
     "name": "USDTBDG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -2014,7 +2014,7 @@
     "name": "OMGUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -2030,7 +2030,7 @@
     "name": "USDTOMG",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -2046,7 +2046,7 @@
     "name": "EOSUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -2062,7 +2062,7 @@
     "name": "USDTEOS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -2078,7 +2078,7 @@
     "name": "NANOUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -2094,7 +2094,7 @@
     "name": "USDTNANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -2110,7 +2110,7 @@
     "name": "ZECUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -2126,7 +2126,7 @@
     "name": "USDTZEC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -2782,7 +2782,7 @@
     "name": "USDTKCS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -2798,7 +2798,7 @@
     "name": "KCSUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -3196,7 +3196,7 @@
     "name": "USDTBNB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -3212,7 +3212,7 @@
     "name": "BNBUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -3644,7 +3644,7 @@
     "name": "USDTKNC",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -3660,7 +3660,7 @@
     "name": "KNCUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4124,7 +4124,7 @@
     "name": "USDTHT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4140,7 +4140,7 @@
     "name": "HTUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4635,7 +4635,7 @@
     "name": "USDTBIX",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -4651,7 +4651,7 @@
     "name": "BIXUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5179,7 +5179,7 @@
     "name": "USDTBNT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5195,7 +5195,7 @@
     "name": "BNTUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5755,7 +5755,7 @@
     "name": "USDTCOSS",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -5771,7 +5771,7 @@
     "name": "COSSUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6363,7 +6363,7 @@
     "name": "USDTCOB",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {
@@ -6379,7 +6379,7 @@
     "name": "COBUSDT",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {

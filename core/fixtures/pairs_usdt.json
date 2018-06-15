@@ -10,7 +10,7 @@
     "fee_ask": "0.0300000",
     "fee_bid": "0.0300000",
     "name": "USDTUSD",
-    "test_mode": true,
+    "test_mode": false,
     "disabled": false
   }
 },
@@ -25,7 +25,7 @@
     "fee_ask": "0.010000",
     "fee_bid": "0.010000",
     "name": "USDTEUR",
-    "test_mode": true,
+    "test_mode": false,
     "disabled": false
   }
 },
@@ -40,7 +40,7 @@
     "fee_ask": "0.0200000",
     "fee_bid": "0.0200000",
     "name": "USDTGBP",
-    "test_mode": true,
+    "test_mode": false,
     "disabled": false
   }
 },
