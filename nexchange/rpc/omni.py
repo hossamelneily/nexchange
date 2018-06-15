@@ -95,7 +95,7 @@ class OmniRpcApiClient(ScryptRpcApiClient):
     def add_btc_to_card(self, card_pk):
         card = AddressReserve.objects.get(pk=card_pk)
         address = card.address
-        currency = Currency.objects.get(code='USDT')
+        currency = Currency.objects.get(code='BTC')
         amount = settings.RPC_BTC_PRICE
         return super(OmniRpcApiClient, self).release_coins(
             currency, address, amount
@@ -142,7 +142,7 @@ class OmniRpcApiClient(ScryptRpcApiClient):
         return info
 
     def _get_txs(self, node):
-        txs = self.call_api(node, 'omni_listtransactions')
+        txs = self.call_api(node, 'omni_listpendingtransactions')
         currency = Currency.objects.get(
             code=self.related_coins[self.related_nodes.index(node)]
         )

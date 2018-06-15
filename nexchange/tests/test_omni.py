@@ -175,7 +175,7 @@ class OmniRawE2ETestCase(TransactionImportBaseTestCase,
         card = self.order.deposit_address.reserve
 
         def side_effect(*args):
-            if args[1] == 'omni_listtransactions':
+            if args[1] == 'omni_listpendingtransactions':
                 return self.get_omni_raw_txs(mock_amount, card.address)
             if args[1] == 'omni_gettransaction':
                 return self.get_omni_tx_raw_unconfirmed(
@@ -213,9 +213,9 @@ class OmniRawE2ETestCase(TransactionImportBaseTestCase,
             ).apply_async(tx_id)
             self.assertEqual(release_coins.call_count, 1, pair_name)
             release_coins.assert_called_with(
-                Currency.objects.get(code='USDT'),
+                Currency.objects.get(code='BTC'),
                 card.address,
-                round(Decimal(0.00005000), 8)
+                Decimal('0.0003')
             )
 
     @data_provider(
@@ -253,7 +253,7 @@ class OmniRawE2ETestCase(TransactionImportBaseTestCase,
         mock_get_main_address.return_value = 'reserve_address'
 
         def side_effect(*args):
-            if args[1] == 'omni_listtransactions':
+            if args[1] == 'omni_listpendingtransactions':
                 return self.get_omni_raw_txs(mock_amount, 'reserve_address')
             if args[1] == 'omni_gettransaction':
                 return self.get_omni_tx_raw_confirmed(

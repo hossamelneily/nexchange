@@ -258,7 +258,8 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
                                              'pending': 0,
                                              'available': value_omni}
 
-            get_unspent_address_balance_omni.return_value = Decimal(0.00005000)
+            get_unspent_address_balance_omni.return_value = \
+                Decimal('0.00030000')
             res1 = self.monitor_omni.client.resend_funds_to_main_card(
                 card.card_id,
                 curr_code
