@@ -79,7 +79,7 @@ def _update_pending_transaction(tx, logger, next_tasks=None):
                 # Orders are released by periodic release
                 # next_tasks.add((exchange_order_release_invoke, tx.pk,))
                 card_check_time = settings.CARD_CHECK_TIME_BTC \
-                    if tx.order.pair.quote.code == 'USDT' \
+                    if tx.currency.code == 'USDT' \
                     else settings.CARD_CHECK_TIME
                 app.send_task(CHECK_CARD_BALANCE_TASK, [tx.pk],
                               countdown=card_check_time)

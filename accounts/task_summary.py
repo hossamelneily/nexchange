@@ -122,7 +122,10 @@ def check_transaction_card_balance_invoke(self, tx_id):
         task_info = check_card_balance_invoke.apply([card.pk])
         res = task_info.result
         if res.get('retry'):
-            self.retry(countdown=settings.CARD_CHECK_TIME,
+            card_check_time = settings.CARD_CHECK_TIME_BTC \
+                if tx.currency.code == 'USDT' \
+                else settings.CARD_CHECK_TIME
+            self.retry(countdown=card_check_time,
                        max_retries=settings.RETRY_CARD_CHECK_MAX_RETRIES)
 
 
