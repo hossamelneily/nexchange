@@ -232,5 +232,27 @@
       "unslippaged_amount": "6",
       "slippage_rate": "3.12500e-5"
     }
+  },
+  {
+    "model": "core.currency",
+      "pk": 54,
+      "fields": {
+      "code": "DASH",
+      "name": "dash",
+      "ticker": "hitbtc/binance/bittrex",
+      "wallet": "rpc12",
+      "algo": "x11",
+      "withdrawal_fee": "0.0005",
+      "is_crypto": 1,
+      "min_confirmations": 2,
+      "median_confirmation": 6,
+      "minimal_amount": "0.05",
+      "maximal_amount": "15.0",
+      "decimals": 8,
+      "created_on":"2017-09-19T19:21:42+00:00",
+      "modified_on":"2017-09-19T19:21:42+00:00",
+      "unslippaged_amount": "5",
+      "slippage_rate": "2.5e-7"
+    }
   }
 ]

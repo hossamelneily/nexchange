@@ -1,7 +1,8 @@
 from django.core.exceptions import ValidationError
 
 from core.validators import validate_address, validate_eth, validate_btc,\
-    validate_ltc, get_validator, validate_bch
+    validate_ltc, get_validator, validate_bch, validate_doge, validate_zec, \
+    validate_xmr, validate_dash
 from core.tests.utils import data_provider
 from core.models import Currency
 from core.tests.base import OrderBaseTestCase
@@ -13,7 +14,13 @@ class ValidateBCTestCase(OrderBaseTestCase):
         self.ltc_address = 'LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA'
         self.btc_address = '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi'
         self.eth_address = '0x8116546AaC209EB58c5B531011ec42DD28EdFb71'
-        self.bch_address = 'bitcoincash:qrlt24dt99gc9r7veal5rst8pc0m9zm3egadel8e6p'
+        self.bch_address = 'bitcoincash:qrlt24dt99gc9r7veal5rst8pc0m9zm' \
+                           '3egadel8e6p'
+        self.doge_address = 'DPjMRpkNKEfnYVHqmAan4FbriqP4DyUt2u'
+        self.zec_address = 't1a7HFeidzBswwdXaFV1gKtSphn41rLcEmK'
+        self.xmr_address = '41pLNkSGSJK8pWAG9dd57YcWB82gH5ucHNEPnGt1FBN59Prd' \
+                           'YqKUGB1SfZxGQPcYcDEbctmpN2kpVbtupm6yCRf16oXkjuY'
+        self.dash_address = 'XgJdGA5NWn71TmFYxVPvpZxUKAe8x7YWrP'
 
     def tearDown(self):
         pass
@@ -33,10 +40,20 @@ class ValidateBCTestCase(OrderBaseTestCase):
          [validate_ltc, validate_eth]),
         ('0x8116546AaC209EB58c5B531011ec42DD28EdFb71', validate_eth,
          [validate_ltc, validate_btc, validate_bch]),
-        ('bitcoincash:qrlt24dt99gc9r7veal5rst8pc0m9zm3egadel8e6p', validate_bch,
-         [validate_ltc, validate_btc, validate_eth]),
+        ('bitcoincash:qrlt24dt99gc9r7veal5rst8pc0m9zm3egadel8e6p',
+         validate_bch, [validate_ltc, validate_btc, validate_eth]),
         ('35qL43qYwLdKtnR7yMfGNDvzv6WyZ8yT2n', validate_bch,
          [validate_ltc, validate_eth]),
+        ('DPjMRpkNKEfnYVHqmAan4FbriqP4DyUt2u', validate_doge,
+         [validate_ltc, validate_eth]),
+        ('t1a7HFeidzBswwdXaFV1gKtSphn41rLcEmK', validate_zec,
+         [validate_ltc, validate_eth]),
+        ('41pLNkSGSJK8pWAG9dd57YcWB82gH5ucHNEPnGt1FBN59Prd'
+         'YqKUGB1SfZxGQPcYcDEbctmpN2kpVbtupm6yCRf16oXkjuY', validate_xmr,
+         [validate_ltc, validate_eth]),
+        ('XgJdGA5NWn71TmFYxVPvpZxUKAe8x7YWrP', validate_dash,
+         [validate_ltc, validate_eth]),
+
     ))
     def test_validate_different_address(self, address, validator,
                                         fail_validators):

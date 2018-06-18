@@ -6733,5 +6733,677 @@
     "disabled": false,
     "test_mode": false
   }
+},
+{
+  "model": "core.pair",
+  "pk": 615,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 1,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BTCDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 616,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 1,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHBTC",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 617,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 2,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "LTCDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 618,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 2,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHLTC",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 619,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 3,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "ETHDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 620,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 3,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHETH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 621,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 34,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DOGEDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 622,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 34,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHDOGE",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 623,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 35,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XVGDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 624,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 35,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHXVG",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 625,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 36,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BCHDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 626,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 36,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHBCH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 627,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 42,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "NANODASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 628,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 42,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHNANO",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 629,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 43,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "ZECDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 630,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 43,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHZEC",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 631,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "USDTDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 632,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 44,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHUSDT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 633,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 45,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XMRDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 634,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 45,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHXMR",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 635,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 37,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BDGDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 636,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 37,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHBDG",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 637,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 39,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "OMGDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 638,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 39,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHOMG",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 639,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 40,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "EOSDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 640,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 40,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHEOS",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 641,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 46,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "KCSDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 642,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 46,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHKCS",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 643,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 47,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BNBDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 644,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 47,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHBNB",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 645,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 48,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "KNCDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 646,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 48,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHKNC",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 647,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 49,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "HTDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 648,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 49,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHHT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 649,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 50,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BIXDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 650,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 50,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHBIX",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 651,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 51,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BNTDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 652,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 51,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHBNT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 653,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 52,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "COSSDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 654,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 52,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHCOSS",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 655,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 53,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "COBDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 656,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 53,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHCOB",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": true
+  }
 }
 ]

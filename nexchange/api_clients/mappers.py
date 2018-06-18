@@ -28,6 +28,8 @@ class RpcMapper:
                  'A8r8H8DTQlzVz3Gun+BZKWqDra8k83mVL8SY2KgGWPKSU9R3wsQHaI=',
         'rpc11': 'ksYmnwGF7AClBVJ07BY8vECSZsayGfkLvfRtCWK4dJk/OibladXxmc6PE'
                  'wocGNhjgw89HDMkGzmS1HoZoaxAOaakHqJZX4R1crQ6ljtMFas=',
+        'rpc12': 'caFx84v5zYQoFgxmHoEJoufNR634EH/y/gxwN/5H5gC+menJ87ub7mz'
+                 'Df/X3LPfv',
     }
 
     @classmethod

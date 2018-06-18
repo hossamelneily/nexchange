@@ -398,6 +398,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         'pairs_bnt.json',
         'pairs_coss.json',
         'pairs_cob.json',
+        'pairs_dash.json',
         'payment_method.json',
         'payment_preference.json',
         'reserve.json',
@@ -767,6 +768,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         'pairs_bnt.json',
         'pairs_coss.json',
         'pairs_cob.json',
+        'pairs_dash.json',
         'payment_method.json',
         'payment_preference.json',
         'reserve.json',
@@ -841,6 +843,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.ZEC = Currency.objects.get(code='ZEC')
         self.USDT = Currency.objects.get(code='USDT')
         self.XMR = Currency.objects.get(code='XMR')
+        self.DASH = Currency.objects.get(code='DASH')
         self.BTC_address = self._create_withdraw_adress(
             self.BTC, '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi')
         self.LTC_address = self._create_withdraw_adress(
@@ -862,6 +865,9 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.XMR_address = self._create_withdraw_adress(
             self.XMR, '41pLNkSGSJK8pWAG9dd57YcWB82gH5ucHNEPnGt1FBN59P'
                       'rdYqKUGB1SfZxGQPcYcDEbctmpN2kpVbtupm6yCRf16oXkjuY')
+        self.DASH_address = self._create_withdraw_adress(
+            self.DASH, 'XgJdGA5NWn71TmFYxVPvpZxUKAe8x7YWrP'
+        )
 
     def _read_fixture(self):
         path_addr_fixture = os.path.join(settings.BASE_DIR,

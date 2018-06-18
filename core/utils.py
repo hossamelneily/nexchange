@@ -18,6 +18,7 @@ assert \
     != scrypt_client.related_nodes[2] \
     != scrypt_client.related_nodes[3] \
     != scrypt_client.related_nodes[4] \
+    != scrypt_client.related_nodes[5] \
     != zcash_client.related_nodes[0] \
     != omni_client.related_nodes[0] \
     != ethash_client.related_nodes[0] \
@@ -30,6 +31,7 @@ clients_lookup = {
     scrypt_client.related_nodes[2]: scrypt_client,
     scrypt_client.related_nodes[3]: scrypt_client,
     scrypt_client.related_nodes[4]: scrypt_client,
+    scrypt_client.related_nodes[5]: scrypt_client,
     zcash_client.related_nodes[0]: zcash_client,
     omni_client.related_nodes[0]: omni_client,
     ethash_client.related_nodes[0]: ethash_client,

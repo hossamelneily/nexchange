@@ -13,8 +13,8 @@ class ScryptRpcApiClient(BaseRpcClient):
 
     def __init__(self):
         super(ScryptRpcApiClient, self).__init__()
-        self.related_nodes = ['rpc2', 'rpc3', 'rpc4', 'rpc5', 'rpc6']
-        self.related_coins = ['DOGE', 'XVG', 'BCH', 'BTC', 'LTC']
+        self.related_nodes = ['rpc2', 'rpc3', 'rpc4', 'rpc5', 'rpc6', 'rpc12']
+        self.related_coins = ['DOGE', 'XVG', 'BCH', 'BTC', 'LTC', 'DASH']
 
     def lock(self, api, **kwargs):
         encrypt_fn = getattr(api, self.LOCK_WALLET)

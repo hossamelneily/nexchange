@@ -14,7 +14,7 @@ def check_suspicious_transactions_invoke(currency_code):
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def check_suspicious_transactions_all_currencies_invoke():
     for curr in ['XVG', 'BTC', 'BCH', 'LTC', 'DOGE',
-                 'ETH', 'ZEC', 'USDT', 'XMR']:
+                 'ETH', 'ZEC', 'USDT', 'XMR', 'DASH']:
         try:
             check_suspicious_transactions_invoke.apply_async([curr])
         except:

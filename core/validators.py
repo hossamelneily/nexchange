@@ -164,9 +164,21 @@ def validate_bch(value):
         validate_bc(value)
         if not p.match(value):
             raise ValidationError(
-                _('%(value)s has invalid characters for a valid Bitcoin Cash address'),
+                _('%(value)s has invalid characters for a valid Bitcoin '
+                  'Cash address'),
                 params={'value': value},
             )
+
+
+def validate_dash(value):
+    p = re.compile('^X[0-9a-zA-Z]{33}$')
+    p.match(value)
+
+    if not p.match(value):
+        raise ValidationError(
+            _('%(value)s has invalid characters for a valid Dash address'),
+            params={'value': value},
+        )
 
 
 def validate_address(value):
@@ -184,6 +196,8 @@ def validate_address(value):
         validate_xmr(value)
     elif value[:13] == 'bitcoincash:q':
         validate_bch(value)
+    elif value[:1] == 'X':
+        validate_dash(value)
     else:
         validate_bc(value)
 
@@ -232,5 +246,7 @@ def get_validator(code):
         return validate_xmr
     elif code == 'BCH':
         return validate_bch
+    elif code == 'DASH':
+        return validate_dash
 
     return validate_non_address

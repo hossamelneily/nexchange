@@ -313,5 +313,20 @@
     "maximum_level": "102482",
     "minimum_main_account_level": "200"
   }
+},
+{
+  "model": "risk_management.reserve",
+  "pk": 22,
+  "fields": {
+    "created_on": "2017-10-04T12:57:37.855Z",
+    "modified_on": "2017-10-04T12:57:37.855Z",
+    "currency": 54,
+    "is_limit_reserve": false,
+    "target_level": "9",
+    "allowed_diff": "2",
+    "minimum_level": "2",
+    "maximum_level": "44",
+    "minimum_main_account_level": "0.2"
+  }
 }
 ]
