@@ -71,7 +71,7 @@
     "fee_bid": "0.03000000",
     "name": "BCHJPY",
     "disable_volume": false,
-    "disabled": true
+    "disabled": false
   }
 }
 ]

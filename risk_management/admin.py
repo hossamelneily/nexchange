@@ -3,6 +3,13 @@ from django.contrib import admin
 from risk_management.models import Reserve, Account, Cover, ReserveLog,\
     PortfolioLog, PNL, PNLSheet, DisabledCurrency, ReservesCover, \
     ReservesCoverSettings, PeriodicReservesCoverSettings
+from django.contrib.admin import SimpleListFilter
+from nexchange.rpc.scrypt import ScryptRpcApiClient
+from nexchange.rpc.ethash import EthashRpcApiClient
+from nexchange.rpc.blake2 import Blake2RpcApiClient
+from nexchange.rpc.omni import OmniRpcApiClient
+from nexchange.rpc.cryptonight import CryptonightRpcApiClient
+from nexchange.rpc.zcash import ZcashRpcApiClient
 
 
 @admin.register(Reserve)
@@ -65,8 +72,43 @@ class PNLSheetAdmin(admin.ModelAdmin):
                        'pnl_usd', 'positions', 'positions_str')
 
 
+class ApiFilter(SimpleListFilter):
+    title = 'wallet'
+    parameter_name = 'currency__wallet'
+
+    def lookups(self, request, model_admin):
+        return [
+            ('SCRYPT', 'SCRYPT'),
+            ('ETHASH', 'ETHASH'),
+            ('OMNI', 'OMNI'),
+            ('MONERO', 'MONERO'),
+            ('NANO', 'NANO'),
+            ('ZCASH', 'ZCASH'),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value() == 'SCRYPT':
+            _client = ScryptRpcApiClient()
+        elif self.value() == 'ETHASH':
+            _client = EthashRpcApiClient()
+        elif self.value() == 'OMNI':
+            _client = OmniRpcApiClient()
+        elif self.value() == 'MONERO':
+            _client = CryptonightRpcApiClient()
+        elif self.value() == 'NANO':
+            _client = Blake2RpcApiClient()
+        elif self.value() == 'ZCASH':
+            _client = ZcashRpcApiClient()
+        else:
+            return queryset
+        nodes = _client.related_nodes
+        return queryset.filter(currency__wallet__in=nodes)
+
+
 @admin.register(DisabledCurrency)
 class DisabledCurrencyAdmin(admin.ModelAdmin):
+    list_filter = (ApiFilter,)
+    search_fields = ('currency__code', 'currency__wallet')
     list_display = ('currency', 'disable_quote', 'disable_base',
                     'user_visible_reason', 'admin_comment', 'created_on',
                     'modified_on', )

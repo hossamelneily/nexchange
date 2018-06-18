@@ -1389,7 +1389,7 @@
     "fee_bid": "0.0100000",
     "name": "OMGNANO",
     "disable_ticker": false,
-    "disabled": true,
+    "disabled": false,
     "test_mode": true
   }
 },

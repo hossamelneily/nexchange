@@ -38,6 +38,8 @@ class PairViewSet(viewsets.ModelViewSet):
         return super(PairViewSet, self).dispatch(*args, **kwargs)
 
     def _get_dynamic_test_mode(self, pair):
+        if pair.disabled:
+            return True
         base_test_mode = self.base_test_mode_cache.get(pair.base.code, None)
         quote_test_mode = self.quote_test_mode_cache.get(pair.quote.code, None)
         if base_test_mode is None:
@@ -51,6 +53,7 @@ class PairViewSet(viewsets.ModelViewSet):
         return base_test_mode or quote_test_mode
 
     def list(self, request):
+
         self.base_test_mode_cache = {}
         self.quote_test_mode_cache = {}
         data = []

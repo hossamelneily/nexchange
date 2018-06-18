@@ -54,6 +54,11 @@ class CoreApiTestCase(OrderBaseTestCase):
         xvgbtc = Pair.objects.get(name='XVGBTC')
         xvgbtc.test_mode = True
         xvgbtc.save()
+        # NANOOMG disabled
+        nanoomg = Pair.objects.get(name='NANOOMG')
+        nanoomg.test_mode = False
+        nanoomg.disabled = True
+        nanoomg.save()
 
         # API CALL
         data = self.api_client.get(self.pair_url).json()
@@ -74,6 +79,9 @@ class CoreApiTestCase(OrderBaseTestCase):
         self._check_dynamic_test_mode('LTCEUR', True, data)
         # Check BTCUSD, should be ok (test_mode == False)
         self._check_dynamic_test_mode('BTCUSD', False, data)
+        # Check NANOOMG, should be d in test_mode because disabled
+        # (test_mode == False)
+        self._check_dynamic_test_mode('NANOOMG', True, data)
 
 
 class PairsTestCase(OrderBaseTestCase):
