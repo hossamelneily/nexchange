@@ -196,6 +196,10 @@ class PriceView(APIView):
                 amount_quote = (quote_maximal + quote_minimal) / Decimal('2')
         else:
             amount_quote = settings.DEFAULT_FIAT_ORDER_DEPOSIT_AMOUNT
+            if amount_quote < quote_minimal:
+                amount_quote = \
+                    quote_minimal \
+                    * settings.DEFAULT_FIAT_ORDER_DEPOSIT_AMOUNT_MULTIPLIER
         order = Order(pair=pair, amount_quote=amount_quote)
         order.calculate_base_from_quote()
         if all([not base_minimal <= order.amount_base <= base_maximal,
