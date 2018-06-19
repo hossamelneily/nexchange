@@ -71,6 +71,7 @@
     "fee_bid": "0.03000000",
     "disable_volume": false,
     "name": "DOGEJPY",
+    "test_mode": false,
     "disabled": false
   }
 }

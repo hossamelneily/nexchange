@@ -12,7 +12,8 @@ class CoreApiTestCase(OrderBaseTestCase):
 
     def setUp(self):
         self.api_client = APIClient()
-        self.pair_url = '/en/api/v1/pair/'
+        self.pairs_url = '/en/api/v1/pair/'
+        self.pair_url = '/en/api/v1/pair/{}/'
 
     def tearDown(self):
         pass
@@ -22,9 +23,13 @@ class CoreApiTestCase(OrderBaseTestCase):
                                  expected_db_test_mode=False):
         pair = Pair.objects.get(name=pair_name)
         self.assertEqual(pair.test_mode, expected_db_test_mode)
-        dynamic_test_mode = \
-            [p['test_mode'] for p in data if p['name'] == pair_name][0]
+        pair_data = [p for p in data if p['name'] == pair_name][0]
+        pair_data_retrieve = self.api_client.get(
+            self.pair_url.format(pair_name)
+        ).json()
+        dynamic_test_mode = pair_data['test_mode']
         self.assertEqual(dynamic_test_mode, expected_dynamic_test_mode)
+        self.assertEqual(pair_data, pair_data_retrieve)
 
     def test_pair_api(self):
         # DB SETUP
@@ -61,7 +66,7 @@ class CoreApiTestCase(OrderBaseTestCase):
         nanoomg.save()
 
         # API CALL
-        data = self.api_client.get(self.pair_url).json()
+        data = self.api_client.get(self.pairs_url).json()
 
         # ASSERTIONS
         # Check BTCLTC, should be ok (test_mode == False)

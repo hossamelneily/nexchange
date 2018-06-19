@@ -28,6 +28,9 @@ class PairViewSet(viewsets.ModelViewSet):
     lookup_field = 'name'
     http_method_names = ['get']
 
+    def get_queryset(self):
+        return Pair.objects.filter(disable_volume=False)
+
     def __init__(self, *args, **kwargs):
         super(PairViewSet, self).__init__(*args, **kwargs)
         self.base_test_mode_cache = {}
@@ -53,13 +56,24 @@ class PairViewSet(viewsets.ModelViewSet):
         return base_test_mode or quote_test_mode
 
     def list(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
 
         self.base_test_mode_cache = {}
         self.quote_test_mode_cache = {}
         data = []
-        for pair in self.queryset:
+        for pair in queryset:
             pair_data = PairSerializer(pair).data
             if not pair_data['test_mode']:
                 pair_data['test_mode'] = self._get_dynamic_test_mode(pair)
             data.append(pair_data)
         return Response(data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        self.base_test_mode_cache = {}
+        self.quote_test_mode_cache = {}
+        pair_data = serializer.data
+        if not pair_data['test_mode']:
+            pair_data['test_mode'] = self._get_dynamic_test_mode(instance)
+        return Response(pair_data)

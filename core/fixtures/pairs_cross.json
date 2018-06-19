@@ -1390,7 +1390,7 @@
     "name": "OMGNANO",
     "disable_ticker": false,
     "disabled": false,
-    "test_mode": true
+    "test_mode": false
   }
 },
 {

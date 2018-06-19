@@ -70,6 +70,7 @@
     "fee_ask": "0.03000000",
     "fee_bid": "0.03000000",
     "disable_volume": false,
+    "test_mode": false,
     "name": "ETHJPY",
     "disabled": false
   }
