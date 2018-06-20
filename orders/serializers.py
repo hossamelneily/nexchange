@@ -28,6 +28,7 @@ UPDATE_FIELDS = ('refund_address',)
 CREATE_FIELDS = ('payment_url', 'token')
 FIAT_FIELDS = ('payment_url',)
 TOKEN_FIELDS = ('token',)
+DETAIL_FIELDS = ('display_refund_address',)
 
 
 class MetaOrder:
@@ -63,7 +64,8 @@ class OrderDetailSerializer(OrderSerializer):
     price = RateSerializer(many=False, read_only=True)
 
     class Meta(MetaFlatOrder):
-        fields = MetaFlatOrder.fields + RATE_FIELDS + FIAT_FIELDS
+        fields = \
+            MetaFlatOrder.fields + RATE_FIELDS + FIAT_FIELDS + DETAIL_FIELDS
 
 
 class UpdateOrderSerializer(OrderSerializer):

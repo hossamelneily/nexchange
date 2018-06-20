@@ -150,6 +150,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     slippage = models.DecimalField(
         max_digits=18, decimal_places=8, default=Decimal('0'),
     )
+    set_as_paid_on = models.DateTimeField(null=True, blank=True, default=None)
 
     class Meta:
         ordering = ['-created_on']
@@ -890,6 +891,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
                 )
             setattr(tx, param, True)
         tx.save()
+        self.set_as_paid_on = timezone.now()
 
     def confirm_deposit(self, tx, crypto=True):
         res = {'status': 'OK'}
@@ -1139,3 +1141,14 @@ class Order(TimeStampedModel, SoftDeletableModel,
         if not token or not token.is_valid():
             return
         return token.token
+
+    @property
+    def display_refund_address(self):
+        if self.status == self.PRE_RELEASE:
+            return True
+        if self.status == self.PAID:
+            if self.set_as_paid_on \
+                    and self.set_as_paid_on + \
+                    settings.MAX_TIME_TO_RELEASE_INTERVAL < timezone.now():
+                return True
+        return False

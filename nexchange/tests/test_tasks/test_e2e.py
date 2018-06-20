@@ -7,6 +7,7 @@ import requests_mock
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from unittest.mock import patch
+from django.utils import timezone
 
 from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
     update_pending_transactions_invoke, \
@@ -697,6 +698,9 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
 
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, Order.PAID, pair_name)
+        set_as_paid_now_diff = \
+            (timezone.now() - self.order.set_as_paid_on).total_seconds()
+        self.assertTrue(1 > set_as_paid_now_diff, pair_name)
         address = getattr(self, '{}_address'.format(withdraw_currency_code))
         self._update_withdraw_address(self.order, address)
         self.order.refresh_from_db()
