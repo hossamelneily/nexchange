@@ -178,30 +178,32 @@ class Order(TimeStampedModel, SoftDeletableModel,
     def _validate_order_amount(self):
         if self.amount_base < self.pair.base.minimal_amount:
             raise ValidationError(
-                _('Order base amount must be equal or more than {} '
-                  'for {} order.'.format(self.pair.base.minimal_amount,
-                                         self.pair.base.code))
+                _('Minimum amount of {} to receive is {}'.format(
+                    self.pair.base.code,
+                    self.pair.base.minimal_amount
+                ))
             )
         if all([self.amount_quote > self.pair.quote.maximal_amount,
                 not self.pk]):
             raise ValidationError(
-                _('Order quote amount must be equal or less than {} '
-                  'for {} order.'.format(self.pair.quote.maximal_amount,
-                                         self.pair.quote.code))
+                _('Maximal amount of {} to deposit is {}'.format(
+                    self.pair.quote.code,
+                    self.pair.quote.maximal_amount,
+                ))
             )
         if all([not self.coverable, not self.pair.base.execute_cover,
                 not self.pk]):
             raise ValidationError(
-                _('Maximal amount of {} to buy is {}.'.format(
+                _('Maximal amount of {} to receive is {}.'.format(
                     self.pair.base.code, self.pair.base.available_main_reserves
                 ))
             )
         if all([self.amount_quote < self.pair.quote.minimal_amount,
                 not self.pk, not self.pair.is_crypto]):
             raise ValidationError(
-                _('Minimal amount to deposit is {} {}.'.format(
+                _('Minimal amount of {} to deposit is {}.'.format(
+                    self.pair.quote.code,
                     self.pair.quote.minimal_amount,
-                    self.pair.quote.code
                 ))
             )
 
