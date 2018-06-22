@@ -176,37 +176,124 @@ class Order(TimeStampedModel, SoftDeletableModel,
         elif field < min([i[0] for i in types]):
             raise ValidationError(_('Invalid order type choice'))
 
+    def _get_amount_base_min(self, user_format=False):
+        _base_min = self.pair.base.minimal_amount
+        if not user_format:
+            return _base_min
+        _quote_min = self._get_amount_quote_min(user_format=False)
+        if _quote_min is None:
+            return _base_min
+        _min_list = [_base_min]
+        _order = Order(pair=self.pair, amount_quote=_quote_min,
+                       price=self.price)
+        _order.calculate_base_from_quote()
+        diff = settings.SATOSHI if self.pair.quote.is_crypto else Decimal('0')
+        _min_list.append(_order.amount_base + diff)
+        return max(_min_list)
+
+    def _get_amount_base_max(self, user_format=False):
+        if self.pk:
+            return
+        _base_max = None if self.pair.base.execute_cover \
+            else self.pair.base.available_main_reserves
+        if not user_format:
+            return _base_max
+        _quote_max = self._get_amount_quote_max(user_format=False)
+        if _quote_max is None:
+            return _base_max
+        _max_list = [_base_max] if _base_max else []
+        _order = Order(pair=self.pair, amount_quote=_quote_max,
+                       price=self.price)
+        _order.calculate_base_from_quote()
+        diff = settings.SATOSHI if self.pair.base.is_crypto else Decimal('0')
+        _max_list.append(_order.amount_base - diff)
+        return min(_max_list)
+
+    def _get_amount_quote_max(self, user_format=False):
+        if self.pk:
+            return
+        _quote_max = self.pair.quote.maximal_amount
+        if not user_format:
+            return _quote_max
+        _base_max = self._get_amount_base_max(user_format=False)
+        if not _base_max:
+            return _quote_max
+        _max_list = [_quote_max]
+        _order = Order(pair=self.pair, amount_base=_base_max,
+                       price=self.price)
+        _order.calculate_quote_from_base()
+        diff = settings.SATOSHI if self.pair.quote.is_crypto else Decimal('0')
+        _max_list.append(_order.amount_quote - diff)
+        return min(_max_list)
+
+    def _get_amount_quote_min(self, user_format=False):
+        if self.pk:
+            return
+        _quote_min = \
+            None if self.pair.is_crypto else self.pair.quote.minimal_amount
+        if not user_format:
+            return _quote_min
+        _base_min = self._get_amount_base_min(user_format=False)
+        if not _base_min:
+            return _quote_min
+        _min_list = [_quote_min] if _quote_min else []
+        _order = Order(pair=self.pair, amount_base=_base_min,
+                       price=self.price)
+        _order.calculate_quote_from_base()
+        diff = settings.SATOSHI if self.pair.quote.is_crypto else Decimal('0')
+        _min_list.append(_order.amount_quote + diff)
+        return max(_min_list)
+
     def _validate_order_amount(self):
-        if self.amount_base < self.pair.base.minimal_amount:
-            raise ValidationError(
-                _('Minimum amount of {} to receive is {}'.format(
-                    self.pair.base.code,
-                    self.pair.base.minimal_amount
-                ))
-            )
-        if all([self.amount_quote > self.pair.quote.maximal_amount,
-                not self.pk]):
-            raise ValidationError(
-                _('Maximal amount of {} to deposit is {}'.format(
-                    self.pair.quote.code,
-                    self.pair.quote.maximal_amount,
-                ))
-            )
-        if all([not self.coverable, not self.pair.base.execute_cover,
-                not self.pk]):
-            raise ValidationError(
-                _('Maximal amount of {} to receive is {}.'.format(
-                    self.pair.base.code, self.pair.base.available_main_reserves
-                ))
-            )
-        if all([self.amount_quote < self.pair.quote.minimal_amount,
-                not self.pk, not self.pair.is_crypto]):
-            raise ValidationError(
-                _('Minimal amount of {} to deposit is {}.'.format(
-                    self.pair.quote.code,
-                    self.pair.quote.minimal_amount,
-                ))
-            )
+        _raise_error = False
+        # _error_type is either 'min' or 'max'
+        _error_type = None
+        _error_amount_type = \
+            'amount_base' if self.user_provided_amount == self.PROVIDED_BASE \
+            else 'amount_quote'
+        # _direction is either 'receive' or 'deposit' (terms form UI)
+        _direction = \
+            'receive' if self.user_provided_amount == self.PROVIDED_BASE \
+            else 'deposit'
+        _currency_code = \
+            self.pair.base.code \
+            if self.user_provided_amount == self.PROVIDED_BASE \
+            else self.pair.quote.code
+        # actual restricted amount (might be converted)
+        _final_amount = None
+        # Message template - end user must understand this
+        _error_template = \
+            '{_error_type}imum {_direction} amount is {_final_amount}' \
+            '{_currency_code} on this trade.'
+
+        for _amount_type in ['amount_quote', 'amount_base']:
+            _min = getattr(self, '_get_{}_min'.format(_amount_type))()
+            _max = getattr(self, '_get_{}_max'.format(_amount_type))()
+            _amount = getattr(self, _amount_type)
+            if _min is not None and _amount < _min:
+                _raise_error = True
+                _error_type = 'min'
+                break
+            if _max is not None and _amount > _max:
+                _raise_error = True
+                _error_type = 'max'
+                break
+
+        if _raise_error:
+            _final_amount = getattr(
+                self, '_get_{}_{}'.format(_error_amount_type, _error_type)
+            )(user_format=True)
+            if _final_amount is None:
+                _error_msg = \
+                    'Cannot initiate this trade, please contact support.'
+            else:
+                _error_msg = _error_template.format(
+                    _error_type=_error_type.capitalize(),
+                    _direction=_direction,
+                    _currency_code=_currency_code,
+                    _final_amount=str(_final_amount).rstrip('0').rstrip('.'),
+                )
+            raise ValidationError(_error_msg)
 
     def _validate_status(self, status):
         if not self.pk:
@@ -308,6 +395,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
         self._validate_fields()
         super(Order, self).clean(*args, **kwargs)
 
+    def set_provided_amount_option(self):
+        if not self.pk:
+            self.user_provided_amount = self.get_provided_amount_option()
+
     def get_provided_amount_option(self):
         if all([self.amount_quote, self.amount_base]):
             return self.PROVIDED_BOTH
@@ -338,7 +429,6 @@ class Order(TimeStampedModel, SoftDeletableModel,
         else:
             self.exchange = False
         if not self.pk:
-            self.user_provided_amount = self.get_provided_amount_option()
             if self.amount_base:
                 self.calculate_quote_from_base()
             elif self.amount_quote:
@@ -389,6 +479,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         price.save()
 
     def calculate_from(self, _from='base', price=None):
+        self.set_provided_amount_option()
         self.set_payment_preference()
         if _from == 'base':
             _to = 'quote'
