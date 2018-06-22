@@ -630,6 +630,9 @@ class PNL(TimeStampedModel):
                                   default=Decimal('0'))
     pnl_eur = models.DecimalField(max_digits=18, decimal_places=8,
                                   default=Decimal('0'))
+    volume_position_ratio = models.DecimalField(
+        max_digits=18, decimal_places=8, blank=True, null=True
+    )
 
     @property
     def _position(self):
@@ -652,6 +655,15 @@ class PNL(TimeStampedModel):
     @property
     def _realized_volume(self):
         return min([self.volume_ask, self.volume_bid])
+
+    @property
+    def _volume_position_ratio(self):
+        if not self._position:
+            return
+        total_volume = self.volume_ask + self.volume_bid
+        if not total_volume:
+            return
+        return abs(total_volume / self._position)
 
     @property
     def _pnl_realized(self):
@@ -770,7 +782,8 @@ class PNL(TimeStampedModel):
             'pnl_usd': self._pnl_usd,
             'pnl_eth': self._pnl_eth,
             'pnl_eur': self._pnl_eur,
-            'pnl_btc': self._pnl_btc
+            'pnl_btc': self._pnl_btc,
+            'volume_position_ratio': self._volume_position_ratio
         }
         for field, prop in props.items():
             setattr(self, field, prop)
@@ -1111,6 +1124,27 @@ class ReservesCover(TimeStampedModel):
             )
 
     @property
+    def volume_position_ratio(self):
+        pnl = self.matched_pnl
+        if pnl:
+            return pnl.volume_position_ratio
+
+    @property
+    def volume_rate_change(self):
+        if self.acquisition_rate and self.rate and self.volume_position_ratio:
+            res = \
+                (self.rate - self.acquisition_rate) \
+                / self.rate / self.volume_position_ratio
+            return money_format(
+                res, places=8
+            )
+
+    @property
+    def volume_rate_change_str(self):
+        if self.volume_rate_change is not None:
+            return '{0:.3f}%'.format(self.volume_rate_change * Decimal(100))
+
+    @property
     def static_rate_change_str(self):
         if self.static_rate_change is not None:
             return '{0:.3f}%'.format(self.static_rate_change * Decimal(100))
@@ -1163,7 +1197,7 @@ class PeriodicReservesCoverSettings(TimeStampedModel, AuthStampedModel):
 
     @property
     def acceptable_rate(self):
-        _change = getattr(self.current_reserves_cover, 'static_rate_change',
+        _change = getattr(self.current_reserves_cover, 'volume_rate_change',
                           None)
         _min_change = self.minimum_rate_change
         if _change and _change >= _min_change:

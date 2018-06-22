@@ -61,7 +61,7 @@ class PNLAdmin(admin.ModelAdmin):
     readonly_fields = ('position_str', 'base_position_str', 'realized_volume',
                        'pnl_realized', 'pnl_unrealized', 'pnl_str', 'pnl_btc',
                        'pnl_usd', 'pnl_eth', 'pnl_eur',
-                       'average_base_position_price')
+                       'average_base_position_price', 'volume_position_ratio')
     search_fields = ('pair__name',)
 
 
@@ -127,12 +127,14 @@ class CoverInline(admin.TabularInline):
 class ReservesCoverAdmin(admin.ModelAdmin):
     inlines = (CoverInline,)
     list_display = ('created_on', 'settings', 'pair', 'amount_base',
-                    'amount_quote', 'static_rate_change_str', 'discard')
+                    'amount_quote', 'static_rate_change_str',
+                    'volume_rate_change_str', 'discard')
     readonly_fields = (
         'pair', 'amount_quote', 'amount_base', 'rate', 'acquisition_rate',
-        'static_rate_change_str', 'pnl_rates',
-        'sell_reserves_filtered', 'buy_reserves_filtered', 'sell_reserves',
-        'buy_reserves', 'portfolio_log', 'pnl_sheets'
+        'static_rate_change_str', 'volume_rate_change_str',
+        'volume_position_ratio', 'pnl_rates', 'sell_reserves_filtered',
+        'buy_reserves_filtered', 'sell_reserves', 'buy_reserves',
+        'portfolio_log', 'pnl_sheets'
     )
 
 

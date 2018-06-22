@@ -367,7 +367,7 @@ class ReservesCoversTestCase(RiskManagementBaseTestCase, TickerBaseTestCase):
         calculate_pnls_30days_invoke.apply_async()
         periodic_reserve_cover_invoke.apply_async()
         r_cover1 = ReservesCover.objects.latest('id')
-        self.assertEqual(r_cover1.static_rate_change, Decimal(0))
+        self.assertEqual(r_cover1.volume_rate_change, Decimal(0))
         self.assertTrue(r_cover1.discard)
         _cover1 = r_cover1.cover_set.get()
         self.assertEqual(_cover1.status, _cover1.INITIAL)
@@ -385,7 +385,7 @@ class ReservesCoversTestCase(RiskManagementBaseTestCase, TickerBaseTestCase):
         calculate_pnls_30days_invoke.apply_async()
         periodic_reserve_cover_invoke.apply_async()
         r_cover2 = ReservesCover.objects.latest('id')
-        self.assertGreater(r_cover2.static_rate_change,
+        self.assertGreater(r_cover2.volume_rate_change,
                            _periodic_settings.minimum_rate_change)
         self.assertFalse(r_cover2.discard)
         _periodic_settings.refresh_from_db()
