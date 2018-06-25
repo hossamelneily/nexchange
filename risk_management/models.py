@@ -563,7 +563,7 @@ class PNLSheet(TimeStampedModel):
             for pair in pairs:
                 pnl = PNL(pair=pair, pnl_sheet=self, date_from=self.date_from,
                           date_to=self.date_to)
-                pnl.save()
+                pnl.save(save_empty=False)
         return res
 
     def __str__(self):
@@ -794,7 +794,7 @@ class PNL(TimeStampedModel):
         return 'position {} {} | P&l {} {}'.format(
             self.position, asset, self.pnl, currency)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if self.days == Decimal('0'):
             self.days = \
                 (self.date_to - self.date_from).total_seconds() / (3600 * 24)
@@ -812,7 +812,13 @@ class PNL(TimeStampedModel):
                     except Price.DoesNotExist:
                         continue
         self._set_pnl_properties()
-        super(PNL, self).save()
+        if not kwargs.pop('save_empty', True):
+            # this is to avoid saving empty pnls
+            # (on production only 6% is non empty)
+            if not self.average_ask and not self.average_bid:
+                return
+
+        super(PNL, self).save(*args, **kwargs)
 
     @property
     def average_base_position_price(self):
