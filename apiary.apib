@@ -856,6 +856,7 @@ API for crypto currency exchange.
             [
               {
                 "confirmed_orders_count": 1,
+                "orders": [{"unique_reference": "OTVVXE"}],
                 "turnover": 3.04308297,
                 "revenue": 0.06086166,
                 "referee": {
@@ -1005,7 +1006,7 @@ API for crypto currency exchange.
 
 # Data Structures
 
-# Profile
+## Profile
 + `partial_phone` (required) - partial phone of the profile.
 + `last_visit_time` (optional) - time of last visit (ISO 8601).
 + `id` (required) - profile ID.
@@ -1013,18 +1014,22 @@ API for crypto currency exchange.
 + `created_on` (required) - time of profile creation (ISO 8601).
 + `modified_on` (optional) - latest time on which this profile was updated (ISO 8601).
 
-# ReferralCode
+## ReferralCode
 + `code`: unique referral code
 + `created_on` (required) - time of code creation (ISO 8601).
 + `modified_on` (optional) - latest time on which this code was updated (ISO 8601).
 
-# Referee
+## Referee
 + `profile` (Profile)
 
-# Referrals (array[Referral])
+## Referrals (array[Referral])
 
-# Referral
+## OrderReference
++ `unique_reference` (required) - unique ID of an order.
+
+## Referral
 + `confirmed_orders_count` (number, nullable) - COMPLETED by referee orders count.
++ `orders` (array[OrderReference]) - confirmed orders.
 + `turnover` (number, nullable) - sum of COMPLETED orders amount_base in BTC(bitcoin).
 + `revenue` (number, nullable) - revenue of the referral in BTC(bitcoin).
 + `referee` (Referee)

@@ -5,6 +5,11 @@ from ticker.tests.base import TickerBaseTestCase
 from unittest.mock import patch
 from rest_framework.test import APIClient
 from django.db import IntegrityError
+from oauth2_provider.models import AccessToken
+from oauthlib.common import generate_token
+from datetime import timedelta
+from django.utils import timezone
+from django.conf import settings
 
 
 class TestReferralRegression(TickerBaseTestCase):
@@ -109,4 +114,44 @@ class TestReferralRegression(TickerBaseTestCase):
             1,
             Referral.objects.filter(referee=user).count(),
             'One Referral total'
+        )
+
+    @patch('referrals.middleware.get_client_ip')
+    def test_referral_api_shows_order_ref_list(self, get_ip):
+        get_ip.return_value = '123'
+        balance_currency = 'ETH'
+        order1 = self._create_order_api(
+            name='{}LTC'.format(balance_currency),
+            ref_code=self.code.code
+        )
+        order2 = self._create_order_api(
+            name='{}LTC'.format(balance_currency),
+            ref_code=self.code.code
+        )
+        order1.status = Order.COMPLETED
+        order1.save()
+        order2.status = Order.COMPLETED
+        order2.save()
+        expires_in = settings.ACCESS_TOKEN_EXPIRE_SECONDS
+        expires = timezone.now() + timedelta(seconds=expires_in)
+        _token = generate_token()
+        token = AccessToken(
+            user=self.user,
+            token=_token,
+            expires=expires
+        )
+        token.save()
+        self.api_client.logout()
+        res_unauth = self.api_client.get('/en/api/v1/referrals/')
+        self.assertEqual(res_unauth.status_code, 401)
+        self.api_client.credentials(
+            Authorization="Bearer {}".format(_token)
+        )
+        res = self.api_client.get('/en/api/v1/referrals/')
+        refs = [o['unique_reference'] for o in res.json()[0]['orders']]
+        self.assertIn(
+            order1.unique_reference, refs
+        )
+        self.assertIn(
+            order2.unique_reference, refs
         )

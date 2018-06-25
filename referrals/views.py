@@ -11,13 +11,13 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from .models import Referral
-from .permissions import IsLoggedIn
 from .serializers import ReferralSerializer
+from rest_framework.permissions import IsAuthenticated
 
 
 class ReferralViewSet(DateFilterViewSet):
     serializer_class = ReferralSerializer
-    premission_classes = (IsLoggedIn,)
+    permission_classes = (IsAuthenticated,)
     http_method_names = ['get']
 
     def get_queryset(self, *args, **kwargs):

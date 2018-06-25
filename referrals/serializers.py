@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from accounts.models import Profile
 from referrals.models import Program, Referral, ReferralCode
+from orders.models import Order
 
 
 class ProgramSerializer(serializers.ModelSerializer):
@@ -36,15 +37,25 @@ class RefereeSerializer(serializers.ModelSerializer):
         fields = ('profile',)
 
 
+class OrderReferenceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = ('unique_reference',)
+
+
 class ReferralSerializer(serializers.ModelSerializer):
     confirmed_orders_count = serializers.ReadOnlyField()
     turnover = serializers.ReadOnlyField()
     revenue = serializers.ReadOnlyField()
     referee = RefereeSerializer()
     code = ReferralCodeSerializer()
+    orders = OrderReferenceSerializer(many=True)
 
     class Meta:
         model = Referral
-        fields = ('confirmed_orders_count', 'turnover', 'revenue', 'referee', 'code',
-                  'created_on', 'modified_on')
+        fields = (
+            'confirmed_orders_count', 'orders', 'turnover', 'revenue',
+            'referee', 'code', 'created_on', 'modified_on'
+        )
         depth = 3
