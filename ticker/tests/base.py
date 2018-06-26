@@ -178,9 +178,10 @@ class TickerBaseTestCase(OrderBaseTestCase):
                  text=huobi_market_resp)
         mock.get(HitBTCAdapter.BASE_URL + 'ticker',
                  text=hitbtc_market_resp)
-        mock.get('https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD',
-                 json={'result': {'XXBTZUSD': {'a': ['1077.50000'],
-                                               'b': ['1069.20000']}}})
+        kraken_resp_text = \
+            '{"result": {"XXBTZUSD": {"a": ["1077.50000"],"b": ["1069.20000"]}}}'
+        mock.get(BaseTicker.KRAKEN_TICKER,
+                 text=kraken_resp_text)
 
     @classmethod
     def get_tickers(cls, mock):

@@ -27,6 +27,7 @@ from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT, ETH_ROOT
 from ticker.models import Ticker, Price
 from nexchange.api_clients.uphold import UpholdApiClient
 from ticker.tasks.generic.crypto_fiat_ticker import CryptoFiatTicker
+from ticker.tasks.generic.base import BaseTicker
 from ticker.tasks.generic.base import save_ticker_and_price
 import requests_mock
 from freezegun import freeze_time
@@ -948,10 +949,23 @@ class OrderPriceTestCase(TickerBaseTestCase):
         cls.ENABLE_FIAT = ['USD']
         super(OrderPriceTestCase, cls).setUpClass()
 
-    def test_pick_main_ticker(self):
+    @requests_mock.mock()
+    def test_pick_main_ticker(self, mock):
         pair_name = 'BTCUSD'
         pair = Pair.objects.get(name=pair_name)
         ticker_api = CryptoFiatTicker()
+        mock.get(
+            BaseTicker.LOCALBTC_URL.format(BaseTicker.ACTION_BUY),
+            text=self.localbtc_buy_resp
+        )
+        mock.get(
+            BaseTicker.LOCALBTC_URL.format(BaseTicker.ACTION_SELL),
+            text=self.localbtc_sell_resp
+        )
+        kraken_resp_text = \
+            '{"result": {"XXBTZUSD": {"a": ["5077.50000"],"b": ["5069.20000"]}}}'
+        mock.get(BaseTicker.KRAKEN_TICKER,
+                 text=kraken_resp_text)
         ticker, price = ticker_api.run(pair.pk, market_code='locbit')
         save_ticker_and_price(ticker, price)
         last_price = Price.objects.filter(pair=pair).last()
