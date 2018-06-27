@@ -5,6 +5,9 @@ from verification.models import Verification, VerificationTier, TradeLimit,\
 from orders.models import Order
 from payments.models import Payment
 from django.contrib.admin import SimpleListFilter
+from django.contrib import messages
+from django.core.urlresolvers import reverse
+from django.utils.html import format_html
 
 
 class VerificationInline(admin.TabularInline):
@@ -45,7 +48,8 @@ class VerificationAdmin(admin.ModelAdmin):
     list_filter = (PendingFilter,)
     list_display = ('created_on', 'id_document_status', 'util_document_status',
                     'full_name', 'note', 'user',
-                    'name_on_card', 'unique_cc')
+                    'name_on_card', 'unique_cc', 'name_on_card_matches',
+                    'out_of_limit')
     exclude = ('identity_document', 'utility_document')
     readonly_fields = (
         'note', 'name_on_card',
@@ -62,6 +66,18 @@ class VerificationAdmin(admin.ModelAdmin):
                      'payment_preference__provider_system_id',
                      'user__username',
                      'payment_preference__user__username')
+
+    def save_model(self, request, obj, form, change):
+        super(VerificationAdmin, self).save_model(request, obj, form, change)
+        if obj.has_bad_name:
+            _name_on_card = self.name_on_card(obj)
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Verification {} has bad name. "{}" != "{}"'.format(
+                    obj.pk, obj.full_name, _name_on_card
+                )
+            )
 
     def get_search_results(self, request, queryset, search_term):
         queryset, use_distinct = super(VerificationAdmin, self).\
@@ -94,7 +110,11 @@ class VerificationAdmin(admin.ModelAdmin):
         return self._get_payment_preference_field(obj, 'secondary_identifier')
 
     def name_on_card_matches(self, obj):
-        return self._get_payment_preference_field(obj, 'name_on_card_matches')
+        res = self._get_payment_preference_field(obj, 'name_on_card_matches')
+        _color = 'green' if res else 'red'
+        return '<b style="background:{};">{}</b>'.format(_color, res)
+
+    name_on_card_matches.allow_tags = True
 
     def bad_name_verifications(self, obj):
         records = self._get_payment_preference_field(obj,
@@ -122,10 +142,18 @@ class VerificationAdmin(admin.ModelAdmin):
             return fn(days=30)
 
     def out_of_limit(self, obj):
-        return self._get_payment_preference_field(obj, 'out_of_limit')
+        res = self._get_payment_preference_field(obj, 'out_of_limit')
+        _color = 'red' if res else 'green'
+        return '<b style="background:{};">{}</b>'.format(_color, res)
+
+    out_of_limit.allow_tags = True
 
     def is_immediate_payment(self, obj):
-        return self._get_payment_preference_field(obj, 'is_immediate_payment')
+        res = self._get_payment_preference_field(obj, 'is_immediate_payment')
+        _color = 'green' if res else 'red'
+        return '<b style="background:{};">{}</b>'.format(_color, res)
+
+    is_immediate_payment.allow_tags = True
 
     def tier(self, obj):
         return self._get_payment_preference_field(obj, 'tier')
@@ -149,12 +177,32 @@ class VerificationDocumentAdmin(admin.ModelAdmin):
     )
     exclude = ('document_file',)
     readonly_fields = (
-        'image_tag', 'document_type',
+        'image_tag', 'whitelisted_address',
         'note', 'verification', 'name_on_card', 'unique_cc',
         'payment_preference', 'user', 'user_input_comment',
         'total_payments_usd', 'out_of_limit', 'is_immediate_payment', 'tier',
         'modified_by', 'created_by'
     )
+
+    def save_model(self, request, obj, form, change):
+        super(VerificationDocumentAdmin, self).save_model(request, obj, form,
+                                                          change)
+        _ver = obj.verification
+
+        if _ver and _ver.has_bad_name:
+            _name_on_card = self.name_on_card(obj)
+            _path = reverse(
+                'admin:verification_verification_change', args=[_ver.pk]
+            )
+            _link = format_html('<a href="{}">{}</a>', _path, _ver.note)
+            messages.add_message(
+                request,
+                messages.ERROR,
+                format_html(
+                    'Verification object {} has bad name. "{}" != "{}"',
+                    _link, _ver.full_name, _name_on_card
+                )
+            )
 
     def _get_verification_field(self, obj, param_name):
         res = ''

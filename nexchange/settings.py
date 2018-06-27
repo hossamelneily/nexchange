@@ -125,6 +125,7 @@ ALLOWED_HOSTS = [
 ]
 
 ALLOWED_IMAGE_FILE_EXTENSIONS = ['.jpg', '.png', '.pdf', '.jpeg']
+ALLOWED_IMAGE_FILE_EXTENSIONS_API = ['.jpg', '.png', '.jpeg']
 
 
 # Application definition
@@ -285,6 +286,10 @@ PAYMENT_CHECKER_TASKS = {
     'check_payments_for_void_periodic': {
         'task': 'payments.task_summary.check_payments_for_void_periodic',
         'schedule': timedelta(minutes=2),
+    },
+    'check_kyc_names_periodic': {
+        'task': 'verification.task_summary.check_kyc_names_periodic',
+        'schedule': timedelta(minutes=10),
     },
 }
 

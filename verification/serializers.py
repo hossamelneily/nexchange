@@ -4,7 +4,7 @@ from .models import Verification, VerificationDocument, DocumentType
 from payments.models import Payment
 from orders.models import Order
 from core.common.fields import PrivateField
-from .validators import validate_image_extension
+from .validators import validate_image_extension_api
 
 
 class MetaVerification:
@@ -20,7 +20,7 @@ class CreateVerificationSerializer(serializers.ModelSerializer):
         for doc_type in doc_types:
             self.fields[doc_type.api_key] = FileField(
                 allow_null=True, max_length=100, required=False,
-                validators=[validate_image_extension]
+                validators=[validate_image_extension_api]
             )
         self.documents_data = {
             doc_type.api_key: None for doc_type in doc_types

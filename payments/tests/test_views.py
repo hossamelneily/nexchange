@@ -34,6 +34,7 @@ from ticker.tests.base import TickerBaseTestCase
 
 from PIL import Image
 import tempfile
+from verification.task_summary import check_kyc_names_periodic
 
 
 class PayeerTestCase(OrderBaseTestCase):
@@ -376,7 +377,8 @@ class SafeChargeTestCase(TickerBaseTestCase):
             order.save()
         return order
 
-    def _create_kyc(self, ref):
+    @patch('verification.task_summary.send_email')
+    def _create_kyc(self, ref, send_email):
         id_doc = self._create_image()
         util_doc = self._create_image()
         selfie = self._create_image()
@@ -396,6 +398,7 @@ class SafeChargeTestCase(TickerBaseTestCase):
         util_doc.close()
         selfie.close()
         kyc = Verification.objects.latest('id')
+        send_email.assert_called_once()
         return kyc
 
     def _check_kyc(self, ref):
@@ -669,8 +672,15 @@ class SafeChargeTestCase(TickerBaseTestCase):
         # Check with Confirmed KYC, but payment PENDING
         kyc.util_status = kyc.OK
         kyc.id_status = kyc.OK
-        kyc.full_name = name
         kyc.save()
+        # test KYC name checker
+        with patch('verification.task_summary.send_email') as _send:
+            check_kyc_names_periodic.apply_async()
+            _send.assert_called_once()
+            kyc.full_name = name
+            kyc.save()
+            check_kyc_names_periodic.apply_async()
+            _send.assert_called_once()
         self.assertTrue(self._check_kyc(order.unique_reference))
         check_fiat_order_deposit_periodic.apply_async()
         order.refresh_from_db()

@@ -317,7 +317,7 @@ class VerificationDocument(TimeStampedModel, SoftDeletableModel,
         return '/'.join([root1, root, filename])
 
     def image_tag(self):
-        return '<img src="/protected_media/{}" />'.format(
+        return '<embed src="/protected_media/{}" />'.format(
             self.document_file.name
         )
 

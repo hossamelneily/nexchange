@@ -5,6 +5,7 @@ from collections import OrderedDict
 from verification.models import Verification, DocumentType
 from payments.models import Payment, PaymentPreference
 from orders.models import Order
+from .task_summary import send_verification_upload_email
 
 
 class VerificationViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
@@ -110,7 +111,9 @@ class VerificationViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
     def perform_create(self, serializer):
         if self.request.user.is_authenticated:
             serializer.save(user=self.request.user)
-        return super(VerificationViewSet, self).perform_create(serializer)
+        res = super(VerificationViewSet, self).perform_create(serializer)
+        send_verification_upload_email.apply_async([serializer.instance.pk])
+        return res
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
