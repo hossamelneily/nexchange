@@ -66,6 +66,15 @@ class OrderListViewSet(viewsets.ModelViewSet,
 
     def get_queryset(self, filters=None, **kwargs):
         self.queryset = Order.objects.all()
+        pair = self.request.query_params.get('pair', None)
+        if pair is not None:
+            self.queryset = self.queryset.filter(pair__name=pair)
+        status = self.request.query_params.get('status', None)
+        if status is not None:
+            if isinstance(status, int):
+                self.queryset = self.queryset.filter(status=status)
+            else:
+                self.queryset = self.queryset.none()
         return super(OrderListViewSet, self).get_queryset()
 
     def _create_bearer_token(self, user):

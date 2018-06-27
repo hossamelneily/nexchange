@@ -160,11 +160,13 @@ API for crypto currency exchange.
             ]
 
 
-## Get Orders [/en/api/v1/orders/{?page,page_size}]
+## Get Orders [/en/api/v1/orders/{?page,page_size,pair,status}]
 
 + Parameters
     + `page`: 1 (optional, int) - page number.
     + `page_size`: 3 (optional, int) - number of orders in one page.
+    + `pair`: BTCETH (optional) - pair name.
+    + `status`: 11 (optional, int) - order status. CANCELED-0, INITIAL-11, PAID_UNCONFIRMED-12, PAID-13, PRE_RELEASE-14, RELEASED-15, COMPLETED-16, REFUNDED-8
 
 
 ### Get Orders [GET]
