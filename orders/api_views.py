@@ -71,9 +71,9 @@ class OrderListViewSet(viewsets.ModelViewSet,
             self.queryset = self.queryset.filter(pair__name=pair)
         status = self.request.query_params.get('status', None)
         if status is not None:
-            if isinstance(status, int):
+            try:
                 self.queryset = self.queryset.filter(status=status)
-            else:
+            except ValueError:
                 self.queryset = self.queryset.none()
         return super(OrderListViewSet, self).get_queryset()
 
@@ -253,9 +253,12 @@ class PriceView(APIView):
             order.calculate_base_from_quote()
         else:
             order = self._create_order_with_default_values(pair)
-        data = OrderedDict(
-            {'amount_base': order.amount_base,
-             'amount_quote': order.amount_quote})
+        data = OrderedDict({
+            'amount_base': order.amount_base,
+            'amount_quote': order.amount_quote,
+            'timestamp': timezone.now().timestamp(),
+            'price': order.rate
+        })
         order._validate_order_amount()
         return Response(data)
 

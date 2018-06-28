@@ -762,9 +762,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
     @property
     def rate(self):
-        """return bool whether the withdraw address can
-           be changed"""
-        return self.amount_base / self.amount_quote
+        return money_format(self.amount_quote / self.amount_base, places=8)
 
     @property
     def status_name(self):
