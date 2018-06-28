@@ -5,6 +5,8 @@ import requests_mock
 from ticker.models import Price
 from core.tests.utils import data_provider
 from core.models import Pair
+from rest_framework.test import APIClient
+from risk_management.models import Account
 
 
 class TickerHistoryTestCase(TickerBaseTestCase):
@@ -51,3 +53,30 @@ class TickerHistoryTestCase(TickerBaseTestCase):
         self.assertEqual(
             len(history), data_points, '{}, history:{}'.format(name, history)
         )
+
+
+class TestBestChangeAPI(TickerBaseTestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = ['ETHLTC', 'LTCETH']
+        super(TestBestChangeAPI, cls).setUpClass()
+        cls.api_client = APIClient()
+
+    def setUp(self):
+        acs = Account.objects.filter(
+            is_main_account=True,
+            reserve__currency__code__in=['LTC', 'ETH'])
+        for ac in acs:
+            ac.available = ac.reserve.target_level
+            ac.save()
+
+    def tearDown(self):
+        pass
+
+    def test_price_xml(self):
+        res = self.api_client.get('/en/api/v1/price_xml/')
+        self.assertEqual(res.status_code, 200)
+        content_str = str(res.content)
+        self.assertIn('ETH', content_str)
+        self.assertIn('LTC', content_str)
