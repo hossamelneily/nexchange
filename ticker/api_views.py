@@ -40,7 +40,9 @@ class BestChangeRateViewSet(viewsets.ModelViewSet):
             'to': pair.base.code,
             'in': order.amount_quote,
             'out': order.amount_base,
-            'amount': pair.base.available_reserves
+            'amount': pair.base.available_reserves,
+            'minamount': order._get_amount_quote_min(user_format=True),
+            'maxamount': order._get_amount_quote_max(user_format=True),
         }
 
     def _get_bestchange_pair_names(self):
