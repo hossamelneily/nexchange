@@ -72,7 +72,7 @@ API for crypto currency exchange.
 
 + Parameters
     + `pair_name`: BTCLTC (required, string) - name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC.
-    + `amount_base`:  0.01533743 (optional, double) - amount of base currency which user gets.
+    + `amount_base`:  1.24354147 (optional, double) - amount of base currency which user gets.
     + `amount_quote`: 100 (optional, double) - amount of base currency which user sends.
 
 ### Get Price [GET]
@@ -83,8 +83,10 @@ API for crypto currency exchange.
     + Body
 
             {
-            "amount_base": 0.01533743,
-            "amount_quote": 100.0
+              "amount_base": 1.24354147,
+              "amount_quote": 100.0,
+              "timestamp": 1530292405.642548,
+              "price": 80.4154927
             }
 
 ## Latest Ticker [/en/api/v1/price/{pair_name}/latest/{?market_code}]
@@ -1005,6 +1007,57 @@ API for crypto currency exchange.
                 ]
             }
 
+## Get Trade History [/en/api/v1/trade_history/{?page,page_size,pair,sort}]
+
++ Parameters
+    + `page`: 1 (optional, int) - page number.
+    + `page_size`: 3 (optional, int) - number of orders/trades in one page.
+    + `pair`: BTCLTC (optional) - pair name(opposite pair orders are included too).
+    + `sort`: desc (optional) - sorting by trade time possible asc - ascending and desc - descending.
+
+
+### Get Trade History [GET]
+   Returns list of trades (all released orders).
+
++ Response 200 (application/json)
+    + Attributes (Trades)
+    + Body
+
+              {
+                "count": 56,
+                "next": "https://api.nexchange.io/en/api/v1/trade_history/?page=2&page_size=3&pair=BTCLTC&sort=desc",
+                "previous": null,
+                "results": [
+                  {
+                    "unique_reference": "OPZNWT",
+                    "timestamp": 1530287823.318425,
+                    "amount": 0.12585353,
+                    "price": 79.45744549,
+                    "trade_type": "SELL",
+                    "pair": "BTCLTC",
+                    "amount_currency": "BTC"
+                  },
+                  {
+                    "unique_reference": "OCZZKX",
+                    "timestamp": 1530287822.008397,
+                    "amount": 0.12585353,
+                    "price": 79.45744549,
+                    "trade_type": "SELL",
+                    "pair": "BTCLTC",
+                    "amount_currency": "BTC"
+                  },
+                  {
+                    "unique_reference": "OROCR6",
+                    "timestamp": 1530287820.669583,
+                    "amount": 0.1,
+                    "price": 80.7439935,
+                    "trade_type": "BUY",
+                    "pair": "BTCLTC",
+                    "amount_currency": "BTC"
+                  }
+                ]
+            }
+
 
 # Data Structures
 
@@ -1159,6 +1212,21 @@ API for crypto currency exchange.
 + `next` (string, nullable) - link to the next page.
 + `previous` (string, nullable) - link to previous page.
 + `results` (array[BaseOrder])
+
+## Trade
++ `amount` (number, required) - amount of the trade of amount_currency.
++ `unique_reference` (required) - unique ID of related order.
++ `price` (number, required) - trade price.
++ `trade_type` (required) - BUY(user gets the amount) or SELL(user gives the amount).
++ `timestamp` (number, required) - UNIX timestamp of the trade.
++ `pair` (number, required) - pair of the trade (if trade type is SELL it is opposite reversed pair of the related order).
++ `amount_currency` (required) - currency of this trade amount.
+
+## Trades
++ `count` (number, required) - number of orders.
++ `next` (string, nullable) - link to the next page.
++ `previous` (string, nullable) - link to previous page.
++ `results` (array[Trade])
 
 ## TotalVolume
 + `base_volume_btc` (number, required) - sum of all tradable pairs base volume in BTC(Bitcoin). Current rate is used.

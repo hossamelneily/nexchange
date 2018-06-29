@@ -263,7 +263,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         _final_amount = None
         # Message template - end user must understand this
         _error_template = \
-            '{_error_type}imum {_direction} amount is {_final_amount}' \
+            '{_error_type}imum {_direction} amount is {_final_amount} ' \
             '{_currency_code} on this trade.'
 
         for _amount_type in ['amount_quote', 'amount_base']:
@@ -763,6 +763,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
     @property
     def rate(self):
         return money_format(self.amount_quote / self.amount_base, places=8)
+
+    @property
+    def inverted_rate(self):
+        return money_format(self.amount_base / self.amount_quote, places=8)
 
     @property
     def status_name(self):

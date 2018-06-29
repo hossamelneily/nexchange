@@ -30,6 +30,7 @@ from oauthlib.common import generate_token
 from datetime import timedelta
 from django.utils import timezone
 from django.utils.translation import ugettext as _
+from django.utils.encoding import force_text
 
 referral_middleware = ReferralMiddleWare()
 
@@ -267,3 +268,63 @@ class PriceView(APIView):
             return self._get(request, pair_name=pair_name)
         except ValidationError as e:
             raise RestValidationError({'detail': e.message})
+
+
+class TradeHistoryViewSet(viewsets.ModelViewSet,
+                          ReadOnlyCacheResponseAndETAGMixin):
+
+    model_class = Order
+    http_method_names = ['get']
+    pagination_class = OrderPagination
+
+    def get_queryset(self):
+        sort = self.request.query_params.get('sort', 'desc')
+        _order_by = 'created_on' if sort == 'asc' else '-created_on'
+        self.queryset = Order.objects.filter(status__in=[
+            Order.COMPLETED,
+            Order.RELEASED
+        ]).order_by(_order_by)
+        pair_name = self.request.query_params.get('pair', None)
+        if pair_name is not None:
+            try:
+                pair = Pair.objects.get(name=pair_name)
+                reverse_pair = pair.reverse_pair
+                self.queryset = self.queryset.filter(
+                    pair__in=[pair, reverse_pair]
+                )
+            except Pair.DoesNotExist:
+                self.queryset = self.queryset.none()
+        return super(TradeHistoryViewSet, self).get_queryset()
+
+    @method_decorator(cache_page(settings.ORDER_CACHE_LIFETIME))
+    def list(self, request):
+        data = []
+        orders = self.paginate_queryset(self.get_queryset())
+        for order in orders:
+            pair_name = self.request.query_params.get('pair', None)
+            if order.pair.reverse_pair \
+                    and pair_name == order.pair.reverse_pair.name:
+                amount = order.amount_quote
+                pair = order.pair.reverse_pair.name
+                _order_type = Order.SELL
+                amount_currency = order.pair.quote.code
+                price = order.inverted_rate
+            else:
+                amount = order.amount_base
+                pair = order.pair.name
+                _order_type = Order.BUY
+                amount_currency = order.pair.base.code
+                price = order.rate
+
+            data.append({
+                'unique_reference': order.unique_reference,
+                'timestamp': order.created_on.timestamp(),
+                'amount': amount,
+                'price': price,
+                'trade_type': force_text(dict(Order.TYPES).get(
+                    _order_type, _order_type), strings_only=True
+                ),
+                'pair': pair,
+                'amount_currency': amount_currency
+            })
+        return self.get_paginated_response(data)
