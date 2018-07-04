@@ -732,5 +732,6 @@ SATOSHI = Decimal('0.00000001')
 
 # Order matters (from most to least valuable)
 BEST_CHANGE_CURRENCIES = [
-    'BTC', 'BCH', 'ETH', 'DASH', 'ZEC', 'XMR', 'LTC', 'USDT', 'XRP', 'DOGE'
+    'BTC', 'BCH', 'ETH', 'DASH', 'ZEC', 'XMR', 'LTC', 'EUR', 'USD', 'USDT',
+    'XRP', 'DOGE'
 ]

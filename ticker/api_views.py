@@ -38,7 +38,7 @@ class BestChangeRateViewSet(viewsets.ModelViewSet):
         _from = pair.quote.code
         _min_from = order._get_amount_quote_min(user_format=True)
         _max_from = order._get_amount_quote_max(user_format=True)
-        return {
+        res = {
             'from': _from,
             'to': pair.base.code,
             'in': order.amount_quote,
@@ -47,6 +47,12 @@ class BestChangeRateViewSet(viewsets.ModelViewSet):
             'minamount': '{} {}'.format(_min_from, _from),
             'maxamount': '{} {}'.format(_max_from, _from),
         }
+        if not pair.is_crypto:
+            res.update({
+                'from': 'CARD{}'.format(_from),
+                'param': 'verifying'
+            })
+        return res
 
     def _get_bestchange_pair_names(self):
         pair_names = []
