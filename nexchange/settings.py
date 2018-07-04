@@ -259,6 +259,15 @@ CORE_TASKS = {
     },
 }
 
+
+ICO_TASKS = {
+    'subscription_checker_periodic': {
+        'task': 'ico.task_summary.subscription_checker_periodic',
+        'schedule': timedelta(hours=24),
+    },
+}
+
+
 PAYMENT_CHECKER_TASKS = {
     # 'check_okpay_payments': {
     #     'task': 'payments.task_summary.run_okpay',
@@ -384,6 +393,7 @@ PAIR_DISABLING_TASKS = {
 CELERY_BEAT_SCHEDULE = {}
 
 CELERY_BEAT_SCHEDULE.update(CORE_TASKS)
+CELERY_BEAT_SCHEDULE.update(ICO_TASKS)
 # Disabled while we do not support Fiat
 CELERY_BEAT_SCHEDULE.update(PAYMENT_CHECKER_TASKS)
 CELERY_BEAT_SCHEDULE.update(TRANSACTION_CHECKER_TASKS)

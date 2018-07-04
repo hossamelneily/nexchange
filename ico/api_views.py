@@ -6,6 +6,9 @@ from nexchange.utils import get_nexchange_logger
 from django.contrib.auth.models import User
 from orders.models import Order
 from django.db import Error
+from django.conf import settings
+from .task_summary import subscription_eth_balance_check_invoke,\
+    subscription_address_turnover_check_invoke
 
 
 class SubscriptionViewSet(viewsets.ModelViewSet):
@@ -40,3 +43,8 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
                          .format(instance.email, e))
 
         super(SubscriptionViewSet, self).perform_create(serializer)
+        subscription_eth_balance_check_invoke.apply_async([instance.pk])
+        subscription_address_turnover_check_invoke.apply_async(
+            [instance.pk],
+            countdown=settings.FAST_TASKS_TIME_LIMIT
+        )
