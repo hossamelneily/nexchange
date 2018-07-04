@@ -14,7 +14,7 @@ module.exports = {
             test: /\.js?$/,
             query: {
                 plugins: ['transform-runtime'],
-                presets: ['es2015', 'stage-0', 'react']
+                presets: ['env', 'stage-0', 'react']
             }
         }, {
             test: /\.css$/,
@@ -62,18 +62,12 @@ module.exports = {
     watch: false,
     entry: [
         // npm js
-        './node_modules/select2/dist/js/select2.full.min.js',
-        // './node_modules/jquery-ticker/jquery.ticker.js',
-        './node_modules/card/dist/jquery.card.js',
-        './node_modules/jquery-ui/ui/widgets/datepicker.js',
         './node_modules/js-cookie/src/js.cookie.js',
         './node_modules/moment-timezone/builds/moment-timezone-with-data.js',
-        './node_modules/intl-tel-input/build/js/intlTelInput.js',
         './node_modules/bootstrap-toggle/js/bootstrap-toggle.min.js',
         './node_modules/toastr/build/toastr.min.js',
         './node_modules/jquery-validation/dist/jquery.validate.js',
         './node_modules/jquery-validation/dist/additional-methods.js',
-        './node_modules/clipboard/dist/clipboard.min.js',
         // loader
         'bootstrap-loader',
         // run package
@@ -81,7 +75,6 @@ module.exports = {
         // old javascript
         './static/js/profile.js',
         './static/js/main.js',
-        './static/js/index_orders.js',
         './static/js/footer.js',
         './static/js/django_jquery_csrf_setup.js'
     ]

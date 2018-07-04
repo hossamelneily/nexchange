@@ -173,7 +173,7 @@ class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
         token = SmsToken.objects.get(user__username=username).sms_token
         self.fill_element_by_id('id_password', token)
         self.click_element_by_name('login-otp')
-        self.wait_until_clickable_element_by_name('trigger-buy')
+        sleep(1)
         self.selenium_user = User(username=username)
 
     def verify_user(self, user, reject_user_verification=True):

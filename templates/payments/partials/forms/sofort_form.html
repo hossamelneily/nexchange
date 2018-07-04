@@ -1,8 +1,0 @@
-<form method="post" novalidate action="https://www.sofort.com/payment/start" class="automatic-checkout">
-	<input name="amount" type="hidden" value="{{ order.amount_quote}}"/>
-	<input name="currency_id" type="hidden" value="{{ order.pair.quote.code}}"/>
-	<input name="reason_1" type="hidden" value="{{ order.unique_reference}}"/>
-	<input name="user_id" type="hidden" value="{{ sofort_user_id }}"/>
-	<input name="project_id" type="hidden" value="{{ sofort_project_id }}"/>
-	<input type="image" class="payment-icon" name="submit" alt="Sofort Payment" src="/static/icons/small/sofort.jpg"/>
-</form>

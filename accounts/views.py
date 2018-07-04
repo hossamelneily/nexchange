@@ -432,7 +432,7 @@ def change_password(request):
     def _change_key_next_to_main(_user):
         keys = _user.key_set.all()
         for key in keys:
-            key.next = reverse('orders.add_order')
+            key.next = reverse('referrals.main')
             key.save()
 
     main_form = PasswordChangeForm

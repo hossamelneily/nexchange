@@ -31,7 +31,7 @@ import core.views
 from core.urls import core_api_patterns
 from accounts.urls import account_urls, account_api_patterns
 from articles.urls import article_urls
-from orders.urls import order_urls, order_api_patterns
+from orders.urls import order_api_patterns
 from risk_management.urls import risk_management_api_patterns
 from orders.api_views import PriceView
 from payments.urls import payment_urls
@@ -71,7 +71,6 @@ urlpatterns = i18n_patterns(
     url(r'^jsi18n/$', javascript_catalog, js_info_dict,
         name='nexchange.javascript_catalog'),
     url(r'^$', core.views.main, name='main'),
-    url(r'^orders/', include(order_urls)),
     url(r'^accounts/', include(account_urls)),
     url(r'^payments/', include(payment_urls)),
     url(r'^referrals/', include(referral_urls)),

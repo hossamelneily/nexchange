@@ -5,7 +5,6 @@ from time import time
 
 import requests_mock
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from unittest.mock import patch
 from django.utils import timezone
 
@@ -325,14 +324,9 @@ class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
             currency=order.pair.quote,
             reference=order.unique_reference
         )
-        url = reverse('orders.update_withdraw_address',
-                      kwargs={'pk': order.pk})
-        response = self.client.post(url, {
-            'pk': order.pk,
-            'value': self.addr.pk,
-        })
-
-        self.assertEquals(200, response.status_code)
+        order.refresh_from_db()
+        order.withdraw_address = self.addr
+        order.save()
 
         p.refresh_from_db()
         order.refresh_from_db()
@@ -364,14 +358,9 @@ class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
             currency=order.pair.quote,
             reference=order.unique_reference
         )
-        url = reverse('orders.update_withdraw_address',
-                      kwargs={'pk': order.pk})
-        response = self.client.post(url, {
-            'pk': order.pk,
-            'value': self.addr.pk,
-        })
-
-        self.assertEquals(200, response.status_code)
+        order.refresh_from_db()
+        order.withdraw_address = self.addr
+        order.save()
 
         p.refresh_from_db()
         order.refresh_from_db()
@@ -401,14 +390,8 @@ class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
         _get_transaction_history.return_value = get_ok_pay_mock()
         order = Order(**self.okpay_order_data)
         order.save()
-        url = reverse('orders.update_withdraw_address',
-                      kwargs={'pk': order.pk})
-        response = self.client.post(url, {
-            'pk': order.pk,
-            'value': self.addr.pk,
-        })
-
-        self.assertEquals(200, response.status_code)
+        order.withdraw_address = self.addr
+        order.save()
         order.refresh_from_db()
         self.assertEqual(Order.INITIAL, order.status)
         self.assertEquals(0, release_payment.call_count)
@@ -431,14 +414,8 @@ class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
         _get_transaction_history.return_value = get_ok_pay_mock()
         order = Order(**self.okpay_order_data_address)
         order.save()
-        url = reverse('orders.update_withdraw_address',
-                      kwargs={'pk': order.pk})
-        response = self.client.post(url, {
-            'pk': order.pk,
-            'value': self.addr.pk,
-        })
-
-        self.assertEquals(200, response.status_code)
+        order.withdraw_address = self.addr
+        order.save()
         order.refresh_from_db()
         self.assertEqual(Order.INITIAL, order.status)
         self.assertEquals(0, release_payment.call_count)
@@ -703,6 +680,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self.assertTrue(1 > set_as_paid_now_diff, pair_name)
         address = getattr(self, '{}_address'.format(withdraw_currency_code))
         self._update_withdraw_address(self.order, address)
+        self.release_task_periodic.apply_async()
         self.order.refresh_from_db()
 
         self.assertIn(self.order.status, Order.IN_RELEASED, pair_name)

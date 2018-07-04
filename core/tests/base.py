@@ -1021,12 +1021,9 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         mock.get(matcher, text='{"data":{"txs":[]}}')
 
     def _update_withdraw_address(self, order, address):
-        url = reverse('orders.update_withdraw_address',
-                      kwargs={'pk': order.pk})
-        self.client.post(url, {
-            'pk': order.pk,
-            'value': address.pk,
-        })
+        order.refresh_from_db()
+        order.withdraw_address = address
+        order.save()
 
     def _create_withdraw_adress(self, currency, address):
         addr_data = {

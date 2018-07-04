@@ -1,16 +1,12 @@
-from copy import deepcopy
 from decimal import Decimal
-from time import time
-from unittest import skip
 
 import requests_mock
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.test import Client
 from unittest.mock import patch
 
 from core.models import Address, Transaction, Currency
-from core.tests.base import OrderBaseTestCase, UserBaseTestCase
+from core.tests.base import OrderBaseTestCase
 from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT
 from core.tests.utils import data_provider
 from nexchange.api_clients.uphold import UpholdApiClient
@@ -18,8 +14,7 @@ from orders.models import Order
 from orders.task_summary import buy_order_release_reference_periodic
 from payments.models import Payment, PaymentMethod, PaymentPreference,\
     PushRequest
-from payments.tests.test_api_clients.base import BaseCardPmtAPITestCase
-from payments.utils import get_sha256_sign, get_payeer_desc
+from payments.utils import get_sha256_sign
 from payments.payment_handlers.safe_charge import SafeChargePaymentHandler
 from rest_framework.test import APIClient
 from payments.task_summary import check_fiat_order_deposit_periodic,\
@@ -35,132 +30,6 @@ from ticker.tests.base import TickerBaseTestCase
 from PIL import Image
 import tempfile
 from verification.task_summary import check_kyc_names_periodic
-
-
-class PayeerTestCase(OrderBaseTestCase):
-
-    def _create_input_params(self, status='success', delete=None,
-                             order_id='12345'):
-        input_list = [
-            '123456',
-            '2609',
-            '21.12.2012 21:12',
-            '21.12.2012 21:12',
-            settings.PAYEER_WALLET,
-            order_id,
-            '100.00',
-            'EUR',
-            get_payeer_desc('BUY 0.1BTC'),
-            status,
-            settings.PAYEER_IPN_KEY
-        ]
-        self.input_params = {
-            'm_operation_id': input_list[0],
-            'm_operation_ps': input_list[1],
-            'm_operation_date': input_list[2],
-            'm_operation_pay_date': input_list[3],
-            'm_shop': input_list[4],
-            'm_orderid': input_list[5],
-            'm_amount': input_list[6],
-            'm_curr': input_list[7],
-            'm_desc': input_list[8],
-            'm_status': input_list[9],
-            'm_sign': get_sha256_sign(ar_hash=(i for i in input_list))
-        }
-        if delete is not None:
-            del self.input_params[delete]
-
-    def setUp(self):
-        super(PayeerTestCase, self).setUp()
-        self.status_url = reverse('payments.payeer.status')
-        self.client = Client(REMOTE_ADDR='185.71.65.92')
-        self.payment_method = PaymentMethod(name='Payeer')
-        self.payment_method.save()
-        self._create_input_params()
-        pref_data = {
-            'comment': 'Just testing',
-            'payment_method': self.payment_method,
-            'user': self.user
-        }
-        self.pref = PaymentPreference(**pref_data)
-        self.pref.save()
-
-    def test_payeer_status_success(self):
-        response = self.client.post(self.status_url, self.input_params)
-        self.assertEqual(response.status_code, 200)
-        content = response.content.decode('utf8')
-        self.assertIn('|success', content)
-
-    def test_payeer_status_error(self):
-        self._create_input_params(status='error')
-        response = self.client.post(self.status_url, self.input_params)
-        self.assertEqual(response.status_code, 200)
-        content = response.content.decode('utf8')
-        self.assertIn('|error', content)
-
-    def test_payeer_status_missing_param_error(self):
-        self._create_input_params(status='error', delete='m_operation_id')
-        response = self.client.post(self.status_url, self.input_params)
-        self.assertEqual(response.status_code, 200)
-        content = response.content.decode('utf8')
-        self.assertEqual('error', content)
-
-    @patch('orders.models.Order.calculate_quote_from_base')
-    def test_payeer_payment_after_success(self, convert_coin):
-        convert_coin.return_value = None
-        order_data = {
-            'amount_quote': Decimal(self.input_params['m_amount']),
-            'amount_base': Decimal(0.1),
-            'pair': self.BTCEUR,
-            'user': self.user,
-            'admin_comment': 'tests Order',
-            'unique_reference': self.input_params['m_orderid'],
-            'payment_preference': self.pref,
-        }
-        order = Order(**order_data)
-        order.save()
-        self._create_input_params(order_id=order.unique_reference)
-        self.client.post(self.status_url, self.input_params)
-        p = Payment.objects.filter(
-            amount_cash=order.amount_quote,
-            currency=order.pair.quote,
-            order=order,
-            reference=order.unique_reference
-        )
-        self.assertEqual(1, len(p))
-        # apply second time - should not create another payment
-        self.client.post(self.status_url, self.input_params)
-        p = Payment.objects.filter(
-            amount_cash=order.amount_quote,
-            currency=order.pair.quote,
-            order=order,
-            reference=order.unique_reference
-        )
-        self.assertEqual(1, len(p))
-
-    def test_payeer_forbidden_ip_request(self):
-        client = Client(REMOTE_ADDR='127.0.0.1')
-        response = client.post(self.status_url, self.input_params)
-        self.assertEqual(response.status_code, 404)
-
-
-class RoboTestCase(UserBaseTestCase):
-
-    def setUp(self):
-        super(RoboTestCase, self).setUp()
-
-    @skip("causes failures, needs to be migrated")
-    def test_bad_paysuccess(self):
-        r = self.client.post('/en/paysuccess/robokassa')
-        self.assertEqual(r.json()['result'], 'bad request')
-
-    @skip("causes failures, needs to be migrated")
-    def test_bad_paysuccess_with_param(self):
-        r = self.client.post('/en/paysuccess/robokassa',
-                             {'OutSum': 1,
-                              'InvId': 1,
-                              'SignatureValue': 'fsdfdfdsd'})
-        self.assertEqual(r.json()['result'], 'bad request')
 
 
 class PaymentReleaseTestCase(OrderBaseTestCase):
@@ -276,50 +145,6 @@ class PaymentReleaseTestCase(OrderBaseTestCase):
             )
             self.assertTrue(order_check.status == Order.RELEASED)
             self.assertTrue(p.is_complete)
-
-
-class MastercardTestCase(BaseCardPmtAPITestCase):
-
-    def setUp(self):
-        super(MastercardTestCase, self).setUp()
-        self.pay_url = reverse('payments.pay_with_credit_card')
-
-    @data_provider(lambda: (
-        ('1', 200, Order.PAID, {}),
-        ('0', 403, Order.INITIAL, {}),
-        ('1', 403, Order.INITIAL, {'ccn': 'nonesense'}),
-        ('1', 403, Order.INITIAL, {'cvv': 'nonesense'}),
-        ('1', 403, Order.INITIAL, {'ccexp': '0101'}),
-        ('1', 403, Order.INITIAL, {'address1': ''}),
-    ))
-    @requests_mock.mock()
-    @patch('orders.models.Order._validate_status')
-    def test_pay_for_the_order(self, pmt_status, response_status, order_status,
-                               update_params, mock, _validate_status):
-        _validate_status.return_value = True
-        provider_data = 'pmt:{}, response:{}, order:{}'.format(
-            pmt_status, response_status, order_status
-        )
-        updated_params = deepcopy(self.required_params_dict)
-        updated_params.update(update_params)
-        response_code = '100'
-        status = pmt_status
-        transaction_id = 'tx_id' + str(time())
-        transaction_success = self.transaction_response_empty.format(
-            response_code=response_code,
-            status=status,
-            transaction_id=transaction_id
-        )
-        mock.get(self.pmt_client.url, text=transaction_success)
-        response = self.client.post(self.pay_url, updated_params)
-        self.assertEqual(response.status_code, response_status, provider_data)
-        self.order.refresh_from_db()
-        # self.assertEqual(self.order.status, order_status, provider_data)
-        # FIXME: CANCEL CARDPMT because it doesnt work
-        self.assertIn(self.order.status, [Order.CANCELED, Order.INITIAL],
-                      provider_data)
-        self.order.status = Order.INITIAL
-        self.order.save()
 
 
 do_not_refund_fiat_order_params = namedtuple(

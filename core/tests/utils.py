@@ -212,15 +212,3 @@ def set_big_reserves():
     for acc in accounts:
         acc.available = Decimal(1e7)
         acc.save()
-
-
-def enable_prod_pairs():
-    pairs = Pair.objects.filter(
-        disabled=True,
-        base__is_crypto=True,
-        quote__is_crypto=True,
-    )
-    for pair in pairs:
-        pair.disabled = False
-        pair.disable_ticker = False
-        pair.save()

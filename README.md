@@ -55,7 +55,6 @@ Tests always run when you commit, but you may want to run them mannualy sometime
 It will trigger, in order: 
 - static validation of the code, running [flake8](https://flake8.readthedocs.io/en/latest/) 
 - backend tests (django unit tests)
-- frontend tests (karma configures tests). 
 
 **If any of this steps fail, file won't be commited.**
 

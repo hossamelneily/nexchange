@@ -1,4 +1,3 @@
-import Clipboard from 'clipboard';
 import Notifier from '../helpers/Notifier.js';
 import RegexChecker from '../helpers/RegexChecker.js';
 
@@ -54,7 +53,6 @@ class AccountCreation {
                     $('.copy-key').removeClass('hidden');
                     $('.hide-key').removeClass('hidden');
                     $('#user-login-key').val(data.key);
-                    new Clipboard('.copy-key');
                 }
             }
         });

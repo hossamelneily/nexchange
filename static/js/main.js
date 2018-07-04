@@ -1,12 +1,9 @@
 /*jshint esversion: 6 */
 
-import Clipboard from 'clipboard';
 import InputsHelper from './modules/helpers/InputsHelper.js';
 
 import accountCreation from './modules/authentication/AccountCreation.js';
 import accountVerification from './modules/authentication/AccountVerification.js';
-import recentOrders from './modules/orders/RecentOrders.js';
-import flipSendWidget from './modules/exchange/FlipSendWidget.js';
 
 !(function(window, $) {
     'use strict';
@@ -85,15 +82,6 @@ import flipSendWidget from './modules/exchange/FlipSendWidget.js';
             });
         });
 
-        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-            $('.select2').removeClass('select2');
-        } else {
-            $(".select2").select2({
-                'containerCssClass': 'currency-select ' +
-                    'currency-pair chart_panel_selectbox classic'
-            });
-        }
-
         var timer = null,
             delay = 500,
             phones = $('.phone');
@@ -106,22 +94,15 @@ import flipSendWidget from './modules/exchange/FlipSendWidget.js';
         });
         phones.on('keyup', InputsHelper.stripSpaces);
 
-        flipSendWidget.updateOrder($('#amount-receive'));
 
         $('#graph-range').on('change', function() {
             let pair = $('.currency-to').val() + $('.currency-from').val();
-            flipSendWidget.setCurrency(pair);
         });
 
         $('.trigger').click(function() {
             $('.trigger').removeClass('active-action');
             $(this).addClass('active-action');
 
-            flipSendWidget.updateOrder($('#amount-receive'), () => {
-                flipSendWidget.changeState(null, 'next');
-            });
-
-            flipSendWidget.updateOrder($('#amount-receive'));
         });
 
         $('.amount').on('keyup', function() {
@@ -157,9 +138,6 @@ import flipSendWidget from './modules/exchange/FlipSendWidget.js';
                 clearTimeout(timer);
                 timer = null;
             }
-            timer = setTimeout(function() {
-                flipSendWidget.updateOrder($(self), cb);
-            }, delay);
         });
 
         $('.payment-method').on('change', function() {
@@ -181,25 +159,19 @@ import flipSendWidget from './modules/exchange/FlipSendWidget.js';
             content: $("#popover-template").html()
         });
 
-        $("#id_date").datepicker({
-            dateFormat: 'yy-mm-dd'
-        });
 
         // TODO: get api root via DI
         $('#payment_method_id').val('');
         $('#user_address_id').val('');
         $('#new_user_account').val('');
         // TODO: if no amount coin selected DEFAULT_AMOUNT to confirm
-        var amountCoin = $('#amount-receive'),
-            confirm = amountCoin.val() ? amountCoin.val() : DEFAULT_AMOUNT;
-        
+
         $('.base-amount-confirm').text(confirm);
 
         var placerAjaxOrder = '/en/orders/add_order/',
             paymentAjax = '/en/payments/ajax/',
             DEFAULT_AMOUNT = 1;
 
-        $('.next-step, .prev-step').on('click', flipSendWidget.changeState);
 
         $('.create-anonymous-acc').on('click', function() {
             if ($(this).hasClass('disabled')) {
@@ -215,7 +187,6 @@ import flipSendWidget from './modules/exchange/FlipSendWidget.js';
 
         $("#user-login-key").bind('copy', function() {
             $('.verify-anonymous').prop('disabled', false);
-            var msg = gettext('Login key copied to your clipboard!');
             toastr.success(msg);
             sleep(500).then(() => {
                 $('.hide-key').click();
@@ -251,7 +222,6 @@ import flipSendWidget from './modules/exchange/FlipSendWidget.js';
             var verifyPayload = {
                 'trade-type': $('.trade-type').val(),
                 'csrfmiddlewaretoken': $('#csrfmiddlewaretoken').val(),
-                'amount-base': $('#amount-receive').val() || DEFAULT_AMOUNT,
                 'currency_from': $('.currency-from').val(), //fiat
                 'currency_to': $('.currency-to').val(), //crypto
                 'payment_preference': payment_preference,
@@ -271,11 +241,6 @@ import flipSendWidget from './modules/exchange/FlipSendWidget.js';
                     } else {
                         message = gettext('Sell order placed successfully');
                     }
-
-                    let clipboard = new Clipboard('.copy-address');
-                    clipboard.on('success', () => {
-                        toastr.success(gettext('Wallet address copied to your clipboard!'));
-                    });
 
                     toastr.success(message);
                     $('.successOrder').html($(data));
@@ -325,7 +290,6 @@ import flipSendWidget from './modules/exchange/FlipSendWidget.js';
                     $('.paymentMethodsHead').addClass('hidden');
                     $('.paymentMethods').addClass('hidden');
                     $('.paymentSuccess').removeClass('hidden').html($(data));
-                    $('.next-step').click();
                 },
                 error: function() {
                     var message = gettext('Something went wrong. Please, try again.');
@@ -351,7 +315,6 @@ import flipSendWidget from './modules/exchange/FlipSendWidget.js';
             $('.payment-preference-identifier-confirm').text(preferenceIdentifier);
             $(this).closest('.modal').modal('hide');
             $('.payment-method').val(paymentType);
-            flipSendWidget.changeState(null, 'next');
         });
 
         $(document).on('click', '.sell .payment-type-trigger', function() {
@@ -487,9 +450,6 @@ import flipSendWidget from './modules/exchange/FlipSendWidget.js';
 
             $(self).closest('.modal').modal('hide');
 
-            setTimeout(function() {
-                flipSendWidget.changeState(null, 'next');
-            }, 600);
         }
     });
 
@@ -510,7 +470,6 @@ import flipSendWidget from './modules/exchange/FlipSendWidget.js';
             success: function(data) {
                 if (data.status === 'OK') {
                     orderObject.reloadRoleRelatedElements(menuEndpoint, breadcrumbsEndpoint);
-                    flipSendWidget.changeState('next');
                 } else {
                     var message = gettext('The code you sent was incorrect. Please, try again.');
                     toastr.error(message);

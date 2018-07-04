@@ -11,16 +11,11 @@
     </div>
     <div class="form-group" name="tabs" id="tabs">
         <button id="info_button" class="btn btn-lg btn-primary tablinks active" onclick="openProfileTab(event, 'info')">{% trans "Info" %}</button>
-        <button id="verification_button" class="btn btn-lg btn-primary tablinks" onclick="openProfileTab(event, 'verification')">{% trans "Verification" %}</button>
         <button id="referrals_button" class="btn btn-lg btn-primary tablinks" onclick="openProfileTab(event, 'referrals')">{%trans "Referrals" %}</button>
     </div>
 
     <div id="info" class="tabcontent" style="display: block;">
         {% include "accounts/partials/user_profile_info.html" %}
-    </div>
-
-    <div id="verification" class="tabcontent" style="display: none;">
-        {% include "verification/partials/user_verification.html" %}
     </div>
 
     <div id="referrals" class="tabcontent" style="display: none;">

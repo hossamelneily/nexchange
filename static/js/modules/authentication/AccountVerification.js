@@ -4,7 +4,6 @@ import debounce from 'lodash/debounce';
 import Notifier from '../helpers/Notifier.js';
 import InputsHelper from '../helpers/InputsHelper.js';
 import MenuReloader from '../helpers/MenuReloader.js';
-import flipSendWidget from '../exchange/FlipSendWidget.js';
 
 class AccountVerification {
     constructor() {

@@ -519,9 +519,6 @@ build:
           echo "from django.contrib.auth.models import User; User.objects.create_superuser('onit', 'weare@onit.ws','weare0nit')" | python manage.py shell
           #
 
-          # enable pairs
-          # echo "from core.tests.utils import enable_prod_pairs; enable_prod_pairs()" | python manage.py shell
-          #
           # Start Cron Process
           # cron
           # Fix orders and transactions
@@ -683,10 +680,6 @@ tests:
         name: Selenium tests
         code: |
           DJANGO_SETTINGS_MODULE=nexchange.settings_test ./run-selenium-tests.sh
-    - script:
-        name: Frontend tests
-        code: |
-           export PHANTOMJS_BIN=${WERCKER_SOURCE_DIR}/node_modules/.bin/phantomjs
     - script:
         name: Validate New Relic config file
         code: |

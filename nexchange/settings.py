@@ -590,7 +590,7 @@ KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 TWILIO_PHONE_FROM_UK = '+447481341915'
 TWILIO_PHONE_FROM_US = '+16464612858'
 
-LOGIN_REDIRECT_URL = reverse_lazy('orders.add_order')
+LOGIN_REDIRECT_URL = reverse_lazy('referrals.main')
 
 LOCALBTC_PAIRS = ['BTCUSD']
 

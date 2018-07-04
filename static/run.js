@@ -1,13 +1,9 @@
 import './css/old.css';
 import './scss/style.scss';
-import '../node_modules/select2/dist/css/select2.css';
 import '../node_modules/font-awesome/css/font-awesome.css';
 import '../node_modules/nprogress/nprogress.css';
-import '../node_modules/intl-tel-input/build/css/intlTelInput.css';
 import '../node_modules/bootstrap-toggle/css/bootstrap-toggle.min.css';
 import '../node_modules/toastr/build/toastr.css';
-import '../node_modules/bootstrap-social/bootstrap-social.css';
-import '../node_modules/cryptocoins-icons/cryptocoins.css';
 import '../node_modules/jquery-ui/themes/base/theme.css';
 import '../node_modules/jquery-ui/themes/base/datepicker.css';
 

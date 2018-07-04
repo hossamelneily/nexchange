@@ -1,9 +1,6 @@
 from decimal import Decimal, ROUND_HALF_UP
-from hashlib import md5
 import base64
 from hashlib import sha256
-
-from django.conf import settings
 
 
 def money_format(value, is_numeric=True, places=2, curr='', sep=',', dp='.',
@@ -33,46 +30,6 @@ def money_format(value, is_numeric=True, places=2, curr='', sep=',', dp='.',
     build(curr)
     build(neg if sign else pos)
     return ''.join(reversed(result))
-
-
-def geturl_robokassa(_inv_id, out_summ):
-    # Уникальный номер заказа в Вашем магазине.
-    # Указываем именно ноль, чтобы ROBOKASSA
-    #  сама вела нумерацию заказов
-    inv_id = str(_inv_id)
-
-    hex_string = ':'.join([settings.ROBOKASSA_LOGIN, out_summ,
-                           inv_id, settings.ROBOKASSA_PASS1])
-
-    crc = md5(hex_string.encode('utf-8')).hexdigest()
-
-    url = settings.ROBOKASSA_URL.format(
-        settings.ROBOKASSA_IS_TEST,
-        settings.ROBOKASSA_LOGIN,
-        out_summ,
-        inv_id,
-        crc
-    )
-
-    return url
-
-
-def geturl_okpay_verification(partner_wallet_id, reference, return_url):
-    """ https://dev.okpay.com/en/guides/client-verification.html
-        $2
-    """
-    url = settings.OKPAY_URL.format(partner_wallet_id, reference, return_url)
-    return url
-
-
-def check_signature_robo(_inv_id, out_summ, crc):
-    hex_string = ':'.join([out_summ,
-                           _inv_id, settings.ROBOKASSA_PASS1])
-
-    my_crc = md5(hex_string.encode('utf-8')).hexdigest()
-    if my_crc == crc:
-        return True
-    return False
 
 
 def get_sha256_sign(ar_hash=(), upper=True, delimiter=':'):

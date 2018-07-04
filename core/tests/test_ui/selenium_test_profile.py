@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 import re
 from core.tests.utils import retry
 from selenium.common.exceptions import TimeoutException
+from time import sleep
 
 
 class TestUILogin(BaseTestUI):
@@ -14,16 +15,19 @@ class TestUILogin(BaseTestUI):
         super(TestUILogin, self).setUp()
         self.workflow = 'LOGIN'
 
+    @retry(AssertionError, tries=2, delay=1)
     @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: ((False,), (True,)), )
     def test_otm_login_phone(self, push_resend):
         self.base_otp_login(self.phone, push_resend)
 
+    @retry(AssertionError, tries=2, delay=1)
     @retry(TimeoutException, tries=2, delay=1)
     @data_provider(lambda: ((False,), (True,)), )
     def test_otm_login_email(self, push_resend):
         self.base_otp_login(self.email, push_resend)
 
+    @retry(AssertionError, tries=2, delay=1)
     @retry(TimeoutException, tries=2, delay=1)
     @requests_mock.mock()
     def base_otp_login(self, username, push_resend, mock):
@@ -44,9 +48,8 @@ class TestUILogin(BaseTestUI):
         token = SmsToken.objects.get(user__username=username).sms_token
         self.fill_element_by_id('id_password', token)
         self.click_element_by_name('login-otp', screenshot=True)
-        self.wait_until_clickable_element_by_name('trigger-buy',
-                                                  screenshot=True)
-        self.assertIn('buy_bitcoin', self.driver.current_url)
+        sleep(1)
+        self.assertIn('referrals', self.driver.current_url)
         profile_link = self.driver.find_elements_by_xpath(
             self.xpath_query_contains_text.format(username)
         )
@@ -61,6 +64,7 @@ class TestUIProfile(BaseTestUI):
         self.username = self.email
         self.otp_login(self.username)
 
+    @retry(AssertionError, tries=2, delay=1)
     @retry(TimeoutException, tries=2, delay=1)
     def test_profile_referrals(self):
         self.do_screenshot('main')
