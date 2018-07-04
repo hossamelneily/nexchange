@@ -20,7 +20,9 @@ def subscription_address_turnover_check_invoke(subscription_id):
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def subscription_checker_periodic():
-    subs = Subscription.objects.all()
+    subs = Subscription.objects.exclude(
+        sending_address=None
+    ).exclude(sending_address='')
     for sub in subs:
         sub_id = sub.pk
         subscription_eth_balance_check_invoke.apply_async([sub_id])

@@ -42,11 +42,32 @@ class AddressTurnoverFilter(BalanceFilter):
         return queryset
 
 
+class AddressFilter(SimpleListFilter):
+    title = 'Sending Address'
+    parameter_name = 'sending_address'
+
+    def lookups(self, request, model_admin):
+        return [
+            (True, 'Not defined'),
+            (False, 'Defined'),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            val = True if self.value() == 'True' else False
+            if val:
+                return queryset.filter(sending_address__in=[None, ''])
+            else:
+                return queryset.exclude(
+                    sending_address='').exclude(sending_address='')
+        return queryset
+
+
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
     list_filter = (
         'potential', 'category', 'utm_source', BalanceFilter,
-        AddressTurnoverFilter
+        AddressTurnoverFilter, AddressFilter
     )
     readonly_fields = ('sending_address', 'contribution', )
     list_display = ('email', 'sending_address', 'user_comment',

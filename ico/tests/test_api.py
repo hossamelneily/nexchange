@@ -52,10 +52,10 @@ class TestIcoAPI(TickerBaseTestCase):
         order = Order.objects.latest('id')
         return order
 
-    def _create_subscription_api(self):
+    def _create_subscription_api(self, address=None):
         order_data = {
             'email': self.email,
-            'sending_address': self.eth_address,
+            'sending_address': address,
         }
         order_api_url = '/en/api/v1/ico/subscription/'
         res = self.api_client.post(order_api_url, order_data, format='json')
@@ -75,8 +75,11 @@ class TestIcoAPI(TickerBaseTestCase):
         expected_address_turnover = \
             self.order_eth.amount_base \
             + Price.convert_amount(self.order_bdg.amount_base, 'BDG', 'ETH')
-        sub = self._create_subscription_api()
+        sub = self._create_subscription_api(address=self.eth_address)
         sub.refresh_from_db()
+        empty_sub = self._create_subscription_api()
+        empty_sub.refresh_from_db()
+        self.assertIsNone(empty_sub.sending_address)
         self.assertEqual(sub.eth_balance, expected_balance)
         self.assertEqual(sub.address_turnover, expected_address_turnover)
         with patch('ico.tasks.generic.eth_balance_checker.'
