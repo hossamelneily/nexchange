@@ -859,21 +859,18 @@ class Order(TimeStampedModel, SoftDeletableModel,
             send_email(profile.user.email, title, msg)
 
     def __str__(self):
-        name = "{} {} pair:{} base:{} quote:{} status:{}".format(
-            self.user.username or self.user.profile.phone,
-            self.get_order_type_display(),
-            self.pair.name,
-            self.amount_base,
-            self.amount_quote,
-            self.get_status_display()
-        )
-        dec_pls = self.recommended_decimal_places(self.ticker_amount_quote,
-                                                  self.pair.quote,
-                                                  dynamic=True)
-        if round(self.amount_quote, dec_pls) != \
-                round(self.ticker_amount_quote, dec_pls):
-            name += ' !!! amount_quote({}) != ticker_amount_quote({}) !!!'.format(  # noqa
-                self.amount_quote, self.ticker_amount_quote
+        name = \
+            '{status} {type} {unique_reference} {pair} {amount_base} {base} ' \
+            '{amount_quote} {quote} {username}'.format(
+                username=self.user.username,
+                type=self.get_order_type_display(),
+                pair=self.pair.name,
+                amount_base=str(self.amount_base).rstrip('0').rstrip('.'),
+                amount_quote=str(self.amount_quote).rstrip('0').rstrip('.'),
+                base=self.pair.base.code,
+                quote=self.pair.quote.code,
+                status=self.get_status_display(),
+                unique_reference=self.unique_reference
             )
         return name
 

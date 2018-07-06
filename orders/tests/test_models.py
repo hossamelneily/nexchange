@@ -513,12 +513,6 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
             self.order.ticker_amount_quote + self.order.withdrawal_fee_quote +
             self.order.minimal_payment_method_fee_quote
         )
-        # https://github.com/onitsoft/nexchange/pull/348 remove following line
-        # after this PR merge
-        self.order.status = Order.PAID
-        self.order.amount_quote = self.order.ticker_amount_quote / Decimal('2')
-        self.order.save()
-        self.assertIn('!!! amount_quote(', self.order.__str__())
 
     @data_provider(
         lambda: (

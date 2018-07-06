@@ -26,29 +26,33 @@ def subscription_related_turnover_check_invoke(subscription_id):
     task.run(subscription_id)
 
 
-@shared_task(time_limit=settings.MODERATE_TASKS_TIME_LIMIT)
+@shared_task(time_limit=settings.LONG_TASKS_TIME_LIMIT)
 def subscription_token_balances_check_invoke(subscription_id):
     task = TokenBalanceChecker()
     task.run(subscription_id)
+
+
+subscription_checkers = [
+    subscription_eth_balance_check_invoke,
+    subscription_address_turnover_check_invoke,
+    subscription_related_turnover_check_invoke,
+    subscription_token_balances_check_invoke
+]
+total_time_limit = sum([t.time_limit for t in subscription_checkers])
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def subscription_checker_periodic():
     subs = Subscription.objects.exclude(
         sending_address=None
-    ).exclude(sending_address='')
-    for sub in subs:
+    ).exclude(sending_address='').order_by('-id')
+    for i, sub in enumerate(subs):
         sub_id = sub.pk
-        subscription_eth_balance_check_invoke.apply_async([sub_id])
-        subscription_address_turnover_check_invoke.apply_async(
-            [sub_id],
-            countdown=settings.FAST_TASKS_TIME_LIMIT
-        )
-        subscription_related_turnover_check_invoke.apply_async(
-            [sub_id],
-            countdown=settings.FAST_TASKS_TIME_LIMIT * 2
-        )
-        subscription_token_balances_check_invoke.apply_async(
-            [sub_id],
-            countdown=settings.FAST_TASKS_TIME_LIMIT * 3
-        )
+        base_delay = i * total_time_limit
+        additional_delay = 0
+        for task in subscription_checkers:
+            task.apply_async(
+                [sub_id],
+                countdown=base_delay + additional_delay
+            )
+            additional_delay += task.time_limit

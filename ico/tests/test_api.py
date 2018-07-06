@@ -9,6 +9,7 @@ from ticker.models import Price
 from ico.task_summary import subscription_checker_periodic
 from core.models import Currency
 from referrals.models import ReferralCode, Program
+from ico.task_summary import subscription_checkers, total_time_limit
 
 
 class TestIcoAPI(TickerBaseTestCase):
@@ -185,3 +186,28 @@ class TestIcoAPI(TickerBaseTestCase):
         sub.refresh_from_db()
         self.assertEqual(sub.referral_code, code)
         self.assertEqual(sub.utm_source, utm_source)
+
+    def test_check_periodic_countdown(self):
+        address_int = int(self.eth_address, 16)
+        for i in range(address_int, address_int + 10):
+            self._create_subscription_api(hex(i))
+        subs_count = Subscription.objects.filter(
+            sending_address__isnull=False).count()
+        with patch('celery.app.task.Task.apply_async') as apply_async:
+            subscription_checker_periodic()
+            _prev_countdown = _final_countdown = 0
+            _prev_id = address_int
+            _prev_time_limit = 0
+            for i, _args in enumerate(apply_async.call_args_list):
+                _coutdown = _args[1].get('countdown', 0)
+                _id = _args[0][0][0]
+                self.assertLessEqual(_prev_countdown, _coutdown)
+                self.assertEqual(_coutdown, _prev_countdown + _prev_time_limit)
+                self.assertLessEqual(_id, _prev_id)
+                _prev_countdown = _final_countdown = _coutdown
+                _prev_id = _id
+                _prev_time_limit = subscription_checkers[i % 4].time_limit
+            expected_final_countdown = \
+                total_time_limit * (subs_count - 1) \
+                + sum([t.time_limit for t in subscription_checkers[:-1]])
+            self.assertEqual(_final_countdown, expected_final_countdown)
