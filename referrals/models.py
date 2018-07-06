@@ -68,7 +68,7 @@ class ReferralCode(TimeStampedModel, UniqueFieldMixin):
         super(ReferralCode, self).save(*args, **kwargs)
 
     def __str__(self):
-        return "{} {} {}".format(self.code, self.user, self.program)
+        return "{} {}".format(self.code, self.user)
 
 
 class Referral(IpAwareModel):

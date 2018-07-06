@@ -4,11 +4,16 @@ from .models import Subscription
 from nexchange.permissions import PostOnlyPermission
 from nexchange.utils import get_nexchange_logger
 from django.contrib.auth.models import User
-from orders.models import Order
 from django.db import Error
 from django.conf import settings
+from referrals.middleware import ReferralMiddleWare
 from .task_summary import subscription_eth_balance_check_invoke,\
-    subscription_address_turnover_check_invoke
+    subscription_address_turnover_check_invoke,\
+    subscription_token_balances_check_invoke,\
+    subscription_related_turnover_check_invoke
+
+
+referral_middleware = ReferralMiddleWare()
 
 
 class SubscriptionViewSet(viewsets.ModelViewSet):
@@ -30,13 +35,10 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
                 except User.DoesNotExist:
                     pass
 
-            orders = Order.objects.filter(
-                withdraw_address__address=instance.sending_address
-            )
-
-            for order in orders:
-                instance.orders.add(order)
-                instance.users.add(order.user)
+            instance.add_related_orders_and_users()
+            instance.referral_code = \
+                referral_middleware.get_referral_code(self.request)
+            instance.save()
         except Error as e:
             logger = get_nexchange_logger(__name__)
             logger.error('Email Subscription User lookup error {} {}'
@@ -47,4 +49,12 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
         subscription_address_turnover_check_invoke.apply_async(
             [instance.pk],
             countdown=settings.FAST_TASKS_TIME_LIMIT
+        )
+        subscription_related_turnover_check_invoke.apply_async(
+            [instance.pk],
+            countdown=settings.FAST_TASKS_TIME_LIMIT * 2
+        )
+        subscription_token_balances_check_invoke.apply_async(
+            [instance.pk],
+            countdown=settings.FAST_TASKS_TIME_LIMIT * 3
         )
