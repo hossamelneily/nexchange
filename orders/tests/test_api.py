@@ -2,6 +2,9 @@ from ticker.tests.base import TickerBaseTestCase
 from rest_framework.test import APIClient
 from orders.models import Order
 from decimal import Decimal
+from datetime import timedelta, datetime
+from freezegun import freeze_time
+from orders.api_views import OrderListViewSet
 
 
 class TestBestChangeAPI(TickerBaseTestCase):
@@ -106,3 +109,96 @@ class TestBestChangeAPI(TickerBaseTestCase):
         expected_desc = sorted(timestamp_asc)[::-1]
         self.assertEqual(timestamp_desc, expected_desc)
         self.assertEqual(timestamp_asc, expected_asc)
+
+
+class TestFiatOrderPrivacy(TickerBaseTestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = ['LTCEUR', 'LTCBTC']
+        super(TestFiatOrderPrivacy, cls).setUpClass()
+        cls.api_client = APIClient()
+        cls.order_api_url = '/en/api/v1/orders/'
+        cls.order_serializer = OrderListViewSet()
+
+    def setUp(self):
+        super(TestFiatOrderPrivacy, self).setUp()
+        self.order_fiat = self._create_order_api(pair_name='LTCEUR')
+        self.order_crypto = self._create_order_api(pair_name='LTCBTC')
+        self.api_client = APIClient()
+        self.order_api_url = '/en/api/v1/orders/'
+
+    def _create_order_api(self, pair_name='LTCEUR',
+                          address='LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4',
+                          amount=1):
+        order_data = {
+            'pair': {
+                'name': pair_name
+            },
+            'withdraw_address': {
+                'address': address
+            },
+            'amount_base': amount
+        }
+        res = self.api_client.post(self.order_api_url,
+                                   order_data, format='json')
+        self.assertEqual(res.status_code, 201)
+        order = Order.objects.latest('id')
+        return order
+
+    def _get_order_payment_url_api(self, order):
+        res = self.api_client.get(
+            '{}{}/'.format(self.order_api_url, order.unique_reference)
+        )
+        self.assertEqual(res.status_code, 200)
+        return res.json()['payment_url']
+
+    def _list_order_api(self):
+        # page_size is a hack to disable cache..
+        page_size = self.list_order_call_count
+        res = self.api_client.get(
+            '{}?page_size={}'.format(self.order_api_url, page_size)
+        )
+        self.list_order_call_count += 1
+        self.assertEqual(res.status_code, 200)
+        return res.json()
+
+    def _get_order_refs(self, res):
+        return [r['unique_reference'] for r in res['results']]
+
+    def test_show_only_initial_crypto_order(self):
+        self.list_order_call_count = 100
+        res1 = self._list_order_api()
+        refs1 = self._get_order_refs(res1)
+        self.assertIn(self.order_crypto.unique_reference, refs1)
+        self.assertNotIn(self.order_fiat.unique_reference, refs1)
+        payment_url1 = self._get_order_payment_url_api(self.order_fiat)
+        self.assertIn(self.order_fiat.unique_reference, payment_url1)
+        # Set Fiat order status PAID_UNCONFIRMED
+        self.order_fiat.status = Order.PAID_UNCONFIRMED
+        self.order_fiat.save()
+        res2 = self._list_order_api()
+        refs2 = self._get_order_refs(res2)
+        self.assertIn(self.order_crypto.unique_reference, refs2)
+        self.assertIn(self.order_fiat.unique_reference, refs2)
+        payment_url2 = self._get_order_payment_url_api(self.order_fiat)
+        self.assertEqual(payment_url2, '')
+
+    def test_show_only_expired_fiat_order(self):
+        self.list_order_call_count = 1000
+        res1 = self._list_order_api()
+        refs1 = self._get_order_refs(res1)
+        self.assertIn(self.order_crypto.unique_reference, refs1)
+        self.assertNotIn(self.order_fiat.unique_reference, refs1)
+        payment_url1 = self._get_order_payment_url_api(self.order_fiat)
+        self.assertIn(self.order_fiat.unique_reference, payment_url1)
+        # Set Fiat order expired
+        now = datetime.now() + timedelta(
+            minutes=self.order_fiat.payment_window)
+        with freeze_time(now):
+            res2 = self._list_order_api()
+            refs2 = self._get_order_refs(res2)
+            self.assertIn(self.order_crypto.unique_reference, refs2)
+            self.assertIn(self.order_fiat.unique_reference, refs2)
+            payment_url2 = self._get_order_payment_url_api(self.order_fiat)
+            self.assertEqual(payment_url2, '')

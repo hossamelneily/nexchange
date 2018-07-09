@@ -31,6 +31,7 @@ from datetime import timedelta
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.utils.encoding import force_text
+from rest_framework.generics import get_object_or_404
 
 referral_middleware = ReferralMiddleWare()
 
@@ -65,8 +66,38 @@ class OrderListViewSet(viewsets.ModelViewSet,
 
         return super(OrderListViewSet, self).get_serializer_class()
 
-    def get_queryset(self, filters=None, **kwargs):
+    def _get_private_fiat_orders_pks(self, queryset):
+        return [
+            o.pk for o in queryset.filter(status=Order.INITIAL)
+            if not o.pair.is_crypto and not o.expired
+        ]
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset(only_public=False))
+
+        # Perform the lookup filtering.
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+        assert lookup_url_kwarg in self.kwargs, (
+            'Expected view %s to be called with a URL keyword argument '
+            'named "%s". Fix your URL conf, or set the `.lookup_field` '
+            'attribute on the view correctly.' %
+            (self.__class__.__name__, lookup_url_kwarg)
+        )
+
+        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
+        obj = get_object_or_404(queryset, **filter_kwargs)
+
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+
+        return obj
+
+    def get_queryset(self, filters=None, only_public=True, **kwargs):
         self.queryset = Order.objects.all()
+        if only_public:
+            private_pks = self._get_private_fiat_orders_pks(self.queryset)
+            self.queryset = self.queryset.exclude(pk__in=private_pks)
         pair = self.request.query_params.get('pair', None)
         if pair is not None:
             self.queryset = self.queryset.filter(pair__name=pair)
