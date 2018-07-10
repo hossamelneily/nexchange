@@ -115,7 +115,7 @@ class TestFiatOrderPrivacy(TickerBaseTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.ENABLED_TICKER_PAIRS = ['LTCEUR', 'LTCBTC']
+        cls.ENABLED_TICKER_PAIRS = ['LTCEUR']
         super(TestFiatOrderPrivacy, cls).setUpClass()
         cls.api_client = APIClient()
         cls.order_api_url = '/en/api/v1/orders/'
@@ -124,9 +124,6 @@ class TestFiatOrderPrivacy(TickerBaseTestCase):
     def setUp(self):
         super(TestFiatOrderPrivacy, self).setUp()
         self.order_fiat = self._create_order_api(pair_name='LTCEUR')
-        self.order_crypto = self._create_order_api(pair_name='LTCBTC')
-        self.api_client = APIClient()
-        self.order_api_url = '/en/api/v1/orders/'
 
     def _create_order_api(self, pair_name='LTCEUR',
                           address='LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4',
@@ -153,52 +150,33 @@ class TestFiatOrderPrivacy(TickerBaseTestCase):
         self.assertEqual(res.status_code, 200)
         return res.json()['payment_url']
 
-    def _list_order_api(self):
-        # page_size is a hack to disable cache..
-        page_size = self.list_order_call_count
-        res = self.api_client.get(
-            '{}?page_size={}'.format(self.order_api_url, page_size)
-        )
-        self.list_order_call_count += 1
-        self.assertEqual(res.status_code, 200)
-        return res.json()
-
-    def _get_order_refs(self, res):
-        return [r['unique_reference'] for r in res['results']]
-
-    def test_show_only_initial_crypto_order(self):
-        self.list_order_call_count = 100
-        res1 = self._list_order_api()
-        refs1 = self._get_order_refs(res1)
-        self.assertIn(self.order_crypto.unique_reference, refs1)
-        self.assertNotIn(self.order_fiat.unique_reference, refs1)
+    def test_show_payment_url_only_initial(self):
         payment_url1 = self._get_order_payment_url_api(self.order_fiat)
         self.assertIn(self.order_fiat.unique_reference, payment_url1)
-        # Set Fiat order status PAID_UNCONFIRMED
         self.order_fiat.status = Order.PAID_UNCONFIRMED
         self.order_fiat.save()
-        res2 = self._list_order_api()
-        refs2 = self._get_order_refs(res2)
-        self.assertIn(self.order_crypto.unique_reference, refs2)
-        self.assertIn(self.order_fiat.unique_reference, refs2)
         payment_url2 = self._get_order_payment_url_api(self.order_fiat)
         self.assertEqual(payment_url2, '')
 
-    def test_show_only_expired_fiat_order(self):
-        self.list_order_call_count = 1000
-        res1 = self._list_order_api()
-        refs1 = self._get_order_refs(res1)
-        self.assertIn(self.order_crypto.unique_reference, refs1)
-        self.assertNotIn(self.order_fiat.unique_reference, refs1)
+    def test_show_payment_url_only_non_expired(self):
         payment_url1 = self._get_order_payment_url_api(self.order_fiat)
         self.assertIn(self.order_fiat.unique_reference, payment_url1)
-        # Set Fiat order expired
         now = datetime.now() + timedelta(
             minutes=self.order_fiat.payment_window)
         with freeze_time(now):
-            res2 = self._list_order_api()
-            refs2 = self._get_order_refs(res2)
-            self.assertIn(self.order_crypto.unique_reference, refs2)
-            self.assertIn(self.order_fiat.unique_reference, refs2)
             payment_url2 = self._get_order_payment_url_api(self.order_fiat)
             self.assertEqual(payment_url2, '')
+
+    def test_show_payment_url_only_to_creator(self):
+        payment_url1 = self._get_order_payment_url_api(self.order_fiat)
+        self.assertIn(self.order_fiat.unique_reference, payment_url1)
+        self.api_client.logout()
+        payment_url2 = self._get_order_payment_url_api(self.order_fiat)
+        self.assertEqual(payment_url2, '')
+
+    def test_do_not_show_payment_url_on_list(self):
+        res = self.api_client.get(self.order_api_url)
+        self.assertEqual(res.status_code, 200)
+        data = res.json()['results']
+        self.assertEqual(len(data), 1)
+        self.assertNotIn('payment_url', data[0])

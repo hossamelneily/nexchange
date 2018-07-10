@@ -31,6 +31,24 @@ TOKEN_FIELDS = ('token',)
 DETAIL_FIELDS = ('display_refund_address',)
 
 
+class PrivateField(serializers.ReadOnlyField):
+
+    def __init__(self, *args, **kwargs):
+        self.default_public_return_value = kwargs.pop(
+            'public_return_value', None
+        )
+        super(PrivateField, self).__init__(*args, **kwargs)
+
+    def get_attribute(self, instance):
+        """
+        Given the *outgoing* object instance, return the primitive value
+        that should be used for this field.
+        """
+        if instance.user == self.context['request'].user:
+            return super(PrivateField, self).get_attribute(instance)
+        return self.default_public_return_value
+
+
 class MetaOrder:
     model = Order
     fields = BASE_FIELDS
@@ -62,6 +80,7 @@ class OrderListSerializer(OrderSerializer):
 class OrderDetailSerializer(OrderSerializer):
 
     price = RateSerializer(many=False, read_only=True)
+    payment_url = PrivateField(public_return_value='')
 
     class Meta(MetaFlatOrder):
         fields = \
