@@ -362,6 +362,7 @@ class Pair(TimeStampedModel):
     disable_volume = models.BooleanField(
         default=False, help_text='Opt-out this Pair on Volume endpoint.'
     )
+    last_price_saved = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         self.name = '{}{}'.format(self.base, self.quote)
@@ -424,6 +425,20 @@ class Pair(TimeStampedModel):
         user.refresh_from_db()
         if self.test_mode and not user.profile.can_use_test_mode:
             raise ValidationError(_(error_msg))
+
+    @property
+    def latest_price(self):
+        try:
+            return \
+                self.price_set.filter(market__is_main_market=True).latest('id')
+        except ObjectDoesNotExist:
+            return
+
+    @property
+    def price_expired(self):
+        if self.latest_price and not self.latest_price.expired:
+            return False
+        return True
 
 
 class Country(models.Model):

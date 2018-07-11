@@ -2,6 +2,8 @@ import requests
 from ticker.fixtures.available_kraken_pairs import kraken_pairs
 from django.core.exceptions import ValidationError
 from decimal import Decimal
+from time import time
+from django.conf import settings
 
 
 class BaseApiAdapter:
@@ -375,6 +377,24 @@ class IdexAdapter(BaseApiAdapter):
     def __init__(self):
         super(IdexAdapter, self).__init__()
         self.reverse_pair = False
+        self._post_cache = {}
+
+    def get_market_response(self, market):
+        now = time()
+        if market not in self._post_cache \
+                or now - self._post_cache[market]['timestamp'] > settings.TICKER_INTERVAL:  # noqa
+            result = requests.post(
+                self.BASE_URL + '/returnTicker', json={'market': market}
+            ).json()
+            self._post_cache.update({
+                market: {
+                    'timestamp': now,
+                    'result': result
+                }
+            })
+        else:
+            result = self._post_cache[market].get('result')
+        return result
 
     def get_quote(self, pair):
         if all([pair.quote.code == 'ETH', pair.base.is_token]):
@@ -395,9 +415,7 @@ class IdexAdapter(BaseApiAdapter):
             base=base,
             quote=quote
         )
-        result = requests.post(
-            self.BASE_URL + '/returnTicker', json={'market': market}
-        ).json()
+        result = self.get_market_response(market)
         ask = bid = result.get('last')
         return {
             'reverse': self.reverse_pair,

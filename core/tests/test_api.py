@@ -6,6 +6,8 @@ from rest_framework.test import APIClient
 from risk_management.models import Account
 from core.models import Pair
 from decimal import Decimal
+from ticker.models import Price, Ticker
+from unittest.mock import patch
 
 
 class CoreApiTestCase(OrderBaseTestCase):
@@ -20,8 +22,10 @@ class CoreApiTestCase(OrderBaseTestCase):
 
     def _check_dynamic_test_mode(self, pair_name,
                                  expected_dynamic_test_mode, data,
-                                 expected_db_test_mode=False):
+                                 expected_db_test_mode=False,
+                                 price_expired=False):
         pair = Pair.objects.get(name=pair_name)
+        self.assertEqual(pair.price_expired, price_expired)
         self.assertEqual(pair.test_mode, expected_db_test_mode)
         pair_data = [p for p in data if p['name'] == pair_name][0]
         pair_data_retrieve = self.api_client.get(
@@ -30,6 +34,20 @@ class CoreApiTestCase(OrderBaseTestCase):
         dynamic_test_mode = pair_data['test_mode']
         self.assertEqual(dynamic_test_mode, expected_dynamic_test_mode)
         self.assertEqual(pair_data, pair_data_retrieve)
+
+    @patch('ticker.models.Ticker._validate_change')
+    def _create_price(self, pair_name, validate, expired=False):
+        pair = Pair.objects.get(name=pair_name)
+        if expired:
+            self.assertFalse(pair.last_price_saved)
+            return
+        validate.return_value = None
+        ticker = Ticker(ask=Decimal(1.1), bid=Decimal(0.9), pair=pair)
+        ticker.save()
+        price = Price(ticker=ticker, pair=pair)
+        price.save()
+        pair.last_price_saved = True
+        pair.save()
 
     def test_pair_api(self):
         # DB SETUP
@@ -64,6 +82,15 @@ class CoreApiTestCase(OrderBaseTestCase):
         nanoomg.test_mode = False
         nanoomg.disabled = True
         nanoomg.save()
+        self._create_price('BTCLTC')
+        self._create_price('LTCBTC')
+        self._create_price('BTCETH')
+        self._create_price('ETHBTC')
+        self._create_price('XVGBTC')
+        self._create_price('LTCEUR')
+        self._create_price('BTCUSD')
+        self._create_price('NANOOMG')
+        self._create_price('ETHBDG', expired=True)
 
         # API CALL
         data = self.api_client.get(self.pairs_url).json()
@@ -87,6 +114,9 @@ class CoreApiTestCase(OrderBaseTestCase):
         # Check NANOOMG, should be d in test_mode because disabled
         # (test_mode == False)
         self._check_dynamic_test_mode('NANOOMG', True, data)
+        # Check ETHBDG, should be d in test_mode because price is expired(
+        # price not saved on last get_all_tickers() call)
+        self._check_dynamic_test_mode('ETHBDG', True, data, price_expired=True)
 
 
 class PairsTestCase(OrderBaseTestCase):

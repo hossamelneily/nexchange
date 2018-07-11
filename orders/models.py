@@ -490,8 +490,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         amount_input = Decimal(getattr(self, 'amount_{}'.format(_from)))
         setattr(self, 'amount_{}'.format(_from), amount_input)
         if not price:
-            price = Price.objects.filter(
-                pair=self.pair, market__is_main_market=True).latest('id')
+            price = self.pair.latest_price
         self.price = price
         self.set_slippage(self.price, amount_input, _from)
         ticker_amount_output = getattr(self, 'ticker_amount_{}'.format(_to))

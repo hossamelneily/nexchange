@@ -10,7 +10,7 @@ from ticker.tasks.generic.base import BaseTicker, \
 from unittest.mock import patch
 from django.db.models import Q
 from ticker.task_summary import get_ticker_crypto_crypto, \
-    get_ticker_crypto_fiat
+    get_ticker_crypto_fiat, get_all_tickers_force, get_all_tickers
 
 
 class TestTickerTask(TickerBaseTestCase):
@@ -249,3 +249,24 @@ class TestTickerTask(TickerBaseTestCase):
                                        api_adapters_list[1],
                                        pairs[1])),
             2)
+
+
+class TestTickerTaskPartial(TickerBaseTestCase):
+    @patch('ticker.models.Ticker._validate_change')
+    @requests_mock.mock()
+    def test_get_all_tickers_force(self, _validate_change, mock):
+        self._disable_non_crypto_tickers()
+        _validate_change.side_effect = ValueError('ba dumt tss')
+        self.mock_resources(mock)
+        get_all_tickers.apply()
+        self.assertEqual(
+            Pair.objects.filter(disable_ticker=False,
+                                last_price_saved=False).count(),
+            Pair.objects.filter(disable_ticker=False).count(),
+        )
+        get_all_tickers_force.apply()
+        self.assertEqual(
+            Pair.objects.filter(disable_ticker=False,
+                                last_price_saved=False).count(),
+            0
+        )

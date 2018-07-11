@@ -41,7 +41,7 @@ class PairViewSet(viewsets.ModelViewSet):
         return super(PairViewSet, self).dispatch(*args, **kwargs)
 
     def _get_dynamic_test_mode(self, pair):
-        if pair.disabled:
+        if pair.disabled or not pair.last_price_saved:
             return True
         base_test_mode = self.base_test_mode_cache.get(pair.base.code, None)
         quote_test_mode = self.quote_test_mode_cache.get(pair.quote.code, None)

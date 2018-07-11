@@ -31,7 +31,8 @@ class CurrencyAdmin(admin.ModelAdmin):
 
 @admin.register(Pair)
 class PairAdmin(admin.ModelAdmin):
-    list_display = ('name', 'fee_ask', 'fee_bid', 'disabled', 'test_mode')
+    list_display = ('name', 'fee_ask', 'fee_bid', 'disabled', 'test_mode',
+                    'last_price_saved')
     search_fields = (
         'base__code', 'quote__code', 'name'
     )
