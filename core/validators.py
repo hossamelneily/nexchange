@@ -224,7 +224,7 @@ def validate_xmr_payment_id(value):
 def get_validator(code):
     if code in ['ETH', 'BDG', 'OMG', 'GNT', 'QTM',
                 'EOS', 'KCS', 'BNB', 'KNC', 'BIX',
-                'HT', 'BNT', 'COSS', 'COB']:
+                'HT', 'BNT', 'COSS', 'COB', 'BMH']:
         return validate_eth
     elif code in ['BTC']:
         return validate_btc

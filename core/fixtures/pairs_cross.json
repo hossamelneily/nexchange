@@ -7405,5 +7405,709 @@
     "disabled": false,
     "test_mode": true
   }
+},
+{
+  "model": "core.pair",
+  "pk": 661,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 1,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BTCBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 662,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 1,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHBTC",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 663,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 2,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "LTCBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 664,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 2,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHLTC",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 665,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 3,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "ETHBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 666,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 3,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHETH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 667,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 34,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DOGEBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 668,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 34,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHDOGE",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 669,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 35,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XVGBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 670,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 35,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHXVG",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 671,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 36,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BCHBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 672,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 36,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHBCH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 673,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 42,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "NANOBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 674,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 42,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHNANO",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 675,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 43,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "ZECBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 676,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 43,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHZEC",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 677,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 44,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "USDTBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 678,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 44,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHUSDT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 679,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 45,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XMRBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 680,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 45,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHXMR",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 681,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 54,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "DASHBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 682,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 54,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHDASH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 683,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 37,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BDGBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 684,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 37,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHBDG",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 685,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 39,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "OMGBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 686,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 39,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHOMG",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 687,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 40,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "EOSBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 688,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 40,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHEOS",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 689,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 46,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "KCSBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 690,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 46,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHKCS",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 691,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 47,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BNBBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 692,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 47,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHBNB",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 693,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 48,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "KNCBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 694,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 48,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHKNC",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 695,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 49,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "HTBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 696,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 49,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHHT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 697,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 50,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BIXBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 698,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 50,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHBIX",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 699,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 51,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BNTBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 700,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 51,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHBNT",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 701,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 52,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "COSSBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 702,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 52,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHCOSS",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 703,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 53,
+    "quote": 55,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "COBBMH",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 704,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 55,
+    "quote": 53,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "BMHCOB",
+    "disable_ticker": false,
+    "disabled": false,
+    "test_mode": false
+  }
 }
 ]

@@ -306,5 +306,30 @@
     "unslippaged_amount": "7500",
     "slippage_rate": "0.0000803"
     }
+  },
+  {
+  "model": "core.currency",
+  "pk": 55,
+  "fields": {
+    "code": "BMH",
+    "name": "BlockMesh",
+    "ticker": "hitbtc",
+    "wallet": "rpc7",
+    "algo": "ethash",
+    "is_crypto": 1,
+    "min_confirmations": 12,
+    "median_confirmation": 16,
+    "decimals": 18,
+    "withdrawal_fee": "600",
+    "minimal_amount": "1200",
+    "maximal_amount": "200000",
+    "is_token": true,
+    "contract_address": "0xf03045a4c8077e38f3b8e2ed33b8aee69edf869f",
+    "created_on":"2017-09-19T19:21:42+00:00",
+    "modified_on":"2017-09-19T19:21:42+00:00",
+    "unslippaged_amount": "100000",
+    "slippage_rate": "1.4375e-7",
+    "quote_unslippaged_amount_multiplier": "0.05"
+    }
   }
 ]

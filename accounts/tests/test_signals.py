@@ -24,7 +24,7 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
              'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
              'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC',
              'BTCBIX', 'BTCHT', 'BTCCOSS', 'BTCBNT',
-             'BTCCOB', 'BTCDASH']
+             'BTCCOB', 'BTCDASH', 'BTCBMH']
         super(RenewReserveTestCase, cls).setUpClass()
         Cards.objects.all().delete()
         cls.len_crypto_curencies = \

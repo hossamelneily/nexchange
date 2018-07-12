@@ -58,7 +58,8 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
              'KCSBTC', 'BNBBTC', 'KNCBTC', 'BTCBIX',
              'BTCKCS', 'BTCBNB', 'BTCKNC', 'BIXBTC',
              'BTCHT', 'BTCCOSS', 'BTCBNT', 'BTCCOB',
-             'HTBTC', 'COSSBTC', 'BNTBTC', 'COBBTC']
+             'HTBTC', 'COSSBTC', 'BNTBTC', 'COBBTC',
+             'BTCBMH', 'BMHBTC']
         super(EthashRawE2ETestCase, cls).setUpClass()
         cls.import_txs_task = import_transaction_deposit_crypto_invoke
         cls.update_confirmation_task = update_pending_transactions_invoke
@@ -93,7 +94,6 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
         order_api_url = '/en/api/v1/orders/'
         response = self.api_client.post(
             order_api_url, order_data, format='json')
-
         order = Order.objects.get(
             unique_reference=response.json()['unique_reference']
         )
@@ -124,6 +124,7 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
             ('BTCBNT',),
             ('BTCCOSS',),
             ('BTCCOB',),
+            ('BTCBMH',),
         )
     )
     @patch.dict(os.environ, {'RPC7_PUBLIC_KEY_C1': '0xmain_card'})
@@ -210,6 +211,7 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
             ('BNTBTC',),
             ('COSSBTC',),
             ('COBBTC',),
+            ('BMHBTC',),
         )
     )
     @patch.dict(os.environ, {'RPC7_PUBLIC_KEY_C1': '0xmain_card'})
