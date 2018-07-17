@@ -8,7 +8,7 @@ from .tasks.generic.tx_importer.uphold_blockchain import \
 from .tasks.generic.tx_importer.scrypt import ScryptTransactionImporter, \
     EthashTransactionImporter, Blake2TransactionImporter,\
     ZcashTransactionImporter, OmniTransactionImporter, \
-    CryptonightTransactionImporter
+    CryptonightTransactionImporter, RippleTransactionImporter
 from django.conf import settings
 from celery import shared_task
 from core.models import AddressReserve
@@ -59,6 +59,11 @@ def import_transaction_deposit_cryptonight_invoke():
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def import_transaction_deposit_ripple_invoke():
+    return import_transaction_deposit_crypto(RippleTransactionImporter)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def import_transaction_deposit_uphold_invoke():
     return import_transaction_deposit_crypto(UpholdTransactionImporter)
 
@@ -69,7 +74,8 @@ all_importers = [
     import_transaction_deposit_omni_invoke,
     import_transaction_deposit_ethash_invoke,
     import_transaction_deposit_blake2_invoke,
-    import_transaction_deposit_cryptonight_invoke
+    import_transaction_deposit_cryptonight_invoke,
+    import_transaction_deposit_ripple_invoke
 ]
 
 

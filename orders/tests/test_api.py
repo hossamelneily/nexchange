@@ -5,6 +5,11 @@ from decimal import Decimal
 from datetime import timedelta, datetime
 from freezegun import freeze_time
 from orders.api_views import OrderListViewSet
+import os
+from unittest.mock import patch
+from nexchange.tests.test_ripple import RPC8_PORT, RPC8_PASSWORD, RPC8_USER,\
+    RPC8_HOST, RPC13_PUBLIC_KEY_C1
+from core.models import Currency, AddressReserve
 
 
 class TestBestChangeAPI(TickerBaseTestCase):
@@ -180,3 +185,86 @@ class TestFiatOrderPrivacy(TickerBaseTestCase):
         data = res.json()['results']
         self.assertEqual(len(data), 1)
         self.assertNotIn('payment_url', data[0])
+
+
+class TestOrderParamsOnAddress(TickerBaseTestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = ['LTCXRP', 'XRPLTC']
+        super(TestOrderParamsOnAddress, cls).setUpClass()
+        cls.api_client = APIClient()
+        cls.order_api_url = '/en/api/v1/orders/'
+        cls.order_serializer = OrderListViewSet()
+
+    @patch.dict(os.environ, {'RPC13_PUBLIC_KEY_C1': RPC13_PUBLIC_KEY_C1})
+    @patch.dict(os.environ, {'RPC_RPC13_PASSWORD': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC13_K': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC13_USER': RPC8_USER})
+    @patch.dict(os.environ, {'RPC_RPC13_HOST': RPC8_HOST})
+    @patch.dict(os.environ, {'RPC_RPC13_PORT': RPC8_PORT})
+    def setUp(self):
+        super(TestOrderParamsOnAddress, self).setUp()
+        AddressReserve.objects.get_or_create(
+            currency=Currency.objects.get(code='XRP'),
+            address=RPC13_PUBLIC_KEY_C1,
+        )
+
+    def _create_order_api(self, pair_name='LTCXRP',
+                          address='LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4',
+                          amount=1, destination_tag=None):
+        order_data = {
+            'pair': {
+                'name': pair_name
+            },
+            'withdraw_address': {
+                'address': address,
+                'destination_tag': destination_tag
+            },
+            'amount_base': amount
+        }
+        res = self.api_client.post(self.order_api_url,
+                                   order_data, format='json')
+        self.assertEqual(res.status_code, 201)
+        return res.json()
+
+    def _get_order(self, order_reference):
+        res = self.api_client.get(
+            '{}{}/'.format(self.order_api_url, order_reference)
+        )
+        self.assertEqual(res.status_code, 200)
+        return res.json()
+
+    def test_show_deposit_destination_tag(self):
+        post_res = self._create_order_api()
+        deposit_address = post_res['deposit_address']
+        withdraw_address = post_res['withdraw_address']
+        self.assertIsNotNone(deposit_address['destination_tag'])
+        self.assertIsNone(withdraw_address['destination_tag'])
+
+        order_ref = post_res['unique_reference']
+        order = Order.objects.get(unique_reference=order_ref)
+        res = self._get_order(order_ref)
+        deposit_address = res['deposit_address']
+        withdraw_address = res['withdraw_address']
+        self.assertIsNotNone(deposit_address['destination_tag'])
+        self.assertIsNone(withdraw_address['destination_tag'])
+        self.assertEqual(
+            order.destination_tag,
+            deposit_address['destination_tag']
+        )
+
+    def test_withdraw_destination_tag(self):
+        withdraw_address = 'r9y63YwVUQtTWHtwcmYc1Epa5KvstfUzSm'
+        dest_tag = '123456'
+        post_res = self._create_order_api(pair_name='XRPLTC',
+                                          address=withdraw_address,
+                                          destination_tag=dest_tag, amount=10)
+        order_ref = post_res['unique_reference']
+        destination_tag = post_res['withdraw_address'].get('destination_tag')
+        order = Order.objects.get(unique_reference=order_ref)
+        self.assertEqual(order.destination_tag, dest_tag)
+        self.assertEqual(destination_tag, dest_tag)
+        res = self._get_order(order_ref)
+        get_destination_tag = res['withdraw_address'].get('destination_tag')
+        self.assertEqual(get_destination_tag, dest_tag)

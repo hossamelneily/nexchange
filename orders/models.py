@@ -26,7 +26,7 @@ from payments.models import PaymentPreference
 from nexchange.api_clients.factory import ApiClientFactory
 from oauth2_provider.models import AccessToken
 from decimal import InvalidOperation
-from core.validators import validate_xmr_payment_id
+from core.validators import validate_xmr_payment_id, validate_destination_tag
 
 safe_charge_client = SafeChargeAPIClient()
 factory = ApiClientFactory()
@@ -138,6 +138,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
     payment_id = models.CharField(
         max_length=64, null=True, blank=True, default=None,
         validators=[validate_xmr_payment_id]
+    )
+    destination_tag = models.CharField(
+        max_length=10, null=True, blank=True, default=None,
+        validators=[validate_destination_tag]
     )
     is_default_rule = models.BooleanField(default=False)
     from_default_rule = models.BooleanField(default=False)
@@ -390,6 +394,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
                 self.payment_id is not None]):
             raise ValidationError(
                 _('Payment id is currently used only for Monero address'))
+        if all([not self.pair.includes_currency('XRP'),
+                self.destination_tag is not None]):
+            raise ValidationError(
+                _('Destination tag is currently used only for Ripple address'))
 
     def clean(self, *args, **kwargs):
         self._validate_fields()
@@ -424,6 +432,12 @@ class Order(TimeStampedModel, SoftDeletableModel,
                     lambda x: Order.objects.filter(unique_reference=x).count(),
                     settings.UNIQUE_REFERENCE_LENGTH
                 )
+        if self.pair.quote.code == 'XRP':
+            self.destination_tag = \
+                self.gen_destination_tag(
+                    lambda: self.get_random_integer(),
+                    lambda x: Order.objects.filter(destination_tag=x).count()
+                )
         if self.pair.is_crypto:
             self.exchange = True
         else:
@@ -436,7 +450,6 @@ class Order(TimeStampedModel, SoftDeletableModel,
         self._validate_order_amount()
         self._validate_price()
         self._validate_reserves()
-
         super(Order, self).save(*args, **kwargs)
 
     def calculate_quote_from_base(self, price=None):
@@ -917,6 +930,14 @@ class Order(TimeStampedModel, SoftDeletableModel,
         tx_type = tx_data.get('type')
         tx_amount = tx_data.get(amount_key)
         tx_currency = tx_data.get('currency')
+        if order.pair.quote.code == 'XRP':
+            tx_destination_tag = tx_data.get('destination_tag')
+            if order.destination_tag != tx_destination_tag:
+                raise ValidationError(
+                    'Bad tx destination tag {}. Should be {}'.format(
+                        order, self
+                    )
+                )
 
         if order != self:
             raise ValidationError(
@@ -942,6 +963,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
         # Transaction is created before calculate_order to assure that
         # it will not be hanging (waiting for better rate).
+
         tx = model(**tx_data)
         tx.save()
         payment_method = None
@@ -1033,8 +1055,12 @@ class Order(TimeStampedModel, SoftDeletableModel,
             payment_id = self.payment_id \
                 if self.payment_id is not None \
                 else None
+            destination_tag = self.destination_tag if \
+                self.destination_tag is not None \
+                else None
             tx_id, success = api.release_coins(currency, self.withdraw_address,
-                                               amount, payment_id=payment_id)
+                                               amount, payment_id=payment_id,
+                                               destination_tag=destination_tag)
             setattr(tx, api.TX_ID_FIELD_NAME, tx_id)
             tx.save()
         else:
@@ -1242,3 +1268,13 @@ class Order(TimeStampedModel, SoftDeletableModel,
                     settings.MAX_TIME_TO_RELEASE_INTERVAL < timezone.now():
                 return True
         return False
+
+    @property
+    def base_destination_tag(self):
+        if self.pair.base.code == 'XRP':
+            return self.destination_tag
+
+    @property
+    def quote_destination_tag(self):
+        if self.pair.quote.code == 'XRP':
+            return self.destination_tag

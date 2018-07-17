@@ -181,6 +181,18 @@ def validate_dash(value):
         )
 
 
+def validate_xrp(value):
+    p = re.compile(
+        "^r[1-9A-Za-z][^lO0I]{25,34}$"
+    )
+
+    if not p.match(value):
+        raise ValidationError(
+            _('%(value)s has invalid characters for a valid Ripple address'),
+            params={'value': value},
+        )
+
+
 def validate_address(value):
     if value[:2] == '0x':
         validate_eth(value)
@@ -198,6 +210,8 @@ def validate_address(value):
         validate_bch(value)
     elif value[:1] == 'X':
         validate_dash(value)
+    elif value[:1] == 'r':
+        validate_xrp(value)
     else:
         validate_bc(value)
 
@@ -219,6 +233,22 @@ def validate_xmr_payment_id(value):
               'for a valid Monero payment id'),
             params={'value': value},
         )
+
+
+def validate_destination_tag(value):
+    def raise_error():
+        raise ValidationError(
+            _('%(value)s is not valid destination tag'),
+            params={'value': value},
+        )
+    p = re.compile("^[0-9]+$")
+    is_correct = True if p.match(value) else False
+    if not is_correct:
+        raise_error()
+
+    int_value = int(value)
+    if value != str(int_value) or not 0 <= int(value) < 2**32:
+        raise_error()
 
 
 def get_validator(code):
@@ -248,5 +278,7 @@ def get_validator(code):
         return validate_bch
     elif code == 'DASH':
         return validate_dash
+    elif code == 'XRP':
+        return validate_xrp
 
     return validate_non_address

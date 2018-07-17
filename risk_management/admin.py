@@ -10,6 +10,7 @@ from nexchange.rpc.blake2 import Blake2RpcApiClient
 from nexchange.rpc.omni import OmniRpcApiClient
 from nexchange.rpc.cryptonight import CryptonightRpcApiClient
 from nexchange.rpc.zcash import ZcashRpcApiClient
+from nexchange.rpc.ripple import RippleRpcApiClient
 
 
 @admin.register(Reserve)
@@ -99,6 +100,8 @@ class ApiFilter(SimpleListFilter):
             _client = Blake2RpcApiClient()
         elif self.value() == 'ZCASH':
             _client = ZcashRpcApiClient()
+        elif self.value() == 'RIPPLE':
+            _client = RippleRpcApiClient()
         else:
             return queryset
         nodes = _client.related_nodes

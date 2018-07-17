@@ -10,6 +10,7 @@ from .validators import validate_address
 from django_countries.fields import CountryField
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.utils.translation import ugettext as _
+from core.validators import validate_destination_tag
 
 
 class BtcBase(TimeStampedModel):
@@ -108,6 +109,10 @@ class Transaction(BtcBase, FlagableMixin):
     )
     reserves_cover = models.ForeignKey('risk_management.ReservesCover',
                                        blank=True, null=True)
+    destination_tag = models.CharField(
+        max_length=10, null=True, blank=True, default=None,
+        validators=[validate_destination_tag]
+    )
 
     def _validate_withdraw_txn(self):
         if self.order:
@@ -439,6 +444,11 @@ class Pair(TimeStampedModel):
         if self.latest_price and not self.latest_price.expired:
             return False
         return True
+
+    def includes_currency(self, currency):
+        currencies = [self.base, self.quote]
+        currency_codes = [c.code for c in currencies]
+        return currency in currencies or currency in currency_codes
 
 
 class Country(models.Model):

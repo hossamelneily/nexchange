@@ -71,6 +71,15 @@ class MetaAddress:
 class AddressSerializer(serializers.ModelSerializer):
     currency_code = serializers.ReadOnlyField(source='currency.code')
 
+    def __init__(self, *args, **kwargs):
+        add_params = kwargs.pop('additional_params', {})
+        for k, v in add_params.items():
+            self.fields[k] = serializers.CharField(default=v, required=False,
+                                                   allow_blank=True,
+                                                   allow_null=True,
+                                                   read_only=False)
+        super(AddressSerializer, self).__init__(*args, **kwargs)
+
     class Meta(MetaAddress):
         fields = MetaAddress.fields
         read_only_fields = ('type',)
@@ -85,12 +94,22 @@ class AddressUpdateSerializer(serializers.ModelSerializer):
 
 
 class NestedReadOnlyAddressSerializer(AddressSerializer):
+
     class Meta(MetaAddress):
         fields = MetaAddress.fields
         read_only_fields = fields
 
 
 class NestedAddressSerializer(AddressSerializer):
+    def __init__(self, *args, **kwargs):
+        self.fields['destination_tag'] = serializers.CharField(
+            required=False,
+            read_only=False,
+            allow_blank=True,
+            allow_null=True,
+        )
+        super(NestedAddressSerializer, self).__init__(*args, **kwargs)
+
     class Meta(MetaAddress):
         read_only_fields = ('type',)
         extra_kwargs = {

@@ -582,6 +582,9 @@ RPC_GAS_LIMIT_ETH = int(os.getenv('RPC_GAS_LIMIT_ETH', 30000))
 RPC_GAS_LIMIT_TOKEN = int(os.getenv('RPC_GAS_LIMIT_TOKEN', 70000))
 RPC_GAS_PRICE = int(os.getenv('RPC_GAS_PRICE', 50 * (10 ** 9)))
 RPC_BTC_PRICE = Decimal(str(os.getenv('RPC_BTC_PRICE', '0.00030000')))
+RPC_RIPPLE_PRICE = Decimal(str(os.getenv('RPC_RIPPLE_PRICE', '0.000100')))
+RPC_RIPPLE_WALLET_PRICE = Decimal(str(os.getenv('RPC_RIPPLE_WALLET_PRICE',
+                                                '20')))
 RPC2_PUBLIC_KEY_C1 = '123'
 RPC3_PUBLIC_KEY_C1 = '456'
 # RPC

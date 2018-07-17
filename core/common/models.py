@@ -3,6 +3,7 @@ from django.db import models
 from safedelete import (DELETED_INVISIBLE, DELETED_VISIBLE_BY_PK, SOFT_DELETE,
                         safedelete_manager_factory, safedelete_mixin_factory)
 from django.utils.crypto import get_random_string
+from random import randint
 
 SoftDeleteMixin = safedelete_mixin_factory(policy=SOFT_DELETE,
                                            visibility=DELETED_VISIBLE_BY_PK)
@@ -27,6 +28,19 @@ class UniqueFieldMixin:
 
     def get_random_unique_reference(self, x):
         return get_random_string(x)
+
+    def get_random_integer(self):
+        return randint(0, 2**32 - 1)
+
+    def gen_destination_tag(self, generate_integer,
+                            get_objects_amount_by_tag):
+        while True:
+            value = generate_integer()
+            count_repetitive = get_objects_amount_by_tag(value)
+            if count_repetitive == 0:
+                return value
+            else:
+                continue
 
     def gen_unique_value(self, generate_string,
                          get_objects_amount_by_ref,

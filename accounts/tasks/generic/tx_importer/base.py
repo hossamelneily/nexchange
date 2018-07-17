@@ -23,6 +23,11 @@ class BaseTransactionImporter:
             'status': status,
             'deposit_address': tx_data['address_to']
         }
+
+        if tx_data.get('destination_tag'):
+            buy_exchange_query['destination_tag'] = \
+                tx_data.get('destination_tag')
+
         orders = Order.objects.filter(**buy_exchange_query)
         return orders
 

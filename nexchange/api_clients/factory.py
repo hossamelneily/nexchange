@@ -5,6 +5,7 @@ from nexchange.rpc.blake2 import Blake2RpcApiClient
 from nexchange.rpc.zcash import ZcashRpcApiClient
 from nexchange.rpc.omni import OmniRpcApiClient
 from nexchange.rpc.cryptonight import CryptonightRpcApiClient
+from nexchange.rpc.ripple import RippleRpcApiClient
 from .bittrex import BittrexApiClient
 from .kraken import KrakenApiClient
 
@@ -19,6 +20,7 @@ class ApiClientFactory:
     ZCASH = ZcashRpcApiClient()
     OMNI = OmniRpcApiClient()
     CRYPTONIGHT = CryptonightRpcApiClient()
+    RIPPLE = RippleRpcApiClient()
 
     @classmethod
     def get_api_client(cls, node):
@@ -40,3 +42,5 @@ class ApiClientFactory:
             return cls.OMNI
         elif node in cls.CRYPTONIGHT.related_nodes:
             return cls.CRYPTONIGHT
+        elif node in cls.RIPPLE.related_nodes:
+            return cls.RIPPLE

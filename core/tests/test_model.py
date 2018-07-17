@@ -289,7 +289,18 @@ class PairFixtureTestCase(OrderBaseTestCase):
 
     def test_consecutive_pairs(self):
         pairs = Pair.objects.all()
+
         max_pk = pairs.aggregate(Max('pk'))['pk__max']
+        raised = False
+        missed_pk = None
+        for i in range(1, max_pk + 1):
+            try:
+                Pair.objects.get(pk=i)
+            except:
+                raised = True
+                missed_pk = i
+        self.assertFalse(raised, 'Raised error while getting pair by pk. '
+                                 'Missed pk {}'.format(missed_pk))
         self.assertEqual(pairs.count(), max_pk)
 
 

@@ -1,0 +1,62 @@
+[
+{
+  "model": "core.pair",
+  "pk": 755,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 56,
+    "quote": 4,
+    "fee_ask": "0.0300000",
+    "fee_bid": "0.0300000",
+    "name": "XRPUSD",
+    "test_mode": true,
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 756,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 56,
+    "quote": 6,
+    "fee_ask": "0.0100000",
+    "fee_bid": "0.0100000",
+    "name": "XRPEUR",
+    "test_mode": true,
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 757,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 56,
+    "quote": 7,
+    "fee_ask": "0.0200000",
+    "fee_bid": "0.0200000",
+    "name": "XRPGBP",
+    "test_mode": true,
+    "disabled": false
+  }
+},
+{
+  "model": "core.pair",
+  "pk": 758,
+  "fields": {
+    "created_on": "2016-05-20T17:41:28Z",
+    "modified_on": "2017-02-09T12:54:12.511Z",
+    "base": 56,
+    "quote": 8,
+    "fee_ask": "0.0300000",
+    "fee_bid": "0.0300000",
+    "name": "XRPJPY",
+    "test_mode": true,
+    "disabled": false
+  }
+}
+]

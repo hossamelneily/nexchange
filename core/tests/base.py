@@ -8,7 +8,7 @@ from django.test import Client, TestCase
 from django.utils.translation import activate
 
 from accounts.models import SmsToken
-from core.models import Currency, Address, Transaction, Pair
+from core.models import Currency, Address, Transaction, Pair, AddressReserve
 from core.tests.utils import get_ok_pay_mock, split_ok_pay_mock
 from orders.models import Order
 from payments.models import PaymentPreference
@@ -33,6 +33,7 @@ OMNI_ROOT = 'nexchange.rpc.omni.OmniRpcApiClient.'
 ETH_ROOT = 'nexchange.rpc.ethash.EthashRpcApiClient.'
 BLAKE2_ROOT = 'nexchange.rpc.blake2.Blake2RpcApiClient.'
 CRYPTONIGHT_ROOT = 'nexchange.rpc.cryptonight.CryptonightRpcApiClient.'
+RIPPLE_ROOT = 'nexchange.rpc.ripple.RippleRpcApiClient.'
 BITTREX_ROOT = 'nexchange.api_clients.bittrex.BittrexApiClient.'
 
 EXCHANGE_ORDER_RELEASE_ROOT = 'orders.tasks.generic.exchange_order_release.' \
@@ -45,7 +46,7 @@ RPC8_USER = 'user'
 RPC8_WALLET = '1234'
 RPC8_PUBLIC_KEY_C1 = 'xrb_1maincard'
 RPC8_URL = 'http://{}:{}@{}/'.format(RPC8_USER, RPC8_PASSWORD, RPC8_HOST)
-RPC11_URL = 'http://{}/json_rpc'.format(RPC8_HOST)
+RPC13_URL = RPC11_URL = 'http://{}/json_rpc'.format(RPC8_HOST)
 
 
 class UserBaseTestCase(TestCase):
@@ -290,11 +291,17 @@ class UserBaseTestCase(TestCase):
     @patch.dict(os.environ, {'RPC_RPC11_USER': RPC8_USER})
     @patch.dict(os.environ, {'RPC_RPC11_HOST': RPC8_HOST})
     @patch.dict(os.environ, {'RPC_RPC11_PORT': RPC8_PORT})
+    @patch.dict(os.environ, {'RPC13_PUBLIC_KEY_C1': 'ry34sxfxsdfsdfsdf2342r'})
+    @patch.dict(os.environ, {'RPC_RPC13_PASSWORD': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC13_K': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC13_USER': RPC8_USER})
+    @patch.dict(os.environ, {'RPC_RPC13_HOST': RPC8_HOST})
+    @patch.dict(os.environ, {'RPC_RPC13_PORT': RPC8_PORT})
     @requests_mock.mock()
     def _create_order(self, mock, order_type=Order.BUY,
                       amount_base=0.5, pair_name='LTCBTC',
                       payment_preference=None, user=None, amount_quote=None,
-                      validate_amount=False, payment_id=None):
+                      validate_amount=False, payment_id=None, dest_tag=None):
         def text_callback(request, context):
             body = request._request.body
             params = json.loads(body)
@@ -326,6 +333,8 @@ class UserBaseTestCase(TestCase):
             status=Order.INITIAL,
             amount_quote=Decimal(str(amount_quote)) if amount_quote else None
         )
+        if dest_tag is not None:
+            self.order.destination_tag = dest_tag
         if payment_preference is not None:
             self.order.payment_preference = payment_preference
         if validate_amount:
@@ -335,24 +344,6 @@ class UserBaseTestCase(TestCase):
             p.return_value = None
             self.order.save()
 
-    @patch.dict(os.environ, {'RPC8_PUBLIC_KEY_C1': RPC8_PUBLIC_KEY_C1})
-    @patch.dict(os.environ, {'RPC8_WALLET': RPC8_WALLET})
-    @patch.dict(os.environ, {'RPC_RPC8_PASSWORD': RPC8_PASSWORD})
-    @patch.dict(os.environ, {'RPC_RPC8_K': RPC8_PASSWORD})
-    @patch.dict(os.environ, {'RPC_RPC8_USER': RPC8_USER})
-    @patch.dict(os.environ, {'RPC_RPC8_HOST': RPC8_HOST})
-    @patch.dict(os.environ, {'RPC_RPC8_PORT': RPC8_PORT})
-    @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
-    @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
-    @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
-    @patch.dict(os.environ, {'RPC11_PUBLIC_KEY_C1': RPC8_PUBLIC_KEY_C1})
-    @patch.dict(os.environ, {'RPC_RPC11_WALLET_NAME': RPC8_WALLET})
-    @patch.dict(os.environ, {'RPC_RPC11_WALLET_PORT': RPC8_PORT})
-    @patch.dict(os.environ, {'RPC_RPC11_PASSWORD': RPC8_PASSWORD})
-    @patch.dict(os.environ, {'RPC_RPC11_K': RPC8_PASSWORD})
-    @patch.dict(os.environ, {'RPC_RPC11_USER': RPC8_USER})
-    @patch.dict(os.environ, {'RPC_RPC11_HOST': RPC8_HOST})
-    @patch.dict(os.environ, {'RPC_RPC11_PORT': RPC8_PORT})
     @patch('core.models.Currency.is_quote_of_enabled_pair')
     def _create_an_order_for_every_crypto_currency_card(self, user, is_quote,
                                                         amount_quote=None):
@@ -400,6 +391,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         'pairs_cob.json',
         'pairs_dash.json',
         'pairs_bmh.json',
+        'pairs_xrp.json',
         'payment_method.json',
         'payment_preference.json',
         'reserve.json',
@@ -534,6 +526,56 @@ class OrderBaseTestCase(UserBaseTestCase):
                 'txid': 'tx{}{}'.format(time(), randint(1, 999))
             }
         }
+
+    def get_ripple_sign_response(self, card_address, value,
+                                 withdraw_address, dest_tag, tx_id):
+        return {'result': {
+            'status': 'success',
+            'tx_blob': 'blob_hash322',
+            'tx_json': {
+                'Account': card_address,
+                'Amount': value,
+                'Destination': withdraw_address,
+                'DestinationTag': dest_tag,
+                'Sequence': 22,
+                'TransactionType': 'Payment',
+                'hash': tx_id
+            }}}
+
+    def get_ripple_raw_tx(self, raw_amount, address_to, dest_tag, tx_id):
+        _txs = self.get_ripple_raw_txs(
+            raw_amount, address_to, dest_tag, tx_id
+        ).get('result')
+        tx = _txs.get('transactions')[0].get('tx')
+        tx['meta'] = _txs.get('transactions')[0].get('meta')
+        tx['status'] = "success"
+        tx['validated'] = True
+        return tx
+
+    def get_ripple_raw_txs(self, raw_amount, address_to, dest_tag, tx_id):
+        return {'result': {
+            'status': 'success',
+            'transactions': [{
+                "meta": {
+                    "TransactionIndex": 1,
+                    "TransactionResult": "tesSUCCESS",
+                    "delivered_amount": raw_amount
+                },
+                'tx': {
+                    'Account': 'r9y61YwVUQtTWHtwcmYc1Epa5KvstfUzSm',
+                    'Amount': raw_amount,
+                    'Destination': address_to,
+                    "DestinationTag": dest_tag,
+                    'Fee': '10',
+                    'Sequence': 6,
+                    'TransactionType': 'Payment',
+                    'hash': tx_id,
+                    'inLedger': 10326866,
+                    'ledger_index': 10326866
+                },
+                'validated': True
+            }]
+        }}
 
     def get_omni_raw_txs(self, value, address):
         return [{
@@ -771,6 +813,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         'pairs_cob.json',
         'pairs_dash.json',
         'pairs_bmh.json',
+        'pairs_xrp.json',
         'payment_method.json',
         'payment_preference.json',
         'reserve.json',
@@ -826,6 +869,11 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             type=Address.DEPOSIT,
         )
         self.address.save()
+        card = AddressReserve(
+            currency=Currency.objects.get(code='XRP'),
+            address='rnErCcvuHdxfUEcU81NtujYv36mQ4BaSP2'
+        )
+        card.save()
 
         self.url_addr = 'http://btc.blockr.io/api/v1/address/txs/{}'.format(
             self.wallet_address
@@ -846,6 +894,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.USDT = Currency.objects.get(code='USDT')
         self.XMR = Currency.objects.get(code='XMR')
         self.DASH = Currency.objects.get(code='DASH')
+        self.XRP = Currency.objects.get(code='XRP')
         self.BTC_address = self._create_withdraw_adress(
             self.BTC, '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi')
         self.LTC_address = self._create_withdraw_adress(
@@ -869,6 +918,9 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
                       'rdYqKUGB1SfZxGQPcYcDEbctmpN2kpVbtupm6yCRf16oXkjuY')
         self.DASH_address = self._create_withdraw_adress(
             self.DASH, 'XgJdGA5NWn71TmFYxVPvpZxUKAe8x7YWrP'
+        )
+        self.XRP_address = self._create_withdraw_adress(
+            self.XRP, 'r9y61YwVUQtTWHtwcmYc1Epa5KvstfUzSm'
         )
 
     def _read_fixture(self):

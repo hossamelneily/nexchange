@@ -254,5 +254,27 @@
       "unslippaged_amount": "5",
       "slippage_rate": "2.5e-7"
     }
+  },
+  {
+    "model": "core.currency",
+      "pk": 56,
+      "fields": {
+      "code": "XRP",
+      "name": "ripple",
+      "ticker": "hitbtc/binance/bittrex",
+      "wallet": "rpc13",
+      "algo": "RPCA",
+      "withdrawal_fee": "0.00003",
+      "is_crypto": 1,
+      "min_confirmations": 0,
+      "median_confirmation": 0,
+      "minimal_amount": "5",
+      "maximal_amount": "5000",
+      "decimals": 6,
+      "created_on":"2017-09-19T19:21:42+00:00",
+      "modified_on":"2017-09-19T19:21:42+00:00",
+      "unslippaged_amount": "3000",
+      "slippage_rate": "9.9825e-8"
+    }
   }
 ]

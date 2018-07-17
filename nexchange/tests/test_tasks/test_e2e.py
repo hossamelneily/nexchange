@@ -238,7 +238,7 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
              'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
              'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC',
              'BTCBIX', 'BTCHT', 'BTCCOSS', 'BTCBNT',
-             'BTCCOB', 'BTCDASH', 'BTCBMH']
+             'BTCCOB', 'BTCDASH', 'BTCBMH', 'BTCXRP']
         super(SellOrderReleaseTaskTestCase, cls).setUpClass()
         cls.import_txs_task = import_transaction_deposit_crypto_invoke
         cls.update_confirmation_task = update_pending_transactions_invoke
@@ -518,7 +518,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
              'USDTBTC', 'BTCUSDT', 'XMRBTC', 'BTCXMR',
              'BTCKCS', 'BTCBNB', 'BTCKNC', 'BTCBIX',
              'BTCHT', 'BTCCOSS', 'BTCBNT', 'BTCCOB',
-             'BTCDASH', 'BTCBMH']
+             'BTCDASH', 'BTCBMH', 'BTCXRP']
         super(ExchangeOrderReleaseTaskTestCase, cls).setUpClass()
         cls.import_txs_task = import_transaction_deposit_crypto_invoke
         cls.update_confirmation_task = update_pending_transactions_invoke
@@ -772,7 +772,7 @@ class SofortEndToEndTestCase(BaseSofortAPITestCase,
              'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
              'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC',
              'BTCBIX', 'BTCHT', 'BTCCOSS', 'BTCBNT',
-             'BTCCOB', 'BTCDASH', 'BTCBMH']
+             'BTCCOB', 'BTCDASH', 'BTCBMH', 'BTCXRP']
         super(SofortEndToEndTestCase, cls).setUpClass()
 
     def setUp(self):
@@ -898,7 +898,7 @@ class AdvCashE2ETestCase(BaseAdvCashAPIClientTestCase,
              'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
              'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC',
              'BTCBIX', 'BTCHT', 'BTCCOSS', 'BTCBNT',
-             'BTCCOB', 'BTCDASH', 'BTCBMH']
+             'BTCCOB', 'BTCDASH', 'BTCBMH', 'BTCXRP']
         super(AdvCashE2ETestCase, cls).setUpClass()
         cls.payment_importer = run_adv_cash
         cls.import_txs_task = import_transaction_deposit_crypto_invoke

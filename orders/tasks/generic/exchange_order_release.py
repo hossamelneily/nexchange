@@ -54,6 +54,8 @@ class ExchangeOrderRelease(BaseOrderRelease, ApiClientFactory):
                            'amount': amount,
                            'currency': currency,
                            'type': Transaction.WITHDRAW}
+                if order.pair.base.code == 'XRP':
+                    tx_data['destination_tag'] = order.destination_tag
                 release_res = order.release(tx_data, api=self.api)
                 release_status_ok = release_res.get('status') == 'OK'
                 if not release_status_ok:

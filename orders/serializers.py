@@ -60,13 +60,30 @@ class MetaFlatOrder(MetaOrder):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+
+    def __init__(self, *args, **kwargs):
+        super(OrderSerializer, self).__init__(*args, **kwargs)
+        add_deposit_params = add_withdraw_params = {}
+        if args and isinstance(args[0], Order):
+            order = args[0]
+            add_deposit_params = {
+                'destination_tag': order.quote_destination_tag
+            }
+            add_withdraw_params = {
+                'destination_tag': order.base_destination_tag
+            }
+        self.fields['deposit_address'] = NestedReadOnlyAddressSerializer(
+            many=False, read_only=True,
+            additional_params=add_deposit_params
+        )
+        self.fields['withdraw_address'] = NestedAddressSerializer(
+            many=False, read_only=False, partial=True,
+            additional_params=add_withdraw_params
+        )
+
     referral_code = ReferralCodeSerializer(many=True, read_only=True,
                                            source='user.referral_code')
     pair = NestedPairSerializer(many=False, read_only=False)
-    deposit_address = NestedReadOnlyAddressSerializer(many=False,
-                                                      read_only=True)
-    withdraw_address = NestedAddressSerializer(many=False,
-                                               read_only=False, partial=True)
     transactions = TransactionSerializer(many=True, read_only=True)
 
     class Meta(MetaFlatOrder):
@@ -87,7 +104,7 @@ class OrderDetailSerializer(OrderSerializer):
             MetaFlatOrder.fields + RATE_FIELDS + FIAT_FIELDS + DETAIL_FIELDS
 
 
-class UpdateOrderSerializer(OrderSerializer):
+class UpdateOrderSerializer(serializers.ModelSerializer):
     refund_address = NestedAddressSerializer(many=False,
                                              read_only=False, partial=True)
 
@@ -154,13 +171,15 @@ class CreateOrderSerializer(OrderSerializer):
             validated_data.pop(field, None)
         withdraw_address = validated_data.pop('withdraw_address')
         payment_id = validated_data.pop('payment_id', None)
-
+        destination_tag = withdraw_address.pop('destination_tag', None)
         validated_data.pop('pair')
         # Just making sure
         addr_list = Address.objects.filter(address=withdraw_address['address'])
         order = Order(pair=self.pair, **validated_data)
         if payment_id:
             order.payment_id = payment_id
+        if destination_tag:
+            order.destination_tag = destination_tag
         if not addr_list:
             address = Address(**withdraw_address)
             address.type = Address.WITHDRAW
@@ -174,6 +193,18 @@ class CreateOrderSerializer(OrderSerializer):
             order.save()
             # get post_save stuff in sync
             order.refresh_from_db()
+            self.fields['deposit_address'] = NestedReadOnlyAddressSerializer(
+                many=False, read_only=True,
+                additional_params={
+                    'destination_tag': order.quote_destination_tag
+                }
+            )
+            self.fields['withdraw_address'] = NestedAddressSerializer(
+                many=False, read_only=False,
+                additional_params={
+                    'destination_tag': order.base_destination_tag
+                }
+            )
             return order
         except ValidationError as e:
             raise RestValidationError({'non_field_errors': [e.message]})

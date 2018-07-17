@@ -24,7 +24,7 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
              'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
              'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC',
              'BTCBIX', 'BTCHT', 'BTCCOSS', 'BTCBNT',
-             'BTCCOB', 'BTCDASH', 'BTCBMH']
+             'BTCCOB', 'BTCDASH', 'BTCBMH', 'BTCXRP']
         super(RenewReserveTestCase, cls).setUpClass()
         Cards.objects.all().delete()
         cls.len_crypto_curencies = \
@@ -55,8 +55,10 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
         self._mock_cards_reserve(mock)
         renew_cards_reserve()
         len_reserve_cards = len(Cards.objects.filter(
-            disabled=False, user=None))
-        len_expected = self.len_crypto_curencies * settings.CARDS_RESERVE_COUNT
+            disabled=False, user=None
+        ))
+        len_expected = \
+            self.len_crypto_curencies * settings.CARDS_RESERVE_COUNT - 1
         self.assertEqual(len_reserve_cards, len_expected)
 
     @requests_mock.mock()

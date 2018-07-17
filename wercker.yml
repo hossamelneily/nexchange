@@ -119,6 +119,7 @@ dev:
           python manage.py loaddata core/fixtures/pairs_coss.json
           python manage.py loaddata core/fixtures/pairs_cob.json
           python manage.py loaddata core/fixtures/pairs_bmh.json
+          python manage.py loaddata core/fixtures/pairs_xrp.json
     - script:
         name: Django import Payment Methods fixture
         code: |
@@ -438,6 +439,22 @@ build:
           export RPC11_PUBLIC_KEY_C1=${RPC11_PUBLIC_KEY_C1}
           export RPC_RPC11_K=${RPC_RPC11_K}
 
+          #RPC12
+          export RPC_RPC12_USER=${RPC_RPC12_USER}
+          export RPC_RPC12_PASSWORD=${RPC_RPC12_PASSWORD}
+          export RPC_RPC12_PORT=${RPC_RPC12_PORT}
+          export RPC_RPC12_HOST=${RPC_RPC12_HOST}
+          export RPC12_PUBLIC_KEY_C1=${RPC12_PUBLIC_KEY_C1}
+          export RPC_RPC12_K=${RPC_RPC12_K}
+
+          #RPC13
+          export RPC_RPC13_USER=${RPC_RPC13_USER}
+          export RPC_RPC13_PASSWORD=${RPC_RPC13_PASSWORD}
+          export RPC_RPC13_PORT=${RPC_RPC13_PORT}
+          export RPC_RPC13_HOST=${RPC_RPC13_HOST}
+          export RPC13_PUBLIC_KEY_C1=${RPC13_PUBLIC_KEY_C1}
+          export RPC_RPC13_K=${RPC_RPC13_K}
+
           # RPC settings
           export RPC_IMPORT_TRANSACTIONS_COUNT=${RPC_IMPORT_TRANSACTION_COUNT}
           export RPC_IMPORT_BLOCK_COUNT=${RPC_IMPORT_BLOCK_COUNT}
@@ -445,6 +462,8 @@ build:
           export RPC_GAS_LIMIT_TOKEN=${RPC_GAS_LIMIT_TOKEN}
           export RPC_GAS_PRICE=${RPC_GAS_PRICE}
           export RPC_BTC_PRICE=${RPC_BTC_PRICE}
+          export RPC_RIPPLE_PRICE=${RPC_RIPPLE_PRICE}
+          export RPC_RIPPLE_WALLET_PRICE=${RPC_RIPPLE_WALLET_PRICE}
 
           # SOCIAL login
           export SOCIAL_AUTH_TWITTER_KEY=${SOCIAL_AUTH_TWITTER_KEY}
@@ -507,6 +526,7 @@ build:
           python manage.py loaddata core/fixtures/pairs_coss.json
           python manage.py loaddata core/fixtures/pairs_cob.json
           python manage.py loaddata core/fixtures/pairs_bmh.json
+          python manage.py loaddata core/fixtures/pairs_xrp.jsn
 
           if [ ! -z $CMS_FROM_FIXTURE] && [ ${CMS_FROM_FIXTURE} -eq 1 ]
           then

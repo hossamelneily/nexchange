@@ -102,8 +102,9 @@ class BaseWalletApiClient(BaseApiClient):
                 settings.API1_PASS
             )
 
-        currencies = Currency.objects.filter(is_crypto=True, disabled=False,
-                                             wallet__in=self.related_nodes)
+        currencies = Currency.objects.filter(
+            is_crypto=True, disabled=False, wallet__in=self.related_nodes
+        ).exclude(code='XRP')
         if not renew_curr_of_disabled_pairs:
             currencies = [
                 curr for curr in currencies if curr.is_quote_of_enabled_pair_for_test  # noqa
@@ -126,10 +127,16 @@ class BaseWalletApiClient(BaseApiClient):
                 self.backup_wallet(curr)
 
     def create_user_wallet(self, user, currency):
+        one_card_currencies = ['XRP']
         unassigned_cards = AddressReserve.objects.filter(currency=currency,
                                                          user=None,
                                                          disabled=False)
-        if len(unassigned_cards) == 0:
+        if currency.code in one_card_currencies:
+            unassigned_cards = AddressReserve.objects.filter(currency=currency,
+                                                             disabled=False)
+
+        if len(unassigned_cards) == 0 \
+                and currency.code not in one_card_currencies:
             self.logger.warning('instance {} has no reserve cards available'
                                 ' for {} calling renew_cards_reserve()'
                                 .format(user, currency))
@@ -144,19 +151,23 @@ class BaseWalletApiClient(BaseApiClient):
             # FIFO
             card = unassigned_cards.earliest('id')
             card.user = user
-            address = Address(
-                address=card.address,
-                user=card.user,
-                currency=currency,
-                type=Address.DEPOSIT,
-                reserve=card
-            )
+            try:
+                address = Address.objects.get(address=card.address)
+            except Address.DoesNotExist:
+                address = Address(
+                    address=card.address,
+                    user=card.user,
+                    currency=currency,
+                    type=Address.DEPOSIT,
+                    reserve=card
+                )
             address.save()
             card.save()
             return card, address
         else:
             self.logger.error('instance {} has no cards available'.format(
                 currency))
+        return None, None
 
     def replace_wallet(self, user, currency_code):
         currency = Currency.objects.get(code=currency_code)
@@ -465,3 +476,79 @@ class CryptonightProxy:
 
     def getheight(self):
         return self._call_rpc('getheight')
+
+
+class RippleProxy:
+
+    def __init__(self, url, timeout=2):
+        self.url = url
+        self.timeout = timeout
+
+    def _call_rpc(self, method, **kwargs):
+        try:
+            res = requests.post(self.url,
+                                data=json.dumps({'method': method, **kwargs}),
+                                timeout=self.timeout)
+        except requests.ConnectTimeout:
+            raise JSONRPCException('Timeout, Ripple wallet might be down')
+        if res.status_code != 200:
+            raise JSONRPCException('Bad status code: {}'.format(res))
+        try:
+            return res.json()['result']
+        except KeyError:
+            return res.json()
+
+    def ledger(self):
+        kwargs = {"params": []}
+        return self._call_rpc('ledger', **kwargs)
+
+    def wallet_propose(self, secret_key=None):
+        if secret_key is not None:
+            kwargs = {"params": [{
+                "passphrase": secret_key
+            }]}
+            return self._call_rpc('wallet_propose', **kwargs)
+        else:
+            return self._call_rpc('wallet_propose')
+
+    def account_info(self, account):
+        kwargs = {"params": [{
+            "account": account,
+            "strict": True,
+            "ledger_index": "current",
+            "queue": True
+        }]}
+        return self._call_rpc('account_info', **kwargs)
+
+    def account_tx(self, account, count):
+        kwargs = {"params": [{
+            "account": account,
+            "binary": False,
+            "ledger_index_max": -1,
+            "ledger_index_min": -1,
+            "limit": count
+        }]}
+        return self._call_rpc('account_tx', **kwargs).get('transactions', None)
+
+    def tx(self, tx_id):
+        kwargs = {"params": [{
+            "transaction": tx_id,
+            "binary": False
+        }]}
+        return self._call_rpc('tx', **kwargs)
+
+    def sign(self, tx, secret_key):
+        kwargs = {"params": [
+            {
+                "offline": False,
+                "secret": secret_key,
+                "tx_json": tx
+            }
+        ]}
+        return self._call_rpc('sign', **kwargs)
+
+    def submit(self, tx_blob):
+        kwargs = {"params": [{
+            "tx_blob": tx_blob
+        }]}
+        return self._call_rpc('submit', **kwargs)

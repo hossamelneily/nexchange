@@ -4,6 +4,7 @@ from nexchange.rpc.blake2 import Blake2RpcApiClient
 from nexchange.rpc.zcash import ZcashRpcApiClient
 from nexchange.rpc.omni import OmniRpcApiClient
 from nexchange.rpc.cryptonight import CryptonightRpcApiClient
+from nexchange.rpc.ripple import RippleRpcApiClient
 from nexchange.api_clients.uphold import UpholdApiClient
 from orders.models import Order
 from decimal import Decimal
@@ -71,3 +72,10 @@ class CryptonightRpcMixin:
     def __init__(self):
         self.api = CryptonightRpcApiClient()
         super(CryptonightRpcMixin, self).__init__()
+
+
+class RippleRpcMixin:
+
+    def __init__(self):
+        self.api = RippleRpcApiClient()
+        super(RippleRpcMixin, self).__init__()
