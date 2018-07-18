@@ -15,13 +15,10 @@ class BittrexApiClient(BaseTradeApiClient):
         self.api = self.get_api()
 
     def _get_api_currency_code(self, currency_code):
-        if currency_code == 'BCH':
-            return 'BCC'
         return currency_code
 
     def _get_currency_by_api_code(self, api_currency_code):
-        code = 'BCH' if api_currency_code == 'BCC' else api_currency_code
-        return Currency.objects.get(code=code)
+        return Currency.objects.get(code=api_currency_code)
 
     def get_api_pairs_for_pair(self, pair):
         reverse_pair = pair.reverse_pair

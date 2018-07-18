@@ -38,7 +38,7 @@ class TradingPairPickingTestCase(RiskManagementBaseTestCase):
             btcbch_resp,
             {bchbtc: {
                 'main_currency': bchbtc.base,
-                'api_pair_name': 'BTC-BCC'
+                'api_pair_name': 'BTC-BCH'
             }}
         )
 
