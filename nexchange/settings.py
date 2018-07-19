@@ -165,6 +165,7 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'django_otp',
     'django_otp.plugins.otp_totp',
+    'newsletter',
 ]
 
 

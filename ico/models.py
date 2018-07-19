@@ -47,7 +47,7 @@ class Subscription(TimeStampedModel):
                                        default=Decimal('0'))
     orders = models.ManyToManyField(Order, blank=True)
     is_passive = models.BooleanField(default=False)
-    users = models.ManyToManyField(User, blank=True)
+    users = models.ManyToManyField(User, blank=True, related_name='ico_users')
     eth_balance = models.DecimalField(max_digits=18, decimal_places=8,
                                       blank=True, null=True,
                                       default=Decimal('0'))

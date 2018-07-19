@@ -67,3 +67,4 @@ django-otp==0.4.3
 qrcode==6.0
 django-audit-log==0.7.0
 rlp==0.6.0
+django-newsletter==0.7
