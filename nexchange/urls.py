@@ -77,6 +77,7 @@ urlpatterns = i18n_patterns(
     url(r'^articles/', include(article_urls)),
     url(r'^support/', include(support_urls)),
     url(r'^verification/', include(verification_urls)),
+    url(r'^newsletter/', include('newsletter.urls')),
 
     url(r'^api/v1/', include(api_patterns)),
     url(r'^api/v1/menu', core.views.ajax_menu, name='core.menu'),

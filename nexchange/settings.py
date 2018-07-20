@@ -165,6 +165,7 @@ INSTALLED_APPS = [
     'oauth2_provider',
     'django_otp',
     'django_otp.plugins.otp_totp',
+    'sorl.thumbnail',
     'newsletter',
 ]
 
@@ -395,6 +396,13 @@ PAIR_DISABLING_TASKS = {
     }
 }
 
+NEWSLETTER_TASKS = {
+    'submit_newsletter': {
+        'task': 'nexchange.task_summary.submit_newsletter',
+        'schedule': timedelta(minutes=15),
+    },
+}
+
 CELERY_BEAT_SCHEDULE = {}
 
 CELERY_BEAT_SCHEDULE.update(CORE_TASKS)
@@ -406,6 +414,7 @@ CELERY_BEAT_SCHEDULE.update(ORDER_RELEASE_TASKS)
 CELERY_BEAT_SCHEDULE.update(TRADING_TASKS)
 CELERY_BEAT_SCHEDULE.update(AUDIT_TASKS)
 CELERY_BEAT_SCHEDULE.update(PAIR_DISABLING_TASKS)
+CELERY_BEAT_SCHEDULE.update(NEWSLETTER_TASKS)
 
 TASKS_TIME_LIMIT = 30
 REPORT_TASKS_TIME_LIMIT = 200
