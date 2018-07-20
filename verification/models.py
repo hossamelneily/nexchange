@@ -191,9 +191,9 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel):
         if not self.identity_document and self.id_status == self.PENDING:
             self.id_status = self.REJECTED
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self._reject_if_no_document()
-        super(Verification, self).save()
+        super(Verification, self).save(*args, **kwargs)
         if self.payment_preference:
             self.set_verification_tier_to_obj(self.payment_preference)
 
@@ -283,7 +283,36 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel):
         if not self.payment_preference \
                 or not self.payment_preference.secondary_identifier:
             return False
-        return self.full_name != self.payment_preference.secondary_identifier
+        return not self.check_name(
+            self.payment_preference.secondary_identifier
+        )
+
+    def _strip_name(self, name):
+        return [
+            n.lower() for n in name.split(' ') if n
+        ] if isinstance(name, str) else name
+
+    def _get_initials(self, name_list):
+        return [n[0] for n in name_list]
+
+    def check_name(self, name):
+        expected_list = self._strip_name(name)
+        full_list = self._strip_name(self.full_name)
+        res = full_list == expected_list
+        if not full_list or not expected_list:
+            return res
+        if not res and len(full_list) > len(expected_list):
+            # middle name on verification
+            res = \
+                full_list[0] == expected_list[0] \
+                and full_list[-1] == expected_list[-1]
+        if not res and full_list[-1] == expected_list[-1]:
+            # last name + initials
+            res = self._get_initials(full_list) == self._get_initials(
+                expected_list
+            )
+
+        return res
 
 
 class DocumentType(TimeStampedModel, SoftDeletableModel):

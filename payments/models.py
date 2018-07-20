@@ -386,7 +386,7 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
             return True
         vers = self.approved_verifications
         for v in vers:
-            if v.full_name != self.secondary_identifier:
+            if not v.check_name(self.secondary_identifier):
                 return False
         return True
 
@@ -517,7 +517,7 @@ class PushRequest(RequestLog):
     def main_payload_data(self):
         res = {}
         for key in ['nameOnCard', 'cardNumber', 'client_ip', 'country',
-                    'uniqueCC', 'payment_method']:
+                    'uniqueCC', 'payment_method', 'bin', 'eci']:
             value = self.payload_json.get(key)
             if value:
                 res.update({key: value})

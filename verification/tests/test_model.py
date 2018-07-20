@@ -46,3 +46,36 @@ class VerificationTestCase(UserBaseTestCase):
         verification.save()
         path = verification._get_file_name('name', 'root')
         self.assertIn('abc', path)
+
+    def test_check_name(self):
+        full_name = 'First Middle Last'
+        ver = Verification.objects.create(full_name=full_name)
+        ok_name_list = [
+            full_name,
+            full_name.upper(),
+            full_name.lower(),
+            ' ' + full_name,
+            full_name + ' ',
+            'First Last',
+            'F. M. Last',
+            'F M Last'
+        ]
+        bad_name_list = [
+            'First Middle SecondMiddle Last',
+            '',
+            None,
+            'Smth different',
+            'First Biddle Last'
+        ]
+        for name in ok_name_list:
+            self.assertTrue(
+                ver.check_name(name), '"{}" != "{}", should be =='.format(
+                    full_name, name
+                )
+            )
+        for name in bad_name_list:
+            self.assertFalse(
+                ver.check_name(name), '"{}" == "{}", should be !='.format(
+                    full_name, name
+                )
+            )
