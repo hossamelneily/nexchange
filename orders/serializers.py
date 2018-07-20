@@ -97,7 +97,7 @@ class OrderListSerializer(OrderSerializer):
 class OrderDetailSerializer(OrderSerializer):
 
     price = RateSerializer(many=False, read_only=True)
-    payment_url = PrivateField(public_return_value='')
+    payment_url = PrivateField(public_return_value=None)
 
     class Meta(MetaFlatOrder):
         fields = \

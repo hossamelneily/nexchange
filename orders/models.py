@@ -517,9 +517,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
     @property
     def payment_url(self):
-        if any([self.pair.quote.is_crypto, self.status != self.INITIAL,
-                self.expired]):
-            return ''
+        if any([self.pair.quote.is_crypto, self.status != self.INITIAL]):
+            return
         return safe_charge_client.generate_cachier_url_for_order(self)
 
     @cached_property_with_ttl(ttl=settings.TICKER_INTERVAL)

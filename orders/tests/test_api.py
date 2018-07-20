@@ -2,8 +2,6 @@ from ticker.tests.base import TickerBaseTestCase
 from rest_framework.test import APIClient
 from orders.models import Order
 from decimal import Decimal
-from datetime import timedelta, datetime
-from freezegun import freeze_time
 from orders.api_views import OrderListViewSet
 import os
 from unittest.mock import patch
@@ -161,23 +159,14 @@ class TestFiatOrderPrivacy(TickerBaseTestCase):
         self.order_fiat.status = Order.PAID_UNCONFIRMED
         self.order_fiat.save()
         payment_url2 = self._get_order_payment_url_api(self.order_fiat)
-        self.assertEqual(payment_url2, '')
-
-    def test_show_payment_url_only_non_expired(self):
-        payment_url1 = self._get_order_payment_url_api(self.order_fiat)
-        self.assertIn(self.order_fiat.unique_reference, payment_url1)
-        now = datetime.now() + timedelta(
-            minutes=self.order_fiat.payment_window)
-        with freeze_time(now):
-            payment_url2 = self._get_order_payment_url_api(self.order_fiat)
-            self.assertEqual(payment_url2, '')
+        self.assertEqual(payment_url2, None)
 
     def test_show_payment_url_only_to_creator(self):
         payment_url1 = self._get_order_payment_url_api(self.order_fiat)
         self.assertIn(self.order_fiat.unique_reference, payment_url1)
         self.api_client.logout()
         payment_url2 = self._get_order_payment_url_api(self.order_fiat)
-        self.assertEqual(payment_url2, '')
+        self.assertEqual(payment_url2, None)
 
     def test_do_not_show_payment_url_on_list(self):
         res = self.api_client.get(self.order_api_url)
