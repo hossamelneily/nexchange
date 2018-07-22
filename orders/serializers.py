@@ -44,7 +44,10 @@ class PrivateField(serializers.ReadOnlyField):
         Given the *outgoing* object instance, return the primitive value
         that should be used for this field.
         """
-        if instance.user == self.context['request'].user:
+        # Here < 2 is for listing sites that creates orders without payer
+        # being logged in (such as conswitch)
+        if instance.user.orders.all().count() < 2 \
+                or instance.user == self.context['request'].user:
             return super(PrivateField, self).get_attribute(instance)
         return self.default_public_return_value
 

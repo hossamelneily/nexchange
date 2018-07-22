@@ -162,11 +162,23 @@ class TestFiatOrderPrivacy(TickerBaseTestCase):
         self.assertEqual(payment_url2, None)
 
     def test_show_payment_url_only_to_creator(self):
+        # create annother order - one order is a public case(means that no
+        # private data is saved on payment window)
+        self._create_order_api(pair_name='LTCEUR')
+        self.assertEqual(self.order_fiat.user.orders.count(), 2)
         payment_url1 = self._get_order_payment_url_api(self.order_fiat)
         self.assertIn(self.order_fiat.unique_reference, payment_url1)
         self.api_client.logout()
         payment_url2 = self._get_order_payment_url_api(self.order_fiat)
         self.assertEqual(payment_url2, None)
+
+    def test_show_one_user_order_payment_url_to_everybody(self):
+        self.assertEqual(self.order_fiat.user.orders.count(), 1)
+        payment_url1 = self._get_order_payment_url_api(self.order_fiat)
+        self.assertIn(self.order_fiat.unique_reference, payment_url1)
+        self.api_client.logout()
+        payment_url2 = self._get_order_payment_url_api(self.order_fiat)
+        self.assertIn(self.order_fiat.unique_reference, payment_url2)
 
     def test_do_not_show_payment_url_on_list(self):
         res = self.api_client.get(self.order_api_url)
