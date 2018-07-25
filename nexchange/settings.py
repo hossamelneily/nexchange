@@ -21,6 +21,12 @@ import dj_database_url
 import logging
 from decimal import Decimal
 
+
+def get_env_param(key, default):
+    res = os.getenv(key, default)
+    return res if res else default
+
+
 # SECRET KEY TEST
 SECRET_KEY = 'zsl4+4%(%=0@f*tkf0f2u%dt&v&h_-g5mw*o25i$480=3qcb2k'
 
@@ -585,16 +591,17 @@ API5_KEY = ''
 API5_SECRET = ''
 
 # RPC
-RPC_IMPORT_TRANSACTIONS_COUNT = int(os.getenv('RPC_IMPORT_TRANSACTION_COUNT',
-                                              10))
-RPC_IMPORT_BLOCK_COUNT = int(os.getenv('RPC_IMPORT_BLOCK_COUNT', 10))
-RPC_GAS_LIMIT_ETH = int(os.getenv('RPC_GAS_LIMIT_ETH', 30000))
-RPC_GAS_LIMIT_TOKEN = int(os.getenv('RPC_GAS_LIMIT_TOKEN', 70000))
-RPC_GAS_PRICE = int(os.getenv('RPC_GAS_PRICE', 50 * (10 ** 9)))
-RPC_BTC_PRICE = Decimal(str(os.getenv('RPC_BTC_PRICE', '0.00030000')))
-RPC_RIPPLE_PRICE = Decimal(str(os.getenv('RPC_RIPPLE_PRICE', '0.000100')))
-RPC_RIPPLE_WALLET_PRICE = Decimal(str(os.getenv('RPC_RIPPLE_WALLET_PRICE',
-                                                '20')))
+RPC_IMPORT_TRANSACTIONS_COUNT = int(
+    get_env_param('RPC_IMPORT_TRANSACTION_COUNT', 10)
+)
+RPC_IMPORT_BLOCK_COUNT = int(get_env_param('RPC_IMPORT_BLOCK_COUNT', 10))
+RPC_GAS_LIMIT_ETH = int(get_env_param('RPC_GAS_LIMIT_ETH', 30000))
+RPC_GAS_LIMIT_TOKEN = int(get_env_param('RPC_GAS_LIMIT_TOKEN', 70000))
+RPC_GAS_PRICE = int(get_env_param('RPC_GAS_PRICE', 50 * (10 ** 9)))
+RPC_BTC_PRICE = Decimal(str(get_env_param('RPC_BTC_PRICE', '0.00030000')))
+RPC_RIPPLE_PRICE = Decimal(str(get_env_param('RPC_RIPPLE_PRICE', '0.000100')))
+RPC_RIPPLE_WALLET_PRICE = Decimal(str(get_env_param('RPC_RIPPLE_WALLET_PRICE',
+                                                    '20')))
 RPC2_PUBLIC_KEY_C1 = '123'
 RPC3_PUBLIC_KEY_C1 = '456'
 # RPC
