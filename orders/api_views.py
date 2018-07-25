@@ -241,7 +241,7 @@ class PriceView(APIView):
         except InvalidOperation:
             return
 
-    def _get(self, request, pair_name=None):
+    def _get_order(self, request, pair_name=None):
         amount_base = self._amount_to_decimal('amount_base')
         amount_quote = self._amount_to_decimal('amount_quote')
         if not pair_name:
@@ -260,13 +260,32 @@ class PriceView(APIView):
             order.calculate_base_from_quote()
         else:
             order = self._create_order_with_default_values(pair)
-        data = OrderedDict({
-            'amount_base': order.amount_base,
-            'amount_quote': order.amount_quote,
-            'timestamp': timezone.now().timestamp(),
-            'price': order.rate
-        })
-        order._validate_order_amount()
+
+        return order
+
+    def _get(self, request, pair_name=None):
+        order = self._get_order(request, pair_name=pair_name)
+        main_data = {
+            'pair': {
+                'base': order.pair.base.code,
+                'quote': order.pair.quote.code
+            },
+            'max_amount_base': order.get_amount_base_max(user_format=True),
+            'max_amount_quote': order.get_amount_quote_max(user_format=True),
+            'min_amount_base': order.get_amount_base_min(user_format=True),
+            'min_amount_quote': order.get_amount_quote_min(user_format=True),
+        }
+        try:
+            order._validate_order_amount()
+            data = OrderedDict({
+                'amount_base': order.amount_base,
+                'amount_quote': order.amount_quote,
+                'timestamp': timezone.now().timestamp(),
+                'price': order.rate,
+                **main_data
+            })
+        except ValidationError as e:
+            raise RestValidationError({'detail': e.message, **main_data})
         return Response(data)
 
     def get(self, request, pair_name=None):

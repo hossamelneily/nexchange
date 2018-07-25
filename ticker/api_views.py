@@ -36,8 +36,8 @@ class BestChangeRateViewSet(viewsets.ModelViewSet):
     def _get_order_return_data(self, order):
         pair = order.pair
         _from = pair.quote.code
-        _min_from = order._get_amount_quote_min(user_format=True)
-        _max_from = order._get_amount_quote_max(user_format=True)
+        _min_from = order.get_amount_quote_min(user_format=True)
+        _max_from = order.get_amount_quote_max(user_format=True)
         res = {
             'from': _from,
             'to': pair.base.code,

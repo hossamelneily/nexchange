@@ -10,6 +10,7 @@ from orders.models import Order
 from ticker.tests.base import TickerBaseTestCase
 from risk_management.models import Account
 from unittest.mock import patch
+from core.models import Pair
 
 
 class OrderIndexOrderTestCase(OrderBaseTestCase):
@@ -107,18 +108,42 @@ class TestGetPrice(TickerBaseTestCase):
 
     def test_bad_requests(self):
         client = APIClient()
-        max_amount = Currency.objects.get(code="BTC").maximal_amount
-        res = client.get(self.get_price_url.format('BTCEUR'),
-                         data={'amount_base': max_amount * 2 + 1})
-        self.assertEqual(res.status_code, 400)
+        pair = Pair.objects.get(name='BTCEUR')
+        max_amount = pair.base.maximal_amount
+        res_ok_pair = client.get(self.get_price_url.format(pair.name),
+                                 data={'amount_base': max_amount * 2 + 1})
+        self.assertEqual(res_ok_pair.status_code, 400)
+
+        data = res_ok_pair.json()
+        ref_order = Order(pair=pair)
+        self.assertEqual(
+            Decimal(str(data['max_amount_quote'])),
+            ref_order.get_amount_quote_max(user_format=True)
+        )
+        self.assertEqual(
+            Decimal(str(data['max_amount_base'])),
+            ref_order.get_amount_base_max(user_format=True)
+        )
+        self.assertEqual(
+            Decimal(str(data['min_amount_base'])),
+            ref_order.get_amount_base_min(user_format=True)
+        )
+        self.assertEqual(
+            Decimal(str(data['min_amount_quote'])),
+            ref_order.get_amount_quote_min(user_format=True)
+        )
+
         res = client.get(self.get_price_url.format('BTCxxx/'),
                          data={'amount_base': 100})
         self.assertEqual(res.status_code, 404)
 
     def test_get_price_without_params(self):
-        res = self.api_client.get(self.get_price_url.format('BTCEUR'))
+        pair_name = 'BTCEUR'
+        pair = Pair.objects.get(name=pair_name)
+        res = self.api_client.get(self.get_price_url.format(pair_name))
+        data = res.json()
         self.assertEqual(
-            res.json()['amount_quote'],
+            data['amount_quote'],
             settings.DEFAULT_FIAT_ORDER_DEPOSIT_AMOUNT
         )
         res = self.api_client.get(self.get_price_url.format('LTCBTC'))
@@ -127,6 +152,25 @@ class TestGetPrice(TickerBaseTestCase):
             Decimal(str(res.json()['amount_quote'])),
             settings.DEFAULT_CRYPTO_ORDER_DEPOSIT_AMOUNT_MULTIPLIER *
             self.BTC.minimal_amount
+        )
+        self.assertEqual(data['pair']['quote'], pair.quote.code)
+        self.assertEqual(data['pair']['base'], pair.base.code)
+        ref_order = Order(pair=pair)
+        self.assertEqual(
+            Decimal(str(data['max_amount_quote'])),
+            ref_order.get_amount_quote_max(user_format=True)
+        )
+        self.assertEqual(
+            Decimal(str(data['max_amount_base'])),
+            ref_order.get_amount_base_max(user_format=True)
+        )
+        self.assertEqual(
+            Decimal(str(data['min_amount_base'])),
+            ref_order.get_amount_base_min(user_format=True)
+        )
+        self.assertEqual(
+            Decimal(str(data['min_amount_quote'])),
+            ref_order.get_amount_quote_min(user_format=True)
         )
 
     def test_reserves_less_than_default_fiat(self):

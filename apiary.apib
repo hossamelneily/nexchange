@@ -72,7 +72,7 @@ API for crypto currency exchange.
 
 + Parameters
     + `pair_name`: BTCLTC (required, string) - name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC.
-    + `amount_base`:  1.24354147 (optional, double) - amount of base currency which user gets.
+    + `amount_base`:  1.06935074 (optional, double) - amount of base currency which user gets.
     + `amount_quote`: 100 (optional, double) - amount of base currency which user sends.
 
 ### Get Price [GET]
@@ -87,6 +87,20 @@ API for crypto currency exchange.
               "amount_quote": 100.0,
               "timestamp": 1530292405.642548,
               "price": 80.4154927
+            }
+            {
+              "amount_base": 1.06935074,
+              "amount_quote": 100.0,
+              "timestamp": 1532432055.609627,
+              "price": 93.52884297,
+              "pair": {
+                "base": "BTC",
+                "quote": "LTC"
+              },
+              "max_amount_base": 3.20049466,
+              "max_amount_quote": 300.0,
+              "min_amount_base": 0.001,
+              "min_amount_quote": 0.14019423
             }
 
 ## Latest Ticker [/en/api/v1/price/{pair_name}/latest/{?market_code}]
@@ -1102,6 +1116,10 @@ API for crypto currency exchange.
 + `is_quote_of_enabled_pair` (boolean) - true if exists a pair with this currency as quote.
 + `has_enabled_pairs` (boolean) -  true if pair with this currency as base or quote and enabled exchange exists.
 
+## PairMinimal
++ `base` (required) - base currency code.
++ `quote` (required) - quote currency code.
+
 ## PairSimple
 + `name` (required) - name of the pair. i.e. BTCLTC for base BTC(bitcoin) and quote LTC(litecoin) pair.
 + `base` (required) - base currency code.
@@ -1138,9 +1156,14 @@ API for crypto currency exchange.
 
 ## PriceBaseQuote
 + `amount_base` (number, required) - amount of base currency which user gets.
-+ `amount_quote` (number, required) - amount of base currency which user sends.
++ `amount_quote` (number, required) - amount of quote currency which user sends.
 + `timestamp` (number, required) - UNIX timestamp.
 + `price` (number, required) - price (amount_quote / amount_base).
++ `pair` (PairMinimal, required) - pair.
++ `max_amount_base` (number, required) - maximum amount of base currency which user can get.
++ `max_amount_quote` (number, required) - maximum amount of quote currency which user can send.
++ `min_amount_base` (number, required) - minimum amount of base currency which user can get.
++ `min_amount_quote` (number, required) - minimum amount of quote currency which user can send.
 
 ## Address
 + `type` (required) - "W" for withdraw and "D" for Deposit.

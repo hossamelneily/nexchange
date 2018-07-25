@@ -180,11 +180,11 @@ class Order(TimeStampedModel, SoftDeletableModel,
         elif field < min([i[0] for i in types]):
             raise ValidationError(_('Invalid order type choice'))
 
-    def _get_amount_base_min(self, user_format=False):
+    def get_amount_base_min(self, user_format=False):
         _base_min = self.pair.base.minimal_amount
         if not user_format:
             return _base_min
-        _quote_min = self._get_amount_quote_min(user_format=False)
+        _quote_min = self.get_amount_quote_min(user_format=False)
         if _quote_min is None:
             return _base_min
         _min_list = [_base_min]
@@ -195,14 +195,14 @@ class Order(TimeStampedModel, SoftDeletableModel,
         _min_list.append(_order.amount_base + diff)
         return max(_min_list)
 
-    def _get_amount_base_max(self, user_format=False):
+    def get_amount_base_max(self, user_format=False):
         if self.pk:
             return
         _base_max = None if self.pair.base.execute_cover \
             else self.pair.base.available_main_reserves
         if not user_format:
             return _base_max
-        _quote_max = self._get_amount_quote_max(user_format=False)
+        _quote_max = self.get_amount_quote_max(user_format=False)
         if _quote_max is None:
             return _base_max
         _max_list = [_base_max] if _base_max else []
@@ -213,13 +213,13 @@ class Order(TimeStampedModel, SoftDeletableModel,
         _max_list.append(_order.amount_base - diff)
         return min(_max_list)
 
-    def _get_amount_quote_max(self, user_format=False):
+    def get_amount_quote_max(self, user_format=False):
         if self.pk:
             return
         _quote_max = self.pair.quote.maximal_amount
         if not user_format:
             return _quote_max
-        _base_max = self._get_amount_base_max(user_format=False)
+        _base_max = self.get_amount_base_max(user_format=False)
         if not _base_max:
             return _quote_max
         _max_list = [_quote_max]
@@ -230,14 +230,14 @@ class Order(TimeStampedModel, SoftDeletableModel,
         _max_list.append(_order.amount_quote - diff)
         return min(_max_list)
 
-    def _get_amount_quote_min(self, user_format=False):
+    def get_amount_quote_min(self, user_format=False):
         if self.pk:
             return
         _quote_min = \
             None if self.pair.is_crypto else self.pair.quote.minimal_amount
         if not user_format:
             return _quote_min
-        _base_min = self._get_amount_base_min(user_format=False)
+        _base_min = self.get_amount_base_min(user_format=False)
         if not _base_min:
             return _quote_min
         _min_list = [_quote_min] if _quote_min else []
@@ -271,8 +271,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
             '{_currency_code} on this trade.'
 
         for _amount_type in ['amount_quote', 'amount_base']:
-            _min = getattr(self, '_get_{}_min'.format(_amount_type))()
-            _max = getattr(self, '_get_{}_max'.format(_amount_type))()
+            _min = getattr(self, 'get_{}_min'.format(_amount_type))()
+            _max = getattr(self, 'get_{}_max'.format(_amount_type))()
             _amount = getattr(self, _amount_type)
             if _min is not None and _amount < _min:
                 _raise_error = True
@@ -285,7 +285,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
         if _raise_error:
             _final_amount = getattr(
-                self, '_get_{}_{}'.format(_error_amount_type, _error_type)
+                self, 'get_{}_{}'.format(_error_amount_type, _error_type)
             )(user_format=True)
             if _final_amount is None:
                 _error_msg = \
