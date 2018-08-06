@@ -351,7 +351,7 @@ TRADING_TASKS = {
     'reserves_balance_checker_periodic': {
         'task': 'risk_management.task_summary.'
                 'reserves_balance_checker_periodic',
-        'schedule': timedelta(seconds=30),
+        'schedule': timedelta(seconds=60),
     },
     'log_current_assets': {
         'task': 'risk_management.task_summary.log_current_assets',
