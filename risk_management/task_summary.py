@@ -121,45 +121,94 @@ def calculate_pnls_30days_invoke():
     calculate_pnls.apply_async([30])
 
 
-def set_active_status(curr, trade_direction, active=True):
+def set_active_status(curr, trade_direction, active=True, param='disabled',
+                      editor_param='disable_{}'):
     pairs = Pair.objects.filter(**{trade_direction: curr})
     counter_trade_direction = 'base' if trade_direction == 'quote' else 'quote'
-    counter_prop = 'disable_{}'.format(counter_trade_direction)
+    counter_prop = editor_param.format(counter_trade_direction)
     for pair in pairs:
         counter_curr = getattr(pair, counter_trade_direction)
-        pair.disabled = not active or not \
-            (active and not DisabledCurrency.
-             objects.filter(**{'currency': counter_curr,
-                               counter_prop: True}).count())
-        pair.save()
+        setattr(
+            pair, param,
+            not active or not (
+                active and not DisabledCurrency.objects.filter(
+                    **{'currency': counter_curr, counter_prop: True}
+                ).count()
+            )
+        )
+        pair.save(update_fields=[param])
 
 
-def pair_helper(trade_direction, active=True):
-    prop = 'disable_{}'.format(trade_direction)
+def pair_helper(trade_direction, active=True, param='disabled',
+                editor_param='disable_{}'):
+    prop = editor_param.format(trade_direction)
     disabled = DisabledCurrency.objects.filter(**{prop: not active})
 
     for curr in disabled:
-        set_active_status(curr.currency, trade_direction, active)
+        set_active_status(curr.currency, trade_direction, active=active,
+                          param=param, editor_param=editor_param)
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def disable_currency_quote():
-    return pair_helper('quote', False)
+    pair_helper('quote', active=False)
+    pair_helper(
+        'quote', active=False, param='disable_volume',
+        editor_param='disable_volume_{}'
+    )
+    pair_helper(
+        'quote', active=False, param='disable_ticker',
+        editor_param='disable_ticker_{}'
+    )
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def enable_currency_base():
-    return pair_helper('base', True)
+    pair_helper('base', True)
+    pair_helper(
+        'base', active=True, param='disable_volume',
+        editor_param='disable_volume_{}'
+    )
+    pair_helper(
+        'base', active=True, param='disable_ticker',
+        editor_param='disable_ticker_{}'
+    )
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def disable_currency_base():
-    return pair_helper('base', False)
+    pair_helper('base', False)
+    pair_helper(
+        'base', active=False, param='disable_volume',
+        editor_param='disable_volume_{}'
+    )
+    pair_helper(
+        'base', active=False, param='disable_ticker',
+        editor_param='disable_ticker_{}'
+    )
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def enable_currency_quote():
-    return pair_helper('quote', True)
+    pair_helper('quote', True)
+    pair_helper(
+        'quote', active=True, param='disable_volume',
+        editor_param='disable_volume_{}'
+    )
+    pair_helper(
+        'quote', active=True, param='disable_ticker',
+        editor_param='disable_ticker_{}'
+    )
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def pair_disabler_periodic():
+    # do not apply async, because parallel tasks made at the same time can
+    # undo work of previous task due to not refreshed DB record
+    disable_currency_quote.apply()
+    disable_currency_base.apply()
+    enable_currency_quote.apply()
+    enable_currency_base.apply()
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)

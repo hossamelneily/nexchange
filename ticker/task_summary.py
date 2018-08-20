@@ -60,7 +60,7 @@ def _get_all_tickers(validate_change=True):
                 'Smth is wrong with pair:{} ticker. traceback:{}'.format(
                     pair, e)
             )
-        pair.save()
+        pair.save(update_fields=['last_price_saved'])
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT * 2)

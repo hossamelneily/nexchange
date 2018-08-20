@@ -565,53 +565,65 @@ class CurrencyDisablingTestCase(RiskManagementBaseTestCase):
     @staticmethod
     def apply_tasks():
         for task in CurrencyDisablingTestCase.DISABLE_CURR_TESTS:
-            task.apply()
+            task.apply_async()
 
     def make_assertions(self, base_pairs, quote_pairs, expected_state_base,
-                        expected_state_quote):
+                        expected_state_quote, param='disabled'):
         for pair in quote_pairs:
-            self.assertTrue(pair.disabled == expected_state_quote)
+            self.assertEqual(getattr(pair, param), expected_state_quote,
+                             '{} {}'.format(pair.name, param))
 
         for pair in base_pairs:
-            self.assertTrue(pair.disabled == expected_state_base)
+            self.assertEqual(getattr(pair, param), expected_state_base,
+                             '{} {}'.format(pair.name, param))
 
-    @data_provider(
-        lambda: (('LTC', True, False),
-                 ('LTC', True, True),
-                 ('LTC', False, True),
-                 ('LTC', False, False),)
-    )
+    @data_provider(lambda: (
+        ('LTC', True, False, 'disabled', 'disable'),
+        ('LTC', True, True, 'disabled', 'disable'),
+        ('LTC', False, True, 'disabled', 'disable'),
+        ('LTC', False, False, 'disabled', 'disable'),
+        ('LTC', True, False, 'disable_volume', 'disable_volume'),
+        ('LTC', True, True, 'disable_volume', 'disable_volume'),
+        ('LTC', False, True, 'disable_volume', 'disable_volume'),
+        ('LTC', False, False, 'disable_volume', 'disable_volume'),
+        ('LTC', True, False, 'disable_ticker', 'disable_ticker'),
+        ('LTC', True, True, 'disable_ticker', 'disable_ticker'),
+        ('LTC', False, True, 'disable_ticker', 'disable_ticker'),
+        ('LTC', False, False, 'disable_ticker', 'disable_ticker'),
+    ))
     def test_currency_disable_re_enable(self, currency_code,
                                         disabled_state_quote_initial,
-                                        disabled_state_base_initial):
+                                        disabled_state_base_initial,
+                                        edited_param, editor):
         ltc = Currency.objects.get(code=currency_code)
 
         # This assumes only one DisabledCurrency of kind exists
         DisabledCurrency.objects.all().delete()
 
-        disabled_curr =\
-            DisabledCurrency.objects.create(
-                currency=ltc,
-                disable_quote=disabled_state_quote_initial,
-                disable_base=disabled_state_base_initial
-            )
+        disabled_curr = DisabledCurrency.objects.create(**{
+            'currency': ltc,
+            editor + '_quote': disabled_state_quote_initial,
+            editor + '_base': disabled_state_base_initial
+        })
 
         CurrencyDisablingTestCase.apply_tasks()
         quote_pairs = Pair.objects.filter(quote__code=currency_code)
         base_pairs = Pair.objects.filter(base__code=currency_code)
         self.make_assertions(base_pairs, quote_pairs,
                              disabled_state_base_initial,
-                             disabled_state_quote_initial)
+                             disabled_state_quote_initial, param=edited_param)
 
-        DisabledCurrency.objects.filter(pk=disabled_curr.pk)\
-            .update(disable_quote=not disabled_state_quote_initial,
-                    disable_base=not disabled_state_base_initial)
+        DisabledCurrency.objects.filter(pk=disabled_curr.pk).update(**{
+            editor + '_quote': not disabled_state_quote_initial,
+            editor + '_base': not disabled_state_base_initial
+        })
         CurrencyDisablingTestCase.apply_tasks()
         quote_pairs = Pair.objects.filter(quote__code=currency_code)
         base_pairs = Pair.objects.filter(base__code=currency_code)
         self.make_assertions(base_pairs, quote_pairs,
                              not disabled_state_base_initial,
-                             not disabled_state_quote_initial)
+                             not disabled_state_quote_initial,
+                             param=edited_param)
 
     def test_do_not_enable_if_disabled(self):
         eth = Currency.objects.get(code='ETH')

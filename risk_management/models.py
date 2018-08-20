@@ -842,6 +842,10 @@ class DisabledCurrency(TimeStampedModel):
                                     blank=False, null=False)
     disable_quote = models.BooleanField(default=True)
     disable_base = models.BooleanField(default=True)
+    disable_volume_quote = models.BooleanField(default=False)
+    disable_volume_base = models.BooleanField(default=False)
+    disable_ticker_quote = models.BooleanField(default=False)
+    disable_ticker_base = models.BooleanField(default=False)
     user_visible_reason = models.CharField(max_length=255, blank=True,
                                            null=True)
     admin_comment = models.CharField(max_length=255, blank=True, null=True)

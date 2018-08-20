@@ -384,22 +384,10 @@ AUDIT_TASKS = {
 }
 
 PAIR_DISABLING_TASKS = {
-    'disable_quote': {
-        'task': 'risk_management.task_summary.disable_currency_quote',
+    'pair_disabler_periodic': {
+        'task': 'risk_management.task_summary.pair_disabler_periodic',
         'schedule': timedelta(seconds=60),
     },
-    'enable_quote': {
-        'task': 'risk_management.task_summary.enable_currency_quote',
-        'schedule': timedelta(seconds=60),
-    },
-    'disable_base': {
-        'task': 'risk_management.task_summary.disable_currency_base',
-        'schedule': timedelta(seconds=60),
-    },
-    'enable_base': {
-        'task': 'risk_management.task_summary.enable_currency_base',
-        'schedule': timedelta(seconds=60),
-    }
 }
 
 NEWSLETTER_TASKS = {
