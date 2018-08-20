@@ -187,23 +187,8 @@ class PairFixtureTestCase(OrderBaseTestCase):
             self.assertEqual(p.fee_ask, fee, 'Bad fee_ask on {}'.format(p))
             self.assertEqual(p.fee_bid, fee, 'Bad fee_bid on {}'.format(p))
         for p in token_pairs:
-            # if 'ETH' in p.name:
-            #     fee = minor_pair_fee
-            # elif 'BTC' in p.name:
-            #     fee = minor_pair_fee + major_pair_fee
-            # else:
-            #     fee = 2 * minor_pair_fee
-            #  ICO fees
             fee = minor_pair_fee
 
-            # if p.quote.code in ['BDG', 'BIX', 'HT', 'COSS', 'COB']:
-            #     ask = Decimal('2') * fee
-            #     bid = fee
-            # elif p.base.code in ['BDG', 'BIX', 'HT', 'COSS', 'COB']:
-            #     bid = Decimal('2') * fee
-            #     ask = fee
-            # else:
-            #     ask = bid = fee
             #  ICO fees
             ask = bid = fee
             if p.quote.code in ['USD', 'JPY']:
