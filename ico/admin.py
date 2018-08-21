@@ -99,7 +99,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
                        'token_balances', 'non_zero_tokens', 'tokens_count')
     list_display = ('email', 'sending_address', 'user_comment',
                     'admin_comment', 'eth_balance', 'tokens_balance_eth',
-                    'address_turnover', 'related_turnover', 'tokens_count',
+                    'address_turnover', 'related_turnover',
                     'potential', 'utm_source', 'category_names')
     search_fields = ('sending_address', 'email', 'admin_comment',
                      'user_comment')
