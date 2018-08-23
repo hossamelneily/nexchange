@@ -31,6 +31,9 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
             len(Currency.objects.filter(
                 disabled=False, is_crypto=True
             ).exclude(code__in=['RNS', 'GNT', 'QTM']))
+        cls.len_one_card_currencies = len(['XMR', 'XRP'])
+        cls.len_several_card_currencies = \
+            cls.len_crypto_curencies - cls.len_one_card_currencies
 
     @patch.dict(os.environ, {'RPC8_PUBLIC_KEY_C1': RPC8_PUBLIC_KEY_C1})
     @patch.dict(os.environ, {'RPC8_WALLET': RPC8_WALLET})
@@ -54,11 +57,13 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
     def test_expected_reserve_default(self, mock):
         self._mock_cards_reserve(mock)
         renew_cards_reserve()
+
         len_reserve_cards = len(Cards.objects.filter(
             disabled=False, user=None
         ))
         len_expected = \
-            self.len_crypto_curencies * settings.CARDS_RESERVE_COUNT - 1
+            self.len_several_card_currencies * settings.CARDS_RESERVE_COUNT + \
+            self.len_one_card_currencies
         self.assertEqual(len_reserve_cards, len_expected)
 
     @requests_mock.mock()

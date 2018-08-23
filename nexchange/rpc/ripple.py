@@ -124,10 +124,7 @@ class RippleRpcApiClient(BaseRpcClient):
         account_from = kwargs.get('address_from', main_address)
         value = \
             int(Decimal(amount) * Decimal('1e{}'.format(currency.decimals)))
-        destination_tag = kwargs.get(
-            'destination_tag',
-            None,
-        )
+        destination_tag = kwargs.get('destination_tag', None)
         tx = {
             "Account": account_from,
             "Amount": str(value),

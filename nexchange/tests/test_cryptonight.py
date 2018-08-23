@@ -17,6 +17,8 @@ from core.tests.base import RPC8_PUBLIC_KEY_C1, RPC8_WALLET, \
 from risk_management.models import Reserve
 
 RPC11_URL = 'http://{}/json_rpc'.format(RPC8_HOST)
+RPC12_PUBLIC_KEY_C1 = '44AFFq5kSiAAaA4AAAaAaA18obc8AemS33DBLWs3H7otXft' \
+                      '3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A'
 
 
 class CryptonightRawE2ETestCase(TransactionImportBaseTestCase,
@@ -96,17 +98,18 @@ class CryptonightRawE2ETestCase(TransactionImportBaseTestCase,
     def test_pay_cryptonight_order(self, pair_name, mock):
         amount_base = 0.1
         self._create_order(pair_name=pair_name, amount_base=amount_base)
-
         mock_currency = self.order.pair.quote
         mock_amount = self.order.amount_quote
 
         card = self.order.deposit_address.reserve
-        self.current_block = 10
+        current_block = 10
         tx_block_height = 10
+        payment_id = self.order.payment_id
 
         raw_cryptonight_txs = \
             self.get_cryptonight_raw_txs(
-                mock_currency, mock_amount, card.address, tx_block_height
+                mock_currency, mock_amount, card.address, tx_block_height,
+                payment_id
             )
 
         def text_callback(request, context):
@@ -119,9 +122,7 @@ class CryptonightRawE2ETestCase(TransactionImportBaseTestCase,
                             'address': self._get_id('B'),
                             'address_index': 6}
                         }
-            if all([params.get('method') == 'open_wallet']):
-                return {'id': 0, 'jsonrpc': '2.0', 'result': {}}
-            if params.get('method') == 'stop_wallet':
+            if params.get('method') in ['open_wallet', 'store']:
                 return {'id': 0, 'jsonrpc': '2.0', 'result': {}}
             if params.get('method') == 'get_transfers':
                 return raw_cryptonight_txs
@@ -129,19 +130,19 @@ class CryptonightRawE2ETestCase(TransactionImportBaseTestCase,
                 return self.get_cryptonight_raw_tx(raw_cryptonight_txs)
             if params.get('method') == 'getheight':
                 return {'id': 0, 'jsonrpc': '2.0',
-                        'result': {"height": self.current_block}}
+                        'result': {"height": current_block}}
 
         mock.post(RPC11_URL, json=text_callback)
         self.import_txs_task.apply()
         self.order.refresh_from_db()
-
         self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
         # Failed status
         self.update_confirmation_task.apply()
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
         # OK status
-        self.current_block = 21
+        current_block = 21
+        mock.post(RPC11_URL, json=text_callback)
         self.update_confirmation_task.apply()
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, Order.PAID, pair_name)
@@ -187,9 +188,7 @@ class CryptonightRawE2ETestCase(TransactionImportBaseTestCase,
                                   "f4c564c0c37e9bed50d019939cae06",
                     }
                 }
-            if params.get('method') == 'open_wallet':
-                return {'id': 0, 'jsonrpc': '2.0', 'result': {}}
-            if params.get('method') == 'stop_wallet':
+            if params.get('method') in ['open_wallet', 'store']:
                 return {'id': 0, 'jsonrpc': '2.0', 'result': {}}
             if params.get('method') == 'get_transfer_by_txid':
                 return {
@@ -202,19 +201,16 @@ class CryptonightRawE2ETestCase(TransactionImportBaseTestCase,
                         }
                     }
                 }
-            if params.get('method') == 'getheight':
+            if params.get('method') in ['getheight', 'get_info']:
                 return {'id': 0, 'jsonrpc': '2.0',
                         'result': {"height": 21}}
-            if params.get('method') == 'get_info':
-                return {'id': 0, 'jsonrpc': '2.0',
-                        'result': {"some info": 1}}
             if params.get('method') == 'getbalance':
                 return {
-                    "id": "0",
-                    "jsonrpc": "2.0",
-                    "result": {
-                        "balance": value * 2,
-                        "unlocked_balance": value * 2
+                    'id': '0',
+                    'jsonrpc': '2.0',
+                    'result': {
+                        'balance': value * 2,
+                        'unlocked_balance': value * 2
                     }
                 }
 

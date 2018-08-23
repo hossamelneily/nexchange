@@ -5,8 +5,10 @@ from decimal import Decimal
 from orders.api_views import OrderListViewSet
 import os
 from unittest.mock import patch
+from core.tests.utils import data_provider
 from nexchange.tests.test_ripple import RPC8_PORT, RPC8_PASSWORD, RPC8_USER,\
     RPC8_HOST, RPC13_PUBLIC_KEY_C1
+from nexchange.tests.test_cryptonight import RPC12_PUBLIC_KEY_C1
 from core.models import Currency, AddressReserve
 
 
@@ -192,11 +194,20 @@ class TestOrderParamsOnAddress(TickerBaseTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.ENABLED_TICKER_PAIRS = ['LTCXRP', 'XRPLTC']
+        cls.ENABLED_TICKER_PAIRS = ['LTCXRP', 'XRPLTC', 'XMRLTC', 'LTCXMR',
+                                    'XMRXRP', 'XRPXMR']
         super(TestOrderParamsOnAddress, cls).setUpClass()
         cls.api_client = APIClient()
         cls.order_api_url = '/en/api/v1/orders/'
         cls.order_serializer = OrderListViewSet()
+        cls.patcher_validate_order_amount = patch(
+            'orders.models.Order._validate_order_amount'
+        )
+        cls.patcher_validate_order_amount.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.patcher_validate_order_amount.stop()
 
     @patch.dict(os.environ, {'RPC13_PUBLIC_KEY_C1': RPC13_PUBLIC_KEY_C1})
     @patch.dict(os.environ, {'RPC_RPC13_PASSWORD': RPC8_PASSWORD})
@@ -210,24 +221,33 @@ class TestOrderParamsOnAddress(TickerBaseTestCase):
             currency=Currency.objects.get(code='XRP'),
             address=RPC13_PUBLIC_KEY_C1,
         )
+        AddressReserve.objects.get_or_create(
+            currency=Currency.objects.get(code='XMR'),
+            address=RPC12_PUBLIC_KEY_C1,
+        )
 
     def _create_order_api(self, pair_name='LTCXRP',
                           address='LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4',
-                          amount=1, destination_tag=None):
+                          amount=1, destination_tag=None, payment_id=None):
+        if pair_name == 'XRPXMR':
+            address = 'r9y63YwVUQtTWHtwcmYc1Epa5KvstfUzSm'
+        elif pair_name == 'XMRXRP':
+            address = '44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3' \
+                      'XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A'
         order_data = {
             'pair': {
                 'name': pair_name
             },
             'withdraw_address': {
                 'address': address,
-                'destination_tag': destination_tag
+                'destination_tag': destination_tag,
+                'payment_id': payment_id
             },
             'amount_base': amount
         }
         res = self.api_client.post(self.order_api_url,
                                    order_data, format='json')
-        self.assertEqual(res.status_code, 201)
-        return res.json()
+        return res
 
     def _get_order(self, order_reference):
         res = self.api_client.get(
@@ -236,8 +256,34 @@ class TestOrderParamsOnAddress(TickerBaseTestCase):
         self.assertEqual(res.status_code, 200)
         return res.json()
 
+    def _get_orders_list(self):
+        res = self.api_client.get(self.order_api_url)
+        self.assertEqual(res.status_code, 200)
+        return res.json()
+
+    @data_provider(lambda: (
+            ('XMRXRP', '123456', '666c75666679706f6e79206973207468'
+                                 '65206265737420706f6e792065766572', 400),
+            ('XRPXMR', None, '666c75666679706f6e79206973207468'
+                             '65206265737420706f6e792065766572', 400),
+            ('XMRXRP', None, 'not right', 400),
+            ('XRPXMR', 'not right', None, 400),
+            ('XRPXMR', '1234567', None, 201),
+            ('XMRXRP', None, '666c75666679706f6e79206973207468'
+                             '65206265737420706f6e792065766572', 201),
+    ), )
+    def test_raise_error(self, pair_name, dest_tag, payment_id,
+                         expected_res_code):
+        res = self._create_order_api(
+            pair_name=pair_name, destination_tag=dest_tag,
+            payment_id=payment_id
+        )
+        self.assertEqual(res.status_code, expected_res_code, pair_name)
+
     def test_show_deposit_destination_tag(self):
-        post_res = self._create_order_api()
+        res = self._create_order_api()
+        self.assertEqual(res.status_code, 201)
+        post_res = res.json()
         deposit_address = post_res['deposit_address']
         withdraw_address = post_res['withdraw_address']
         self.assertIsNotNone(deposit_address['destination_tag'])
@@ -255,12 +301,35 @@ class TestOrderParamsOnAddress(TickerBaseTestCase):
             deposit_address['destination_tag']
         )
 
+    def test_show_deposit_payment_id(self):
+        res = self._create_order_api(pair_name='LTCXMR')
+        self.assertEqual(res.status_code, 201)
+        post_res = res.json()
+        deposit_address = post_res['deposit_address']
+        withdraw_address = post_res['withdraw_address']
+        self.assertIsNotNone(deposit_address['payment_id'])
+        self.assertIsNone(withdraw_address['payment_id'])
+
+        order_ref = post_res['unique_reference']
+        order = Order.objects.get(unique_reference=order_ref)
+        res = self._get_order(order_ref)
+        deposit_address = res['deposit_address']
+        withdraw_address = res['withdraw_address']
+        self.assertIsNotNone(deposit_address['payment_id'])
+        self.assertIsNone(withdraw_address['payment_id'])
+        self.assertEqual(
+            order.payment_id,
+            deposit_address['payment_id']
+        )
+
     def test_withdraw_destination_tag(self):
         withdraw_address = 'r9y63YwVUQtTWHtwcmYc1Epa5KvstfUzSm'
         dest_tag = '123456'
-        post_res = self._create_order_api(pair_name='XRPLTC',
-                                          address=withdraw_address,
-                                          destination_tag=dest_tag, amount=10)
+        res = self._create_order_api(pair_name='XRPLTC',
+                                     address=withdraw_address,
+                                     destination_tag=dest_tag, amount=10)
+        self.assertEqual(res.status_code, 201)
+        post_res = res.json()
         order_ref = post_res['unique_reference']
         destination_tag = post_res['withdraw_address'].get('destination_tag')
         order = Order.objects.get(unique_reference=order_ref)
@@ -269,3 +338,23 @@ class TestOrderParamsOnAddress(TickerBaseTestCase):
         res = self._get_order(order_ref)
         get_destination_tag = res['withdraw_address'].get('destination_tag')
         self.assertEqual(get_destination_tag, dest_tag)
+
+    def test_withdraw_payment_id(self):
+        withdraw_address = \
+            '44AFFq5kSiAAaA4AAAaAaA18obc8AemS33DBLWs3H7otXft' \
+            '3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A'
+        payment_id = '12345678901234567890123456789000' \
+                     '12345678901234567890123456789000'
+        res = self._create_order_api(pair_name='XMRLTC',
+                                     address=withdraw_address,
+                                     payment_id=payment_id, amount=10)
+        self.assertEqual(res.status_code, 201)
+        post_res = res.json()
+        order_ref = post_res['unique_reference']
+        payment_id_res = post_res['withdraw_address'].get('payment_id')
+        order = Order.objects.get(unique_reference=order_ref)
+        self.assertEqual(order.payment_id, payment_id)
+        self.assertEqual(payment_id_res, payment_id)
+        res = self._get_order(order_ref)
+        get_payment_id = res['withdraw_address'].get('payment_id')
+        self.assertEqual(get_payment_id, payment_id)

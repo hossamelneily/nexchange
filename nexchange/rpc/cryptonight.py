@@ -1,16 +1,19 @@
 from nexchange.api_clients.base import CryptonightProxy
-from nexchange.api_clients.decorators import track_tx_mapper, log_errors, encrypted_endpoint
+from nexchange.api_clients.decorators import track_tx_mapper, log_errors, \
+    encrypted_endpoint
 from nexchange.rpc.base import BaseRpcClient
-from core.models import Address
+from core.models import Address, AddressReserve
 from decimal import Decimal
 from nexchange.api_clients.mappers import RpcMapper
 import os
 from http.client import RemoteDisconnected
+import requests
 
 
 class CryptonightRpcApiClient(BaseRpcClient):
     LOCK_WALLET = 'stop_wallet'
     UNLOCK_WALLET = 'open_wallet'
+    EMPTY_PAYMENT_ID = '0000000000000000'
 
     def __init__(self):
         super(CryptonightRpcApiClient, self).__init__()
@@ -19,11 +22,11 @@ class CryptonightRpcApiClient(BaseRpcClient):
 
     def get_api(self, node):
         self.rpc_endpoint, kwargs = RpcMapper.get_rpc_addr(node)
-        wallet_port = self.wallet_port_mapper(node)
-        wallet_name = self.wallet_name_mapper(node)
+        kwargs['wallet_port'] = self.wallet_port_mapper(node)
+        kwargs['wallet_name'] = self.wallet_name_mapper(node)
         if self.rpc_endpoint not in self.api_cache:
             self.api_cache[self.rpc_endpoint] = \
-                CryptonightProxy(wallet_name, wallet_port, **kwargs)
+                CryptonightProxy(**kwargs)
         self.api = self.api_cache[self.rpc_endpoint]
         return self.api
 
@@ -45,9 +48,17 @@ class CryptonightRpcApiClient(BaseRpcClient):
         decrypt_fn = getattr(api, self.UNLOCK_WALLET)
         return decrypt_fn(*[pass_phrase])
 
+    def get_main_address(self, currency):
+        address = super(CryptonightRpcApiClient, self).\
+            get_main_address(currency)
+        assert address == AddressReserve.objects.get(currency=currency).address
+        return address
+
     @encrypted_endpoint
     def create_address(self, currency):
-        address = self.call_api(currency.wallet, 'create_address')
+        address = self.get_main_address(currency)
+        if address is None:
+            address = self.call_api(currency.wallet, 'create_address')
         return {
             'currency': currency,
             'address': address
@@ -74,14 +85,16 @@ class CryptonightRpcApiClient(BaseRpcClient):
             'currency': _currency,
             'address_to': _address,
             'amount': amount,
-            'time': tx['timestamp'],
-            'tx_id': tx['txid'],
+            'payment_id': tx.get('payment_id'),
+            'tx_id': tx.get('txid'),
             'tx_id_api': None,
         }
 
     def filter_tx(self, tx):
-        return True
+        return True if tx.get('payment_id') != self.EMPTY_PAYMENT_ID \
+            else False
 
+    @encrypted_endpoint
     def _get_tx(self, tx_id, node):
         tx = self.call_api(node, 'get_transfer_by_txid', *[tx_id])
         return tx['transfer']
@@ -92,16 +105,18 @@ class CryptonightRpcApiClient(BaseRpcClient):
 
     def get_confirmations_amount(self, tx, currency):
         node = currency.wallet
-        tx_block = tx.get('height')
-        current_block = self.get_current_block(node).get('height')
-        return current_block - tx_block
+        tx_block = int(tx.get('height'))
+        current_block = int(self.get_current_block(node).get('height'))
+        assert current_block != 0
+        confirmations = current_block - tx_block
+        return confirmations
 
     def check_tx(self, tx, currency):
         tx = self._get_tx(tx.tx_id, currency.wallet)
         confirmations = self.get_confirmations_amount(tx, currency)
         double_spend_seen = tx['double_spend_seen']
         confirmed = all([confirmations >= currency.min_confirmations,
-                         confirmations > 0, not double_spend_seen])
+                         0 < confirmations < 100, not double_spend_seen])
         return confirmed, confirmations
 
     @encrypted_endpoint
@@ -118,12 +133,16 @@ class CryptonightRpcApiClient(BaseRpcClient):
     @encrypted_endpoint
     def release_coins(self, currency, address, amount, **kwargs):
         _address = getattr(address, 'address', address)
-        payment_id = kwargs.get('payment_id')
+        payment_id = kwargs.get('payment_id', None)
         amount_atoms = \
             Decimal(amount) * Decimal('1e{}'.format(currency.decimals))
         amount_atoms = round(amount_atoms, 0)
-        tx_id = self.call_api(currency.wallet, 'transfer',
-                              *[_address, int(amount_atoms), payment_id])
+        try:
+            tx_id = self.call_api(currency.wallet, 'transfer',
+                                  *[_address, int(amount_atoms), payment_id])
+        except requests.ConnectTimeout:
+            tx_id = self.call_api(currency.wallet, 'transfer',
+                                  *[_address, int(amount_atoms), payment_id])
         success = True
         return tx_id, success
 
@@ -143,14 +162,21 @@ class CryptonightRpcApiClient(BaseRpcClient):
         info = self.call_api(currency.wallet, method)
         return info
 
+    # todo it's enough to check wallet method that connects to daemon
     def health_check(self, currency):
         try:
-            info = self.get_info(currency)
+            daemon_info = self.get_info(currency)
+            wallet_info = self.get_current_block(currency.wallet)
         except RemoteDisconnected:
             # First request always fails after timeout.
             # If this one fails - smth is wrong with rpc connection in general
-            info = self.get_info(currency)
-        assert isinstance(info, dict)
+            daemon_info = self.get_info(currency)
+            wallet_info = self.get_current_block(currency.wallet)
+        assert all([isinstance(daemon_info, dict),
+                   isinstance(wallet_info, dict)])
+        daemon_height = int(daemon_info.get('height'))
+        wallet_height = int(wallet_info.get('height'))
+        assert daemon_height - wallet_height == 0
         return super(CryptonightRpcApiClient, self).health_check(currency)
 
     def backup_wallet(self, currency):

@@ -11,11 +11,12 @@ from core.models import Address, Pair
 from django.core.exceptions import ValidationError
 from rest_framework.exceptions import ValidationError as RestValidationError
 from django.utils.translation import ugettext_lazy as _
-from core.validators import get_validator, validate_xmr_payment_id
+from core.validators import get_validator, validate_xmr_payment_id, \
+    validate_destination_tag
 
 
 BASE_FIELDS = ('amount_base', 'is_default_rule', 'unique_reference',
-               'payment_id', 'amount_quote', 'pair', 'withdraw_address')
+               'amount_quote', 'pair', 'withdraw_address')
 READABLE_FIELDS = ('deposit_address', 'created_on', 'from_default_rule',
                    'unique_reference', 'deposit_address',
                    'payment_window', 'payment_deadline', 'kyc_deadline',
@@ -67,13 +68,15 @@ class OrderSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super(OrderSerializer, self).__init__(*args, **kwargs)
         add_deposit_params = add_withdraw_params = {}
-        if args and isinstance(args[0], Order):
-            order = args[0]
+        if args and isinstance(self.instance, Order):
+            order = self.instance
             add_deposit_params = {
-                'destination_tag': order.quote_destination_tag
+                'destination_tag': order.quote_destination_tag,
+                'payment_id': order.quote_payment_id
             }
             add_withdraw_params = {
-                'destination_tag': order.base_destination_tag
+                'destination_tag': order.base_destination_tag,
+                'payment_id': order.base_payment_id
             }
         self.fields['deposit_address'] = NestedReadOnlyAddressSerializer(
             many=False, read_only=True,
@@ -164,16 +167,28 @@ class CreateOrderSerializer(OrderSerializer):
         currency = pair_obj.base.code
         validate_address = get_validator(currency)
         validate_address(data['withdraw_address']['address'])
-        if data.get('payment_id'):
-            validate_xmr_payment_id(data['payment_id'])
+        payment_id = data['withdraw_address'].get('payment_id', None)
+        destination_tag = data['withdraw_address'].get('destination_tag', None)
 
+        if payment_id not in ['', None]:
+            if pair_obj.base.code != 'XMR':
+                raise ValidationError('Payment id can\'t be '
+                                      'used for {}'.format(self.pair.base))
+            else:
+                validate_xmr_payment_id(payment_id)
+        if destination_tag not in ['', None]:
+            if pair_obj.base.code != 'XRP':
+                raise ValidationError('Destination tag can\'t be '
+                                      'used for {}'.format(self.pair.base))
+            else:
+                validate_destination_tag(destination_tag)
         return super(CreateOrderSerializer, self).validate(data)
 
     def create(self, validated_data):
         for field in READABLE_FIELDS:
             validated_data.pop(field, None)
         withdraw_address = validated_data.pop('withdraw_address')
-        payment_id = validated_data.pop('payment_id', None)
+        payment_id = withdraw_address.pop('payment_id', None)
         destination_tag = withdraw_address.pop('destination_tag', None)
         validated_data.pop('pair')
         # Just making sure
@@ -199,13 +214,15 @@ class CreateOrderSerializer(OrderSerializer):
             self.fields['deposit_address'] = NestedReadOnlyAddressSerializer(
                 many=False, read_only=True,
                 additional_params={
-                    'destination_tag': order.quote_destination_tag
+                    'destination_tag': order.quote_destination_tag,
+                    'payment_id': order.quote_payment_id
                 }
             )
             self.fields['withdraw_address'] = NestedAddressSerializer(
                 many=False, read_only=False,
                 additional_params={
-                    'destination_tag': order.base_destination_tag
+                    'destination_tag': order.base_destination_tag,
+                    'payment_id': order.base_payment_id
                 }
             )
             return order

@@ -233,16 +233,3 @@ class RippleRawE2ETestCase(TransactionImportBaseTestCase,
             self.assertEqual(order.withdraw_address.address, withdraw_address)
         else:
             self.assertIsNone(order)
-
-    def test_dest_tag_provided_on_pair_quote(self):
-        dest_tag = '111111'
-        pair_name = 'BTCXRP'
-        amount_base = 0.5
-
-        self._create_order(pair_name=pair_name, amount_base=amount_base,
-                           dest_tag=dest_tag)
-
-        self.assertNotEquals(
-            self.order.destination_tag, dest_tag,
-            "destination tag should be overwritten when ripple is quote"
-        )

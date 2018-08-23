@@ -390,7 +390,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
         if all([not self.amount_base, not self.amount_quote]):
             raise ValidationError(
                 _('One of amount_quote and amount_base is required.'))
-        if all([self.pair.base != Currency.objects.get(code='XMR'),
+        if all([not self.pair.includes_currency('XMR'),
                 self.payment_id is not None]):
             raise ValidationError(
                 _('Payment id is currently used only for Monero address'))
@@ -432,7 +432,9 @@ class Order(TimeStampedModel, SoftDeletableModel,
                     lambda x: Order.objects.filter(unique_reference=x).count(),
                     settings.UNIQUE_REFERENCE_LENGTH
                 )
-        if self.pair.quote.code == 'XRP':
+        if all([self.pair.quote.code == 'XMR', not self.payment_id]):
+            self.payment_id = self.gen_unique_payment_id(32)
+        if all([self.pair.quote.code == 'XRP', not self.destination_tag]):
             self.destination_tag = \
                 self.gen_destination_tag(
                     lambda: self.get_random_integer(),
@@ -937,6 +939,14 @@ class Order(TimeStampedModel, SoftDeletableModel,
                         order, self
                     )
                 )
+        if order.pair.quote.code == 'XMR':
+            tx_payment_id = tx_data.get('payment_id')
+            if order.payment_id != tx_payment_id:
+                raise ValidationError(
+                    'Bad tx payment id {}. Should be {}'.format(
+                        order, self
+                    )
+                )
 
         if order != self:
             raise ValidationError(
@@ -1277,3 +1287,13 @@ class Order(TimeStampedModel, SoftDeletableModel,
     def quote_destination_tag(self):
         if self.pair.quote.code == 'XRP':
             return self.destination_tag
+
+    @property
+    def base_payment_id(self):
+        if self.pair.base.code == 'XMR':
+            return self.payment_id
+
+    @property
+    def quote_payment_id(self):
+        if self.pair.quote.code == 'XMR':
+            return self.payment_id

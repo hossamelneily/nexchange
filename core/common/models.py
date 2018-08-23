@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.db import models
+import binascii
+import os
 from safedelete import (DELETED_INVISIBLE, DELETED_VISIBLE_BY_PK, SOFT_DELETE,
                         safedelete_manager_factory, safedelete_mixin_factory)
 from django.utils.crypto import get_random_string
@@ -28,6 +30,10 @@ class UniqueFieldMixin:
 
     def get_random_unique_reference(self, x):
         return get_random_string(x)
+
+    def gen_unique_payment_id(self, length):
+        bytes_payment_id = binascii.hexlify(os.urandom(length))
+        return bytes_payment_id.decode("utf-8")
 
     def get_random_integer(self):
         return randint(0, 2**32 - 1)

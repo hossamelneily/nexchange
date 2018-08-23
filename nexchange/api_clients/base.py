@@ -7,6 +7,7 @@ from .decorators import log_errors
 import inspect
 import requests
 import json
+import time
 
 
 class BaseApiClient:
@@ -104,7 +105,7 @@ class BaseWalletApiClient(BaseApiClient):
 
         currencies = Currency.objects.filter(
             is_crypto=True, disabled=False, wallet__in=self.related_nodes
-        ).exclude(code='XRP')
+        ).exclude(code__in=['XMR', 'XRP'])
         if not renew_curr_of_disabled_pairs:
             currencies = [
                 curr for curr in currencies if curr.is_quote_of_enabled_pair_for_test  # noqa
@@ -127,7 +128,7 @@ class BaseWalletApiClient(BaseApiClient):
                 self.backup_wallet(curr)
 
     def create_user_wallet(self, user, currency):
-        one_card_currencies = ['XRP']
+        one_card_currencies = ['XMR', 'XRP']
         unassigned_cards = AddressReserve.objects.filter(currency=currency,
                                                          user=None,
                                                          disabled=False)
@@ -385,14 +386,15 @@ class Blake2Proxy:
 
 
 class CryptonightProxy:
-    def __init__(self, wallet_name, wallet_port, timeout=1, **kwargs):
+    def __init__(self, timeout=3, max_call_amount=3, **kwargs):
         self.part_url = '{protocol}://{host}:'.format(**kwargs)
         self.port = kwargs.get('port')
-        self.wallet_name = wallet_name
-        self.wallet_port = wallet_port
-        self.timeout = timeout
+        self.wallet_name = kwargs.get('wallet_name')
+        self.wallet_port = kwargs.get('wallet_port')
         self.user = kwargs.get('user')
         self.password = kwargs.get('passwd')
+        self.timeout = timeout
+        self.max_call_amount = max_call_amount
 
     def _call_rpc(self, method, **kwargs):
         caller_func_name = inspect.stack()[1][3]
@@ -401,21 +403,29 @@ class CryptonightProxy:
             else self.wallet_port
         self.url = self.part_url + port + '/json_rpc'
         try:
-            res = requests.post(self.url,
-                                data=json.dumps({'method': method, **kwargs}),
-                                auth=HTTPDigestAuth(self.user, self.password),
-                                timeout=self.timeout)
+            for _ in range(self.max_call_amount):
+                res = requests.post(
+                    self.url,
+                    data=json.dumps({'method': method, **kwargs}),
+                    auth=HTTPDigestAuth(self.user, self.password),
+                    timeout=self.timeout
+                )
+                if not res.json().get('error'):
+                    break
+                else:
+                    time.sleep(1)
         except requests.ConnectTimeout:
             raise JSONRPCException('Timeout, Cryptonight wallet might be down')
         if res.status_code != 200:
             raise JSONRPCException('Bad status code: {}'.format(res))
-        if res.json().get('error'):
-            raise Exception('There was an error: {}'.
-                            format(res.json().get('error')))
         try:
             return res.json()['result']
         except KeyError:
             return res.json()
+
+    def store(self):
+        pass
+        # return self._call_rpc('store')
 
     def getaddress(self):
         res = self._call_rpc('getaddress')
@@ -435,12 +445,16 @@ class CryptonightProxy:
         return self._call_rpc('create_wallet', **kwargs)
 
     def open_wallet(self, password):
-        kwargs = {'params': {'filename': self.wallet_name,
-                             'password': password}}
-        return self._call_rpc('open_wallet', **kwargs)
+        try:
+            self._call_rpc('getheight')
+            return
+        except Exception:
+            kwargs = {'params': {'filename': self.wallet_name,
+                                 'password': password}}
+            self._call_rpc('open_wallet', **kwargs)
 
     def stop_wallet(self):
-        return self._call_rpc('stop_wallet')
+        return self._call_rpc('store')
 
     def getbalance(self):
         return self._call_rpc('getbalance')
@@ -457,7 +471,7 @@ class CryptonightProxy:
         kwargs = {'params': {'pool': True, 'in': is_in}}
         return self._call_rpc('get_transfers', **kwargs)
 
-    def transfer(self, address, amount, payment_id):
+    def transfer(self, address, amount, payment_id=None):
         # NOTE transfer can be done to multiple addresses at the time
         kwargs = {'params': {
             "destinations": [{

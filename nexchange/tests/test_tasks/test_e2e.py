@@ -588,8 +588,8 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                     get_tx_eth_receipt,
                                     release_coins_eth, get_block_eth,
                                     send_task, scrypt_info, eth_listen):
-        scrypt_info.return_value = cryptonight_info.return_value = \
-            omni_info.return_value = {}
+        scrypt_info.return_value = omni_info.return_value = {}
+        cryptonight_info.return_value = {'height': 21}
         eth_listen.return_value = True
         currency_quote_code = pair_name[base_curr_code_len:]
         currency_base_code = pair_name[0:base_curr_code_len]
@@ -608,11 +608,13 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         card = self.order.deposit_address.reserve
 
         block_height = 10
+        payment_id = self.order.payment_id
         get_cryptonight_txs_result = \
             self.get_cryptonight_raw_txs(mock_currency,
                                          mock_amount,
                                          card.address,
-                                         block_height)['result']['in']
+                                         block_height,
+                                         payment_id)['result']['in']
 
         if mock_currency.wallet == 'api1':
             card_id = card.card_id

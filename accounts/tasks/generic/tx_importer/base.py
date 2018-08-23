@@ -28,6 +28,10 @@ class BaseTransactionImporter:
             buy_exchange_query['destination_tag'] = \
                 tx_data.get('destination_tag')
 
+        if tx_data.get('payment_id'):
+                    buy_exchange_query['payment_id'] = \
+                        tx_data.get('payment_id')
+
         orders = Order.objects.filter(**buy_exchange_query)
         return orders
 

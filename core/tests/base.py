@@ -317,7 +317,7 @@ class UserBaseTestCase(TestCase):
                         }
             if params.get('method') == 'open_wallet':
                 return {'id': 0, 'jsonrpc': '2.0', 'result': {}}
-            if params.get('method') == 'stop_wallet':
+            if params.get('method') == 'store':
                 return {'id': 0, 'jsonrpc': '2.0', 'result': {}}
         mock.post(RPC8_URL, json=text_callback)
         mock.post(RPC11_URL, json=text_callback)
@@ -604,7 +604,8 @@ class OrderBaseTestCase(UserBaseTestCase):
         tx['valid'] = False
         return tx
 
-    def get_cryptonight_raw_txs(self, currency, amount, address, block_height):
+    def get_cryptonight_raw_txs(self, currency, amount, address, block_height,
+                                payment_id):
         raw_amount = str(int(amount * (10 ** currency.decimals)))
         return {
             'id': 0,
@@ -617,7 +618,7 @@ class OrderBaseTestCase(UserBaseTestCase):
                     'fee': 950700000,
                     'height': block_height,
                     'note': '',
-                    'payment_id': '721da362ac080b07',
+                    'payment_id': payment_id,
                     'subaddr_index': {'major': 0, 'minor': 0},
                     'timestamp': 1525336581,
                     'txid': self.generate_txn_id(),
@@ -869,11 +870,17 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             type=Address.DEPOSIT,
         )
         self.address.save()
-        card = AddressReserve(
+        xmr_card = AddressReserve(
+            currency=Currency.objects.get(code='XMR'),
+            address='41pLNkSGSJK8pWAG9dd57YcWB82gH5ucHNEPnGt1FBN59P'
+                    'rdYqKUGB1SfZxGQPcYcDEbctmpN2kpVbtuie6yCRf16oXkjuY',
+        )
+        xmr_card.save()
+        xrp_card = AddressReserve(
             currency=Currency.objects.get(code='XRP'),
             address='rnErCcvuHdxfUEcU81NtujYv36mQ4BaSP2'
         )
-        card.save()
+        xrp_card.save()
 
         self.url_addr = 'http://btc.blockr.io/api/v1/address/txs/{}'.format(
             self.wallet_address

@@ -10,7 +10,7 @@ from .validators import validate_address
 from django_countries.fields import CountryField
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.utils.translation import ugettext as _
-from core.validators import validate_destination_tag
+from core.validators import validate_destination_tag, validate_xmr_payment_id
 
 
 class BtcBase(TimeStampedModel):
@@ -35,7 +35,7 @@ class BtcBase(TimeStampedModel):
 class AddressReserve(models.Model):
     card_id = models.CharField('card_id', max_length=36, unique=True,
                                null=True, blank=True, default=None)
-    address = models.CharField('address_id', max_length=64, unique=True)
+    address = models.CharField('address_id', max_length=127, unique=True)
     currency = models.ForeignKey('core.Currency')
     user = models.ForeignKey(User, null=True, blank=True, default=None)
     created = models.DateTimeField(auto_now_add=True)
@@ -112,6 +112,10 @@ class Transaction(BtcBase, FlagableMixin):
     destination_tag = models.CharField(
         max_length=10, null=True, blank=True, default=None,
         validators=[validate_destination_tag]
+    )
+    payment_id = models.CharField(
+            max_length=64, null=True, blank=True, default=None,
+            validators=[validate_xmr_payment_id]
     )
 
     def _validate_withdraw_txn(self):

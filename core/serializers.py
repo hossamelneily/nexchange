@@ -104,7 +104,13 @@ class NestedAddressSerializer(AddressSerializer):
     def __init__(self, *args, **kwargs):
         self.fields['destination_tag'] = serializers.CharField(
             required=False,
-            read_only=False,
+            write_only=True,
+            allow_blank=True,
+            allow_null=True,
+        )
+        self.fields['payment_id'] = serializers.CharField(
+            required=False,
+            write_only=True,
             allow_blank=True,
             allow_null=True,
         )

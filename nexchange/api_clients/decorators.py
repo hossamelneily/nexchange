@@ -1,4 +1,4 @@
-from core.models import TransactionApiMapper
+from core.models import TransactionApiMapper, Currency
 from functools import wraps
 from nexchange.utils import get_traceback, get_nexchange_logger
 from .mappers import RpcMapper
@@ -40,10 +40,13 @@ def encrypted_endpoint(fn):
     @wraps(fn)
     def wrapper(self, *args, **kwargs):
         try:
-            try:
-                node = args[0].wallet
-            except AttributeError:
-                node = args[0]
+            for arg in args:
+                if isinstance(arg, Currency):
+                    node = arg.wallet
+                    break
+                if arg[:3] == 'rpc':
+                    node = arg
+                    break
             api = self.get_api(node)
             rpc_pass = RpcMapper.get_pass(node)
             self.unlock(api, rpc_pass, **{'node': node})
