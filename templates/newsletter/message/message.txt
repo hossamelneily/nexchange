@@ -1,5 +1,11 @@
 {% load i18n %}++++++++++++++++++++
 
+{% for article in message.articles.all %}
+    {{ article.title }}
+    {{ article.text|striptags|safe }}
+
+{% endfor %}
+{% comment %}
 {{ newsletter.title }}: {{ message.title }}
 
 ++++++++++++++++++++
@@ -12,6 +18,5 @@
 
 ++++++++++++++++++++
 
-{% comment %}
 {% trans "Unsubscribe:" %} http://{{ site }}{% url "newsletter_unsubscribe_request" newsletter.slug %}
 {% endcomment %}

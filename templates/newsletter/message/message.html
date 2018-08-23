@@ -1,5 +1,9 @@
 {% load thumbnail i18n %}<!DOCTYPE html>
 
+{% for article in message.articles.all %}
+    {{ article.text|safe }}
+{% endfor %}
+{% comment %}
 <html>
 <head>
     <meta charset="utf-8">
@@ -22,13 +26,12 @@
         {% endif %}
     {% endfor %}
 
-    {% comment %}
     <ul>
         {% if submission.publish %}
         <li><a href="http://{{ site.domain }}{{ submission.get_absolute_url }}">{% trans "Read message online" %}</a></li>
         {% endif %}
         <li><a href="http://{{ site.domain }}{% url "newsletter_unsubscribe_request" newsletter.slug %}">{% trans "Unsubscribe" %}</a></li>
     </ul>
-    {% endcomment %}
 </body>
 </html>
+{% endcomment %}
