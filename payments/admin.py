@@ -18,8 +18,8 @@ class PushRequestAdmin(admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ('amount_cash', 'currency', 'type', 'payment_system_id',
-                    'secondary_payment_system_id')
+    list_display = ('amount_cash', 'currency', 'type',
+                    'payment_system_id', 'secondary_payment_system_id')
     readonly_fields = (
         'amount_cash', 'currency', 'type', 'payment_system_id',
         'secondary_payment_system_id', 'is_redeemed', 'is_success',

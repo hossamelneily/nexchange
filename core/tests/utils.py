@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.conf import settings
 import os
 from collections import defaultdict
@@ -80,7 +80,7 @@ def passive_authentication_helper(client,
                                   token,
                                   phone,
                                   is_logged_in):
-    if not is_logged_in and user.is_authenticated():
+    if not is_logged_in and user.is_authenticated:
         client.logout()
     # incorrect token
     response = client.post(
@@ -198,12 +198,13 @@ def read_fixture(path):
 
 
 def enable_all_pairs():
+    assert os.getenv('DJANGO_SETTINGS_MODULE') == 'nexchange.settings_test'
     pairs = Pair.objects.filter(Q(disabled=True) | Q(test_mode=True))
     for pair in pairs:
         pair.disabled = False
         pair.test_mode = False
         pair.disable_ticker = False
-        pair.save()
+        pair.save(update_fields=['disabled', 'test_mode', 'disable_ticker'])
 
 
 def set_big_reserves():
@@ -211,4 +212,4 @@ def set_big_reserves():
     assert os.getenv('DJANGO_SETTINGS_MODULE') == 'nexchange.settings_test'
     for acc in accounts:
         acc.available = Decimal(1e7)
-        acc.save()
+        acc.save(update_fields=['available'])

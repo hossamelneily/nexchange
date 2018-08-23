@@ -2,11 +2,10 @@ from io import BytesIO
 
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
-from django.test import Client
+from django.urls import reverse
 from PIL import Image
 
-from core.tests.base import UserBaseTestCase
+from core.tests.base import UserBaseTestCase, NexchangeClient
 from verification.models import Verification
 
 
@@ -39,7 +38,7 @@ class VerificationViewTestCase(UserBaseTestCase):
         username = '+555190909100'
         password = '321Changed'
         User.objects.create_user(username=username, password=password)
-        self.client2 = Client()
+        self.client2 = NexchangeClient()
         self.client2.login(username=username, password=password)
 
     def test_download_document(self):

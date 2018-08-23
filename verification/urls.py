@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path
 from rest_framework.routers import SimpleRouter
 
 from verification.views import views
@@ -11,6 +11,6 @@ router.register(r'kyc', VerificationViewSet, base_name='kyc')
 kyc_api_patterns = router.urls
 
 verification_urls = [
-    url(r'^download/(?P<file_name>.*)/$', views.download,
-        name='verification.download'),
+    re_path(r'^download/(?P<file_name>.*)/$', views.download,
+            name='verification.download'),
 ]

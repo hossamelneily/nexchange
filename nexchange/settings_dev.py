@@ -11,7 +11,7 @@ INTERNAL_IPS = ('127.0.0.1', '192.168.99.100', '192.168.43.146')
 ALLOWED_HOSTS += ('localhost', '192.168.43.146', 'nexchange.dev',
                   '207.154.223.232')
 SESSION_COOKIE_DOMAIN = None
-MIDDLEWARE_CLASSES += [
+MIDDLEWARE += [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
@@ -51,7 +51,7 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 
 # Lockout only for 1 mins on dev
-AXES_LOGIN_FAILURE_LIMIT = 10
+AXES_FAILURE_LIMIT = 10
 AXES_COOLOFF_TIME = timedelta(seconds=30)
 CELERY_ALWAYS_EAGER = False
 

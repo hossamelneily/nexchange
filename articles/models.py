@@ -49,7 +49,8 @@ class OgResource(CmsBase):
                                    blank=True)
     page = models.ForeignKey(CmsPage,
                              default=None,
-                             related_name='resources_sets')
+                             related_name='resources_sets',
+                             on_delete=models.CASCADE)
     use_og = models.BooleanField(default=True)
 
     def convert_og_to_props(self):

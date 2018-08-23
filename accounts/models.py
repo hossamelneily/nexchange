@@ -64,13 +64,16 @@ class Profile(TimeStampedModel, SoftDeletableModel):
                                  blank=True, null=True)
     sig_key = models.CharField(max_length=64, blank=True)
     duplicate_of = models.ForeignKey('Profile', blank=True,
-                                     null=True, default=None)
+                                     null=True, default=None,
+                                     on_delete=models.DO_NOTHING)
     affiliate_address = models.ForeignKey(
-        'core.Address', null=True, default=None, blank=True
+        'core.Address', null=True, default=None, blank=True,
+        on_delete=models.DO_NOTHING
     )
     anonymous_login = models.BooleanField(default=False)
     cards_validity_approved = models.BooleanField(default=False)
-    tier = models.ForeignKey(VerificationTier, blank=True, null=True)
+    tier = models.ForeignKey(VerificationTier, blank=True, null=True,
+                             on_delete=models.DO_NOTHING)
     can_use_test_mode = models.BooleanField(default=False)
 
     @property
@@ -169,7 +172,8 @@ User.profile = property(lambda u:
 class SmsToken(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
     sms_token = models.CharField(
         max_length=settings.SMS_TOKEN_LENGTH, blank=True)
-    user = models.ForeignKey(User, related_name='sms_token')
+    user = models.ForeignKey(User, related_name='sms_token',
+                             on_delete=models.CASCADE)
     send_count = models.IntegerField(default=0)
 
     @staticmethod
@@ -193,8 +197,10 @@ class SmsToken(TimeStampedModel, SoftDeletableModel, UniqueFieldMixin):
 
 
 class Balance(TimeStampedModel):
-    user = models.ForeignKey(User, related_name='user')
-    currency = models.ForeignKey('core.Currency', related_name='currency')
+    user = models.ForeignKey(User, related_name='user',
+                             on_delete=models.CASCADE)
+    currency = models.ForeignKey('core.Currency', related_name='currency',
+                                 on_delete=models.CASCADE)
     balance = models.DecimalField(max_digits=18, decimal_places=8, default=0)
 
 
@@ -209,6 +215,8 @@ class UserDuplication(TimeStampedModel):
         (DUPLICATE_USER_AGENT, 'Duplicate User Agent'),
         (DUPLICATE_EMAIL, 'Duplicate Email'),
     )
-    user = models.ForeignKey(User, related_name='duplicate_set')
-    duplicate_of = models.ForeignKey(User, related_name='original_user_set')
+    user = models.ForeignKey(User, related_name='duplicate_set',
+                             on_delete=models.DO_NOTHING)
+    duplicate_of = models.ForeignKey(User, related_name='original_user_set',
+                                     on_delete=models.DO_NOTHING)
     duplication_reason = models.IntegerField(choices=DUPLICATION_REASONS)

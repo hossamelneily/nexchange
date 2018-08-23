@@ -3,19 +3,19 @@ import sys
 from django.contrib.auth.models import User
 from accounts.task_summary import renew_cards_reserve_invoke
 from orders.models import Order
-from django.contrib.staticfiles.testing import LiveServerTestCase
-from core.tests.base import TransactionImportBaseTestCase, OrderBaseTestCase
+from core.tests.base import TransactionImportBaseTestCase, OrderBaseTestCase,\
+    NexchangeLiveServerTestCase
 from referrals.models import ReferralCode, Referral
 from ticker.tests.base import TickerBaseTestCase
 from subprocess import call
-from django.core.urlresolvers import reverse
-from django.test import Client
+from django.urls import reverse
 from oauth2_provider.models import AccessToken
 from datetime import timedelta
 from django.utils import timezone
+from core.tests.base import NexchangeClient
 
 
-class DreddTestAPI(LiveServerTestCase, TransactionImportBaseTestCase,
+class DreddTestAPI(NexchangeLiveServerTestCase, TransactionImportBaseTestCase,
                    TickerBaseTestCase):
 
     fixtures = OrderBaseTestCase.fixtures + [
@@ -67,7 +67,7 @@ class DreddTestAPI(LiveServerTestCase, TransactionImportBaseTestCase,
         self._mock_uphold()
         self.create_main_user()
 
-        self.client = Client()
+        self.client = NexchangeClient()
         success = self.client.login(username=self.username,
                                     password=self.password)
         expires = timezone.now() + timedelta(days=30)

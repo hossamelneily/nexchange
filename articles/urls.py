@@ -1,8 +1,8 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from articles import views
 
 article_urls = [
-    url(r'^(?P<page_name>.+)/$', views.cms_page,
-        name='articles.cms_page'),
+    re_path(r'^(?P<page_name>.+)/$', views.cms_page,
+            name='articles.cms_page'),
 ]

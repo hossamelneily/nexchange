@@ -1,5 +1,5 @@
 from core.tests.base import UserBaseTestCase
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from json import loads
 from core.tests.utils import data_provider
 

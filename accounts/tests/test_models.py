@@ -1,4 +1,5 @@
 from core.tests.base import OrderBaseTestCase, TransactionImportBaseTestCase
+from core.tests.utils import enable_all_pairs
 from ticker.tests.base import TickerBaseTestCase
 from django.contrib.auth.models import User
 from core.models import Address, Currency
@@ -42,6 +43,7 @@ class UserCreationTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
         super(UserCreationTestCase, cls).setUpClass()
 
     def test_user_count_exceeds_reserve_cards(self):
+        enable_all_pairs()
         loop_num = settings.CARDS_RESERVE_COUNT * 2
         for i in range(loop_num):
             user = User(username='User Alot{}'.format(i))

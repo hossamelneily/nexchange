@@ -2,7 +2,7 @@ from nexchange.utils import send_email
 from django.conf import settings
 from celery import shared_task
 from .models import Verification
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from orders.models import Order
 from payments.models import Payment
 from nexchange.utils import get_nexchange_logger

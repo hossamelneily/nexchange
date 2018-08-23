@@ -6,14 +6,16 @@ from orders.models import Order
 from payments.models import Payment
 from django.contrib.admin import SimpleListFilter
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 
 class VerificationInline(admin.TabularInline):
     model = VerificationDocument
     exclude = ('document_file',)
     readonly_fields = ('image_tag', 'whitelisted_address')
+    fk_name = 'verification'
 
 
 class PendingFilter(SimpleListFilter):
@@ -109,12 +111,11 @@ class VerificationAdmin(admin.ModelAdmin):
     def name_on_card(self, obj):
         return self._get_payment_preference_field(obj, 'secondary_identifier')
 
+    @mark_safe
     def name_on_card_matches(self, obj):
         res = self._get_payment_preference_field(obj, 'name_on_card_matches')
         _color = 'green' if res else 'red'
         return '<b style="background:{};">{}</b>'.format(_color, res)
-
-    name_on_card_matches.allow_tags = True
 
     def bad_name_verifications(self, obj):
         records = self._get_payment_preference_field(obj,
@@ -141,19 +142,17 @@ class VerificationAdmin(admin.ModelAdmin):
         if callable(fn):
             return fn(days=30)
 
+    @mark_safe
     def out_of_limit(self, obj):
         res = self._get_payment_preference_field(obj, 'out_of_limit')
         _color = 'red' if res else 'green'
         return '<b style="background:{};">{}</b>'.format(_color, res)
 
-    out_of_limit.allow_tags = True
-
+    @mark_safe
     def is_immediate_payment(self, obj):
         res = self._get_payment_preference_field(obj, 'is_immediate_payment')
         _color = 'green' if res else 'red'
         return '<b style="background:{};">{}</b>'.format(_color, res)
-
-    is_immediate_payment.allow_tags = True
 
     def tier(self, obj):
         return self._get_payment_preference_field(obj, 'tier')

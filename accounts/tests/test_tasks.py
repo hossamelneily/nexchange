@@ -1,5 +1,6 @@
 from core.tests.base import TransactionImportBaseTestCase, ETH_ROOT, OMNI_ROOT
 from core.models import Address, Currency, AddressReserve, Transaction
+from core.tests.utils import enable_all_pairs
 from accounts.task_summary import import_transaction_deposit_crypto_invoke,\
     check_transaction_card_balance_invoke
 from ticker.tests.base import TickerBaseTestCase
@@ -64,6 +65,7 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
 
     def setUp(self):
         super(AddressReserveMonitorTestCase, self).setUp()
+        enable_all_pairs()
         with requests_mock.mock() as m:
             self._mock_cards_reserve(m)
             self.user, created = \

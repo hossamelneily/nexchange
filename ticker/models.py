@@ -19,7 +19,8 @@ LOGGER = get_nexchange_logger('Ticker Logger', with_email=True,
 class Ticker(IndexTimeStampedModel):
     ask = models.DecimalField(max_digits=18, decimal_places=8)
     bid = models.DecimalField(max_digits=18, decimal_places=8)
-    pair = models.ForeignKey(Pair)
+    pair = models.ForeignKey(Pair,
+                             on_delete=models.CASCADE)
 
     @property
     def rate(self):
@@ -63,10 +64,13 @@ DEFAULT_MARKET_PK = 1
 
 class Price(IndexTimeStampedModel):
 
-    ticker = models.ForeignKey(Ticker, blank=True, null=True)
-    pair = models.ForeignKey(Pair, blank=True, null=True)
+    ticker = models.ForeignKey(Ticker, blank=True, null=True,
+                               on_delete=models.CASCADE)
+    pair = models.ForeignKey(Pair, blank=True, null=True,
+                             on_delete=models.CASCADE)
     better_adds_count = models.IntegerField(default=0)
-    market = models.ForeignKey(Market, default=DEFAULT_MARKET_PK)
+    market = models.ForeignKey(Market, default=DEFAULT_MARKET_PK,
+                               on_delete=models.DO_NOTHING)
     slippage = models.DecimalField(max_digits=18, decimal_places=8,
                                    default=Decimal('0'))
 

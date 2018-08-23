@@ -80,7 +80,8 @@ class PaymentMethod(TimeStampedModel, SoftDeletableModel):
     minimal_fee_amount = models.DecimalField(max_digits=5, decimal_places=2,
                                              null=True, blank=True, default=3)
     minimal_fee_currency = models.ForeignKey(Currency,
-                                             default=DEFAULT_FEE_CURRENCY_PK)
+                                             default=DEFAULT_FEE_CURRENCY_PK,
+                                             on_delete=models.DO_NOTHING)
 
     @property
     def auto_checkout(self):
@@ -113,8 +114,10 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     # NULL or Admin for out own (buy adds)
     buy_enabled = models.BooleanField(default=True)
     sell_enabled = models.BooleanField(default=True)
-    user = models.ForeignKey(User, default=None, blank=True, null=True)
-    payment_method = models.ForeignKey('PaymentMethod', default=None)
+    user = models.ForeignKey(User, default=None, blank=True, null=True,
+                             on_delete=models.CASCADE)
+    payment_method = models.ForeignKey('PaymentMethod', default=None,
+                                       on_delete=models.DO_NOTHING)
     currency = models.ManyToManyField('core.Currency')
     provider_system_id = models.CharField(
         max_length=100, null=True, blank=True, unique=True
@@ -140,16 +143,17 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     # If exists, overrides the address save in the profile of the owner
     physical_address_owner = models.CharField(max_length=255, null=True,
                                               blank=True, default=None)
-    location = models.ForeignKey(Location, blank=True, null=True)
+    location = models.ForeignKey(Location, blank=True, null=True,
+                                       on_delete=models.DO_NOTHING)
     tier = models.ForeignKey('verification.VerificationTier', blank=True,
-                             null=True)
+                             null=True, on_delete=models.DO_NOTHING)
     is_immediate_payment = models.BooleanField(
         default=False,
         help_text='This should be moved to PaymentMethod when methods will '
                   'be created automatically on Safe Charge PushRequests.'
     )
     push_request = models.ForeignKey('payments.PushRequest', blank=True,
-                                     null=True)
+                                     null=True, on_delete=models.DO_NOTHING)
 
     def save(self, *args, **kwargs):
         if not hasattr(self, 'payment_method'):
@@ -401,17 +405,21 @@ class Payment(BtcBase, SoftDeletableModel, FlagableMixin):
                              null=True,
                              blank=True)
     amount_cash = models.DecimalField(max_digits=14, decimal_places=2)
-    currency = models.ForeignKey('core.Currency', default=None)
+    currency = models.ForeignKey('core.Currency', default=None,
+                                 on_delete=models.DO_NOTHING)
     is_redeemed = models.BooleanField(default=False)
     is_complete = models.BooleanField(default=False)
     is_success = models.BooleanField(default=False)
     payment_preference = models.ForeignKey('PaymentPreference',
-                                           null=False, default=None)
+                                           null=False, default=None,
+                                           on_delete=models.DO_NOTHING)
     # Super admin if we are paying for BTC
-    user = models.ForeignKey(User, default=None, null=True, blank=True)
+    user = models.ForeignKey(User, default=None, null=True, blank=True,
+                             on_delete=models.DO_NOTHING)
     # Todo consider one to many for split payments, consider order field on
     # payment
-    order = models.ForeignKey('orders.Order', null=True, default=None)
+    order = models.ForeignKey('orders.Order', null=True, default=None,
+                                    on_delete=models.DO_NOTHING)
     reference = models.CharField(max_length=255,
                                  null=True, default=None)
     comment = models.CharField(max_length=255,
@@ -465,7 +473,8 @@ class Payment(BtcBase, SoftDeletableModel, FlagableMixin):
 
 
 class PaymentCredentials(TimeStampedModel, SoftDeletableModel):
-    payment_preference = models.ForeignKey('PaymentPreference')
+    payment_preference = models.ForeignKey('PaymentPreference',
+                                           on_delete=models.DO_NOTHING)
     uni = models.CharField(_('Uni'), max_length=60,
                            null=True, blank=True)
     nonce = models.CharField(_('Nonce'), max_length=256,
@@ -494,11 +503,13 @@ class RequestLog(IpAwareModel):
 
 class FailedRequest(RequestLog):
     validation_error = models.TextField(null=True, blank=True)
-    order = models.ForeignKey('orders.Order')
+    order = models.ForeignKey('orders.Order',
+                              on_delete=models.CASCADE)
 
 
 class PushRequest(RequestLog):
-    payment = models.ForeignKey(Payment, blank=True, null=True)
+    payment = models.ForeignKey(Payment, blank=True, null=True,
+                                on_delete=models.CASCADE)
     valid_checksum = models.BooleanField(default=False)
     valid_timestamp = models.BooleanField(default=False)
     valid_ip = models.BooleanField(default=False)

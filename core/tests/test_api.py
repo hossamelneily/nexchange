@@ -1,5 +1,5 @@
 import json
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from unittest import skip
 from core.tests.base import OrderBaseTestCase
 from rest_framework.test import APIClient
@@ -127,6 +127,9 @@ class PairsTestCase(OrderBaseTestCase):
         self.pairs = json.loads(
             self.client.get(self.url).content.decode('utf-8')
         )
+
+    def tearDown(self):
+        super(PairsTestCase, self).tearDown()
 
     def test_pairs_without_params_should_return_all_pairs(self):
         self.assertGreater(len(self.pairs), 0)

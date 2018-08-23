@@ -4,7 +4,7 @@ from unittest.mock import patch, MagicMock
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from freezegun import freeze_time
 
@@ -13,6 +13,14 @@ from core.tests.base import UserBaseTestCase
 from core.tests.utils import passive_authentication_helper, data_provider
 from loginurl.models import Key
 from core.tests.utils import retry
+from axes.backends import AxesModelBackend
+import time
+
+
+class TestAxesModelBackend(AxesModelBackend):
+
+    def authenticate(self, request, username=None, password=None, **kwargs):
+        return
 
 
 class RegistrationTestCase(TestCase):
@@ -335,6 +343,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             self.user.delete()
         if self.token:
             self.token.delete()
+        super(PassiveAuthenticationTestCase, self).tearDown()
 
     def test_already_logged_in(self):
         uname = '+79259737305'
@@ -473,7 +482,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         res = self.client.post(url, data=payload)
         # make attacker think phone is always created
         self.assertEqual(201, res.status_code)
-        self.assertTrue(self.user.is_authenticated())
+        self.assertTrue(self.user.is_authenticated)
         self.assertEqual(self.user.profile.disabled, login_with_email)
 
         res = self.client.post(url, data=payload)
@@ -746,11 +755,10 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         }
         user = User.objects.last()
         i = 1
-        for i in range(1, settings.AXES_LOGIN_FAILURE_LIMIT):
+        for i in range(1, settings.AXES_FAILURE_LIMIT + 1):
             res = self.client.post(url, data=payload)
             user = User.objects.last()
             self.assertEquals(res.status_code, 200)
-
             self.token = SmsToken.objects.\
                 filter(user=user).last()
             self.assertEquals(send_sms.call_count, i)
@@ -759,7 +767,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         newest_user = User.objects.last()
         self.assertEqual(user, newest_user)
         self.assertEquals(res.status_code, 403)
-        self.assertEquals(send_sms.call_count, i + 1)
+        self.assertEquals(send_sms.call_count, i)
 
     @patch('accounts.views.send_auth_sms')
     def test_sms_sent_after_limit_is_exceeded_and_time_passed(self, send_sms):
@@ -771,36 +779,32 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         }
         user = User.objects.last()
         i = 1
-        for i in range(1, settings.AXES_LOGIN_FAILURE_LIMIT):
+        for i in range(1, settings.AXES_FAILURE_LIMIT + 1):
             res = self.client.post(url, data=payload)
             user = User.objects.last()
             self.assertEquals(res.status_code, 200)
-
             self.token = SmsToken.objects. \
                 filter(user=user).last()
 
         res = self.client.post(url, data=payload)
         newest_user = User.objects.last()
-        self.assertEquals(send_sms.call_count, i + 1)
+        self.assertEquals(send_sms.call_count, i)
         self.assertEqual(user, newest_user)
         self.assertEquals(res.status_code, 403)
 
-        unlock_time = datetime.now() +\
-            settings.AXES_COOLOFF_TIME
+        time.sleep(settings.AXES_COOLOFF_TIME.total_seconds() + 1)
+        res = self.client.post(url, data=payload)
+        user = User.objects.last()
+        self.assertEquals(res.status_code, 200)
 
-        with freeze_time(unlock_time, tick=True):
-            res = self.client.post(url, data=payload)
-            user = User.objects.last()
-            self.assertEquals(res.status_code, 200)
+        self.token = SmsToken.objects. \
+            filter(user=user).last()
 
-            self.token = SmsToken.objects. \
-                filter(user=user).last()
+        # test cleanupm
+        self.assertEqual(uname,
+                         user.username)
 
-            # test cleanupm
-            self.assertEqual(uname,
-                             user.username)
-
-            self.assertEquals(send_sms.call_count, i + 2)
+        self.assertEquals(send_sms.call_count, i + 1)
 
     def test_sms_sent_invalid_phone(self):
         self.client.logout()
@@ -826,7 +830,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         sms_token = SmsToken.objects.filter(user=user).latest('id')
         token = '{}xx'.format(sms_token.sms_token)
 
-        for i in range(1, settings.AXES_LOGIN_FAILURE_LIMIT):
+        for i in range(1, settings.AXES_FAILURE_LIMIT + 2):
             response = passive_authentication_helper(
                 self.client,
                 self.user,
@@ -842,7 +846,6 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
             self.username,
             False
         )
-
         self.assertEqual(403, response.status_code)
 
     def test_unblock_after_lockout_passed(self):
@@ -855,7 +858,7 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
         sms_token = SmsToken.objects.filter(user=user).latest('id')
         token = '{}xx'.format(sms_token.sms_token)
 
-        for i in range(0, settings.AXES_LOGIN_FAILURE_LIMIT):
+        for i in range(0, settings.AXES_FAILURE_LIMIT + 1):
             response = passive_authentication_helper(
                 self.client,
                 self.user,
@@ -863,24 +866,18 @@ class PassiveAuthenticationTestCase(UserBaseTestCase):
                 self.username,
                 False
             )
-
-        unlock_time = datetime.now() + \
-            settings.AXES_COOLOFF_TIME + timedelta(seconds=5)
-
-        with freeze_time(unlock_time, tick=True):
-            sms_token = SmsToken(user=user)
-            sms_token.save()
-            token = '{}'.format(sms_token.sms_token)
-
-            response = passive_authentication_helper(
-                self.client,
-                self.user,
-                token,
-                self.username,
-                False
-            )
-
-            self.assertEqual(201, response.status_code)
+        time.sleep(settings.AXES_COOLOFF_TIME.total_seconds() + 1)
+        sms_token = SmsToken(user=user)
+        sms_token.save()
+        token = '{}'.format(sms_token.sms_token)
+        response = passive_authentication_helper(
+            self.client,
+            self.user,
+            token,
+            self.username,
+            False
+        )
+        self.assertEqual(201, response.status_code)
 
     def test_correct_token_after_expiry_failure(self):
         user = self.user

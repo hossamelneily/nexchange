@@ -8,7 +8,6 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from core.tests.base import TransactionImportBaseTestCase
 from ticker.tests.base import TickerBaseTestCase
 from selenium.webdriver.common.keys import Keys
@@ -25,10 +24,11 @@ import requests_mock
 from time import time
 import json
 from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT, ETH_ROOT
+from core.tests.base import NexchangeStaticLiveServerTestCase
 
 
-class BaseTestUI(StaticLiveServerTestCase, TransactionImportBaseTestCase,
-                 TickerBaseTestCase):
+class BaseTestUI(NexchangeStaticLiveServerTestCase,
+                 TransactionImportBaseTestCase, TickerBaseTestCase):
 
     @classmethod
     def setUpClass(cls):

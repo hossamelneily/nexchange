@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from freezegun import freeze_time
 
 from accounts.models import SmsToken
@@ -56,4 +56,4 @@ class LoginEndToEndTestCase(UserBaseTestCase):
                 False
             )
 
-            self.assertTrue(user.is_authenticated())
+            self.assertTrue(user.is_authenticated)

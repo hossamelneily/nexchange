@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from django.contrib.auth.models import User
 from django.db import models
 
+
 from core.common.models import SoftDeletableModel, TimeStampedModel
 from core.common.models import FlagableMixin
 from .validators import validate_address
@@ -36,8 +37,9 @@ class AddressReserve(models.Model):
     card_id = models.CharField('card_id', max_length=36, unique=True,
                                null=True, blank=True, default=None)
     address = models.CharField('address_id', max_length=127, unique=True)
-    currency = models.ForeignKey('core.Currency')
-    user = models.ForeignKey(User, null=True, blank=True, default=None)
+    currency = models.ForeignKey('core.Currency', on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, null=True, blank=True, default=None,
+                             on_delete=models.DO_NOTHING)
     created = models.DateTimeField(auto_now_add=True)
     disabled = models.BooleanField(default=False)
 
@@ -61,13 +63,16 @@ class Address(BtcBase, SoftDeletableModel):
         (INTERNAL, 'INTERNAL'),
     )
     reserve = models.ForeignKey('AddressReserve', null=True,
-                                blank=True, default=None, related_name='addr')
+                                blank=True, default=None, related_name='addr',
+                                on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=100, blank=True)
     # TODO: what if two different users want to withdraw to the same address?
     address = models.CharField(max_length=127, unique=True,
                                validators=[validate_address])
-    user = models.ForeignKey(User, blank=True, null=True)
-    currency = models.ForeignKey('core.Currency', blank=True, null=True)
+    user = models.ForeignKey(User, blank=True, null=True,
+                             on_delete=models.DO_NOTHING)
+    currency = models.ForeignKey('core.Currency', blank=True, null=True,
+                                 on_delete=models.DO_NOTHING)
     blocked = models.BooleanField(default=False)
 
     def __str__(self):
@@ -89,12 +94,15 @@ class Transaction(BtcBase, FlagableMixin):
         'core.Address',
         related_name='txs_from',
         default=None,
-        null=True, blank=True)
+        null=True, blank=True,
+        on_delete=models.DO_NOTHING)
     address_to = models.ForeignKey('core.Address',
-                                   related_name='txs_to')
+                                   related_name='txs_to',
+                                   on_delete=models.DO_NOTHING)
     # TODO: how to handle cancellation?
     order = models.ForeignKey('orders.Order', related_name='transactions',
-                              null=True, blank=True)
+                              null=True, blank=True,
+                              on_delete=models.DO_NOTHING)
     is_verified = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
     amount = models.DecimalField(null=False, max_digits=18, decimal_places=8,
@@ -102,13 +110,16 @@ class Transaction(BtcBase, FlagableMixin):
     # TODO: check if right type is sent by the APIs
     time = models.DateTimeField(null=True, blank=True, default=None)
     currency = models.ForeignKey('core.Currency', related_name='transactions',
-                                 null=True, blank=True, default=None)
+                                 null=True, blank=True, default=None,
+                                 on_delete=models.DO_NOTHING)
     admin_comment = models.CharField(max_length=200, null=True, blank=False)
     refunded_transaction = models.ForeignKey(
-        'self', null=True, blank=True, default=None
+        'self', null=True, blank=True, default=None,
+        on_delete=models.DO_NOTHING
     )
     reserves_cover = models.ForeignKey('risk_management.ReservesCover',
-                                       blank=True, null=True)
+                                       blank=True, null=True,
+                                       on_delete=models.DO_NOTHING)
     destination_tag = models.CharField(
         max_length=10, null=True, blank=True, default=None,
         validators=[validate_destination_tag]
@@ -356,8 +367,10 @@ DEFAULT_MARKET_PK = 1
 
 class Pair(TimeStampedModel):
 
-    base = models.ForeignKey(Currency, related_name='base_prices')
-    quote = models.ForeignKey(Currency, related_name='quote_prices')
+    base = models.ForeignKey(Currency, related_name='base_prices',
+                             on_delete=models.CASCADE)
+    quote = models.ForeignKey(Currency, related_name='quote_prices',
+                              on_delete=models.CASCADE)
     fee_ask = models.DecimalField(max_digits=18, decimal_places=8,
                                   default=Decimal('0.01'))
     fee_bid = models.DecimalField(max_digits=18, decimal_places=8,
@@ -471,7 +484,7 @@ class Location(TimeStampedModel, SoftDeletableModel):
     city = models.CharField(max_length=255)
     address1 = models.CharField(max_length=255)
     address2 = models.CharField(max_length=255, blank=True, null=True)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def full_address(self):
         return "{}, {}, {}"\

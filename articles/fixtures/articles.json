@@ -3,7 +3,6 @@
   "model": "articles.cmspage",
   "pk": 7,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-19T19:42:53.942Z",
     "modified_on": "2016-12-19T19:43:08.747Z",
@@ -18,7 +17,6 @@
   "model": "articles.cmspage",
   "pk": 8,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-20T13:35:45.867Z",
     "modified_on": "2016-12-20T14:03:05.299Z",
@@ -33,7 +31,6 @@
   "model": "articles.cmspage",
   "pk": 9,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-20T15:47:26.437Z",
     "modified_on": "2016-12-20T15:53:37.824Z",
@@ -48,7 +45,6 @@
   "model": "articles.cmspage",
   "pk": 10,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-20T15:56:32.954Z",
     "modified_on": "2016-12-20T16:01:52.915Z",
@@ -63,7 +59,6 @@
   "model": "articles.cmspage",
   "pk": 11,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-20T16:04:10.462Z",
     "modified_on": "2016-12-20T16:05:35.239Z",
@@ -78,7 +73,6 @@
   "model": "articles.cmspage",
   "pk": 12,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-20T20:04:03.092Z",
     "modified_on": "2016-12-22T06:44:45.907Z",
@@ -93,7 +87,6 @@
   "model": "articles.cmspage",
   "pk": 13,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-20T21:24:30.509Z",
     "modified_on": "2016-12-20T21:25:48.723Z",
@@ -108,7 +101,6 @@
   "model": "articles.cmspage",
   "pk": 14,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-21T17:37:55.002Z",
     "modified_on": "2017-01-12T18:14:52.827Z",
@@ -123,7 +115,6 @@
   "model": "articles.cmspage",
   "pk": 15,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-21T21:33:09.330Z",
     "modified_on": "2017-01-03T00:20:32.469Z",
@@ -138,7 +129,6 @@
   "model": "articles.cmspage",
   "pk": 16,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-21T22:25:17.524Z",
     "modified_on": "2016-12-25T14:42:06.167Z",
@@ -153,7 +143,6 @@
   "model": "articles.cmspage",
   "pk": 17,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2017-01-02T23:01:43.146Z",
     "modified_on": "2017-01-05T21:26:49.214Z",
@@ -168,7 +157,6 @@
   "model": "articles.cmspage",
   "pk": 18,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2017-01-02T23:33:30.721Z",
     "modified_on": "2017-01-12T18:15:35.696Z",
@@ -183,7 +171,6 @@
   "model": "articles.cmspage",
   "pk": 19,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2017-01-02T23:46:11.584Z",
     "modified_on": "2017-01-02T23:47:56.098Z",
@@ -198,7 +185,6 @@
   "model": "articles.cmspage",
   "pk": 20,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2017-01-02T23:53:08.178Z",
     "modified_on": "2017-01-02T23:53:08.178Z",
@@ -213,7 +199,6 @@
   "model": "articles.cmspage",
   "pk": 21,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2017-01-11T11:16:56.194Z",
     "modified_on": "2017-01-11T11:16:56.194Z",
@@ -228,7 +213,6 @@
   "model": "articles.cmspage",
   "pk": 22,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2017-01-11T14:37:28.899Z",
     "modified_on": "2017-01-12T18:19:25.515Z",
@@ -243,7 +227,6 @@
   "model": "articles.ogresource",
   "pk": 1,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-19T19:43:57.141Z",
     "modified_on": "2016-12-20T13:13:12.530Z",
@@ -262,7 +245,6 @@
   "model": "articles.ogresource",
   "pk": 2,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-19T19:45:05.635Z",
     "modified_on": "2016-12-19T19:45:05.636Z",
@@ -281,7 +263,6 @@
   "model": "articles.ogresource",
   "pk": 3,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-19T19:45:45.470Z",
     "modified_on": "2016-12-19T19:51:03.271Z",
@@ -300,7 +281,6 @@
   "model": "articles.ogresource",
   "pk": 5,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-20T16:08:26.719Z",
     "modified_on": "2016-12-20T21:26:20.490Z",
@@ -319,7 +299,6 @@
   "model": "articles.ogresource",
   "pk": 6,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-20T16:12:56.132Z",
     "modified_on": "2016-12-20T21:26:28.649Z",
@@ -338,7 +317,6 @@
   "model": "articles.ogresource",
   "pk": 7,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-20T16:17:51.634Z",
     "modified_on": "2016-12-20T21:27:35.114Z",
@@ -357,7 +335,6 @@
   "model": "articles.ogresource",
   "pk": 8,
   "fields": {
-    "deleted": false,
     "disabled": false,
     "created_on": "2016-12-20T16:19:43.606Z",
     "modified_on": "2016-12-20T21:27:45.030Z",

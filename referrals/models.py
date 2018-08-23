@@ -45,9 +45,11 @@ class ReferralCode(TimeStampedModel, UniqueFieldMixin):
     test_scenario = models.CharField(max_length=1, default=None, blank=True,
                                      null=True)
 
-    user = models.ForeignKey(User, related_name='referral_code')
+    user = models.ForeignKey(User, related_name='referral_code',
+                             on_delete=models.CASCADE)
     program = models.ForeignKey(Program, blank=True,
-                                null=True, default=None)
+                                null=True, default=None,
+                                on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         if not self.code:
@@ -80,9 +82,11 @@ class Referral(IpAwareModel):
     code = models.ForeignKey('ReferralCode', default=None,
                              help_text=_('Use this link to refer users and '
                                          'earn free Bitcoins'),
-                             null=True)
+                             null=True,
+                             on_delete=models.DO_NOTHING)
     referee = models.ForeignKey(User, null=True, default=None,
-                                related_name='referrals_set', unique=True)
+                                related_name='referrals_set', unique=True,
+                                on_delete=models.CASCADE)
 
     @property
     def orders(self):

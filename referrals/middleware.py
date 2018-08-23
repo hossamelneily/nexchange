@@ -5,9 +5,10 @@ from nexchange.utils import get_client_ip, get_nexchange_logger
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import transaction, IntegrityError
 from django.utils.functional import SimpleLazyObject
+from django.utils.deprecation import MiddlewareMixin
 
 
-class ReferralMiddleWare(object):
+class ReferralMiddleWare(MiddlewareMixin):
     logger = get_nexchange_logger(__name__, True, True)
 
     def get_referral_code(self, request):

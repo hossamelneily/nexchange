@@ -1,3 +1,4 @@
+from core.tests.utils import enable_all_pairs
 from django.db.models import Q
 from django.conf import settings
 
@@ -82,6 +83,7 @@ class PriceTestCaseTask(TickerBaseTestCase):
     def setUpClass(cls):
         cls.DISABLE_NON_MAIN_PAIRS = False
         super(PriceTestCaseTask, cls).setUpClass()
+        enable_all_pairs()
         cls.factory = Price
 
     @requests_mock.mock()

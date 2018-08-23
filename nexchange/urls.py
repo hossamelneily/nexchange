@@ -16,11 +16,11 @@ Including another URLconf
 import os
 
 from django.conf import settings
-from django.conf.urls import include, url
+from django.urls import include, path, re_path
 from django.conf.urls.i18n import i18n_patterns
+from django.views.i18n import JavaScriptCatalog
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.views.i18n import javascript_catalog
 from django_otp.admin import OTPAdminSite
 from django.views.static import serve
 from django.http import HttpResponseForbidden
@@ -66,33 +66,33 @@ api_patterns = ticker_api_patterns + referrals_api_patterns \
 
 
 urlpatterns = i18n_patterns(
-    url(r'^admin/', admin.site.urls),
-    url(r'^i18n/', include('django.conf.urls.i18n')),
-    url(r'^jsi18n/$', javascript_catalog, js_info_dict,
-        name='nexchange.javascript_catalog'),
-    url(r'^$', core.views.main, name='main'),
-    url(r'^accounts/', include(account_urls)),
-    url(r'^payments/', include(payment_urls)),
-    url(r'^referrals/', include(referral_urls)),
-    url(r'^articles/', include(article_urls)),
-    url(r'^support/', include(support_urls)),
-    url(r'^verification/', include(verification_urls)),
-    url(r'^newsletter/', include('newsletter.urls')),
+    path('admin/', admin.site.urls),
+    path('i18n/', include('django.conf.urls.i18n')),
+    path('jsi18n/', JavaScriptCatalog.as_view(),
+         name='nexchange.javascript_catalog'),
+    path('', core.views.main, name='main'),
+    path('accounts/', include(account_urls)),
+    path('payments/', include(payment_urls)),
+    path('referrals/', include(referral_urls)),
+    path('articles/', include(article_urls)),
+    path('support/', include(support_urls)),
+    path('verification/', include(verification_urls)),
+    path('newsletter/', include('newsletter.urls')),
 
-    url(r'^api/v1/', include(api_patterns)),
-    url(r'^api/v1/menu', core.views.ajax_menu, name='core.menu'),
-    url(r'^api/v1/get_price/(?P<pair_name>[^/.]+)/$', PriceView.as_view(),
-        name='get_price'),
-    url(r'^api/v1/oAuth2/', include('oauth2_provider.urls',
-                                    namespace='oauth2_provider')),
-    url(r'^api/v1/breadcrumbs', core.views.ajax_crumbs,
-        name='core.breadcrumbs'),
-    url(r'session_security/', include('session_security.urls')),
+    path('api/v1/', include(api_patterns)),
+    path('api/v1/menu', core.views.ajax_menu, name='core.menu'),
+    re_path(r'^api/v1/get_price/(?P<pair_name>[^/.]+)/$', PriceView.as_view(),
+            name='get_price'),
+    path('api/v1/oAuth2/', include('oauth2_provider.urls',
+                                   namespace='oauth2_provider')),
+    path('api/v1/breadcrumbs', core.views.ajax_crumbs,
+         name='core.breadcrumbs'),
+    path('session_security/', include('session_security.urls')),
 )
 # OAUTH outside i18n so that we do not need to explisitly define every
 # redirect address in social apps
 urlpatterns.append(
-    url(r'oauth/', include('social_django.urls', namespace='oauth.social'))
+    path('oauth/', include('social_django.urls', namespace='oauth.social'))
 )
 
 
@@ -105,9 +105,9 @@ def protected_serve(request, path, document_root=None, show_indexes=False):
 
 # protected_media to test
 urlpatterns.append(
-    url(r'^%s(?P<path>.*)$' % re.escape('/protected_media/'.lstrip('/')),
-        protected_serve,
-        kwargs={'document_root': settings.MEDIA_ROOT})
+    re_path(r'^%s(?P<path>.*)$' % re.escape('/protected_media/'.lstrip('/')),
+            protected_serve,
+            kwargs={'document_root': settings.MEDIA_ROOT})
 )
 
 if settings.DEBUG:
@@ -123,5 +123,5 @@ if settings.DEBUG:
     # Debug toolbar urls
     import debug_toolbar
     urlpatterns += [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
+        path('__debug__/', include(debug_toolbar.urls)),
     ]

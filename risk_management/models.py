@@ -22,7 +22,8 @@ API_FACTORY = ApiClientFactory()
 
 
 class Reserve(TimeStampedModel):
-    currency = models.ForeignKey(Currency)
+    currency = models.ForeignKey(Currency,
+                                 on_delete=models.DO_NOTHING)
     is_limit_reserve = models.BooleanField(default=False)
     target_level = models.DecimalField(max_digits=18, decimal_places=8,
                                        default=Decimal('0'))
@@ -167,8 +168,10 @@ class PortfolioLog(TimeStampedModel):
 
 
 class ReserveLog(TimeStampedModel):
-    reserve = models.ForeignKey(Reserve)
-    portfolio_log = models.ForeignKey(PortfolioLog, null=True, blank=True)
+    reserve = models.ForeignKey(Reserve,
+                                on_delete=models.CASCADE)
+    portfolio_log = models.ForeignKey(PortfolioLog, null=True, blank=True,
+                                      on_delete=models.CASCADE)
     available = models.DecimalField(max_digits=18, decimal_places=8,
                                     default=Decimal('0'), blank=True)
     rate_btc = models.DecimalField(max_digits=18, decimal_places=8,
@@ -266,7 +269,8 @@ class ReserveLog(TimeStampedModel):
 
 
 class Account(TimeStampedModel):
-    reserve = models.ForeignKey(Reserve)
+    reserve = models.ForeignKey(Reserve,
+                                on_delete=models.DO_NOTHING)
     wallet = models.CharField(null=True, max_length=10,
                               blank=True, default=None)
     balance = models.DecimalField(max_digits=18, decimal_places=8,
@@ -346,8 +350,10 @@ class Cover(TimeStampedModel):
     cover_type = models.IntegerField(
         choices=COVER_TYPES, default=BUY
     )
-    pair = models.ForeignKey(Pair, null=True)
-    currency = models.ForeignKey(Currency)
+    pair = models.ForeignKey(Pair, null=True,
+                             on_delete=models.DO_NOTHING)
+    currency = models.ForeignKey(Currency,
+                                 on_delete=models.DO_NOTHING)
     orders = models.ManyToManyField(Order, related_name='covers')
     amount_base = models.DecimalField(max_digits=18, decimal_places=8)
     amount_quote = models.DecimalField(max_digits=18, decimal_places=8,
@@ -356,10 +362,12 @@ class Cover(TimeStampedModel):
     cover_id = models.CharField(max_length=100, default=None,
                                 null=True, blank=True, unique=True,
                                 db_index=True)
-    account = models.ForeignKey(Account, null=True)
+    account = models.ForeignKey(Account, null=True,
+                                on_delete=models.CASCADE)
     status = FSMIntegerField(choices=STATUS_TYPES, default=INITIAL)
     reserves_cover = models.ForeignKey('risk_management.ReservesCover',
-                                       blank=True, null=True)
+                                       blank=True, null=True,
+                                       on_delete=models.DO_NOTHING)
 
     def recalculate(self):
         if not self.status == self.INITIAL:
@@ -578,14 +586,16 @@ class PNL(TimeStampedModel):
     def get_defult_date_from():
         return now() - timedelta(hours=24)
 
-    pnl_sheet = models.ForeignKey(PNLSheet, null=True, blank=True)
+    pnl_sheet = models.ForeignKey(PNLSheet, null=True, blank=True,
+                                  on_delete=models.CASCADE)
     date_from = models.DateTimeField(
         blank=True, null=True, default=get_defult_date_from
     )
     date_to = models.DateTimeField(blank=True, null=True, default=now)
     days = models.DecimalField(max_digits=18, decimal_places=8,
                                default=Decimal('0'))
-    pair = models.ForeignKey(Pair, blank=True, null=True)
+    pair = models.ForeignKey(Pair, blank=True, null=True,
+                             on_delete=models.DO_NOTHING)
     average_ask = models.DecimalField(max_digits=18, decimal_places=8,
                                       default=Decimal('0'))
     volume_ask = models.DecimalField(max_digits=18, decimal_places=8,
@@ -839,7 +849,8 @@ class PNL(TimeStampedModel):
 
 class DisabledCurrency(TimeStampedModel):
     currency = models.OneToOneField(Currency, unique=True,
-                                    blank=False, null=False)
+                                    blank=False, null=False,
+                                    on_delete=models.CASCADE)
     disable_quote = models.BooleanField(default=True)
     disable_base = models.BooleanField(default=True)
     disable_volume_quote = models.BooleanField(default=False)
@@ -881,14 +892,17 @@ class ReservesCoverSettings(TimeStampedModel):
 
 class ReservesCover(TimeStampedModel):
 
-    settings = models.ForeignKey(ReservesCoverSettings, null=True, blank=True)
-    portfolio_log = models.ForeignKey(PortfolioLog, blank=True)
+    settings = models.ForeignKey(ReservesCoverSettings, null=True, blank=True,
+                                 on_delete=models.DO_NOTHING)
+    portfolio_log = models.ForeignKey(PortfolioLog, blank=True,
+                                      on_delete=models.DO_NOTHING)
     pair = models.ForeignKey(
         Pair,
         blank=True,
         null=True,
         help_text='Pair that is suggested to trade according to the reserve '
-                  'levels.'
+                  'levels.',
+        on_delete=models.DO_NOTHING
     )
     amount_quote = models.DecimalField(max_digits=18, decimal_places=8,
                                        default=Decimal('0'))
@@ -1199,9 +1213,11 @@ class ReservesCover(TimeStampedModel):
 
 
 class PeriodicReservesCoverSettings(TimeStampedModel, AuthStampedModel):
-    settings = models.ForeignKey(ReservesCoverSettings)
+    settings = models.ForeignKey(ReservesCoverSettings,
+                                 on_delete=models.DO_NOTHING)
     current_reserves_cover = models.ForeignKey(ReservesCover, blank=True,
-                                               null=True)
+                                               null=True,
+                                               on_delete=models.CASCADE)
     minimum_rate_change = models.DecimalField(max_digits=18, decimal_places=8,
                                               default=Decimal('0.05'))
 

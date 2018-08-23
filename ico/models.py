@@ -64,12 +64,14 @@ class Subscription(TimeStampedModel):
     potential = models.IntegerField(
         choices=POTENTIAL_TYPES, default=UNDEFINED
     )
-    utm_source = models.ForeignKey(UtmSource, blank=True, null=True)
+    utm_source = models.ForeignKey(UtmSource, blank=True, null=True,
+                                   on_delete=models.DO_NOTHING)
     category = models.ManyToManyField(Category, blank=True)
     tokens_balance_eth = models.DecimalField(max_digits=18, decimal_places=8,
                                              blank=True, null=True,
                                              default=Decimal('0'))
-    referral_code = models.ForeignKey(ReferralCode, blank=True, null=True)
+    referral_code = models.ForeignKey(ReferralCode, blank=True, null=True,
+                                      on_delete=models.DO_NOTHING)
 
     def save(self, *args, **kwargs):
         self.tokens_balance_eth = self._tokens_balance_eth
@@ -161,8 +163,9 @@ class Subscription(TimeStampedModel):
 
 class Balance(TimeStampedModel):
 
-    subscription = models.ForeignKey(Subscription)
-    currency = models.ForeignKey(Currency)
+    subscription = models.ForeignKey(Subscription,
+                                     on_delete=models.CASCADE)
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
     balance = models.DecimalField(max_digits=18, decimal_places=8,
                                   blank=True, null=True,
                                   default=Decimal('0'))

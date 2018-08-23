@@ -2,13 +2,13 @@ from decimal import Decimal
 
 import requests_mock
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from unittest.mock import patch
 
 from core.models import Address, Transaction, Currency
 from core.tests.base import OrderBaseTestCase
 from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT
-from core.tests.utils import data_provider
+from core.tests.utils import data_provider, enable_all_pairs
 from nexchange.api_clients.uphold import UpholdApiClient
 from orders.models import Order
 from orders.task_summary import buy_order_release_reference_periodic
@@ -36,6 +36,7 @@ class PaymentReleaseTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(PaymentReleaseTestCase, self).setUp()
+        enable_all_pairs()
         currencies = Currency.objects.filter(is_crypto=False)
         for curr in currencies:
             curr.maximal_amount = 50000000

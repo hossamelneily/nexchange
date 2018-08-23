@@ -7,7 +7,7 @@ from core.common.api_views import DateFilterViewSet
 from referrals.models import ReferralCode
 from django.utils.decorators import method_decorator
 from django.views.generic import View
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from .models import Referral

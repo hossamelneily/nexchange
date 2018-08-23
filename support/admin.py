@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import Support
+from django.utils.safestring import mark_safe
 
 
 class SupportAdmin(admin.ModelAdmin):
@@ -21,16 +22,15 @@ class SupportAdmin(admin.ModelAdmin):
             )
         return res
 
+    @mark_safe
     def frontend_order_links(self, obj):
         return self._generate_order_links(obj, 'https://n.exchange/order/')
 
+    @mark_safe
     def backend_order_links(self, obj):
         return self._generate_order_links(
             obj, 'https://api.nexchange.io/en/api/v1/orders/'
         )
-
-    frontend_order_links.allow_tags = True
-    backend_order_links.allow_tags = True
 
 
 admin.site.register(Support, SupportAdmin)

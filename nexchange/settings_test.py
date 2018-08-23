@@ -114,7 +114,7 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', settings_dev.EMAIL_HOST_USER)
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD',
                                 settings_dev.EMAIL_HOST_PASSWORD)
 
-AXES_COOLOFF_TIME = timedelta(seconds=1)
+AXES_COOLOFF_TIME = timedelta(seconds=10)
 LOGGING = {
     'version': 1,
     'handlers': {

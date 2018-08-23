@@ -14,7 +14,7 @@ import os
 import sys
 from datetime import timedelta
 
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from corsheaders.defaults import default_headers
 from django.utils.translation import ugettext_lazy as _
 import dj_database_url
@@ -425,7 +425,7 @@ THIRD_PARTY_TRADE_TIME = 300
 COVER_TASK_MAX_RETRIES = 9
 
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -433,7 +433,6 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'session_security.middleware.SessionSecurityMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -519,6 +518,7 @@ AUTH_PROFILE_MODULE = 'core.Profile'
 # SOCIAL Login
 
 AUTHENTICATION_BACKENDS = (
+    'axes.backends.AxesModelBackend',
     'social_core.backends.github.GithubOAuth2',
     'social_core.backends.twitter.TwitterOAuth',
     'social_core.backends.facebook.FacebookOAuth2',
@@ -688,7 +688,7 @@ SESSION_SECURITY_PASSIVE_URLS = ["/en/api/v1/price/latest/",
                                  "https://mc.yandex.ru/webvisor/39575585",
                                  "https://mc.yandex.ru/watch/39575585"]
 
-AXES_LOGIN_FAILURE_LIMIT = 10
+AXES_FAILURE_LIMIT = 10
 AXES_USERNAME_FORM_FIELD = 'username'
 AXES_COOLOFF_TIME = timedelta(minutes=30)
 

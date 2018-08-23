@@ -114,26 +114,30 @@ class Order(TimeStampedModel, SoftDeletableModel,
     unpaid_order_window = models.IntegerField(
         default=settings.UNPAID_CANCEL_WINDOW_MINUTES
     )
-    user = models.ForeignKey(User, related_name='orders')
+    user = models.ForeignKey(User, related_name='orders',
+                             on_delete=models.DO_NOTHING)
     unique_reference = models.CharField(
         max_length=settings.UNIQUE_REFERENCE_MAX_LENGTH)
     admin_comment = models.CharField(max_length=200)
     payment_preference = models.ForeignKey('payments.PaymentPreference',
                                            default=None,
-                                           null=True, blank=True)
+                                           null=True, blank=True,
+                                           on_delete=models.DO_NOTHING)
     withdraw_address = models.ForeignKey('core.Address',
                                          null=True,
                                          blank=True,
                                          related_name='order_set_withdraw',
-                                         default=None)
+                                         default=None,
+                                         on_delete=models.DO_NOTHING)
     deposit_address = models.ForeignKey('core.Address',
                                         null=True,
                                         blank=True,
                                         related_name='order_set_deposit',
-                                        default=None)
+                                        default=None,
+                                        on_delete=models.DO_NOTHING)
     refund_address = models.ForeignKey(
         'core.Address', null=True, blank=True, related_name='order_set_refund',
-        default=None
+        default=None, on_delete=models.DO_NOTHING
     )
     payment_id = models.CharField(
         max_length=64, null=True, blank=True, default=None,
@@ -145,8 +149,9 @@ class Order(TimeStampedModel, SoftDeletableModel,
     )
     is_default_rule = models.BooleanField(default=False)
     from_default_rule = models.BooleanField(default=False)
-    pair = models.ForeignKey(Pair)
-    price = models.ForeignKey(Price, null=True, blank=True)
+    pair = models.ForeignKey(Pair, on_delete=models.DO_NOTHING)
+    price = models.ForeignKey(Price, null=True, blank=True,
+                              on_delete=models.DO_NOTHING)
     user_marked_as_paid = models.BooleanField(default=False)
     system_marked_as_paid = models.BooleanField(default=False)
     user_provided_amount = models.IntegerField(

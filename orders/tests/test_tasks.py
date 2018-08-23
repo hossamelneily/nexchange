@@ -1,4 +1,5 @@
 from core.tests.base import OrderBaseTestCase
+from core.tests.utils import enable_all_pairs
 from payments.models import Payment, PaymentPreference
 from orders.task_summary import buy_order_release_by_wallet_invoke as \
     wallet_release, \
@@ -57,6 +58,7 @@ class BaseOrderReleaseTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(BaseOrderReleaseTestCase, self).setUp()
+        enable_all_pairs()
         currencies = Currency.objects.filter(is_crypto=False)
         for curr in currencies:
             curr.maximal_amount = 50000000

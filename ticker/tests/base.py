@@ -31,6 +31,7 @@ from ticker.tests.fixtures.bibox.market_resp import \
     resp as bibox_market_resp
 from ticker.tests.fixtures.hitbtc.market_resp import \
     resp as hitbtc_market_resp
+from django.db.models import Q
 
 
 class TickerBaseTestCase(OrderBaseTestCase):
@@ -44,10 +45,23 @@ class TickerBaseTestCase(OrderBaseTestCase):
         super(TickerBaseTestCase, cls).setUpClass()
         cls.ENABLE_FIAT = ['EUR']
         cls._read_fixtures_ticker()
+        cls._enable_pairs()
         if cls.DISABLE_NON_MAIN_PAIRS:
             cls._disable_non_crypto_tickers()
         with requests_mock.mock() as mock:
             cls.get_tickers(mock)
+
+    @classmethod
+    def _enable_pairs(cls):
+        pairs = Pair.objects.filter(Q(disabled=True) | Q(test_mode=True))\
+            .filter(name__in=cls.ENABLED_TICKER_PAIRS)
+        for pair in pairs:
+            pair.disabled = False
+            pair.test_mode = False
+            pair.disable_ticker = False
+            pair.save(
+                update_fields=['disabled', 'test_mode', 'disable_ticker']
+            )
 
     @classmethod
     def _disable_non_crypto_tickers(cls):

@@ -1,5 +1,5 @@
 import json
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from ticker.tests.base import TickerBaseTestCase
 import requests_mock
 from ticker.models import Price

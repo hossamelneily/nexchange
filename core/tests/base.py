@@ -1,9 +1,9 @@
 from decimal import Decimal
 import json
 
-from core.tests.utils import enable_all_pairs, set_big_reserves
+from core.tests.utils import set_big_reserves
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import Client, TestCase
 from django.utils.translation import activate
 
@@ -25,6 +25,12 @@ from unittest.mock import patch
 from random import randint
 from web3 import Web3
 from nexchange.rpc.ethash import EthashRpcApiClient
+from django.test import RequestFactory
+from axes.models import AccessAttempt
+from django.core.servers.basehttp import WSGIServer
+from django.test.testcases import LiveServerTestCase, LiveServerThread,\
+    QuietWSGIRequestHandler
+from django.contrib.staticfiles.handlers import StaticFilesHandler
 
 UPHOLD_ROOT = 'nexchange.api_clients.uphold.Uphold.'
 SCRYPT_ROOT = 'nexchange.rpc.scrypt.ScryptRpcApiClient.'
@@ -47,6 +53,33 @@ RPC8_WALLET = '1234'
 RPC8_PUBLIC_KEY_C1 = 'xrb_1maincard'
 RPC8_URL = 'http://{}:{}@{}/'.format(RPC8_USER, RPC8_PASSWORD, RPC8_HOST)
 RPC13_URL = RPC11_URL = 'http://{}/json_rpc'.format(RPC8_HOST)
+
+
+class NexchangeLiveServerThread(LiveServerThread):
+    def _create_server(self):
+        return WSGIServer((self.host, self.port), QuietWSGIRequestHandler,
+                          allow_reuse_address=False)
+
+
+class NexchangeLiveServerTestCase(LiveServerTestCase):
+    server_thread_class = NexchangeLiveServerThread
+
+
+class NexchangeStaticLiveServerTestCase(NexchangeLiveServerTestCase):
+    static_handler = StaticFilesHandler
+
+
+class NexchangeClient(Client):
+    def login(self, **credentials):
+        request = RequestFactory().get('/')
+        request.user = credentials
+        from django.contrib.auth import authenticate
+        user = authenticate(request, **credentials)
+        if user:
+            self._login(user)
+            return True
+        else:
+            return False
 
 
 class UserBaseTestCase(TestCase):
@@ -73,7 +106,6 @@ class UserBaseTestCase(TestCase):
         super(UserBaseTestCase, cls).tearDownClass()
 
     def setUp(self):
-        enable_all_pairs()
         set_big_reserves()
         self.patcher_validate_order_reserve = patch(
             'orders.models.Order._validate_reserves'
@@ -107,7 +139,7 @@ class UserBaseTestCase(TestCase):
         assert isinstance(self.user, User)
         token = SmsToken(user=self.user)
         token.save()
-        self.client = Client()
+        self.client = NexchangeClient()
         success = self.client.login(username=self.username,
                                     password=self.password)
         assert success
@@ -122,6 +154,7 @@ class UserBaseTestCase(TestCase):
                 patcher.stop()
             except RuntimeError:
                 continue
+        AccessAttempt.objects.all().delete()
 
     @patch('orders.models.Order.calculate_quote_from_base')
     def create_main_user(self, convert_cash):
@@ -415,7 +448,6 @@ class OrderBaseTestCase(UserBaseTestCase):
     def setUp(self):
 
         super(OrderBaseTestCase, self).setUp()
-        enable_all_pairs()
         self.patcher_twilio_send_sms = patch(
             'accounts.api_clients.auth_messages._send_sms')
         self.patcher_twilio_send_sms2 = patch(
@@ -826,7 +858,6 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.uphold_import_transactions_empty = None
 
     def setUp(self):
-        enable_all_pairs()
         super(TransactionImportBaseTestCase, self).setUp()
 
         self.main_pref = self.okpay_pref = PaymentPreference.objects.get(

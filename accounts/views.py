@@ -1,10 +1,11 @@
 import json
-from axes.decorators import watch_login
+from axes.decorators import axes_dispatch
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.signals import user_logged_in, user_login_failed
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
@@ -73,6 +74,7 @@ def user_registration(request):
                     messages.success(request, success_message)
 
                 user = authenticate(
+                    request=request,
                     username=user.username,
                     password=user_form.cleaned_data['password1'])
                 login(request, user)
@@ -164,19 +166,24 @@ class ReferralUpdateView(View):
         return redirect(reverse('accounts.user_profile') + "?tab=referrals")
 
 
-@watch_login
+@axes_dispatch
 def resend_sms(request):
     """Thi is used solely in profile page"""
     phone = request.POST.get('phone')
-    if request.user.is_anonymous() and phone:
+    if request.user.is_anonymous and phone:
         user = User.objects.get(profile__phone=phone)
     else:
         user = request.user
     message = send_auth_sms(user)
+    user_logged_in.send(
+        sender=User,
+        request=request,
+        user=user,
+    )
     return JsonResponse({'message_sid': message.sid}, safe=False)
 
 
-@watch_login
+@axes_dispatch
 def verify_user(request):
     def render_response(msg, code):
         _context = {
@@ -202,12 +209,19 @@ def verify_user(request):
     else:
         username = phone
         _type = 'phone'
-    anonymous = request.user.is_anonymous()
+    anonymous = request.user.is_anonymous
     if anonymous and username:
         # fast registration
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
+            user_login_failed.send(
+                sender=User,
+                request=request,
+                credentials={
+                    'username': username
+                },
+            )
             return render_response(
                 'Please make sure your {} is correct'.format(_type),
                 400
@@ -215,6 +229,13 @@ def verify_user(request):
 
     elif anonymous and not username:
         # Fast registration
+        user_login_failed.send(
+            sender=User,
+            request=request,
+            credentials={
+                'username': username
+            },
+        )
         return render_response(
             'Please enter your {}'.format(_type),
             400
@@ -226,6 +247,13 @@ def verify_user(request):
     try:
         sms_token = SmsToken.objects.filter(user=user).latest('id')
     except SmsToken.DoesNotExist:
+        user_login_failed.send(
+            sender=User,
+            request=request,
+            credentials={
+                'username': username
+            },
+        )
         return render_response(
             'Your token has expired, '
             'Please request a new token',
@@ -233,6 +261,13 @@ def verify_user(request):
         )
     if sent_token == sms_token.sms_token:
         if not sms_token.valid:
+            user_login_failed.send(
+                sender=User,
+                request=request,
+                credentials={
+                    'username': username
+                },
+            )
             return render_response(
                 'Your token has expired, '
                 'Please request a new token',
@@ -249,6 +284,11 @@ def verify_user(request):
 
         # Fool attacker into thinking that the number is
         # not registered with 201
+        user_logged_in.send(
+            sender=User,
+            request=request,
+            user=user,
+        )
         return render_response(
             'Successfully logged in' if anonymous
             else '{} verified successfully'.format(_type),
@@ -256,6 +296,13 @@ def verify_user(request):
         )
 
     else:
+        user_login_failed.send(
+            sender=User,
+            request=request,
+            credentials={
+                'username': username
+            },
+        )
         return render_response(
             'You have entered an incorrect code',
             400
@@ -292,7 +339,7 @@ class AnonymousLoginView(View):
 
 @csrf_exempt
 @not_logged_in_required
-@watch_login
+@axes_dispatch
 def create_anonymous_user(request):
     key = _create_anonymous_user(request)
     return HttpResponse(
@@ -304,7 +351,7 @@ def create_anonymous_user(request):
 
 @csrf_exempt
 @not_logged_in_required
-@watch_login
+@axes_dispatch
 def user_get_or_create(request):
     """This is used for seemless fast login"""
     logger = get_nexchange_logger('user_get_or_create')
@@ -327,6 +374,13 @@ def user_get_or_create(request):
             'status': 'error',
             'msg': str(e.message)
         }
+        user_login_failed.send(
+            sender=User,
+            request=request,
+            credentials={
+                'username': username
+            }
+        )
         return HttpResponse(
             json.dumps(context),
             status=400,
@@ -359,14 +413,40 @@ def user_get_or_create(request):
             'status': 'error',
             'message': str(error_msg)
         }
+        user_login_failed.send(
+            sender=User,
+            request=request,
+            credentials={
+                'username': username
+            }
+        )
         return HttpResponse(
             json.dumps(context),
             status=503,
             content_type='application/json'
         )
     if isinstance(res, Exception):
+        user_login_failed.send(
+            sender=User,
+            request=request,
+            credentials={
+                'username': username
+            }
+        )
         return JsonResponse({'status': 'error'})
     else:
+        user_login_failed.send(
+            sender=User,
+            request=request,
+            credentials={
+                'username': username
+            }
+        )
+        # user_logged_in.send(
+        #     sender=User,
+        #     request=request,
+        #     user=user
+        # )
         return JsonResponse({'status': 'ok'})
 
 

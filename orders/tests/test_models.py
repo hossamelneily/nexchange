@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 
 from core.tests.base import OrderBaseTestCase
-from core.tests.utils import data_provider
+from core.tests.utils import data_provider, enable_all_pairs
 from core.models import Pair, Address, Transaction, Currency
 from orders.models import Order
 from payments.models import Payment, PaymentMethod, PaymentPreference
@@ -79,6 +79,7 @@ class OrderValidatePaymentTestCase(OrderBaseTestCase):
 
     def setUp(self):
         super(OrderValidatePaymentTestCase, self).setUp()
+        enable_all_pairs()
 
         currencies = Currency.objects.filter(is_crypto=False)
         for curr in currencies:
@@ -261,6 +262,7 @@ class OrderPriceGenerationTest(OrderBaseTestCase):
 
     def setUp(self):
         super(OrderPriceGenerationTest, self).setUp()
+        enable_all_pairs()
         currencies = Currency.objects.filter(is_crypto=False)
         for curr in currencies:
             curr.maximal_amount = 50000000
@@ -379,6 +381,7 @@ class OrderUniqueReferenceTestsCase(OrderBaseTestCase):
 
     def setUp(self):
         super(OrderUniqueReferenceTestsCase, self).setUp()
+        enable_all_pairs()
 
         currencies = Currency.objects.filter(is_crypto=False)
         for curr in currencies:

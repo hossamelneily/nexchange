@@ -4,9 +4,10 @@ from verification.validators import validate_image_extension
 
 from core.common.models import SoftDeletableModel, TimeStampedModel
 from core.models import Currency
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 from audit_log.models import AuthStampedModel
+from django.utils.safestring import mark_safe
 
 
 class VerificationTier(TimeStampedModel):
@@ -84,10 +85,10 @@ class TradeLimit(TimeStampedModel):
     )
     limit_type = models.CharField(max_length=1, choices=LIMIT_TYPES)
     trade_type = models.CharField(max_length=1, choices=TRADE_TYPES)
-    tier = models.ForeignKey(VerificationTier)
+    tier = models.ForeignKey(VerificationTier, on_delete=models.DO_NOTHING)
     amount = models.DecimalField(max_digits=18, decimal_places=8)
     days = models.IntegerField()
-    currency = models.ForeignKey(Currency)
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
 
     def __str__(self):
         return _(
@@ -136,9 +137,11 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel):
     def _utility_file_name(self, filename, root='verification/utility_docs'):
         return self._get_file_name(filename, root)
 
-    user = models.ForeignKey(User, null=True, blank=True)
+    user = models.ForeignKey(User, null=True, blank=True,
+                             on_delete=models.CASCADE)
     payment_preference = models.ForeignKey('payments.PaymentPreference',
-                                           null=True, blank=True)
+                                           null=True, blank=True,
+                                           on_delete=models.DO_NOTHING)
     identity_document = models.FileField(
         upload_to=identity_file_name, validators=[validate_image_extension],
         blank=True, null=True
@@ -158,6 +161,7 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel):
     user_input_comment = models.CharField(max_length=255,
                                           null=True, blank=True)
 
+    @mark_safe
     def id_doc(self):
         if self.identity_document:
             link = '<a href="/protected_media/{}">"ID Link"</a>'.format(
@@ -167,6 +171,7 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel):
             link = '-'
         return link
 
+    @mark_safe
     def residence_doc(self):
         if self.utility_document:
             link = '<a href="/protected_media/{}">"UTIL Link"</a>'.format(
@@ -175,9 +180,6 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel):
         else:
             link = '-'
         return link
-
-    id_doc.allow_tags = True
-    residence_doc.allow_tags = True
 
     def set_verification_tier_to_obj(self, obj):
         obj.refresh_from_db()
@@ -345,29 +347,33 @@ class VerificationDocument(TimeStampedModel, SoftDeletableModel,
             root1 = 'all'
         return '/'.join([root1, root, filename])
 
+    @mark_safe
     def image_tag(self):
         return '<embed src="/protected_media/{}" />'.format(
             self.document_file.name
         )
 
     image_tag.short_description = 'Image'
-    image_tag.allow_tags = True
 
     def document_file_name(self, filename):
         return self._get_file_name(filename)
 
-    verification = models.ForeignKey(Verification)
+    verification = models.ForeignKey(Verification,
+                                     on_delete=models.DO_NOTHING)
     document_status = models.CharField(choices=DOCUMENT_STATUSES,
                                        max_length=10, null=True,
                                        blank=True, default=PENDING)
-    document_type = models.ForeignKey(DocumentType)
+    document_type = models.ForeignKey(DocumentType,
+                                      on_delete=models.DO_NOTHING)
     document_file = models.FileField(
         upload_to=document_file_name, validators=[validate_image_extension],
         blank=True, null=True
     )
     whitelisted_address = models.ForeignKey('core.Address', null=True,
-                                            blank=True, default=None)
+                                            blank=True, default=None,
+                                            on_delete=models.DO_NOTHING)
 
+    @mark_safe
     def download_document(self):
         if self.document_file:
             link = '<a href="{}">"Download {}"</a>'.format(
@@ -378,8 +384,6 @@ class VerificationDocument(TimeStampedModel, SoftDeletableModel,
         else:
             link = '-'
         return link
-
-    download_document.allow_tags = True
 
     def __str__(self):
         return '{} {} {}'.format(self.document_type.name,

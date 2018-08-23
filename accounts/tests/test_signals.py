@@ -1,4 +1,5 @@
 from core.tests.base import TransactionImportBaseTestCase
+from core.tests.utils import enable_all_pairs
 from ticker.tests.base import TickerBaseTestCase
 from accounts.tasks.generate_wallets import renew_cards_reserve
 from django.contrib.auth.models import User
@@ -68,6 +69,7 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
 
     @requests_mock.mock()
     def test_expected_reserve_user_emergency(self, mock):
+        enable_all_pairs()
         self._mock_cards_reserve(mock)
         user = User(username='Flame McFirehead')
         user.save()
