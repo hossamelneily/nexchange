@@ -567,7 +567,12 @@ class PNLSheet(TimeStampedModel):
             for i, code_base in enumerate(codes):
                 for code_quote in codes[i + 1:]:
                     names.append('{}{}'.format(code_base, code_quote))
-            pairs = Pair.objects.filter(name__in=names)
+            # old ticker search requires a lot of time therefore disable_
+            # ticker=True pairs (pairs with relatively old last tickers) are
+            # excluded
+            pairs = Pair.objects.filter(name__in=names).exclude(
+                disable_ticker=True
+            )
             for pair in pairs:
                 pnl = PNL(pair=pair, pnl_sheet=self, date_from=self.date_from,
                           date_to=self.date_to)
