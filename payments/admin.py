@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from payments.models import PaymentMethod, PaymentPreference, Payment, \
-    FailedRequest, PushRequest
+    FailedRequest, PushRequest, Country
 
 
 @admin.register(PushRequest)
@@ -12,7 +12,6 @@ class PushRequestAdmin(admin.ModelAdmin):
                        'valid_ip', 'payment_created', 'url',
                        'payload', 'ip', 'payload_json', 'response',
                        'main_payload_data')
-    raw_id_fields = ('payment',)
     search_fields = ('payment__order__unique_reference',)
 
 
@@ -25,7 +24,7 @@ class PaymentAdmin(admin.ModelAdmin):
         'secondary_payment_system_id', 'is_redeemed', 'is_success',
         'is_complete', 'payment_preference', 'order', 'reference', 'user'
     )
-    raw_id_fields = ('order',)
+    autocomplete_fields = ('order',)
     search_fields = ('order__unique_reference', 'currency__code',
                      'payment_system_id', 'secondary_payment_system_id')
 
@@ -43,10 +42,18 @@ class PaymentPreferenceAdmin(admin.ModelAdmin):
                     'provider_system_id', 'is_verified',
                     'out_of_limit', 'is_immediate_payment', 'tier',
                     'total_payments_usd')
-    raw_id_fields = ('user', 'push_request')
+    autocomplete_fields = ('user', 'push_request', 'tier')
     search_fields = ('secondary_identifier', 'provider_system_id')
 
 
-admin.site.register(PaymentMethod)
+@admin.register(PaymentMethod)
+class PaymentMethodAdmin(admin.ModelAdmin):
+    autocomplete_fields = ('allowed_countries', 'minimal_fee_currency')
+
+
+@admin.register(Country)
+class CountryAdmin(admin.ModelAdmin):
+    search_fields = ('country',)
+
+
 admin.site.register(FailedRequest)
-admin.autodiscover()

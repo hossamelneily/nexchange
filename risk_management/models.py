@@ -354,7 +354,7 @@ class Cover(TimeStampedModel):
                              on_delete=models.DO_NOTHING)
     currency = models.ForeignKey(Currency,
                                  on_delete=models.DO_NOTHING)
-    orders = models.ManyToManyField(Order, related_name='covers')
+    orders = models.ManyToManyField(Order, related_name='covers', blank=True)
     amount_base = models.DecimalField(max_digits=18, decimal_places=8)
     amount_quote = models.DecimalField(max_digits=18, decimal_places=8,
                                        null=True)
@@ -363,7 +363,7 @@ class Cover(TimeStampedModel):
                                 null=True, blank=True, unique=True,
                                 db_index=True)
     account = models.ForeignKey(Account, null=True,
-                                on_delete=models.CASCADE)
+                                on_delete=models.CASCADE, blank=True)
     status = FSMIntegerField(choices=STATUS_TYPES, default=INITIAL)
     reserves_cover = models.ForeignKey('risk_management.ReservesCover',
                                        blank=True, null=True,

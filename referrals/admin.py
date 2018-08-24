@@ -2,7 +2,20 @@ from django.contrib import admin
 
 from .models import Program, Referral, ReferralCode
 
-admin.site.register(ReferralCode)
-admin.site.register(Referral)
-admin.site.register(Program)
-admin.autodiscover()
+
+@admin.register(ReferralCode)
+class ReferralCodeAdmin(admin.ModelAdmin):
+    search_fields = ('code', 'user__username')
+    list_display = ('code', 'user')
+    autocomplete_fields = ('user',)
+
+
+@admin.register(Program)
+class ProgramAdmin(admin.ModelAdmin):
+    autocomplete_fields = ('currency',)
+
+
+@admin.register(Referral)
+class Referraldmin(admin.ModelAdmin):
+    search_fields = ('code__code', 'referee__username')
+    autocomplete_fields = ('code', 'referee')

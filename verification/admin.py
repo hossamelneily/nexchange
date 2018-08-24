@@ -15,6 +15,7 @@ class VerificationInline(admin.TabularInline):
     model = VerificationDocument
     exclude = ('document_file',)
     readonly_fields = ('image_tag', 'whitelisted_address')
+    autocomplete_fields = ('document_type',)
     fk_name = 'verification'
 
 
@@ -160,11 +161,13 @@ class VerificationAdmin(admin.ModelAdmin):
 
 @admin.register(VerificationTier)
 class VerificationTierAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ('name', 'description')
+    autocomplete_fields = ('required_documents',)
 
 
 @admin.register(TradeLimit)
 class TradeLimitAdmin(admin.ModelAdmin):
+    autocomplete_fields = ('currency', 'tier',)
     pass
 
 
@@ -182,6 +185,7 @@ class VerificationDocumentAdmin(admin.ModelAdmin):
         'total_payments_usd', 'out_of_limit', 'is_immediate_payment', 'tier',
         'modified_by', 'created_by'
     )
+    autocomplete_fields = ('document_type',)
 
     def save_model(self, request, obj, form, change):
         super(VerificationDocumentAdmin, self).save_model(request, obj, form,
@@ -251,4 +255,5 @@ class VerificationDocumentAdmin(admin.ModelAdmin):
 
 @admin.register(DocumentType)
 class DocumentTypeAdmin(admin.ModelAdmin):
+    search_fields = ('name', 'description', 'api_key')
     pass

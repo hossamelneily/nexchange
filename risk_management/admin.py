@@ -32,9 +32,10 @@ class AccountAdmin(admin.ModelAdmin):
 
 @admin.register(Cover)
 class CoverAdmin(admin.ModelAdmin):
-    raw_id_fields = ('orders',)
+    autocomplete_fields = ('orders', 'pair', 'currency', 'account')
     list_display = ('cover_type', 'pair', 'amount_base', 'amount_quote',
                     'account', 'cover_id')
+    readonly_fields = ('reserves_cover',)
 
 
 @admin.register(ReserveLog)
@@ -64,6 +65,7 @@ class PNLAdmin(admin.ModelAdmin):
                        'pnl_usd', 'pnl_eth', 'pnl_eur',
                        'average_base_position_price', 'volume_position_ratio')
     search_fields = ('pair__name',)
+    autocomplete_fields = ('pair',)
 
 
 @admin.register(PNLSheet)
@@ -115,6 +117,7 @@ class DisabledCurrencyAdmin(admin.ModelAdmin):
     list_display = ('currency', 'disable_quote', 'disable_base',
                     'user_visible_reason', 'admin_comment', 'created_on',
                     'modified_on', )
+    autocomplete_fields = ('currency',)
 
 
 class CoverInline(admin.TabularInline):
@@ -139,13 +142,17 @@ class ReservesCoverAdmin(admin.ModelAdmin):
         'buy_reserves_filtered', 'sell_reserves', 'buy_reserves',
         'portfolio_log', 'pnl_sheets'
     )
+    autocomplete_fields = ('settings',)
 
 
 @admin.register(ReservesCoverSettings)
 class ReservesCoverSettingsAdmin(admin.ModelAdmin):
     list_display = ('currencies_str', 'coverable_str', 'default',)
+    search_fields = ('currencies__code', 'coverable_part')
+    autocomplete_fields = ('currencies',)
 
 
 @admin.register(PeriodicReservesCoverSettings)
 class PeriodicReservesCoverSettingsAdmin(admin.ModelAdmin):
     list_display = ('settings', 'str_minimum_rate_change',)
+    autocomplete_fields = ('settings',)

@@ -7,12 +7,13 @@ from decimal import Decimal
 @admin.register(UtmSource)
 class UtmSourceAdmin(admin.ModelAdmin):
     list_display = ('name', 'comment')
-    raw_id_fields = ('referral_codes',)
+    autocomplete_fields = ('referral_codes',)
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name',)
+    search_fields = ('name',)
 
 
 class BalanceFilter(SimpleListFilter):
@@ -93,6 +94,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
         TokensBalanceFilter, AddressTurnoverFilter, RelatedTurnoverFilter,
         AddressFilter,
     )
+    autocomplete_fields = ('category',)
     readonly_fields = ('sending_address', 'contribution', 'users', 'orders',
                        'eth_balance', 'tokens_balance_eth',
                        'address_turnover', 'related_turnover',

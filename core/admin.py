@@ -11,6 +11,7 @@ class AddressAdmin(admin.ModelAdmin):
     search_fields = (
         'currency__code', 'address'
     )
+    autocomplete_fields = ('currency', 'user')
 
 
 @admin.register(AddressReserve)
@@ -19,6 +20,7 @@ class AddressReserveAdmin(admin.ModelAdmin):
     search_fields = (
         'currency__code',
     )
+    autocomplete_fields = ('currency', 'user')
 
 
 @admin.register(Currency)
@@ -36,6 +38,7 @@ class PairAdmin(admin.ModelAdmin):
     search_fields = (
         'base__code', 'quote__code', 'name'
     )
+    autocomplete_fields = ('base', 'quote')
 
 
 @admin.register(Transaction)
@@ -47,6 +50,8 @@ class TransactionAdmin(admin.ModelAdmin):
         'address_to__address', 'address_from__address', 'tx_id', 'tx_id_api',
         'order__unique_reference', 'type', 'currency__code', 'currency__name',
     )
+    autocomplete_fields = ('order', 'address_to', 'address_from', 'currency',
+                           'refunded_transaction')
 
 
 @admin.register(Market)
@@ -61,5 +66,10 @@ class FlagAdmin(admin.ModelAdmin):
     search_fields = ('flag_val', 'model_name', 'flagged_id')
 
 
-admin.site.register(Location)
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'firstname', 'lastname', 'country', 'zip')
+    autocomplete_fields = ('user',)
+
+
 admin.site.register(TransactionApiMapper)
