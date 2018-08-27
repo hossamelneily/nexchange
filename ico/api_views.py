@@ -10,7 +10,8 @@ from referrals.middleware import ReferralMiddleWare
 from .task_summary import subscription_eth_balance_check_invoke,\
     subscription_address_turnover_check_invoke,\
     subscription_token_balances_check_invoke,\
-    subscription_related_turnover_check_invoke
+    subscription_related_turnover_check_invoke,\
+    subscription_category_check_invoke
 
 
 referral_middleware = ReferralMiddleWare()
@@ -57,4 +58,8 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
         subscription_token_balances_check_invoke.apply_async(
             [instance.pk],
             countdown=settings.FAST_TASKS_TIME_LIMIT * 3
+        )
+        subscription_category_check_invoke.apply_async(
+            [instance.pk],
+            countdown=settings.FAST_TASKS_TIME_LIMIT * 4
         )

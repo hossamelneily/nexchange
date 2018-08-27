@@ -20,7 +20,8 @@ class TestIcoAPI(TickerBaseTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.ENABLED_TICKER_PAIRS = ['ETHBTC', 'BDGETH', 'ETHBDG', 'NANOETH']
+        cls.ENABLED_TICKER_PAIRS = ['ETHBTC', 'BDGETH', 'ETHBDG', 'NANOETH',
+                                    'ETHUSD']
         super(TestIcoAPI, cls).setUpClass()
         cls.api_client = APIClient()
 
@@ -48,16 +49,25 @@ class TestIcoAPI(TickerBaseTestCase):
                                                 amount=1000)
         self.order_nano = self._create_order_api(pair_name='NANOETH',
                                                  address=self.nano_address)
+        usd = Currency.objects.get(code='USD')
+        usd.maximal_amount = Decimal(2000)
+        usd.save()
+        self.order_usd = self._create_order_api(pair_name='ETHUSD',
+                                                amount=1500,
+                                                amount_type='quote')
         self.order_eth.status = Order.COMPLETED
         self.order_eth.save()
         self.order_nano.status = Order.COMPLETED
         self.order_nano.save()
         self.order_bdg.status = Order.RELEASED
         self.order_bdg.save()
+        self.order_usd.status = Order.RELEASED
+        self.order_usd.save()
         self.assertEqual(self.order_nano.user, self.order_eth.user)
 
     def _create_order_api(self, pair_name='ETHBTC',
-                          amount=1, address=None, ref_code='123'):
+                          amount=1, address=None,
+                          amount_type='base'):
         if address is None:
             address = self.eth_address
         order_data = {
@@ -67,7 +77,7 @@ class TestIcoAPI(TickerBaseTestCase):
             'withdraw_address': {
                 'address': address.lower()
             },
-            'amount_base': amount
+            'amount_{}'.format(amount_type): amount,
         }
         order_api_url = '/en/api/v1/orders/'
         res = self.api_client.post(order_api_url, order_data, format='json')
@@ -108,7 +118,8 @@ class TestIcoAPI(TickerBaseTestCase):
         get_token_balance.side_effect = side_effect
         expected_address_turnover = \
             self.order_eth.amount_base \
-            + Price.convert_amount(self.order_bdg.amount_base, 'BDG', 'ETH')
+            + Price.convert_amount(self.order_bdg.amount_base, 'BDG', 'ETH') \
+            + self.order_usd.amount_base
         expected_related_turnover = \
             expected_address_turnover \
             + Price.convert_amount(self.order_nano.amount_base, 'NANO', 'ETH')
@@ -172,6 +183,15 @@ class TestIcoAPI(TickerBaseTestCase):
             subscription_checker_periodic.apply_async()
             bal.assert_called_once()
 
+        # check category
+        names = [c.name for c in sub.category.all()]
+        self.assertIn('FIAT', names)
+        self.assertIn('FIAT RELEASED', names)
+        self.assertIn('FIAT (>1000USD)', names)
+        self.assertIn('FIAT (>500USD)', names)
+        self.assertIn('FIAT (>100USD)', names)
+        self.assertEqual(len(names), 5)
+
     def test_set_utm_source(self):
         program = Program.objects.get(pk=1)
         code = ReferralCode(user=self.user, program=program)
@@ -186,6 +206,14 @@ class TestIcoAPI(TickerBaseTestCase):
         sub.refresh_from_db()
         self.assertEqual(sub.referral_code, code)
         self.assertEqual(sub.utm_source, utm_source)
+        names = [c.name for c in sub.category.all()]
+        self.assertIn('REFEREES', names)
+        self.assertIn('FIAT', names)
+        self.assertIn('FIAT RELEASED', names)
+        self.assertIn('FIAT (>1000USD)', names)
+        self.assertIn('FIAT (>500USD)', names)
+        self.assertIn('FIAT (>100USD)', names)
+        self.assertEqual(len(names), 6)
 
     def test_check_periodic_countdown(self):
         address_int = int(self.eth_address, 16)
@@ -206,7 +234,9 @@ class TestIcoAPI(TickerBaseTestCase):
                 self.assertLessEqual(_id, _prev_id)
                 _prev_countdown = _final_countdown = _coutdown
                 _prev_id = _id
-                _prev_time_limit = subscription_checkers[i % 4].time_limit
+                _prev_time_limit = subscription_checkers[
+                    i % len(subscription_checkers)
+                ].time_limit
             expected_final_countdown = \
                 total_time_limit * (subs_count - 1) \
                 + sum([t.time_limit for t in subscription_checkers[:-1]])

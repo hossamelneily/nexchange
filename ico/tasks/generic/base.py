@@ -1,7 +1,7 @@
 from nexchange.tasks.base import BaseTask
 from decimal import Decimal
 from nexchange.rpc.ethash import EthashRpcApiClient
-from ico.models import Subscription, Balance
+from ico.models import Subscription, Balance, Category
 from core.validators import validate_eth
 from orders.models import Order
 from ticker.models import Price
@@ -93,3 +93,30 @@ class BaseIcoManagerTask(BaseTask):
         _orders = sub.orders.filter(status__in=Order.IN_SUCCESS_RELEASED)
         sub.related_turnover = self._get_total_order_turnover(_orders)
         sub.save()
+
+    def category_check(self, subscription_id):
+        sub = self._get_subscription(subscription_id)
+        fiat_orders = sub.orders.filter(pair__quote__is_crypto=False)
+        fiat_released_orders = fiat_orders.filter(
+            status__in=Order.IN_SUCCESS_RELEASED
+        )
+        if fiat_orders:
+            fiat, _ = Category.objects.get_or_create(name='FIAT')
+            sub.category.add(fiat)
+        if fiat_released_orders:
+            fiat_released, _ = Category.objects.get_or_create(
+                name='FIAT RELEASED'
+            )
+            sub.category.add(fiat_released)
+        turnover = self._get_total_order_turnover(fiat_released_orders,
+                                                  currency='USD')
+        if turnover:
+            for _limit in [100, 500, 1000]:
+                if turnover > Decimal(_limit):
+                    limit_cat, _ = Category.objects.get_or_create(
+                        name='FIAT (>{}USD)'.format(_limit)
+                    )
+                    sub.category.add(limit_cat)
+        if sub.referral_code:
+            ref_cat, _ = Category.objects.get_or_create(name='REFEREES')
+            sub.category.add(ref_cat)

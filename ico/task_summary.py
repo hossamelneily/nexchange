@@ -5,6 +5,8 @@ from .tasks.generic.eth_balance_checker import EthBalanceChecker
 from .tasks.generic.address_turnover_checker import AddressTurnoverChecker
 from .tasks.generic.related_turnover_checker import RelatedTurnoverChecker
 from .tasks.generic.token_balance_checker import TokenBalanceChecker
+from .tasks.generic.category_checker import CategoryChecker
+
 from .models import Subscription
 
 
@@ -32,11 +34,18 @@ def subscription_token_balances_check_invoke(subscription_id):
     task.run(subscription_id)
 
 
+@shared_task(time_limit=settings.FAST_TASKS_TIME_LIMIT)
+def subscription_category_check_invoke(subscription_id):
+    task = CategoryChecker()
+    task.run(subscription_id)
+
+
 subscription_checkers = [
     subscription_eth_balance_check_invoke,
     subscription_address_turnover_check_invoke,
     subscription_related_turnover_check_invoke,
-    subscription_token_balances_check_invoke
+    subscription_token_balances_check_invoke,
+    subscription_category_check_invoke
 ]
 total_time_limit = sum([t.time_limit for t in subscription_checkers])
 
