@@ -1115,6 +1115,7 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
 
     fixtures = [
         'market.json',
+        'currency_algorithm.json',
         'currency_crypto.json',
         'currency_fiat.json',
         'currency_tokens.json',

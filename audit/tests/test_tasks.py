@@ -16,6 +16,8 @@ RPC7_PUBLIC_KEY_C1 = '0xmaincard11111111111111111111111111111111'
 class AuditBaseTestCase(TestCase):
 
     fixtures = [
+        'currency_algorithm.json',
+        'transaction_price.json',
         'currency_crypto.json',
         'currency_tokens.json',
         'pairs_cross.json'

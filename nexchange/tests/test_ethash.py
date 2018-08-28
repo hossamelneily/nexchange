@@ -14,7 +14,6 @@ from core.models import Transaction, Currency, Pair
 import os
 from rest_framework.test import APIClient
 from accounts import task_summary as account_tasks
-from django.conf import settings
 from decimal import Decimal
 from collections import namedtuple
 from risk_management.models import Reserve
@@ -191,7 +190,7 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
                     Currency.objects.get(code='ETH'),
                     card.address,
                     Decimal(
-                        str(settings.RPC_GAS_LIMIT_TOKEN * settings.RPC_GAS_PRICE / (10**18))  # noqa
+                        str(mock_currency.tx_price.limit * mock_currency.tx_price.amount_wei / (10**18))  # noqa
                     )
                 )
             else:

@@ -4,6 +4,7 @@ from django.test import TestCase
 class RiskManagementBaseTestCase(TestCase):
 
     fixtures = [
+        'currency_algorithm.json',
         'currency_crypto.json',
         'currency_fiat.json',
         'currency_tokens.json',

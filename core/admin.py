@@ -1,6 +1,7 @@
 from django.contrib import admin
 from core.models import Currency, Transaction, Address, \
-    Pair, Location, AddressReserve, TransactionApiMapper, Market
+    Pair, Location, AddressReserve, TransactionApiMapper, Market, \
+    TransactionPrice, CurrencyAlgorithm
 from core.common.models import Flag
 
 
@@ -70,6 +71,16 @@ class FlagAdmin(admin.ModelAdmin):
 class LocationAdmin(admin.ModelAdmin):
     list_display = ('user', 'firstname', 'lastname', 'country', 'zip')
     autocomplete_fields = ('user',)
+
+
+@admin.register(TransactionPrice)
+class TransactionPriceAdmin(admin.ModelAdmin):
+    list_display = ('amount', 'limit', 'algo', 'description')
+
+
+@admin.register(CurrencyAlgorithm)
+class CurrencyAlgorithmAdmin(admin.ModelAdmin):
+    list_display = ('name',)
 
 
 admin.site.register(TransactionApiMapper)

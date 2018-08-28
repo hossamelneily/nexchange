@@ -168,6 +168,45 @@ class Transaction(BtcBase, FlagableMixin):
         return super(Transaction, self).save(*args, **kwargs)
 
 
+class CurrencyAlgorithm(TimeStampedModel):
+    name = models.CharField(max_length=15, default='empty')
+
+    def __str__(self):
+        return '{}'.format(self.name)
+
+
+class TransactionPrice(TimeStampedModel):
+    amount = models.DecimalField(max_digits=24, decimal_places=8,
+                                 null=False)
+    limit = models.DecimalField(max_digits=24, decimal_places=8,
+                                default=None, null=True, blank=True)
+    algo = models.ForeignKey(CurrencyAlgorithm, on_delete=models.DO_NOTHING)
+    description = models.CharField(max_length=255, default='no description')
+
+    def _validate_amounts(self):
+        max_amount = Decimal('150') if self.algo.name == 'ethash' \
+            else Decimal('0.0010000')
+        if self.amount > max_amount:
+            raise ValidationError('amount is too much')
+
+    def _validate_limit(self):
+        if self.limit is not None and self.limit > Decimal(250000):
+            raise ValidationError('limit is too big')
+
+    @property
+    def amount_wei(self):
+        return int(self.amount * (10 ** 9))
+
+    @property
+    def amount_btc(self):
+        return self.amount
+
+    def save(self, *args, **kwargs):
+        self._validate_amounts()
+        self._validate_limit()
+        super(TransactionPrice, self).save(*args, **kwargs)
+
+
 class CurrencyManager(models.Manager):
 
     def get_by_natural_key(self, code):
@@ -194,8 +233,8 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                                          default=0.00)
     wallet = models.CharField(null=True, max_length=10,
                               blank=True, default=None)
-    algo = models.CharField(null=True, max_length=15,
-                            blank=True, default=None)
+    algo = models.ForeignKey(CurrencyAlgorithm, on_delete=models.DO_NOTHING,
+                             blank=True, null=True)
     ticker = models.CharField(null=True, max_length=100,
                               blank=True, default=None)
     minimal_amount = models.DecimalField(
@@ -232,6 +271,9 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                                         blank=True)
     decimals = models.IntegerField(default=8)
     execute_cover = models.BooleanField(default=False)
+    tx_price = models.ForeignKey('core.TransactionPrice',
+                                 on_delete=models.DO_NOTHING,
+                                 blank=True, null=True)
 
     def get_slippage_amount(self, amount):
         amount_from = amount - self.unslippaged_amount

@@ -19,6 +19,7 @@ class PriceValidatorsTestCase(TestCase):
 
     fixtures = [
         'market.json',
+        'currency_algorithm.json',
         'currency_crypto.json',
         'currency_tokens.json',
         'pairs_cross.json',

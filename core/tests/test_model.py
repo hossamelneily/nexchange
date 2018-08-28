@@ -204,8 +204,32 @@ class PairFixtureTestCase(OrderBaseTestCase):
         fixture_files = os.listdir(self.path)
         pair_fixtures = [name for name in fixture_files if name[:5] == 'pairs']
         currency_fixtures = [
-            name for name in fixture_files if name[:8] == 'currency'
+            name for name in fixture_files
+            if name[:8] == 'currency' and name != 'currency_algorithm.json'
         ]
+
+        currency_algo_data = json.loads(
+            open(self.path + 'currency_algorithm.json').read()
+        )
+        currency_algo_pks = [record['pk'] for record in currency_algo_data]
+        currency_algo_counter = Counter(currency_algo_pks)
+        for key, value in currency_algo_counter.items():
+            if value != 1:
+                raise ValidationError(
+                    'Currency algo pk {} repeated in fixtures!'.format(key)
+                )
+
+        tx_price_data = json.loads(
+            open(self.path + 'transaction_price.json').read()
+        )
+        tx_price_pks = [record['pk'] for record in tx_price_data]
+        tx_price_counter = Counter(tx_price_pks)
+        for key, value in tx_price_counter.items():
+            if value != 1:
+                raise ValidationError(
+                    'Transaction price pk {} repeated in fixtures!'.format(key)
+                )
+
         pair_data = []
         for fix in pair_fixtures:
             pair_data += json.loads(open(self.path + fix).read())

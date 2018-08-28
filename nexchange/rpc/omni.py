@@ -96,7 +96,7 @@ class OmniRpcApiClient(ScryptRpcApiClient):
         card = AddressReserve.objects.get(pk=card_pk)
         address = card.address
         currency = Currency.objects.get(code='BTC')
-        amount = settings.RPC_BTC_PRICE
+        amount = card.currency.tx_price.amount_btc
         return super(OmniRpcApiClient, self).release_coins(
             currency, address, amount
         )
@@ -110,7 +110,7 @@ class OmniRpcApiClient(ScryptRpcApiClient):
         if not isinstance(currency, Currency):
             currency = Currency.objects.get(code=currency)
         btc_avail = self.get_unspent_address_balance(currency.wallet, address)
-        if btc_avail != 0 and btc_avail >= settings.RPC_BTC_PRICE:
+        if btc_avail != 0 and btc_avail >= currency.tx_price.amount_btc:
             main_address = self.get_main_address(currency)
             amount = self.get_balance(currency, account=address).get(
                 'available', Decimal('0')

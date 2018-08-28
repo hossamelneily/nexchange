@@ -246,7 +246,7 @@ class AddressReserveMonitorTestCase(TransactionImportBaseTestCase,
                              name)
             amount_to_send = Decimal(
                 amount) - self.client_ethash.get_total_gas_price(
-                currency.is_token
+                currency
             )
             if currency.is_token:
                 amount_to_send = Decimal(amount)

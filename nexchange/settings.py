@@ -583,10 +583,6 @@ RPC_IMPORT_TRANSACTIONS_COUNT = int(
     get_env_param('RPC_IMPORT_TRANSACTION_COUNT', 10)
 )
 RPC_IMPORT_BLOCK_COUNT = int(get_env_param('RPC_IMPORT_BLOCK_COUNT', 10))
-RPC_GAS_LIMIT_ETH = int(get_env_param('RPC_GAS_LIMIT_ETH', 30000))
-RPC_GAS_LIMIT_TOKEN = int(get_env_param('RPC_GAS_LIMIT_TOKEN', 70000))
-RPC_GAS_PRICE = int(get_env_param('RPC_GAS_PRICE', 50 * (10 ** 9)))
-RPC_BTC_PRICE = Decimal(str(get_env_param('RPC_BTC_PRICE', '0.00030000')))
 RPC_RIPPLE_PRICE = Decimal(str(get_env_param('RPC_RIPPLE_PRICE', '0.000100')))
 RPC_RIPPLE_WALLET_PRICE = Decimal(str(get_env_param('RPC_RIPPLE_WALLET_PRICE',
                                                     '20')))

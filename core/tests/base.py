@@ -395,6 +395,8 @@ class UserBaseTestCase(TestCase):
 class OrderBaseTestCase(UserBaseTestCase):
     fixtures = [
         'market.json',
+        'currency_algorithm.json',
+        'transaction_price.json',
         'currency_crypto.json',
         'currency_fiat.json',
         'currency_tokens.json',
@@ -818,6 +820,8 @@ class WalletBaseTestCase(OrderBaseTestCase):
 class TransactionImportBaseTestCase(OrderBaseTestCase):
     fixtures = [
         'market.json',
+        'currency_algorithm.json',
+        'transaction_price.json',
         'currency_crypto.json',
         'currency_fiat.json',
         'currency_tokens.json',

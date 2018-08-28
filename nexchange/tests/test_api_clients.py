@@ -16,6 +16,8 @@ scrypt_check_tx_params = namedtuple(
 class ApiClientsTestCase(TestCase):
 
     fixtures = [
+        'currency_algorithm.json',
+        'transaction_price.json',
         'currency_crypto.json'
     ]
 

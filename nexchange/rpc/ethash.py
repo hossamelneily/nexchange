@@ -1,4 +1,5 @@
-from nexchange.api_clients.decorators import track_tx_mapper, log_errors, encrypted_endpoint
+from nexchange.api_clients.decorators import track_tx_mapper, log_errors, \
+    encrypted_endpoint
 from nexchange.rpc.base import BaseRpcClient
 from core.models import Address, Currency, Transaction, AddressReserve
 from django.conf import settings
@@ -213,8 +214,8 @@ class EthashRpcApiClient(BaseRpcClient):
                 'to': currency.contract_address,
                 'value': 0,
                 'data': data,
-                'gasPrice': settings.RPC_GAS_PRICE,
-                'gas': settings.RPC_GAS_LIMIT_TOKEN
+                'gasPrice': currency.tx_price.amount_wei,
+                'gas': currency.tx_price.limit
             }
         else:
             value = Web3.toWei(amount, 'ether')
@@ -222,12 +223,11 @@ class EthashRpcApiClient(BaseRpcClient):
                 'from': address_from,
                 'to': address_to,
                 'value': value,
-                'gasPrice': settings.RPC_GAS_PRICE,
-                'gas': settings.RPC_GAS_LIMIT_ETH
+                'gasPrice': currency.tx_price.amount_wei,
+                'gas': currency.tx_price.limit
             }
         assert tx['gasPrice'] <= 120 * (10 ** 9)
         assert tx['gas'] <= 250000
-
         return tx
 
     @encrypted_endpoint
@@ -259,9 +259,9 @@ class EthashRpcApiClient(BaseRpcClient):
             value = self.call_api(node, 'eth_getBalance', *[account])
         return Decimal(str(value)) * Decimal('1e-{}'.format(currency.decimals))
 
-    def get_total_gas_price(self, is_token):
-        gas_price = settings.RPC_GAS_PRICE
-        gas = settings.RPC_GAS_LIMIT_TOKEN if is_token else settings.RPC_GAS_LIMIT_ETH  # noqa
+    def get_total_gas_price(self, currency):
+        gas_price = currency.tx_price.amount_wei
+        gas = currency.tx_price.limit  # noqa
         return Web3.fromWei(gas_price * gas, 'ether')
 
     def check_card_balance(self, card_pk, **kwargs):
@@ -277,14 +277,14 @@ class EthashRpcApiClient(BaseRpcClient):
         main_currency = Currency.objects.get(
             code=self.related_coins[self.related_nodes.index(node)]
         )
-        amount = self.get_total_gas_price(card.currency.is_token)
+        amount = self.get_total_gas_price(card.currency)
         return self.release_coins(main_currency, address, amount)
 
     def resend_funds_to_main_card(self, address, currency):
         if not isinstance(currency, Currency):
             currency = Currency.objects.get(code=currency)
         node = currency.wallet
-        total_gas = self.get_total_gas_price(currency.is_token)
+        total_gas = self.get_total_gas_price(currency)
         main_address = self.get_main_address(currency)
         balance = self.get_balance(currency, account=address)
         if currency.is_token:
