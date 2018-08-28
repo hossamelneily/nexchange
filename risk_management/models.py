@@ -119,7 +119,7 @@ class PortfolioLog(TimeStampedModel):
 
     def sum_reserve_logs_field(self, field_name):
         reserve_logs = self.reservelog_set.all()
-        return Decimal(sum([getattr(log, field_name) for log in reserve_logs]))
+        return Decimal(sum([getattr(log, field_name) for log in reserve_logs if getattr(log, field_name)]))  # noqa
 
     @property
     def total_btc(self):
@@ -141,7 +141,7 @@ class PortfolioLog(TimeStampedModel):
     def assets_by_proportion(self):
         reserve_logs = self.reservelog_set.all()
         amount_btc = self.total_btc
-        return {log.reserve.currency.code: log.available_btc / amount_btc for log in reserve_logs}  # noqa
+        return {log.reserve.currency.code: log.available_btc / amount_btc for log in reserve_logs if amount_btc and log.available_btc}  # noqa
 
     @property
     def assets_str(self):
@@ -175,13 +175,13 @@ class ReserveLog(TimeStampedModel):
     available = models.DecimalField(max_digits=18, decimal_places=8,
                                     default=Decimal('0'), blank=True)
     rate_btc = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'), blank=True)
+                                   default=Decimal('0'), blank=True, null=True)
     rate_usd = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'), blank=True)
+                                   default=Decimal('0'), blank=True, null=True)
     rate_eur = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'), blank=True)
+                                   default=Decimal('0'), blank=True, null=True)
     rate_eth = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'), blank=True)
+                                   default=Decimal('0'), blank=True, null=True)
 
     def save(self):
         if not self.reserve:
@@ -202,19 +202,19 @@ class ReserveLog(TimeStampedModel):
 
     @property
     def available_btc(self):
-        return self.available * self.rate_btc
+        return self.available * self.rate_btc if self.rate_btc else None
 
     @property
     def available_usd(self):
-        return self.available * self.rate_usd
+        return self.available * self.rate_usd if self.rate_usd else None
 
     @property
     def available_eth(self):
-        return self.available * self.rate_eth
+        return self.available * self.rate_eth if self.rate_eth else None
 
     @property
     def available_eur(self):
-        return self.available * self.rate_eur
+        return self.available * self.rate_eur if self.rate_eur else None
 
     @property
     def min_expected_level(self):
@@ -495,7 +495,11 @@ class PNLSheet(TimeStampedModel):
 
     def sum_pnls_field(self, field_name):
         reserve_logs = self.pnl_set.all()
-        return Decimal(sum([getattr(log, field_name) for log in reserve_logs]))
+        return Decimal(sum([
+            getattr(log, field_name) for log in reserve_logs if getattr(
+                log, field_name
+            )
+        ]))
 
     @property
     def period(self):
@@ -618,13 +622,13 @@ class PNL(TimeStampedModel):
     exit_price = models.DecimalField(max_digits=18, decimal_places=8,
                                      default=Decimal('0'))
     rate_btc = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'), blank=True)
+                                   default=Decimal('0'), blank=True, null=True)
     rate_usd = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'), blank=True)
+                                   default=Decimal('0'), blank=True, null=True)
     rate_eur = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'), blank=True)
+                                   default=Decimal('0'), blank=True, null=True)
     rate_eth = models.DecimalField(max_digits=18, decimal_places=8,
-                                   default=Decimal('0'), blank=True)
+                                   default=Decimal('0'), blank=True, null=True)
     position = models.DecimalField(max_digits=18, decimal_places=8,
                                    default=Decimal('0'))
     base_position = models.DecimalField(max_digits=18, decimal_places=8,
@@ -638,13 +642,13 @@ class PNL(TimeStampedModel):
     pnl = models.DecimalField(max_digits=18, decimal_places=8,
                               default=Decimal('0'))
     pnl_btc = models.DecimalField(max_digits=18, decimal_places=8,
-                                  default=Decimal('0'))
+                                  default=Decimal('0'), blank=True, null=True)
     pnl_usd = models.DecimalField(max_digits=18, decimal_places=8,
-                                  default=Decimal('0'))
+                                  default=Decimal('0'), blank=True, null=True)
     pnl_eth = models.DecimalField(max_digits=18, decimal_places=8,
-                                  default=Decimal('0'))
+                                  default=Decimal('0'), blank=True, null=True)
     pnl_eur = models.DecimalField(max_digits=18, decimal_places=8,
-                                  default=Decimal('0'))
+                                  default=Decimal('0'), blank=True, null=True)
     volume_position_ratio = models.DecimalField(
         max_digits=18, decimal_places=8, blank=True, null=True
     )
@@ -703,19 +707,19 @@ class PNL(TimeStampedModel):
 
     @property
     def _pnl_btc(self):
-        return self._pnl * self.rate_btc
+        return self._pnl * self.rate_btc if self.rate_btc else None
 
     @property
     def _pnl_usd(self):
-        return self._pnl * self.rate_usd
+        return self._pnl * self.rate_usd if self.rate_usd else None
 
     @property
     def _pnl_eth(self):
-        return self._pnl * self.rate_eth
+        return self._pnl * self.rate_eth if self.rate_eth else None
 
     @property
     def _pnl_eur(self):
-        return self._pnl * self.rate_eur
+        return self._pnl * self.rate_eur if self.rate_eur else None
 
     @property
     def period(self):

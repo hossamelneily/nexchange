@@ -109,6 +109,9 @@ class Price(IndexTimeStampedModel):
             latest_rate = cls.objects.filter(
                 pair=pair,
                 market__is_main_market=True).latest('id').ticker.rate
+            if pair.disable_ticker:
+                # only return values if ticker is not disabled
+                return
             if inverted:
                 latest_rate = money_format(Decimal(1.0) / latest_rate,
                                            places=places)
@@ -132,7 +135,7 @@ class Price(IndexTimeStampedModel):
         if not isinstance(amount, Decimal):
             amount = Decimal(str(amount))
         rate = cls.get_rate(from_curr, to_curr)
-        return amount * rate
+        return amount * rate if rate else None
 
     @property
     def unix_time(self):

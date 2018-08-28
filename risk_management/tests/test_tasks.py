@@ -536,7 +536,9 @@ class PnlTaskTestCase(TickerBaseTestCase):
         pnls = pnl_sheet.pnl_set.all()
         for curr in ['btc', 'usd', 'eth', 'eur']:
             param = 'pnl_{}'.format(curr)
-            expected = sum([getattr(pnl, param) for pnl in pnls])
+            expected = sum(
+                [getattr(pnl, param) for pnl in pnls if getattr(pnl, param)]
+            )
             actual = getattr(pnl_sheet, param)
             self.assertEqual(expected, actual, param)
         btc_pnls = pnls.filter(pair__quote__code='BTC')
