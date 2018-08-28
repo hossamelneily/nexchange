@@ -132,7 +132,7 @@ class Transaction(BtcBase, FlagableMixin):
     def _validate_withdraw_txn(self):
         if self.order:
             old_withdraw_txns = self.order.transactions.exclude(
-                type=self.DEPOSIT)
+                type__in=[self.DEPOSIT, self.INTERNAL])
             if len(old_withdraw_txns) != 0:
                 msg = 'Order {} already has WITHDRAW or None type' \
                       'transactions {}'.format(self.order, old_withdraw_txns)

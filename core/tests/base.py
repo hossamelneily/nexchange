@@ -933,6 +933,7 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.XMR = Currency.objects.get(code='XMR')
         self.DASH = Currency.objects.get(code='DASH')
         self.XRP = Currency.objects.get(code='XRP')
+        self.XVG = Currency.objects.get(code='XVG')
         self.BTC_address = self._create_withdraw_adress(
             self.BTC, '1GR9k1GCxJnL3B5yryW8Kvz7JGf31n8AGi')
         self.LTC_address = self._create_withdraw_adress(
@@ -959,6 +960,9 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         )
         self.XRP_address = self._create_withdraw_adress(
             self.XRP, 'r9y61YwVUQtTWHtwcmYc1Epa5KvstfUzSm'
+        )
+        self.XVG_address = self._create_withdraw_adress(
+            self.XVG, 'DQkwDpRYUyNNnoEZDf5Cb3QVazh4FuPRs9'
         )
 
     def _read_fixture(self):

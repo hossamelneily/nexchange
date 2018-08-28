@@ -1133,6 +1133,11 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
              'ETHXVG']
         super(OrderCoverTaskTestCase, cls).setUpClass()
         cls.import_txs_task = import_transaction_deposit_crypto_invoke
+        cls.release_task_periodic = exchange_order_release_periodic
+        cls.update_confirmation_task = update_pending_transactions_invoke
+
+    def setUp(self):
+        super(OrderCoverTaskTestCase, self).setUp()
 
     @data_provider(
         lambda: (
@@ -1238,6 +1243,81 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
             release_coins.assert_called_with(_currency, tx.address_to, _amount)
         else:
             release_coins.assert_not_called()
+
+    @data_provider(
+        lambda: (
+                ('XVGBTC', 4000, 'amount_base'),
+        )
+    )
+    @patch(SCRYPT_ROOT + 'get_info')
+    @patch(SCRYPT_ROOT + 'get_main_address')
+    @patch(SCRYPT_ROOT + 'get_balance')
+    @patch(SCRYPT_ROOT + '_get_txs')
+    @patch(SCRYPT_ROOT + 'check_tx')
+    @patch(SCRYPT_ROOT + 'release_coins')
+    @patch(BITTREX_ROOT + 'release_coins')
+    @patch('nexchange.api_clients.bittrex.Bittrex.withdraw')
+    @patch('nexchange.api_clients.bittrex.Bittrex.sell_limit')
+    @patch('nexchange.api_clients.bittrex.Bittrex.buy_limit')
+    @patch('nexchange.api_clients.bittrex.Bittrex.get_ticker')
+    @patch('nexchange.api_clients.bittrex.Bittrex.get_balance')
+    def test_immediate_cover_not_raising_error(self, pair_name, amount_base,
+                                               trade_amount_key,
+                                               bit_get_balance,
+                                               bit_get_ticker, bit_buy_limit,
+                                               bit_sell_limit, bit_withdraw,
+                                               bit_release_coins,
+                                               sc_release_coins, sc_check_tx,
+                                               sc_get_txs, sc_get_balance,
+                                               sc_get_main_address,
+                                               sc_get_info):
+        internal_tx_id = self.generate_txn_id()
+        bit_release_coins.return_value = internal_tx_id, True
+        sc_get_info.return_value = {}
+        sc_get_main_address.return_value = verge_address = 'VERGEaddress'
+        ask = bid = Decimal('0.0012')
+        pair_trade = Pair.objects.get(name=pair_name)
+        XVG = pair_trade.base
+        XVG.execute_cover = True
+        XVG.save()
+        withdraw_tx_id = '123'
+        buy_tx_id = self.generate_txn_id()
+        sell_tx_id = self.generate_txn_id()
+        self._create_order(pair_name=pair_name, amount_base=amount_base)
+        mock_amount = self.order.amount_quote
+        xvg_amount = getattr(self.order, trade_amount_key)
+        balance_bittrex = xvg_amount
+        balance_main = xvg_amount / Decimal('2')
+
+        # Import mocks
+        card = self.order.deposit_address.reserve
+        sc_get_txs.return_value = self.get_scrypt_tx(
+            mock_amount, card.address
+        )
+        sc_check_tx.return_value = True, 15
+        # Trade mocks
+        bit_get_balance.return_value = self._get_bittrex_get_balance_response(
+            float(balance_bittrex), available=float(balance_bittrex)
+        )
+        sc_get_balance.return_value = balance_main
+        bit_withdraw.return_value = {'result': {'uuid': withdraw_tx_id}}
+        bit_buy_limit.return_value = {'result': {'uuid': buy_tx_id}}
+        bit_sell_limit.return_value = {'result': {'uuid': sell_tx_id}}
+        bit_get_ticker.return_value = \
+            self._get_bittrex_get_ticker_response(ask=ask, bid=bid)
+        self.import_txs_task.apply()
+        cover = Cover.objects.latest('id')
+        sc_get_balance.return_value = cover.amount_base + 10
+        order_cover_invoke.apply([self.order.pk])
+        self.update_confirmation_task.apply()
+        address = getattr(self, '{}_address'.format(XVG.code))
+        self._update_withdraw_address(self.order, address)
+
+        sc_release_coins.return_value = \
+            'txid_{}{}'.format(time(), randint(1, 999)), True
+        self.release_task_periodic.apply_async()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.RELEASED, pair_name)
 
     @patch(BITTREX_ROOT + 'release_coins')
     @patch(ETH_ROOT + '_get_txs')
