@@ -106,12 +106,12 @@ class Price(IndexTimeStampedModel):
             places = 16
         try:
             pair = Pair.objects.get(base=base, quote=quote)
-            latest_rate = cls.objects.filter(
-                pair=pair,
-                market__is_main_market=True).latest('id').ticker.rate
             if pair.disable_ticker:
                 # only return values if ticker is not disabled
                 return
+            latest_rate = cls.objects.filter(
+                pair=pair,
+                market__is_main_market=True).latest('id').ticker.rate
             if inverted:
                 latest_rate = money_format(Decimal(1.0) / latest_rate,
                                            places=places)

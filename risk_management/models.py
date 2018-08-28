@@ -620,7 +620,8 @@ class PNL(TimeStampedModel):
     pair_order_count = models.IntegerField(null=True, blank=True)
     opposite_pair_order_count = models.IntegerField(null=True, blank=True)
     exit_price = models.DecimalField(max_digits=18, decimal_places=8,
-                                     default=Decimal('0'))
+                                     default=Decimal('0'), blank=True,
+                                     null=True)
     rate_btc = models.DecimalField(max_digits=18, decimal_places=8,
                                    default=Decimal('0'), blank=True, null=True)
     rate_usd = models.DecimalField(max_digits=18, decimal_places=8,
@@ -694,7 +695,7 @@ class PNL(TimeStampedModel):
             rate = self.average_ask
         else:
             rate = self.average_bid
-        return (self.exit_price - rate) * self._position
+        return (self.exit_price - rate) * self._position if self.exit_price else Decimal('0')  # noqa
 
     @property
     def _pnl(self):
