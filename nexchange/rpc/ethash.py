@@ -215,7 +215,7 @@ class EthashRpcApiClient(BaseRpcClient):
                 'value': 0,
                 'data': data,
                 'gasPrice': currency.tx_price.amount_wei,
-                'gas': currency.tx_price.limit
+                'gas': int(currency.tx_price.limit)
             }
         else:
             value = Web3.toWei(amount, 'ether')
@@ -224,7 +224,7 @@ class EthashRpcApiClient(BaseRpcClient):
                 'to': address_to,
                 'value': value,
                 'gasPrice': currency.tx_price.amount_wei,
-                'gas': currency.tx_price.limit
+                'gas': int(currency.tx_price.limit)
             }
         assert tx['gasPrice'] <= 120 * (10 ** 9)
         assert tx['gas'] <= 250000
