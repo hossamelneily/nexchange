@@ -180,7 +180,8 @@ class TransactionPrice(TimeStampedModel):
                                  null=False)
     limit = models.DecimalField(max_digits=24, decimal_places=8,
                                 default=None, null=True, blank=True)
-    algo = models.ForeignKey(CurrencyAlgorithm, on_delete=models.DO_NOTHING)
+    algo = models.ForeignKey(CurrencyAlgorithm, on_delete=models.DO_NOTHING,
+                             null=True, blank=True)
     description = models.CharField(max_length=255, default='no description')
 
     def _validate_amounts(self):
@@ -235,6 +236,10 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                               blank=True, default=None)
     algo = models.ForeignKey(CurrencyAlgorithm, on_delete=models.DO_NOTHING,
                              blank=True, null=True)
+    algo_legacy = models.CharField(
+        null=True, max_length=15, blank=True, default=None,
+        help_text='algorithm char field, moved to ForeignKey'
+    )
     ticker = models.CharField(null=True, max_length=100,
                               blank=True, default=None)
     minimal_amount = models.DecimalField(

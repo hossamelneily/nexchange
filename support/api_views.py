@@ -7,7 +7,7 @@ from .task_summary import send_support_email
 class SupportViewSet(UserResourceViewSet):
     lookup_field = 'unique_reference'
     serializer_class = SupportSerializer
-    http_method_names = ['get', 'post']
+    http_method_names = ['post']
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
