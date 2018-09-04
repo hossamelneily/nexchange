@@ -20,7 +20,9 @@ class Blake2RpcApiClient(BaseRpcClient):
     def get_api(self, node):
         self.rpc_endpoint, kwargs = RpcMapper.get_rpc_addr(node)
         if self.rpc_endpoint not in self.api_cache:
-            self.api_cache[self.rpc_endpoint] = Blake2Proxy(self.rpc_endpoint)
+            self.api_cache[self.rpc_endpoint] = Blake2Proxy(
+                self.rpc_endpoint, timeout=2
+            )
         self.api = self.api_cache[self.rpc_endpoint]
         return self.api
 
