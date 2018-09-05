@@ -13,6 +13,7 @@ class BaseFiatOrderDepositChecker(BaseTask):
 
         payment = order.payment_set.get(type=Payment.DEPOSIT)
         pref = payment.payment_preference
+        flagged_kycs = pref.verification_set.filter(flagged=True)
         paid = payment.is_success
         has_kyc = pref.is_verified
         whitelisted = order.withdraw_address in pref.whitelisted_addresses
@@ -23,7 +24,7 @@ class BaseFiatOrderDepositChecker(BaseTask):
 
         with transaction.atomic():
             if all([paid, has_kyc, is_immediate, not out_of_limit,
-                    name_matches]):
+                    name_matches, not flagged_kycs]):
                 confirm_res = order.confirm_deposit(payment, crypto=False)
                 order.refresh_from_db()
                 confirm_status_ok = confirm_res.get('status') == 'OK'

@@ -50,7 +50,7 @@ class VerificationAdmin(admin.ModelAdmin):
 
     list_filter = (PendingFilter,)
     list_display = ('created_on', 'id_document_status', 'util_document_status',
-                    'full_name', 'note', 'user',
+                    'full_name', 'note', 'admin_comment', 'user',
                     'name_on_card', 'unique_cc', 'name_on_card_matches',
                     'out_of_limit')
     exclude = ('identity_document', 'utility_document')
@@ -174,8 +174,8 @@ class TradeLimitAdmin(admin.ModelAdmin):
 @admin.register(VerificationDocument)
 class VerificationDocumentAdmin(admin.ModelAdmin):
     list_display = (
-        'document_status', 'document_type', 'full_name', 'note', 'user',
-        'name_on_card', 'unique_cc'
+        'document_status', 'document_type', 'full_name', 'note',
+        'admin_comment', 'user', 'name_on_card', 'unique_cc'
     )
     exclude = ('document_file',)
     readonly_fields = (

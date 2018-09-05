@@ -28,6 +28,7 @@ from nexchange.api_clients.uphold import UpholdApiClient
 from orders.task_summary import release_retry_invoke
 from orders.tasks.generic.retry_release import RetryOrderRelease
 from django.conf import settings
+from verification.models import Verification
 
 
 class BaseOrderReleaseTestCase(OrderBaseTestCase):
@@ -599,6 +600,9 @@ class BuyOrderReleaseFailedFlags(BaseOrderReleaseTestCase):
         self.assertEqual(order.status, Order.CANCELED)
         self.edit_orm_obj(order, order_modifiers_after_payment)
 
+        Verification.objects.create(
+            payment_preference=payment.payment_preference
+        )
         with patch('payments.models.PaymentPreference.user_verified_for_buy',
                    new_callable=PropertyMock) as verified:
             verified.return_value = user_verified_for_buy

@@ -255,6 +255,7 @@ class SafeChargeTestCase(TickerBaseTestCase):
         order.refresh_from_db()
         payment = order.payment_set.get(type=Payment.DEPOSIT)
         payment.refresh_from_db()
+        kyc = payment.payment_preference.verification_set.last()
         self.assertEqual(order.status, Order.PAID)
         self.assertTrue(payment.is_complete)
         self.assertTrue(payment.is_success)
@@ -263,13 +264,23 @@ class SafeChargeTestCase(TickerBaseTestCase):
         order.refresh_from_db()
         with patch(SCRYPT_ROOT + 'release_coins') as release_coins_scrypt:
             release_coins_scrypt.return_value = self.generate_txn_id(), True
+            if kyc:
+                kyc.flag(val='Before release')
+                buy_order_release_reference_periodic.apply()
+                order.refresh_from_db()
+                self.assertEqual(Order.PAID, order.status)
+                kyc.flagged = False
+                kyc.save()
             buy_order_release_reference_periodic.apply()
         order.refresh_from_db()
         payment.refresh_from_db()
 
-        self.assertTrue(payment.is_redeemed)
-
-        self.assertEqual(Order.RELEASED, order.status)
+        if kyc:
+            self.assertTrue(payment.is_redeemed)
+            self.assertEqual(Order.RELEASED, order.status)
+        else:
+            self.assertFalse(payment.is_redeemed)
+            self.assertEqual(Order.PAID, order.status)
 
     def test_new_payment_preference_if_no_provider_id(self):
         order_ref = 'DSFGS'
@@ -501,6 +512,11 @@ class SafeChargeTestCase(TickerBaseTestCase):
         kyc.save()
         # test KYC name checker
         with patch('verification.task_summary.send_email') as _send:
+            kyc.flag(val='flag match names')
+            check_kyc_names_periodic.apply_async()
+            _send.assert_not_called()
+            kyc.flagged = False
+            kyc.save()
             check_kyc_names_periodic.apply_async()
             _send.assert_called_once()
             kyc.full_name = name
@@ -519,6 +535,14 @@ class SafeChargeTestCase(TickerBaseTestCase):
         payment.refresh_from_db()
         self.assertTrue(payment.is_success)
         self.assertFalse(payment.is_complete)
+        # Not set as paid if flagged KYC
+        kyc.flag(val='flagg before release')
+        check_fiat_order_deposit_periodic.apply_async()
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
+        kyc.flagged = False
+        kyc.save()
+        #
         check_fiat_order_deposit_periodic.apply_async()
         order.refresh_from_db()
         self.assertEqual(order.status, Order.PAID)

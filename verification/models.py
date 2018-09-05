@@ -2,7 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from verification.validators import validate_image_extension
 
-from core.common.models import SoftDeletableModel, TimeStampedModel
+from core.common.models import SoftDeletableModel, TimeStampedModel, \
+    FlagableMixin
 from core.models import Currency
 from django.urls import reverse
 from django.utils.translation import ugettext as _
@@ -103,7 +104,8 @@ class TradeLimit(TimeStampedModel):
         )
 
 
-class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel):
+class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel,
+                   FlagableMixin):
 
     REJECTED = 'REJECTED'
     PENDING = 'PENDING'
@@ -160,6 +162,8 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel):
                                             null=True, blank=True)
     user_input_comment = models.CharField(max_length=255,
                                           null=True, blank=True)
+    admin_comment = models.CharField(max_length=255,
+                                     null=True, blank=True)
 
     @mark_safe
     def id_doc(self):
@@ -372,6 +376,8 @@ class VerificationDocument(TimeStampedModel, SoftDeletableModel,
     whitelisted_address = models.ForeignKey('core.Address', null=True,
                                             blank=True, default=None,
                                             on_delete=models.DO_NOTHING)
+    admin_comment = models.CharField(max_length=255,
+                                     null=True, blank=True)
 
     @mark_safe
     def download_document(self):

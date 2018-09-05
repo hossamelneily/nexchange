@@ -75,9 +75,10 @@ def check_kyc_names_periodic():
         try:
             payment = order.payment_set.get(type=Payment.DEPOSIT)
             pref = payment.payment_preference
+            flagged_kycs = pref.verification_set.filter(flagged=True)
             has_kyc = pref.is_verified
             name_matches = pref.name_on_card_matches
-            if has_kyc and not name_matches:
+            if has_kyc and not name_matches and not flagged_kycs:
                 notify_about_wrong_kyc_name_invoke.apply_async([order.pk])
         except Exception as e:
             logger.logger.info(e)

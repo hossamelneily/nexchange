@@ -42,6 +42,12 @@ class BaseOrderRelease(BaseApiTask):
         if isinstance(ret, bool):
             self._get_order(payment_id)
         payment, order = ret
+        if isinstance(payment, Payment):
+            pref = payment.payment_preference
+            all_kycs = pref.verification_set.all()
+            flagged_kycs = all_kycs.filter(flagged=True)
+            if flagged_kycs or not all_kycs:
+                return
         if order:
             if self.validate(order, payment):
                 if self.do_release(order, payment):
