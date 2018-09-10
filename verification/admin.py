@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from verification.models import Verification, VerificationTier, TradeLimit,\
-    VerificationDocument, DocumentType
+    VerificationDocument, DocumentType, VerificationCategory, CategoryRule
 from orders.models import Order
 from payments.models import Payment
 from django.contrib.admin import SimpleListFilter
@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from .signals.add_kyc_groups import raw_add_kyc_groups
 
 
 class VerificationInline(admin.TabularInline):
@@ -52,13 +53,13 @@ class VerificationAdmin(admin.ModelAdmin):
     list_display = ('created_on', 'id_document_status', 'util_document_status',
                     'full_name', 'note', 'admin_comment', 'user',
                     'name_on_card', 'unique_cc', 'name_on_card_matches',
-                    'out_of_limit')
+                    'out_of_limit', 'flagged')
     exclude = ('identity_document', 'utility_document')
     readonly_fields = (
         'note', 'name_on_card',
         'name_on_card_matches', 'bad_name_verifications', 'unique_cc',
-        'main_card_data', 'payment_preference', 'id_doc', 'residence_doc',
-        'user', 'user_input_comment', 'total_payments_usd',
+        'bank_bin', 'main_card_data', 'payment_preference', 'id_doc',
+        'residence_doc', 'user', 'user_input_comment', 'total_payments_usd',
         'total_payments_usd_1day', 'total_payments_usd_30days', 'out_of_limit',
         'is_immediate_payment', 'tier', 'util_status', 'id_status',
         'modified_by', 'created_by'
@@ -69,6 +70,7 @@ class VerificationAdmin(admin.ModelAdmin):
                      'payment_preference__provider_system_id',
                      'user__username',
                      'payment_preference__user__username')
+    autocomplete_fields = ('category',)
 
     def save_model(self, request, obj, form, change):
         super(VerificationAdmin, self).save_model(request, obj, form, change)
@@ -102,6 +104,9 @@ class VerificationAdmin(admin.ModelAdmin):
         if obj.payment_preference:
             res = getattr(obj.payment_preference, param_name)
         return res
+
+    def bank_bin(self, obj):
+        return self._get_payment_preference_field(obj, 'bank_bin')
 
     def main_card_data(self, obj):
         push_request = self._get_payment_preference_field(obj, 'push_request')
@@ -157,6 +162,13 @@ class VerificationAdmin(admin.ModelAdmin):
 
     def tier(self, obj):
         return self._get_payment_preference_field(obj, 'tier')
+
+    def save_related(self, request, form, formsets, change):
+        super(VerificationAdmin, self).save_related(request, form, formsets,
+                                                    change)
+        # this is important cause adding many2many fields (category) with
+        # django-admin isint working properly due to "cleaning"
+        raw_add_kyc_groups(form.instance)
 
 
 @admin.register(VerificationTier)
@@ -256,4 +268,16 @@ class VerificationDocumentAdmin(admin.ModelAdmin):
 @admin.register(DocumentType)
 class DocumentTypeAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description', 'api_key')
-    pass
+
+
+@admin.register(VerificationCategory)
+class VerificationCateroryAdmin(admin.ModelAdmin):
+    search_fields = ('name',)
+    list_display = ('name', 'flagable')
+    autocomplete_fields = ('banks', 'rules')
+
+
+@admin.register(CategoryRule)
+class CategoryRuleAdmin(admin.ModelAdmin):
+    search_fields = ('name', 'key', 'value', 'rule_type')
+    list_display = ('name', 'key', 'value', 'rule_type')

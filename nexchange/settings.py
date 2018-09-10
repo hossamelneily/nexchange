@@ -48,6 +48,11 @@ STATIC_URL = '/static/'
 API1_USER = ''
 API1_PASS = ''
 
+# BIN api
+BINCODES_API_KEY = 'not_a_real_code69'
+BINCODES_BANK_URL = \
+    'https://api.bincodes.com/bin/?format=json&api_key={api_key}&bin={bin}'
+
 ADMINS = [
     ('Oleg', 'oleg@nexchange.co.uk'),
     ('Sarunas', 'sarunas@nexchange.co.uk'),

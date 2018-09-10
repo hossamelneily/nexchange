@@ -6,11 +6,13 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from decimal import Decimal
 from core.common.models import SoftDeletableModel, \
-    TimeStampedModel, FlagableMixin, IpAwareModel
+    TimeStampedModel, FlagableMixin, IpAwareModel, NamedModel
 from ticker.models import Price
 from django.utils.timezone import now, timedelta
 from core.models import Location, Country, BtcBase, Currency
 from verification.models import VerificationDocument
+import requests
+import json
 
 
 class PaymentMethodManager(models.Manager):
@@ -144,7 +146,7 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     physical_address_owner = models.CharField(max_length=255, null=True,
                                               blank=True, default=None)
     location = models.ForeignKey(Location, blank=True, null=True,
-                                       on_delete=models.DO_NOTHING)
+                                 on_delete=models.DO_NOTHING)
     tier = models.ForeignKey('verification.VerificationTier', blank=True,
                              null=True, on_delete=models.DO_NOTHING)
     is_immediate_payment = models.BooleanField(
@@ -154,6 +156,8 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     )
     push_request = models.ForeignKey('payments.PushRequest', blank=True,
                                      null=True, on_delete=models.DO_NOTHING)
+    bank_bin = models.ForeignKey('payments.BankBin', null=True, blank=True,
+                                 on_delete=models.DO_NOTHING)
 
     def save(self, *args, **kwargs):
         if not hasattr(self, 'payment_method'):
@@ -419,7 +423,7 @@ class Payment(BtcBase, SoftDeletableModel, FlagableMixin):
     # Todo consider one to many for split payments, consider order field on
     # payment
     order = models.ForeignKey('orders.Order', null=True, default=None,
-                                    on_delete=models.DO_NOTHING)
+                              on_delete=models.DO_NOTHING)
     reference = models.CharField(max_length=255,
                                  null=True, default=None)
     comment = models.CharField(max_length=255,
@@ -533,4 +537,101 @@ class PushRequest(RequestLog):
             if value:
                 res.update({key: value})
 
+        return res
+
+    def get_payload_dict(self):
+        if settings.DATABASES.get(
+                'default', {}).get('ENGINE') == 'django.db.backends.sqlite3':
+            json_str = self.payload.replace("'", "\"")
+            res = json.loads(json_str) if json_str else {}
+        else:
+            res = self.payload_json
+        return res if res else {}
+
+
+class Bank(TimeStampedModel, NamedModel):
+    country = models.ForeignKey(Country, null=True, blank=True,
+                                on_delete=models.DO_NOTHING)
+    website = models.URLField(null=True, blank=True)
+    phone = models.CharField(max_length=50, null=True, blank=True)
+
+    def __str__(self):
+        res = '{}'.format(self.name)
+        if self.country:
+            res += ' ({})'.format(self.country.country.code)
+        return res
+
+
+class CardCompany(TimeStampedModel, NamedModel):
+    pass
+
+
+class CardType(TimeStampedModel, NamedModel):
+    pass
+
+
+class CardLevel(TimeStampedModel, NamedModel):
+    pass
+
+
+class BankBin(TimeStampedModel):
+    bank = models.ForeignKey(Bank, on_delete=models.DO_NOTHING, null=True,
+                             blank=True)
+    bin = models.CharField(null=False, default=None, unique=True,
+                           max_length=15)
+    card_company = models.ForeignKey(CardCompany, null=True, blank=True,
+                                     on_delete=models.DO_NOTHING)
+    card_type = models.ForeignKey(CardType, null=True, blank=True,
+                                  on_delete=models.DO_NOTHING)
+    card_level = models.ForeignKey(CardLevel, null=True, blank=True,
+                                   on_delete=models.DO_NOTHING)
+    checked_external = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if kwargs.pop('check_external_info', False) and self.bin:
+            url = settings.BINCODES_BANK_URL
+            res = requests.get(url.format(
+                api_key=settings.BINCODES_API_KEY,
+                bin=self.bin
+
+            ))
+            data = res.json()
+            if res.status_code == 200 and data.get('valid') == 'true':
+                bank = data.get('bank')
+                card = data.get('card')
+                card_type = data.get('type')
+                level = data.get('level')
+                country_code = data.get('countrycode')
+                website = data.get('website')
+                phone = data.get('phone')
+                self.bank, _ = \
+                    Bank.objects.get_or_create(name=bank) if bank else (None,
+                                                                        False)
+                if self.bank:
+                    self.bank.country = Country.objects.get(
+                        country=country_code
+                    ) if country_code else None
+                    self.bank.website = website if website else None
+                    self.bank.phone = phone
+                    self.bank.save()
+                self.card_company, _ = \
+                    CardCompany.objects.get_or_create(name=card) if card else (
+                        None, False
+                    )
+                self.card_type, _ = \
+                    CardType.objects.get_or_create(
+                        name=card_type
+                    ) if card_type else (None, False)
+                self.card_level, _ = \
+                    CardLevel.objects.get_or_create(name=level) if level else (
+                        None, False
+                    )
+            self.checked_external = True
+
+        super(BankBin, self).save(*args, **kwargs)
+
+    def __str__(self):
+        res = '{}'.format(self.bin)
+        if self.bank:
+            res += ' {}'.format(self.bank.__str__())
         return res

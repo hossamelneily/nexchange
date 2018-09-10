@@ -1,5 +1,5 @@
 from core.tests.base import UserBaseTestCase
-from verification.models import Verification
+from verification.models import Verification, VerificationCategory
 from payments.models import PaymentPreference
 
 
@@ -79,3 +79,24 @@ class VerificationTestCase(UserBaseTestCase):
                     full_name, name
                 )
             )
+
+    def test_flaggable_category(self):
+        c_flag = VerificationCategory.objects.create(
+            name='Badumts Flag', flagable=True
+        )
+        c_normal = VerificationCategory.objects.create(
+            name='Badumts', flagable=False
+        )
+        kyc = Verification.objects.create()
+        self.assertFalse(kyc.flagged)
+        kyc.category.add(c_normal)
+        kyc.refresh_from_db()
+        self.assertFalse(kyc.flagged)
+        kyc.category.add(c_flag)
+        kyc.refresh_from_db()
+        self.assertTrue(kyc.flagged)
+        # Assure that signal is not called when category is not add
+        kyc.flagged = False
+        kyc.save()
+        self.assertFalse(kyc.flagged)
+        kyc.refresh_from_db()

@@ -20,7 +20,8 @@ from rest_framework.test import APIClient
 from payments.task_summary import check_fiat_order_deposit_periodic,\
     check_payments_for_refund_periodic, check_payments_for_void_periodic
 import json
-from verification.models import Verification, VerificationTier
+from verification.models import Verification, VerificationTier, \
+    VerificationCategory, CategoryRule
 from collections import namedtuple
 import datetime
 from freezegun import freeze_time
@@ -169,9 +170,36 @@ class SafeChargeTestCase(TickerBaseTestCase):
         )
         self.payment_handler = SafeChargePaymentHandler()
         self.api_client = APIClient()
+        self.bankbins_resp = {
+            'bin': '000000',
+            'bank': 'Bank of Samael',
+            'card': 'VISA',
+            'type': 'FAVOR',
+            'level': 'DEVIL',
+            'countrycode': 'US',
+            'website': 'https://not.a.good.idea',
+            'phone': '',
+            'valid': 'true'
+        }
 
     def tearDown(self):
         super(SafeChargeTestCase, self).tearDown()
+
+    def _check_bank_bin(self, payment_preference):
+        self.assertEqual(payment_preference.bank_bin.bin,
+                         self.bankbins_resp['bin'])
+        bank_bin = payment_preference.bank_bin
+        self.assertEqual(bank_bin.bank.name, self.bankbins_resp['bank'])
+        self.assertEqual(bank_bin.card_company.name,
+                         self.bankbins_resp['card'])
+        self.assertEqual(bank_bin.card_type.name, self.bankbins_resp['type'])
+        self.assertEqual(bank_bin.card_level.name, self.bankbins_resp['level'])
+        bank = bank_bin.bank
+        self.assertEqual(bank.country.country,
+                         self.bankbins_resp['countrycode'])
+        self.assertEqual(bank.website, self.bankbins_resp['website'])
+        self.assertEqual(bank.phone, self.bankbins_resp['phone'])
+        self.assertTrue(bank_bin.checked_external)
 
     def _create_image(self):
         with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as f:
@@ -403,7 +431,8 @@ class SafeChargeTestCase(TickerBaseTestCase):
             'responseTimeStamp': time_stamp,
             'uniqueCC': unique_cc,
             'nameOnCard': name,
-            'payment_method': payment_method
+            'payment_method': payment_method,
+            'bin': self.bankbins_resp['bin']
         }
         return params
 
@@ -451,9 +480,17 @@ class SafeChargeTestCase(TickerBaseTestCase):
         self.assertTrue(push_request.valid_checksum)
         self.client.logout()
 
+    @requests_mock.mock()
     @patch('risk_management.task_summary.OrderCover.run')
     @patch('payments.views.get_client_ip')
-    def test_release_fiat_order(self, get_client_ip, cover_run):
+    def test_release_fiat_order(self, mock, get_client_ip, cover_run):
+        mock.get(
+            settings.BINCODES_BANK_URL.format(
+                bin=self.bankbins_resp['bin'],
+                api_key=settings.BINCODES_API_KEY
+            ),
+            json=self.bankbins_resp
+        )
         get_client_ip.return_value = \
             settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
         # XVG is coverable
@@ -467,7 +504,6 @@ class SafeChargeTestCase(TickerBaseTestCase):
         name = 'Sir Testalot'
         params = self._get_dmn_request_params_for_order(order, card_id, name,
                                                         status='PENDING')
-
         url = reverse('payments.listen_safe_charge')
         cover_run.assert_not_called()
         res = self.client.post(url, data=params)
@@ -481,6 +517,25 @@ class SafeChargeTestCase(TickerBaseTestCase):
         before_kyc.refresh_from_db()
         self.assertEqual(before_kyc.payment_preference,
                          payment.payment_preference)
+        self._check_bank_bin(payment.payment_preference)
+        # Create a VerificationCategory with this bank
+        bank = payment.payment_preference.bank_bin.bank
+        bank_cat = VerificationCategory.objects.create(name='Bank Cat')
+        bank_cat.banks.add(bank)
+        # Create Verification EQUAL category
+        e_rule = CategoryRule.objects.create(
+            key='bin', value=self.bankbins_resp['bin'],
+            rule_type=CategoryRule.EQUAL
+        )
+        equal_categ = VerificationCategory.objects.create(name='Equal Categ')
+        equal_categ.rules.add(e_rule)
+        # Create Verification IN category
+        i_rule = CategoryRule.objects.create(
+            key='nameOnCard', value=name.upper(),
+            rule_type=CategoryRule.IN
+        )
+        in_categ = VerificationCategory.objects.create(name='In Categ')
+        in_categ.rules.add(i_rule)
         push_requests = PushRequest.objects.filter(payment=payment)
         self.assertEqual(push_requests.count(), 2)
         self.assertEqual(cover_run.call_count, 1)
@@ -502,6 +557,10 @@ class SafeChargeTestCase(TickerBaseTestCase):
         self.assertEqual(order.status, Order.PAID_UNCONFIRMED)
         # Check with Pending KYC
         kyc = self._create_kyc(order.unique_reference)
+        all_categs = kyc.category.all()
+        self.assertIn(bank_cat, all_categs)
+        self.assertIn(equal_categ, all_categs)
+        self.assertIn(in_categ, all_categs)
         check_fiat_order_deposit_periodic.apply_async()
         order.refresh_from_db()
         self.assertFalse(self._check_kyc(order.unique_reference))

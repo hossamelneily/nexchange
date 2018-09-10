@@ -85,6 +85,16 @@ class TimeStampedModel(models.Model):
         abstract = True
 
 
+class NamedModel(models.Model):
+    name = models.CharField(null=True, blank=True, max_length=255)
+
+    def __str__(self):
+        return '{}'.format(self.name)
+
+    class Meta:
+        abstract = True
+
+
 class IndexTimeStampedModel(models.Model):
     created_on = models.DateTimeField(auto_now_add=True, db_index=True)
     modified_on = models.DateTimeField(auto_now=True)

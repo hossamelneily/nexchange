@@ -93,6 +93,10 @@ DEFAULT_RPC_HOST = os.getenv('DEFAULT_RPC_HOST')
 RPC2_PUBLIC_KEY_C1 = os.getenv('RPC2_PUBLIC_KEY_C1')
 RPC3_PUBLIC_KEY_C1 = os.getenv('RPC3_PUBLIC_KEY_C1')
 
+# BIN api
+BINCODES_API_KEY = get_env_param('BINCODES_API_KEY',
+                                 '68fce6fe3464c9fcd5dd10e923f62c53')
+
 
 # CARDPMT
 CARDPMT_API_ID = os.getenv('CARDPMT_API_ID')

@@ -1,4 +1,4 @@
-from payments.models import Payment, PaymentPreference
+from payments.models import Payment, PaymentPreference, BankBin
 from verification.models import Verification
 from payments.tasks.generic.ok_pay import OkPayPaymentChecker
 from payments.tasks.generic.payeer import PayeerPaymentChecker
@@ -121,3 +121,23 @@ def set_preference_for_verifications_invoke(preference_id):
     for ver in vers:
         ver.payment_preference = pref
         ver.save()
+
+
+@shared_task(time_limit=settings.FAST_TASKS_TIME_LIMIT)
+def set_preference_bank_bin_invoke(payment_preference_id):
+    pref = PaymentPreference.objects.get(pk=payment_preference_id)
+    push_request = pref.push_request
+    if not push_request:
+        return
+    _bin = push_request.get_payload_dict().get('bin')
+    if not _bin:
+        return
+    elif not pref.bank_bin:
+        bank_bin, _ = BankBin.objects.get_or_create(bin=_bin)
+        pref.bank_bin = bank_bin
+        pref.save(update_fields=['bank_bin'])
+    else:
+        assert _bin == pref.bank_bin.bin
+        bank_bin = pref.bank_bin
+    if not bank_bin.checked_external:
+        bank_bin.save(check_external_info=True)

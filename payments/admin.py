@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from payments.models import PaymentMethod, PaymentPreference, Payment, \
-    FailedRequest, PushRequest, Country
+    FailedRequest, PushRequest, Country, Bank, BankBin
 
 
 @admin.register(PushRequest)
@@ -36,7 +36,7 @@ class PaymentPreferenceAdmin(admin.ModelAdmin):
         'is_verified', 'out_of_limit', 'total_payments_usd', 'currency',
         'buy_enabled', 'sell_enabled', 'location', 'cvv', 'ccexp',
         'physical_address_owner', 'bic', 'physical_address_bank', 'name',
-        'beneficiary', 'push_request'
+        'beneficiary', 'push_request', 'bank_bin'
     )
     list_display = ('payment_method', 'secondary_identifier',
                     'provider_system_id', 'is_verified',
@@ -54,6 +54,21 @@ class PaymentMethodAdmin(admin.ModelAdmin):
 @admin.register(Country)
 class CountryAdmin(admin.ModelAdmin):
     search_fields = ('country',)
+
+
+@admin.register(Bank)
+class BankAdmin(admin.ModelAdmin):
+    list_display = ('name', 'country', 'website', 'phone')
+    autocomplete_fields = ('country',)
+    search_fields = ('name',)
+
+
+@admin.register(BankBin)
+class BankBinAdmin(admin.ModelAdmin):
+    list_display = ('bin', 'bank', 'card_company', 'card_type', 'card_level',
+                    'checked_external')
+    autocomplete_fields = ('bank',)
+    search_fields = ('bin', 'bank__name', 'card_company__name')
 
 
 admin.site.register(FailedRequest)

@@ -3,7 +3,7 @@ from django.db import models
 from verification.validators import validate_image_extension
 
 from core.common.models import SoftDeletableModel, TimeStampedModel, \
-    FlagableMixin
+    FlagableMixin, NamedModel
 from core.models import Currency
 from django.urls import reverse
 from django.utils.translation import ugettext as _
@@ -104,6 +104,42 @@ class TradeLimit(TimeStampedModel):
         )
 
 
+class CategoryRule(TimeStampedModel, NamedModel):
+    EQUAL = 0
+    IN = 1
+    RULE_TYPES = (
+        (EQUAL, 'EQUAL'),
+        (IN, 'IN'),
+    )
+    rule_type = models.IntegerField(choices=RULE_TYPES)
+    key = models.CharField(
+        max_length=127,
+        help_text='Key of Verification payment preference payload'
+    )
+    value = models.CharField(
+        max_length=127,
+        help_text='Value of Verification payment preference payload'
+    )
+
+
+class VerificationCategory(TimeStampedModel, NamedModel):
+    flagable = models.BooleanField(default=False)
+    banks = models.ManyToManyField(
+        'payments.Bank',
+        help_text='This group will be add to Verification object if any of the'
+                  ' banks from this list belogns to the payment_preferencce of'
+                  ' that verification.',
+        blank=True
+    )
+    rules = models.ManyToManyField(CategoryRule, blank=True)
+
+    def __str__(self):
+        res = super(VerificationCategory, self).__str__()
+        if self.flagable:
+            res = '!!! {} !!!'.format(res)
+        return res
+
+
 class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel,
                    FlagableMixin):
 
@@ -164,6 +200,7 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel,
                                           null=True, blank=True)
     admin_comment = models.CharField(max_length=255,
                                      null=True, blank=True)
+    category = models.ManyToManyField(VerificationCategory, blank=True)
 
     @mark_safe
     def id_doc(self):

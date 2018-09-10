@@ -11,7 +11,8 @@ from orders.models import Order
 from payments.models import Payment, PaymentPreference, PaymentMethod,\
     PushRequest
 from payments.utils import get_sha256_sign
-from payments.task_summary import set_preference_for_verifications_invoke
+from payments.task_summary import set_preference_for_verifications_invoke, \
+    set_preference_bank_bin_invoke
 from decimal import Decimal
 from django.views.generic import View
 from django.utils.decorators import method_decorator
@@ -64,6 +65,10 @@ class SafeChargeListenView(View):
         if push_request:
             pref.push_request = push_request
         pref.save()
+        set_preference_bank_bin_invoke.apply_async(
+            [pref.pk],
+            countdown=settings.FAST_TASKS_TIME_LIMIT
+        )
         return pref
 
     def _prepare_payment_data(self, order, payment_preference, total_amount,
