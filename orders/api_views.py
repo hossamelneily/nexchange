@@ -8,8 +8,11 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework import viewsets
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page, never_cache
-from rest_framework_extensions.mixins import (
-    ReadOnlyCacheResponseAndETAGMixin
+from rest_framework_extensions.etag.mixins import (
+    ReadOnlyETAGMixin
+)
+from rest_framework_extensions.cache.mixins import (
+    CacheResponseMixin
 )
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -41,7 +44,7 @@ class OrderPagination(PageNumberPagination):
 
 
 class OrderListViewSet(viewsets.ModelViewSet,
-                       ReadOnlyCacheResponseAndETAGMixin):
+                       ReadOnlyETAGMixin, CacheResponseMixin):
     permission_classes = ()
     model_class = Order
     lookup_field = 'unique_reference'
@@ -111,7 +114,7 @@ class OrderListViewSet(viewsets.ModelViewSet,
         return super(OrderListViewSet, self).perform_create(serializer)
 
 
-class VolumeViewSet(ReadOnlyCacheResponseAndETAGMixin, DateFilterViewSet):
+class VolumeViewSet(ReadOnlyETAGMixin, CacheResponseMixin, DateFilterViewSet):
 
     model_class = Order
     http_method_names = ['get']
@@ -296,7 +299,7 @@ class PriceView(APIView):
 
 
 class TradeHistoryViewSet(viewsets.ModelViewSet,
-                          ReadOnlyCacheResponseAndETAGMixin):
+                          ReadOnlyETAGMixin, CacheResponseMixin):
 
     model_class = Order
     http_method_names = ['get']

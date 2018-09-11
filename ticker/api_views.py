@@ -5,8 +5,11 @@ from ticker.models import Price
 from ticker.serializers import PriceSerializer
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from rest_framework_extensions.mixins import (
-    ReadOnlyCacheResponseAndETAGMixin, ReadOnlyETAGMixin
+from rest_framework_extensions.etag.mixins import (
+    ReadOnlyETAGMixin
+)
+from rest_framework_extensions.cache.mixins import (
+    CacheResponseMixin
 )
 
 from rest_framework import viewsets
@@ -89,7 +92,7 @@ class BestChangeRateViewSet(viewsets.ModelViewSet):
         return Response(data)
 
 
-class LastPricesViewSet(ReadOnlyCacheResponseAndETAGMixin,
+class LastPricesViewSet(ReadOnlyETAGMixin, CacheResponseMixin,
                         DateFilterViewSet):
 
     model_class = Price

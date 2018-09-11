@@ -38,7 +38,7 @@ beautifulsoup4==4.6.1
 isort
 freezegun>=0.3.8
 suds-jurko>=0.6
-drf-extensions>=0.3.1
+drf-extensions>=0.4.0
 mock
 requests-cache>=0.4.13
 xmltodict>=0.10.2
