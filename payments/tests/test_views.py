@@ -178,7 +178,8 @@ class SafeChargeTestCase(TickerBaseTestCase):
             'level': 'DEVIL',
             'countrycode': 'US',
             'website': 'https://not.a.good.idea',
-            'phone': '',
+            'phone': '(961-1) 738938 - 743300 '
+                     'OR (961-1) 372780 - 370830 - 373102',
             'valid': 'true'
         }
 

@@ -553,7 +553,7 @@ class Bank(TimeStampedModel, NamedModel):
     country = models.ForeignKey(Country, null=True, blank=True,
                                 on_delete=models.DO_NOTHING)
     website = models.URLField(null=True, blank=True)
-    phone = models.CharField(max_length=50, null=True, blank=True)
+    phone = models.CharField(max_length=127, null=True, blank=True)
 
     def __str__(self):
         res = '{}'.format(self.name)
