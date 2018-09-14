@@ -357,6 +357,12 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel,
 
         return res
 
+    @property
+    def related_orders(self):
+        if self.payment_preference:
+            return self.payment_preference.payment_orders
+        return []
+
 
 class DocumentType(TimeStampedModel, SoftDeletableModel):
 

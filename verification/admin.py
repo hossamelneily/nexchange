@@ -49,7 +49,7 @@ class VerificationAdmin(admin.ModelAdmin):
         VerificationInline,
     ]
 
-    list_filter = (PendingFilter,)
+    list_filter = (PendingFilter, 'category')
     list_display = ('created_on', 'id_document_status', 'util_document_status',
                     'full_name', 'note', 'admin_comment', 'user',
                     'name_on_card', 'unique_cc', 'name_on_card_matches',
@@ -62,7 +62,7 @@ class VerificationAdmin(admin.ModelAdmin):
         'residence_doc', 'user', 'user_input_comment', 'total_payments_usd',
         'total_payments_usd_1day', 'total_payments_usd_30days', 'out_of_limit',
         'is_immediate_payment', 'tier', 'util_status', 'id_status',
-        'modified_by', 'created_by'
+        'modified_by', 'created_by', 'related_orders'
     )
 
     search_fields = ('note', 'full_name', 'id_status', 'util_status',

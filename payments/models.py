@@ -398,6 +398,10 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                 return False
         return True
 
+    @property
+    def payment_orders(self):
+        return [p.order for p in self.payment_set.all() if p.order]
+
     def __str__(self):
         return "{} {}".format(self.payment_method.name,
                               self.identifier)
@@ -558,7 +562,7 @@ class Bank(TimeStampedModel, NamedModel):
     def __str__(self):
         res = '{}'.format(self.name)
         if self.country:
-            res += ' ({})'.format(self.country.country.code)
+            res += ' ({})'.format(self.country)
         return res
 
 
@@ -631,7 +635,8 @@ class BankBin(TimeStampedModel):
         super(BankBin, self).save(*args, **kwargs)
 
     def __str__(self):
-        res = '{}'.format(self.bin)
+        res = '{}--{}--{}--{}'.format(self.bin, self.card_company,
+                                      self.card_level, self.card_type)
         if self.bank:
-            res += ' {}'.format(self.bank.__str__())
+            res += '--{}'.format(self.bank.__str__())
         return res
