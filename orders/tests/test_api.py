@@ -10,6 +10,7 @@ from nexchange.tests.test_ripple import RPC8_PORT, RPC8_PASSWORD, RPC8_USER,\
     RPC8_HOST, RPC13_PUBLIC_KEY_C1
 from nexchange.tests.test_cryptonight import RPC12_PUBLIC_KEY_C1
 from core.models import Currency, AddressReserve
+from payments.utils import money_format
 
 
 class TestBestChangeAPI(TickerBaseTestCase):
@@ -358,3 +359,54 @@ class TestOrderParamsOnAddress(TickerBaseTestCase):
         res = self._get_order(order_ref)
         get_payment_id = res['withdraw_address'].get('payment_id')
         self.assertEqual(get_payment_id, payment_id)
+
+
+class TestOrderAmountParams(TickerBaseTestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.ENABLED_TICKER_PAIRS = ['LTCBTC']
+        super(TestOrderAmountParams, cls).setUpClass()
+        cls.api_client = APIClient()
+        cls.order_api_url = '/en/api/v1/orders/'
+        cls.order_serializer = OrderListViewSet()
+
+    def _create_order_api(self, pair_name='LTCBTC',
+                          address='LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4',
+                          amount=1):
+        order_data = {
+            'pair': {
+                'name': pair_name
+            },
+            'withdraw_address': {
+                'address': address,
+            },
+            'amount_base': amount
+        }
+        res = self.api_client.post(self.order_api_url,
+                                   order_data, format='json')
+        return res
+
+    def test_create_order_when_amount_decimals_are_exceeded(self):
+        amount_base = Decimal('0.12345678910222')
+        response = self._create_order_api(amount=amount_base)
+        self.assertEqual(response.status_code, 201,
+                         'order wasn\'t created, reason: {}'
+                         .format(response.json()))
+        order = Order.objects.latest('pk')
+        amount_base_formatted = money_format(amount_base, places=8)
+        self.assertEqual(order.amount_base, amount_base_formatted)
+        amount_base = Decimal('0.1234')
+        response = self._create_order_api(amount=amount_base)
+        self.assertEqual(response.status_code, 201,
+                         'order wasn\'t created, reason: {}'
+                         .format(response.json()))
+        order = Order.objects.latest('pk')
+        self.assertEqual(order.amount_base, amount_base)
+
+    def test_create_order_with_non_numeric_amounts(self):
+        amount_base = 'Nonsense'
+        response = self._create_order_api(amount=amount_base)
+        self.assertEqual(response.status_code, 400,
+                         'Order was created with wrong '
+                         'amount provided: {}'.format(amount_base))

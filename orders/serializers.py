@@ -7,6 +7,8 @@ from ticker.serializers import RateSerializer
 
 from orders.models import Order
 from core.models import Address, Pair
+from payments.utils import money_format
+from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from rest_framework.exceptions import ValidationError as RestValidationError
@@ -149,6 +151,28 @@ class CreateOrderSerializer(OrderSerializer):
         # hack to allow seeing needed fields in
         # response from post (lines 47:51)
         fields = BASE_FIELDS + READABLE_FIELDS + FIAT_FIELDS + TOKEN_FIELDS
+
+    def __init__(self, *args, **kwargs):
+        data = kwargs.get('data', None)
+        if data:
+            amount_base_raw = data.get('amount_base', None)
+            amount_quote_raw = data.get('amount_quote', None)
+            try:
+                if amount_base_raw:
+                    amount_base = Decimal(str(amount_base_raw))
+                    amount_formatted = money_format(
+                        amount_base, places=8
+                    )
+                    kwargs['data']['amount_base'] = str(amount_formatted)
+                if amount_quote_raw:
+                    amount_quote = Decimal(str(amount_quote_raw))
+                    amount_formatted = money_format(
+                        amount_quote, places=8
+                    )
+                    kwargs['data']['amount_quote'] = str(amount_formatted)
+            except Exception:
+                pass
+        super(CreateOrderSerializer, self).__init__(*args, **kwargs)
 
     def validate(self, data):
         # TODO: custom validation based on order.pair.base
