@@ -68,3 +68,4 @@ qrcode==6.0
 git+git://github.com/vvangelovski/django-audit-log.git@0a3b1a03b2ce0b560859cefab00bdd2af6641d59
 rlp==0.6.0
 django-newsletter==0.7
+django-email-log==0.2.0

@@ -6,7 +6,7 @@ from django.urls import reverse
 from unittest.mock import patch
 
 from core.models import Address, Transaction, Currency
-from core.tests.base import OrderBaseTestCase
+from core.tests.base import OrderBaseTestCase, VerificationBaseTestCase
 from core.tests.base import UPHOLD_ROOT, SCRYPT_ROOT
 from core.tests.utils import data_provider, enable_all_pairs
 from nexchange.api_clients.uphold import UpholdApiClient
@@ -21,7 +21,7 @@ from payments.task_summary import check_fiat_order_deposit_periodic,\
     check_payments_for_refund_periodic, check_payments_for_void_periodic
 import json
 from verification.models import Verification, VerificationTier, \
-    VerificationCategory, CategoryRule
+    VerificationCategory, CategoryRule, VerificationDocument
 from collections import namedtuple
 import datetime
 from freezegun import freeze_time
@@ -155,7 +155,7 @@ do_not_refund_fiat_order_params = namedtuple(
 )
 
 
-class SafeChargeTestCase(TickerBaseTestCase):
+class SafeChargeTestCase(TickerBaseTestCase, VerificationBaseTestCase):
 
     def setUp(self):
         super(SafeChargeTestCase, self).setUp()
@@ -170,20 +170,9 @@ class SafeChargeTestCase(TickerBaseTestCase):
         )
         self.payment_handler = SafeChargePaymentHandler()
         self.api_client = APIClient()
-        self.bankbins_resp = {
-            'bin': '000000',
-            'bank': 'Bank of Samael',
-            'card': 'VISA',
-            'type': 'FAVOR',
-            'level': 'DEVIL',
-            'countrycode': 'US',
-            'website': 'https://not.a.good.idea',
-            'phone': '(961-1) 738938 - 743300 '
-                     'OR (961-1) 372780 - 370830 - 373102',
-            'valid': 'true'
-        }
 
     def tearDown(self):
+        VerificationDocument.objects.all().delete()
         super(SafeChargeTestCase, self).tearDown()
 
     def _check_bank_bin(self, payment_preference):
@@ -406,36 +395,6 @@ class SafeChargeTestCase(TickerBaseTestCase):
         self.assertFalse(payment.is_redeemed)
 
         self._test_paid_order(order)
-
-    def _get_dmn_request_params_for_order(self, order, unique_cc, name,
-                                          status='APPROVED', time_stamp=None,
-                                          payment_method='cc_card'):
-        order.refresh_from_db()
-        time_stamp = time_stamp if time_stamp else \
-            datetime.datetime.now().strftime("%Y-%m-%d.%H:%M:%S")
-        key = settings.SAFE_CHARGE_SECRET_KEY
-        total_amount = str(order.amount_quote)
-        currency = order.pair.quote.code
-        ppp_tx_id = self.generate_txn_id()
-        product_id = order.unique_reference
-        to_hash = (key, total_amount, currency, time_stamp, ppp_tx_id, status,
-                   product_id)
-        checksum = get_sha256_sign(ar_hash=to_hash, delimiter='',
-                                   upper=False)
-        params = {
-            'PPP_TransactionID': ppp_tx_id,
-            'productId': product_id,
-            'totalAmount': total_amount,
-            'currency': currency,
-            'advancedResponseChecksum': checksum,
-            'Status': status,
-            'responseTimeStamp': time_stamp,
-            'uniqueCC': unique_cc,
-            'nameOnCard': name,
-            'payment_method': payment_method,
-            'bin': self.bankbins_resp['bin']
-        }
-        return params
 
     @data_provider(lambda: (
         ('APPROVED', Order.PAID_UNCONFIRMED, True),
@@ -1165,7 +1124,9 @@ class SafeChargeTestCase(TickerBaseTestCase):
             self.assertEqual(order3.status, Order.PAID)
 
     @patch('payments.views.get_client_ip')
-    def test_approve_documents_and_check_tier(self, get_client_ip):
+    @patch('payments.models.send_email')
+    def test_approve_documents_and_check_tier(self, mock_send_email,
+                                              get_client_ip):
         get_client_ip.return_value = \
             settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
         order = self._create_order_api(
@@ -1187,6 +1148,9 @@ class SafeChargeTestCase(TickerBaseTestCase):
         self.assertEqual(pref.tier.level, 0)
         # Upload kyc
         kyc = self._create_kyc(order.unique_reference)
+        user = kyc.user
+        user.email = 'example@mail.com'
+        user.save()
         docs = kyc.verificationdocument_set.all()
         id_doc = docs.get(document_type__name='ID')
         util_doc = docs.get(document_type__name='UTIL')
@@ -1204,12 +1168,14 @@ class SafeChargeTestCase(TickerBaseTestCase):
         pref.refresh_from_db()
         self.assertTrue(pref.is_verified)
         self.assertEqual(pref.tier.level, 1)
+        self.assertEqual(mock_send_email.call_count, 1)
         # id OK, util OK, selfie OK
         selfie.document_status = id_doc.OK
         selfie.save()
         pref.refresh_from_db()
         self.assertTrue(pref.is_verified)
         self.assertEqual(pref.tier.level, 2)
+        self.assertEqual(mock_send_email.call_count, 2)
         # id OK, util OK, selfie OK, whitelist_selfie OK
         self.assertNotIn(order.withdraw_address, pref.whitelisted_addresses)
         whitelist_selfie.document_status = id_doc.OK
@@ -1217,6 +1183,7 @@ class SafeChargeTestCase(TickerBaseTestCase):
         pref.refresh_from_db()
         self.assertTrue(pref.is_verified)
         self.assertEqual(pref.tier.level, 3)
+        self.assertEqual(mock_send_email.call_count, 3)
         self.assertEqual(whitelist_selfie.whitelisted_address,
                          order.withdraw_address)
         self.assertIn(order.withdraw_address, pref.whitelisted_addresses)

@@ -13,6 +13,11 @@ from core.models import Location, Country, BtcBase, Currency
 from verification.models import VerificationDocument
 import requests
 import json
+from nexchange.utils import send_email, get_nexchange_logger
+from smtplib import SMTPDataError
+
+logger = get_nexchange_logger('Payment logger', with_email=True,
+                              with_console=True)
 
 
 class PaymentMethodManager(models.Manager):
@@ -279,6 +284,19 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         return total_amount
 
     @property
+    def user_email(self):
+        objects = [self] if self.user is not None else []
+        paym_verifications = self.verification_set.filter(user__isnull=False)
+        if len(paym_verifications) > 0:
+            objects.extend(paym_verifications)
+        for obj in objects:
+            if any([obj.user.email is None, obj.user.email == '']):
+                continue
+            else:
+                return obj.user.email
+        return
+
+    @property
     def total_payments_usd(self):
         return self.get_successful_payments_amount()
 
@@ -341,6 +359,25 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         )
 
     @property
+    def has_pending_documents(self):
+        verifications = self.verification_set.all()
+        for verification in verifications:
+            has_pending_docs = verification.pending_documents.count() > 0
+            if verification.PENDING in [
+                verification.util_status, verification.id_status
+            ] or has_pending_docs:
+                return True
+        return False
+
+    @property
+    def rejected_documents(self):
+        rejected_docs = []
+        for document in self.verification_documents:
+            if document.document_status == document.REJECTED:
+                rejected_docs.append(document)
+        return rejected_docs
+
+    @property
     def whitelisted_addresses(self):
         whitelist_docs = self.verification_documents.filter(
             document_type__whitelisted_address_required=True,
@@ -401,6 +438,14 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     @property
     def payment_orders(self):
         return [p.order for p in self.payment_set.all() if p.order]
+
+    def notify(self, email_to, subject, message):
+        try:
+            send_email(to=email_to, subject=subject, msg=message)
+        except SMTPDataError:
+            logger.warning('Something is wrong with SMTP. Emails are not sent'
+                           'to users.')
+            return
 
     def __str__(self):
         return "{} {}".format(self.payment_method.name,

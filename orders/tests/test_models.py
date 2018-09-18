@@ -959,8 +959,8 @@ class OrderPriceTestCase(TickerBaseTestCase):
             BaseTicker.LOCALBTC_URL.format(BaseTicker.ACTION_SELL),
             text=self.localbtc_sell_resp
         )
-        kraken_resp_text = \
-            '{"result": {"XXBTZUSD": {"a": ["5077.50000"],"b": ["5069.20000"]}}}'
+        kraken_resp_text = '{"result": {"XXBTZUSD": {"a": ["5077.50000"],' \
+                           '"b": ["5069.20000"]}}}'
         mock.get(BaseTicker.KRAKEN_TICKER,
                  text=kraken_resp_text)
         ticker, price = ticker_api.run(pair.pk, market_code='locbit')

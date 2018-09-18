@@ -6,6 +6,8 @@ from django.urls import reverse
 from orders.models import Order
 from payments.models import Payment
 from nexchange.utils import get_nexchange_logger
+from payments.models import PaymentPreference
+from datetime import datetime
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
@@ -80,5 +82,32 @@ def check_kyc_names_periodic():
             name_matches = pref.name_on_card_matches
             if has_kyc and not name_matches and not flagged_kycs:
                 notify_about_wrong_kyc_name_invoke.apply_async([order.pk])
+        except Exception as e:
+            logger.logger.info(e)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def check_kyc_pending_documents_periodic():
+    logger = get_nexchange_logger('PENDING KYC Documents Checker')
+    payment_preferences = PaymentPreference.objects.all()
+
+    for payment_preference in payment_preferences:
+        if payment_preference.verification_set.count() == 0:
+            continue
+        if not payment_preference.has_pending_documents:
+            continue
+        try:
+            for verification in payment_preference.verification_set.all():
+                for document in verification.verificationdocument_set.all():
+                    doc_created = document.created_on.replace(tzinfo=None)
+                    doc_pending_time = datetime.now() - doc_created
+                    if doc_pending_time.days >= 1:
+                        subject = 'Customer\'s verification document PENDING is too long'
+                        message = 'Verification document status PENDING wasn\'nt changed from PENDING status for {} day(s)'.format(doc_pending_time.days)
+                        payment_preference.notify(
+                            email_to=settings.SUPPORT_EMAIL,
+                            subject=subject,
+                            message=message
+                        )
         except Exception as e:
             logger.logger.info(e)

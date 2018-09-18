@@ -1,5 +1,6 @@
 from decimal import Decimal
 import json
+import datetime
 
 from core.tests.utils import set_big_reserves
 from django.contrib.auth.models import User
@@ -12,6 +13,7 @@ from core.models import Currency, Address, Transaction, Pair, AddressReserve
 from core.tests.utils import get_ok_pay_mock, split_ok_pay_mock
 from orders.models import Order
 from payments.models import PaymentPreference
+from payments.utils import get_sha256_sign
 from ticker.models import Price, Ticker
 from verification.models import Verification
 from copy import deepcopy
@@ -1171,3 +1173,132 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
         self.completed = '{"status": "completed", "type": "deposit",' \
                          '"params": {"progress": 999}}'
         self.pending = '{"status": "pending", "type": "deposit"}'
+
+
+class VerificationBaseTestCase(TestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(VerificationBaseTestCase, self).__init__(*args, **kwargs)
+        self.rpc_mock = None
+
+    @classmethod
+    def setUpClass(cls):
+        super(VerificationBaseTestCase, cls).setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        super(VerificationBaseTestCase, cls).tearDownClass()
+
+    def setUp(self):
+        super(VerificationBaseTestCase, self).setUp()
+
+        self.bankbins_resp = {
+            'bin': '000000',
+            'bank': 'Bank of Samael',
+            'card': 'VISA',
+            'type': 'FAVOR',
+            'level': 'DEVIL',
+            'countrycode': 'US',
+            'website': 'https://not.a.good.idea',
+            'phone': '(961-1) 738938 - 743300 '
+                     'OR (961-1) 372780 - 370830 - 373102',
+            'valid': 'true'
+        }
+
+    def tearDown(self):
+        super(VerificationBaseTestCase, self).tearDown()
+
+    def _create_kyc(self, ref):
+        id_doc = self._create_image()
+        util_doc = self._create_image()
+        selfie = self._create_image()
+        whitelist_selfie = self._create_image()
+        order_data = {
+            "order_reference": ref,
+            "identity_document": id_doc,
+            "utility_document": util_doc,
+            "selfie": selfie,
+            "whitelist_selfie": whitelist_selfie
+        }
+        order_api_url = '/en/api/v1/kyc/'
+        self.api_client.post(
+            order_api_url, order_data, format='multipart'
+        )
+        id_doc.close()
+        util_doc.close()
+        selfie.close()
+        kyc = Verification.objects.latest('id')
+        user = kyc.user
+        user.email = 'example@eeee.com'
+        user.save()
+        return kyc
+
+    def _create_image(self):
+        from PIL import Image
+        from io import BytesIO
+        from django.core.files.base import ContentFile
+
+        # create Mockup picture
+        image = Image.new('RGBA', size=(50, 50), color=(155, 0, 0))
+        image_file = BytesIO(image.tobytes())
+        image_file.name = 'test.png'
+        image_file.seek(0)
+        return ContentFile(image_file.read(), 'test.png')
+
+    def _create_order_api(self, set_pref=False, order_data=None,
+                          pair_name='BTCEUR',
+                          address='17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ'):
+        if not order_data:
+            order_data = {
+                "amount_quote": 100,
+                "pair": {
+                    "name": pair_name
+                },
+                "withdraw_address": {
+                    "address": address
+                }
+            }
+        order_api_url = '/en/api/v1/orders/'
+        response = self.api_client.post(
+            order_api_url, order_data, format='json')
+        order = Order.objects.get(
+            unique_reference=response.json()['unique_reference']
+        )
+        if set_pref:
+            order.payment_preference = self.pref
+            order.save()
+        return order
+
+    def generate_txn_id(self):
+        txn_id = 'txid_{}{}'.format(time(), randint(1, 999))
+        return txn_id
+
+    def _get_dmn_request_params_for_order(self, order, unique_cc, name,
+                                          status='APPROVED', time_stamp=None,
+                                          payment_method='cc_card'):
+        order.refresh_from_db()
+        time_stamp = time_stamp if time_stamp else \
+            datetime.datetime.now().strftime("%Y-%m-%d.%H:%M:%S")
+        key = settings.SAFE_CHARGE_SECRET_KEY
+        total_amount = str(order.amount_quote)
+        currency = order.pair.quote.code
+        ppp_tx_id = self.generate_txn_id()
+        product_id = order.unique_reference
+        to_hash = (key, total_amount, currency, time_stamp, ppp_tx_id, status,
+                   product_id)
+        checksum = get_sha256_sign(ar_hash=to_hash, delimiter='',
+                                   upper=False)
+        params = {
+            'PPP_TransactionID': ppp_tx_id,
+            'productId': product_id,
+            'totalAmount': total_amount,
+            'currency': currency,
+            'advancedResponseChecksum': checksum,
+            'Status': status,
+            'responseTimeStamp': time_stamp,
+            'uniqueCC': unique_cc,
+            'nameOnCard': name,
+            'payment_method': payment_method,
+            'bin': self.bankbins_resp['bin']
+        }
+        return params

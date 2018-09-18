@@ -3,7 +3,6 @@ from django.dispatch import receiver
 from nexchange.utils import get_nexchange_logger
 from orders.models import Order
 
-
 logger = get_nexchange_logger('notify_order', True, True)
 
 

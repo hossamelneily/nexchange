@@ -1,6 +1,5 @@
 from rest_framework.routers import SimpleRouter
 
-from django.conf.urls import url
 from risk_management.api_views import PNLListViewSet, PNLSheetViewSet
 
 router = SimpleRouter()

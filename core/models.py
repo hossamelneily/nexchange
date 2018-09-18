@@ -124,10 +124,9 @@ class Transaction(BtcBase, FlagableMixin):
         max_length=10, null=True, blank=True, default=None,
         validators=[validate_destination_tag]
     )
-    payment_id = models.CharField(
-            max_length=64, null=True, blank=True, default=None,
-            validators=[validate_xmr_payment_id]
-    )
+    payment_id = models.CharField(max_length=64, null=True, blank=True,
+                                  default=None,
+                                  validators=[validate_xmr_payment_id])
 
     def _validate_withdraw_txn(self):
         if self.order:

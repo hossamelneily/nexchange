@@ -68,8 +68,8 @@ account_urls = [
     re_path(r'^password/reset/(?P<uidb64>[0-9A-Za-z_-]+)/\
             (?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
             auth_views.password_reset_confirm, {
-             'post_reset_redirect': '/accounts/password/done/',
-             'template_name': 'accounts/password_reset_confirm.html'
+                'post_reset_redirect': '/accounts/password/done/',
+                'template_name': 'accounts/password_reset_confirm.html'
             },
             name='accounts.password_reset_confirm'),
     # after saved the new passwd

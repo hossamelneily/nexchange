@@ -178,8 +178,8 @@ INSTALLED_APPS = [
     'django_otp.plugins.otp_totp',
     'sorl.thumbnail',
     'newsletter',
+    'email_log',
 ]
-
 
 SITE_ID = 1
 
@@ -533,6 +533,7 @@ AUTHENTICATION_BACKENDS = (
     'loginurl.backends.LoginUrlBackend',
 )
 
+EMAIL_BACKEND = 'email_log.backends.EmailBackend'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/

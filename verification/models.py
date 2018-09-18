@@ -9,6 +9,11 @@ from django.urls import reverse
 from django.utils.translation import ugettext as _
 from audit_log.models import AuthStampedModel
 from django.utils.safestring import mark_safe
+from nexchange.utils import get_nexchange_logger
+
+
+logger = get_nexchange_logger('Verification logger', with_email=True,
+                              with_console=True)
 
 
 class VerificationTier(TimeStampedModel):
@@ -224,9 +229,20 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel,
 
     def set_verification_tier_to_obj(self, obj):
         obj.refresh_from_db()
+        _original_tier = obj.tier
+        if _original_tier is None:
+            _original_tier = VerificationTier.objects.get(name="Tier 0")
         tier = VerificationTier.get_relevant_tier(obj)
         obj.tier = tier
         obj.save()
+        if obj.user_email is None:
+            return
+        if obj.tier.level > _original_tier.level:
+            email_to = obj.user_email
+            subject = 'Your user tier was upgraded!'
+            message = 'Your tier was upgraded from {} to {}'.\
+                format(_original_tier.name, obj.tier.name)
+            obj.notify(email_to, subject, message)
 
     def _reject_if_no_document(self):
         if not self.utility_document and self.util_status == self.PENDING:
@@ -259,6 +275,15 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel,
         for status in [self.OK, self.PENDING, self.REJECTED]:
             if status in statuses:
                 return status
+
+    @property
+    def rejected_documents(self):
+        rejected_docs = []
+        for document_type in DocumentType.objects.all():
+            status = self.get_document_status(document_type.name)
+            if status == self.REJECTED:
+                rejected_docs.append(document_type)
+        return rejected_docs
 
     def get_document_status(self, document_type_name):
         docs = self.verificationdocument_set.filter(
@@ -382,6 +407,11 @@ class VerificationDocument(TimeStampedModel, SoftDeletableModel,
     PENDING = Verification.PENDING
     OK = Verification.OK
     DOCUMENT_STATUSES = Verification.STATUSES
+
+    def __init__(self, *args, **kwargs):
+        super(VerificationDocument, self).__init__(*args, **kwargs)
+        self.original_document_status = self.document_status if \
+            self.document_status is not None else self.PENDING
 
     def _get_file_name(self, filename):
         if self.document_type and self.document_type.name:
