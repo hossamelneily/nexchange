@@ -47,7 +47,7 @@ def validate_btc(value):
 
 def validate_ltc(value):
     p = re.compile(
-        "^L[1-9A-Za-z]{25,34}$"
+        "^(L|M)[1-9A-Za-z]{25,34}$"
     )
 
     if not p.match(value):
