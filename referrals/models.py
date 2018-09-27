@@ -84,9 +84,9 @@ class Referral(IpAwareModel):
                                          'earn free Bitcoins'),
                              null=True,
                              on_delete=models.DO_NOTHING)
-    referee = models.ForeignKey(User, null=True, default=None,
-                                related_name='referrals_set', unique=True,
-                                on_delete=models.CASCADE)
+    referee = models.OneToOneField(User, null=True, default=None, blank=True,
+                                   related_name='referral',
+                                   on_delete=models.CASCADE)
 
     @property
     def orders(self):

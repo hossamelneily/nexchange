@@ -388,6 +388,10 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel,
             return self.payment_preference.payment_orders
         return []
 
+    @property
+    def referred_with(self):
+        return [o.referred_with for o in self.related_orders]
+
 
 class DocumentType(TimeStampedModel, SoftDeletableModel):
 

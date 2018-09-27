@@ -57,6 +57,7 @@ class TestReferralRegression(TickerBaseTestCase):
             name='{}LTC'.format(balance_currency),
             ref_code=self.code.code
         )
+        self.assertEqual(self.code.code, order1.referred_with.code)
         self.api_client.logout()
         order2 = self._create_order_api(
             name='{}LTC'.format(balance_currency),

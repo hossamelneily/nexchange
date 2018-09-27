@@ -13,7 +13,7 @@ from core.models import Pair, Transaction, Currency
 from payments.utils import money_format
 from payments.models import Payment
 from ticker.models import Price
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
 from math import log10, floor, ceil
 from django.utils.translation import activate
@@ -1302,3 +1302,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
     def quote_payment_id(self):
         if self.pair.quote.code == 'XMR':
             return self.payment_id
+
+    @property
+    def referred_with(self):
+        try:
+            return self.user.profile.referred_with
+        except ObjectDoesNotExist:
+            pass

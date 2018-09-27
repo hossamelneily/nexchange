@@ -13,7 +13,7 @@ from orders.models import Order
 from payments.models import FailedRequest
 from referrals.models import ReferralCode
 from verification.models import Verification, VerificationTier
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 
 class NexchangeUser(User):
@@ -161,6 +161,14 @@ class Profile(TimeStampedModel, SoftDeletableModel):
             user=self.user, type=Address.WITHDRAW, currency__is_crypto=True
         )
         return addresses
+
+    @property
+    def referred_with(self):
+        try:
+            referral = self.user.referral
+            return referral.code
+        except ObjectDoesNotExist:
+            pass
 
 
 # TODO: refactor this Profile is not writable via user

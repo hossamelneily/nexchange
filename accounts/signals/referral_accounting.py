@@ -2,18 +2,25 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from orders.models import Order
 from accounts.models import Balance
+from django.core.exceptions import ObjectDoesNotExist
 
 
 @receiver(pre_save, sender=Order)
 def calculate_pre_revenue(sender, instance, **kwargs):
-    referral = instance.user.referrals_set.last()
+    try:
+        referral = instance.user.referral
+    except ObjectDoesNotExist:
+        referral = None
     if referral and instance.status == Order.COMPLETED:
         instance.old_referral_revenue = referral.revenue
 
 
 @receiver(post_save, sender=Order)
 def calculate_post_revenue(sender, instance, **kwargs):
-    referral = instance.user.referrals_set.last()
+    try:
+        referral = instance.user.referral
+    except ObjectDoesNotExist:
+        referral = None
     if referral and instance.status == Order.COMPLETED:
         revenue_from_trade = referral.revenue - instance.old_referral_revenue
 

@@ -17,5 +17,6 @@ class ProgramAdmin(admin.ModelAdmin):
 
 @admin.register(Referral)
 class Referraldmin(admin.ModelAdmin):
-    search_fields = ('code__code', 'referee__username')
+    search_fields = ('code__code', 'referee__username', 'code__user__username')
+    list_display = ('code', 'referee', 'turnover', 'revenue', 'orders')
     autocomplete_fields = ('code', 'referee')

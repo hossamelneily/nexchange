@@ -53,7 +53,7 @@ class VerificationAdmin(admin.ModelAdmin):
     list_display = ('created_on', 'id_document_status', 'util_document_status',
                     'full_name', 'note', 'admin_comment', 'user',
                     'name_on_card', 'unique_cc', 'name_on_card_matches',
-                    'out_of_limit', 'flagged')
+                    'out_of_limit', 'flagged_str')
     exclude = ('identity_document', 'utility_document')
     readonly_fields = (
         'note', 'name_on_card',
@@ -62,7 +62,7 @@ class VerificationAdmin(admin.ModelAdmin):
         'residence_doc', 'user', 'user_input_comment', 'total_payments_usd',
         'total_payments_usd_1day', 'total_payments_usd_30days', 'out_of_limit',
         'is_immediate_payment', 'tier', 'util_status', 'id_status',
-        'modified_by', 'created_by', 'related_orders'
+        'modified_by', 'created_by', 'related_orders', 'referred_with'
     )
 
     search_fields = ('note', 'full_name', 'id_status', 'util_status',
@@ -151,6 +151,12 @@ class VerificationAdmin(admin.ModelAdmin):
     @mark_safe
     def out_of_limit(self, obj):
         res = self._get_payment_preference_field(obj, 'out_of_limit')
+        _color = 'red' if res else 'green'
+        return '<b style="background:{};">{}</b>'.format(_color, res)
+
+    @mark_safe
+    def flagged_str(self, obj):
+        res = obj.flagged
         _color = 'red' if res else 'green'
         return '<b style="background:{};">{}</b>'.format(_color, res)
 
