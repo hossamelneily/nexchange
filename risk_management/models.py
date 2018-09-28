@@ -326,6 +326,14 @@ class Account(TimeStampedModel):
         return '{} {} account'.format(self.reserve.currency.code,
                                       self.description)
 
+    @property
+    def main_address(self):
+        try:
+            _api = API_FACTORY.get_api_client(self.wallet)
+            return _api.get_main_address(self.reserve.currency)
+        except Exception:
+            return
+
 
 class Cover(TimeStampedModel):
 

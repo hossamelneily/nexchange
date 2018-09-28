@@ -118,6 +118,17 @@ class PropetiesTestCase(RiskManagementBaseTestCase):
             balance_bittrex - account.minimal_reserve
         )
 
+    @patch(SCRYPT_ROOT + 'get_main_address')
+    def test_main_address(self, get_main_address):
+        addr = 'much_btc_main_address'
+        get_main_address.return_value = addr
+        btc_account = Account.objects.get(
+            reserve__currency__code='BTC',
+            is_main_account=True
+        )
+        res = btc_account.main_address
+        self.assertEqual(res, addr)
+
 
 class PnlTestCase(TestCase):
 

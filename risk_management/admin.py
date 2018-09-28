@@ -23,7 +23,8 @@ class ReserveAdmin(admin.ModelAdmin):
 
 @admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
-    readonly_fields = ('reserve', 'wallet', 'balance', 'available', 'pending')
+    readonly_fields = ('reserve', 'wallet', 'balance', 'available', 'pending',
+                       'main_address')
     list_display = ('reserve', 'description', 'balance', 'available',
                     'pending', 'is_main_account', 'disabled', 'healthy')
     search_fields = ('wallet', 'reserve__currency__name',
