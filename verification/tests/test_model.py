@@ -1,6 +1,7 @@
 from core.tests.base import UserBaseTestCase
 from verification.models import Verification, VerificationCategory
 from payments.models import PaymentPreference
+from django.urls import reverse
 
 
 class VerificationTestCase(UserBaseTestCase):
@@ -100,3 +101,7 @@ class VerificationTestCase(UserBaseTestCase):
         kyc.save()
         self.assertFalse(kyc.flagged)
         kyc.refresh_from_db()
+
+    def test_demo(self):
+        url = reverse('verification.idenfy_callback')
+        self.client.post(url, {'asd':'asd'}, format='json')

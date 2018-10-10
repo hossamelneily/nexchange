@@ -1,18 +1,16 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.contrib.postgres.fields import JSONField
 
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from decimal import Decimal
 from core.common.models import SoftDeletableModel, \
-    TimeStampedModel, FlagableMixin, IpAwareModel, NamedModel
+    TimeStampedModel, FlagableMixin, NamedModel, RequestLog
 from ticker.models import Price
 from django.utils.timezone import now, timedelta
 from core.models import Location, Country, BtcBase, Currency
 from verification.models import VerificationDocument
 import requests
-import json
 from nexchange.utils import send_email, get_nexchange_logger
 from smtplib import SMTPDataError
 
@@ -543,17 +541,6 @@ class PaymentCredentials(TimeStampedModel, SoftDeletableModel):
                                     pref.identifier)
 
 
-class RequestLog(IpAwareModel):
-
-    class Meta:
-        abstract = True
-
-    url = models.TextField(null=True, blank=True)
-    response = models.TextField(null=True, blank=True)
-    payload = models.TextField(null=True, blank=True)
-    payload_json = JSONField(null=True, blank=True)
-
-
 class FailedRequest(RequestLog):
     validation_error = models.TextField(null=True, blank=True)
     order = models.ForeignKey('orders.Order',
@@ -587,15 +574,6 @@ class PushRequest(RequestLog):
                 res.update({key: value})
 
         return res
-
-    def get_payload_dict(self):
-        if settings.DATABASES.get(
-                'default', {}).get('ENGINE') == 'django.db.backends.sqlite3':
-            json_str = self.payload.replace("'", "\"")
-            res = json.loads(json_str) if json_str else {}
-        else:
-            res = self.payload_json
-        return res if res else {}
 
 
 class Bank(TimeStampedModel, NamedModel):

@@ -1,7 +1,8 @@
 from django.contrib import admin
 
 from verification.models import Verification, VerificationTier, TradeLimit,\
-    VerificationDocument, DocumentType, VerificationCategory, CategoryRule
+    VerificationDocument, DocumentType, VerificationCategory, CategoryRule,\
+    KycPushRequest
 from orders.models import Order
 from payments.models import Payment
 from django.contrib.admin import SimpleListFilter
@@ -15,7 +16,7 @@ from .signals.add_kyc_groups import raw_add_kyc_groups
 class VerificationInline(admin.TabularInline):
     model = VerificationDocument
     exclude = ('document_file',)
-    readonly_fields = ('image_tag', 'whitelisted_address')
+    readonly_fields = ('kyc_push', 'image_tag', 'whitelisted_address')
     autocomplete_fields = ('document_type',)
     fk_name = 'verification'
 
@@ -287,3 +288,18 @@ class VerificationCateroryAdmin(admin.ModelAdmin):
 class CategoryRuleAdmin(admin.ModelAdmin):
     search_fields = ('name', 'key', 'value', 'rule_type')
     list_display = ('name', 'key', 'value', 'rule_type')
+
+
+@admin.register(KycPushRequest)
+class KycPushRequestAdmin(admin.ModelAdmin):
+    list_display = (
+        'created_on', 'full_name', 'birth_date', 'doc_expiration',
+        'identification_status', 'identification_approved', 'valid_link'
+    )
+    readonly_fields = (
+        'url', 'payload', 'ip', 'payload_json', 'identification_status',
+        'identification_approved', 'valid_link', 'full_name', 'nationality',
+        'issuing_country', 'selected_country', 'birth_date', 'doc_expiration',
+        'response'
+    )
+    search_fields = ('full_name', 'birth_date')

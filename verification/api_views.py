@@ -41,6 +41,12 @@ class VerificationViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
                     key = '{}_document_status'.format(doc_type.name.lower())
                     _status = payment_preference.get_payment_preference_document_status(doc_type.name)  # noqa
                     data[key] = Verification.STATUSES_TO_API[_status]
+                id_status = payment_preference.\
+                    get_payment_preference_document_status('id')
+                data['identity_token'] = \
+                    order.identity_token if id_status in [
+                        Verification.REJECTED,
+                        None] else None
                 whitelisted_addresses = \
                     payment_preference.whitelisted_addresses
                 whitelisted = order.withdraw_address in whitelisted_addresses

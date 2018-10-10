@@ -95,11 +95,7 @@ class SafeChargeListenView(View):
             valid_ip=valid_ip,
             url=request.path_info
         )
-        if settings.DATABASES.get(
-                'default', {}).get('ENGINE') == 'django.db.backends.sqlite3':
-            push_request.payload = payload
-        else:
-            push_request.payload_json = payload
+        push_request.set_payload(payload)
         push_request.save()
         return push_request
 

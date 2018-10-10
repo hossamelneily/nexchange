@@ -27,8 +27,11 @@ from nexchange.api_clients.factory import ApiClientFactory
 from oauth2_provider.models import AccessToken
 from decimal import InvalidOperation
 from core.validators import validate_xmr_payment_id, validate_destination_tag
+from verification.api_clients.idenfy import IdenfyAPIClient
+from verification.models import IdentityToken
 
 safe_charge_client = SafeChargeAPIClient()
+idenfy_client = IdenfyAPIClient()
 factory = ApiClientFactory()
 logger = get_nexchange_logger('Order logger', with_email=True,
                               with_console=True)
@@ -527,6 +530,31 @@ class Order(TimeStampedModel, SoftDeletableModel,
         if any([self.pair.quote.is_crypto, self.status != self.INITIAL]):
             return
         return safe_charge_client.generate_cachier_url_for_order(self)
+
+    def get_or_create_identity_token(self):
+        try:
+            token = IdentityToken.objects.filter(order=self).latest('id')
+        except ObjectDoesNotExist:
+            token = None
+        if not token or token.expired or token.used:
+            _token = idenfy_client.get_token_for_order(self)
+            if not _token:
+                return
+            token = IdentityToken.objects.create(order=self, token=_token)
+        return token
+
+    @property
+    def identity_token(self):
+        if any([self.pair.quote.is_crypto,
+                self.status != self.PAID_UNCONFIRMED]):
+            return
+        token = self.get_or_create_identity_token()
+        return token.token if token else None
+
+    @property
+    def identity_check_url(self):
+        token = self.identity_token
+        return idenfy_client.get_redirect_url(token)
 
     @cached_property_with_ttl(ttl=settings.TICKER_INTERVAL)
     def amount_eur(self):

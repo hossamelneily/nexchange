@@ -6,6 +6,8 @@ from safedelete import (DELETED_INVISIBLE, DELETED_VISIBLE_BY_PK, SOFT_DELETE,
                         safedelete_manager_factory, safedelete_mixin_factory)
 from django.utils.crypto import get_random_string
 from random import randint
+from django.contrib.postgres.fields import JSONField
+import json
 
 SoftDeleteMixin = safedelete_mixin_factory(policy=SOFT_DELETE,
                                            visibility=DELETED_VISIBLE_BY_PK)
@@ -139,3 +141,32 @@ class FlagableMixin(models.Model):
         )
 
     flagged = models.BooleanField(default=False)
+
+
+class RequestLog(IpAwareModel):
+
+    class Meta:
+        abstract = True
+
+    url = models.TextField(null=True, blank=True)
+    response = models.TextField(null=True, blank=True)
+    payload = models.TextField(null=True, blank=True)
+    payload_json = JSONField(null=True, blank=True)
+
+    def get_payload_dict(self):
+        res = self.payload_json
+        if settings.DATABASES.get(
+                'default', {}).get('ENGINE') == 'django.db.backends.sqlite3':
+            if isinstance(self.payload, dict):
+                res = self.payload
+            elif isinstance(self.payload, str):
+                json_str = self.payload.replace("'", "\"")
+                res = json.loads(json_str) if json_str else {}
+        return res if res else {}
+
+    def set_payload(self, payload):
+        if settings.DATABASES.get(
+                'default', {}).get('ENGINE') == 'django.db.backends.sqlite3':
+            self.payload = payload
+        else:
+            self.payload_json = payload

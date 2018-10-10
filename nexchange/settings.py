@@ -200,6 +200,13 @@ SOFORT_USER_ID = '141789'
 SOFORT_PROJECT_ID = '344411'
 SOFORT_API_KEY = 'some_id'
 
+# IDENFY
+IDENFY_URL = 'https://ivs.idenfy.com/api/{version}/{endpoint}'
+IDENFY_VERSION = 'v2'
+IDENFY_API_KEY = 'super_key'
+IDENFY_API_SECRET = 'much_secret'
+IDENFY_TOKEN_EXPIRY_TIME = 600  # seconds
+
 # ADV CASH
 ADV_CASH_API_NAME = 'test_api'
 ADV_CASH_ACCOUNT_EMAIL = 'sarunas@onit.ws'

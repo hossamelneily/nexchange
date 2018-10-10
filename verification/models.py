@@ -1,16 +1,19 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.conf import settings
 from verification.validators import validate_image_extension
 
 from core.common.models import SoftDeletableModel, TimeStampedModel, \
-    FlagableMixin, NamedModel
-from core.models import Currency
+    FlagableMixin, NamedModel, RequestLog
+from core.models import Currency, Country
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 from audit_log.models import AuthStampedModel
 from django.utils.safestring import mark_safe
 from nexchange.utils import get_nexchange_logger
-
+from django.core.exceptions import ObjectDoesNotExist
+from datetime import timedelta
+from django.utils import timezone
 
 logger = get_nexchange_logger('Verification logger', with_email=True,
                               with_console=True)
@@ -455,6 +458,9 @@ class VerificationDocument(TimeStampedModel, SoftDeletableModel,
                                             on_delete=models.DO_NOTHING)
     admin_comment = models.CharField(max_length=255,
                                      null=True, blank=True)
+    kyc_push = models.OneToOneField('verification.KycPushRequest', null=True,
+                                    blank=True, default=None,
+                                    on_delete=models.DO_NOTHING)
 
     @mark_safe
     def download_document(self):
@@ -473,7 +479,90 @@ class VerificationDocument(TimeStampedModel, SoftDeletableModel,
                                  self.verification.note, self.verification.pk)
 
     def save(self, *args, **kwargs):
+        if not self.pk and self.kyc_push:
+            self.document_status = self.kyc_push.document_status
         super(VerificationDocument, self).save(*args, **kwargs)
         if self.verification:
             self.verification.refresh_from_db()
             self.verification.save()
+
+
+class KycPushRequest(RequestLog):
+    REJECTED = Verification.REJECTED
+    PENDING = Verification.PENDING
+    OK = Verification.OK
+
+    identification_status = models.CharField(max_length=127, null=True,
+                                             blank=True)
+    identification_approved = models.BooleanField(default=False)
+    valid_link = models.BooleanField(default=False)
+    full_name = models.CharField(max_length=127, null=True, blank=True)
+    nationality = models.ForeignKey(Country, null=True, blank=True,
+                                    on_delete=models.DO_NOTHING,
+                                    related_name='nationalities',)
+    issuing_country = models.ForeignKey(Country, null=True, blank=True,
+                                        on_delete=models.DO_NOTHING,
+                                        related_name='issuing_countries')
+    selected_country = models.ForeignKey(Country, null=True, blank=True,
+                                         on_delete=models.DO_NOTHING,
+                                         related_name='selected_countries')
+    birth_date = models.DateField(blank=True, null=True)
+    doc_expiration = models.DateField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk or kwargs.pop('reload_from_payload', False):
+            payload = self.get_payload_dict()
+            first_name = payload.get('idFirstName')
+            last_name = payload.get('idLastName')
+            self.full_name = '{} {}'.format(first_name, last_name)
+            self.birth_date = payload.get('idDob')
+            self.doc_expiration = payload.get('idExpiry')
+            self.identification_status = payload.get('identificationStatus')
+            self.identification_approved = \
+                self.identification_status == 'APPROVED'
+            doc_data = payload.get('data', {})
+            for api_key, db_key in {'docNationality': 'nationality',
+                                    'docIssuingCountry': 'issuing_country',
+                                    'selectedCountry': 'selected_country'}\
+                    .items():
+                value = doc_data.get(api_key)
+                if not value:
+                    continue
+                try:
+                    value_obj = Country.objects.get(country=value)
+                except ObjectDoesNotExist:
+                    continue
+                setattr(self, db_key, value_obj)
+        super(KycPushRequest, self).save(*args, **kwargs)
+
+    @property
+    def document_status(self):
+        ok_push = self.identification_approved and self.valid_link
+        return self.OK if ok_push else self.REJECTED
+
+    def __str__(self):
+        res = '{} {}'.format(self.full_name, self.birth_date)
+        if self.issuing_country:
+            res += ' {}'.format(self.issuing_country)
+        res += ' {} {} {}'.format(
+            self.identification_status, self.identification_approved,
+            self.valid_link
+        )
+        return res
+
+
+class IdentityToken(TimeStampedModel):
+    token = models.CharField(max_length=255)
+    order = models.ForeignKey('orders.Order', null=True, blank=True,
+                              on_delete=models.DO_NOTHING)
+    used = models.BooleanField(default=False)
+
+    @property
+    def expires(self):
+        return self.created_on + timedelta(
+            seconds=settings.IDENFY_TOKEN_EXPIRY_TIME
+        )
+
+    @property
+    def expired(self):
+        return (timezone.now() > self.expires)

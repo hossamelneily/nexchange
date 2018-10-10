@@ -343,6 +343,9 @@ build:
           export SAFE_CHARGE_ERROR_URL=${SAFE_CHARGE_ERROR_URL}
           export SAFE_CHARGE_PENDING_URL=${SAFE_CHARGE_PENDING_URL}
           export SAFE_CHARGE_BACK_URL=${SAFE_CHARGE_BACK_URL}
+          # Idenfy
+          export IDENFY_API_KEY=${IDENFY_API_KEY}
+          export IDENFY_API_SECRET=${IDENFY_API_SECRET}
           # Fixer (fiat rates)
           export FIXER_ACCESS_KEY=${FIXER_ACCESS_KEY}
           # Smtp

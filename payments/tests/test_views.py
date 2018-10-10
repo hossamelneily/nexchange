@@ -14,7 +14,6 @@ from orders.models import Order
 from orders.task_summary import buy_order_release_reference_periodic
 from payments.models import Payment, PaymentMethod, PaymentPreference,\
     PushRequest
-from payments.utils import get_sha256_sign
 from payments.payment_handlers.safe_charge import SafeChargePaymentHandler
 from rest_framework.test import APIClient
 from payments.task_summary import check_fiat_order_deposit_periodic,\
@@ -1267,3 +1266,105 @@ class SafeChargeTestCase(TickerBaseTestCase, VerificationBaseTestCase):
         check_fiat_order_deposit_periodic.apply_async()
         order.refresh_from_db()
         self.assertEqual(other_order.status, Order.PAID)
+
+    @requests_mock.mock()
+    @patch('payments.views.get_client_ip')
+    def test_upload_id_from_idenfy(self, mock, get_client_ip):
+        token = 'I+AM_A-rndmtken'
+        first_name = 'Sir'
+        last_name = 'Testalot'
+        full_name = '{} {}'.format(first_name, last_name)
+        file_url = 'https://ivs.idenfy.com/storage/get/jwt_tkn/BACK.jpg'
+        birth_date = '1990-01-01'
+        exp_date = '2099-01-01'
+        country_code = 'SS'
+        mock.get(file_url, status_code=200)
+        mock.post(
+            settings.IDENFY_URL.format(
+                endpoint='token',
+                version=settings.IDENFY_VERSION
+            ),
+            json={'authToken': token},
+            status_code=201
+        )
+        get_client_ip.return_value = \
+            settings.SAFE_CHARGE_ALLOWED_DMN_IPS[1].split('-')[0]
+        # XVG is coverable
+        order = self._create_order_api(
+            pair_name='XVGEUR',
+            address='D6BpZ4pP17JDsjpSWVrB2Hpa4oCi5mLfua'
+        )
+        # No link before
+        self.assertIsNone(order.identity_check_url)
+        card_id = self.generate_txn_id()
+        name = 'Sir Testalot'
+        params = self._get_dmn_request_params_for_order(order, card_id, name)
+        url = reverse('payments.listen_safe_charge')
+        self.client.post(url, data=params)
+        order.refresh_from_db()
+        self.assertEqual(order.identitytoken_set.count(), 0)
+        self.assertIn('idenfy.com', order.identity_check_url)
+        self.assertIn(token, order.identity_check_url)
+        self.assertEqual(order.identity_token, token)
+        self.assertEqual(order.identitytoken_set.count(), 1)
+        now = datetime.datetime.now() + datetime.timedelta(
+            seconds=settings.IDENFY_TOKEN_EXPIRY_TIME
+        )
+        with freeze_time(now):
+            order.identity_token
+            self.assertEqual(order.identitytoken_set.count(), 2)
+        url_idenfy_callback = reverse('verification.idenfy_callback')
+        # First time unsuccsesfull
+        callback_data = {
+            'clientId': order.unique_reference,
+            'idLastName': last_name,
+            'idFirstName': first_name,
+            'identificationStatus': 'FACE_MISMATCH',
+            'fileUrls': {
+                'BACK': file_url,
+            }
+        }
+        res = self.client.post(
+            url_idenfy_callback,
+            content_type='application/json',
+            data=json.dumps(callback_data),
+        )
+        self.assertEqual(res.status_code, 200)
+        kyc = Verification.objects.get(note=order.unique_reference)
+        doc = kyc.verificationdocument_set.latest('id')
+        kyc_push = doc.kyc_push
+        self.assertIsNone(kyc.full_name)
+        self.assertEqual(doc.document_status, doc.REJECTED)
+        self.assertFalse(kyc_push.identification_approved)
+        self.assertEqual(kyc_push.full_name, full_name)
+        # Second time OK
+        callback_data.update({
+            'identificationStatus': 'APPROVED',
+            'idDob': birth_date,
+            'idExpiry': exp_date,
+            'data': {
+                'docNationality': country_code,
+                'selectedCountry': country_code,
+                'docIssuingCountry': country_code,
+            }
+        })
+        res = self.client.post(
+            url_idenfy_callback,
+            content_type='application/json',
+            data=json.dumps(callback_data),
+        )
+        id_token = order.identitytoken_set.latest('id')
+        self.assertTrue(id_token.used)
+        self.assertEqual(res.status_code, 200)
+        kyc = Verification.objects.get(note=order.unique_reference)
+        doc = kyc.verificationdocument_set.latest('id')
+        kyc_push = doc.kyc_push
+        self.assertEqual(kyc.full_name, full_name)
+        self.assertEqual(doc.document_status, doc.OK)
+        self.assertTrue(kyc_push.identification_approved)
+        self.assertEqual(kyc_push.full_name, full_name)
+        self.assertEqual(kyc_push.nationality.country.code, country_code)
+        self.assertEqual(kyc_push.issuing_country.country.code, country_code)
+        self.assertEqual(kyc_push.selected_country.country.code, country_code)
+        self.assertEqual(str(kyc_push.birth_date), birth_date)
+        self.assertEqual(str(kyc_push.doc_expiration), exp_date)
