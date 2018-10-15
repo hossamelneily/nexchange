@@ -1271,6 +1271,7 @@ class SafeChargeTestCase(TickerBaseTestCase, VerificationBaseTestCase):
     @patch('payments.views.get_client_ip')
     def test_upload_id_from_idenfy(self, mock, get_client_ip):
         token = 'I+AM_A-rndmtken'
+        scan_ref = 'ami_mucjhyreferenc'
         first_name = 'Sir'
         last_name = 'Testalot'
         full_name = '{} {}'.format(first_name, last_name)
@@ -1279,12 +1280,21 @@ class SafeChargeTestCase(TickerBaseTestCase, VerificationBaseTestCase):
         exp_date = '2099-01-01'
         country_code = 'SS'
         mock.get(file_url, status_code=200)
+
+        def token_callback(request, context):
+            body = request._request.body
+            params = json.loads(body)
+            if params['firstName'] == first_name and params['lastName'] == last_name:  # noqa
+                return {'authToken': token,
+                        'scanRef': scan_ref
+                        }
+
         mock.post(
             settings.IDENFY_URL.format(
                 endpoint='token',
                 version=settings.IDENFY_VERSION
             ),
-            json={'authToken': token},
+            json=token_callback,
             status_code=201
         )
         get_client_ip.return_value = \
@@ -1307,16 +1317,28 @@ class SafeChargeTestCase(TickerBaseTestCase, VerificationBaseTestCase):
         self.assertIn(token, order.identity_check_url)
         self.assertEqual(order.identity_token, token)
         self.assertEqual(order.identitytoken_set.count(), 1)
+        first_token = order.identitytoken_set.get()
+        self.assertEqual(first_token.first_name, first_name)
+        self.assertEqual(first_token.last_name, last_name)
         now = datetime.datetime.now() + datetime.timedelta(
             seconds=settings.IDENFY_TOKEN_EXPIRY_TIME
         )
         with freeze_time(now):
+            mock.post(
+                settings.IDENFY_URL.format(
+                    endpoint='token',
+                    version=settings.IDENFY_VERSION
+                ),
+                json={'authToken': 'asd', 'scanRef': 'asd'},
+                status_code=201
+            )
             order.identity_token
             self.assertEqual(order.identitytoken_set.count(), 2)
         url_idenfy_callback = reverse('verification.idenfy_callback')
         # First time unsuccsesfull
         callback_data = {
             'clientId': order.unique_reference,
+            'scanRef': scan_ref,
             'idLastName': last_name,
             'idFirstName': first_name,
             'identificationStatus': 'FACE_MISMATCH',
@@ -1337,6 +1359,7 @@ class SafeChargeTestCase(TickerBaseTestCase, VerificationBaseTestCase):
         self.assertEqual(doc.document_status, doc.REJECTED)
         self.assertFalse(kyc_push.identification_approved)
         self.assertEqual(kyc_push.full_name, full_name)
+        self.assertEqual(kyc_push.token, first_token)
         # Second time OK
         callback_data.update({
             'identificationStatus': 'APPROVED',

@@ -52,20 +52,25 @@ class IdenfyAPIClient:
         )
 
     def get_token_for_order(self, order, first_name='', last_name=''):
-        res = self.api.request_token(**{
-            'clientId': order.unique_reference,
-            'firstName': first_name,
-            'lastName': last_name
-        })
-        if res.status_code != 201:
-            self.logger.error(
-                'Bad request_token status code: 201!={}, content: {}'.format(
-                    res.status_code,
-                    res.content
+        try:
+            res = self.api.request_token(**{
+                'clientId': order.unique_reference,
+                'firstName': first_name,
+                'lastName': last_name
+            })
+            if res.status_code != 201:
+                self.logger.error(
+                    'Bad request_token status code: 201!={}, content: {}'.format(  # noqa
+                        res.status_code,
+                        res.content
+                    )
                 )
-            )
-            return
-        return res.json().get('authToken')
+                return None, None
+            json_payload = res.json()
+            return json_payload.get('authToken'), json_payload.get('scanRef')
+        except Exception as e:
+            self.logger.warning(e)
+            return None, None
 
     def get_redirect_url(self, token):
         if token:

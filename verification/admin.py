@@ -294,12 +294,13 @@ class CategoryRuleAdmin(admin.ModelAdmin):
 class KycPushRequestAdmin(admin.ModelAdmin):
     list_display = (
         'created_on', 'full_name', 'birth_date', 'doc_expiration',
-        'identification_status', 'identification_approved', 'valid_link'
+        'identification_status', 'identification_approved', 'valid_link',
+        'token'
     )
     readonly_fields = (
         'url', 'payload', 'ip', 'payload_json', 'identification_status',
         'identification_approved', 'valid_link', 'full_name', 'nationality',
         'issuing_country', 'selected_country', 'birth_date', 'doc_expiration',
-        'response'
+        'response', 'token'
     )
     search_fields = ('full_name', 'birth_date')

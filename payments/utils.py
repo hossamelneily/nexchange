@@ -54,3 +54,27 @@ def credit_card_number_validator(input):
     doubled = [2 * d for d in digits[0::2]]
     total = sum(d - 9 if d > 9 else d for d in doubled) + sum(digits[1::2])
     return (total * 9) % 10 == checksum
+
+
+def get_first_name(fullname):
+    firstname = ''
+    try:
+        firstname = fullname.split()[0]
+    except Exception:
+        pass
+    return firstname
+
+
+def get_last_name(fullname):
+    lastname = ''
+    try:
+        index = 0
+        for part in fullname.split():
+            if index > 0:
+                if index > 1:
+                    lastname += ' '
+                lastname += part
+            index += 1
+    except Exception:
+        pass
+    return lastname

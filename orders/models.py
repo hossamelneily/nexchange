@@ -29,6 +29,7 @@ from decimal import InvalidOperation
 from core.validators import validate_xmr_payment_id, validate_destination_tag
 from verification.api_clients.idenfy import IdenfyAPIClient
 from verification.models import IdentityToken
+from payments.utils import get_first_name, get_last_name
 
 safe_charge_client = SafeChargeAPIClient()
 idenfy_client = IdenfyAPIClient()
@@ -531,16 +532,36 @@ class Order(TimeStampedModel, SoftDeletableModel,
             return
         return safe_charge_client.generate_cachier_url_for_order(self)
 
+    def get_fullname(self):
+        if self.payment_set.count() == 1:
+            pref = self.payment_set.get().payment_preference
+            fullname = pref.secondary_identifier
+            return fullname if fullname else ''
+        return ''
+
     def get_or_create_identity_token(self):
         try:
             token = IdentityToken.objects.filter(order=self).latest('id')
         except ObjectDoesNotExist:
             token = None
         if not token or token.expired or token.used:
-            _token = idenfy_client.get_token_for_order(self)
+            # this is first_name last_name hack for idenfy,
+            # best would be not to send at all but it is not possible with
+            # drivers license
+            fullname = self.get_fullname()
+            first_name = get_first_name(fullname)
+            last_name = get_last_name(fullname)
+            _token, _scan_ref = idenfy_client.get_token_for_order(
+                self,
+                first_name=first_name,
+                last_name=last_name
+            )
             if not _token:
                 return
-            token = IdentityToken.objects.create(order=self, token=_token)
+            token = IdentityToken.objects.create(order=self, token=_token,
+                                                 first_name=first_name,
+                                                 last_name=last_name,
+                                                 scan_ref=_scan_ref)
         return token
 
     @property

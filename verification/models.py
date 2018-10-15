@@ -11,8 +11,8 @@ from django.utils.translation import ugettext as _
 from audit_log.models import AuthStampedModel
 from django.utils.safestring import mark_safe
 from nexchange.utils import get_nexchange_logger
-from django.core.exceptions import ObjectDoesNotExist
-from datetime import timedelta
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from datetime import timedelta, datetime
 from django.utils import timezone
 
 logger = get_nexchange_logger('Verification logger', with_email=True,
@@ -508,15 +508,30 @@ class KycPushRequest(RequestLog):
                                          related_name='selected_countries')
     birth_date = models.DateField(blank=True, null=True)
     doc_expiration = models.DateField(blank=True, null=True)
+    token = models.ForeignKey('verification.IdentityToken', null=True,
+                              blank=True, on_delete=models.DO_NOTHING)
+
+    def get_date_from_string(self, date_str):
+        try:
+            return datetime.strptime(date_str, '%Y-%m-%d')
+        except (ValueError, TypeError):
+            return
 
     def save(self, *args, **kwargs):
         if not self.pk or kwargs.pop('reload_from_payload', False):
             payload = self.get_payload_dict()
+            try:
+                scan_ref = payload.get('scanRef')
+                _token = IdentityToken.objects.get(scan_ref=scan_ref)
+                self.token = _token
+            except (ObjectDoesNotExist, MultipleObjectsReturned):
+                pass
             first_name = payload.get('idFirstName')
             last_name = payload.get('idLastName')
             self.full_name = '{} {}'.format(first_name, last_name)
-            self.birth_date = payload.get('idDob')
-            self.doc_expiration = payload.get('idExpiry')
+            self.birth_date = self.get_date_from_string(payload.get('idDob'))
+            self.doc_expiration = \
+                self.get_date_from_string(payload.get('idExpiry'))
             self.identification_status = payload.get('identificationStatus')
             self.identification_approved = \
                 self.identification_status == 'APPROVED'
@@ -552,10 +567,13 @@ class KycPushRequest(RequestLog):
 
 
 class IdentityToken(TimeStampedModel):
-    token = models.CharField(max_length=255)
+    token = models.CharField(max_length=2049)
     order = models.ForeignKey('orders.Order', null=True, blank=True,
                               on_delete=models.DO_NOTHING)
     used = models.BooleanField(default=False)
+    scan_ref = models.CharField(max_length=37, null=True, blank=True)
+    first_name = models.CharField(max_length=101, null=True, blank=True)
+    last_name = models.CharField(max_length=101, null=True, blank=True)
 
     @property
     def expires(self):
@@ -566,3 +584,7 @@ class IdentityToken(TimeStampedModel):
     @property
     def expired(self):
         return (timezone.now() > self.expires)
+
+    def __str__(self):
+        return 'first_name: {}, last_name: {}'.format(self.first_name,
+                                                      self.last_name)

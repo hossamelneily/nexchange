@@ -138,10 +138,11 @@ class IdenfyListenView(View):
     def post(self, request):
         try:
             ip = get_client_ip(request)
-            payload = json.loads(request.body)
             kyc_push = KycPushRequest(ip=ip)
-            kyc_push.set_payload(payload)
             kyc_push.save()
+            payload = json.loads(request.body)
+            kyc_push.set_payload(payload)
+            kyc_push.save(reload_from_payload=True)
             note = payload.get('clientId')
             kyc, order = self.get_or_create_kyc(note)
             kyc_push = self.validate_push(kyc_push)
