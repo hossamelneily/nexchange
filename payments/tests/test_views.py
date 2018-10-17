@@ -1316,6 +1316,11 @@ class SafeChargeTestCase(TickerBaseTestCase, VerificationBaseTestCase):
         self.assertIn('idenfy.com', order.identity_check_url)
         self.assertIn(token, order.identity_check_url)
         self.assertEqual(order.identity_token, token)
+        # turn of Idenfy
+        order.return_identity_token = False
+        self.assertIsNone(order.identity_token)
+        order.return_identity_token = True
+        #
         self.assertEqual(order.identitytoken_set.count(), 1)
         first_token = order.identitytoken_set.get()
         self.assertEqual(first_token.first_name, first_name)

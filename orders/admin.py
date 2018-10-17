@@ -12,7 +12,8 @@ class OrderAdmin(admin.ModelAdmin):
         'deposit_address', 'refund_address', 'payment_id', 'price',
         'user_provided_amount', 'ticker_amount_quote', 'order_type',
         'payment_preference', 'user_marked_as_paid', 'system_marked_as_paid',
-        'is_default_rule', 'from_default_rule', 'exchange'
+        'is_default_rule', 'from_default_rule', 'exchange', 'set_as_paid_on',
+        'slippage', 'destination_tag', 'disabled', 'deleted'
     )
 
     search_fields = ('unique_reference', 'pair__base__code',
@@ -26,3 +27,6 @@ class OrderAdmin(admin.ModelAdmin):
                     'amount_quote', 'withdraw_address', 'deposit_address',
                     'payment_id', 'status', 'created_on', 'referred_with',
                     'flagged', 'expired')
+
+    def has_delete_permission(self, request, obj=None):
+        return False

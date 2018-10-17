@@ -52,6 +52,8 @@ class IdenfyAPIClient:
         )
 
     def get_token_for_order(self, order, first_name='', last_name=''):
+        if not settings.IDENFY_API_KEY or not settings.IDENFY_API_SECRET:
+            return None, None
         try:
             res = self.api.request_token(**{
                 'clientId': order.unique_reference,

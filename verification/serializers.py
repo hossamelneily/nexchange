@@ -41,9 +41,13 @@ class CreateVerificationSerializer(serializers.ModelSerializer):
         verification.note = order_reference
         order_list = Order.objects.filter(**order_args)
         data['note'] = order_reference
+        user = data.get('user')
         verification = Verification(**data)
         if order_list.count() == 1:
-            _verifications = Verification.objects.filter(**data)
+            # only note to avoid multiple verifications per order
+            _verifications = Verification.objects.filter(
+                note=data.get('note', 'unknown')
+            )
             if _verifications:
                 verification = _verifications.latest('id')
         if order_list:
@@ -62,7 +66,8 @@ class CreateVerificationSerializer(serializers.ModelSerializer):
             doc = VerificationDocument(
                 verification=verification,
                 document_file=value,
-                document_type=doc_type
+                document_type=doc_type,
+                user=user
             )
             if doc_type.whitelisted_address_required and order:
                 doc.whitelisted_address = order.withdraw_address

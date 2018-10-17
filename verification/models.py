@@ -461,6 +461,8 @@ class VerificationDocument(TimeStampedModel, SoftDeletableModel,
     kyc_push = models.OneToOneField('verification.KycPushRequest', null=True,
                                     blank=True, default=None,
                                     on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, null=True, blank=True,
+                             on_delete=models.CASCADE)
 
     @mark_safe
     def download_document(self):

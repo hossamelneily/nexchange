@@ -16,7 +16,7 @@ from .signals.add_kyc_groups import raw_add_kyc_groups
 class VerificationInline(admin.TabularInline):
     model = VerificationDocument
     exclude = ('document_file',)
-    readonly_fields = ('kyc_push', 'image_tag', 'whitelisted_address')
+    readonly_fields = ('kyc_push', 'image_tag', 'whitelisted_address', 'user')
     autocomplete_fields = ('document_type',)
     fk_name = 'verification'
 
@@ -234,9 +234,6 @@ class VerificationDocumentAdmin(admin.ModelAdmin):
 
     def payment_preference(self, obj):
         return self._get_verification_field(obj, 'payment_preference')
-
-    def user(self, obj):
-        return self._get_verification_field(obj, 'user')
 
     def note(self, obj):
         return self._get_verification_field(obj, 'note')

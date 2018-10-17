@@ -164,6 +164,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
         max_digits=18, decimal_places=8, default=Decimal('0'),
     )
     set_as_paid_on = models.DateTimeField(null=True, blank=True, default=None)
+    return_identity_token = models.BooleanField(
+        default=True,
+        help_text=_('If True - user can use auto id checking service(Idenfy).')
+    )
 
     class Meta:
         ordering = ['-created_on']
@@ -567,7 +571,8 @@ class Order(TimeStampedModel, SoftDeletableModel,
     @property
     def identity_token(self):
         if any([self.pair.quote.is_crypto,
-                self.status != self.PAID_UNCONFIRMED]):
+                self.status != self.PAID_UNCONFIRMED,
+                not self.return_identity_token]):
             return
         token = self.get_or_create_identity_token()
         return token.token if token else None
