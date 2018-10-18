@@ -8,7 +8,9 @@ from accounts.models import Profile, SmsToken
 
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'created_on', 'time_zone', 'last_visit_time')
+    list_display = ('user', 'created_on', 'time_zone', 'last_visit_time',
+                    'agree_with_terms_and_conditions')
+    readonly_fields = ('agree_with_terms_and_conditions',)
     form = BaseProfileForm
     search_fields = ('user__username', 'time_zone')
 

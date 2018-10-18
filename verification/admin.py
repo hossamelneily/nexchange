@@ -52,13 +52,15 @@ class VerificationAdmin(admin.ModelAdmin):
 
     list_filter = (PendingFilter, 'category')
     list_display = ('created_on', 'id_document_status', 'util_document_status',
-                    'full_name', 'note', 'admin_comment', 'user',
+                    'full_name', 'note', 'admin_comment',
                     'name_on_card', 'unique_cc', 'name_on_card_matches',
-                    'out_of_limit', 'flagged_str')
+                    'out_of_limit', 'flagged_str',
+                    'agree_with_terms_and_conditions')
     exclude = ('identity_document', 'utility_document')
     readonly_fields = (
         'note', 'name_on_card',
-        'name_on_card_matches', 'bad_name_verifications', 'unique_cc',
+        'name_on_card_matches', 'bad_name_verifications',
+        'agree_with_terms_and_conditions', 'unique_cc',
         'bank_bin', 'main_card_data', 'payment_preference', 'id_doc',
         'residence_doc', 'user', 'user_input_comment', 'total_payments_usd',
         'total_payments_usd_1day', 'total_payments_usd_30days', 'out_of_limit',
@@ -153,6 +155,12 @@ class VerificationAdmin(admin.ModelAdmin):
     def out_of_limit(self, obj):
         res = self._get_payment_preference_field(obj, 'out_of_limit')
         _color = 'red' if res else 'green'
+        return '<b style="background:{};">{}</b>'.format(_color, res)
+
+    @mark_safe
+    def agree_with_terms_and_conditions(self, obj):
+        res = True
+        _color = 'green' if res else 'red'
         return '<b style="background:{};">{}</b>'.format(_color, res)
 
     @mark_safe

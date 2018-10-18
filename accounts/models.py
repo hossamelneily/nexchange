@@ -75,6 +75,7 @@ class Profile(TimeStampedModel, SoftDeletableModel):
     tier = models.ForeignKey(VerificationTier, blank=True, null=True,
                              on_delete=models.DO_NOTHING)
     can_use_test_mode = models.BooleanField(default=False)
+    agree_with_terms_and_conditions = models.BooleanField(default=True)
 
     @property
     def has_withdraw_address(self):
