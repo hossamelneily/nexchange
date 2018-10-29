@@ -141,7 +141,7 @@ class BaseUserOrder(models.Model):
     @property
     def coverable(self):
         if self.status not in self.IN_SUCCESS_RELEASED \
-                and self.amount_base >= self.withdraw_currency.\
+                and self.withdraw_amount >= self.withdraw_currency.\
                 available_main_reserves:
             return False
         return True
