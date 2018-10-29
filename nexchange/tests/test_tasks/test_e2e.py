@@ -44,8 +44,8 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
     @patch('orders.models.Order.calculate_quote_from_base')
     @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.models.send_sms')
-    @patch('orders.models.send_email')
+    @patch('orders.models.instant.send_sms')
+    @patch('orders.models.instant.send_email')
     def test_fail_release_no_address(self, send_email,
                                      send_sms, release_payment,
                                      _get_transaction_history,
@@ -78,8 +78,8 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
     @patch('orders.models.Order.calculate_quote_from_base')
     @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.models.send_sms')
-    @patch('orders.models.send_email')
+    @patch('orders.models.instant.send_sms')
+    @patch('orders.models.instant.send_email')
     def test_success_release(self, send_email, send_sms, release_payment,
                              _get_transaction_history,
                              calculate_quote_from_base, validate):
@@ -104,15 +104,19 @@ class OKPayEndToEndTestCase(WalletBaseTestCase):
         order.refresh_from_db()
         self.assertEqual(order.status, Order.CANCELED)
 
+    @skip('TODO test')
     def test_success_release_no_ref(self):
         pass
 
+    @skip('TODO test')
     def test_failure_release_other_pref(self):
         pass
 
+    @skip('TODO test')
     def test_failure_release_invalid_currency(self):
         pass
 
+    @skip('TODO test')
     def test_failure_release_invalid_user(self):
         pass
 
@@ -124,8 +128,8 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
            'get_transaction_history')
     @patch('orders.models.Order.calculate_quote_from_base')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.models.send_sms')
-    @patch('orders.models.send_email')
+    @patch('orders.models.instant.send_sms')
+    @patch('orders.models.instant.send_email')
     def test_failure_release_no_address(self, send_email, send_sms,
                                         release_payment,
                                         calculate_quote_from_base,
@@ -173,8 +177,8 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
            'get_transaction_history')
     @patch('orders.models.Order.calculate_quote_from_base')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.models.send_sms')
-    @patch('orders.models.send_email')
+    @patch('orders.models.instant.send_sms')
+    @patch('orders.models.instant.send_email')
     def test_success_release(self, send_email, send_sms,
                              release_payment,
                              calculate_quote_from_base,
@@ -214,15 +218,19 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
 
         self.assertEqual(order.status, Order.CANCELED)
 
+    @skip('TODO test')
     def test_success_release_no_ref(self):
         pass
 
+    @skip('TODO test')
     def test_failure_release_other_pref(self):
         pass
 
+    @skip('TODO test')
     def test_failure_release_invalid_currency(self):
         pass
 
+    @skip('TODO test')
     def test_failure_release_invalid_user(self):
         pass
 
@@ -262,10 +270,8 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
 
     @patch(UPHOLD_ROOT + 'get_reserve_transaction')
     @patch(UPHOLD_ROOT + 'get_transactions')
-    @patch('orders.utils.send_money')
-    def test_do_not_set_sell_order_as_PAID(self, send_money, get_txs, get_rtx):
+    def test_do_not_set_sell_order_as_PAID(self, get_txs, get_rtx):
         # TODO: generalise
-        send_money.return_value = True
         get_txs.return_value = json.loads(self.import_txs)
         get_rtx.return_value = json.loads(self.completed)
 
@@ -274,12 +280,15 @@ class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, Order.INITIAL)
 
+    @skip('TODO test')
     def test_okpay_send_money_on_release(self):
         pass
 
+    @skip('TODO test')
     def test_payeer_send_money_on_release(self):
         pass
 
+    @skip('TODO test')
     def test_unknown_method_do_not_send_money_on_release(self):
         pass
 
@@ -304,8 +313,8 @@ class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
     @patch('orders.models.Order.calculate_quote_from_base')
     @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.models.send_sms')
-    @patch('orders.models.send_email')
+    @patch('orders.models.instant.send_sms')
+    @patch('orders.models.instant.send_email')
     def test_release_if_paid_and_withdraaw_address_set(
             self, send_email, send_sms, release_payment,
             _get_transaction_history, calculate_quote_from_base, validate):
@@ -338,8 +347,8 @@ class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
     @patch('orders.models.Order.calculate_quote_from_base')
     @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.models.send_sms')
-    @patch('orders.models.send_email')
+    @patch('orders.models.instant.send_sms')
+    @patch('orders.models.instant.send_email')
     def test_fail_release_withdraw_address_already_set(
             self, send_email, send_sms, release_payment,
             _get_transaction_history, calculate_quote_from_base, validate):
@@ -374,8 +383,8 @@ class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
     @patch('orders.models.Order.calculate_quote_from_base')
     @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.models.send_sms')
-    @patch('orders.models.send_email')
+    @patch('orders.models.instant.send_sms')
+    @patch('orders.models.instant.send_email')
     def test_fail_release_no_payment(self, send_email,
                                      send_sms,
                                      release_payment,
@@ -401,8 +410,8 @@ class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
     @patch('orders.models.Order.calculate_quote_from_base')
     @patch('payments.api_clients.ok_pay.OkPayAPI._get_transaction_history')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.models.send_sms')
-    @patch('orders.models.send_email')
+    @patch('orders.models.instant.send_sms')
+    @patch('orders.models.instant.send_email')
     def test_fail_release_withdraaw_address_set_no_payment(
             self, send_email, send_sms, release_payment,
             _get_transaction_history, calculate_quote_from_base, validate):
@@ -1115,6 +1124,7 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
 
     fixtures = [
         'market.json',
+        'transaction_price.json',
         'currency_algorithm.json',
         'currency_crypto.json',
         'currency_fiat.json',

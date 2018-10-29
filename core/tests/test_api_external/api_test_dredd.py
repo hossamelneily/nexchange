@@ -2,7 +2,8 @@ import sys
 
 from django.contrib.auth.models import User
 from accounts.task_summary import renew_cards_reserve_invoke
-from orders.models import Order
+from orders.models import Order, OrderBook
+from core.models import Pair
 from core.tests.base import TransactionImportBaseTestCase, OrderBaseTestCase,\
     NexchangeLiveServerTestCase
 from referrals.models import ReferralCode, Referral
@@ -37,6 +38,8 @@ class DreddTestAPI(NexchangeLiveServerTestCase, TransactionImportBaseTestCase,
         self.order.unique_reference = 'V08PD'
         self.order.save()
         self.create_referral()
+        pair = Pair.objects.get(name='DOGEBTC')
+        OrderBook.objects.create(pair=pair)
 
     def create_referral(self):
         code = 'dredd_test'

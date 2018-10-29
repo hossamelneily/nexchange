@@ -164,7 +164,7 @@ class Oauth2TestCase(TickerBaseTestCase):
         self.assertEqual(support.user, order.user)
         self.assertIn(order, support.user_orders)
 
-    @patch('orders.models.AccessToken.is_valid')
+    @patch('orders.models.instant.AccessToken.is_valid')
     def test_not_valid_token_is_not_returned(self, is_valid):
         is_valid.return_value = False
         order, _token = self._create_order_api()

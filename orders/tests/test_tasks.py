@@ -346,8 +346,8 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
         )
     )
     @patch('orders.models.Order.calculate_quote_from_base')
-    @patch('orders.models.send_sms')
-    @patch('orders.models.send_email')
+    @patch('orders.models.instant.send_sms')
+    @patch('orders.models.instant.send_email')
     def test_releases(self,
                       # data_provider args
                       tested_fns, order_modifiers,
@@ -448,8 +448,8 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
               'lang': 'en'}, 0, 0),
         )
     )
-    @patch('orders.models.send_sms')
-    @patch('orders.models.send_email')
+    @patch('orders.models.instant.send_sms')
+    @patch('orders.models.instant.send_email')
     def test_notification(self,
                           # data provider
                           user_props, profile_props, expect_notify_by_phone,
@@ -487,8 +487,8 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
             )
 
     @patch('nexchange.api_clients.uphold.UpholdApiClient.release_coins')
-    @patch('orders.models.send_sms')
-    @patch('orders.models.send_email')
+    @patch('orders.models.instant.send_sms')
+    @patch('orders.models.instant.send_email')
     def test_set_user_on_match(self, send_email, send_sms, release_payment):
         release_payment.return_value = 'A555B'
         self.payment = Payment(**self.base_payment_data)

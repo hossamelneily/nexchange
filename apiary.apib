@@ -1021,6 +1021,125 @@ API for crypto currency exchange.
                 ]
             }
 
+## Create Limit Order - BETA [/en/api/v1/limit_order/]
+
+
+### Create Limit Order [POST]
+   Create order.
+
++ Request (application/json)
+
+    + Attributes
+        + Payload (RequestLimitOrderPayload)
+        + Headers (JsonHeaders)
+    + Body
+
+            {
+                "amount_base": "1000.00000000",
+                "limit_rate": "0.00000090",
+                "amount_quote": "0.00090000",
+                "pair": {
+                  "name": "DOGEBTC"
+                },
+                "order_type": 1,
+                "withdraw_address": {
+                    "address": "D6BpZ4pP17JDsjpSWVrB2Hpa4oCi5mLfua"
+                },
+                "refund_address": {
+                    "address": "18v8BJKqTMHc2eLBpHuwDrrZkQYKvdtUUB"
+                }
+            }
+
++ Response 201 (application/json)
+    + Attributes (MinimalLimitOrder)
+
+    + Body
+
+            {
+                "pair": {
+                    "name": "DOGEBTC",
+                    "base": {
+                        "code": "DOGE",
+                        "name": "doge",
+                        "min_confirmations": 6,
+                        "is_crypto": true,
+                        "minimal_amount": "100.00000000",
+                        "maximal_amount": "5000000.00000000",
+                        "is_base_of_enabled_pair": true,
+                        "is_quote_of_enabled_pair": true,
+                        "has_enabled_pairs": true,
+                        "is_base_of_enabled_pair_for_test": true,
+                        "is_quote_of_enabled_pair_for_test": true,
+                        "has_enabled_pairs_for_test": true,
+                        "withdrawal_fee": "1.00000000"
+                    },
+                    "quote": {
+                        "code": "BTC",
+                        "name": "bitcoin",
+                        "min_confirmations": 2,
+                        "is_crypto": true,
+                        "minimal_amount": "0.00100000",
+                        "maximal_amount": "5.00000000",
+                        "is_base_of_enabled_pair": true,
+                        "is_quote_of_enabled_pair": true,
+                        "has_enabled_pairs": true,
+                        "is_base_of_enabled_pair_for_test": true,
+                        "is_quote_of_enabled_pair_for_test": true,
+                        "has_enabled_pairs_for_test": true,
+                        "withdrawal_fee": "0.00050000"
+                    },
+                    "fee_ask": 0.01,
+                    "fee_bid": 0.01
+                },
+                "order_type": 1,
+                "amount_base": "10.00000000",
+                "unique_reference": "LU7HDI",
+                "limit_rate": "0.00000090",
+                "rate": null,
+                "amount_quote": "0.00000900",
+                "withdraw_address": {
+                    "type": "W",
+                    "name": "",
+                    "address": "D6BpZ4pP17JDsjpSWVrB2Hpa4oCi5mLfua",
+                    "currency_code": "DOGE"
+                },
+                "refund_address": {
+                    "type": "R",
+                    "name": "",
+                    "address": "18v8BJKqTMHc2eLBpHuwDrrZkQYKvdtUUB",
+                    "currency_code": "BTC"
+                },
+                "status_name": [
+                    [
+                        11,
+                        "INITIAL"
+                    ]
+                ],
+                "book_status_name": [
+                    [
+                        0,
+                        "NEW"
+                    ]
+                ],
+                "deposit_address": {
+                    "type": "D",
+                    "name": "",
+                    "address": "17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ",
+                    "currency_code": "BTC"
+                },
+                "created_on": "2018-10-29T14:23:10.417440+01:00",
+                "transactions": [],
+                "referral_code": [
+                    {
+                        "code": "RFNTR7FTMCJ",
+                        "created_on": "2018-10-29T14:20:42.991920+01:00",
+                        "modified_on": "2018-10-29T14:20:42.991957+01:00"
+                    }
+                ],
+                "token": null
+            }
+
+
 ## Get Trade History [/en/api/v1/trade_history/{?page,page_size,pair,sort}]
 
 + Parameters
@@ -1210,6 +1329,15 @@ API for crypto currency exchange.
 + `withdraw_address` (Address, nullable) - a destination address to which the funds will be dispatched upon the successful completion of the Order.
 + `transactions` (array[Transaction]) - order transactions.
 
+## MinimalLimitOrder
++ `amount_base` (required) - amount of base currency which user gets.
++ `unique_reference` (required) - unique ID of an order.
++ `amount_quote` (required) - amount of base currency which user sends.
++ `limit_rate` (required) - limit price of the order.
++ `withdraw_address` (Address, nullable) - a destination address to which the funds will be dispatched upon the successful completion of the Order.
++ `refund_address` (Address, required) - a destination address to which the funds will be dispatched upon the cancelation of the order.
++ `transactions` (array[Transaction]) - order transactions.
+
 ## BaseOrder (MinimalOrder)
 + `created_on` (required) - time of order creation (ISO 8601).
 + `modified_on` (optional) - latest time on which this order was updated (ISO 8601).
@@ -1276,6 +1404,15 @@ API for crypto currency exchange.
 + `is_default_rule` (boolean, required) - if True any incoming funds will be converted automatically (**To** the withdraw_address defined on the same order).
 + `pair` (Pair, required) - exchanged pair.
 + `withdraw_address` (Address, required) - a destination address to which the funds will be dispatched upon the successful completion of the Order.
+
+## RequestLimitOrderPayload
++ `amount_base` (number, optional) - amount of base currency which user gets.
++ `amount_quote` (number, optional) - amount of quote currency which user gives.
++ `limit_rate` (number, optional) - limit price of the order.
++ `order_type` (number, optional) -  Buy (1) or Sell(0) base currency.
++ `pair` (Pair, required) - exchanged pair.
++ `withdraw_address` (Address, required) - a destination address to which the funds will be dispatched upon the successful completion of the Order.
++ `refund_address` (Address, required) - a destination address to which the funds will be dispatched upon the cancelation of the order.
 
 ## UpdateOrderPayload
 + `refund_address` (Address, required) - a destination address to which the funds will be dispatched upon the successful refund of the Order.

@@ -6,8 +6,8 @@ from accounts.task_summary import import_transaction_deposit_crypto_invoke,\
     update_pending_transactions_invoke
 from orders.task_summary import exchange_order_release_periodic
 from risk_management.task_summary import reserves_balance_checker_periodic
-from orders.models import Order, Currency
-from core.models import Transaction
+from orders.models import Order
+from core.models import Transaction, Currency
 import os
 from rest_framework.test import APIClient
 from core.tests.base import OMNI_ROOT, SCRYPT_ROOT

@@ -100,7 +100,16 @@ class NestedReadOnlyAddressSerializer(AddressSerializer):
         read_only_fields = fields
 
 
-class NestedAddressSerializer(AddressSerializer):
+class NestedSimpleAddressSerializer(AddressSerializer):
+
+    class Meta(MetaAddress):
+        read_only_fields = ('type',)
+        extra_kwargs = {
+            'address': {'validators': []},
+        }
+
+
+class NestedAddressSerializer(NestedSimpleAddressSerializer):
     def __init__(self, *args, **kwargs):
         self.fields['destination_tag'] = serializers.CharField(
             required=False,
@@ -115,12 +124,6 @@ class NestedAddressSerializer(AddressSerializer):
             allow_null=True,
         )
         super(NestedAddressSerializer, self).__init__(*args, **kwargs)
-
-    class Meta(MetaAddress):
-        read_only_fields = ('type',)
-        extra_kwargs = {
-            'address': {'validators': []},
-        }
 
 
 class TransactionSerializer(serializers.ModelSerializer):

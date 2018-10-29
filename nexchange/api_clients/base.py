@@ -190,26 +190,6 @@ class BaseWalletApiClient(BaseApiClient):
     def backup_wallet(self, currency):
         pass
 
-    def revert_tx_mapper(self):
-        self.mapper.start = self.start
-        self.mapper.save()
-
-    def get_currency(self, lookup):
-        return self.get_cached_obj(Currency, lookup)
-
-    def get_address(self, lookup):
-        # get or create or catch?
-        return self.get_cached_obj(Address, lookup)
-
-    @log_errors
-    def get_cached_obj(self, obj, lookup):
-        cache_id = str(hash(frozenset(lookup.items())))
-        if cache_id not in self.cache:
-            self.cache[cache_id] = obj.objects.get(
-                **lookup
-            )
-        return self.cache[cache_id]
-
     def get_api(self, currency):
         raise NotImplementedError()
 
@@ -222,12 +202,6 @@ class BaseWalletApiClient(BaseApiClient):
     def filter_tx(self, tx):
         raise NotImplementedError()
 
-    def get_txs(self, node=None, txs=None):
-        _txs = [self.parse_tx(tx, node) for tx in txs
-                if self.filter_tx(tx)]
-        txs = [tx for tx in _txs if tx is not None]
-        return len(txs), txs
-
     def check_tx(self, tx, node):
         raise NotImplementedError()
 
@@ -237,19 +211,8 @@ class BaseWalletApiClient(BaseApiClient):
     def resend_funds_to_main_card(self, card_id, curr_code):
         raise NotImplementedError
 
-    def check_card_balance(self, card_pk):
-        card = AddressReserve.objects.get(pk=card_pk)
-        res = self.resend_funds_to_main_card(card.card_id, card.currency.code)
-        return res
-
     def get_card_validity(self, wallet):
         raise NotImplementedError()
-
-    def retry(self, tx):
-        self.logger.warning(
-            'retry is not implemented for currency {}. Tx: {}'.format(
-                tx.currency, tx))
-        return {'success': False, 'retry': False}
 
 
 class BaseTradeApiClient(BaseApiClient):

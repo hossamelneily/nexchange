@@ -1,15 +1,13 @@
+from .base import BaseOrder, BaseUserOrder
 from datetime import timedelta
 from decimal import Decimal
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 
-from core.common.models import (SoftDeletableModel, TimeStampedModel,
-                                UniqueFieldMixin, FlagableMixin)
-from core.models import Pair, Transaction, Currency
+from core.models import Transaction, Currency
 from payments.utils import money_format
 from payments.models import Payment
 from ticker.models import Price
@@ -26,7 +24,6 @@ from payments.models import PaymentPreference
 from nexchange.api_clients.factory import ApiClientFactory
 from oauth2_provider.models import AccessToken
 from decimal import InvalidOperation
-from core.validators import validate_xmr_payment_id, validate_destination_tag
 from verification.api_clients.idenfy import IdenfyAPIClient
 from verification.models import IdentityToken
 from payments.utils import get_first_name, get_last_name
@@ -38,61 +35,21 @@ logger = get_nexchange_logger('Order logger', with_email=True,
                               with_console=True)
 
 
-class Order(TimeStampedModel, SoftDeletableModel,
-            UniqueFieldMixin, FlagableMixin):
+class Order(BaseOrder, BaseUserOrder):
+
+    # these are redifined to pass to django FSM transitions
+    INITIAL = BaseUserOrder.INITIAL
+    PAID_UNCONFIRMED = BaseUserOrder.PAID_UNCONFIRMED
+    PAID = BaseUserOrder.PAID
+    PRE_RELEASE = BaseUserOrder.PRE_RELEASE
+    RELEASED = BaseUserOrder.RELEASED
+    COMPLETED = BaseUserOrder.COMPLETED
+    CANCELED = BaseUserOrder.CANCELED
+    REFUNDED = BaseUserOrder.REFUNDED
+    STATUS_TYPES = BaseUserOrder.STATUS_TYPES
+    _order_status_help = BaseUserOrder._order_status_help
 
     RETRY_RELEASE = 'orders.task_summary.release_retry_invoke'
-
-    BUY = 1
-    SELL = 0
-    TYPES = (
-        (SELL, 'SELL'),
-        (BUY, 'BUY'),
-    )
-    _order_type_help = (3 * '{} - {}<br/>').format(
-        _('BUY'), _('Customer is giving fiat, and getting crypto money.'),
-        _('SELL'), _('Customer is giving crypto and getting fiat money'),
-        _('EXCHANGE'), _('Customer is exchanging different kinds of crypto '
-                         'currencies')
-    )
-
-    CANCELED = 0
-    INITIAL = 11
-    PAID_UNCONFIRMED = 12
-    PAID = 13
-    PRE_RELEASE = 14
-    RELEASED = 15
-    COMPLETED = 16
-    REFUNDED = 8
-    STATUS_TYPES = (
-        (PAID_UNCONFIRMED, _('UNCONFIRMED PAYMENT')),
-        (PRE_RELEASE, _('PRE-RELEASE')),
-        (CANCELED, _('CANCELED')),
-        (INITIAL, _('INITIAL')),
-        (PAID, _('PAID')),
-        (RELEASED, _('RELEASED')),
-        (COMPLETED, _('COMPLETED')),
-        (REFUNDED, _('REFUNDED')),
-    )
-    IN_PAID = [PAID, RELEASED, COMPLETED, PRE_RELEASE]
-    IN_RELEASED = [RELEASED, COMPLETED, PRE_RELEASE]
-    IN_SUCCESS_RELEASED = [RELEASED, COMPLETED]
-    IN_COMPLETED = [COMPLETED]
-    REFUNDABLE_STATES = [PAID_UNCONFIRMED, PAID, PRE_RELEASE]
-    _could_be_paid_msg = 'Could be paid by crypto transaction or fiat ' \
-                         'payment, depending on order_type.'
-    _order_status_help = (6 * '{} - {}<br/>').format(
-        'INITIAL', 'Initial status of the order.',
-        'PAID', 'Order is Paid by customer. ' + _could_be_paid_msg,
-        'PAID_UNCONFIRMED', 'Order is possibly paid (unconfirmed crypto '
-                            'transaction or fiat payment is to small to '
-                            'cover the order.)',
-        'PRE_RELEASE', 'Order is prepared for RELEASE.',
-        'RELEASED', 'Order is paid by service provider. ' + _could_be_paid_msg,
-        'COMPLETED', 'All statuses of the order is completed',
-        'CANCELED', 'Order is canceled.',
-        'REFUNDED', 'Order is refunded',
-    )
 
     PROVIDED_BASE = 0
     PROVIDED_QUOTE = 1
@@ -104,56 +61,18 @@ class Order(TimeStampedModel, SoftDeletableModel,
     )
 
     # Todo: inherit from BTC base?, move lengths to settings?
-    order_type = models.IntegerField(
-        choices=TYPES, default=BUY, help_text=_order_type_help
-    )
-    exchange = models.BooleanField(default=False)
     status = FSMIntegerField(choices=STATUS_TYPES, default=INITIAL,
                              help_text=_order_status_help)
-    amount_base = models.DecimalField(max_digits=18, decimal_places=8,
-                                      blank=True)
-    amount_quote = models.DecimalField(max_digits=18, decimal_places=8,
-                                       blank=True)
     payment_window = models.IntegerField(default=settings.PAYMENT_WINDOW)
     unpaid_order_window = models.IntegerField(
         default=settings.UNPAID_CANCEL_WINDOW_MINUTES
     )
-    user = models.ForeignKey(User, related_name='orders',
-                             on_delete=models.DO_NOTHING)
-    unique_reference = models.CharField(
-        max_length=settings.UNIQUE_REFERENCE_MAX_LENGTH)
-    admin_comment = models.CharField(max_length=200)
     payment_preference = models.ForeignKey('payments.PaymentPreference',
                                            default=None,
                                            null=True, blank=True,
                                            on_delete=models.DO_NOTHING)
-    withdraw_address = models.ForeignKey('core.Address',
-                                         null=True,
-                                         blank=True,
-                                         related_name='order_set_withdraw',
-                                         default=None,
-                                         on_delete=models.DO_NOTHING)
-    deposit_address = models.ForeignKey('core.Address',
-                                        null=True,
-                                        blank=True,
-                                        related_name='order_set_deposit',
-                                        default=None,
-                                        on_delete=models.DO_NOTHING)
-    refund_address = models.ForeignKey(
-        'core.Address', null=True, blank=True, related_name='order_set_refund',
-        default=None, on_delete=models.DO_NOTHING
-    )
-    payment_id = models.CharField(
-        max_length=64, null=True, blank=True, default=None,
-        validators=[validate_xmr_payment_id]
-    )
-    destination_tag = models.CharField(
-        max_length=10, null=True, blank=True, default=None,
-        validators=[validate_destination_tag]
-    )
     is_default_rule = models.BooleanField(default=False)
     from_default_rule = models.BooleanField(default=False)
-    pair = models.ForeignKey(Pair, on_delete=models.DO_NOTHING)
     price = models.ForeignKey(Price, null=True, blank=True,
                               on_delete=models.DO_NOTHING)
     user_marked_as_paid = models.BooleanField(default=False)
@@ -709,17 +628,10 @@ class Order(TimeStampedModel, SoftDeletableModel,
         return res
 
     @property
-    def coverable(self):
-        if self.status not in self.IN_SUCCESS_RELEASED:
-            if self.amount_base >= self.pair.base.available_main_reserves:
-                return False
-        return True
-
-    @property
     def is_paid(self):
         if self.order_type == self.BUY and not self.exchange:
             return self.is_paid_buy
-        else:
+        elif self.order_type == self.SELL:
             raise NotImplementedError('Exists only for BUY orders.')
 
     @property
@@ -771,7 +683,7 @@ class Order(TimeStampedModel, SoftDeletableModel,
     def part_paid_buy(self):
         if self.order_type != self.BUY:
             return False
-        sum_all = self.success_payments_amount()
+        sum_all = self.success_payments_amount
         amount_expected = self.amount_quote
         return sum_all / amount_expected
 
@@ -835,15 +747,11 @@ class Order(TimeStampedModel, SoftDeletableModel,
 
     @property
     def rate(self):
-        return money_format(self.amount_quote / self.amount_base, places=8)
+        return money_format(self._rate, places=8)
 
     @property
     def inverted_rate(self):
         return money_format(self.amount_base / self.amount_quote, places=8)
-
-    @property
-    def status_name(self):
-        return [status for status in Order.STATUS_TYPES if status[0] == self.status]  # noqa
 
     @classmethod
     def pending_amount_diff(cls, currency, additional_amount=0):

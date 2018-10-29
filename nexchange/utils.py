@@ -1,5 +1,4 @@
 import sys
-import os
 import traceback
 import logging
 import base64
@@ -7,7 +6,6 @@ import hashlib
 import string
 from requests import get
 from django.conf import settings
-from django.core.mail import send_mail
 from django.core.mail.backends.smtp import EmailBackend
 from twilio.exceptions import TwilioException
 from twilio.rest import TwilioRestClient
@@ -17,6 +15,7 @@ from decimal import Decimal
 from Crypto import Random
 from Crypto.Cipher import AES
 from iptools import IpRange
+import re
 
 
 class Del:
@@ -27,7 +26,8 @@ class Del:
         return self.comp.get(k)
 
 
-def send_email(to, subject='Nexchange', msg=None, reply_to=('noreply@nexchange.co.uk',)):
+def send_email(to, subject='Nexchange', msg=None,
+               reply_to=('noreply@nexchange.co.uk',)):
     mail = EmailMessage(to=(to,),
                         subject=subject,
                         body=msg,
@@ -293,23 +293,25 @@ class AESCipher:
         enc = base64.b64decode(enc)
         iv = enc[:AES.block_size]
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
-        return self._unpad(cipher.decrypt(enc[AES.block_size:])).decode('utf-8')
+        return self._unpad(cipher.decrypt(enc[AES.block_size:])).decode('utf-8')  # noqa
 
     def _pad(self, s):
-        return s + (self.bs - len(s) % self.bs) * chr(self.bs - len(s) % self.bs)
+        return s + (self.bs - len(s) % self.bs) * chr(self.bs - len(s) % self.bs)  # noqa
 
     @staticmethod
     def _unpad(s):
-        return s[:-ord(s[len(s)-1:])]
+        return s[:-ord(s[len(s) - 1:])]
 
 
 class LogEmailBackend(EmailBackend):
 
     def __init__(self, *args, **kwargs):
-        super(LogEmailBackend, self).__init__(*args, **kwargs, host=settings.LOG_EMAIL_HOST,
-                                              port=settings.LOG_EMAIL_PORT,
-                                              username=settings.LOG_EMAIL_USER,
-                                              password=settings.LOG_EMAIL_PASSWORD)
+        super(LogEmailBackend, self).__init__(
+            *args, **kwargs, host=settings.LOG_EMAIL_HOST,
+            port=settings.LOG_EMAIL_PORT,
+            username=settings.LOG_EMAIL_USER,
+            password=settings.LOG_EMAIL_PASSWORD
+        )
 
 
 class LogEmailHandler(AdminEmailHandler):
@@ -328,3 +330,8 @@ def ip_in_iplist(ip, ip_list):
         if ip in ip_range:
             return True
     return False
+
+
+def convert_camel_to_snake_case(name):
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()

@@ -77,7 +77,7 @@ class RenewReserveTestCase(TransactionImportBaseTestCase, TickerBaseTestCase):
         profile.save()
         self._create_an_order_for_every_crypto_currency_card(user)
         len_user_cards = len(Cards.objects.filter(
-            disabled=False, user__isnull=False).exclude(currency__code='RNS'))
+            disabled=False, user=user).exclude(currency__code='RNS'))
         len_reserve_cards = len(Cards.objects.filter(
             disabled=False, user__isnull=True).exclude(currency__code='RNS'))
         len_expected = \

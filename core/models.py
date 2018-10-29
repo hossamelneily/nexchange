@@ -103,6 +103,10 @@ class Transaction(BtcBase, FlagableMixin):
     order = models.ForeignKey('orders.Order', related_name='transactions',
                               null=True, blank=True,
                               on_delete=models.DO_NOTHING)
+    limit_order = models.ForeignKey(
+        'orders.LimitOrder', related_name='transactions', null=True,
+        blank=True, on_delete=models.DO_NOTHING
+    )
     is_verified = models.BooleanField(default=False)
     is_completed = models.BooleanField(default=False)
     amount = models.DecimalField(null=False, max_digits=18, decimal_places=8,
@@ -227,6 +231,9 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     min_confirmation_high = \
         models.IntegerField(blank=True, null=True)
     median_confirmation = models.IntegerField(blank=True, null=True)
+    min_order_book_confirmations = models.IntegerField(
+        blank=True, null=True, default=1
+    )
     is_crypto = models.BooleanField(default=False)
     withdrawal_fee = models.DecimalField(max_digits=18,
                                          decimal_places=8,

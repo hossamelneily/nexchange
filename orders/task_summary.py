@@ -5,11 +5,12 @@ from orders.tasks.generic.retry_release import RetryOrderRelease
 from django.conf import settings
 from celery import shared_task
 from payments.models import Payment
-from orders.models import Order
+from orders.models import Order, LimitOrder
 from core.models import Transaction
 from .decorators import get_task
 from nexchange.utils import get_nexchange_logger
 from nexchange.celery import app
+from django.db.models import Q
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
@@ -59,14 +60,19 @@ def exchange_order_release_invoke(transaction_id, task=None):
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def exchange_order_release_periodic():
     logger = get_nexchange_logger('Periodic Exchange Order Release')
-    txs = Transaction.objects.filter(
-        order__exchange=True, order__status=Order.PAID,
-        order__withdraw_address__isnull=False, type=Transaction.DEPOSIT,
-        flagged=False
+    dep_txs = Transaction.objects.filter(type=Transaction.DEPOSIT,
+                                         flagged=False)
+    txs = dep_txs.filter(
+        Q(
+            order__exchange=True, order__status=Order.PAID,
+            order__withdraw_address__isnull=False) |
+        Q(
+            limit_order__status=LimitOrder.PAID,
+            limit_order__withdraw_address__isnull=False)
     )
     for tx in txs:
         try:
-            order = tx.order
+            order = tx.order if tx.order else tx.limit_order
             if order.coverable:
                 exchange_order_release_invoke.apply_async([tx.pk])
             else:

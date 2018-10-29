@@ -471,6 +471,8 @@ class Payment(BtcBase, SoftDeletableModel, FlagableMixin):
     # payment
     order = models.ForeignKey('orders.Order', null=True, default=None,
                               on_delete=models.DO_NOTHING)
+    limit_order = models.ForeignKey('orders.LimitOrder', null=True, blank=True,
+                                    default=None, on_delete=models.DO_NOTHING)
     reference = models.CharField(max_length=255,
                                  null=True, default=None)
     comment = models.CharField(max_length=255,

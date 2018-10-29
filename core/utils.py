@@ -45,7 +45,8 @@ clients_lookup = {
 
 
 def create_deposit_address(user, order):
-    currency = order.pair.quote
+    currency = \
+        order.pair.base if order.order_type == order.SELL else order.pair.quote
     card, address = clients_lookup[
         currency.wallet].create_user_wallet(user, currency)
     if card and address:

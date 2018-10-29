@@ -8,6 +8,7 @@ from core.tests.base import OrderBaseTestCase
 from ticker.tests.base import TickerBaseTestCase
 from ticker.models import Price
 from accounts.models import Balance
+from unittest import skip
 
 
 class TestReferralModel(TickerBaseTestCase):
@@ -83,6 +84,7 @@ class TestReferralModel(TickerBaseTestCase):
         self.assertEqual(self.test_subjects,
                          self.referral.confirmed_orders_count)
 
+    @skip('TODO test')
     def test_not_count_active_if_program_exceed(self):
         pass
 
@@ -90,6 +92,7 @@ class TestReferralModel(TickerBaseTestCase):
         self.assertEqual(round(self.revenue, 8),
                          self.referral.revenue)
 
+    @skip('TODO test')
     def test_not_revenue_active_if_program_exceed(self):
         pass
 
@@ -124,36 +127,47 @@ class TestReferralModel(TickerBaseTestCase):
         self.assertNotEqual(self.revenue, balance.balance)
         self.assertEqual(adapted_balance, balance.balance)
 
+    @skip('TODO test')
     def test_not_turnover_active_if_program_exceed(self):
         pass
 
+    @skip('TODO test')
     def test_completed_added_to_balance(self):
         pass
 
+    @skip('TODO test')
     def test_not_added_to_balance_if_program_exceed(self):
         pass
 
+    @skip('TODO test')
     def obeys_ppl_limit(self):
         pass
 
+    @skip('TODO test')
     def test_obeys_volume_limit(self):
         pass
 
+    @skip('TODO test')
     def test_obeys_lifespan_limit(self):
         pass
 
     # MIDDLEWARE STUFF
+    @skip('TODO test')
     def test_cannot_refer_self(self):
         pass
 
+    @skip('TODO test')
     def can_refer_new_user(self):
         pass
 
+    @skip('TODO test')
     def can_refer_old_empty_user(self):
         pass
 
+    @skip('TODO test')
     def cannot_refer_active_user(self):
         pass
 
+    @skip('TODO test')
     def cannot_be_referred_by_two_users(self):
         pass

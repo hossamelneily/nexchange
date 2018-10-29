@@ -1,8 +1,10 @@
 from functools import wraps
 from nexchange.api_clients.factory import ApiClientFactory
-from .models import Order
+from .models import Order, LimitOrder
+from nexchange.utils import get_nexchange_logger
 
 factory = ApiClientFactory()
+logger = get_nexchange_logger('Orders Decorator logger')
 
 
 def get_task(**kwargs):
@@ -15,16 +17,19 @@ def get_task(**kwargs):
             try:
                 order = Order.objects.get(**lookup)
             except Order.DoesNotExist:
-                # TODO: Seperate validate from release
-                # TODO: This is an ugly hack for PaymentReleaseByWallet
-                # TODO: Where payment.order is absent
-                payment_id = lookup.popitem()[1][0]
-                try:
-                    payment, order = Task.get_order(payment_id)
-                except Order.DoesNotExist:
-                    return
-
-            api = factory.get_api_client(order.pair.base.wallet)
+                order = None
+            try:
+                limit_order = LimitOrder.objects.get(**lookup)
+            except LimitOrder.DoesNotExist:
+                limit_order = None
+            if bool(limit_order) == bool(order):
+                logger.error(
+                    '{} lookup for order found both Order and '
+                    'LimitOrder'.format(lookup)
+                )
+                return
+            _order = order if order else limit_order
+            api = factory.get_api_client(_order.withdraw_currency.wallet)
             task = Task(api)
             return task_fn(search_val, task)
 

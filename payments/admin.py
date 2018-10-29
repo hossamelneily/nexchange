@@ -22,7 +22,8 @@ class PaymentAdmin(admin.ModelAdmin):
     readonly_fields = (
         'amount_cash', 'currency', 'type', 'payment_system_id',
         'secondary_payment_system_id', 'is_redeemed', 'is_success',
-        'is_complete', 'payment_preference', 'order', 'reference', 'user'
+        'is_complete', 'payment_preference', 'order', 'reference', 'user',
+        'limit_order'
     )
     autocomplete_fields = ('order',)
     search_fields = ('order__unique_reference', 'currency__code',

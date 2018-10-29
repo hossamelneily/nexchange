@@ -3,9 +3,11 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 
 from core.models import Transaction, Currency
-from orders.models import Order
+from orders.models import Order, LimitOrder
 from nexchange.utils import get_nexchange_logger
 from risk_management.task_summary import order_cover_invoke
+from nexchange.utils import convert_camel_to_snake_case
+from copy import deepcopy
 
 
 class BaseTransactionImporter:
@@ -23,16 +25,25 @@ class BaseTransactionImporter:
             'status': status,
             'deposit_address': tx_data['address_to']
         }
-
         if tx_data.get('destination_tag'):
             buy_exchange_query['destination_tag'] = \
                 tx_data.get('destination_tag')
 
         if tx_data.get('payment_id'):
-                    buy_exchange_query['payment_id'] = \
-                        tx_data.get('payment_id')
+            buy_exchange_query['payment_id'] = tx_data.get('payment_id')
 
         orders = Order.objects.filter(**buy_exchange_query)
+        if not orders:
+            sell_limit_query = deepcopy(buy_exchange_query)
+            sell_limit_query.pop('pair__quote')
+            sell_limit_query.update({
+                'pair__base': tx_data['currency'],
+                'order_type': Order.SELL,
+            })
+            orders = LimitOrder.objects.filter(
+                Q(**buy_exchange_query) | Q(**sell_limit_query)
+            )
+
         return orders
 
     def get_or_create_tx(self, tx):
@@ -84,7 +95,7 @@ class BaseTransactionImporter:
             order = orders[0]
 
             tx_data.update({
-                'order': order,
+                convert_camel_to_snake_case(order.__class__.__name__): order,
                 'type': Transaction.DEPOSIT
             })
 

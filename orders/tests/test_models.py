@@ -599,7 +599,7 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
               'success_payments_by_wallet': 0,
               'bad_currency_payments': 0},
              True,
-             {'status': Order.INITIAL},
+             {'status': Order.CANCELED},
              ),
         )
     )

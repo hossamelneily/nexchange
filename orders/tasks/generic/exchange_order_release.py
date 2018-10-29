@@ -1,6 +1,6 @@
 from django.db import transaction
 from core.models import Transaction
-from orders.models import Order
+from orders.models import Order, LimitOrder
 from orders.tasks.generic.base import BaseOrderRelease
 from nexchange.api_clients.mixins import UpholdBackendMixin, ScryptRpcMixin
 from nexchange.api_clients.factory import ApiClientFactory
@@ -14,10 +14,12 @@ class ExchangeOrderRelease(BaseOrderRelease, ApiClientFactory):
         'risk_management.task_summary.currency_reserve_balance_checker_invoke'
 
     def _get_order(self, tx):
-        order = tx.order
+
+        order = tx.order if tx.order else tx.limit_order
         # TODO: move this logic to validate?
-        if order.flagged or not order or not order.withdraw_address \
-                or not order.exchange or order.status != Order.PAID:
+        if not order or order.flagged or not order.withdraw_address \
+                or not order.exchange or order.status != Order.PAID \
+                or bool(tx.order) == bool(tx.limit_order):
             return None, None
 
         return tx, order
@@ -36,27 +38,39 @@ class ExchangeOrderRelease(BaseOrderRelease, ApiClientFactory):
 
     def do_release(self, order, payment=None):
         with transaction.atomic(using='default'):
-            if order.order_type == Order.BUY:
-                self.traded_currency = order.pair.base
-                amount = order.amount_base
-                currency = order.pair.base
+            if order.order_type == order.BUY or (
+                    order.order_type == order.SELL and isinstance(order,
+                                                                  LimitOrder)):
+                self.traded_currency = currency = order.withdraw_currency
+                amount = order.withdraw_amount
+
             else:
                 self.logger.error('Bad order Type')
                 return
 
             self.api = self.get_api_client(currency.wallet)
             order.refresh_from_db()
-            if order.status not in Order.IN_RELEASED:
-                order.pre_release(api=self.api)
+            if order.status not in order.IN_RELEASED:
+                pre_release_res = order.pre_release(api=self.api)
+                pre_release_status_ok = pre_release_res.get('status') == 'OK'
+                if not pre_release_status_ok:
+                    return
+
                 # Exclude because - transactions without type is possible
-                tx_data = {'order': order,
-                           'address_to': order.withdraw_address,
-                           'amount': amount,
-                           'currency': currency,
-                           'type': Transaction.WITHDRAW}
-                if order.pair.base.code == 'XRP':
+                tx_data = {
+                    'address_to': order.withdraw_address,
+                    'amount': amount,
+                    'currency': currency,
+                    'type': Transaction.WITHDRAW
+                }
+                if isinstance(order, Order):
+                    tx_data.update({'order': order})
+                elif isinstance(order, LimitOrder):
+                    tx_data.update({'limit_order': order})
+
+                if order.withdraw_currency.code == 'XRP':
                     tx_data['destination_tag'] = order.destination_tag
-                if order.pair.base.code == 'XMR':
+                if order.withdraw_currency.code == 'XMR':
                     tx_data['payment_id'] = order.payment_id
                 release_res = order.release(tx_data, api=self.api)
                 release_status_ok = release_res.get('status') == 'OK'

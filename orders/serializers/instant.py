@@ -7,14 +7,13 @@ from ticker.serializers import RateSerializer
 
 from orders.models import Order
 from core.models import Address, Pair
-from payments.utils import money_format
-from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from rest_framework.exceptions import ValidationError as RestValidationError
 from django.utils.translation import ugettext_lazy as _
 from core.validators import get_validator, validate_xmr_payment_id, \
     validate_destination_tag
+from .base import PrivateField, BaseOrderSerializer
 
 
 BASE_FIELDS = ('amount_base', 'is_default_rule', 'unique_reference',
@@ -34,27 +33,6 @@ TOKEN_FIELDS = ('token',)
 DETAIL_FIELDS = ('display_refund_address',)
 
 
-class PrivateField(serializers.ReadOnlyField):
-
-    def __init__(self, *args, **kwargs):
-        self.default_public_return_value = kwargs.pop(
-            'public_return_value', None
-        )
-        super(PrivateField, self).__init__(*args, **kwargs)
-
-    def get_attribute(self, instance):
-        """
-        Given the *outgoing* object instance, return the primitive value
-        that should be used for this field.
-        """
-        # Here < 2 is for listing sites that creates orders without payer
-        # being logged in (such as conswitch)
-        if instance.user.orders.all().count() < 2 \
-                or instance.user == self.context['request'].user:
-            return super(PrivateField, self).get_attribute(instance)
-        return self.default_public_return_value
-
-
 class MetaOrder:
     model = Order
     fields = BASE_FIELDS
@@ -65,7 +43,7 @@ class MetaFlatOrder(MetaOrder):
     fields = MetaOrder.fields + READABLE_FIELDS
 
 
-class OrderSerializer(serializers.ModelSerializer):
+class OrderSerializer(BaseOrderSerializer):
 
     def __init__(self, *args, **kwargs):
         super(OrderSerializer, self).__init__(*args, **kwargs)
@@ -155,23 +133,8 @@ class CreateOrderSerializer(OrderSerializer):
     def __init__(self, *args, **kwargs):
         data = kwargs.get('data', None)
         if data:
-            amount_base_raw = data.get('amount_base', None)
-            amount_quote_raw = data.get('amount_quote', None)
-            try:
-                if amount_base_raw:
-                    amount_base = Decimal(str(amount_base_raw))
-                    amount_formatted = money_format(
-                        amount_base, places=8
-                    )
-                    kwargs['data']['amount_base'] = str(amount_formatted)
-                if amount_quote_raw:
-                    amount_quote = Decimal(str(amount_quote_raw))
-                    amount_formatted = money_format(
-                        amount_quote, places=8
-                    )
-                    kwargs['data']['amount_quote'] = str(amount_formatted)
-            except Exception:
-                pass
+            for key in ['amount_base', 'amount_quote']:
+                data = self.strip_payload_decimal(data, key)
         super(CreateOrderSerializer, self).__init__(*args, **kwargs)
 
     def validate(self, data):

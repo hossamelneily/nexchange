@@ -3,7 +3,7 @@ from django.conf import settings
 from django.db.models import Q
 
 from core.models import Transaction, Address
-from orders.models import Order
+from orders.models import LimitOrder
 from nexchange.utils import get_nexchange_logger
 from django.db import transaction
 from nexchange.api_clients.factory import ApiClientFactory
@@ -43,7 +43,7 @@ def check_uphold_txn_status_with_blockchain(tx, tx_completed,
 def _update_pending_transaction(tx, logger, next_tasks=None):
     currency_to = tx.currency
     api = ApiClientFactory.get_api_client(currency_to.wallet)
-    order = tx.order
+    order = tx.order if tx.order else tx.limit_order
 
     logger.info(
         'Look-up transaction with txid api {} '.format(tx.tx_id_api)
@@ -60,10 +60,26 @@ def _update_pending_transaction(tx, logger, next_tasks=None):
     tx.confirmations = num_confirmations
     with transaction.atomic():
         tx.save()
-        withdrawal_completed = tx.address_to.type == Address.WITHDRAW and \
-            tx_completed and order.status != Order.COMPLETED
-        deposit_completed = tx.address_to.type == Address.DEPOSIT and \
-            tx_completed and order.status not in Order.IN_PAID
+
+        order_closed = True
+        if isinstance(order, LimitOrder) \
+                and tx.address_to.type == Address.DEPOSIT:
+            tx_order_book_completed = \
+                tx.confirmations >= currency_to.min_order_book_confirmations
+            order_is_fresh = \
+                order.status == order.PAID_UNCONFIRMED \
+                and order.book_status == order.NEW
+            to_order_book = tx_order_book_completed and order_is_fresh
+            if to_order_book:
+                order.open(tx)
+            order.refresh_from_db()
+            order_closed = order.book_status == order.CLOSED
+
+        withdrawal_completed = tx.type == Address.WITHDRAW and \
+            tx_completed and order.status != order.COMPLETED
+        deposit_completed = \
+            tx.type == Address.DEPOSIT and tx_completed and \
+            order.status not in order.IN_PAID and order_closed
 
         if withdrawal_completed:
             order.complete(tx)
@@ -73,19 +89,15 @@ def _update_pending_transaction(tx, logger, next_tasks=None):
             order.refresh_from_db()
             confirm_status_ok = confirm_res.get('status') == 'OK'
 
-            # TODO: change me to add_next_task()
-            if confirm_status_ok and order.status == Order.PAID:
-                # TODO: implement me as next task
-                # Orders are released by periodic release
-                # next_tasks.add((exchange_order_release_invoke, tx.pk,))
+            if confirm_status_ok and order.status == order.PAID:
                 card_check_time = settings.CARD_CHECK_TIME_BTC \
                     if tx.currency.code == 'USDT' \
                     else settings.CARD_CHECK_TIME
                 app.send_task(CHECK_CARD_BALANCE_TASK, [tx.pk],
                               countdown=card_check_time)
-                if tx.order.pair.quote.is_token:
+                if tx.currency.is_token:
                     app.send_task(SEND_GAS_TASK, [tx.pk])
-                if tx.order.pair.quote.code == "USDT":
+                if tx.currency.code == "USDT":
                     app.send_task(SEND_BTC_TASK, [tx.pk])
 
 

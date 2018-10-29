@@ -2,7 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from core.utils import create_deposit_address
 
-ALLOWED_SENDERS = ['Order']
+ALLOWED_SENDERS = ['Order', 'LimitOrder']
 
 
 @receiver(post_save, dispatch_uid='allocate_wallets')
@@ -14,7 +14,8 @@ def allocate_wallets(sender, instance=None, created=False, **kwargs):
         return
     order = instance
     user = order.user
-    currency = order.pair.quote
+    currency = \
+        order.pair.base if order.order_type == order.SELL else order.pair.quote
     if user is None:
         return
     if not all([
