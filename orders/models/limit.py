@@ -207,9 +207,11 @@ class LimitOrder(BaseLimitOrder, BaseUserOrder):
             self.save(update_fields=['amount_base', 'amount_quote'])
 
     def get_or_create_order_book(self, pair):
-        if pair not in order_books:
-            order_books[pair] = self.order_book.book_obj
-        return order_books[pair]
+        res = order_books.get(pair)
+        if not res or res != self.order_book.book_obj:
+            # make sure that book is not only on memory
+            res = order_books[pair] = self.order_book.book_obj
+        return res
 
     def _create_trade(self, trades):
         res = []

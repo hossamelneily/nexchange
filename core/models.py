@@ -145,7 +145,7 @@ class Transaction(BtcBase, FlagableMixin):
     def _validate_if_transaction_is_unique(self):
         old_txns = Transaction.objects.filter(
             amount=self.amount, order=self.order, type=self.type,
-            admin_comment=self.admin_comment
+            admin_comment=self.admin_comment, order__isnull=False
         )
         if len(old_txns) > 0:
             raise ValidationError(

@@ -17,6 +17,7 @@ from accounts import task_summary as account_tasks
 from decimal import Decimal
 from collections import namedtuple
 from risk_management.models import Reserve
+from orders.utils import release_order
 
 
 ethash_check_tx_params = namedtuple(
@@ -299,3 +300,55 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
         get_current_block.return_value = kwargs['current_block']
         res = self.api.check_tx(tx_id, self.ETH)
         self.assertEqual(res, kwargs['expected_return'], kwargs['case_name'])
+
+    @data_provider(
+        lambda: (
+            ('ETHBTC',),
+        )
+    )
+    @patch.dict(os.environ, {'RPC7_PUBLIC_KEY_C1': '0xmain_card'})
+    @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
+    @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
+    @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
+    @patch(ETH_ROOT + 'net_listening')
+    @patch('web3.eth.Eth.sendTransaction')
+    @patch('web3.personal.Personal.lockAccount')
+    @patch('web3.personal.Personal.unlockAccount')
+    @patch(ETH_ROOT + 'get_balance')
+    def test_release_ethash_order_with_util(self, pair_name, get_balance,
+                                            unlock, lock,
+                                            send_tx, eth_listen):
+        eth_listen.return_value = True
+        amount_base = 50
+        pair = Pair.objects.get(name=pair_name)
+        base = pair.base
+        if base.minimal_amount >= Decimal(amount_base):
+            base.minimal_amount = Decimal(amount_base) / Decimal('2')
+            base.save()
+        order = self._create_paid_order_api(
+            pair_name, amount_base,
+            '0x77454e832261aeed81422348efee52d5bd3a3684'
+        )
+        get_balance.return_value = amount_base * 2
+        reserves_balance_checker_periodic.apply()
+        send_tx.return_value = None
+        exchange_order_release_periodic.apply()
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PRE_RELEASE, pair_name)
+        self.assertEqual(send_tx.call_count, 1)
+        pre_called_with = send_tx.call_args[0][0]
+        send_tx.return_value = tx_id = self.generate_txn_id()
+        release_order(order)
+        self.assertEqual(send_tx.call_count, 2)
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.RELEASED, pair_name)
+        called_with = send_tx.call_args[0][0]
+        self.assertEqual(called_with, pre_called_with)
+        tx = order.transactions.get(type='W')
+        self.assertEqual(tx.tx_id, tx_id)
+        self.assertEqual(tx.address_to, order.withdraw_address)
+        self.assertEqual(called_with['to'], order.withdraw_address.address)
+        self.assertEqual(tx.amount, order.amount_base)
+        self.assertEqual(
+            Decimal(called_with['value']) * Decimal('1e-18'), order.amount_base
+        )

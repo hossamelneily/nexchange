@@ -9,6 +9,7 @@ from core.tests.base import SCRYPT_ROOT
 from unittest.mock import patch
 from django.core.exceptions import ValidationError
 from orders.task_summary import exchange_order_release_periodic
+from orders.utils import release_order
 
 
 class LimitOrderSimpleTest(OrderBaseTestCase):
@@ -142,7 +143,7 @@ class LimitOrderSimpleTest(OrderBaseTestCase):
         }
         update_pending_transactions_invoke.apply_async()
         order.refresh_from_db()
-        self.assertEqual(order.book_status, order.OPEN)
+        self.assertIn(order.book_status, [order.OPEN, order.CLOSED])
         tx = order.transactions.get(type=Transaction.DEPOSIT)
         self._check_order_transaction(order, tx)
 
@@ -199,6 +200,44 @@ class LimitOrderSimpleTest(OrderBaseTestCase):
             self.assertEqual(order.status, order.COMPLETED, error_msg)
             tx = order.transactions.get(type=Transaction.WITHDRAW)
             self._check_order_transaction(order, tx)
+
+    @patch(SCRYPT_ROOT + '_get_tx')
+    @patch(SCRYPT_ROOT + 'get_info')
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def _release_limit_orders_with_util(self, scrypt_release, scrypt_health,
+                                        scrypt_tx):
+        orders = LimitOrder.objects.filter(status=LimitOrder.PAID)
+        scrypt_release.side_effect = [(None, None) for o in orders]
+        scrypt_health.return_value = {}
+        exchange_order_release_periodic.apply_async()
+        for o in orders:
+            o.refresh_from_db()
+            self.assertEqual(o.status, o.PRE_RELEASE)
+        scrypt_release.side_effect = \
+            [(o.unique_reference, True) for o in orders]
+        for o in orders:
+            release_order(o)
+            o.refresh_from_db()
+            tx = o.transactions.get(type='W')
+            called_with = scrypt_release.call_args[0]
+            self.assertEqual(tx.currency, o.withdraw_currency)
+            self.assertEqual(called_with[0], o.withdraw_currency)
+            self.assertEqual(tx.address_to, o.withdraw_address)
+            self.assertEqual(called_with[1], o.withdraw_address)
+            self.assertEqual(tx.amount, o.withdraw_amount)
+            self.assertEqual(called_with[2], o.withdraw_amount)
+
+        min_confs = max(
+            [o.withdraw_currency.min_confirmations for o in orders]
+        )
+        scrypt_tx.return_value = {
+            'confirmations':
+                min_confs
+        }
+        update_pending_transactions_invoke.apply_async()
+        for o in orders:
+            o.refresh_from_db()
+            self.assertEqual(o.status, o.COMPLETED)
 
     def test_create_trade(self):
         bid_high = Decimal('10e-7')
@@ -341,3 +380,22 @@ class LimitOrderSimpleTest(OrderBaseTestCase):
         self.order_book.refresh_from_db()
         self.assertEqual(order_book_obj.__str__(),
                          self.order_book.book_obj.__str__())
+
+    def test_release_orders_with_util(self):
+        """ This is on cases then release fails and admin needs to retry
+        release"""
+        buy_order = self._create_limit_order_api(
+            order_type=LimitOrder.BUY,
+            amount_base=Decimal('10000'),
+            limit_rate=Decimal('9e-7'),
+        )
+        self._pay_for_order(buy_order)
+        sell_order = self._create_limit_order_api(
+            order_type=LimitOrder.SELL,
+            amount_base=Decimal('10000'),
+            limit_rate=Decimal('9e-7'),
+        )
+        self._pay_for_order(sell_order)
+
+        self._set_as_paid_limit_orders()
+        self._release_limit_orders_with_util()
