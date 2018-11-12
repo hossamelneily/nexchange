@@ -11,6 +11,9 @@ from rest_framework.test import APIClient
 from oauth2_provider.models import Application, AccessToken
 from core.tests.utils import data_provider
 from support.models import Support
+from accounts.models import User
+from django.test import Client
+import base64
 
 
 class Oauth2TestCase(TickerBaseTestCase):
@@ -175,3 +178,17 @@ class Oauth2TestCase(TickerBaseTestCase):
                                                             create_token):
         order, _token = self._create_order_api()
         self.assertIsNone(_token)
+
+    def test_users_me_basic_auth(self):
+        client = Client()
+        password = 'password'
+        onit_user = User.objects.get(username='onit')
+        onit_user.password = password
+        onit_user.save()
+        hed = {
+            'HTTP_AUTHORIZATION':
+                'Basic ' + base64.b64encode('{}:{}'.format(
+                    onit_user.username,
+                    password).encode('utf8')).decode('utf8')}
+        res = client.get('/en/api/v1/users/me/', **hed)
+        self.assertEqual(res.status_code, 401)

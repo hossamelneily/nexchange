@@ -10,7 +10,7 @@ from core.serializers import AddressSerializer, AddressUpdateSerializer
 import django_filters.rest_framework
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import AuthenticationFailed
 
 
 class UserViewSet(NoDeleteModelViewSet):
@@ -22,26 +22,12 @@ class UserViewSet(NoDeleteModelViewSet):
     http_method_names = ['get', 'put']
 
     def initial(self, request, *args, **kwargs):
-        """
-        Runs anything that needs to occur prior to calling the method handler.
-        """
-        # Hack to stop GET /api/v1/users/
-        if not kwargs:
-            raise ValidationError('')
-        self.format_kwarg = self.get_format_suffix(**kwargs)
-
-        # Perform content negotiation and store the accepted info on the request
-        neg = self.perform_content_negotiation(request)
-        request.accepted_renderer, request.accepted_media_type = neg
-
-        # Determine the API version, if versioning is in use.
-        version, scheme = self.determine_version(request, *args, **kwargs)
-        request.version, request.versioning_scheme = version, scheme
-
-        # Ensure that the incoming request is permitted
-        self.perform_authentication(request)
-        self.check_permissions(request)
-        self.check_throttles(request)
+        # 401 if recursion on auth
+        try:
+            request.auth
+        except RecursionError:
+            raise AuthenticationFailed()
+        super(UserViewSet, self).initial(request, *args, **kwargs)
 
     def get_object(self):
         """
