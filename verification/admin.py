@@ -16,7 +16,9 @@ from .signals.add_kyc_groups import raw_add_kyc_groups
 class VerificationInline(admin.TabularInline):
     model = VerificationDocument
     exclude = ('document_file',)
-    readonly_fields = ('kyc_push', 'image_tag', 'whitelisted_address', 'user')
+    readonly_fields = (
+        'file_link', 'kyc_push', 'image_tag', 'whitelisted_address', 'user'
+    )
     autocomplete_fields = ('document_type',)
     fk_name = 'verification'
 

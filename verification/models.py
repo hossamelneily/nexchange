@@ -431,13 +431,25 @@ class VerificationDocument(TimeStampedModel, SoftDeletableModel,
             root1 = 'all'
         return '/'.join([root1, root, filename])
 
+    @property
+    def file_path(self):
+        if self.document_file:
+            return '/protected_media/{}'.format(self.document_file.name)
+
     @mark_safe
     def image_tag(self):
-        return '<embed src="/protected_media/{}" />'.format(
-            self.document_file.name
-        )
-
+        if self.file_path:
+            return '<embed src="{}" />'.format(self.file_path)
     image_tag.short_description = 'Image'
+
+    @mark_safe
+    def file_link(self):
+        if self.file_path:
+            return '<a href="{}">{}</a>'.format(
+                self.file_path, self.document_type.name
+            )
+
+    file_link.short_description = 'Link to doc'
 
     def document_file_name(self, filename):
         return self._get_file_name(filename)
