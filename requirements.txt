@@ -21,7 +21,7 @@ newrelic>=2.68.0.50
 pep8>=1.7.0
 python-dateutil>=2.5.3
 pytz>=2016.6.1
-redis>=2.10.5
+redis==2.10.6
 django-redis>=4.7.0
 requests>=2.11.1
 requests-mock>=1.0.0
