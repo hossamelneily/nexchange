@@ -33,7 +33,13 @@ def send_email(to, subject='Nexchange', msg=None,
                         body=msg,
                         reply_to=reply_to,
                         )
-    mail.send(fail_silently=not settings.DEBUG)
+    try:
+        mail.send(fail_silently=not settings.DEBUG)
+        return True
+    except TypeError:
+        # this is o avoid stopping proccesess on email server failure
+        return False
+
 
 
 def _send_sms(msg, phone_to, from_phone):
