@@ -233,9 +233,12 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel,
     def set_verification_tier_to_obj(self, obj):
         obj.refresh_from_db()
         _original_tier = obj.tier
+        _zero_tier = VerificationTier.objects.get(name="Tier 0")
         if _original_tier is None:
-            _original_tier = VerificationTier.objects.get(name="Tier 0")
-        tier = VerificationTier.get_relevant_tier(obj)
+            _original_tier = _zero_tier
+        tier = \
+            VerificationTier.\
+                get_relevant_tier(obj) if obj.is_verified else _zero_tier
         obj.tier = tier
         obj.save()
         if obj.user_email is None:
@@ -314,6 +317,15 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel,
         return False
 
     @property
+    def selfie_id_is_approved(self):
+        return bool(
+            self.verificationdocument_set.filter(
+                document_type__name='ID', contains_selfie=True,
+                document_status=self.OK
+            )
+        )
+
+    @property
     def util_is_approved(self):
         if self.util_status == self.OK:
             return True
@@ -390,6 +402,21 @@ class Verification(TimeStampedModel, SoftDeletableModel, AuthStampedModel,
         if self.payment_preference:
             return self.payment_preference.payment_orders
         return []
+
+    @property
+    def related_users(self):
+        return [o.user for o in self.related_orders if o.user]
+
+    @property
+    def related_emails(self):
+        return [u.email for u in self.related_users if u.email]
+
+    @property
+    def related_phones(self):
+        return [
+            str(u.profile.phone) for u in self.related_users
+            if u.profile and u.profile.phone
+        ]
 
     @property
     def referred_with(self):
@@ -475,6 +502,7 @@ class VerificationDocument(TimeStampedModel, SoftDeletableModel,
                                     on_delete=models.DO_NOTHING)
     user = models.ForeignKey(User, null=True, blank=True,
                              on_delete=models.CASCADE)
+    contains_selfie = models.BooleanField(default=False)
 
     @mark_safe
     def download_document(self):

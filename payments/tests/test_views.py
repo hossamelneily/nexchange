@@ -1360,8 +1360,15 @@ class SafeChargeTestCase(TickerBaseTestCase, VerificationBaseTestCase):
         kyc = Verification.objects.get(note=order.unique_reference)
         doc = kyc.verificationdocument_set.latest('id')
         kyc_push = doc.kyc_push
+        pref = kyc.payment_preference
+        pref.refresh_from_db()
         self.assertIsNone(kyc.full_name)
         self.assertEqual(doc.document_status, doc.REJECTED)
+        self.assertTrue(doc.contains_selfie)
+        self.assertFalse(pref.is_verified)
+        self.assertEqual(
+            pref.tier.level, 0, 'tier0 because IDENFY is not approved yet'
+        )
         self.assertFalse(kyc_push.identification_approved)
         self.assertEqual(kyc_push.full_name, full_name)
         self.assertEqual(kyc_push.token, first_token)
@@ -1387,8 +1394,15 @@ class SafeChargeTestCase(TickerBaseTestCase, VerificationBaseTestCase):
         kyc = Verification.objects.get(note=order.unique_reference)
         doc = kyc.verificationdocument_set.latest('id')
         kyc_push = doc.kyc_push
+        pref = kyc.payment_preference
+        pref.refresh_from_db()
         self.assertEqual(kyc.full_name, full_name)
+        self.assertTrue(doc.contains_selfie)
         self.assertEqual(doc.document_status, doc.OK)
+        self.assertTrue(pref.is_verified)
+        self.assertEqual(
+            pref.tier.level, 1, 'IDENFY selfies must move to tier1'
+        )
         self.assertTrue(kyc_push.identification_approved)
         self.assertEqual(kyc_push.full_name, full_name)
         self.assertEqual(kyc_push.nationality.country.code, country_code)

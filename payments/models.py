@@ -252,6 +252,8 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
         id_status = False
         util_status = False
         for ver in verifications:
+            if ver.selfie_id_is_approved:
+                return True
             if ver.id_is_approved:
                 id_status = True
             if ver.util_is_approved:

@@ -67,7 +67,8 @@ class VerificationAdmin(admin.ModelAdmin):
         'residence_doc', 'user', 'user_input_comment', 'total_payments_usd',
         'total_payments_usd_1day', 'total_payments_usd_30days', 'out_of_limit',
         'is_immediate_payment', 'tier', 'util_status', 'id_status',
-        'modified_by', 'created_by', 'related_orders', 'referred_with'
+        'modified_by', 'created_by', 'related_orders', 'related_emails',
+        'related_phones', 'referred_with'
     )
 
     search_fields = ('note', 'full_name', 'id_status', 'util_status',

@@ -157,7 +157,8 @@ class IdenfyListenView(View):
             VerificationDocument.objects.create(
                 kyc_push=kyc_push,
                 document_type=DocumentType.objects.get(name='ID'),
-                verification=kyc
+                verification=kyc,
+                contains_selfie=True
             )
             return HttpResponse()
         except Exception:
