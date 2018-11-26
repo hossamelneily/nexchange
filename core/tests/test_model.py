@@ -1,6 +1,7 @@
 from django.test import TestCase
 from core.tests.base import OrderBaseTestCase
-from core.models import AddressReserve, Currency, Pair, Transaction, Market
+from core.models import AddressReserve, Currency, Pair, Transaction, Market,\
+    FeeDiscount
 from core.common.models import UniqueFieldMixin
 from ticker.tests.base import TickerBaseTestCase
 from django.core.exceptions import ValidationError
@@ -366,3 +367,20 @@ class MarketTestCase(OrderBaseTestCase):
         for market in markets:
             str = market.__str__
             self.assertTrue(str)
+
+
+class FeeDiscountTestCase(TestCase):
+
+    def test_between_0_and_100_percent(self):
+        with self.assertRaises(ValidationError):
+            FeeDiscount.objects.create(discount_part=Decimal('-0.1'))
+        with self.assertRaises(ValidationError):
+            FeeDiscount.objects.create(discount_part=Decimal('1.1'))
+
+    def test_active_only_one(self):
+        fee_first = FeeDiscount.objects.create(active=True)
+        fee_second = FeeDiscount.objects.create(active=True)
+        fee_first.refresh_from_db()
+        fee_second.refresh_from_db()
+        self.assertFalse(fee_first.active)
+        self.assertTrue(fee_second.active)

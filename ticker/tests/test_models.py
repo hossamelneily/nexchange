@@ -13,6 +13,12 @@ from ticker.models import Price, Ticker
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 import requests_mock
+from core.models import FeeDiscount
+from core.tests.base import OrderBaseTestCase
+from ticker.task_summary import get_all_tickers_force
+from ticker.adapters import BittrexAdapter
+from ticker.tests.fixtures.bittrex.market_resp import \
+    resp as bittrex_market_resp
 
 
 class PriceValidatorsTestCase(TestCase):
@@ -138,3 +144,61 @@ class PriceTestCaseTask(TickerBaseTestCase):
                 getattr(price, method)
                 self.assertEqual(
                     get_currency.call_count, 2 * (i + 1) + call_count)
+
+
+class DiscountTestCase(OrderBaseTestCase):
+
+    @requests_mock.mock()
+    def test_discount(self, mock):
+        pair = Pair.objects.get(name='BTCLTC')
+        pair_reverse = pair.reverse_pair
+        ltc = pair.quote
+        ltc.ticker = 'bittrex'
+        ltc.save()
+        for p in Pair.objects.exclude(pk__in=[pair.pk, pair_reverse.pk]):
+            p.disable_ticker = True
+            p.save()
+
+        ask = 0.2
+        bid = 0.1
+        url = 'https://bittrex.com/api/v1.1/public/getticker/?market=BTC-LTC'
+        resp_text = '{{"success":true,"message":"","result":{{"Bid":' \
+                    '{bid},"Ask":{ask},"Last":{ask}}}}}'.format(ask=ask,
+                                                                bid=bid)
+        mock.get(
+            url,
+            text=resp_text
+        )
+        mock.get(BittrexAdapter.BASE_URL + 'getmarkets',
+                 text=bittrex_market_resp)
+        get_all_tickers_force()
+        btcltc_price = pair.latest_price
+        ltcbtc_price = pair_reverse.latest_price
+        discount = FeeDiscount.objects.create(
+            name='Much Discount',
+            discount_part=Decimal('0.5'),
+            active=True
+        )
+        get_all_tickers_force()
+        btcltc_price_discount = pair.latest_price
+        ltcbtc_price_discount = pair_reverse.latest_price
+        self.assertLess(
+            btcltc_price_discount.ticker.ask,
+            btcltc_price.ticker.ask
+        )
+        self.assertLess(
+            ltcbtc_price_discount.ticker.ask,
+            ltcbtc_price.ticker.ask
+        )
+        self.assertGreater(
+            btcltc_price_discount.ticker.bid,
+            btcltc_price.ticker.bid
+        )
+        self.assertGreater(
+            ltcbtc_price_discount.ticker.bid,
+            ltcbtc_price.ticker.bid
+        )
+        for p in [pair, pair_reverse]:
+            multip = (Decimal('1') - discount.discount_part)
+            self.assertEqual(p.fee_ask * multip, p.fee_ask_current)
+            self.assertEqual(p.fee_bid * multip, p.fee_bid_current)

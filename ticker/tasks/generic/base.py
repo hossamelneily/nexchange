@@ -128,9 +128,9 @@ class BaseTicker(BaseTask):
 
     def create_ticker(self, ask, bid):
         ask = (self.ask_multip * Decimal(ask) *
-               (Decimal('1.0') + self.pair.fee_ask))
+               (Decimal('1.0') + self.pair.fee_ask_current))
         bid = (self.bid_multip * Decimal(bid) *
-               (Decimal('1.0') - self.pair.fee_bid))
+               (Decimal('1.0') - self.pair.fee_bid_current))
         ticker = Ticker(pair=self.pair, ask=ask,
                         bid=bid)
         return ticker

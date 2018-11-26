@@ -1,7 +1,7 @@
 from django.contrib import admin
 from core.models import Currency, Transaction, Address, \
     Pair, Location, AddressReserve, TransactionApiMapper, Market, \
-    TransactionPrice, CurrencyAlgorithm
+    TransactionPrice, CurrencyAlgorithm, FeeDiscount
 from core.common.models import Flag
 
 
@@ -81,6 +81,11 @@ class TransactionPriceAdmin(admin.ModelAdmin):
 @admin.register(CurrencyAlgorithm)
 class CurrencyAlgorithmAdmin(admin.ModelAdmin):
     list_display = ('name',)
+
+
+@admin.register(FeeDiscount)
+class FeeDiscountAdmin(admin.ModelAdmin):
+    list_display = ('name', 'active', 'discount_part_str')
 
 
 admin.site.register(TransactionApiMapper)

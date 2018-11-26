@@ -12,6 +12,7 @@ from django_countries.fields import CountryField
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.utils.translation import ugettext as _
 from core.validators import validate_destination_tag, validate_xmr_payment_id
+from core.common.models import NamedModel
 
 
 class BtcBase(TimeStampedModel):
@@ -520,6 +521,22 @@ class Pair(TimeStampedModel):
         currency_codes = [c.code for c in currencies]
         return currency in currencies or currency in currency_codes
 
+    @property
+    def current_discount_part(self):
+        try:
+            discount = FeeDiscount.objects.get(active=True)
+            return discount.discount_part
+        except (FeeDiscount.DoesNotExist, FeeDiscount.MultipleObjectsReturned):
+            return Decimal('0')
+
+    @property
+    def fee_ask_current(self):
+        return self.fee_ask * (Decimal('1') - self.current_discount_part)
+
+    @property
+    def fee_bid_current(self):
+        return self.fee_bid * (Decimal('1') - self.current_discount_part)
+
 
 class Country(models.Model):
     country = CountryField(unique=True)
@@ -552,3 +569,38 @@ class Location(TimeStampedModel, SoftDeletableModel):
 class TransactionApiMapper(TimeStampedModel):
     node = models.CharField(null=False, max_length=100)
     start = models.IntegerField(null=True, blank=True, default=0)
+
+
+class FeeDiscount(NamedModel):
+    active = models.BooleanField(default=True)
+    discount_part = models.DecimalField(
+        default=Decimal('0'), max_digits=18, decimal_places=8
+    )
+
+    def _validate_discount_part(self):
+        if self.discount_part < Decimal('0') or \
+                self.discount_part > Decimal('1'):
+            raise ValidationError(_(
+                'Discount part must be in between 0 and 1(0 and 100%)'
+            ))
+
+    def _validate_fields(self):
+        self._validate_discount_part()
+
+    def clean(self, *args, **kwargs):
+        self._validate_fields()
+        super(FeeDiscount, self).clean(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self._validate_fields()
+        if self.active:
+            old_actives = FeeDiscount.objects.filter(active=True)
+            for discount in old_actives:
+                if self != discount:
+                    discount.active = False
+                    discount.save()
+        super(FeeDiscount, self).save(*args, **kwargs)
+
+    @property
+    def discount_part_str(self):
+        return '{:.1f}%'.format(self.discount_part * Decimal('100'))
