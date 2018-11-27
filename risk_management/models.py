@@ -190,14 +190,23 @@ class ReserveLog(TimeStampedModel):
             if not self.available:
                 self.available = self.reserve.available
             reserve_currency = self.reserve.currency
-            for quote_currency in ['BTC', 'USD', 'EUR', 'ETH']:
-                field = 'rate_{}'.format(quote_currency.lower())
-                if not getattr(self, field):
-                    try:
-                        rate = Price.get_rate(reserve_currency, quote_currency)
-                        setattr(self, field, rate)
-                    except Price.DoesNotExist:
-                        continue
+            disabled_ticker = DisabledCurrency.objects.filter(
+                currency=reserve_currency,
+                disable_ticker_quote=True,
+                disable_ticker_base=True
+            )
+            if not disabled_ticker:
+                for quote_currency in ['BTC', 'USD', 'EUR', 'ETH']:
+                    field = 'rate_{}'.format(quote_currency.lower())
+                    if not getattr(self, field):
+                        try:
+                            rate = Price.get_rate(
+                                reserve_currency,
+                                quote_currency
+                            )
+                            setattr(self, field, rate)
+                        except Price.DoesNotExist:
+                            continue
         super(ReserveLog, self).save()
 
     @property
