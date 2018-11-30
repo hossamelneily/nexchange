@@ -21,6 +21,7 @@ from core.models import Pair
 from decimal import Decimal
 from orders.models import Order
 from core.api_views import PairViewSet
+from rest_framework.exceptions import NotFound
 
 
 class BestChangeXMLRenderer(XMLRenderer):
@@ -112,6 +113,9 @@ class LastPricesViewSet(ReadOnlyETAGMixin, CacheResponseMixin,
         serializer = PriceSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    def retrieve(self, request, **kwargs):
+        raise NotFound()
+
 
 class PriceHistoryViewSet(ReadOnlyETAGMixin,
                           DataPointsFilterViewSet):
@@ -129,3 +133,6 @@ class PriceHistoryViewSet(ReadOnlyETAGMixin,
         res = super(PriceHistoryViewSet, self).get_queryset(filters=filters)
 
         return res
+
+    def retrieve(self, request, **kwargs):
+        raise NotFound()

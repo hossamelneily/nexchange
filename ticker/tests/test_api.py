@@ -7,6 +7,7 @@ from core.tests.utils import data_provider
 from core.models import Pair
 from rest_framework.test import APIClient
 from risk_management.models import Account
+from unittest import TestCase
 
 
 class TickerHistoryTestCase(TickerBaseTestCase):
@@ -80,3 +81,20 @@ class TestBestChangeAPI(TickerBaseTestCase):
         content_str = str(res.content)
         self.assertIn('ETH', content_str)
         self.assertIn('LTC', content_str)
+
+
+class PriceErrors(TestCase):
+
+    def __init__(self, *args, **kwargs):
+        self.api_client = APIClient()
+        super(PriceErrors, self).__init__(*args, **kwargs)
+
+    def test_not_found_history(self):
+        url = '/en/api/v1/price/ETHEUR/history/dsafsdf/'
+        res = self.api_client.get(url)
+        self.assertEqual(res.status_code, 404)
+
+    def test_not_found_latest(self):
+        url = '/en/api/v1/price/ETHEUR/latest/dsafsdf/'
+        res = self.api_client.get(url)
+        self.assertEqual(res.status_code, 404)
