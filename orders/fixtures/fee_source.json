@@ -1,0 +1,25 @@
+[
+{
+  "model": "orders.feesource",
+  "pk": 1,
+  "fields": {
+    "name": "Markup"
+  }
+},
+{
+  "model": "orders.feesource",
+  "pk": 2,
+  "fields": {
+    "name": "Payment Method"
+  }
+},
+{
+  "model": "orders.feesource",
+  "pk": 3,
+  "fields": {
+    "name": "Withdrawal"
+  }
+}
+]
+
+

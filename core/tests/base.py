@@ -437,7 +437,8 @@ class OrderBaseTestCase(UserBaseTestCase):
         'tier1.json',
         'tier2.json',
         'tier3.json',
-        'document_type.json'
+        'document_type.json',
+        'fee_source.json'
     ]
     PRICE_BUY_RUB = 36000
     PRICE_BUY_USD = 600

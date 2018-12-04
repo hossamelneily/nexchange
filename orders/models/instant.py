@@ -27,6 +27,7 @@ from decimal import InvalidOperation
 from verification.api_clients.idenfy import IdenfyAPIClient
 from verification.models import IdentityToken
 from payments.utils import get_first_name, get_last_name
+from .fee import OrderFee, FeeSource
 
 safe_charge_client = SafeChargeAPIClient()
 idenfy_client = IdenfyAPIClient()
@@ -36,6 +37,10 @@ logger = get_nexchange_logger('Order logger', with_email=True,
 
 
 class Order(BaseOrder, BaseUserOrder):
+
+    def __init__(self, *args, **kwargs):
+        self.fee_list = {'update': False}
+        super(Order, self).__init__(*args, **kwargs)
 
     # these are redifined to pass to django FSM transitions
     INITIAL = BaseUserOrder.INITIAL
@@ -385,6 +390,37 @@ class Order(BaseOrder, BaseUserOrder):
         self._validate_price()
         self._validate_reserves()
         super(Order, self).save(*args, **kwargs)
+        if self.fee_list.get('update', False):
+            tot_fee_amount_base = tot_fee_amount_quote = Decimal('0')
+            for _fee in self.fee_list.get('data', []):
+                fee_source = _fee.get('fee_source')
+                amount_quote = _fee.get('amount_quote')
+                amount_base = _fee.get('amount_base')
+                fee, _ = OrderFee.objects.get_or_create(
+                    fee_source=fee_source, order=self
+                )
+                fee.amount_base = amount_base
+                tot_fee_amount_base += \
+                    amount_base if amount_base else Decimal('0')
+                fee.amount_quote = amount_quote
+                tot_fee_amount_quote += \
+                    amount_quote if amount_quote else Decimal('0')
+                fee.save()
+            markup_multiplier = \
+                Decimal('1') / (Decimal('1') + self.pair.fee_ask_current) \
+                * self.pair.fee_ask_current
+            markup_base = \
+                (self.amount_base - tot_fee_amount_base) * markup_multiplier
+            markup_quote = \
+                (self.amount_quote - tot_fee_amount_quote) * markup_multiplier
+            markup_fee, _ = OrderFee.objects.get_or_create(
+                fee_source=self.get_or_create_fee_source(OrderFee.MARKUP),
+                order=self
+            )
+            markup_fee.amount_base = markup_base
+            markup_fee.amount_quote = markup_quote
+            markup_fee.save()
+            self.fee_list.update({'update': False})
 
     def calculate_quote_from_base(self, price=None):
         try:
@@ -425,6 +461,22 @@ class Order(BaseOrder, BaseUserOrder):
         price.slippage = slippage
         price.save()
 
+    def convert_from(self, amount, _from):
+        if amount is None or not self.price:
+            return
+        rate = self.price.ticker.ask if self.order_type == self.BUY else self.\
+            price.ticker.bid
+        if _from == 'base':
+            return amount * rate
+        elif _from == 'quote':
+            return amount / rate
+
+    def get_or_create_fee_source(self, name):
+        sources = FeeSource.objects.filter(name=name)
+        return sources.latest('id') if sources else FeeSource.objects.create(
+            name=name
+        )
+
     def calculate_from(self, _from='base', price=None):
         self.set_provided_amount_option()
         self.set_payment_preference()
@@ -442,7 +494,25 @@ class Order(BaseOrder, BaseUserOrder):
         self.set_slippage(self.price, amount_input, _from)
         ticker_amount_output = getattr(self, 'ticker_amount_{}'.format(_to))
         fee_adder = getattr(self, 'add_payment_fee_to_amount_{}'.format(_to))
-        amount_output = fee_adder(ticker_amount_output)
+        amount_output, withdrawal_fee, payment_fee = fee_adder(
+            ticker_amount_output
+        )
+        self.fee_list.update({
+            'update': True,
+            'data': [
+                {'amount_{}'.format(_to): withdrawal_fee,
+                 'amount_{}'.format(_from): self.convert_from(withdrawal_fee,
+                                                              _to),
+                 'fee_source': self.get_or_create_fee_source(
+                     OrderFee.WITHDRAWAL),
+                 'order': self},
+                {'amount_{}'.format(_to): payment_fee,
+                 'amount_{}'.format(_from): self.convert_from(payment_fee,
+                                                              _to),
+                 'fee_source': self.get_or_create_fee_source(
+                     OrderFee.PAYMENT_METHOD),
+                 'order': self},
+            ]})
         decimal_places = getattr(
             self, 'recommended_{}_decimal_places'.format(_to))
         amount_output_formatted = money_format(amount_output,
@@ -593,6 +663,7 @@ class Order(BaseOrder, BaseUserOrder):
         return self.minimal_payment_method_fee_quote / self.price.rate
 
     def add_payment_fee_to_amount_base(self, amount_base):
+        payment_fee = None
         if any([not self.payment_preference, self.pair.is_crypto]):
             res = amount_base
         else:
@@ -600,16 +671,21 @@ class Order(BaseOrder, BaseUserOrder):
             fee = method.fee_deposit
             fee_amount = fee * amount_base
             if fee_amount >= self.minimal_payment_method_fee_base:
+                payment_fee = fee_amount
                 res = amount_base - fee_amount
             else:
+                payment_fee = self.minimal_payment_method_fee_base
                 res = amount_base - self.minimal_payment_method_fee_base
-        return res - self.withdrawal_fee
+        withdrawal_fee = self.withdrawal_fee
+        return res - withdrawal_fee, withdrawal_fee, payment_fee
 
     def add_payment_fee_to_amount_quote(self, amount_quote):
+        withdrawal_fee = self.withdrawal_fee_quote
+        payment_fee = None
         amount_quote += self.withdrawal_fee_quote
 
         if any([not self.payment_preference, self.pair.is_crypto]):
-            return amount_quote
+            return amount_quote, self.withdrawal_fee_quote, payment_fee
 
         base = Decimal('1.0')
         fee = Decimal('0.0')
@@ -625,7 +701,8 @@ class Order(BaseOrder, BaseUserOrder):
         res = amount_quote / (base - fee)
         if res - amount_quote < self.minimal_payment_method_fee_quote:
             res = amount_quote + self.minimal_payment_method_fee_quote
-        return res
+        payment_fee = res - amount_quote
+        return res, withdrawal_fee, payment_fee
 
     @property
     def is_paid(self):
@@ -1271,3 +1348,7 @@ class Order(BaseOrder, BaseUserOrder):
             return self.user.profile.referred_with
         except ObjectDoesNotExist:
             pass
+
+    @property
+    def fees(self):
+        return self.orderfee_set.all()

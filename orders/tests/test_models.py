@@ -33,6 +33,7 @@ import requests_mock
 from freezegun import freeze_time
 from rest_framework.test import APIClient
 from risk_management.models import Account, DisabledCurrency, Reserve
+from orders.models import FeeSource, OrderFee
 
 
 class OrderBasicFieldsTestCase(OrderBaseTestCase):
@@ -985,7 +986,7 @@ class CalculateOrderTestCase(TickerBaseTestCase):
         amount_base = self.order.amount_base
         price = self.order.price
         times = Decimal('1.2')
-        self.order.calculate_order(amount_quote * Decimal('1.2'))
+        self.order.calculate_order(amount_quote * times)
         self.order.refresh_from_db()
         expected_base = money_format(
             (amount_base + self.order.withdrawal_fee) *
@@ -1324,3 +1325,88 @@ class DisableOrderCreationTestCase(TickerBaseTestCase):
         self.assertEqual(res.status_code, 400)
         self.assertFalse(pair.quote.is_quote_of_enabled_pair)
         self.assertTrue(pair.quote.is_quote_of_enabled_pair_for_test)
+
+
+class OrderFeesTestCase(OrderBaseTestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(OrderFeesTestCase, self).__init__(*args, *kwargs)
+        self.api_client = APIClient()
+
+    def setUp(self, *args, **kwargs):
+        super(OrderFeesTestCase, self).setUp(*args, **kwargs)
+        self.markup_fee_source = FeeSource.objects.get(name='Markup')
+        self.payment_method_fee_source = \
+            FeeSource.objects.get(name='Payment Method')
+        self.withdrawal_fee_source = FeeSource.objects.get(name='Withdrawal')
+
+    def _create_order_api(self, **order_data):
+        order_data.update({
+            'pair': {
+                'name': 'BTCEUR'
+            },
+            'withdraw_address': {
+                'address': '15TpiR1wMZKQAGz2Z5djUae2PPkRLpDv4H'
+            }
+        })
+        order_api_url = '/en/api/v1/orders/'
+        res = self.api_client.post(order_api_url, order_data, format='json')
+        return Order.objects.get(
+            unique_reference=res.json()['unique_reference']
+        )
+
+    def test_log_fees(self):
+        order_big = self._create_order_api(amount_quote='500')
+        order_quote = self._create_order_api(amount_quote='100')
+        order_base = self._create_order_api(
+            amount_base=str(order_quote.amount_base)
+        )
+        order_big.calculate_order(order_quote.amount_quote)
+        order_big.save()
+        tot_base_fee = tot_quote_fee = Decimal('0')
+        for fee_source in [OrderFee.WITHDRAWAL, OrderFee.PAYMENT_METHOD]:
+            oquote_fee = order_quote.orderfee_set.get(
+                fee_source__name=fee_source
+            )
+            obase_fee = order_base.orderfee_set.get(
+                fee_source__name=fee_source
+            )
+            obig_fee = order_big.orderfee_set.get(
+                fee_source__name=fee_source
+            )
+            self.assertEqual(oquote_fee.amount_base,
+                             obase_fee.amount_base)
+            self.assertEqual(oquote_fee.amount_base,
+                             obig_fee.amount_base)
+            tot_base_fee += oquote_fee.amount_base
+            self.assertEqual(oquote_fee.amount_quote,
+                             obase_fee.amount_quote)
+            self.assertEqual(oquote_fee.amount_quote,
+                             obig_fee.amount_quote)
+            tot_quote_fee += oquote_fee.amount_quote
+        oquote_fee = order_quote.orderfee_set.get(
+            fee_source__name=OrderFee.MARKUP
+        )
+        obase_fee = order_base.orderfee_set.get(
+            fee_source__name=OrderFee.MARKUP
+        )
+        obig_fee = order_big.orderfee_set.get(
+            fee_source__name=OrderFee.MARKUP
+        )
+        self.assertEqual(oquote_fee.amount_base,
+                         obase_fee.amount_base)
+        self.assertEqual(oquote_fee.amount_base,
+                         obig_fee.amount_base)
+        self.assertEqual(oquote_fee.amount_quote,
+                         obase_fee.amount_quote)
+        self.assertEqual(oquote_fee.amount_quote,
+                         obig_fee.amount_quote)
+        current_fee = order_quote.pair.fee_ask_current
+        markup_multip = \
+            Decimal('1') / (Decimal('1') + current_fee) * current_fee
+        expected_base = \
+            (order_quote.amount_base - tot_base_fee) * markup_multip
+        expected_quote = \
+            (order_quote.amount_quote - tot_quote_fee) * markup_multip
+        self.assertAlmostEqual(expected_base, oquote_fee.amount_base, 8)
+        self.assertAlmostEqual(expected_quote, oquote_fee.amount_quote, 8)

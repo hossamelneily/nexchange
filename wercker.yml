@@ -123,6 +123,10 @@ dev:
           python manage.py loaddata core/fixtures/pairs_bmh.json
           python manage.py loaddata core/fixtures/pairs_xrp.json
     - script:
+        name: Django import Order fixtures
+        code: |
+          python manage.py loaddata orders/fixtures/fee_source.json
+    - script:
         name: Django import Payment Methods fixture
         code: |
           python manage.py loaddata payments/fixtures/payment_method.json
@@ -497,6 +501,7 @@ build:
           python /usr/src/app/manage.py loaddata core/fixtures/currency_fiat.json
           python /usr/src/app/manage.py loaddata core/fixtures/currency_tokens.json
           python /usr/src/app/manage.py loaddata core/fixtures/country.json
+          python /usr/src/app/manage.py loaddata orders/fixtures/fee_source.json
           python /usr/src/app/manage.py loaddata payments/fixtures/payment_method.json
           python /usr/src/app/manage.py loaddata payments/fixtures/payment_preference.json
           python /usr/src/app/manage.py loaddata referrals/fixtures/program.json

@@ -13,7 +13,7 @@ class OrderAdmin(admin.ModelAdmin):
         'user_provided_amount', 'ticker_amount_quote', 'order_type',
         'payment_preference', 'user_marked_as_paid', 'system_marked_as_paid',
         'is_default_rule', 'from_default_rule', 'exchange', 'set_as_paid_on',
-        'slippage', 'destination_tag', 'disabled', 'deleted'
+        'slippage', 'destination_tag', 'disabled', 'deleted', 'fees'
     )
 
     search_fields = ('unique_reference', 'pair__base__code',
