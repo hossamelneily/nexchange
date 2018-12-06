@@ -51,15 +51,13 @@ class IdenfyAPIClient:
             api_secret=settings.IDENFY_API_SECRET
         )
 
-    def get_token_for_order(self, order, first_name='', last_name=''):
+    def get_token_for_order(self, order, **kwargs):
         if not settings.IDENFY_API_KEY or not settings.IDENFY_API_SECRET:
             return None, None
         try:
-            res = self.api.request_token(**{
-                'clientId': order.unique_reference,
-                'firstName': first_name,
-                'lastName': last_name
-            })
+            params = {'clientId': order.unique_reference}
+            params.update(kwargs)
+            res = self.api.request_token(**params)
             if res.status_code != 201:
                 self.logger.error(
                     'Bad request_token status code: 201!={}, content: {}'.format(  # noqa

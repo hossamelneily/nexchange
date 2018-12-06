@@ -1282,12 +1282,9 @@ class SafeChargeTestCase(TickerBaseTestCase, VerificationBaseTestCase):
         mock.get(file_url, status_code=200)
 
         def token_callback(request, context):
-            body = request._request.body
-            params = json.loads(body)
-            if params['firstName'] == first_name and params['lastName'] == last_name:  # noqa
-                return {'authToken': token,
-                        'scanRef': scan_ref
-                        }
+            return {'authToken': token,
+                    'scanRef': scan_ref
+                    }
 
         mock.post(
             settings.IDENFY_URL.format(

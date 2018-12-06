@@ -538,16 +538,11 @@ class Order(BaseOrder, BaseUserOrder):
         except ObjectDoesNotExist:
             token = None
         if not token or token.expired or token.used:
-            # this is first_name last_name hack for idenfy,
-            # best would be not to send at all but it is not possible with
-            # drivers license
             fullname = self.get_fullname()
             first_name = get_first_name(fullname)
             last_name = get_last_name(fullname)
             _token, _scan_ref = idenfy_client.get_token_for_order(
                 self,
-                first_name=first_name,
-                last_name=last_name
             )
             if not _token:
                 return
