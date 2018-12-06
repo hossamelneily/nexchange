@@ -471,18 +471,21 @@ class BuyOrderReleaseByReferenceTestCase(BaseOrderReleaseTestCase):
         self.assertEqual(order.status, Order.INITIAL)
         statuses = [Order.PAID_UNCONFIRMED, Order.PAID, Order.RELEASED,
                     Order.COMPLETED]
-        for i, status in enumerate(statuses):
+        count = 0
+        for status in statuses:
+            if status == Order.RELEASED:
+                count += 1
             order.status = status
             order.save()
             # Second save with same status change
             order.save()
 
             self.assertEqual(
-                expect_notify_by_email * (i + 1), send_email.call_count,
+                expect_notify_by_email * count, send_email.call_count,
                 'user:{}, profile:{}'.format(user_props, profile_props)
             )
             self.assertEqual(
-                expect_notify_by_phone * (i + 1), send_sms.call_count,
+                expect_notify_by_phone * count, send_sms.call_count,
                 'user:{}, profile:{}'.format(user_props, profile_props)
             )
 
