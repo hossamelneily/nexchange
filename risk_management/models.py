@@ -15,6 +15,7 @@ from nexchange.api_clients.bittrex import BittrexApiClient
 from payments.utils import money_format
 from audit_log.models import AuthStampedModel
 from nexchange.api_clients.factory import ApiClientFactory
+from .utils import get_native_pairs
 
 
 BITTREX_API = BittrexApiClient()
@@ -580,20 +581,7 @@ class PNLSheet(TimeStampedModel):
         create_pnls = False if self.pk else True
         res = super(PNLSheet, self).save(*args, **kwargs)
         if create_pnls:
-            crypto = Currency.objects.filter(is_crypto=True).exclude(
-                code__in=['RNS']).order_by('pk')
-            codes = [curr.code for curr in crypto] + ['EUR', 'USD', 'GBP',
-                                                      'JPY']
-            names = []
-            for i, code_base in enumerate(codes):
-                for code_quote in codes[i + 1:]:
-                    names.append('{}{}'.format(code_base, code_quote))
-            # old ticker search requires a lot of time therefore disable_
-            # ticker=True pairs (pairs with relatively old last tickers) are
-            # excluded
-            pairs = Pair.objects.filter(name__in=names).exclude(
-                disable_ticker=True
-            )
+            pairs = get_native_pairs()
             for pair in pairs:
                 pnl = PNL(pair=pair, pnl_sheet=self, date_from=self.date_from,
                           date_to=self.date_to)

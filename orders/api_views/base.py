@@ -13,6 +13,12 @@ from oauth2_provider.models import Application, AccessToken
 from oauthlib.common import generate_token
 from datetime import timedelta
 from django.utils import timezone
+from orders.models import Order
+from core.common.api_views import DateFilterViewSet
+from django.views.decorators.cache import cache_page
+from ticker.models import Price
+from django.utils.decorators import method_decorator
+from rest_framework.exceptions import NotFound
 
 referral_middleware = ReferralMiddleWare()
 
@@ -67,3 +73,31 @@ class BaseOrderListViewSet(viewsets.ModelViewSet,
         serializer.save(user=self.request.user)
 
         return super(BaseOrderListViewSet, self).perform_create(serializer)
+
+
+class BaseVolumeViewSet(ReadOnlyETAGMixin, CacheResponseMixin,
+                        DateFilterViewSet):
+
+    def __init__(self, *args, **kwargs):
+        super(BaseVolumeViewSet, self).__init__(*args, **kwargs)
+        self.price_cache = {}
+
+    @method_decorator(cache_page(settings.VOLUME_CACHE_LIFETIME))
+    def dispatch(self, *args, **kwargs):
+        return super(BaseVolumeViewSet, self).dispatch(*args, **kwargs)
+
+    def get_queryset(self, filters=None, **kwargs):
+        if filters is None:
+            filters = {}
+        filters['status__in'] = Order.IN_SUCCESS_RELEASED
+        return super(BaseVolumeViewSet, self).get_queryset(filters=filters,
+                                                           **kwargs)
+
+    def get_rate(self, currency):
+        if currency not in self.price_cache:
+            _price = Price.get_rate('BTC', currency)
+            self.price_cache.update({currency: _price})
+        return self.price_cache[currency]
+
+    def retrieve(self, request, **kwargs):
+        raise NotFound()

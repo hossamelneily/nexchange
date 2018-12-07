@@ -1,2 +1,3 @@
-from .instant import OrderListViewSet, VolumeViewSet, TradeHistoryViewSet, PriceView  # noqa
+from .instant import OrderListViewSet, VolumeViewSet, TradeHistoryViewSet,\
+    PriceView, StandardTickerViewSet
 from .limit import LimitOrderListViewSet  # noqa

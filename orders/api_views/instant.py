@@ -24,11 +24,11 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.exceptions import ValidationError
 from decimal import Decimal, InvalidOperation
 from ticker.models import Price
-from core.common.api_views import DateFilterViewSet
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.utils.encoding import force_text
-from .base import BaseOrderListViewSet, OrderPagination
+from .base import BaseOrderListViewSet, OrderPagination, BaseVolumeViewSet
+from risk_management.utils import get_native_pairs
 
 
 class OrderListViewSet(BaseOrderListViewSet):
@@ -52,31 +52,10 @@ class OrderListViewSet(BaseOrderListViewSet):
         return super(OrderListViewSet, self).get_serializer_class()
 
 
-class VolumeViewSet(ReadOnlyETAGMixin, CacheResponseMixin, DateFilterViewSet):
+class VolumeViewSet(BaseVolumeViewSet):
 
     model_class = Order
     http_method_names = ['get']
-
-    def __init__(self, *args, **kwargs):
-        super(VolumeViewSet, self).__init__(*args, **kwargs)
-        self.price_cache = {}
-
-    @method_decorator(cache_page(settings.VOLUME_CACHE_LIFETIME))
-    def dispatch(self, *args, **kwargs):
-        return super(VolumeViewSet, self).dispatch(*args, **kwargs)
-
-    def get_queryset(self, filters=None, **kwargs):
-        if filters is None:
-            filters = {}
-        filters['status'] = Order.COMPLETED
-        return super(VolumeViewSet, self).get_queryset(filters=filters,
-                                                       **kwargs)
-
-    def get_rate(self, currency):
-        if currency not in self.price_cache:
-            _price = Price.get_rate('BTC', currency)
-            self.price_cache.update({currency: _price})
-        return self.price_cache[currency]
 
     def list(self, request):
         params = self.request.query_params
@@ -125,6 +104,75 @@ class VolumeViewSet(ReadOnlyETAGMixin, CacheResponseMixin, DateFilterViewSet):
             'total_volume': {
                 'base_volume_btc': total_base,
                 'quote_volume_btc': total_quote,
+            }})
+        data.update({'tradable_pairs': volume_data})
+
+        data = OrderedDict(data)
+        return Response(data)
+
+
+class StandardTickerViewSet(BaseVolumeViewSet):
+
+    model_class = Order
+    http_method_names = ['get']
+
+    def list(self, request):
+        params = self.request.query_params
+        self.price_cache = {}
+        if 'hours' in params:
+            hours = float(self.request.query_params.get('hours'))
+        else:
+            hours = 24
+        queryset = self.get_queryset(hours=hours)
+        data = OrderedDict({'hours': hours})
+        volume_data = []
+
+        pairs = get_native_pairs().filter(disable_volume=False)
+        total_base = 0
+        for pair in pairs:
+            reverse_pair = pair.reverse_pair
+            try:
+                rate_base = self.get_rate(pair.base)
+                rate_quote = self.get_rate(pair.quote)
+                last_ask = Price.objects.filter(
+                    pair=pair, market__is_main_market=True
+                ).latest('id').rate
+            except Price.DoesNotExist:
+                continue
+            volume = queryset.filter(pair=pair).aggregate(
+                Sum('amount_base'), Sum('amount_quote'))
+            base_volume = volume['amount_base__sum']
+            quote_volume = volume['amount_quote__sum']
+            if base_volume is None:
+                base_volume = Decimal('0.0')
+            if quote_volume is None:
+                quote_volume = Decimal('0.0')
+            reverse_volume = queryset.filter(pair=reverse_pair).aggregate(
+                Sum('amount_base'), Sum('amount_quote'))
+            reverse_base_volume = \
+                reverse_volume['amount_quote__sum'] if reverse_pair else None
+            reverse_quote_volume = \
+                reverse_volume['amount_base__sum'] if reverse_pair else None
+            if reverse_base_volume is not None:
+                base_volume += reverse_base_volume
+            if reverse_quote_volume is not None:
+                quote_volume += reverse_quote_volume
+            base_volume_btc = round(base_volume / rate_base, 8)
+            quote_volume_btc = round(quote_volume / rate_quote, 8)
+            total_base += base_volume_btc
+            pair_data = SimplePairSerializer(pair).data
+            pair_data = OrderedDict({
+                'base_volume': base_volume,
+                'quote_volume': quote_volume,
+                'base_volume_btc': base_volume_btc,
+                'quote_volume_btc': quote_volume_btc,
+                'last_ask': last_ask,
+                'pair': pair_data
+            })
+            volume_data.append(pair_data)
+        data.update({
+            'total_volume': {
+                'volume_btc': total_base,
             }})
         data.update({'tradable_pairs': volume_data})
 

@@ -103,14 +103,14 @@ API for crypto currency exchange.
               "min_amount_quote": 0.14019423
             }
 
-## Latest Ticker [/en/api/v1/price/{pair_name}/latest/{?market_code}]
+## Latest Price [/en/api/v1/price/{pair_name}/latest/{?market_code}]
 
 + Parameters
     + `pair_name`: BTCLTC (required, string) - name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC.
     + `market_code`: nex (optional, string) - price market code. Default market is Nexchange(nex) - prices of this market are used for calculations of orders amounts.
 
 
-### Get Latest Ticker [GET]
+### Get Latest Price [GET]
  Gets latest price of the pair.
 
 + Response 200 (application/json)
@@ -133,7 +133,7 @@ API for crypto currency exchange.
             ]
 
 
-## Ticker History [/en/api/v1/price/{pair_name}/history/{?hours,data_points,market_code}]
+## Price History [/en/api/v1/price/{pair_name}/history/{?hours,data_points,market_code}]
 
 + Parameters
     + `pair_name`: BTCLTC (required, string) - name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC.
@@ -141,7 +141,7 @@ API for crypto currency exchange.
     + `data_points`: 3 (optional, int) - how many data points in the selected hour range would you like to get. For example, If you pass 1 hour and data\_points=60, you will get 1 data point per minute (our max supported resolution), if you pass hour=1 and data\_points=30 you will get one point per 2 minutes.
     + `market_code`: nex (optional, string) - price market code. Default market is Nexchange(nex) - prices of this market are used for calculations of orders amounts.
 
-### Get Ticker History [GET]
+### Get Price History [GET]
  Returns price history for selected pair.
 
 + Response 200 (application/json)
@@ -898,6 +898,92 @@ API for crypto currency exchange.
             ]
 
 
+## Ticker - Summarized Volume [/en/api/v1/ticker/{?hours}]
+
++ Parameters
+    + `hours`: 24 (optional, double) - how many hours back would you like to get trade Volume for.
+
+
+### Get Ticker [GET]
+   Get trade Volume.
+
++ Request (aplication/json)
+
++ Response 200 (application/json)
+    + Attributes (TickerVolume)
+
+    + Body
+
+            {
+                "hours": 24.0,
+                "total_volume": {
+                    "volume_btc": 0.53614493,
+                },
+                "tradable_pairs": [
+                    {
+                        "pair": {
+                            "name": "BTCLTC",
+                            "base": {
+                                "code": "BTC",
+                                "name": "bitcoin"
+                            },
+                            "quote": {
+                                "code": "LTC",
+                                "name": "litecoin"
+                            },
+                            "fee_ask": 0.001,
+                            "fee_bid": 0.001
+                        },
+                        "base_volume_btc": 0.5,
+                        "base_volume": 0.5,
+                        "quote_volume": 36.69,
+                        "last_ask": 73.05502846,
+                        "quote_volume_btc": 0.50418824
+                    },
+                    {
+                        "pair": {
+                            "name": "BTCETH",
+                            "base": {
+                                "code": "BTC",
+                                "name": "bitcoin"
+                            },
+                            "quote": {
+                                "code": "ETH",
+                                "name": "ethereum"
+                            },
+                            "fee_ask": 0.001,
+                            "fee_bid": 0.001
+                        },
+                        "base_volume_btc": 0.0,
+                        "base_volume": 0.0,
+                        "quote_volume": 0.0,
+                        "last_ask": 13.86042647,
+                        "quote_volume_btc": 0.0
+                    },
+                    {
+                        "pair": {
+                            "name": "ETHLTC",
+                            "base": {
+                                "code": "ETH",
+                                "name": "ethereum"
+                            },
+                            "quote": {
+                                "code": "LTC",
+                                "name": "litecoin"
+                            },
+                            "fee_ask": 0.001,
+                            "fee_bid": 0.001
+                        },
+                        "base_volume_btc": 0.03614493,
+                        "base_volume": 0.5,
+                        "quote_volume": 2.66,
+                        "last_ask": 5.28626186,
+                        "quote_volume_btc": 0.0365533
+                    }
+                ]
+            }
+
+
 ## Trade Volume [/en/api/v1/volume/{?hours}]
 
 + Parameters
@@ -927,23 +1013,11 @@ API for crypto currency exchange.
                             "name": "BTCLTC",
                             "base": {
                                 "code": "BTC",
-                                "name": "bitcoin",
-                                "min_confirmations": 2,
-                                "is_crypto": true,
-                                "minimal_amount": "0.00200000",
-                                "is_base_of_enabled_pair": true,
-                                "is_quote_of_enabled_pair": true,
-                                "has_enabled_pairs": true
+                                "name": "bitcoin"
                             },
                             "quote": {
                                 "code": "LTC",
-                                "name": "litecoin",
-                                "min_confirmations": 6,
-                                "is_crypto": true,
-                                "minimal_amount": "0.25000000",
-                                "is_base_of_enabled_pair": true,
-                                "is_quote_of_enabled_pair": true,
-                                "has_enabled_pairs": true
+                                "name": "litecoin"
                             },
                             "fee_ask": 0.001,
                             "fee_bid": 0.001
@@ -960,22 +1034,10 @@ API for crypto currency exchange.
                             "base": {
                                 "code": "BTC",
                                 "name": "bitcoin",
-                                "min_confirmations": 2,
-                                "is_crypto": true,
-                                "minimal_amount": "0.00200000",
-                                "is_base_of_enabled_pair": true,
-                                "is_quote_of_enabled_pair": true,
-                                "has_enabled_pairs": true
                             },
                             "quote": {
                                 "code": "ETH",
-                                "name": "ethereum",
-                                "min_confirmations": 12,
-                                "is_crypto": true,
-                                "minimal_amount": "0.10000000",
-                                "is_base_of_enabled_pair": true,
-                                "is_quote_of_enabled_pair": true,
-                                "has_enabled_pairs": true
+                                "name": "ethereum"
                             },
                             "fee_ask": 0.001,
                             "fee_bid": 0.001
@@ -991,23 +1053,11 @@ API for crypto currency exchange.
                             "name": "ETHLTC",
                             "base": {
                                 "code": "ETH",
-                                "name": "ethereum",
-                                "min_confirmations": 12,
-                                "is_crypto": true,
-                                "minimal_amount": "0.10000000",
-                                "is_base_of_enabled_pair": true,
-                                "is_quote_of_enabled_pair": true,
-                                "has_enabled_pairs": true
+                                "name": "ethereum"
                             },
                             "quote": {
                                 "code": "LTC",
-                                "name": "litecoin",
-                                "min_confirmations": 6,
-                                "is_crypto": true,
-                                "minimal_amount": "0.25000000",
-                                "is_base_of_enabled_pair": true,
-                                "is_quote_of_enabled_pair": true,
-                                "has_enabled_pairs": true
+                                "name": "litecoin"
                             },
                             "fee_ask": 0.001,
                             "fee_bid": 0.001
@@ -1384,8 +1434,12 @@ API for crypto currency exchange.
 + `quote_volume_btc` (number, required) - sum of all tradable pairs quote volume in BTC(Bitcoin). Current rate is used.
 
 
+## TotalTickerVolume
++ `volume_btc` (number, required) - sum of all tradable pairs volume in BTC(Bitcoin). Current rate is used.
+
+
 ## PairVolume
-+ `pair` (Pair, required) - tradable pair.
++ `pair` (PairMinimal, required) - tradable pair.
 + `base_volume` (number, required) - base volume.
 + `quote_volume` (number, required) - quote volume.
 + `base_volume_btc` (number, required) - base volume in BTC(Bitcoin). Current rate is used.
@@ -1396,6 +1450,11 @@ API for crypto currency exchange.
 ## Volume
 + `hours` (number, required) - trade volume time. If hours=24 it means that response contains data of last 24h trade volumes.
 + `total_volume` (TotalVolume, required) - sum of all tradable pairs trade volume.
++ `tradable_pairs` (array[PairVolume])
+
+## TickerVolume
++ `hours` (number, required) - trade volume time. If hours=24 it means that response contains data of last 24h trade volumes.
++ `total_volume` (TotalTickerVolume, required) - sum of all tradable pairs trade volume.
 + `tradable_pairs` (array[PairVolume])
 
 ## RequestOrderPayload
