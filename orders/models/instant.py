@@ -426,6 +426,11 @@ class Order(BaseOrder, BaseUserOrder):
             markup_fee.amount_quote = markup_quote
             markup_fee.save()
             self.fee_list.update({'update': False})
+        if not self.exchange and self.payment_set.count():
+            payment = self.payment_set.last()
+            if payment and payment.payment_preference:
+                pref = payment.payment_preference
+                pref.save(update_fields=['has_pending_orders'])
 
     def calculate_quote_from_base(self, price=None):
         try:

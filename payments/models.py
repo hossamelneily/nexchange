@@ -161,10 +161,12 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                                      null=True, on_delete=models.DO_NOTHING)
     bank_bin = models.ForeignKey('payments.BankBin', null=True, blank=True,
                                  on_delete=models.DO_NOTHING)
+    has_pending_orders = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not hasattr(self, 'payment_method'):
             self.payment_method = self.guess_payment_method()
+        self.has_pending_orders = self._has_pending_orders
         super(PaymentPreference, self).save(*args, **kwargs)
 
     def guess_payment_method(self):
@@ -438,6 +440,12 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     @property
     def payment_orders(self):
         return [p.order for p in self.payment_set.all() if p.order]
+
+    @property
+    def _has_pending_orders(self):
+        return bool(
+            [o for o in self.payment_orders if o.status == o.PAID_UNCONFIRMED]
+        )
 
     def notify(self, email_to, subject, message):
         try:
