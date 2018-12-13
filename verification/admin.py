@@ -57,7 +57,7 @@ class VerificationAdmin(admin.ModelAdmin):
                     'full_name', 'note', 'admin_comment',
                     'name_on_card', 'unique_cc', 'name_on_card_matches',
                     'out_of_limit', 'flagged_str',
-                    'agree_with_terms_and_conditions')
+                    'agree_with_terms_and_conditions', 'tier')
     exclude = ('identity_document', 'utility_document')
     readonly_fields = (
         'note', 'name_on_card',

@@ -92,6 +92,10 @@ class Order(BaseOrder, BaseUserOrder):
         default=True,
         help_text=_('If True - user can use auto id checking service(Idenfy).')
     )
+    referred_with = models.ForeignKey(
+        'referrals.ReferralCode', default=None, null=True, blank=True,
+        on_delete=models.DO_NOTHING
+    )
 
     class Meta:
         ordering = ['-created_on']
@@ -389,6 +393,7 @@ class Order(BaseOrder, BaseUserOrder):
         self._validate_order_amount()
         self._validate_price()
         self._validate_reserves()
+        self.referred_with = self._referred_with
         super(Order, self).save(*args, **kwargs)
         if self.fee_list.get('update', False):
             tot_fee_amount_base = tot_fee_amount_quote = Decimal('0')
@@ -1338,7 +1343,7 @@ class Order(BaseOrder, BaseUserOrder):
             return self.payment_id
 
     @property
-    def referred_with(self):
+    def _referred_with(self):
         try:
             return self.user.profile.referred_with
         except ObjectDoesNotExist:

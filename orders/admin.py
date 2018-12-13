@@ -6,6 +6,12 @@ from orders.models import Order, LimitOrder, Trade, OrderBook
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
 
+    list_filter = (
+        'created_on',
+        ('status', admin.ChoicesFieldListFilter),
+        ('referred_with', admin.RelatedOnlyFieldListFilter),
+        'pair__quote__is_crypto'
+    )
     readonly_fields = (
         'referred_with', 'user', 'amount_quote', 'amount_base',
         'unique_reference', 'status', 'pair', 'withdraw_address',
