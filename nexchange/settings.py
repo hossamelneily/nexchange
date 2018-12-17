@@ -275,7 +275,7 @@ CORE_TASKS = {
     },
     'get_all_enabled_tickers_force': {
         'task': 'ticker.task_summary.get_all_tickers_force',
-        'schedule': timedelta(hours=6),
+        'schedule': timedelta(hours=1),
     },
     'renew_cards_reserve': {
         'task': 'accounts.task_summary.renew_cards_reserve_invoke',
