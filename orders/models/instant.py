@@ -87,7 +87,11 @@ class Order(BaseOrder, BaseUserOrder):
     slippage = models.DecimalField(
         max_digits=18, decimal_places=8, default=Decimal('0'),
     )
+    set_as_paid_unconfirmed_on = models.DateTimeField(null=True, blank=True,
+                                                      default=None)
     set_as_paid_on = models.DateTimeField(null=True, blank=True, default=None)
+    set_as_released_on = models.DateTimeField(null=True, blank=True,
+                                              default=None)
     return_identity_token = models.BooleanField(
         default=True,
         help_text=_('If True - user can use auto id checking service(Idenfy).')
@@ -896,7 +900,7 @@ class Order(BaseOrder, BaseUserOrder):
                 status_verb=status_verb
             )
         )
-        msg = _('Your order {ref}: is {status_verb}.').format(
+        msg = _('Your order {ref} is {status_verb}.').format(
             ref=self.unique_reference,
             status_verb=status_verb
         )
@@ -911,6 +915,9 @@ class Order(BaseOrder, BaseUserOrder):
                 if tx_id is not None:
                     msg += ' Transaction id: {tx_id}.'.format(
                         tx_id=tx_id)
+        if self.status == self.RELEASED and self.suggest_trustpilot:
+            msg += ' You can rate our service on Trustpilot ' \
+                   'https://www.trustpilot.com/review/n.exchange'
 
         # send sms depending on notification settings in profile
         if profile.notify_by_phone and profile.phone:
@@ -1029,6 +1036,7 @@ class Order(BaseOrder, BaseUserOrder):
             payment_method = tx.payment_preference.payment_method
 
         self.calculate_order(tx_amount, payment_method=payment_method)
+        self.set_as_paid_unconfirmed_on = timezone.now()
 
         return tx
 
@@ -1139,6 +1147,7 @@ class Order(BaseOrder, BaseUserOrder):
             app.send_task(self.RETRY_RELEASE, [tx.pk],
                           countdown=settings.RETRY_RELEASE_TIME)
 
+        self.set_as_released_on = timezone.now()
         return tx
 
     def release(self, tx_data, api=None):
@@ -1357,3 +1366,17 @@ class Order(BaseOrder, BaseUserOrder):
     @property
     def fees(self):
         return self.orderfee_set.all()
+
+    @property
+    def payment_to_release_time(self):
+        if self.set_as_paid_unconfirmed_on and self.set_as_released_on:
+            return self.set_as_released_on - self.set_as_paid_unconfirmed_on
+
+    @property
+    def suggest_trustpilot(self):
+        if self.payment_to_release_time and \
+                self.user.orders.filter(
+                    status__in=self.IN_RELEASED).count() == 1:
+            tot_seconds = self.payment_to_release_time.total_seconds()
+            return tot_seconds < settings.FAST_PAYMENT_TO_RELEASE_TIME_SECONDS
+        return False

@@ -3,12 +3,10 @@ from core.tests.base import OrderBaseTestCase, VerificationBaseTestCase
 from core.tests.utils import data_provider
 from verification.models import Verification, VerificationDocument, \
     DocumentType
-from payments.models import PaymentPreference
-from orders.models import Order
+from payments.models import PaymentPreference, PaymentMethod
 from django.conf import settings
 from django.urls import reverse
 from rest_framework.test import APIClient
-from django.test.utils import freeze_time
 from datetime import timedelta, datetime
 from verification.task_summary import check_kyc_pending_documents_periodic
 
@@ -20,27 +18,39 @@ class VerificationStatusesTestCase(OrderBaseTestCase,
         super(VerificationStatusesTestCase, self).setUp()
 
         self.api_client = APIClient()
-        self.pref = PaymentPreference.objects.get(
-            payment_method__name='Safe Charge'
+        self.order = self._create_order_api()
+        self.pref = PaymentPreference.objects.create(
+            payment_method=PaymentMethod.objects.get(name='Safe Charge'),
+            provider_system_id=self.generate_txn_id(),
+            secondary_identifier=self.generate_txn_id()
         )
-        django_friendly_file = self._create_image()
-        payment_pref = PaymentPreference.objects.latest('pk')
-        self.user.email = payment_pref.user.email
-        self.user.save()
-        self.verification_data = {
-            'payment_preference': payment_pref
+        payment_data = {
+            'order': self.order, 'currency': self.order.pair.quote,
+            'amount_cash': self.order.amount_quote,
+            'payment_preference': self.pref,
+            'type': 'D'
         }
+        self.order.register_deposit(payment_data, crypto=False)
+        self.order.user.email = "much@email.such"
+        self.order.user.save()
+
+    def _create_verification(self, order_ref):
+        self.api_client.post(
+            '/en/api/v1/kyc/',
+            {'order_reference': order_ref},
+            format='json')
+        return Verification.objects.get(note=order_ref)
 
     @data_provider(
         lambda: (
-                (0, 1, ['UTIL'], ['PENDING']),
-                (0, 2, ['UTIL', 'UTIL'], ['PENDING', 'REJECTED']),
-                (1, 1, ['UTIL'], ['REJECTED']),
-                (1, 2, ['UTIL', 'UTIL'], ['REJECTED', 'REJECTED']),
-                (1, 2, ['UTIL', 'ID'], ['REJECTED', 'REJECTED']),
-                (1, 1, ['SELFIE'], ['REJECTED']),
-                (1, 1, ['WHITELIST_SELFIE'], ['REJECTED']),
-                (0, 3, ['ID', 'ID', 'ID'], ['REJECTED', 'PENDING', 'REJECTED']),
+            (0, 1, ['UTIL'], ['PENDING']),
+            (0, 2, ['UTIL', 'UTIL'], ['PENDING', 'REJECTED']),
+            (1, 1, ['UTIL'], ['REJECTED']),
+            (1, 2, ['UTIL', 'UTIL'], ['REJECTED', 'REJECTED']),
+            (1, 2, ['UTIL', 'ID'], ['REJECTED', 'REJECTED']),
+            (1, 1, ['SELFIE'], ['REJECTED']),
+            (1, 1, ['WHITELIST_SELFIE'], ['REJECTED']),
+            (0, 3, ['ID', 'ID', 'ID'], ['REJECTED', 'PENDING', 'REJECTED']),
         )
     )
     @patch('payments.models.send_email')
@@ -49,9 +59,7 @@ class VerificationStatusesTestCase(OrderBaseTestCase,
                                                   document_count, doc_types,
                                                   doc_statuses,
                                                   mock_send_email):
-        verification = Verification(**self.verification_data,
-                                    user=self.user)
-        verification.save()
+        verification = self._create_verification(self.order.unique_reference)
         for i in range(0, document_count):
             verification_document_data = {
                 'verification': verification,
@@ -140,17 +148,9 @@ class VerificationStatusesTestCase(OrderBaseTestCase,
 
     @patch('payments.models.send_email')
     def test_dont_notify_user_without_email(self, mock_send_email):
-        from accounts.models import User
-        user_without_email = User.objects.get(username='AnonymousUser')
-        payment_pref = PaymentPreference.objects.latest('pk')
-        payment_pref.user = user_without_email
-        payment_pref.save()
-        verification_data = self.verification_data
-        verification_data['payment_preference'] = payment_pref
-        verification = Verification(**verification_data,
-                                    user=user_without_email,
-                                    )
-        verification.save()
+        self.order.user.email = ''
+        self.order.user.save()
+        verification = self._create_verification(self.order.unique_reference)
         verification_document_data = {
             'verification': verification,
             'document_status': 'PENDING',
@@ -168,55 +168,55 @@ class VerificationStatusesTestCase(OrderBaseTestCase,
 
     @data_provider(
         lambda: (
-                (0, 2, [
-                    (1, [['UTIL'], ['PENDING']]),
-                    (1, [['ID'], ['PENDING']])
-                ]),
-                (0, 2, [
-                    (1, [['UTIL'], ['PENDING']]),
-                    (1, [['UTIL'], ['REJECTED']]),
-                ]),
-                (1, 2, [
-                    (1, [['UTIL'], ['REJECTED']]),
-                    (1, [['UTIL'], ['REJECTED']]),
-                ]),
-                (0, 2, [
-                    (1, [['UTIL'], ['OK']]),
-                    (1, [['UTIL'], ['REJECTED']]),
-                ]),
-                (0, 2, [
-                    (1, [['UTIL'], ['PENDING']]),
-                    (1, [['UTIL'], ['REJECTED']]),
-                ]),
-                (0, 2, [
-                    (2, [['UTIL', 'ID'], ['PENDING', 'REJECTED']]),
-                    (2, [['UTIL', 'ID'], ['REJECTED', 'PENDING']]),
-                ]),
-                (0, 2, [
-                    (2, [['ID', 'ID'], ['REJECTED', 'REJECTED']]),
-                    (1, [['ID'], ['PENDING']]),
-                ]),
-                (1, 2, [
-                    (1, [['SELFIE'], ['REJECTED']]),
-                    (1, [['ID'], ['OK']]),
-                ]),
-                (0, 2, [
-                    (2, [['ID', 'UTIL'], ['REJECTED', 'REJECTED']]),
-                    (1, [['SELFIE'], ['PENDING']]),
-                ]),
-                (1, 2, [
-                    (2, [['ID', 'UTIL'], ['REJECTED', 'REJECTED']]),
-                    (1, [['SELFIE'], ['OK']]),
-                ]),
-                (1, 2, [
-                    (2, [['ID', 'UTIL'], ['REJECTED', 'OK']]),
-                    (1, [['SELFIE'], ['OK']]),
-                ]),
-                (0, 3, [
-                    (2, [['ID', 'UTIL'], ['REJECTED', 'REJECTED']]),
-                    (1, [['SELFIE'], ['OK']]),
-                    (1, [['SELFIE'], ['PENDING']]),
-                ]),
+            (0, 2, [
+                (1, [['UTIL'], ['PENDING']]),
+                (1, [['ID'], ['PENDING']])
+            ]),
+            (0, 2, [
+                (1, [['UTIL'], ['PENDING']]),
+                (1, [['UTIL'], ['REJECTED']]),
+            ]),
+            (1, 2, [
+                (1, [['UTIL'], ['REJECTED']]),
+                (1, [['UTIL'], ['REJECTED']]),
+            ]),
+            (0, 2, [
+                (1, [['UTIL'], ['OK']]),
+                (1, [['UTIL'], ['REJECTED']]),
+            ]),
+            (0, 2, [
+                (1, [['UTIL'], ['PENDING']]),
+                (1, [['UTIL'], ['REJECTED']]),
+            ]),
+            (0, 2, [
+                (2, [['UTIL', 'ID'], ['PENDING', 'REJECTED']]),
+                (2, [['UTIL', 'ID'], ['REJECTED', 'PENDING']]),
+            ]),
+            (0, 2, [
+                (2, [['ID', 'ID'], ['REJECTED', 'REJECTED']]),
+                (1, [['ID'], ['PENDING']]),
+            ]),
+            (1, 2, [
+                (1, [['SELFIE'], ['REJECTED']]),
+                (1, [['ID'], ['OK']]),
+            ]),
+            (0, 2, [
+                (2, [['ID', 'UTIL'], ['REJECTED', 'REJECTED']]),
+                (1, [['SELFIE'], ['PENDING']]),
+            ]),
+            (1, 2, [
+                (2, [['ID', 'UTIL'], ['REJECTED', 'REJECTED']]),
+                (1, [['SELFIE'], ['OK']]),
+            ]),
+            (1, 2, [
+                (2, [['ID', 'UTIL'], ['REJECTED', 'OK']]),
+                (1, [['SELFIE'], ['OK']]),
+            ]),
+            (0, 3, [
+                (2, [['ID', 'UTIL'], ['REJECTED', 'REJECTED']]),
+                (1, [['SELFIE'], ['OK']]),
+                (1, [['SELFIE'], ['PENDING']]),
+            ]),
         )
     )
     @patch('payments.models.send_email')
@@ -225,10 +225,17 @@ class VerificationStatusesTestCase(OrderBaseTestCase,
                                                    verifications_count,
                                                    verifications_array,
                                                    mock_send_email):
-        payment_pref = PaymentPreference.objects.latest('pk')
         for verification in verifications_array:
-            ver = Verification(**self.verification_data, user=self.user)
-            ver.save()
+            order = self._create_order_api()
+            payment_data = {
+                'order': order, 'currency': order.pair.quote,
+                'amount_cash': order.amount_quote,
+                'payment_preference': self.pref,
+                'type': 'D'
+            }
+            order.register_deposit(payment_data, crypto=False)
+            ver = self._create_verification(order.unique_reference)
+            payment_pref = ver.payment_preference
             document_count = verification[0]
             documents = verification[1]
             for i in range(0, document_count):
@@ -257,9 +264,8 @@ class VerificationStatusesTestCase(OrderBaseTestCase,
 
     @patch('payments.models.send_email')
     def test_notify_about_pending_documents(self, mock_send_email):
-        payment_pref = PaymentPreference.objects.latest('pk')
-        ver = Verification(**self.verification_data, user=self.user)
-        ver.save()
+        ver = self._create_verification(self.order.unique_reference)
+        payment_pref = ver.payment_preference
         verification_document_data = {
             'verification': ver,
             'document_type': DocumentType.objects.get(name='ID'),
