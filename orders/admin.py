@@ -33,7 +33,8 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ('unique_reference', 'user', 'pair', 'amount_base',
                     'amount_quote', 'withdraw_address', 'deposit_address',
                     'payment_id', 'status', 'created_on', 'referred_with',
-                    'flagged', 'expired', 'payment_to_release_time')
+                    'flagged', 'expired', 'payment_to_release_time',
+                    'create_to_release_time')
 
     def has_delete_permission(self, request, obj=None):
         return False

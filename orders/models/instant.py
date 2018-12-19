@@ -1373,10 +1373,21 @@ class Order(BaseOrder, BaseUserOrder):
             return self.set_as_released_on - self.set_as_paid_unconfirmed_on
 
     @property
+    def create_to_release_time(self):
+        if self.created_on and self.set_as_released_on:
+            return self.set_as_released_on - self.created_on
+
+    @property
     def suggest_trustpilot(self):
         if self.payment_to_release_time and \
                 self.user.orders.filter(
                     status__in=self.IN_RELEASED).count() == 1:
-            tot_seconds = self.payment_to_release_time.total_seconds()
-            return tot_seconds < settings.FAST_PAYMENT_TO_RELEASE_TIME_SECONDS
+            tot_pay_release = self.payment_to_release_time.total_seconds()
+            fast_pay_release = \
+                tot_pay_release < settings.FAST_PAYMENT_TO_RELEASE_TIME_SECONDS
+            tot_create_release = self.create_to_release_time.total_seconds()
+            fast_create_release = \
+                tot_create_release < settings.\
+                    FAST_CREATE_TO_RELEASE_TIME_SECONDS
+            return fast_create_release and fast_pay_release
         return False
