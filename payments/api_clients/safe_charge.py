@@ -176,7 +176,7 @@ class SafeChargeAPIClient(BasePaymentApi):
         currency = order.pair.quote.code
         amount = str(money_format(order.amount_quote, places=2))
         total_amount = item_amount_1 = amount
-        email = 'user{}@nexchange.io'.format(order.user.pk)
+        email = 'user{}@n.exchange'.format(order.user.pk)
         item_name_1 = _ref
         item_quantity_1 = '1'
         user_token = 'auto'

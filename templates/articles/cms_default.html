@@ -16,7 +16,7 @@
             </div>
 
            <div class="cms_written">
-                {% trans "Written by: " %} {{ page.written_by | safe | default:_('Nexchange Team') }}
+                {% trans "Written by: " %} {{ page.written_by | safe | default:_('n.exchange Team') }}
             </div>
            <div class="cms_last_updated">
                 {% trans "Last modified: " %} {{ page.modified_on |date:'D, d M, Y'|ord_date|safe }}

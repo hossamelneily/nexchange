@@ -26,8 +26,8 @@ class Del:
         return self.comp.get(k)
 
 
-def send_email(to, subject='Nexchange', msg=None,
-               reply_to=('noreply@nexchange.co.uk',)):
+def send_email(to, subject='n.exchange', msg=None,
+               reply_to=('noreply@n.exchange',)):
     mail = EmailMessage(to=(to,),
                         subject=subject,
                         body=msg,

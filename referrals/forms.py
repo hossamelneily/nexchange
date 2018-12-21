@@ -21,7 +21,7 @@ class ReferralTokenForm(forms.ModelForm):
     link = forms.CharField(
         label=_('Referral Link'),
         required=False,
-        help_text=_('Use this link to refer users to Nexchange and receive a'
+        help_text=_('Use this link to refer users to n.exchange and receive a'
                     ' commission!'),
         widget=forms.TextInput(attrs={'disabled': 'disabled'})
     )

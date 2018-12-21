@@ -1,6 +1,6 @@
 FORMAT: 1A
 HOST: https://api.nexchange.io/
-# nexchange
+# n.exchange
 
 <a href="https://n.exchange" class="navbar-left"><img src="https://n.exchange/img/logo-transparent.png"></a>
 
@@ -107,7 +107,7 @@ API for crypto currency exchange.
 
 + Parameters
     + `pair_name`: BTCLTC (required, string) - name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC.
-    + `market_code`: nex (optional, string) - price market code. Default market is Nexchange(nex) - prices of this market are used for calculations of orders amounts.
+    + `market_code`: nex (optional, string) - price market code. Default market is n.exchange(nex) - prices of this market are used for calculations of orders amounts.
 
 
 ### Get Latest Price [GET]
@@ -126,7 +126,7 @@ API for crypto currency exchange.
                   "bid":"96.33558341"
                 },
                 "market": {
-                    "name": "Nexchange",
+                    "name": "n.exchange",
                     "code": "nex"
                 }
               }
@@ -139,7 +139,7 @@ API for crypto currency exchange.
     + `pair_name`: BTCLTC (required, string) - name of exchanged pair i.e. BTCLTC, LTCBTC, ETHBTC.
     + `hours`: 0.1 (optional, double) - how many hours back would you like to get prices for. Amount of hours to check i.e. 0.3 means 18 min, 2 - 2 hours.
     + `data_points`: 3 (optional, int) - how many data points in the selected hour range would you like to get. For example, If you pass 1 hour and data\_points=60, you will get 1 data point per minute (our max supported resolution), if you pass hour=1 and data\_points=30 you will get one point per 2 minutes.
-    + `market_code`: nex (optional, string) - price market code. Default market is Nexchange(nex) - prices of this market are used for calculations of orders amounts.
+    + `market_code`: nex (optional, string) - price market code. Default market is n.exchange(nex) - prices of this market are used for calculations of orders amounts.
 
 ### Get Price History [GET]
  Returns price history for selected pair.
@@ -157,7 +157,7 @@ API for crypto currency exchange.
                   "bid": "93.01675978"
                 },
                 "market": {
-                    "name": "Nexchange",
+                    "name": "n.exchange",
                     "code": "nex"
                 }
               },
@@ -169,7 +169,7 @@ API for crypto currency exchange.
                   "bid": "91.87051683"
                 },
                 "market": {
-                    "name": "Nexchange",
+                    "name": "n.exchange",
                     "code": "nex"
                 }
               }
@@ -1309,7 +1309,7 @@ API for crypto currency exchange.
 
 ## Market
 + `name` (required) - market name.
-+ `code` (required) - market code on Nexchange.
++ `code` (required) - market code on n.exchange.
 
 ## Price
 + `created_on` (required) - time of price creation (ISO 8601).

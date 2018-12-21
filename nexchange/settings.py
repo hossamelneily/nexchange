@@ -30,7 +30,7 @@ def get_env_param(key, default):
 # SECRET KEY TEST
 SECRET_KEY = 'zsl4+4%(%=0@f*tkf0f2u%dt&v&h_-g5mw*o25i$480=3qcb2k'
 
-DEFAULT_FROM_EMAIL = 'support@nexchange.io'
+DEFAULT_FROM_EMAIL = 'support@n.exchange'
 SUPPORT_EMAIL = DEFAULT_FROM_EMAIL
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -102,7 +102,7 @@ SMS_TOKEN_VALIDITY = timedelta(minutes=5)
 SMS_TOKEN_CHARS = '1234567890'
 REFERRAL_CODE_LENGTH = 10
 REFERRAL_CODE_CHARS = 'ABCDEFGIKJKLMNOPRSTXYZ1234567890'
-SMS_MESSAGE_AUTH = _('Nexchange confirmation code: {}')
+SMS_MESSAGE_AUTH = _('n.exchange confirmation code: {}')
 UNIQUE_REFERENCE_LENGTH = 5
 UNIQUE_REFERENCE_MAX_LENGTH = 16
 REFERENCE_LOOKUP_ATTEMPTS = 10
