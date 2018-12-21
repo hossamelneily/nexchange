@@ -766,8 +766,8 @@ SATOSHI = Decimal('0.00000001')
 
 # Order matters (from most to least valuable)
 BEST_CHANGE_CURRENCIES = [
-    'BTC', 'BCH', 'ETH', 'DASH', 'ZEC', 'XMR', 'LTC', 'EUR', 'USD', 'USDT',
-    'XRP', 'DOGE'
+    'BTC', 'BCH', 'ETH', 'DASH', 'ZEC', 'XMR', 'LTC', 'GBP', 'EUR', 'USD',
+    'USDT', 'XRP', 'JPY', 'DOGE'
 ]
 
 FAST_PAYMENT_TO_RELEASE_TIME_SECONDS = 300
