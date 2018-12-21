@@ -37,8 +37,8 @@
     "modified_on": "2017-03-01T12:49:28.860Z",
     "base": 1,
     "quote": 6,
-    "fee_ask": "0.00500000",
-    "fee_bid": "0.00500000",
+    "fee_ask": "0.0200000",
+    "fee_bid": "0.0200000",
     "name": "BTCEUR",
     "test_mode": false,
     "disabled": false
@@ -52,8 +52,8 @@
     "modified_on": "2017-03-01T12:49:28.864Z",
     "base": 1,
     "quote": 7,
-    "fee_ask": "0.02000000",
-    "fee_bid": "0.02000000",
+    "fee_ask": "0.03000000",
+    "fee_bid": "0.03000000",
     "name": "BTCGBP",
     "test_mode": false,
     "disabled": false

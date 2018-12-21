@@ -177,13 +177,13 @@ class PairFixtureTestCase(OrderBaseTestCase):
         non_token_pairs = [p for p in pairs if not p.contains_token]
         for p in non_token_pairs:
             if p.name in ['BTCLTC', 'LTCBTC', 'ETHBTC', 'BTCETH', 'BCHBTC',
-                          'BTCBCH', 'BTCEUR']:
+                          'BTCBCH']:
                 fee = major_pair_fee
             else:
                 fee = minor_pair_fee
-            if p.quote.code in ['USD', 'JPY']:
+            if p.quote.code in ['USD', 'JPY', 'GBP']:
                 fee += Decimal('0.02')
-            if 'GBP' == p.quote.code:
+            if p.quote.code in ['EUR']:
                 fee += Decimal('0.01')
             self.assertEqual(p.fee_ask, fee, 'Bad fee_ask on {}'.format(p))
             self.assertEqual(p.fee_bid, fee, 'Bad fee_bid on {}'.format(p))
@@ -192,10 +192,10 @@ class PairFixtureTestCase(OrderBaseTestCase):
 
             #  ICO fees
             ask = bid = fee
-            if p.quote.code in ['USD', 'JPY']:
+            if p.quote.code in ['USD', 'JPY', 'GBP']:
                 ask += Decimal('0.02')
                 bid += Decimal('0.02')
-            elif 'GBP' == p.quote.code:
+            elif p.quote.code in ['EUR']:
                 ask += Decimal('0.01')
                 bid += Decimal('0.01')
             self.assertEqual(p.fee_ask, ask, 'Bad fee_ask on {}'.format(p))

@@ -22,8 +22,8 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 55,
     "quote": 6,
-    "fee_ask": "0.0100000",
-    "fee_bid": "0.0100000",
+    "fee_ask": "0.0200000",
+    "fee_bid": "0.0200000",
     "name": "BMHEUR",
     "test_mode": false,
     "disabled": false
@@ -37,8 +37,8 @@
     "modified_on": "2017-02-09T12:54:12.511Z",
     "base": 55,
     "quote": 7,
-    "fee_ask": "0.0200000",
-    "fee_bid": "0.0200000",
+    "fee_ask": "0.0300000",
+    "fee_bid": "0.0300000",
     "name": "BMHGBP",
     "test_mode": false,
     "disabled": false
