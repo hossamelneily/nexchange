@@ -54,7 +54,7 @@
       "wallet": "rpc7",
       "algo": 3,
       "algo_legacy": "ethash",
-      "withdrawal_fee": "0.005",
+      "withdrawal_fee": "0.007",
       "is_crypto": 1,
       "min_confirmations": 12,
       "median_confirmation": 16,

@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
       "amount": 41,
-      "limit": 30000,
+      "limit": 40000,
       "algo": 3,
       "description": "GAS limit ETH",
       "created_on":"2018-08-21T13:41:28+00:00",
