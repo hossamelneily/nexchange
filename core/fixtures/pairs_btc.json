@@ -22,11 +22,12 @@
     "modified_on": "2017-03-01T12:49:28.856Z",
     "base": 1,
     "quote": 5,
-    "fee_ask": "0.01000000",
-    "fee_bid": "0.01000000",
+    "fee_ask": "0.03000000",
+    "fee_bid": "0.03000000",
     "name": "BTCRUB",
-    "disable_volume": true,
-    "disabled": true
+    "test_mode": false,
+    "disable_volume": false,
+    "disabled": false
   }
 },
 {

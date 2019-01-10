@@ -24,9 +24,10 @@
     "quote": 5,
     "fee_ask": "0.01000000",
     "fee_bid": "0.01000000",
-    "disable_volume": true,
     "name": "DOGERUB",
-    "disabled": true
+    "test_mode": false,
+    "disabled": false,
+    "disable_volume": false
   }
 },
 {

@@ -22,11 +22,12 @@
     "modified_on": "2017-03-01T12:49:29.094Z",
     "base": 3,
     "quote": 5,
-    "fee_ask": "0.01000000",
-    "fee_bid": "0.01000000",
-    "disable_volume": true,
+    "fee_ask": "0.03000000",
+    "fee_bid": "0.03000000",
     "name": "ETHRUB",
-    "disabled": true
+    "test_mode": false,
+    "disabled": false,
+    "disable_volume": false
   }
 },
 {

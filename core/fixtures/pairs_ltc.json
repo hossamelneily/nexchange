@@ -22,11 +22,12 @@
     "modified_on": "2017-03-01T12:49:28.974Z",
     "base": 2,
     "quote": 5,
-    "fee_ask": "0.00000000",
-    "fee_bid": "0.00000000",
-    "disable_volume": true,
+    "fee_ask": "0.0300000",
+    "fee_bid": "0.0300000",
     "name": "LTCRUB",
-    "disabled": true
+    "test_mode": false,
+    "disabled": false,
+    "disable_volume": false
   }
 },
 {
