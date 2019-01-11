@@ -72,3 +72,6 @@ django-email-log==0.2.0
 bintrees==2.0.7
 -e git+https://github.com/dyn4mik3/OrderBook.git#egg=orderbook
 django-picklefield===1.1.0
+pytest==4.1.0
+pytest-django==3.4.5
+pdbpp==0.9.3

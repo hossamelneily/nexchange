@@ -2,6 +2,7 @@
 
 coverage erase
 DO_COVERAGE=0
+OMIT="src/*,core/tests/test_api/*,core/tests/test_api_external/*,core/tests/test_noc/*"
 while getopts ":c:t:" arg; do
   case $arg in
     t)
@@ -17,7 +18,7 @@ while getopts ":c:t:" arg; do
       ;;
   esac
 done
-coverage run --source="." --omit="src/**,core/tests/test_api/*,core/tests/test_api_external/*,core/tests/test_noc/*" manage.py test --failfast -v=3 --pattern="test_*.py" $TEST_PATH --settings=nexchange.settings_test
+coverage run --source="." --omit=$OMIT -m pytest $TEST_PATH -c pytest-backend.ini
 TEST_STATUS_CODE=$?
 if [ ${DO_COVERAGE} -eq 1 ]
 then

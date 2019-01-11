@@ -1,4 +1,4 @@
-from unittest import TestCase
+from django.test import TestCase
 from unittest.mock import patch
 
 from payments.tasks.generic.base import BasePaymentChecker  # noqa
