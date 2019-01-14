@@ -8,11 +8,11 @@ from accounts.forms import LoginForm
 
 router = SimpleRouter()
 router.register(r'users/me/orders', api_views.UserOrderListViewSet,
-                base_name='orders')
+                basename='orders')
 router.register(r'users/me/addresses', api_views.UserAddressViewSet,
-                base_name='addresses')
+                basename='addresses')
 router.register(r'users', api_views.UserViewSet,
-                base_name='users')
+                basename='users')
 account_api_patterns = router.urls
 
 account_urls = [

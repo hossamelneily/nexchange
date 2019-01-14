@@ -3,8 +3,8 @@ from core import api_views
 
 router = SimpleRouter()
 router.register(r'currency', api_views.CurrencyViewSet,
-                base_name='currency')
+                basename='currency')
 router.register(r'pair', api_views.PairViewSet,
-                base_name='pair')
+                basename='pair')
 
 core_api_patterns = router.urls

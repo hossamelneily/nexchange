@@ -7,7 +7,7 @@ from .api_views import VerificationViewSet
 
 router = SimpleRouter()
 
-router.register(r'kyc', VerificationViewSet, base_name='kyc')
+router.register(r'kyc', VerificationViewSet, basename='kyc')
 
 kyc_api_patterns = router.urls
 

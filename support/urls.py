@@ -6,7 +6,7 @@ from support.api_views import SupportViewSet
 
 router = SimpleRouter()
 
-router.register(r'support', SupportViewSet, base_name='support')
+router.register(r'support', SupportViewSet, basename='support')
 
 support_api_patterns = router.urls
 

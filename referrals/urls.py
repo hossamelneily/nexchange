@@ -4,7 +4,7 @@ from rest_framework.routers import SimpleRouter
 from referrals.views import ReferralViewSet, referrals, ReferralCodeCreateView
 
 router = SimpleRouter()
-router.register(r'referrals', ReferralViewSet, base_name='referrals')
+router.register(r'referrals', ReferralViewSet, basename='referrals')
 referrals_api_patterns = router.urls
 
 referral_urls = [
