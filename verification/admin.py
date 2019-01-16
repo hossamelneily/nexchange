@@ -11,10 +11,12 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from .signals.add_kyc_groups import raw_add_kyc_groups
+import nested_admin
 
 
-class VerificationInline(admin.TabularInline):
+class VerificationDocumentInline(nested_admin.NestedTabularInline):
     model = VerificationDocument
+    extra = 0
     exclude = ('document_file',)
     readonly_fields = (
         'file_link', 'kyc_push', 'image_tag', 'whitelisted_address', 'user'
@@ -47,10 +49,8 @@ class PendingFilter(SimpleListFilter):
 
 
 @admin.register(Verification)
-class VerificationAdmin(admin.ModelAdmin):
-    inlines = [
-        VerificationInline,
-    ]
+class VerificationAdmin(nested_admin.NestedModelAdmin):
+    inlines = [VerificationDocumentInline]
 
     list_filter = (PendingFilter, 'category',
                    'payment_preference__has_pending_orders')

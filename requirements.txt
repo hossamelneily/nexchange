@@ -69,6 +69,7 @@ git+git://github.com/vvangelovski/django-audit-log.git@0a3b1a03b2ce0b560859cefab
 rlp==0.6.0
 django-newsletter==0.7
 django-email-log==0.2.0
+django-nested-admin
 bintrees==2.0.7
 -e git+https://github.com/dyn4mik3/OrderBook.git#egg=orderbook
 django-picklefield===1.1.0

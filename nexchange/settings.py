@@ -179,6 +179,7 @@ INSTALLED_APPS = [
     'sorl.thumbnail',
     'newsletter',
     'email_log',
+    'nested_admin',
 ]
 
 SITE_ID = 1

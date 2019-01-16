@@ -2,6 +2,21 @@ from django.contrib import admin
 
 from payments.models import PaymentMethod, PaymentPreference, Payment, \
     FailedRequest, PushRequest, Country, Bank, BankBin
+from verification.models import Verification
+from verification.admin import VerificationDocumentInline
+import nested_admin
+
+
+class VerificationInline(nested_admin.NestedTabularInline):
+    model = Verification
+    extra = 0
+    fk_name = 'payment_preference'
+    inlines = [VerificationDocumentInline]
+    exclude = (
+        'user', 'utility_document', 'identity_document', 'disabled',
+        'id_status', 'util_status'
+    )
+    readonly_fields = ('note',)
 
 
 @admin.register(PushRequest)
@@ -31,7 +46,8 @@ class PaymentAdmin(admin.ModelAdmin):
 
 
 @admin.register(PaymentPreference)
-class PaymentPreferenceAdmin(admin.ModelAdmin):
+class PaymentPreferenceAdmin(nested_admin.NestedModelAdmin):
+    inlines = [VerificationInline]
     readonly_fields = (
         'payment_method', 'secondary_identifier', 'provider_system_id',
         'is_verified', 'out_of_limit', 'total_payments_usd', 'currency',

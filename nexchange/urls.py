@@ -88,6 +88,7 @@ urlpatterns = i18n_patterns(
     path('api/v1/breadcrumbs', core.views.ajax_crumbs,
          name='core.breadcrumbs'),
     path('session_security/', include('session_security.urls')),
+    re_path(r'^_nested_admin/', include('nested_admin.urls')),
 )
 # OAUTH outside i18n so that we do not need to explisitly define every
 # redirect address in social apps
