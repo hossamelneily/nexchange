@@ -341,17 +341,22 @@ class ReservesCoversTestCase(RiskManagementBaseTestCase, TickerBaseTestCase):
         self._set_level(self.doge_reserve, diff=-2)
         self._set_level(self.btc_reserve, diff=2)
         # Create order bigger than reserves diff (to have PNLS)
-        self._create_order(
-            pair_name='DOGEBTC',
-            amount_base=abs(
-                self.doge_reserve.diff_from_target_level * Decimal(1.1)
-            )
+        order = self._create_order_api(
+            order_data={
+                "amount_base": abs(
+                    self.doge_reserve.diff_from_target_level * Decimal(1.1)
+                ),
+                "pair": {"name": 'DOGEBTC'},
+                "withdraw_address": {
+                    "address": 'D97ankmH7a9tWaaDNUwnGgmDqcyNgQw5s1'
+                }
+            }
         )
-        self.order.status = self.order.COMPLETED
-        self.order.save()
-        self.order.amount_quote = \
-            self.order.amount_base * Decimal(str(DOGE_ASK))
-        self.order.save()
+        self.move_order_status_up(order, order.status, order.COMPLETED)
+        order.refresh_from_db()
+
+        order.amount_quote = order.amount_base * Decimal(str(DOGE_ASK))
+        order.save()
 
         mock.get(BittrexAdapter.BASE_URL + 'getticker',
                  json=bittrex_rate_callback)
@@ -359,9 +364,9 @@ class ReservesCoversTestCase(RiskManagementBaseTestCase, TickerBaseTestCase):
         mock.get('https://bittrex.com/api/v1.1/market/buylimit',
                  json={'success': True, 'result': {'uuid': buy_id}})
         # Try periodic cover with 0%
-        self.order.amount_quote = \
-            self.order.amount_base * Decimal(str(DOGE_ASK))
-        self.order.save()
+        order.amount_quote = \
+            order.amount_base * Decimal(str(DOGE_ASK))
+        order.save()
         calculate_pnls_1day_invoke.apply_async()
         calculate_pnls_7days_invoke.apply_async()
         calculate_pnls_30days_invoke.apply_async()
@@ -378,8 +383,8 @@ class ReservesCoversTestCase(RiskManagementBaseTestCase, TickerBaseTestCase):
             Decimal(DOGE_ASK) \
             * (Decimal('1') + _periodic_settings.minimum_rate_change) \
             * Decimal('1.01')
-        self.order.amount_quote = self.order.amount_base * _rate
-        self.order.save()
+        order.amount_quote = order.amount_base * _rate
+        order.save()
         calculate_pnls_1day_invoke.apply_async()
         calculate_pnls_7days_invoke.apply_async()
         calculate_pnls_30days_invoke.apply_async()

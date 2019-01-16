@@ -35,6 +35,7 @@ from django.test.testcases import LiveServerTestCase, LiveServerThread,\
 from django.contrib.staticfiles.handlers import StaticFilesHandler
 from payments.views import SafeChargeListenView
 from nexchange.rpc.scrypt import ScryptRpcApiClient
+from rest_framework.test import APIClient
 
 UPHOLD_ROOT = 'nexchange.api_clients.uphold.Uphold.'
 SCRYPT_ROOT = 'nexchange.rpc.scrypt.ScryptRpcApiClient.'
@@ -91,6 +92,7 @@ class UserBaseTestCase(TestCase):
     def __init__(self, *args, **kwargs):
         super(UserBaseTestCase, self).__init__(*args, **kwargs)
         self.rpc_mock = None
+        self.api_client = APIClient()
 
     @classmethod
     def setUpClass(cls):
@@ -561,7 +563,6 @@ class OrderBaseTestCase(UserBaseTestCase):
                 tx_data = {
                     'order': order,
                     'currency': order.pair.quote,
-                    'user': order.user,
                     'type': Transaction.DEPOSIT,
                 }
                 if not _crypto:
@@ -573,6 +574,7 @@ class OrderBaseTestCase(UserBaseTestCase):
                     )
                     tx_data.update({
                         'amount_cash': order.amount_quote,
+                        'user': order.user,
                         'payment_preference': pref,
                         'payment_system_id': self.generate_txn_id(),
                         'secondary_payment_system_id': self.generate_txn_id(),
@@ -580,8 +582,12 @@ class OrderBaseTestCase(UserBaseTestCase):
                         'reference': order.unique_reference,
 
                     })
-                order.register_deposit(
-                    tx_data, crypto=order.pair.is_crypto)
+                else:
+                    tx_data.update({
+                        'amount': order.amount_quote,
+                        'address_to': order.deposit_address
+                    })
+                order.register_deposit(tx_data, crypto=order.pair.is_crypto)
             elif order.status == Order.PAID_UNCONFIRMED:
                 tx = order.transactions.get() if _crypto else order.\
                     payment_set.get()
@@ -601,6 +607,10 @@ class OrderBaseTestCase(UserBaseTestCase):
                 with patch(SCRYPT_ROOT + 'release_coins') as _release:
                     _release.return_value = self.generate_txn_id(), True
                     order.release(tx_data, api=api)
+            elif order.status == Order.RELEASED:
+                tx = order.transactions.get(type='W') if _crypto else order. \
+                    payment_set.get()
+                order.complete(tx)
             self.assertEqual(_before + 1, order.status)
 
     def _create_order_api(self, **kwargs):
