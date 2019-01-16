@@ -1410,3 +1410,59 @@ class OrderFeesTestCase(OrderBaseTestCase):
             (order_quote.amount_quote - tot_quote_fee) * markup_multip
         self.assertAlmostEqual(expected_base, oquote_fee.amount_base, 8)
         self.assertAlmostEqual(expected_quote, oquote_fee.amount_quote, 8)
+
+
+class SuggestTrustpilotTestCase(OrderBaseTestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(SuggestTrustpilotTestCase, self).__init__(*args, **kwargs)
+        self.api_client = APIClient()
+
+    def _test_trustpilot_link_on_notify_msg(self, order, is_on=True):
+        self.assertEqual(order.status, order.RELEASED)
+        self.assertTrue(order.user.email)
+        with patch('orders.models.instant.send_email') as send_patch:
+            order.notify()
+        self.assertEqual(send_patch.call_count, 1)
+        _assertion = 'assertIn' if is_on else 'assertNotIn'
+        getattr(self, _assertion)('trustpilot.com', send_patch.call_args[0][2])
+        getattr(self, _assertion)('Trustpilot', send_patch.call_args[0][2])
+
+    def test_suggested_to_fast_orders(self):
+        order = self._create_order_api()
+        user = order.user
+        user.email = 'hey@hey.hey'
+        user.save()
+        self.move_order_status_up(order, order.status, order.RELEASED)
+        order.refresh_from_db()
+        self.assertTrue(order.suggest_trustpilot)
+        self._test_trustpilot_link_on_notify_msg(order)
+        # Suggest if second order is fast too
+        order2 = self._create_order_api()
+        self.move_order_status_up(order2, order.status, order.RELEASED)
+        order2.refresh_from_db()
+        self.assertEqual(order.user, order2.user)
+        self.assertTrue(order2.suggest_trustpilot)
+        self._test_trustpilot_link_on_notify_msg(order2)
+
+    def test_do_not_suggest_if_first_one_slow(self):
+        order = self._create_order_api()
+        user = order.user
+        user.email = 'hey@hey.hey'
+        user.save()
+        now = datetime.now() + timedelta(
+            seconds=settings.FAST_CREATE_TO_RELEASE_TIME_SECONDS + 1
+        )
+        with freeze_time(now):
+            self.move_order_status_up(order, order.status, order.RELEASED)
+        order.refresh_from_db()
+        self.assertFalse(order.suggest_trustpilot)
+        self._test_trustpilot_link_on_notify_msg(order, is_on=False)
+        # Do not suggest second order because first was slow
+        order2 = self._create_order_api()
+        self.move_order_status_up(order2, order.status, order.RELEASED)
+        order2.refresh_from_db()
+        self.assertEqual(order.user, order2.user)
+        self.assertTrue(order2.is_released_fast)
+        self.assertFalse(order2.suggest_trustpilot)
+        self._test_trustpilot_link_on_notify_msg(order2, is_on=False)

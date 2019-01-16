@@ -1378,10 +1378,8 @@ class Order(BaseOrder, BaseUserOrder):
             return self.set_as_released_on - self.created_on
 
     @property
-    def suggest_trustpilot(self):
-        if self.payment_to_release_time and \
-                self.user.orders.filter(
-                    status__in=self.IN_RELEASED).count() == 1:
+    def is_released_fast(self):
+        if self.payment_to_release_time:
             tot_pay_release = self.payment_to_release_time.total_seconds()
             fast_pay_release = \
                 tot_pay_release < settings.FAST_PAYMENT_TO_RELEASE_TIME_SECONDS
@@ -1390,4 +1388,16 @@ class Order(BaseOrder, BaseUserOrder):
                 tot_create_release < settings.\
                     FAST_CREATE_TO_RELEASE_TIME_SECONDS
             return fast_create_release and fast_pay_release
+        return False
+
+    @property
+    def suggest_trustpilot(self):
+        user_orders = self.user.orders.all()
+        if self.is_released_fast and not user_orders.filter(
+                status__in=self.REFUNDABLE_STATES + [self.REFUNDED]):
+            for _order in user_orders.filter(
+                    status__in=self.IN_SUCCESS_RELEASED):
+                if not _order.is_released_fast:
+                    return False
+            return True
         return False

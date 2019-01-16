@@ -33,6 +33,8 @@ from django.core.servers.basehttp import WSGIServer
 from django.test.testcases import LiveServerTestCase, LiveServerThread,\
     QuietWSGIRequestHandler
 from django.contrib.staticfiles.handlers import StaticFilesHandler
+from payments.views import SafeChargeListenView
+from nexchange.rpc.scrypt import ScryptRpcApiClient
 
 UPHOLD_ROOT = 'nexchange.api_clients.uphold.Uphold.'
 SCRYPT_ROOT = 'nexchange.rpc.scrypt.ScryptRpcApiClient.'
@@ -548,6 +550,80 @@ class OrderBaseTestCase(UserBaseTestCase):
         cls.price_eur = Price(pair=cls.BTCEUR, ticker=ticker_eur)
         cls.price_eur.save()
         cls.patcher_validate_ticker_diff.stop()
+
+    def move_order_status_up(self, order, _from, _to):
+        api = ScryptRpcApiClient()
+        sc = SafeChargeListenView()
+        while order.status != _to:
+            _before = order.status
+            _crypto = order.pair.is_crypto
+            if order.status == Order.INITIAL:
+                tx_data = {
+                    'order': order,
+                    'currency': order.pair.quote,
+                    'user': order.user,
+                    'type': Transaction.DEPOSIT,
+                }
+                if not _crypto:
+                    pref = sc.get_or_create_payment_preference(
+                        self.generate_txn_id(),
+                        'Test McFerrin',
+                        order.unique_reference,
+                        order.payment_preference.payment_method,
+                    )
+                    tx_data.update({
+                        'amount_cash': order.amount_quote,
+                        'payment_preference': pref,
+                        'payment_system_id': self.generate_txn_id(),
+                        'secondary_payment_system_id': self.generate_txn_id(),
+                        'auth_code': self.generate_txn_id(),
+                        'reference': order.unique_reference,
+
+                    })
+                order.register_deposit(
+                    tx_data, crypto=order.pair.is_crypto)
+            elif order.status == Order.PAID_UNCONFIRMED:
+                tx = order.transactions.get() if _crypto else order.\
+                    payment_set.get()
+                order.confirm_deposit(tx, crypto=_crypto)
+            elif order.status == Order.PAID:
+                with patch(SCRYPT_ROOT + 'health_check') as _health:
+                    _health.return_value = True
+                    order.pre_release(api=api)
+            elif order.status == Order.PRE_RELEASE:
+                tx_data = {
+                    'order': order,
+                    'address_to': order.withdraw_address,
+                    'amount': order.amount_base,
+                    'currency': order.pair.base,
+                    'type': Transaction.WITHDRAW
+                }
+                with patch(SCRYPT_ROOT + 'release_coins') as _release:
+                    _release.return_value = self.generate_txn_id(), True
+                    order.release(tx_data, api=api)
+            self.assertEqual(_before + 1, order.status)
+
+    def _create_order_api(self, **kwargs):
+        order_data = kwargs.get('order_data', None)
+        pair_name = kwargs.get('pair_name', 'BTCEUR')
+        address = kwargs.get('address', '17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ')
+        if not order_data:
+            order_data = {
+                "amount_quote": 100,
+                "pair": {
+                    "name": pair_name
+                },
+                "withdraw_address": {
+                    "address": address
+                }
+            }
+        order_api_url = '/en/api/v1/orders/'
+        response = self.api_client.post(
+            order_api_url, order_data, format='json')
+        order = Order.objects.get(
+            unique_reference=response.json()['unique_reference']
+        )
+        return order
 
     def get_uphold_tx(self, currency_code, amount, card_id):
         return {
