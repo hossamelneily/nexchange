@@ -1041,6 +1041,7 @@ class Order(BaseOrder, BaseUserOrder):
         return tx
 
     def register_deposit(self, tx_data, crypto=True):
+        self.refresh_from_db()
         res = {'status': 'OK'}
         try:
             tx = self._register_deposit(tx_data, crypto=crypto)
@@ -1072,6 +1073,7 @@ class Order(BaseOrder, BaseUserOrder):
         self.set_as_paid_on = timezone.now()
 
     def confirm_deposit(self, tx, crypto=True):
+        self.refresh_from_db()
         res = {'status': 'OK'}
         try:
             self._confirm_deposit(tx, crypto=crypto)
@@ -1092,6 +1094,7 @@ class Order(BaseOrder, BaseUserOrder):
         return healthy
 
     def pre_release(self, api=None):
+        self.refresh_from_db()
         res = {'status': 'OK'}
         try:
             self._pre_release(api=api)
@@ -1151,6 +1154,7 @@ class Order(BaseOrder, BaseUserOrder):
         return tx
 
     def release(self, tx_data, api=None):
+        self.refresh_from_db()
         res = {'status': 'OK'}
         try:
             currency = tx_data.get('currency')
@@ -1160,6 +1164,7 @@ class Order(BaseOrder, BaseUserOrder):
             res.update({'tx': tx})
         except Exception as e:
             res = {'status': 'ERROR', 'message': '{}'.format(e)}
+            self.flag(val=e)
         self.save()
         return res
 
@@ -1178,6 +1183,7 @@ class Order(BaseOrder, BaseUserOrder):
         tx.save()
 
     def complete(self, tx):
+        self.refresh_from_db()
         res = {'status': 'OK'}
         try:
             self._complete(tx)
@@ -1192,6 +1198,7 @@ class Order(BaseOrder, BaseUserOrder):
         pass
 
     def cancel(self):
+        self.refresh_from_db()
         res = {'status': 'OK'}
         try:
             self._cancel()
@@ -1293,6 +1300,7 @@ class Order(BaseOrder, BaseUserOrder):
         payment.flag(val=res)
 
     def refund(self, refund_type='void'):
+        self.refresh_from_db()
         res = {'status': 'OK'}
         try:
             if self.exchange:

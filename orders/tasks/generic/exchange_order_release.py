@@ -37,64 +37,63 @@ class ExchangeOrderRelease(BaseOrderRelease, ApiClientFactory):
         return not order_already_released and transaction_ok
 
     def do_release(self, order, payment=None):
-        with transaction.atomic(using='default'):
-            if order.order_type == order.BUY or (
-                    order.order_type == order.SELL and isinstance(order,
-                                                                  LimitOrder)):
-                self.traded_currency = currency = order.withdraw_currency
-                amount = order.withdraw_amount
+        if order.order_type == order.BUY or (
+                order.order_type == order.SELL and isinstance(order,
+                                                              LimitOrder)):
+            self.traded_currency = currency = order.withdraw_currency
+            amount = order.withdraw_amount
 
-            else:
-                self.logger.error('Bad order Type')
+        else:
+            self.logger.error('Bad order Type')
+            return
+
+        self.api = self.get_api_client(currency.wallet)
+        order.refresh_from_db()
+        if order.status not in order.IN_RELEASED:
+            pre_release_res = order.pre_release(api=self.api)
+            pre_release_status_ok = pre_release_res.get('status') == 'OK'
+            if not pre_release_status_ok:
                 return
 
-            self.api = self.get_api_client(currency.wallet)
-            order.refresh_from_db()
-            if order.status not in order.IN_RELEASED:
-                pre_release_res = order.pre_release(api=self.api)
-                pre_release_status_ok = pre_release_res.get('status') == 'OK'
-                if not pre_release_status_ok:
-                    return
+            # Exclude because - transactions without type is possible
+            tx_data = {
+                'address_to': order.withdraw_address,
+                'amount': amount,
+                'currency': currency,
+                'type': Transaction.WITHDRAW
+            }
+            if isinstance(order, Order):
+                tx_data.update({'order': order})
+            elif isinstance(order, LimitOrder):
+                tx_data.update({'limit_order': order})
 
-                # Exclude because - transactions without type is possible
-                tx_data = {
-                    'address_to': order.withdraw_address,
-                    'amount': amount,
-                    'currency': currency,
-                    'type': Transaction.WITHDRAW
-                }
-                if isinstance(order, Order):
-                    tx_data.update({'order': order})
-                elif isinstance(order, LimitOrder):
-                    tx_data.update({'limit_order': order})
-
-                if order.withdraw_currency.code == 'XRP':
-                    tx_data['destination_tag'] = order.destination_tag
-                if order.withdraw_currency.code == 'XMR':
-                    tx_data['payment_id'] = order.payment_id
-                release_res = order.release(tx_data, api=self.api)
-                release_status_ok = release_res.get('status') == 'OK'
-                if not release_status_ok:
-                    error_msg = release_res.get('message')
-                    msg = 'Order {} is not RELEASED. Msg: {}'.format(
-                        order.unique_reference, error_msg)
-                    self.logger.error(msg)
-                    return False
-
-            else:
-                msg = 'Order {} already released'.format(order)
+            if order.withdraw_currency.code == 'XRP':
+                tx_data['destination_tag'] = order.destination_tag
+            if order.withdraw_currency.code == 'XMR':
+                tx_data['payment_id'] = order.payment_id
+            release_res = order.release(tx_data, api=self.api)
+            release_status_ok = release_res.get('status') == 'OK'
+            if not release_status_ok:
+                error_msg = release_res.get('message')
+                msg = 'Order {} is not RELEASED. Msg: {}'.format(
+                    order.unique_reference, error_msg)
                 self.logger.error(msg)
-                order.flag(val=msg)
                 return False
 
-            txn = release_res.get('txn')
-            self.logger.info(
-                'RELEASED order: {}, released transaction: {}'.format(
-                    order, txn
-                )
-            )
+        else:
+            msg = 'Order {} already released'.format(order)
+            self.logger.error(msg)
+            order.flag(val=msg)
+            return False
 
-            return True
+        txn = release_res.get('txn')
+        self.logger.info(
+            'RELEASED order: {}, released transaction: {}'.format(
+                order, txn
+            )
+        )
+
+        return True
 
     def run(self, transaction_id):
         tx = Transaction.objects.get(pk=transaction_id)

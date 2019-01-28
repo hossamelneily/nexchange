@@ -72,43 +72,42 @@ class BaseBuyOrderRelease(BaseOrderRelease):
         'payments.task_summary.buy_order_release_by_rule_invoke'
 
     def do_release(self, order, payment):
-        with transaction.atomic(using='default'):
-            # type_ = order.pair.base.code
-            order.refresh_from_db()
-            if order.status not in Order.IN_RELEASED:
-                order.pre_release(api=self.api)
-                currency = order.pair.base
-                tx_data = {'order': order,
-                           'address_to': order.withdraw_address,
-                           'amount': order.amount_base,
-                           'currency': currency,
-                           'type': Transaction.WITHDRAW}
-                release_res = order.release(tx_data, api=self.api)
-                release_status_ok = release_res.get('status') == 'OK'
-                if not release_status_ok:
-                    error_msg = release_res.get('message')
-                    msg = 'Order {} is not RELEASED. Msg: {}'.format(
-                        order.unique_reference, error_msg)
-                    self.logger.error(msg)
-                    return False
-
-            else:
-                msg = 'Order {} already released'.format(order)
+        # type_ = order.pair.base.code
+        order.refresh_from_db()
+        if order.status not in Order.IN_RELEASED:
+            order.pre_release(api=self.api)
+            currency = order.pair.base
+            tx_data = {'order': order,
+                       'address_to': order.withdraw_address,
+                       'amount': order.amount_base,
+                       'currency': currency,
+                       'type': Transaction.WITHDRAW}
+            release_res = order.release(tx_data, api=self.api)
+            release_status_ok = release_res.get('status') == 'OK'
+            if not release_status_ok:
+                error_msg = release_res.get('message')
+                msg = 'Order {} is not RELEASED. Msg: {}'.format(
+                    order.unique_reference, error_msg)
                 self.logger.error(msg)
-                order.flag(val=msg)
                 return False
 
-            txn = release_res.get('txn')
-            self.logger.info(
-                'RELEASED order: {}, Payment: {}, released '
-                'transaction: {}'.format(order, payment, txn)
-            )
+        else:
+            msg = 'Order {} already released'.format(order)
+            self.logger.error(msg)
+            order.flag(val=msg)
+            return False
 
-            payment.is_redeemed = True
-            payment.order = order
-            payment.save()
+        txn = release_res.get('txn')
+        self.logger.info(
+            'RELEASED order: {}, Payment: {}, released '
+            'transaction: {}'.format(order, payment, txn)
+        )
 
-            return True
+        payment.is_redeemed = True
+        payment.order = order
+        payment.save()
+
+        return True
 
     def validate(self, order, payment):
         # hack to prevent circular imports

@@ -23,6 +23,7 @@ from payments.models import Payment, PaymentMethod, PaymentPreference
 import requests_mock
 from http.client import RemoteDisconnected
 from nexchange.api_clients.factory import ApiClientFactory
+from core.common.models import Flag
 
 factory = ApiClientFactory()
 
@@ -144,27 +145,27 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         _validate_status.return_value = True
         # Create order and prepare it for first release
         order, txn_dep = self._create_paid_order()
-        release_coins_eth.return_value = self.generate_txn_id()
+        release_coins_eth.return_value = self.generate_txn_id(), True
         # Do first release
         exchange_order_release_invoke.apply_async([txn_dep.pk])
         self.order.refresh_from_db()
         # Check things after first release
         self.assertEqual(release_coins_eth.call_count, 1)
-        self.assertIn(self.order.status, Order.IN_RELEASED)
+        self.assertEqual(self.order.status, Order.RELEASED)
         all_with_txn = self.order.transactions.filter(
             type=Transaction.WITHDRAW)
         self.assertEqual(len(all_with_txn), 1)
         # Prepare order for second release
         self.order.status = Order.PAID
         self.order.save()
-        release_coins_eth.return_value = self.generate_txn_id()
+        release_coins_eth.return_value = self.generate_txn_id(), True
         exchange_order_release_invoke.apply_async([txn_dep.pk])
         # check things after second release
         all_with_txn = self.order.transactions.filter(
             type=Transaction.WITHDRAW)
         self.assertEqual(release_coins_eth.call_count, 1)
         self.order.refresh_from_db()
-        self.assertIn(self.order.status, Order.IN_RELEASED)
+        self.assertEqual(self.order.status, Order.PRE_RELEASE)
         self.assertTrue(self.order.flagged)
         self.assertEqual(len(all_with_txn), 1)
 
@@ -726,3 +727,28 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
                 getattr(payment_from_db, param),
                 '{}'.format(param)
             )
+
+    @patch(ETH_ROOT + 'net_listening')
+    @patch(ETH_ROOT + 'release_coins')
+    def test_do_not_release_if_pre_release_save_not_working(self,
+                                                            release_coins,
+                                                            eth_listen):
+        self._create_paid_order(pair_name='ETHBTC')
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PAID)
+        # Some error raised
+        with patch('orders.models.instant.Order.save'):
+            exchange_order_release_periodic.apply_async()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PAID)
+        eth_listen.assert_called_once()
+        release_coins.assert_not_called()
+        # Cannot test order.flagged because save was patched
+        Flag.objects.get(model_name='Order', flagged_id=self.order.pk)
+        self.order.flagged = True
+        self.order.save()
+        exchange_order_release_periodic.apply_async()
+        self.assertEqual(self.order.status, self.order.PAID)
+        self.order.refresh_from_db()
+        eth_listen.assert_called_once()
+        release_coins.assert_not_called()

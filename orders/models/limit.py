@@ -334,6 +334,7 @@ class LimitOrder(BaseLimitOrder, BaseUserOrder):
         return tx
 
     def register_deposit(self, tx_data, crypto=True):
+        self.refresh_from_db()
         res = {'status': 'OK'}
         try:
             tx = self._register_deposit(tx_data, crypto=crypto)
@@ -363,6 +364,7 @@ class LimitOrder(BaseLimitOrder, BaseUserOrder):
         tx.save()
 
     def confirm_deposit(self, tx, **kwargs):
+        self.refresh_from_db()
         res = {'status': 'OK'}
         try:
             self._confirm_deposit(tx, **kwargs)
@@ -383,6 +385,7 @@ class LimitOrder(BaseLimitOrder, BaseUserOrder):
         return healthy
 
     def pre_release(self, api=None):
+        self.refresh_from_db()
         res = {'status': 'OK'}
         try:
             self._pre_release(api=api)
@@ -454,6 +457,7 @@ class LimitOrder(BaseLimitOrder, BaseUserOrder):
         tx.save()
 
     def complete(self, tx):
+        self.refresh_from_db()
         res = {'status': 'OK'}
         try:
             self._complete(tx)
@@ -463,6 +467,7 @@ class LimitOrder(BaseLimitOrder, BaseUserOrder):
         return res
 
     def release(self, tx_data, api=None):
+        self.refresh_from_db()
         res = {'status': 'OK'}
         try:
             currency = tx_data.get('currency')
@@ -496,6 +501,7 @@ class LimitOrder(BaseLimitOrder, BaseUserOrder):
         return {'res': res, 'order_book': order_book, 'trades': trades}
 
     def open(self, tx):
+        self.refresh_from_db()
         res = {'status': 'OK'}
         trades = None
         try:
@@ -528,6 +534,7 @@ class LimitOrder(BaseLimitOrder, BaseUserOrder):
         assert self.filled == Decimal('1')
 
     def close(self):
+        self.refresh_from_db()
         res = {'status': 'OK'}
         try:
             self._close()
