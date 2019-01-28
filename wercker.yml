@@ -123,21 +123,37 @@ dev:
           python manage.py loaddata core/fixtures/pairs_bmh.json
           python manage.py loaddata core/fixtures/pairs_xrp.json
     - script:
-        name: Django import Order fixtures
+        name: Django import Withdraw address fixture
         code: |
-          python manage.py loaddata orders/fixtures/fee_source.json
+          python manage.py loaddata core/fixtures/withdraw_address.json
+    - script:
+        name: Django import Address fixture
+        code: |
+          python manage.py loaddata core/fixtures/dev/address_reserves.json
+          python manage.py loaddata core/fixtures/dev/addresses.json
     - script:
         name: Django import Payment Methods fixture
         code: |
           python manage.py loaddata payments/fixtures/payment_method.json
     - script:
+        name: Django import Order fixture
+        code: |
+          python manage.py loaddata orders/fixtures/dev/orders.json
+    - script:
+        name: Django import Transaction fixture
+        code: |
+          python manage.py loaddata core/fixtures/dev/transactions.json
+    - script:
         name: Django import Payment Preference fixture
         code: |
+          python manage.py loaddata payments/fixtures/dev/push_requests.json
           python manage.py loaddata payments/fixtures/payment_preference.json
+          python manage.py loaddata payments/fixtures/dev/payment_preferences.json
+          python manage.py loaddata payments/fixtures/dev/payments.json
     - script:
-        name: Django import Withdraw address fixture
+        name: Django import Order Fee fixtures
         code: |
-          python manage.py loaddata core/fixtures/withdraw_address.json
+          python manage.py loaddata orders/fixtures/fee_source.json
     - script:
         name: Django import referral program fixture
         code: |
@@ -155,6 +171,8 @@ dev:
           python manage.py loaddata verification/fixtures/tier1.json
           python manage.py loaddata verification/fixtures/tier2.json
           python manage.py loaddata verification/fixtures/tier3.json
+          python manage.py loaddata verification/fixtures/dev/verifications.json
+          python manage.py loaddata verification/fixtures/dev/verification_documents.json
     - script:
         name: Django import Articles fixtures
         code: |

@@ -1,0 +1,56 @@
+[
+{
+  "model": "core.transaction",
+  "pk": 1,
+  "fields": {
+    "created_on": "2019-01-25T11:22:49.236Z",
+    "modified_on": "2019-01-25T11:22:49.236Z",
+    "flagged": false,
+    "type": "D",
+    "confirmations": 11,
+    "tx_id": "fa94a8841ba5e21db86619c560f8d545f65793142e47fae4b4a7191a6a1bdfbb",
+    "tx_id_api": null,
+    "address_from": 4,
+    "address_to": 6,
+    "order": 3,
+    "limit_order": null,
+    "is_verified": false,
+    "is_completed": false,
+    "amount": "0.32665590",
+    "time": "2019-01-25T11:22:28Z",
+    "currency": 1,
+    "admin_comment": "''",
+    "refunded_transaction": null,
+    "reserves_cover": null,
+    "destination_tag": null,
+    "payment_id": null
+  }
+},
+{
+  "model": "core.transaction",
+  "pk": 2,
+  "fields": {
+    "created_on": "2019-01-25T11:28:52.945Z",
+    "modified_on": "2019-01-25T11:28:52.946Z",
+    "flagged": false,
+    "type": "W",
+    "confirmations": 25,
+    "tx_id": "0x7b016a732976593ea2de1e5456ae5b24ac3a66e72792389270ea1ce3ed1fc29d",
+    "tx_id_api": null,
+    "address_from": 1,
+    "address_to": 5,
+    "order": 3,
+    "limit_order": null,
+    "is_verified": false,
+    "is_completed": false,
+    "amount": "10.00000000",
+    "time": "2019-01-25T11:28:41Z",
+    "currency": 3,
+    "admin_comment": "''",
+    "refunded_transaction": null,
+    "reserves_cover": null,
+    "destination_tag": null,
+    "payment_id": null
+  }
+}
+]

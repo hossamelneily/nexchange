@@ -1,0 +1,29 @@
+[
+{
+  "model": "payments.payment",
+  "pk": 1,
+  "fields": {
+    "deleted": false,
+    "disabled": false,
+    "created_on": "2019-01-25T10:03:28.287Z",
+    "modified_on": "2019-01-25T10:03:29.217Z",
+    "flagged": false,
+    "type": "D",
+    "nonce": null,
+    "amount_cash": "100.00",
+    "currency": 6,
+    "is_redeemed": false,
+    "is_complete": false,
+    "is_success": true,
+    "payment_preference": 240,
+    "user": null,
+    "order": 1,
+    "limit_order": null,
+    "reference": "ODGC7X",
+    "comment": null,
+    "payment_system_id": "2019-01-25.10:03:27",
+    "secondary_payment_system_id": "1130000000183994702",
+    "auth_code": "526095"
+  }
+}
+]

@@ -1,0 +1,29 @@
+[
+{
+  "model": "verification.verification",
+  "pk": 1,
+  "fields": {
+    "deleted": false,
+    "disabled": false,
+    "created_on": "2019-01-25T10:06:33.383Z",
+    "modified_on": "2019-01-25T10:06:44.619Z",
+    "flagged": false,
+    "created_by": 2,
+    "created_with_session_key": "w934oc5tmlypb34vx247wj2mpi4awbzf",
+    "modified_by": 2,
+    "modified_with_session_key": "w934oc5tmlypb34vx247wj2mpi4awbzf",
+    "user": null,
+    "payment_preference": 240,
+    "identity_document": "thisisunique/verification/identity_docs/IDHand.jpg",
+    "utility_document": "thisisunique/verification/utility_docs/IDHand.jpg",
+    "id_status": "REJECTED",
+    "util_status": "REJECTED",
+    "full_name": null,
+    "note": "ODGC7X",
+    "user_visible_comment": null,
+    "user_input_comment": "Sir Testalot verification for ETHEUR order",
+    "admin_comment": null,
+    "category": []
+  }
+}
+]

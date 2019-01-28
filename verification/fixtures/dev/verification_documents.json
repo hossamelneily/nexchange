@@ -1,0 +1,48 @@
+[
+{
+  "model": "verification.verificationdocument",
+  "pk": 1,
+  "fields": {
+    "deleted": false,
+    "disabled": false,
+    "created_on": "2019-01-25T10:06:39.993Z",
+    "modified_on": "2019-01-25T10:06:40.727Z",
+    "created_by": 2,
+    "created_with_session_key": "w934oc5tmlypb34vx247wj2mpi4awbzf",
+    "modified_by": 2,
+    "modified_with_session_key": "w934oc5tmlypb34vx247wj2mpi4awbzf",
+    "verification": 1,
+    "document_status": "PENDING",
+    "document_type": 1,
+    "document_file": "1/kyc/ID/IDHand.jpg",
+    "whitelisted_address": null,
+    "admin_comment": null,
+    "kyc_push": null,
+    "user": 2,
+    "contains_selfie": false
+  }
+},
+{
+  "model": "verification.verificationdocument",
+  "pk": 2,
+  "fields": {
+    "deleted": false,
+    "disabled": false,
+    "created_on": "2019-01-25T10:06:42.430Z",
+    "modified_on": "2019-01-25T10:06:43.415Z",
+    "created_by": 2,
+    "created_with_session_key": "w934oc5tmlypb34vx247wj2mpi4awbzf",
+    "modified_by": 2,
+    "modified_with_session_key": "w934oc5tmlypb34vx247wj2mpi4awbzf",
+    "verification": 1,
+    "document_status": "PENDING",
+    "document_type": 2,
+    "document_file": "1/kyc/UTIL/IDHand.jpg",
+    "whitelisted_address": null,
+    "admin_comment": null,
+    "kyc_push": null,
+    "user": 2,
+    "contains_selfie": false
+  }
+}
+]

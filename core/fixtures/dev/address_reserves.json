@@ -1,0 +1,26 @@
+[
+{
+  "model": "core.addressreserve",
+  "pk": 1,
+  "fields": {
+    "card_id": null,
+    "address": "BTC_0_XJL6B5",
+    "currency": 1,
+    "user": null,
+    "created": "2019-01-25T13:56:43.669Z",
+    "disabled": false
+  }
+},
+{
+  "model": "core.addressreserve",
+  "pk": 2,
+  "fields": {
+    "card_id": null,
+    "address": "BTC_1_ZJQQWL",
+    "currency": 1,
+    "user": null,
+    "created": "2019-01-25T13:56:43.669Z",
+    "disabled": false
+  }
+}
+]

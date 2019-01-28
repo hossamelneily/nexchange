@@ -1,0 +1,104 @@
+[
+{
+  "model": "core.address",
+  "pk": 1,
+  "fields": {
+    "deleted": false,
+    "disabled": false,
+    "created_on": "2016-06-26T21:36:01.848Z",
+    "modified_on": "2016-06-26T21:36:01.848Z",
+    "type": "W",
+    "reserve": null,
+    "name": "",
+    "address": "38veBMhDeudaZs7zmDUy68cYJZupaHVBvR",
+    "user": null,
+    "currency": null,
+    "blocked": false
+  }
+},
+{
+  "model": "core.address",
+  "pk": 2,
+  "fields": {
+    "deleted": false,
+    "disabled": false,
+    "created_on": "2016-06-26T21:36:01.848Z",
+    "modified_on": "2016-06-26T21:36:01.848Z",
+    "type": "W",
+    "reserve": null,
+    "name": "",
+    "address": "0x9ebf6734ebf95effb99dbe6dc5faf086ec394d94",
+    "user": null,
+    "currency": null,
+    "blocked": false
+  }
+},
+{
+  "model": "core.address",
+  "pk": 3,
+  "fields": {
+    "deleted": false,
+    "disabled": false,
+    "created_on": "2019-01-25T10:35:52.910Z",
+    "modified_on": "2019-01-25T10:35:52.910Z",
+    "type": "W",
+    "reserve": null,
+    "name": "",
+    "address": "LUZ7mJZ8PheQVLcKF5GhitGuzZcgPWDPA4",
+    "user": null,
+    "currency": 2,
+    "blocked": false
+  }
+},
+{
+  "model": "core.address",
+  "pk": 4,
+  "fields": {
+    "deleted": false,
+    "disabled": false,
+    "created_on": "2019-01-25T10:40:41.057Z",
+    "modified_on": "2019-01-25T10:40:41.057Z",
+    "type": "D",
+    "reserve": 1,
+    "name": "",
+    "address": "BTC_0_XJL6B5",
+    "user": null,
+    "currency": 1,
+    "blocked": false
+  }
+},
+{
+  "model": "core.address",
+  "pk": 5,
+  "fields": {
+    "deleted": false,
+    "disabled": false,
+    "created_on": "2019-01-25T10:51:22.279Z",
+    "modified_on": "2019-01-25T10:51:22.279Z",
+    "type": "W",
+    "reserve": null,
+    "name": "",
+    "address": "0x9ebf6734ebf95effb99dbe6dc5faf555ec555d55",
+    "user": null,
+    "currency": 3,
+    "blocked": false
+  }
+},
+{
+  "model": "core.address",
+  "pk": 6,
+  "fields": {
+    "deleted": false,
+    "disabled": false,
+    "created_on": "2019-01-25T10:51:23.287Z",
+    "modified_on": "2019-01-25T10:51:23.287Z",
+    "type": "D",
+    "reserve": 2,
+    "name": "",
+    "address": "BTC_1_ZJQQWL",
+    "user": null,
+    "currency": 1,
+    "blocked": false
+  }
+}
+]
