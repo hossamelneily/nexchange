@@ -1127,6 +1127,9 @@ class Order(BaseOrder, BaseUserOrder):
             destination_tag = self.destination_tag if \
                 self.destination_tag is not None \
                 else None
+            api.assert_tx_unique(currency, self.withdraw_address, amount,
+                                 payment_id=payment_id,
+                                 destination_tag=destination_tag)
             tx_id, success = api.release_coins(currency, self.withdraw_address,
                                                amount, payment_id=payment_id,
                                                destination_tag=destination_tag)

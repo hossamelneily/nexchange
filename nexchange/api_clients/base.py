@@ -90,6 +90,10 @@ class BaseApiClient:
     def health_check(self, currency):
         return True
 
+    def assert_tx_unique(self, currency, address, amount, **kwargs):
+        # Raise NotImplementedError afeter all production coins fixed
+        pass
+
 
 class BaseWalletApiClient(BaseApiClient):
 

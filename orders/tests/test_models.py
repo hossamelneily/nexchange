@@ -820,7 +820,7 @@ class OrderStateMachineTestCase(TickerBaseTestCase):
         }
         res1 = self.order.release(tx_data, api=api_that_throws_error)
         self.assertEqual(res1['status'], 'ERROR')
-        self.assertIn('release_coins', res1['message'])
+        self.assertIn('assert_tx_unique', res1['message'])
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, Order.PRE_RELEASE)
         txns_after = self.order.transactions.filter(type=Transaction.WITHDRAW)
