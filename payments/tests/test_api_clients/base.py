@@ -23,7 +23,7 @@ class BaseCardPmtAPITestCase(OrderBaseTestCase):
             'amount': str(self.order.amount_quote),
             'currency': self.order.pair.quote.code,
             'ccn': '5393932585574906',
-            'ccexp': '0219',
+            'ccexp': '0225',
             'cvv': '123',
             'orderid': self.order.unique_reference,
             'desc': 'BUY 0.1 BTC',
