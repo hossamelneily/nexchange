@@ -8,6 +8,8 @@ from web3 import Web3, RPCProvider
 from nexchange.api_clients.mappers import RpcMapper
 import os
 from time import sleep
+import requests
+from django.core.exceptions import ValidationError
 
 
 class EthashRpcApiClient(BaseRpcClient):
@@ -402,3 +404,55 @@ class EthashRpcApiClient(BaseRpcClient):
         assert address.lower() in all_accounts_lower,\
             'Main address must be in get_accounts resp {}'.format(currency)
         return address
+
+    # TODO: use eth node if possible, for now it's third-party server
+    def _list_txs(self, address):
+        url = 'https://api.etherscan.io/api?module=account&action=txlist&' \
+              'address={address}&tag=latest&apikey={etherscan_api_key}'.\
+            format(address=address,
+                   etherscan_api_key=settings.ETHERSCAN_API_KEY)
+        try:
+            flag = False
+            res_json = requests.get(url).json()
+            status = res_json.get('status')
+            if status != '1':
+                flag = True
+                err_msg = 'Bad status code from etherscan'
+        except requests.exceptions.ConnectionError:
+            flag = True
+            err_msg = 'No connection to etherscan'
+        if flag:
+            raise ValidationError(
+                'Error: {err_msg}, url: {url}'.format(err_msg=err_msg, url=url)
+            )
+        else:
+            return res_json.get('result')
+
+    def assert_tx_unique(self, currency, address, amount, **kwargs):
+        _address = getattr(address, 'address', address)
+        results = self._list_txs(_address)
+        raw_amount = int(
+            Decimal(amount) * Decimal('1e{}'.format(currency.decimals))
+        )
+        for result in results:
+            is_same_currency = True
+            tx_input = result.get('input')
+            if tx_input == '0x':
+                addr_to = result.get('to')
+                tx_amount = int(result.get('value'))
+            else:
+                tx_contract_address = result.get('to')
+                addr_to, tx_amount = \
+                    self._get_transfer_data_from_eth_input(tx_input)
+                if currency.contract_address != tx_contract_address:
+                    is_same_currency = False
+            if all([_address == addr_to,
+                    raw_amount == tx_amount,
+                    is_same_currency]):
+                raise ValidationError(
+                    'Transaction of {amount} {currency} to {address} already '
+                    'exist.'.format(
+                        amount=amount,
+                        currency=currency.code,
+                        address=_address
+                    ))

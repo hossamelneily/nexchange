@@ -221,6 +221,8 @@ ADV_CASH_WALLET_RUB = 'R093095975471'
 ADV_CASH_WALLETS = [ADV_CASH_WALLET_USD, ADV_CASH_WALLET_EUR,
                     ADV_CASH_WALLET_GBP, ADV_CASH_WALLET_RUB]
 
+# ETHERSCAN
+ETHERSCAN_API_KEY = 'ether_scan_key'
 
 CARDPMT_API_URL = 'https://gateway.cardpmt.com/api.cgi'
 CARDPMT_API_ID = 'user'
@@ -767,8 +769,8 @@ SATOSHI = Decimal('0.00000001')
 
 # Order matters (from most to least valuable)
 BEST_CHANGE_CURRENCIES = [
-    'BTC', 'BCH', 'ETH', 'DASH', 'ZEC', 'XMR', 'LTC', 'GBP', 'EUR', 'USD', 'RUB',
-    'USDT', 'XRP', 'JPY', 'DOGE'
+    'BTC', 'BCH', 'ETH', 'DASH', 'ZEC', 'XMR', 'LTC', 'GBP', 'EUR', 'USD',
+    'RUB', 'USDT', 'XRP', 'JPY', 'DOGE'
 ]
 
 FAST_PAYMENT_TO_RELEASE_TIME_SECONDS = 300

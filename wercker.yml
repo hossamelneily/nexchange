@@ -368,6 +368,8 @@ build:
           # Idenfy
           export IDENFY_API_KEY=${IDENFY_API_KEY}
           export IDENFY_API_SECRET=${IDENFY_API_SECRET}
+          # Ethersan
+          export ETHERSCAN_API_KEY=${ETHERSCAN_API_KEY}
           # Fixer (fiat rates)
           export FIXER_ACCESS_KEY=${FIXER_ACCESS_KEY}
           # Smtp

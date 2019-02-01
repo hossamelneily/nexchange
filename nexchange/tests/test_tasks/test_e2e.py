@@ -554,6 +554,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             ('BTCXMR', Order.BUY, True, 3),
         )
     )
+    @patch(ETH_ROOT + '_list_txs')
     @patch(ETH_ROOT + 'net_listening')
     @patch(SCRYPT_ROOT + 'get_info')
     @patch('accounts.tasks.monitor_wallets.app.send_task')
@@ -596,7 +597,9 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                     get_txs_eth, get_tx_eth,
                                     get_tx_eth_receipt,
                                     release_coins_eth, get_block_eth,
-                                    send_task, scrypt_info, eth_listen):
+                                    send_task, scrypt_info, eth_listen,
+                                    eth_list_txs):
+        eth_list_txs.return_value = []
         scrypt_info.return_value = omni_info.return_value = {}
         cryptonight_info.return_value = {'height': 21}
         eth_listen.return_value = True
@@ -693,7 +696,6 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self._update_withdraw_address(self.order, address)
         self.release_task_periodic.apply_async()
         self.order.refresh_from_db()
-
         self.assertIn(self.order.status, Order.IN_RELEASED, pair_name)
         t1 = self.order.transactions.first()
         t2 = self.order.transactions.last()

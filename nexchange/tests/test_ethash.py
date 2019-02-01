@@ -18,7 +18,11 @@ from decimal import Decimal
 from collections import namedtuple
 from risk_management.models import Reserve
 from orders.utils import release_order
+import requests_mock
+from django.conf import settings
 
+
+ETHERSCAN_API_KEY = 'ether_scan_api_key'
 
 ethash_check_tx_params = namedtuple(
     'eth_check_tx_params',
@@ -218,6 +222,7 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
     @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
     @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
+    @patch(ETH_ROOT + '_list_txs')
     @patch(ETH_ROOT + 'net_listening')
     @patch('web3.eth.Eth.getTransactionReceipt')
     @patch('web3.eth.Eth.blockNumber')
@@ -228,7 +233,9 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
     @patch(ETH_ROOT + 'get_balance')
     def test_release_ethash_order(self, pair_name, get_balance, unlock, lock,
                                   send_tx, get_tx_eth, get_block_eth,
-                                  get_tx_eth_receipt, eth_listen):
+                                  get_tx_eth_receipt, eth_listen,
+                                  eth_list_txs):
+        eth_list_txs.return_value = []
         eth_listen.return_value = True
         amount_base = 50
         pair = Pair.objects.get(name=pair_name)
@@ -310,6 +317,7 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
     @patch.dict(os.environ, {'RPC_RPC7_K': 'password'})
     @patch.dict(os.environ, {'RPC_RPC7_HOST': '0.0.0.0'})
     @patch.dict(os.environ, {'RPC_RPC7_PORT': '0000'})
+    @patch(ETH_ROOT + '_list_txs')
     @patch(ETH_ROOT + 'net_listening')
     @patch('web3.eth.Eth.sendTransaction')
     @patch('web3.personal.Personal.lockAccount')
@@ -317,7 +325,8 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
     @patch(ETH_ROOT + 'get_balance')
     def test_release_ethash_order_with_util(self, pair_name, get_balance,
                                             unlock, lock,
-                                            send_tx, eth_listen):
+                                            send_tx, eth_listen, eth_list_txs):
+        eth_list_txs.return_value = []
         eth_listen.return_value = True
         amount_base = 50
         pair = Pair.objects.get(name=pair_name)
@@ -352,3 +361,74 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
         self.assertEqual(
             Decimal(called_with['value']) * Decimal('1e-18'), order.amount_base
         )
+
+    @requests_mock.mock()
+    @patch('orders.models.base.BaseUserOrder.coverable')
+    @patch(ETH_ROOT + 'health_check')
+    @patch(ETH_ROOT + 'release_coins')
+    def test_do_not_release_if_transaction_is_not_unique(self, request_mock,
+                                                         mock_release_coins,
+                                                         eth_health_check,
+                                                         mock_coverable):
+        withdraw_address = '0x77454e832261aeed81422348efee52d5bd3a3684'
+        order = self._create_paid_order_api(
+            'ETHBTC', 0.5,
+            withdraw_address
+        )
+        mock_coverable.return_value = True
+        eth_health_check.return_value = True
+        ETH = Currency.objects.get(code='ETH')
+        value = int(
+            Decimal(order.amount_base) * Decimal('1E{}'.format(ETH.decimals))
+        )
+        etherscan_txs_from_api = {"status": "1", "result": [
+            {"to": "0x12313213", "value": "785471956517588563", 'input': '0x'},
+            {"to": withdraw_address, "value": str(value), 'input': '0x'}
+        ]}
+        url = 'https://api.etherscan.io/api?module=account&action=txlist&' \
+              'address={address}&tag=latest&apikey={etherscan_api_key}'.\
+            format(address=withdraw_address,
+                   etherscan_api_key=settings.ETHERSCAN_API_KEY)
+        request_mock.get(url, json=etherscan_txs_from_api)
+        exchange_order_release_periodic()
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PRE_RELEASE)
+        self.assertTrue(order.flagged, True)
+        self.assertEqual(mock_release_coins.call_count, 0)
+
+    @requests_mock.mock()
+    @patch('orders.models.base.BaseUserOrder.coverable')
+    @patch(ETH_ROOT + 'health_check')
+    @patch(ETH_ROOT + 'release_coins')
+    def test_do_not_release_if_transaction_is_not_unique_token(
+            self, request_mock, mock_release_coins, eth_health_check,
+            mock_coverable
+    ):
+        withdraw_address = '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
+        order = self._create_paid_order_api(
+            'BNBBTC', 0.5,
+            withdraw_address
+        )
+        mock_coverable.return_value = True
+        eth_health_check.return_value = True
+        ETH = Currency.objects.get(code='BNB')
+        value = int(
+            Decimal(order.amount_base) * Decimal('1E{}'.format(ETH.decimals))
+        )
+        cl = EthashRpcApiClient()
+        tx_input = cl.get_data_hash('transfer(address,uint256)',
+                                *[withdraw_address, hex(value)])
+        etherscan_txs_from_api = {"status": "1", "result": [
+            {"to": "0x12313213", "value": "785471956517588563", 'input': '0x'},
+            {"to": ETH.contract_address, "value": 0, 'input': tx_input}
+        ]}
+        url = 'https://api.etherscan.io/api?module=account&action=txlist&' \
+              'address={address}&tag=latest&apikey={etherscan_api_key}'.\
+            format(address=withdraw_address,
+                   etherscan_api_key=settings.ETHERSCAN_API_KEY)
+        request_mock.get(url, json=etherscan_txs_from_api)
+        exchange_order_release_periodic()
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PRE_RELEASE)
+        self.assertTrue(order.flagged, True)
+        self.assertEqual(mock_release_coins.call_count, 0)

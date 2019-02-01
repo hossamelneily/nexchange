@@ -134,13 +134,15 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
             txn = self.order.transactions.first()
             self.assertEqual(txn.confirmations, blockchain_confirmations, name)
 
+    @patch(ETH_ROOT + '_list_txs')
     @patch(ETH_ROOT + 'net_listening')
     @patch('orders.models.Order._validate_status')
     @patch(ETH_ROOT + 'release_coins')
     @patch('nexchange.api_clients.uphold.UpholdApiClient.check_tx')
     def test_release_order_only_once(self, check_tx_uphold,
                                      release_coins_eth, _validate_status,
-                                     eth_listen):
+                                     eth_listen, eth_list_txs):
+        eth_list_txs.return_value = []
         eth_listen.return_value = True
         _validate_status.return_value = True
         # Create order and prepare it for first release
@@ -610,11 +612,14 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         self.assertEqual(self.order.status, self.order.PAID)
         scrypt_info.assert_called_once()
 
+    @patch(ETH_ROOT + '_list_txs')
     @patch(ETH_ROOT + 'net_listening')
     @patch(ETH_ROOT + 'release_coins')
     def test_release_after_wallet_connection_problems_ethash(self,
                                                              release_coins,
-                                                             eth_listen):
+                                                             eth_listen,
+                                                             eth_list_txs):
+        eth_list_txs.return_value = []
         release_coins.return_value = self.generate_txn_id(), True
         self._create_paid_order(pair_name='ETHBTC')
         self.order.refresh_from_db()
@@ -634,11 +639,14 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         release_coins.assert_called_once()
         self.assertEqual(eth_listen.call_count, 2)
 
+    @patch(ETH_ROOT + '_list_txs')
     @patch(ETH_ROOT + 'net_listening')
     @patch(ETH_ROOT + 'release_coins')
     def test_release_after_wallet_false_listening_ethash(self,
                                                          release_coins,
-                                                         eth_listen):
+                                                         eth_listen,
+                                                         eth_list_txs):
+        eth_list_txs.return_value = []
         release_coins.return_value = self.generate_txn_id(), True
         self._create_paid_order(pair_name='ETHBTC')
         self.order.refresh_from_db()
