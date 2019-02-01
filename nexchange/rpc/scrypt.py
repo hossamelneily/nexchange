@@ -1,10 +1,12 @@
-from nexchange.api_clients.decorators import track_tx_mapper, log_errors, encrypted_endpoint
+from nexchange.api_clients.decorators import track_tx_mapper, log_errors,\
+    encrypted_endpoint
 from nexchange.rpc.base import BaseRpcClient
 from core.models import Address
 from django.conf import settings
 import os
 from http.client import RemoteDisconnected
 from decimal import Decimal
+from django.core.exceptions import ValidationError
 
 
 class ScryptRpcApiClient(BaseRpcClient):
@@ -71,9 +73,15 @@ class ScryptRpcApiClient(BaseRpcClient):
                          confirmations > 0])
         return confirmed, confirmations
 
-    def _get_txs(self, node):
+    def _list_txs(self, node, tx_count=settings.RPC_IMPORT_TRANSACTIONS_COUNT):
         txs = self.call_api(node, 'listtransactions',
-                            *["", settings.RPC_IMPORT_TRANSACTIONS_COUNT])
+                            *["", tx_count])
+        return txs
+
+    def _get_txs(self, node):
+        txs = self._list_txs(
+            node, tx_count=settings.RPC_IMPORT_TRANSACTIONS_COUNT
+        )
         return txs
 
     def get_accounts(self, node):
@@ -123,3 +131,25 @@ class ScryptRpcApiClient(BaseRpcClient):
         path = os.path.join(settings.WALLET_BACKUP_PATH,
                             currency.code)
         self.call_api(currency.wallet, 'backupwallet', *[path])
+
+    def assert_tx_unique(self, currency, address, amount, **kwargs):
+        res = self._list_txs(
+            currency.wallet,
+            tx_count=settings.RPC_IMPORT_TRANSACTIONS_VALIDATION_COUNT
+        )
+        _address = getattr(address, 'address', address)
+        same_amount_txs = [
+            t for t in res if
+            t['category'] == 'send' and
+            t['address'] == _address and
+            t['amount'] == -amount
+        ]
+        if same_amount_txs:
+            raise ValidationError(
+                'Transaction of {amount} {currency} to {address} already '
+                'exist. Tx list: {tx_list} '.format(
+                    amount=amount,
+                    address=_address,
+                    currency=currency.code,
+                    tx_list=same_amount_txs
+                ))

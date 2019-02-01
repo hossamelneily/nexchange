@@ -1166,8 +1166,9 @@ class Order(BaseOrder, BaseUserOrder):
                                amount=amount)
             res.update({'tx': tx})
         except Exception as e:
-            res = {'status': 'ERROR', 'message': '{}'.format(e)}
-            self.flag(val=e)
+            msg = '{}'.format(e)
+            res = {'status': 'ERROR', 'message': msg}
+            self.flag(val=msg)
         self.save()
         return res
 
@@ -1206,8 +1207,9 @@ class Order(BaseOrder, BaseUserOrder):
         try:
             self._cancel()
         except Exception as e:
-            res = {'status': 'ERROR', 'message': '{}'.format(e)}
-            self.flag(val=e)
+            msg = '{}'.format(e)
+            res = {'status': 'ERROR', 'message': msg}
+            self.flag(val=msg)
         self.save()
         return res
 

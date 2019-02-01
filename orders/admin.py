@@ -13,7 +13,7 @@ class OrderAdmin(admin.ModelAdmin):
         'pair__quote__is_crypto'
     )
     readonly_fields = (
-        'referred_with', 'user', 'amount_quote', 'amount_base',
+        'flags', 'referred_with', 'user', 'amount_quote', 'amount_base',
         'unique_reference', 'status', 'pair', 'withdraw_address',
         'deposit_address', 'refund_address', 'payment_id', 'price',
         'user_provided_amount', 'ticker_amount_quote', 'order_type',

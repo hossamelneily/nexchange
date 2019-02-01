@@ -554,11 +554,14 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         self.assertEqual(1, txns.count())
         release_coins.assert_not_called()
 
+    @patch(SCRYPT_ROOT + '_list_txs')
     @patch(SCRYPT_ROOT + 'get_info')
     @patch(SCRYPT_ROOT + 'release_coins')
     def test_release_after_wallet_connection_problems_scrypt(self,
                                                              release_coins,
-                                                             scrypt_info):
+                                                             scrypt_info,
+                                                             list_txs):
+        list_txs.return_value = []
         scrypt_info.return_value = {}
         release_coins.return_value = self.generate_txn_id(), True
         self._create_paid_order(pair_name='BTCLTC')
@@ -579,11 +582,13 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         release_coins.assert_called_once()
         self.assertEqual(scrypt_info.call_count, 2)
 
+    @patch(SCRYPT_ROOT + '_list_txs')
     @patch(SCRYPT_ROOT + 'get_info')
     @patch(SCRYPT_ROOT + 'release_coins')
     def test_release_on_connection_timeout_scrypt(self,
                                                   release_coins,
-                                                  scrypt_info):
+                                                  scrypt_info, list_txs):
+        list_txs.return_value = []
         release_coins.return_value = self.generate_txn_id(), True
         self._create_paid_order(pair_name='BTCLTC')
         self.order.refresh_from_db()
@@ -760,3 +765,29 @@ class RegressionTaskTestCase(TransactionImportBaseTestCase,
         self.order.refresh_from_db()
         eth_listen.assert_called_once()
         release_coins.assert_not_called()
+
+    @patch(SCRYPT_ROOT + '_list_txs')
+    @patch(SCRYPT_ROOT + 'get_info')
+    @patch(SCRYPT_ROOT + 'release_coins')
+    def test_do_not_release_if_same_tx_available_scrypt(self,
+                                                        release_coins,
+                                                        scrypt_health,
+                                                        list_txs):
+        scrypt_health.return_value = {}
+        self._create_paid_order(pair_name='BTCETH')
+        list_txs.return_value = [{
+            'account': '',
+            'address': self.order.withdraw_address.address,
+            'category': 'send',
+            'amount': -self.order.amount_base,
+            'txid': self.generate_txn_id(),
+        }]
+        scrypt_health.return_value = {}
+        self._create_paid_order(pair_name='BTCETH')
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PAID)
+        exchange_order_release_periodic.apply_async()
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, self.order.PRE_RELEASE)
+        release_coins.assert_not_called()
+        self.assertTrue(self.order.flagged)

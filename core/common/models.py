@@ -142,6 +142,13 @@ class FlagableMixin(models.Model):
 
     flagged = models.BooleanField(default=False)
 
+    @property
+    def flags(self):
+        return Flag.objects.filter(
+            model_name=self.__class__.__name__,
+            flagged_id=self.pk
+        )
+
 
 class RequestLog(IpAwareModel):
 

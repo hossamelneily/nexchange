@@ -2,7 +2,6 @@ from nexchange.api_clients.decorators import \
     track_tx_mapper, log_errors, encrypted_endpoint
 from nexchange.rpc.scrypt import ScryptRpcApiClient
 from core.models import Address, Currency, AddressReserve
-from django.conf import settings
 from decimal import Decimal
 import os
 
@@ -168,3 +167,6 @@ class OmniRpcApiClient(ScryptRpcApiClient):
     def get_txs(self, node=None, txs=None):
         txs = self._get_txs(node)
         return super(ScryptRpcApiClient, self).get_txs(node, txs)
+
+    def assert_tx_unique(self, currency, address, amount, **kwargs):
+        pass

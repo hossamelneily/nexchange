@@ -553,7 +553,9 @@ class OrderBaseTestCase(UserBaseTestCase):
         cls.price_eur.save()
         cls.patcher_validate_ticker_diff.stop()
 
-    def move_order_status_up(self, order, _from, _to):
+    @patch(SCRYPT_ROOT + '_list_txs')
+    def move_order_status_up(self, order, _from, _to, list_txs):
+        list_txs.return_value = []
         api = ScryptRpcApiClient()
         sc = SafeChargeListenView()
         while order.status != _to:

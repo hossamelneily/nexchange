@@ -46,7 +46,7 @@ class PairAdmin(admin.ModelAdmin):
 class TransactionAdmin(admin.ModelAdmin):
     list_display = ('amount', 'currency', 'type', 'order')
     raw_id_fields = ('order', 'address_from', 'address_to')
-    readonly_fields = ('reserves_cover', 'limit_order')
+    readonly_fields = ('flags', 'reserves_cover', 'limit_order')
     search_fields = (
         'address_to__address', 'address_from__address', 'tx_id', 'tx_id_api',
         'order__unique_reference', 'type', 'currency__code', 'currency__name',

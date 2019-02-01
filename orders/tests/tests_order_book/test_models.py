@@ -176,10 +176,13 @@ class LimitOrderSimpleTest(OrderBaseTestCase):
         order_amount = getattr(order, '{}_amount'.format(_key))
         self.assertEqual(order_amount, tx.amount)
 
+    @patch(SCRYPT_ROOT + '_list_txs')
     @patch(SCRYPT_ROOT + '_get_tx')
     @patch(SCRYPT_ROOT + 'get_info')
     @patch(SCRYPT_ROOT + 'release_coins')
-    def _release_limit_orders(self, scrypt_release, scrypt_health, scrypt_tx):
+    def _release_limit_orders(self, scrypt_release, scrypt_health, scrypt_tx,
+                              scrypt_list_txs):
+        scrypt_list_txs.return_value = []
         orders = LimitOrder.objects.filter(status=LimitOrder.PAID)
         scrypt_release.side_effect =\
             [(o.unique_reference, True) for o in orders]

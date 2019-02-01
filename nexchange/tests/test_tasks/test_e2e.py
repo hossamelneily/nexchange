@@ -1265,6 +1265,7 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
     @patch(SCRYPT_ROOT + 'get_info')
     @patch(SCRYPT_ROOT + 'get_main_address')
     @patch(SCRYPT_ROOT + 'get_balance')
+    @patch(SCRYPT_ROOT + '_list_txs')
     @patch(SCRYPT_ROOT + '_get_txs')
     @patch(SCRYPT_ROOT + 'check_tx')
     @patch(SCRYPT_ROOT + 'release_coins')
@@ -1281,13 +1282,15 @@ class OrderCoverTaskTestCase(TransactionImportBaseTestCase,
                                                bit_sell_limit, bit_withdraw,
                                                bit_release_coins,
                                                sc_release_coins, sc_check_tx,
-                                               sc_get_txs, sc_get_balance,
+                                               sc_get_txs, sc_list_txs,
+                                               sc_get_balance,
                                                sc_get_main_address,
                                                sc_get_info):
+        sc_list_txs.return_value = []
         internal_tx_id = self.generate_txn_id()
         bit_release_coins.return_value = internal_tx_id, True
         sc_get_info.return_value = {}
-        sc_get_main_address.return_value = verge_address = 'VERGEaddress'
+        sc_get_main_address.return_value = 'VERGEaddress'
         ask = bid = Decimal('0.0012')
         pair_trade = Pair.objects.get(name=pair_name)
         XVG = pair_trade.base

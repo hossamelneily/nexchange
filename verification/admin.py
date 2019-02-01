@@ -62,7 +62,7 @@ class VerificationAdmin(nested_admin.NestedModelAdmin):
                     'has_pending_orders', 'has_pending_documents')
     exclude = ('identity_document', 'utility_document')
     readonly_fields = (
-        'note', 'name_on_card',
+        'flags', 'note', 'name_on_card',
         'name_on_card_matches', 'bad_name_verifications',
         'agree_with_terms_and_conditions', 'unique_cc',
         'bank_bin', 'main_card_data', 'payment_preference', 'id_doc',
