@@ -426,6 +426,9 @@ build:
           export RPC6_PUBLIC_KEY_C1=${RPC6_PUBLIC_KEY_C1}
           export RPC_RPC6_K=${RPC_RPC6_K}
 
+          # Idenfy settings
+          export IDENFY_VOID_AFTER_MINUTES=${IDENFY_VOID_AFTER_MINUTES}
+
           #RPC7
           export RPC_RPC7_USER=${RPC_RPC7_USER}
           export RPC_RPC7_PORT=${RPC_RPC7_PORT}

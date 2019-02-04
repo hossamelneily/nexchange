@@ -5,7 +5,8 @@ from orders.task_summary import buy_order_release_by_wallet_invoke as \
     wallet_release, \
     buy_order_release_by_reference_invoke as ref_release, \
     buy_order_release_reference_periodic as ref_periodic_release, \
-    cancel_unpaid_order_periodic
+    cancel_unpaid_order_periodic, \
+    void_idenfy_after_x_mins as void_idenfy
 from orders.models import Order
 from core.models import Address, Currency, Pair, Transaction
 from core.common.models import Flag
@@ -29,6 +30,8 @@ from orders.task_summary import release_retry_invoke
 from orders.tasks.generic.retry_release import RetryOrderRelease
 from django.conf import settings
 from verification.models import Verification
+import pytest
+from django.utils import timezone
 
 
 class BaseOrderReleaseTestCase(OrderBaseTestCase):
@@ -836,3 +839,62 @@ class CancelUnpaidOrdersTestCase(TickerBaseTestCase):
                 cancel_unpaid_order_periodic.apply_async()
                 self.order.refresh_from_db()
                 self.assertEqual(self.order.status, status[0])
+
+
+class VoidIdenfyTestCase(TickerBaseTestCase):
+
+    def setUp(self, *args, **kwargs):
+        super(VoidIdenfyTestCase, self).setUp(*args, **kwargs)
+        order_data = {
+            'amount_quote': 3 * Decimal(0.9),
+            'pair': {
+                'name': 'LTCBTC'
+            },
+            "withdraw_address": {
+                "address": 'LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA'
+            }
+        }
+        self.order_fiat = self._create_order_api(pair_name='BTCEUR')
+        self.order_crypto = self._create_order_api(order_data=order_data)
+        self.move_order_status_up(self.order_fiat, self.order_fiat.INITIAL,
+                                  self.order_fiat.PAID_UNCONFIRMED)
+        self.move_order_status_up(self.order_crypto, self.order_crypto.INITIAL,
+                                  self.order_crypto.PAID_UNCONFIRMED)
+
+    def test_void_idenfy_changed(self):
+        mock_time = timezone.now() + \
+            timedelta(minutes=settings.IDENFY_VOID_AFTER_MINUTES + 2)
+        with freeze_time(mock_time):
+            self.assertTrue(self.order_fiat.return_identity_token)
+            self.assertTrue(self.order_crypto.return_identity_token)
+            void_idenfy.apply_async()
+            self.order_fiat.refresh_from_db()
+            self.order_crypto.refresh_from_db()
+            self.assertFalse(self.order_fiat.return_identity_token)
+            self.assertTrue(self.order_crypto.return_identity_token)
+
+    def test_void_idenfy_unchanged(self):
+        mock_time = timezone.now() + \
+            timedelta(minutes=settings.IDENFY_VOID_AFTER_MINUTES - 2)
+        with freeze_time(mock_time):
+            self.assertTrue(self.order_fiat.return_identity_token)
+            self.assertTrue(self.order_crypto.return_identity_token)
+            void_idenfy.apply_async()
+            self.order_fiat.refresh_from_db()
+            self.order_crypto.refresh_from_db()
+            self.assertTrue(self.order_fiat.return_identity_token)
+            self.assertTrue(self.order_crypto.return_identity_token)
+
+    def test_void_idenfy_None_proof(self):
+        mock_time = timezone.now() + \
+            timedelta(minutes=settings.IDENFY_VOID_AFTER_MINUTES + 2)
+        with freeze_time(mock_time):
+            self.order_fiat.set_as_paid_unconfirmed_on = None
+            self.order_fiat.save()
+            self.assertTrue(self.order_fiat.return_identity_token)
+            self.assertTrue(self.order_crypto.return_identity_token)
+            void_idenfy.apply_async()
+            self.order_fiat.refresh_from_db()
+            self.order_crypto.refresh_from_db()
+            self.assertTrue(self.order_fiat.return_identity_token)
+            self.assertTrue(self.order_crypto.return_identity_token)

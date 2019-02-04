@@ -11,6 +11,8 @@ from .decorators import get_task
 from nexchange.utils import get_nexchange_logger
 from nexchange.celery import app
 from django.db.models import Q
+from django.utils import timezone
+from django.utils.timezone import timedelta
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
@@ -113,3 +115,19 @@ def cancel_unpaid_order(order_id):
     order = Order.objects.get(pk=order_id)
     if order.unpaid_order_expired:
         order.cancel()
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def void_idenfy_after_x_mins():
+    x_mins = getattr(settings, "IDENFY_VOID_AFTER_MINUTES", None)
+    now = timezone.now()
+    ref_time = now - timedelta(minutes=x_mins)
+    order_queryset = Order.objects.\
+        filter(status=Order.PAID_UNCONFIRMED,
+               set_as_paid_unconfirmed_on__lt=ref_time,
+               flagged=False,
+               return_identity_token=True).\
+        exclude(pair__quote__is_crypto=True,
+                pair__base__is_crypto=True)
+    if order_queryset.exists:
+        order_queryset.update(return_identity_token=False)

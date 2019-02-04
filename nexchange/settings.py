@@ -342,6 +342,10 @@ ORDER_RELEASE_TASKS = {
     'cancel_unpaid_order_periodic': {
         'task': 'orders.task_summary.cancel_unpaid_order_periodic',
         'schedule': timedelta(minutes=5),
+    },
+    'void_idenfy_after_x_mins': {
+        'task': 'orders.task_summary.void_idenfy_after_x_mins',
+        'schedule': timedelta(minutes=2),
     }
 }
 
@@ -415,7 +419,7 @@ NEWSLETTER_TASKS = {
 CELERY_BEAT_SCHEDULE = {}
 
 CELERY_BEAT_SCHEDULE.update(CORE_TASKS)
-#CELERY_BEAT_SCHEDULE.update(ICO_TASKS)
+# CELERY_BEAT_SCHEDULE.update(ICO_TASKS)
 # Disabled while we do not support Fiat
 CELERY_BEAT_SCHEDULE.update(PAYMENT_CHECKER_TASKS)
 CELERY_BEAT_SCHEDULE.update(TRANSACTION_CHECKER_TASKS)
@@ -615,6 +619,9 @@ DEFAULT_RPC_HOST = ''
 # OTP
 OTP_TOTP_ISSUER = 'N.EXCHANGE'
 
+# Idenfy settings
+IDENFY_VOID_AFTER_MINUTES = 5
+
 KRAKEN_PRIVATE_URL_API = "https://api.kraken.com/0/private/%s"
 TWILIO_PHONE_FROM_UK = '+447481341915'
 TWILIO_PHONE_FROM_US = '+16464612858'
@@ -772,8 +779,9 @@ SATOSHI = Decimal('0.00000001')
 
 # Order matters (from most to least valuable)
 BEST_CHANGE_CURRENCIES = [
-    'BTC', 'BCH', 'ETH', 'DASH', 'ZEC', 'XMR', 'LTC', 'GBP', 'EUR', 'USD',
-    'RUB', 'USDT', 'XRP', 'JPY', 'DOGE'
+    'BTC', 'BCH', 'ETH', 'DASH', 'ZEC', 'XMR',
+    'LTC', 'GBP', 'EUR', 'USD', 'RUB',
+    'USDT', 'XRP', 'JPY', 'DOGE'
 ]
 
 FAST_PAYMENT_TO_RELEASE_TIME_SECONDS = 300
