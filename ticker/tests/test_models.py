@@ -29,6 +29,7 @@ class PriceValidatorsTestCase(TestCase):
         'currency_crypto.json',
         'currency_tokens.json',
         'pairs_cross.json',
+        'transaction_price.json',
     ]
 
     def setUp(self):

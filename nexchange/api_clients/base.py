@@ -229,8 +229,8 @@ class BaseTradeApiClient(BaseApiClient):
 
     def trade_limit(self, pair, amount, trade_type, rate=None):
         trade_fn = getattr(self, '{}_limit'.format(trade_type.lower()))
-        res = trade_fn(pair, amount, rate=rate)
-        return res
+        trade_id, res = trade_fn(pair, amount, rate=rate)
+        return trade_id, res
 
 
 class Blake2Proxy:

@@ -13,7 +13,7 @@ class ReserveBalanceMaintainer(BaseAccountManagerTask):
         if trade_type:
             self.logger.info('Going to {} {} {}'.format(
                 trade_type, str(trade_amount), reserve.currency.code))
-            pair = self.get_traded_pair(reserve)
+            pair = self.get_traded_pair(reserve.currency)
             account_dict = self.get_best_price_reserve_account(
                 reserve, pair, trade_type)
             account = account_dict.get('account')

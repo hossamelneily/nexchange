@@ -1413,3 +1413,11 @@ class Order(BaseOrder, BaseUserOrder):
                     return False
             return True
         return False
+
+    @property
+    def amount_quote_minus_fees(self):
+        tot_fees = self.orderfee_set.all().aggregate(
+            models.Sum('amount_quote')
+        ).get('amount_quote__sum')
+        tot_fees = tot_fees if tot_fees else Decimal('0')
+        return self.amount_quote - tot_fees

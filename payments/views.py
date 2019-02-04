@@ -18,7 +18,6 @@ from django.views.generic import View
 from django.utils.decorators import method_decorator
 from datetime import datetime
 from nexchange.utils import ip_in_iplist
-from risk_management.task_summary import order_cover_invoke
 
 
 class SafeChargeListenView(View):
@@ -161,7 +160,6 @@ class SafeChargeListenView(View):
                 if res.get('status') == 'OK':
                     push_request.payment_created = True
                     push_request.save()
-                    order_cover_invoke.apply_async([order.pk])
                 set_preference_for_verifications_invoke.apply([pref.pk])
             if all([status in ['APPROVED', 'SUCCESS'],
                     order.status == Order.PAID_UNCONFIRMED]):

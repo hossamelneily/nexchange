@@ -536,5 +536,161 @@
     "is_main_account": false,
     "description": "Bittrex"
   }
+},
+{
+  "model": "risk_management.account",
+  "pk": 42,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 25,
+    "wallet": "api2",
+    "trading_allowed": true,
+    "description": "Kraken"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 43,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 2,
+    "wallet": "api2",
+    "trading_allowed": true,
+    "description": "Kraken"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 44,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 3,
+    "wallet": "api2",
+    "trading_allowed": true,
+    "description": "Kraken"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 45,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 4,
+    "wallet": "api2",
+    "trading_allowed": true,
+    "description": "Kraken"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 46,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 12,
+    "wallet": "api2",
+    "trading_allowed": true,
+    "description": "Kraken"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 47,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 26,
+    "wallet": "api2",
+    "trading_allowed": true,
+    "description": "Kraken"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 48,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 5,
+    "wallet": "api2",
+    "trading_allowed": true,
+    "description": "Kraken"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 49,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 11,
+    "wallet": "api2",
+    "trading_allowed": true,
+    "description": "Kraken"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 50,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 13,
+    "wallet": "api2",
+    "trading_allowed": true,
+    "description": "Kraken"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 51,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 22,
+    "wallet": "api2",
+    "trading_allowed": true,
+    "description": "Kraken"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 52,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 24,
+    "wallet": "api2",
+    "trading_allowed": true,
+    "description": "Kraken"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 53,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 27,
+    "wallet": "api2",
+    "trading_allowed": true,
+    "description": "Kraken"
+  }
+},
+{
+  "model": "risk_management.account",
+  "pk": 54,
+  "fields": {
+    "created_on": "2017-10-04T12:58:09.529Z",
+    "modified_on": "2017-10-04T12:58:09.529Z",
+    "reserve": 28,
+    "wallet": "api2",
+    "trading_allowed": true,
+    "description": "Kraken"
+  }
 }
 ]

@@ -347,26 +347,25 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
                     self.is_quote_of_enabled_pair])
 
     @property
+    def _reserve(self):
+        try:
+            return self.reserve
+        except ObjectDoesNotExist:
+            return
+
+    @property
     def has_enabled_pairs_for_test(self):
         return any([self.is_base_of_enabled_pair_for_test,
                     self.is_quote_of_enabled_pair_for_test])
 
     @property
-    def reserve(self):
-        try:
-            return self.reserve_set.get()
-        except ObjectDoesNotExist:
-            return
-
-    @property
     def available_reserves(self):
-        return getattr(self.reserve, 'available', Decimal('0'))
+        return getattr(self._reserve, 'available', Decimal('0'))
 
     @property
     def available_main_reserves(self):
         try:
-            return self.reserve_set.get().account_set.\
-                get(is_main_account=True).available
+            return self.reserve.account_set.get(is_main_account=True).available
         except ObjectDoesNotExist:
             return Decimal('0.0')
 
@@ -380,9 +379,9 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
 
     @property
     def has_enough_reserves(self):
-        is_too_low_level = getattr(self.reserve, 'below_minimum_level', False)
+        is_too_low_level = getattr(self._reserve, 'below_minimum_level', False)
         minimum_account_level = getattr(
-            self.reserve, 'minimum_main_account_level', Decimal('0')
+            self._reserve, 'minimum_main_account_level', Decimal('0')
         )
         return not is_too_low_level and any([
             self.available_main_reserves >= minimum_account_level,
@@ -391,7 +390,7 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
 
     @property
     def has_too_much_reserves(self):
-        return getattr(self.reserve, 'over_maximum_level', False)
+        return getattr(self._reserve, 'over_maximum_level', False)
 
     def __str__(self):
         return self.code

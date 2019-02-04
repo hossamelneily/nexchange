@@ -9,6 +9,10 @@ from copy import deepcopy
 from django.core.exceptions import ValidationError
 from payments.utils import money_format
 from urllib.parse import quote
+from nexchange.celery import app
+
+
+ORDER_COVER_TASK = 'risk_management.task_summary.order_cover_invoke'
 
 
 class SafeCharge:
@@ -347,6 +351,7 @@ class SafeChargeAPIClient(BasePaymentApi):
         if all([res['status'] == 'SUCCESS',
                 res['transactionStatus'] == 'APPROVED']):
             order.confirm_deposit(payment, crypto=False)
+            app.send_task(ORDER_COVER_TASK, [order.pk])
         return res
 
     def refund_payment(self, payment):

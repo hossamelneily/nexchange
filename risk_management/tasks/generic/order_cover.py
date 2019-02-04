@@ -8,7 +8,13 @@ class OrderCover(CurrencyCover):
     def run(self, order_id):
         cover = amount_to_send = send_to_main = False
         order = Order.objects.get(pk=order_id)
-        if order.pair.base.code in self.ALLOWED_COINS:
+        counter_currency_code = required_rate = None
+        if not order.pair.quote.is_crypto:
+            currency = order.pair.quote
+            amount = - order.amount_quote_minus_fees
+            counter_currency_code = order.pair.base.code
+            required_rate = abs(amount / order.amount_base)
+        elif order.pair.base.code in self.ALLOWED_COINS:
             currency = order.pair.base
             amount = order.amount_base
         elif order.pair.quote.code in self.ALLOWED_COINS:
@@ -22,7 +28,7 @@ class OrderCover(CurrencyCover):
                 )
             )
             return cover, send_to_main, amount_to_send
-        reserve = currency.reserve_set.get()
+        reserve = currency.reserve
         self.update_reserve_accounts_balances(reserve)
         if Cover.objects.filter(orders=order_id):
             self.logger.info(
@@ -31,7 +37,10 @@ class OrderCover(CurrencyCover):
                 )
             )
             return cover, send_to_main, amount_to_send
-        cover = super(OrderCover, self).run(currency.code, amount)
+        cover = super(OrderCover, self).run(
+            currency.code, amount, counter_currency_code=counter_currency_code,
+            required_rate=required_rate
+        )
         if cover:
             cover.orders.add(order)
             if not order.coverable and cover.cover_type == Cover.BUY:

@@ -539,24 +539,26 @@ class BittrexAdapter(BaseApiAdapter):
 class KrakenAdapter(BaseApiAdapter):
     RESOURCE = 'https://api.kraken.com/0/public/Ticker'
     RESOURCE_MARKET = RESOURCE + '?pair={}'
+    NO_PAD_CURRENCIES = ['EOS', 'USDT', 'BCH', 'DASH']
 
     def __init__(self):
         super(KrakenAdapter, self).__init__()
         self.reverse_pair = True
 
-    @staticmethod
-    def kraken_format(code, is_crypto, add_pad=True):
+    def kraken_format(self, code, is_crypto, add_pad=True):
+        _add_pad = add_pad and code not in self.NO_PAD_CURRENCIES
         if code == 'DOGE':
             code = 'XDG'
-        if code == 'BTC':
+        elif code == 'BTC':
             code = 'XBT'
         pad = 'X' if is_crypto else 'Z'
-        pad = pad if add_pad else ''
+        pad = pad if _add_pad else ''
         res = '{}{}'.format(pad, code)
         return res
 
     def pair_api_repr(self, pair):
-        add_pad = False if 'EOS' in pair.name else True
+        # NO_PAD_NAMES is not used here because kraken namespace is random...
+        add_pad = 'EOS' not in pair.name
         quote = self.kraken_format(pair.quote.code, pair.quote.is_crypto,
                                    add_pad=add_pad)
         base = self.kraken_format(pair.base.code, pair.base.is_crypto,

@@ -40,11 +40,19 @@ class BaseAccountManagerTask(BaseTask, ApiClientFactory):
             except Exception as e:
                 self.logger.info(error_msg.format(account, e))
 
-    def get_traded_pair(self, reserve):
-        pair = Pair.objects.get(base=reserve.currency, quote__code='BTC')
-        return pair
+    def get_traded_pair(self, currency, counter_currency_code=None):
+        if counter_currency_code is None \
+                or counter_currency_code not in ['BTC', 'ETH', 'LTC']:
+            counter_currency_code = 'BTC'
+        if currency.is_crypto:
+            return Pair.objects.get(
+                base=currency, quote__code=counter_currency_code)
+        else:
+            return Pair.objects.get(
+                base__code=counter_currency_code, quote__code='EUR')
 
-    def get_best_price_reserve_account(self, reserve, pair, trade_type):
+    def get_best_price_reserve_account(self, reserve, pair, trade_type,
+                                       required_rate=None):
         accounts = reserve.account_set.filter(trading_allowed=True)
         rate_list = []
         for account in accounts:
@@ -54,9 +62,12 @@ class BaseAccountManagerTask(BaseTask, ApiClientFactory):
             rate_list.append({'account': account, 'rate': rate})
         if trade_type == 'SELL':
             account_dict = max(rate_list, key=lambda x: x['rate'])
+            if required_rate is not None:
+                account_dict['rate'] = max(required_rate, account_dict['rate'])
         elif trade_type == 'BUY':
             account_dict = min(rate_list, key=lambda x: x['rate'])
-
+            if required_rate is not None:
+                account_dict['rate'] = min(required_rate, account_dict['rate'])
         return account_dict
 
     def send_funds_to_main_account(self, account, amount=None, do_trade=False):

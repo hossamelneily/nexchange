@@ -81,9 +81,10 @@ class ReservesCoversTestCase(RiskManagementBaseTestCase, TickerBaseTestCase):
 
     def _set_level(self, reserve, diff=0):
         main_account = reserve.main_account
-        main_account.available = \
+        _account = main_account if main_account else reserve.account_set.last()
+        _account.available = \
             reserve.target_level + reserve.allowed_diff * Decimal(diff)
-        main_account.save()
+        _account.save()
 
     @requests_mock.mock()
     @patch('risk_management.task_summary.execute_reserves_cover.retry')

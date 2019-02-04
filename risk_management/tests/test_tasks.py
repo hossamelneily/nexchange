@@ -23,6 +23,10 @@ import os
 
 RPC2_PUBLIC_KEY_C1 = 'DOGEaddress'
 RPC3_PUBLIC_KEY_C1 = 'VERGEaddress'
+KRAKEN_CURRENCIES = [
+    'XXDG', 'XXBT', 'XLTC', 'XETH', 'BCH', 'XZEC', 'USDT', 'XXMR', 'DASH',
+    'XXRP', 'ZEUR', 'ZUSD', 'ZGBP', 'ZJPY'
+]
 
 
 class BalanceTaskTestCase(RiskManagementBaseTestCase):
@@ -60,7 +64,9 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
             get_balance_blake2.return_value = get_balance_omni.return_value = \
             get_balance_cryptonight.return_value = \
             get_balance_ripple.return_value = Decimal(str(balance))
-        get_balance_kraken.return_value = {'result': {'XXDG': str(balance)}}
+        get_balance_kraken.return_value = {
+            'result': {_code: str(balance) for _code in KRAKEN_CURRENCIES}
+        }
         get_card.return_value = {'balance': Decimal(balance),
                                  'available': Decimal(available)}
         reserves_balance_checker_periodic.apply_async()

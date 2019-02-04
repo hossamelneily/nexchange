@@ -102,7 +102,8 @@ class BittrexApiClient(BaseTradeApiClient):
         if not rate:
             rate = self.get_rate(pair, rate_type='Ask')
         res = self.api.buy_limit(market, amount, rate)
-        return res
+        trade_id = res.get('result', {}).get('uuid')
+        return trade_id, res
 
     def sell_limit(self, pair, amount, rate=None):
         market = self.PAIR_NAME_TEMPLATE.format(
@@ -112,7 +113,8 @@ class BittrexApiClient(BaseTradeApiClient):
         if not rate:
             rate = self.get_rate(pair, rate_type='Bid')
         res = self.api.sell_limit(market, amount, rate)
-        return res
+        trade_id = res.get('result', {}).get('uuid')
+        return trade_id, res
 
     def get_main_address(self, currency):
         raw_res = self.api.get_deposit_address(self._get_api_currency_code(

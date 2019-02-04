@@ -4,7 +4,7 @@ from risk_management.models import Reserve, Account, Cover, PNL
 from decimal import Decimal
 from unittest.mock import patch
 from core.tests.base import SCRYPT_ROOT
-from core.models import Pair
+from core.models import Pair, Currency
 from risk_management.task_summary import reserves_balance_checker_periodic
 from collections import Counter
 import json
@@ -22,7 +22,8 @@ class PropetiesTestCase(RiskManagementBaseTestCase):
             account.__str__()
 
     def test_reserve_balance_without_accounts(self):
-        reserve = Reserve(currency_id=1)
+        currency = Currency.objects.create(code='IMK', name='imagikron')
+        reserve = Reserve(currency=currency)
         reserve.save()
         balance = reserve.balance
         self.assertEqual(balance, Decimal('0.0'))

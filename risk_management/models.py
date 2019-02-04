@@ -16,6 +16,7 @@ from payments.utils import money_format
 from audit_log.models import AuthStampedModel
 from nexchange.api_clients.factory import ApiClientFactory
 from .utils import get_native_pairs
+from django.core.exceptions import ObjectDoesNotExist
 
 
 BITTREX_API = BittrexApiClient()
@@ -23,8 +24,8 @@ API_FACTORY = ApiClientFactory()
 
 
 class Reserve(TimeStampedModel):
-    currency = models.ForeignKey(Currency,
-                                 on_delete=models.DO_NOTHING)
+    currency = models.OneToOneField(Currency,
+                                    on_delete=models.DO_NOTHING)
     is_limit_reserve = models.BooleanField(default=False)
     target_level = models.DecimalField(max_digits=18, decimal_places=8,
                                        default=Decimal('0'))
@@ -103,7 +104,10 @@ class Reserve(TimeStampedModel):
 
     @property
     def main_account(self):
-        return self.account_set.get(is_main_account=True)
+        try:
+            return self.account_set.get(is_main_account=True)
+        except ObjectDoesNotExist:
+            return
 
 
 class PortfolioLog(TimeStampedModel):
@@ -279,6 +283,10 @@ class ReserveLog(TimeStampedModel):
 
 
 class Account(TimeStampedModel):
+
+    class Meta:
+        unique_together = ('reserve', 'wallet')
+
     reserve = models.ForeignKey(Reserve,
                                 on_delete=models.DO_NOTHING)
     wallet = models.CharField(null=True, max_length=10,
@@ -373,7 +381,8 @@ class Cover(TimeStampedModel):
     currency = models.ForeignKey(Currency,
                                  on_delete=models.DO_NOTHING)
     orders = models.ManyToManyField(Order, related_name='covers', blank=True)
-    amount_base = models.DecimalField(max_digits=18, decimal_places=8)
+    amount_base = models.DecimalField(max_digits=18, decimal_places=8,
+                                      null=True)
     amount_quote = models.DecimalField(max_digits=18, decimal_places=8,
                                        null=True)
     rate = models.DecimalField(max_digits=18, decimal_places=8, null=True)
@@ -428,10 +437,11 @@ class Cover(TimeStampedModel):
             trade_type = 'BUY'
         else:
             trade_type = 'SELL'
-        res = api.trade_limit(self.pair, self.amount_base, trade_type,
-                              rate=self.rate).get('result')
-        if isinstance(res, dict):
-            self.cover_id = res.get('uuid')
+        trade_id, res = api.trade_limit(
+            self.pair, self.amount_base, trade_type, rate=self.rate
+        )
+        if trade_id:
+            self.cover_id = trade_id
         else:
             raise ValidationError(
                 'Cover is not covered, bad trace response: {}'.format(res)

@@ -49,7 +49,8 @@ class KrakenApiClient(BaseTradeApiClient, KrakenAdapter):
              'ordertype': 'limit',
              'volume': str(amount)}
         )
-        return res
+        trade_id = res.get('result', {}).get('txid', [None])[0]
+        return trade_id, res
 
     def sell_limit(self, pair, amount, rate=None):
         market = self.pair_api_repr(pair)
@@ -63,7 +64,8 @@ class KrakenApiClient(BaseTradeApiClient, KrakenAdapter):
              'ordertype': 'limit',
              'volume': str(amount)}
         )
-        return res
+        trade_id = res.get('result', {}).get('txid', [None])[0]
+        return trade_id, res
 
     def release_coins(self, currency, address, amount):
         tx_id = None

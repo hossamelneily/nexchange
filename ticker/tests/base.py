@@ -38,12 +38,11 @@ class TickerBaseTestCase(OrderBaseTestCase):
 
     DISABLE_NON_MAIN_PAIRS = True
     ENABLED_TICKER_PAIRS = ['ETHLTC', 'LTCBTC']
-    ENABLE_FIAT = []
+    ENABLE_FIAT = ['EUR']
 
     @classmethod
     def setUpClass(cls):
         super(TickerBaseTestCase, cls).setUpClass()
-        cls.ENABLE_FIAT = ['EUR']
         cls._read_fixtures_ticker()
         cls._enable_pairs()
         if cls.DISABLE_NON_MAIN_PAIRS:
