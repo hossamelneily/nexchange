@@ -6,7 +6,7 @@ from risk_management.task_summary import reserves_balance_checker_periodic,\
     main_account_filler_invoke, currency_reserve_balance_checker_invoke, \
     currency_cover_invoke, log_current_assets, calculate_pnls, \
     disable_currency_base, disable_currency_quote,\
-    enable_currency_base, enable_currency_quote
+    enable_currency_base, enable_currency_quote, refill_main_account_invoke
 from risk_management.models import Reserve, Account, Cover, PortfolioLog,\
     PNLSheet, DisabledCurrency
 from decimal import Decimal
@@ -19,6 +19,7 @@ from core.tests.base import ETH_ROOT, SCRYPT_ROOT, BLAKE2_ROOT, \
 from orders.models import Order
 from rest_framework.test import APIClient
 import os
+from django.conf import settings
 
 
 RPC2_PUBLIC_KEY_C1 = 'DOGEaddress'
@@ -395,6 +396,39 @@ class BalanceTaskTestCase(RiskManagementBaseTestCase):
         self.assertEqual(cover.pair, pair)
         self.assertEqual(cover.currency.code, 'XVG')
         self.assertEqual(cover.amount_quote, ask * amount_base)
+
+    @patch('risk_management.task_summary.Price.convert_amount')
+    @patch('risk_management.task_summary.InternalTransfersMaker.run')
+    @patch(SCRYPT_ROOT + 'get_balance')
+    @patch('nexchange.api_clients.bittrex.Bittrex.get_balance')
+    def test_keep_main_account_not_empty(self, _bittrex_get_balance,
+                                         _scrypt_get_balance, _transfer_run,
+                                         _convert_amount):
+        ltc = Currency.objects.get(code='LTC')
+        reserve = ltc.reserve
+        target_level = reserve.target_level
+        diff = reserve.allowed_diff
+        bittrex_available = target_level
+        main_available = target_level - (Decimal('2') * diff)
+        _bittrex_get_balance.return_value = \
+            self._get_bittrex_get_balance_response(bittrex_available,
+                                                   available=bittrex_available)
+        _scrypt_get_balance.return_value = main_available
+        bittrex_account = ltc.reserve.account_set.get(description='Bittrex')
+        main_account = ltc.reserve.main_account
+        self.assertNotEqual(bittrex_account, main_account)
+        # Do not send less than minimum amount in BTC
+        _convert_amount.return_value = \
+            settings.MINIMUM_BTC_AMOUNT_TO_REFILL_MAIN_ACCOUNT / Decimal('2')
+        refill_main_account_invoke.apply_async([ltc.pk, bittrex_account.pk])
+        _transfer_run.assert_not_called()
+        # Send more than minimum amount in BTC
+        _convert_amount.return_value = \
+            settings.MINIMUM_BTC_AMOUNT_TO_REFILL_MAIN_ACCOUNT
+        refill_main_account_invoke.apply_async([ltc.pk, bittrex_account.pk])
+        _transfer_run.assert_called_with(
+            ltc, bittrex_account, main_account,
+            diff, order_id=None, reserves_cover_id=None)
 
 
 class UncoveredTestCase(RiskManagementBaseTestCase):

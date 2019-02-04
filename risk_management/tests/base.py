@@ -1,4 +1,5 @@
 from django.test import TestCase
+from decimal import Decimal
 
 
 class RiskManagementBaseTestCase(TestCase):
@@ -17,9 +18,9 @@ class RiskManagementBaseTestCase(TestCase):
     def _get_bittrex_get_balance_response(self, balance, available=None,
                                           pending=None):
         if available is None:
-            available = balance * 0.7
+            available = Decimal(balance) * Decimal(0.7)
         if pending is None:
-            pending = balance * 0.3
+            pending = Decimal(balance) * Decimal(0.3)
         response = {
             'result': {
                 'Available': available,

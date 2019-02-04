@@ -71,11 +71,9 @@ class BaseAccountManagerTask(BaseTask, ApiClientFactory):
         return account_dict
 
     def send_funds_to_main_account(self, account, amount=None, do_trade=False):
-        api = self.get_api_client(account.wallet)
         currency = account.reserve.currency
         currency_api = self.get_api_client(currency.wallet)
         assert currency_api.health_check(currency)
-        main_account_address = currency_api.get_main_address(currency)
         self.update_account_balance(account)
         account.refresh_from_db()
         if not amount:
@@ -85,8 +83,8 @@ class BaseAccountManagerTask(BaseTask, ApiClientFactory):
             pair = Pair.objects.get(name='{}BTC'.format(currency.code))
             res = self.trade_coin(account, 'BUY', diff, pair)
             self.logger.info('Result of coin trade: {}'.format(res))
-        res = api.release_coins(currency, main_account_address,
-                                amount)
+        main_account = currency.reserve.main_account
+        res = self.transfer(currency, account, main_account, amount)
         self.update_account_balance(account)
         return res
 

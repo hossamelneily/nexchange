@@ -317,6 +317,7 @@ class ReservesCoversTestCase(RiskManagementBaseTestCase, TickerBaseTestCase):
         reserve_cover.save()
 
     @requests_mock.mock()
+    @patch('risk_management.task_summary.refill_main_account')
     @patch('risk_management.task_summary.execute_reserves_cover.retry')
     @patch(BITTREX_ROOT + 'get_main_address')
     @patch(BITTREX_ROOT + 'health_check')
@@ -324,7 +325,7 @@ class ReservesCoversTestCase(RiskManagementBaseTestCase, TickerBaseTestCase):
     @patch(SCRYPT_ROOT + 'release_coins')
     def test_create_periodic_cover_doge_btc(self, mock, release_coins,
                                             s_health, b_health, b_main_address,
-                                            retry_patch):
+                                            retry_patch, refill_main_task):
         _settings = ReservesCoverSettings(coverable_part=0.7)
         _settings.save()
         _settings.currencies.add(
@@ -414,3 +415,8 @@ class ReservesCoversTestCase(RiskManagementBaseTestCase, TickerBaseTestCase):
         _cover2 = r_cover2.cover_set.get()
         self.assertEqual(_cover1.status, _cover1.INITIAL)
         self.assertEqual(_cover2.status, _cover2.EXECUTED)
+        # check main account refill task
+        refill_currency = order.pair.base
+        account_from = _cover2.account
+        refill_main_task.assert_called_with(refill_currency.pk,
+                                            account_from.pk)

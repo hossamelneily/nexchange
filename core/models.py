@@ -365,7 +365,8 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     @property
     def available_main_reserves(self):
         try:
-            return self.reserve.account_set.get(is_main_account=True).available
+            return getattr(self.reserve.main_account,
+                           'available', Decimal('0'))
         except ObjectDoesNotExist:
             return Decimal('0.0')
 

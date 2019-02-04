@@ -15,12 +15,13 @@ from risk_management.models import Reserve, PortfolioLog, PNLSheet
 from risk_management.tasks.generic.currency_cover import CurrencyCover
 from risk_management.tasks.generic.order_cover import OrderCover
 
-from core.models import Pair
+from core.models import Pair, Currency
 from risk_management.models import DisabledCurrency, Cover, ReservesCover,\
-    PeriodicReservesCoverSettings
+    PeriodicReservesCoverSettings, Account
 from nexchange.api_clients.bittrex import BittrexApiClient
 from nexchange.celery import app
 from decimal import Decimal
+from ticker.models import Price
 
 
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
@@ -219,6 +220,35 @@ def execute_cover(cover_pk):
     cover.execute(api)
 
 
+def refill_main_account(currency_pk, account_from_pk):
+    """This task sends money to main account to make balance on account_from
+    and main account equal.
+    """
+    _currency = Currency.objects.get(pk=currency_pk)
+    _reserve = _currency.reserve
+    reserve_balance_checker_invoke.apply([_reserve.pk])
+    _account_from = Account.objects.get(pk=account_from_pk)
+    _main_account = _currency.reserve.main_account
+    _main_account.refresh_from_db()
+    _available_from = _account_from.available
+    _available_main = _main_account.available
+    _allowed_diff = _reserve.allowed_diff
+    _diff = _available_from - _available_main
+    _amount_to_send = _diff / Decimal('2')
+    _amount_to_send_in_btc = Price.convert_amount(
+        _amount_to_send, _currency, 'BTC'
+    )
+    if _diff > _allowed_diff and _amount_to_send_in_btc >= settings.\
+            MINIMUM_BTC_AMOUNT_TO_REFILL_MAIN_ACCOUNT:
+        internal_transfer_invoke(_currency, _account_from, _main_account,
+                                 _amount_to_send)
+
+
+@shared_task(time_limit=settings.TASKS_TIME_LIMIT)
+def refill_main_account_invoke(currency_pk, account_from_pk):
+    refill_main_account(currency_pk, account_from_pk)
+
+
 @shared_task(time_limit=settings.TASKS_TIME_LIMIT)
 def periodic_reserve_cover_invoke():
     periodic_reserve_cover = PeriodicReservesCoverSettings.objects.filter(
@@ -301,3 +331,7 @@ def execute_reserves_cover(self, reserves_cover_pk, periodic_settings_pk=None):
     elif periodic_settings_pk:
         periodic_settings.current_reserves_cover = None
         periodic_settings.save()
+        refill_main_account_invoke.apply_async(
+            [r_cover.pair.base.pk, r_cover.cover_set.latest('id').account.pk],
+            countdown=settings.THIRD_PARTY_TRADE_TIME
+        )
