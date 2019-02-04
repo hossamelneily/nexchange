@@ -2,10 +2,11 @@ from django.conf import settings
 from rest_framework import viewsets
 from nexchange.permissions import GetOnlyPermission
 from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
+from django.views.decorators.cache import cache_page, never_cache
 from core.models import Currency, Pair
 from core.serializers import CurrencySerializer, PairSerializer
 from rest_framework.response import Response
+from random import randint
 
 
 class CurrencyViewSet(viewsets.ModelViewSet):
@@ -28,15 +29,47 @@ class PairViewSet(viewsets.ModelViewSet):
     lookup_field = 'name'
     http_method_names = ['get']
 
-    def get_queryset(self):
-        return Pair.objects.filter(disable_volume=False)
-
     def __init__(self, *args, **kwargs):
         super(PairViewSet, self).__init__(*args, **kwargs)
         self.base_test_mode_cache = {}
         self.quote_test_mode_cache = {}
 
-    @method_decorator(cache_page(settings.PAIR_CACHE_LIFETIME))
+    def _get_random_pair_queryset(self):
+        queryset = Pair.objects.none()
+        all_pairs = Pair.objects.filter(
+            disabled=False, test_mode=False, disable_volume=False
+        )
+        if len(all_pairs) == 0:
+            return queryset
+        for i in range(1, 10):
+            max_index = len(all_pairs) - 1
+            random_index = randint(0, max_index)
+            pair = all_pairs[random_index]
+            if self._get_dynamic_test_mode(pair):
+                continue
+            else:
+                return Pair.objects.filter(name=pair.name)
+        return queryset
+
+    def _get_query_by_name(self, name):
+        if name == 'random':
+            return self._get_random_pair_queryset()
+        elif name == 'all':
+            return self._get_all_pairs()
+        else:
+            return Pair.objects.filter(disable_volume=False, name=name.upper())
+
+    def _get_all_pairs(self):
+        return Pair.objects.filter(disable_volume=False)
+
+    def get_queryset(self):
+        name = self.request.query_params.get('name', None)
+        if name:
+            queryset = self._get_query_by_name(name)
+        else:
+            queryset = self._get_all_pairs()
+        return queryset
+
     def dispatch(self, *args, **kwargs):
         return super(PairViewSet, self).dispatch(*args, **kwargs)
 
@@ -55,9 +88,9 @@ class PairViewSet(viewsets.ModelViewSet):
             )
         return base_test_mode or quote_test_mode
 
-    def list(self, request):
+    @method_decorator(cache_page(settings.PAIR_CACHE_LIFETIME))
+    def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-
         self.base_test_mode_cache = {}
         self.quote_test_mode_cache = {}
         data = []
@@ -68,6 +101,7 @@ class PairViewSet(viewsets.ModelViewSet):
             data.append(pair_data)
         return Response(data)
 
+    @method_decorator(never_cache)
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)

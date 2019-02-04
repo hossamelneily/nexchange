@@ -118,6 +118,32 @@ class CoreApiTestCase(OrderBaseTestCase):
         # price not saved on last get_all_tickers() call)
         self._check_dynamic_test_mode('ETHBDG', True, data, price_expired=True)
 
+    @patch('core.models.Currency.has_enough_reserves')
+    def test_random_pair(self,
+                         mock_has_enough_reserves):
+        mock_has_enough_reserves.return_value = True
+        for pair in Pair.objects.filter(disabled=False).exclude(
+                name__in=['NANOOMG', 'ETHBDG', 'BTCETH']
+        ):
+            pair.disabled = True
+            pair.save()
+        self._create_price('NANOOMG')
+        self._create_price('ETHBDG')
+        self._create_price('BTCETH')
+
+        url = 'http://localhost:8000/en/api/v1/pair/?name=random'
+        response_json = self.client.get(url).json()[0]
+        disabled = response_json.get('disabled')
+        test_mode = response_json.get('test_mode')
+        self.assertFalse(
+            disabled, 'returned pair is disabled, disabled parameter '
+                      'should be False: {}'.format(response_json)
+        )
+        self.assertFalse(
+            test_mode, 'returned pair is in test mode, test_mode parameter '
+                       'should be False: {}'.format(response_json)
+        )
+
 
 class PairsTestCase(OrderBaseTestCase):
 
