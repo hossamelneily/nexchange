@@ -9,7 +9,7 @@ from django.utils.translation import ugettext as _
 
 from core.models import Transaction, Currency
 from payments.utils import money_format
-from payments.models import Payment
+from payments.models import Payment, PaymentPreference
 from ticker.models import Price
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db.models import Q
@@ -20,7 +20,6 @@ from django_fsm import FSMIntegerField, transition
 from nexchange.celery import app
 from cached_property import cached_property_with_ttl
 from payments.api_clients.safe_charge import SafeChargeAPIClient
-from payments.models import PaymentPreference
 from nexchange.api_clients.factory import ApiClientFactory
 from oauth2_provider.models import AccessToken
 from decimal import InvalidOperation

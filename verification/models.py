@@ -12,7 +12,7 @@ from audit_log.models import AuthStampedModel
 from django.utils.safestring import mark_safe
 from nexchange.utils import get_nexchange_logger
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from datetime import timedelta, datetime
+import datetime
 from django.utils import timezone
 
 logger = get_nexchange_logger('Verification logger', with_email=True,
@@ -115,9 +115,13 @@ class TradeLimit(TimeStampedModel):
 class CategoryRule(TimeStampedModel, NamedModel):
     EQUAL = 0
     IN = 1
+    LESS = 2
+    MORE = 3
     RULE_TYPES = (
         (EQUAL, 'EQUAL'),
         (IN, 'IN'),
+        (LESS, 'LESS'),
+        (MORE, 'MORE'),
     )
     rule_type = models.IntegerField(choices=RULE_TYPES)
     key = models.CharField(
@@ -503,6 +507,8 @@ class VerificationDocument(TimeStampedModel, SoftDeletableModel,
     user = models.ForeignKey(User, null=True, blank=True,
                              on_delete=models.CASCADE)
     contains_selfie = models.BooleanField(default=False)
+    birth_date = models.DateField(blank=True, null=True,
+                                  help_text='Please use the following format: <em>YYYY-MM-DD</em>.')
 
     @mark_safe
     def download_document(self):
@@ -523,6 +529,8 @@ class VerificationDocument(TimeStampedModel, SoftDeletableModel,
     def save(self, *args, **kwargs):
         if not self.pk and self.kyc_push:
             self.document_status = self.kyc_push.document_status
+            if self.kyc_push.birth_date:
+                self.birth_date = self.kyc_push.birth_date
         super(VerificationDocument, self).save(*args, **kwargs)
         if self.verification:
             self.verification.refresh_from_db()
@@ -555,7 +563,7 @@ class KycPushRequest(RequestLog):
 
     def get_date_from_string(self, date_str):
         try:
-            return datetime.strptime(date_str, '%Y-%m-%d')
+            return datetime.datetime.strptime(date_str, '%Y-%m-%d')
         except (ValueError, TypeError):
             return
 
@@ -619,7 +627,7 @@ class IdentityToken(TimeStampedModel):
 
     @property
     def expires(self):
-        return self.created_on + timedelta(
+        return self.created_on + datetime.timedelta(
             seconds=settings.IDENFY_TOKEN_EXPIRY_TIME
         )
 

@@ -2,13 +2,14 @@ from unittest.mock import patch
 from core.tests.base import OrderBaseTestCase, VerificationBaseTestCase
 from core.tests.utils import data_provider
 from verification.models import Verification, VerificationDocument, \
-    DocumentType
+    DocumentType, VerificationCategory, CategoryRule
 from payments.models import PaymentPreference, PaymentMethod
 from django.conf import settings
 from django.urls import reverse
 from rest_framework.test import APIClient
 from datetime import timedelta, datetime
 from verification.task_summary import check_kyc_pending_documents_periodic
+from decimal import Decimal
 
 
 class VerificationStatusesTestCase(OrderBaseTestCase,
@@ -280,3 +281,92 @@ class VerificationStatusesTestCase(OrderBaseTestCase,
         doc.save()
         check_kyc_pending_documents_periodic()
         self.assertEqual(mock_send_email.call_count, 1)
+
+    @data_provider(
+        lambda: (('Under 18', CategoryRule.LESS, 'persons_age', '18'),)
+    )
+    def test_flag_kyc_under_18(self, name, rule_type, key, value):
+        category_rule, _ = CategoryRule.objects.get_or_create(
+            name=name, rule_type=rule_type, key=key, value=value
+        )
+        category, _ = VerificationCategory.objects.get_or_create(
+            name=category_rule.name, flagable=True
+        )
+        category.rules.add(category_rule)
+        category.save()
+        ver = self._create_verification(self.order.unique_reference)
+        payment_pref = ver.payment_preference
+        first_verification_document_data = {
+            'verification': ver,
+            'document_type': DocumentType.objects.get(name='ID'),
+            'birth_date': '2018-08-18'
+        }
+        first_doc = VerificationDocument(**first_verification_document_data)
+        first_doc.payment_preference = payment_pref
+        first_doc.save()
+        self.assertEqual(ver.category.get(name=category.name), category)
+
+    def test_flag_birth_date_mismatch(self):
+        ver = self._create_verification(self.order.unique_reference)
+        payment_pref = ver.payment_preference
+        first_verification_document_data = {
+            'verification': ver,
+            'document_type': DocumentType.objects.get(name='ID'),
+            'birth_date': '2018-08-18'
+        }
+        first_doc = VerificationDocument(**first_verification_document_data)
+        first_doc.payment_preference = payment_pref
+        first_doc.save()
+        second_verification_document_data = {
+            'verification': ver,
+            'document_type': DocumentType.objects.get(name='ID'),
+            'birth_date': '1998-07-18'
+        }
+        second_doc = VerificationDocument(**second_verification_document_data)
+        second_doc.payment_preference = payment_pref
+        second_doc.save()
+        ver.category.get(name='Birth dates not matching')
+
+    @data_provider(
+        lambda: (
+            ('Surpassed 1000 USD', CategoryRule.MORE, 'total_payments_usd',
+             '1000'),
+            ('Surpassed 25000 USD', CategoryRule.MORE, 'total_payments_usd',
+             '25000'),
+            ('Is 100000 USD', CategoryRule.EQUAL, 'total_payments_usd',
+             '100000'),
+        )
+    )
+    @patch('payments.models.PaymentPreference.get_successful_payments_amount')
+    def test_flag_kyc_on_total_payments_usd_rule(
+            self, name, rule_type, key, value, mock_successful_payments_amount
+    ):
+        category_rule, _ = CategoryRule.objects.get_or_create(
+            name=name, rule_type=rule_type, key=key, value=value
+        )
+        category, _ = VerificationCategory.objects.get_or_create(
+            name=category_rule.name, flagable=True
+        )
+
+        if rule_type == CategoryRule.MORE:
+            mock_successful_payments_amount.return_value = \
+                Decimal(value) + Decimal('1')
+        elif rule_type == CategoryRule.EQUAL:
+            mock_successful_payments_amount.return_value = Decimal(value)
+
+        category.rules.add(category_rule)
+        category.save()
+        ver = self._create_verification(self.order.unique_reference)
+        payment_pref = ver.payment_preference
+        first_verification_document_data = {
+            'verification': ver,
+            'document_type': DocumentType.objects.get(name='ID'),
+            'birth_date': '1995-08-18'
+        }
+        self.order.amount_quote = Decimal(value) + Decimal('1')
+        self.order.save()
+
+        first_doc = VerificationDocument(**first_verification_document_data)
+        first_doc.payment_preference = payment_pref
+        first_doc.save()
+        self.assertEqual(ver.category.get(name=category.name), category)

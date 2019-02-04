@@ -13,6 +13,8 @@ from verification.models import VerificationDocument
 import requests
 from nexchange.utils import send_email, get_nexchange_logger
 from smtplib import SMTPDataError
+from django.utils import timezone
+import datetime
 
 logger = get_nexchange_logger('Payment logger', with_email=True,
                               with_console=True)
@@ -168,6 +170,35 @@ class PaymentPreference(TimeStampedModel, SoftDeletableModel, FlagableMixin):
             self.payment_method = self.guess_payment_method()
         self.has_pending_orders = self._has_pending_orders
         super(PaymentPreference, self).save(*args, **kwargs)
+
+    def _get_birth_dates(self):
+        all_docs = self.verification_documents
+        birth_dates = [
+            doc.birth_date for doc in all_docs
+            if doc.birth_date is not None
+            and isinstance(doc.birth_date, datetime.date)
+        ]
+        return birth_dates
+
+    def birth_dates_matching(self):
+        birth_dates = self._get_birth_dates()
+        if len(set(birth_dates)) <= 1:
+            return True
+        else:
+            return False
+
+    @property
+    def persons_age(self):
+        if self.birth_dates_matching():
+            try:
+                birth_date = self._get_birth_dates()[0]
+                day_old = timezone.now().date() - birth_date
+                year_old = int(day_old.days / 365)
+                return year_old
+            except IndexError:
+                return
+        else:
+            return
 
     def guess_payment_method(self):
         identifier = ''.join(self.identifier.split(' '))

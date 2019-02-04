@@ -55,14 +55,14 @@ class VerificationAdmin(nested_admin.NestedModelAdmin):
     list_filter = (PendingFilter, 'category',
                    'payment_preference__has_pending_orders')
     list_display = ('created_on', 'id_document_status', 'util_document_status',
-                    'full_name', 'note', 'admin_comment',
+                    'full_name', 'note', 'admin_comment', 'persons_age',
                     'name_on_card', 'unique_cc', 'name_on_card_matches',
                     'out_of_limit', 'flagged_str',
                     'agree_with_terms_and_conditions', 'tier',
                     'has_pending_orders', 'has_pending_documents')
     exclude = ('identity_document', 'utility_document')
     readonly_fields = (
-        'flags', 'note', 'name_on_card',
+        'flags', 'note', 'name_on_card', 'persons_age',
         'name_on_card_matches', 'bad_name_verifications',
         'agree_with_terms_and_conditions', 'unique_cc',
         'bank_bin', 'main_card_data', 'payment_preference', 'id_doc',
@@ -113,6 +113,9 @@ class VerificationAdmin(nested_admin.NestedModelAdmin):
         if obj.payment_preference:
             res = getattr(obj.payment_preference, param_name)
         return res
+
+    def persons_age(self, obj):
+        return self._get_payment_preference_field(obj, 'persons_age')
 
     def bank_bin(self, obj):
         return self._get_payment_preference_field(obj, 'bank_bin')
@@ -219,7 +222,7 @@ class TradeLimitAdmin(admin.ModelAdmin):
 @admin.register(VerificationDocument)
 class VerificationDocumentAdmin(admin.ModelAdmin):
     list_display = (
-        'document_status', 'document_type', 'full_name', 'note',
+        'document_status', 'document_type', 'full_name', 'note', 'birth_date',
         'admin_comment', 'user', 'name_on_card', 'unique_cc'
     )
     exclude = ('document_file',)
