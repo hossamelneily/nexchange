@@ -411,13 +411,14 @@ class EthashRpcApiClient(BaseRpcClient):
               'address={address}&tag=latest&apikey={etherscan_api_key}'.\
             format(address=address,
                    etherscan_api_key=settings.ETHERSCAN_API_KEY)
+        err_msg = None
         try:
             flag = False
             res_json = requests.get(url).json()
-            status = res_json.get('status')
-            if status != '1':
+            result = res_json.get('result')
+            if not isinstance(result, list):
                 flag = True
-                err_msg = 'Bad status code from etherscan'
+                err_msg = 'Bad respond data from etherscan'
         except requests.exceptions.ConnectionError:
             flag = True
             err_msg = 'No connection to etherscan'
