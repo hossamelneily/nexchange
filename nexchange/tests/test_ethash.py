@@ -364,12 +364,14 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
 
     @requests_mock.mock()
     @patch('orders.models.base.BaseUserOrder.coverable')
+    @patch(ETH_ROOT + 'get_main_address')
     @patch(ETH_ROOT + 'health_check')
     @patch(ETH_ROOT + 'release_coins')
-    def test_do_not_release_if_transaction_is_not_unique(self, request_mock,
-                                                         mock_release_coins,
-                                                         eth_health_check,
-                                                         mock_coverable):
+    def test_do_not_release_if_transaction_is_not_unique(
+            self, request_mock, mock_release_coins, eth_health_check,
+            mock_get_main_address, mock_coverable
+    ):
+        mock_get_main_address.return_value = settings.ETHERSCAN_API_KEY
         withdraw_address = '0x77454e832261aeed81422348efee52d5bd3a3684'
         order = self._create_paid_order_api(
             'ETHBTC', 0.5,
@@ -383,11 +385,15 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
         )
         etherscan_txs_from_api = {"status": "1", "result": [
             {"to": "0x12313213", "value": "785471956517588563", 'input': '0x'},
-            {"to": withdraw_address, "value": str(value), 'input': '0x'}
+            {"to": withdraw_address.lower(), "value": str(value),
+             'input': '0x'}
         ]}
-        url = 'https://api.etherscan.io/api?module=account&action=txlist&' \
-              'address={address}&tag=latest&apikey={etherscan_api_key}'.\
-            format(address=withdraw_address,
+        tx_count = settings.RPC_IMPORT_TRANSACTIONS_VALIDATION_COUNT
+        url = 'https://api.etherscan.io/api?module=account&action={action}&' \
+              'address={address}&sort=desc&page=1&offset={tx_count}&apikey=' \
+              '{etherscan_api_key}'. \
+            format(action='txlist', address=settings.ETHERSCAN_API_KEY,
+                   tx_count=tx_count,
                    etherscan_api_key=settings.ETHERSCAN_API_KEY)
         request_mock.get(url, json=etherscan_txs_from_api)
         exchange_order_release_periodic()
@@ -398,12 +404,14 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
 
     @requests_mock.mock()
     @patch('orders.models.base.BaseUserOrder.coverable')
+    @patch(ETH_ROOT + 'get_main_address')
     @patch(ETH_ROOT + 'health_check')
     @patch(ETH_ROOT + 'release_coins')
     def test_do_not_release_if_transaction_is_not_unique_token(
             self, request_mock, mock_release_coins, eth_health_check,
-            mock_coverable
+            mock_get_main_address, mock_coverable
     ):
+        mock_get_main_address.return_value = settings.ETHERSCAN_API_KEY
         withdraw_address = '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
         order = self._create_paid_order_api(
             'BNBBTC', 0.5,
@@ -415,16 +423,18 @@ class EthashRawE2ETestCase(TransactionImportBaseTestCase,
         value = int(
             Decimal(order.amount_base) * Decimal('1E{}'.format(ETH.decimals))
         )
-        cl = EthashRpcApiClient()
-        tx_input = cl.get_data_hash('transfer(address,uint256)',
-                                *[withdraw_address, hex(value)])
         etherscan_txs_from_api = {"status": "1", "result": [
-            {"to": "0x12313213", "value": "785471956517588563", 'input': '0x'},
-            {"to": ETH.contract_address, "value": 0, 'input': tx_input}
+            {"to": "0x12313213", "value": "785471956517588563", 'input': '0x',
+             'tokenSymbol': 'BNB'},
+            {"to": ETH.contract_address.lower(), "value": str(value),
+             'input': '0x', 'tokenSymbol': 'BNB'}
         ]}
-        url = 'https://api.etherscan.io/api?module=account&action=txlist&' \
-              'address={address}&tag=latest&apikey={etherscan_api_key}'.\
-            format(address=withdraw_address,
+        tx_count = settings.RPC_IMPORT_TRANSACTIONS_VALIDATION_COUNT
+        url = 'https://api.etherscan.io/api?module=account&action={action}&' \
+              'address={address}&sort=desc&page=1&offset={tx_count}&apikey=' \
+              '{etherscan_api_key}'. \
+            format(action='tokentx', address=settings.ETHERSCAN_API_KEY,
+                   tx_count=tx_count,
                    etherscan_api_key=settings.ETHERSCAN_API_KEY)
         request_mock.get(url, json=etherscan_txs_from_api)
         exchange_order_release_periodic()

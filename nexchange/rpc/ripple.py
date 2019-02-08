@@ -7,6 +7,7 @@ from http.client import RemoteDisconnected
 from decimal import Decimal
 from nexchange.api_clients.mappers import RpcMapper
 from nexchange.api_clients.base import RippleProxy
+from django.core.exceptions import ValidationError
 
 
 class RippleRpcApiClient(BaseRpcClient):
@@ -59,18 +60,29 @@ class RippleRpcApiClient(BaseRpcClient):
         balance = Decimal(balance_raw) / Decimal('1e{}'.format(decimals))
         return balance
 
-    def _get_txs(self, node):
-        in_txs = []
+    def _list_txs(self, node, **kwargs):
+        tx_count = kwargs.get('tx_count',
+                              settings.RPC_IMPORT_TRANSACTIONS_COUNT)
         currency = Currency.objects.get(
             code=self.related_coins[self.related_nodes.index(node)]
         )
         account = self.get_main_address(currency)
         resp = self.call_api(
             node, 'account_tx',
-            *[account, settings.RPC_IMPORT_TRANSACTIONS_COUNT]
+            *[account, tx_count]
         )
         txs = [tx.get('tx') for tx in resp]
-        in_txs.extend([tx for tx in txs if tx.get('Destination') == account])
+        return txs
+
+    def _get_txs(self, node):
+        in_txs = []
+        txs = self._list_txs(node,
+                             tx_count=settings.RPC_IMPORT_TRANSACTIONS_COUNT)
+        currency = Currency.objects.get(
+            code=self.related_coins[self.related_nodes.index(node)]
+        )
+        address = self.get_main_address(currency)
+        in_txs.extend([tx for tx in txs if tx.get('Destination') == address])
         return in_txs
 
     def _get_tx(self, tx_id, node):
@@ -84,7 +96,7 @@ class RippleRpcApiClient(BaseRpcClient):
         return super(RippleRpcApiClient, self).get_txs(node, txs)
 
     def filter_tx(self, tx):
-        if all([type(tx.get('Amount')) == str,
+        if all([isinstance(tx.get('Amount'), str),
                 tx.get('DestinationTag')]):
             return True
         else:
@@ -187,3 +199,27 @@ class RippleRpcApiClient(BaseRpcClient):
 
     def renew_cards_reserve(self, **kwargs):
         pass
+
+    def assert_tx_unique(self, currency, address, amount, **kwargs):
+        txs = self._list_txs(
+            currency.wallet,
+            tx_count=settings.RPC_IMPORT_TRANSACTIONS_VALIDATION_COUNT
+        )
+        _address = getattr(address, 'address', address)
+        _amount = str(int(
+            Decimal(amount) * Decimal('1E{}'.format(currency.decimals))
+        ))
+        same_transactions = [
+            tx for tx in txs if
+            tx.get('Destination') == _address and
+            isinstance(tx.get('Amount', None), str) and
+            tx.get('Amount') == _amount
+        ]
+        if same_transactions:
+            raise ValidationError(
+                'Transaction of {amount} {currency} to {address} already '
+                'exist. Tx: {tx_list}'.format(
+                    amount=amount, address=_address, currency=currency,
+                    tx_list=same_transactions
+                )
+            )

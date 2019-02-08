@@ -165,7 +165,10 @@ class Blake2RawE2ETestCase(TransactionImportBaseTestCase,
     @patch.dict(os.environ, {'RPC_RPC8_HOST': RPC8_HOST})
     @patch.dict(os.environ, {'RPC_RPC8_PORT': RPC8_PORT})
     @requests_mock.mock()
-    def test_release_blake2_order(self, pair_name, mock):
+    @patch(BLAKE2_ROOT + '_list_txs')
+    def test_release_blake2_order(self, pair_name, mock,
+                                  mock_list_txs):
+        mock_list_txs.return_value = []
         amount_base = 10
         withdraw_address = \
             'xrb_1111111111111111111111111111111111111111111111111111hifc8npp'
@@ -205,3 +208,45 @@ class Blake2RawE2ETestCase(TransactionImportBaseTestCase,
         self.update_confirmation_task.apply()
         order.refresh_from_db()
         self.assertEqual(order.status, Order.COMPLETED, pair_name)
+
+    @patch.dict(os.environ, {'RPC8_PUBLIC_KEY_C1': RPC8_PUBLIC_KEY_C1})
+    @patch.dict(os.environ, {'RPC8_WALLET': RPC8_WALLET})
+    @patch.dict(os.environ, {'RPC_RPC8_PASSWORD': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC8_K': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC8_USER': RPC8_USER})
+    @patch.dict(os.environ, {'RPC_RPC8_HOST': RPC8_HOST})
+    @patch.dict(os.environ, {'RPC_RPC8_PORT': RPC8_PORT})
+    @patch(BLAKE2_ROOT + 'health_check')
+    @patch(BLAKE2_ROOT + 'release_coins')
+    @requests_mock.mock()
+    def test_do_not_release_if_transaction_is_not_unique(self,
+                                                         mock_release_coins,
+                                                         mock_health_check,
+                                                         mock):
+        mock_health_check.return_value = True
+        amount_base = 10
+        withdraw_address = \
+            'xrb_1111111111111111111111111111111111111111111111111111hifc8npp'
+        order = self._create_paid_order_api('NANOBTC', amount_base,
+                                            withdraw_address)
+        NANO = order.pair.base
+
+        def text_callback(request, context):
+            body = request._request.body
+            params = json.loads(body)
+            if all([params.get('action') == 'account_list',
+                    params.get('wallet')]):
+                return {'accounts': [order.deposit_address.address,
+                                     RPC8_PUBLIC_KEY_C1]}
+            if all([params.get('action') == 'account_history',
+                    params.get('account'), params.get('count')]):
+                return self.get_blake2_raw_tx_send(
+                    NANO, order.amount_base, withdraw_address
+                )
+
+        mock.post(RPC8_URL, json=text_callback)
+        exchange_order_release_periodic.apply()
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PRE_RELEASE)
+        self.assertTrue(order.flagged, True)
+        self.assertEqual(mock_release_coins.call_count, 0)

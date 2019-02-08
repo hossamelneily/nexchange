@@ -73,7 +73,9 @@ class ScryptRpcApiClient(BaseRpcClient):
                          confirmations > 0])
         return confirmed, confirmations
 
-    def _list_txs(self, node, tx_count=settings.RPC_IMPORT_TRANSACTIONS_COUNT):
+    def _list_txs(self, node, **kwargs):
+        tx_count = kwargs.get('tx_count',
+                              settings.RPC_IMPORT_TRANSACTIONS_COUNT)
         txs = self.call_api(node, 'listtransactions',
                             *["", tx_count])
         return txs

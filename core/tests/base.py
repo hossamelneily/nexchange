@@ -836,6 +836,17 @@ class OrderBaseTestCase(UserBaseTestCase):
             }]
         }
 
+    def get_blake2_raw_tx_send(self, currency, amount, address):
+        raw_amount = str(int(amount * (10 ** currency.decimals)))
+        return {
+            'history': [{
+                'type': 'send',
+                'account': address,
+                'hash': self.generate_txn_id(),
+                'amount': raw_amount
+            }]
+        }
+
     def get_cryptonight_tx(self, raw_tx):
         return raw_tx['result']['in']
 

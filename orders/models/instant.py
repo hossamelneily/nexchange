@@ -1396,9 +1396,8 @@ class Order(BaseOrder, BaseUserOrder):
             fast_pay_release = \
                 tot_pay_release < settings.FAST_PAYMENT_TO_RELEASE_TIME_SECONDS
             tot_create_release = self.create_to_release_time.total_seconds()
-            fast_create_release = \
-                tot_create_release < settings.\
-                    FAST_CREATE_TO_RELEASE_TIME_SECONDS
+            fast_create_release = tot_create_release < settings.\
+                FAST_CREATE_TO_RELEASE_TIME_SECONDS
             return fast_create_release and fast_pay_release
         return False
 

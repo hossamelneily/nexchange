@@ -1,11 +1,13 @@
 from nexchange.api_clients.base import Blake2Proxy
-from nexchange.api_clients.decorators import track_tx_mapper, log_errors, encrypted_endpoint
+from nexchange.api_clients.decorators import track_tx_mapper, log_errors, \
+    encrypted_endpoint
 from nexchange.rpc.base import BaseRpcClient
 from core.models import Address, Currency, AddressReserve
 from django.conf import settings
 from decimal import Decimal
 from nexchange.api_clients.mappers import RpcMapper
 import os
+from django.core.exceptions import ValidationError
 
 
 class Blake2RpcApiClient(BaseRpcClient):
@@ -93,15 +95,23 @@ class Blake2RpcApiClient(BaseRpcClient):
             confirmations = 0
         return confirmed, confirmations
 
-    def _get_txs(self, node):
+    def _list_txs(self, node, **kwargs):
+        tx_count = kwargs.get('tx_count',
+                              settings.RPC_IMPORT_TRANSACTIONS_COUNT)
         txs = []
         accounts = self.get_accounts(node)
         for account in accounts:
             res = self.call_api(
                 node, 'account_history',
-                *[account, settings.RPC_IMPORT_TRANSACTIONS_COUNT]
+                *[account, tx_count]
             )
             txs += res
+        return txs
+
+    def _get_txs(self, node):
+        txs = self._list_txs(
+            node, tx_count=settings.RPC_IMPORT_TRANSACTIONS_COUNT
+        )
         return txs
 
     @log_errors
@@ -173,3 +183,28 @@ class Blake2RpcApiClient(BaseRpcClient):
                                             amount, address_from=address)
         retry = not success
         return {'success': success, 'retry': retry, 'tx_id': tx_id}
+
+    def assert_tx_unique(self, currency, address, amount, **kwargs):
+        txs = self._list_txs(
+            currency.wallet,
+            tx_count=settings.RPC_IMPORT_TRANSACTIONS_VALIDATION_COUNT
+        )
+        _address = getattr(address, 'address', address)
+        _amount = str(int(
+            Decimal(amount) * Decimal('1e{}'.format(currency.decimals))
+        ))
+        same_transactions = [
+            tx for tx in txs if
+            tx['type'] == 'send' and
+            tx['account'] == _address and
+            tx['amount'] == _amount
+        ]
+        if same_transactions:
+            raise ValidationError(
+                'Transaction of {amount} {currency} to {address} already '
+                'exist. Tx list: {tx_list} '.format(
+                    amount=_amount,
+                    address=_address,
+                    currency=currency.code,
+                    tx_list=same_transactions
+                ))

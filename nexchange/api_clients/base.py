@@ -434,8 +434,10 @@ class CryptonightProxy:
         else:
             return address
 
-    def get_transfers(self, is_in):
-        kwargs = {'params': {'pool': True, 'in': is_in}}
+    def get_transfers(self, **kwargs):
+        is_in = kwargs.get('is_in', True)
+        is_out = kwargs.get('is_out', True)
+        kwargs = {'params': {'pool': True, 'in': is_in, 'out': is_out}}
         return self._call_rpc('get_transfers', **kwargs)
 
     def transfer(self, address, amount, payment_id=None):

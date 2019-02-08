@@ -406,10 +406,18 @@ class EthashRpcApiClient(BaseRpcClient):
         return address
 
     # TODO: use eth node if possible, for now it's third-party server
-    def _list_txs(self, address):
-        url = 'https://api.etherscan.io/api?module=account&action=txlist&' \
-              'address={address}&tag=latest&apikey={etherscan_api_key}'.\
-            format(address=address,
+    def _list_txs(self, node, **kwargs):
+        action = kwargs.get('action', 'txlist')
+        tx_count = kwargs.get('tx_count',
+                              settings.RPC_IMPORT_TRANSACTIONS_COUNT)
+        currency = Currency.objects.get(
+            code=self.related_coins[self.related_nodes.index(node)]
+        )
+        address = self.get_main_address(currency)
+        url = 'https://api.etherscan.io/api?module=account&action={action}&' \
+              'address={address}&sort=desc&page=1&offset={tx_count}&apikey=' \
+              '{etherscan_api_key}'. \
+            format(action=action, address=address, tx_count=tx_count,
                    etherscan_api_key=settings.ETHERSCAN_API_KEY)
         err_msg = None
         try:
@@ -430,23 +438,34 @@ class EthashRpcApiClient(BaseRpcClient):
             return res_json.get('result')
 
     def assert_tx_unique(self, currency, address, amount, **kwargs):
-        _address = getattr(address, 'address', address)
-        results = self._list_txs(_address)
+        action = 'txlist' if not currency.is_token else 'tokentx'
+        results = self._list_txs(
+            currency.wallet,
+            tx_count=settings.RPC_IMPORT_TRANSACTIONS_VALIDATION_COUNT,
+            action=action
+        )
+        _address = getattr(address, 'address', address).lower()
         raw_amount = int(
-            Decimal(amount) * Decimal('1e{}'.format(currency.decimals))
+            Decimal(str(amount)) * Decimal('1e{}'.format(currency.decimals))
         )
         for result in results:
             is_same_currency = True
             tx_input = result.get('input')
-            if tx_input == '0x':
+            if currency.is_token:
                 addr_to = result.get('to')
                 tx_amount = int(result.get('value'))
+                tx_currency_code = result.get('tokenSymbol')
+                is_same_currency = currency.code == tx_currency_code
             else:
-                tx_contract_address = result.get('to')
-                addr_to, tx_amount = \
-                    self._get_transfer_data_from_eth_input(tx_input)
-                if currency.contract_address != tx_contract_address:
-                    is_same_currency = False
+                if tx_input == '0x':
+                    addr_to = result.get('to')
+                    tx_amount = int(result.get('value'))
+                else:
+                    tx_contract_address = result.get('to').lower()
+                    addr_to, tx_amount = \
+                        self._get_transfer_data_from_eth_input(tx_input)
+                    if currency.contract_address != tx_contract_address:
+                        is_same_currency = False
             if all([_address == addr_to,
                     raw_amount == tx_amount,
                     is_same_currency]):

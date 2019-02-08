@@ -73,7 +73,7 @@ def raw_add_kyc_groups(instance):
                         instance.category.add(categ)
                     elif rule.rule_type == CategoryRule.MORE \
                             and Decimal(obj_attribute_value) > rule_value:
-                            instance.category.add(categ)
+                        instance.category.add(categ)
                 except (InvalidOperation, TypeError):
                     continue
             else:

@@ -247,12 +247,13 @@ class OmniRawE2ETestCase(TransactionImportBaseTestCase,
         mock_validate_order_amount.start()
         amount_base = 10
         with_tx_id = self.generate_txn_id()
-        withdraw_address = \
-            '1AnjHn7L7X4di46HF9Sxm7T7fKEkwqefvb'
+        withdraw_address = '1AnjHn7L7X4di46HF9Sxm7T7fKEkwqefvb'
         mock_amount = self.order.amount_quote
         mock_get_main_address.return_value = 'reserve_address'
 
         def side_effect(*args):
+            if args[1] == 'omni_listtransactions':
+                return []
             if args[1] == 'omni_listpendingtransactions':
                 return self.get_omni_raw_txs(mock_amount, 'reserve_address')
             if args[1] == 'omni_gettransaction':
@@ -285,4 +286,33 @@ class OmniRawE2ETestCase(TransactionImportBaseTestCase,
         self.update_confirmation_task.apply()
         order.refresh_from_db()
         self.assertEqual(order.status, Order.COMPLETED, pair_name)
+        mock_validate_order_amount.stop()
+
+    @patch(OMNI_ROOT + 'release_coins')
+    @patch(OMNI_ROOT + 'health_check')
+    @patch('orders.models.Order._validate_order_amount')
+    @patch('nexchange.rpc.base.BaseRpcClient.call_api')
+    def test_do_not_release_if_transaction_is_not_unique(
+            self,  mock_call_api, mock_validate_order_amount,
+            mock_health_check, mock_release_coins
+    ):
+        mock_health_check.return_value = True
+        withdraw_address = '1AnjHn7L7X4di46HF9Sxm7T7fKEkwqefvb'
+        amount_base = 0.5
+        order = self._create_paid_order_api(
+            'USDTBTC', amount_base,
+            withdraw_address
+        )
+        mock_validate_order_amount.start()
+
+        def side_effect(*args):
+            if args[1] == 'omni_listtransactions':
+                return self.get_omni_raw_txs(str(amount_base),
+                                             withdraw_address)
+        mock_call_api.side_effect = side_effect
+        exchange_order_release_periodic.apply()
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PRE_RELEASE)
+        self.assertTrue(order.flagged, True)
+        self.assertEqual(mock_release_coins.call_count, 0)
         mock_validate_order_amount.stop()

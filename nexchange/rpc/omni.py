@@ -4,6 +4,8 @@ from nexchange.rpc.scrypt import ScryptRpcApiClient
 from core.models import Address, Currency, AddressReserve
 from decimal import Decimal
 import os
+from django.core.exceptions import ValidationError
+from django.conf import settings
 
 
 class OmniRpcApiClient(ScryptRpcApiClient):
@@ -140,6 +142,13 @@ class OmniRpcApiClient(ScryptRpcApiClient):
         info = self.call_api(currency.wallet, 'omni_getinfo')
         return info
 
+    def _list_txs(self, node, **kwargs):
+        tx_count = kwargs.get('tx_count',
+                              settings.RPC_IMPORT_TRANSACTIONS_COUNT)
+        txs = self.call_api(node, 'omni_listtransactions',
+                            *["", tx_count])
+        return txs
+
     def _get_txs(self, node):
         txs = self.call_api(node, 'omni_listpendingtransactions')
         currency = Currency.objects.get(
@@ -169,4 +178,22 @@ class OmniRpcApiClient(ScryptRpcApiClient):
         return super(ScryptRpcApiClient, self).get_txs(node, txs)
 
     def assert_tx_unique(self, currency, address, amount, **kwargs):
-        pass
+        txs = self._list_txs(
+            currency.wallet,
+            tx_count=settings.RPC_IMPORT_TRANSACTIONS_VALIDATION_COUNT
+        )
+        _address = getattr(address, 'address', address)
+        _amount = Decimal(str(amount))
+        same_transactions = [
+            tx for tx in txs if
+            Decimal(tx['amount']) == _amount and
+            tx['referenceaddress'] == _address
+        ]
+        if same_transactions:
+            raise ValidationError(
+                'Transaction of {amount} {currency} to {address} already '
+                'exist. Tx: {tx_list}'.format(
+                    amount=amount, address=_address, currency=currency,
+                    tx_list=same_transactions
+                )
+            )

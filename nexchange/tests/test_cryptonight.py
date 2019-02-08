@@ -13,8 +13,9 @@ from rest_framework.test import APIClient
 import requests_mock
 import json
 from core.tests.base import RPC8_PUBLIC_KEY_C1, RPC8_WALLET, \
-    RPC8_PORT, RPC8_PASSWORD, RPC8_USER, RPC8_HOST
+    RPC8_PORT, RPC8_PASSWORD, RPC8_USER, RPC8_HOST, CRYPTONIGHT_ROOT
 from risk_management.models import Reserve
+from core.models import Currency
 
 RPC11_URL = 'http://{}/json_rpc'.format(RPC8_HOST)
 RPC12_PUBLIC_KEY_C1 = '44AFFq5kSiAAaA4AAAaAaA18obc8AemS33DBLWs3H7otXft' \
@@ -161,7 +162,9 @@ class CryptonightRawE2ETestCase(TransactionImportBaseTestCase,
     @patch.dict(os.environ, {'RPC_RPC11_HOST': RPC8_HOST})
     @patch.dict(os.environ, {'RPC_RPC11_PORT': RPC8_PORT})
     @requests_mock.mock()
-    def test_release_cryptonight_order(self, pair_name, mock):
+    @patch(CRYPTONIGHT_ROOT + 'assert_tx_unique')
+    def test_release_cryptonight_order(self, pair_name, mock,
+                                       mock_assert_tx_unique):
         amount_base = 10
         withdraw_address = \
             '41pLNkSGSJK8pWAG9dd57YcWB82gH5ucHNEPnGt1FBN' \
@@ -255,3 +258,56 @@ class CryptonightRawE2ETestCase(TransactionImportBaseTestCase,
             self.assertEqual(order.withdraw_address.address, withdraw_address)
         else:
             self.assertIsNone(order)
+
+    @patch.dict(os.environ, {'RPC11_PUBLIC_KEY_C1': RPC8_PUBLIC_KEY_C1})
+    @patch.dict(os.environ, {'RPC_RPC11_WALLET_NAME': RPC8_WALLET})
+    @patch.dict(os.environ, {'RPC_RPC11_WALLET_PORT': RPC8_PORT})
+    @patch.dict(os.environ, {'RPC_RPC11_PASSWORD': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC11_K': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC11_USER': RPC8_USER})
+    @patch.dict(os.environ, {'RPC_RPC11_HOST': RPC8_HOST})
+    @patch.dict(os.environ, {'RPC_RPC11_PORT': RPC8_PORT})
+    @requests_mock.mock()
+    @patch('nexchange.rpc.cryptonight.CryptonightRpcApiClient.release_coins')
+    @patch('nexchange.rpc.cryptonight.CryptonightRpcApiClient.health_check')
+    def test_do_not_release_if_transaction_is_not_unique(self,
+                                                         request_mock,
+                                                         mock_health_check,
+                                                         mock_release_coins):
+        mock_health_check.return_value = True
+        withdraw_address = '45Q9TuhmnZcZb5At9SMDK7EkRNgHamhinaeXQac6z4m18L1TN' \
+                           '2tBRSsG4jR2p7LstdEJGBiM9jk3dhP4DFneaSzfLn3QZdP'
+        payment_id = '0123456789ABCDEF'
+        order = self._create_paid_order_api(
+            'XMRBTC', 0.5,
+            withdraw_address,
+            payment_id=payment_id
+        )
+        XMR = Currency.objects.get(code='XMR')
+        tx_block_height = 10
+        raw_cryptonight_txs_in = \
+            self.get_cryptonight_raw_txs(
+                XMR, order.amount_base, withdraw_address, tx_block_height,
+                payment_id
+            )
+        raw_cryptonight_txs_out = {'id': 0, 'jsonrpc': '2.0', 'result': {
+            'out': raw_cryptonight_txs_in.get('result').get('in')
+             }}
+
+        def text_callback(request, context):
+            body = request._request.body
+            params = json.loads(body)
+            if params.get('method') in ['open_wallet', 'store']:
+                return {'id': 0, 'jsonrpc': '2.0', 'result': {}}
+            if params.get('method') == 'get_transfers':
+                return raw_cryptonight_txs_out
+            if params.get('method') == 'getheight':
+                return {'id': 0, 'jsonrpc': '2.0',
+                        'result': {"height": 10}}
+        request_mock.post(RPC11_URL, json=text_callback)
+
+        exchange_order_release_periodic()
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PRE_RELEASE)
+        self.assertTrue(order.flagged, True)
+        self.assertEqual(mock_release_coins.call_count, 0)

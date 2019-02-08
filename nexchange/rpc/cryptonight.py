@@ -8,6 +8,7 @@ from nexchange.api_clients.mappers import RpcMapper
 import os
 from http.client import RemoteDisconnected
 import requests
+from django.core.exceptions import ValidationError
 
 
 class CryptonightRpcApiClient(BaseRpcClient):
@@ -120,9 +121,14 @@ class CryptonightRpcApiClient(BaseRpcClient):
         return confirmed, confirmations
 
     @encrypted_endpoint
-    def _get_txs(self, node, is_in=True):
-        txs = self.call_api(node, 'get_transfers', is_in)
-        return txs['in']
+    def _list_txs(self, node, **kwargs):
+        txs = self.call_api(node, 'get_transfers', **kwargs)
+        return txs
+
+    def _get_txs(self, node):
+        res = self._list_txs(node, is_in=True, is_out=False)
+        in_txs = res.get('in', [])
+        return in_txs
 
     @log_errors
     @track_tx_mapper
@@ -181,3 +187,27 @@ class CryptonightRpcApiClient(BaseRpcClient):
 
     def backup_wallet(self, currency):
         pass
+
+    def assert_tx_unique(self, currency, address, amount, **kwargs):
+        res = self._list_txs(
+            currency.wallet,
+            is_in=False, is_out=True
+        )
+        out_txs = res.get('out', [])
+        _address = getattr(address, 'address', address)
+        _amount = int(
+            Decimal(amount) * Decimal('1E{}'.format(currency.decimals))
+        )
+        same_transactions = [
+            tx for tx in out_txs if
+            int(tx['amount']) == _amount and
+            tx['address'] == _address
+        ]
+        if same_transactions:
+            raise ValidationError(
+                'Transaction of {amount} {currency} to {address} already '
+                'exist. Tx: {tx_list}'.format(
+                    amount=_amount, address=_address, currency=currency,
+                    tx_list=same_transactions
+                )
+            )

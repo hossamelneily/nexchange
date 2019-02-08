@@ -563,14 +563,17 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
     @patch(ETH_ROOT + '_get_tx_receipt')
     @patch(ETH_ROOT + '_get_tx')
     @patch(ETH_ROOT + '_get_txs')
+    @patch(SCRYPT_ROOT + '_list_txs')
     @patch(SCRYPT_ROOT + 'release_coins')
     @patch(SCRYPT_ROOT + '_get_tx')
     @patch(SCRYPT_ROOT + '_get_txs')
+    @patch(OMNI_ROOT + '_list_txs')
     @patch(OMNI_ROOT + 'release_coins')
     @patch(OMNI_ROOT + '_get_tx')
     @patch(OMNI_ROOT + '_get_txs')
     @patch(OMNI_ROOT + 'get_accounts')
     @patch(OMNI_ROOT + 'get_info')
+    @patch(CRYPTONIGHT_ROOT + '_list_txs')
     @patch(CRYPTONIGHT_ROOT + 'release_coins')
     @patch(CRYPTONIGHT_ROOT + '_get_tx')
     @patch(CRYPTONIGHT_ROOT + '_get_txs')
@@ -589,17 +592,21 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                     get_current_block_cryptonight,
                                     get_txs_cryptonight, get_tx_cryptonight,
                                     release_coins_cryptonight,
+                                    list_txs_cryptonight,
                                     omni_info, get_accounts_omni,
                                     get_txs_omni, get_tx_omni,
                                     release_coins_omni,
+                                    list_txs_omni,
                                     get_txs_scrypt, get_tx_scrypt,
-                                    release_coins_scrypt,
+                                    release_coins_scrypt, list_txs_scrypt,
                                     get_txs_eth, get_tx_eth,
                                     get_tx_eth_receipt,
                                     release_coins_eth, get_block_eth,
                                     send_task, scrypt_info, eth_listen,
                                     eth_list_txs):
-        eth_list_txs.return_value = []
+        list_txs_cryptonight.return_value = {'in': [], 'out': []}
+        list_txs_omni.return_value = eth_list_txs.return_value = \
+            list_txs_sxrypt = []
         scrypt_info.return_value = omni_info.return_value = {}
         cryptonight_info.return_value = {'height': 21}
         eth_listen.return_value = True
@@ -675,10 +682,10 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
             release_coins_eth.return_value = \
             release_coins_omni.return_value = \
             release_coins_cryptonight.return_value = \
-            'txid_{}{}'.format(time(), randint(1, 999))
+            'txid_{}{}'.format(time(), randint(1, 999)), True
         execute_txn_uphold.return_value = {'code': 'OK'}
         self.order.refresh_from_db()
-        self.assertEquals(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
+        self.assertEqual(self.order.status, Order.PAID_UNCONFIRMED, pair_name)
         self.update_confirmation_task.apply()
         pair = Pair.objects.get(name=pair_name)
         send_task_expected_call_count = 2 \
@@ -696,7 +703,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
         self._update_withdraw_address(self.order, address)
         self.release_task_periodic.apply_async()
         self.order.refresh_from_db()
-        self.assertIn(self.order.status, Order.IN_RELEASED, pair_name)
+        self.assertEqual(self.order.status, Order.RELEASED, pair_name)
         t1 = self.order.transactions.first()
         t2 = self.order.transactions.last()
         self.assertEqual(t1.type, Transaction.DEPOSIT, pair_name)

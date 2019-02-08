@@ -2,7 +2,7 @@ from core.tests.base import TransactionImportBaseTestCase
 from ticker.tests.base import TickerBaseTestCase
 from core.tests.utils import data_provider
 from unittest.mock import patch
-from accounts.task_summary import import_transaction_deposit_crypto_invoke,\
+from accounts.task_summary import import_transaction_deposit_crypto_invoke, \
     update_pending_transactions_invoke
 from orders.task_summary import exchange_order_release_periodic
 from risk_management.task_summary import reserves_balance_checker_periodic
@@ -12,7 +12,8 @@ import os
 from rest_framework.test import APIClient
 import requests_mock
 import json
-from core.tests.base import RPC8_PORT, RPC8_PASSWORD, RPC8_USER, RPC8_HOST
+from core.tests.base import RPC8_PORT, RPC8_PASSWORD, RPC8_USER, RPC8_HOST, \
+    RIPPLE_ROOT
 from risk_management.models import Reserve
 
 RPC13_PUBLIC_KEY_C1 = 'rnErCcvuHdxfUEcU81NtujYv36mQ4BaSP2'
@@ -155,7 +156,9 @@ class RippleRawE2ETestCase(TransactionImportBaseTestCase,
     @patch.dict(os.environ, {'RPC_RPC13_HOST': RPC8_HOST})
     @patch.dict(os.environ, {'RPC_RPC13_PORT': RPC8_PORT})
     @requests_mock.mock()
-    def test_release_ripple_order(self, pair_name, mock):
+    @patch(RIPPLE_ROOT + '_list_txs')
+    def test_release_ripple_order(self, pair_name, mock, mock_list_txs):
+        mock_list_txs.return_value = []
         amount_base = 10
         withdraw_address = 'r9y63YwVUQtTWHtwcmYc1Epa5KvstfUzSm'
         dest_tag = '123456'
@@ -224,7 +227,7 @@ class RippleRawE2ETestCase(TransactionImportBaseTestCase,
     )
     def test_order_creation_dependance_on_dest_tag(self, dest_tag):
         pair_name = 'XRPBTC'
-        amount_base = 0.5
+        amount_base = 10
         withdraw_address = 'btc_address_123'
 
         order = self._create_paid_order_api(pair_name, amount_base,
@@ -233,3 +236,44 @@ class RippleRawE2ETestCase(TransactionImportBaseTestCase,
             self.assertEqual(order.withdraw_address.address, withdraw_address)
         else:
             self.assertIsNone(order)
+
+    @patch.dict(os.environ, {'RPC13_PUBLIC_KEY_C1': RPC13_PUBLIC_KEY_C1})
+    @patch.dict(os.environ, {'RPC_RPC13_PASSWORD': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC13_K': RPC8_PASSWORD})
+    @patch.dict(os.environ, {'RPC_RPC13_USER': RPC8_USER})
+    @patch.dict(os.environ, {'RPC_RPC13_HOST': RPC8_HOST})
+    @patch.dict(os.environ, {'RPC_RPC13_PORT': RPC8_PORT})
+    @patch(RIPPLE_ROOT + 'health_check')
+    @patch(RIPPLE_ROOT + 'release_coins')
+    @requests_mock.mock()
+    def test_do_not_release_if_transaction_is_not_unique(self,
+                                                         mock_release_coins,
+                                                         mock_health_check,
+                                                         mock):
+        mock_health_check.return_value = True
+        withdraw_address = 'r9y63YwVUQtTWHtwcmYc1Epa5KvstfUzSm'
+        dest_tag = '123456'
+
+        order = self._create_paid_order_api('XRPBTC', 10, withdraw_address,
+                                            dest_tag)
+        raw_amount = str(
+            int(order.amount_base * (10 ** order.pair.base.decimals))
+        )
+        tx_id = self.generate_txn_id()
+
+        def text_callback(request, context):
+            body = request._request.body
+            params = json.loads(body)
+            if params.get('method') == 'account_tx':
+                return self.get_ripple_raw_txs(
+                    raw_amount, withdraw_address, dest_tag, tx_id
+                )
+            if params.get('method') == 'ledger':
+                return {'result': {'closed': {'status': 'success'}}}
+
+        mock.post(RPC13_URL, json=text_callback)
+        exchange_order_release_periodic()
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.PRE_RELEASE)
+        self.assertTrue(order.flagged, True)
+        self.assertEqual(mock_release_coins.call_count, 0)
