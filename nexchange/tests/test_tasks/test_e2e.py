@@ -235,64 +235,6 @@ class PayeerEndToEndTestCase(WalletBaseTestCase):
         pass
 
 
-class SellOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
-                                   TickerBaseTestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.ENABLED_TICKER_PAIRS = \
-            ['LTCBTC', 'BTCLTC', 'BTCETH', 'BTCDOGE',
-             'BTCXVG', 'BTCBCH', 'BTCBDG', 'BTCOMG',
-             'BTCEOS', 'BTCNANO', 'BTCZEC', 'BTCUSDT',
-             'BTCXMR', 'BTCKCS', 'BTCBNB', 'BTCKNC',
-             'BTCBIX', 'BTCHT', 'BTCCOSS', 'BTCBNT',
-             'BTCCOB', 'BTCDASH', 'BTCBMH', 'BTCXRP']
-        super(SellOrderReleaseTaskTestCase, cls).setUpClass()
-        cls.import_txs_task = import_transaction_deposit_crypto_invoke
-        cls.update_confirmation_task = update_pending_transactions_invoke
-        cls.payeer_url = settings.PAYEER_API_URL
-        cls.order_2 = None
-
-    def setUp(self):
-        super(SellOrderReleaseTaskTestCase, self).setUp()
-        self._create_mocks_uphold()
-
-    def _create_second_order(self):
-        self.order_2 = Order(
-            order_type=Order.SELL,
-            amount_base=Decimal('0.04'),
-            pair=self.BTCEUR,
-            user=self.user,
-            status=Order.INITIAL,
-            payment_preference=self.main_pref
-        )
-        self.order_2.save()
-
-    @patch(UPHOLD_ROOT + 'get_reserve_transaction')
-    @patch(UPHOLD_ROOT + 'get_transactions')
-    def test_do_not_set_sell_order_as_PAID(self, get_txs, get_rtx):
-        # TODO: generalise
-        get_txs.return_value = json.loads(self.import_txs)
-        get_rtx.return_value = json.loads(self.completed)
-
-        self.import_txs_task.apply()
-        self.update_confirmation_task.apply()
-        self.order.refresh_from_db()
-        self.assertEqual(self.order.status, Order.INITIAL)
-
-    @skip('TODO test')
-    def test_okpay_send_money_on_release(self):
-        pass
-
-    @skip('TODO test')
-    def test_payeer_send_money_on_release(self):
-        pass
-
-    @skip('TODO test')
-    def test_unknown_method_do_not_send_money_on_release(self):
-        pass
-
-
 class BuyOrderReleaseFromViewTestCase(WalletBaseTestCase):
     def setUp(self):
         super(BuyOrderReleaseFromViewTestCase, self).setUp()
@@ -605,8 +547,7 @@ class ExchangeOrderReleaseTaskTestCase(TransactionImportBaseTestCase,
                                     send_task, scrypt_info, eth_listen,
                                     eth_list_txs):
         list_txs_cryptonight.return_value = {'in': [], 'out': []}
-        list_txs_omni.return_value = eth_list_txs.return_value = \
-            list_txs_sxrypt = []
+        list_txs_omni.return_value = eth_list_txs.return_value = []
         scrypt_info.return_value = omni_info.return_value = {}
         cryptonight_info.return_value = {'height': 21}
         eth_listen.return_value = True

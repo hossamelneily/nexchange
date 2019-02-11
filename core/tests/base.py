@@ -36,6 +36,9 @@ from django.contrib.staticfiles.handlers import StaticFilesHandler
 from payments.views import SafeChargeListenView
 from nexchange.rpc.scrypt import ScryptRpcApiClient
 from rest_framework.test import APIClient
+import warnings
+from django.contrib.auth import authenticate
+
 
 UPHOLD_ROOT = 'nexchange.api_clients.uphold.Uphold.'
 SCRYPT_ROOT = 'nexchange.rpc.scrypt.ScryptRpcApiClient.'
@@ -78,7 +81,6 @@ class NexchangeClient(Client):
     def login(self, **credentials):
         request = RequestFactory().get('/')
         request.user = credentials
-        from django.contrib.auth import authenticate
         user = authenticate(request, **credentials)
         if user:
             self._login(user)
@@ -138,8 +140,6 @@ class UserBaseTestCase(TestCase):
         activate('en')
         # this is used to identify addresses created by allocate_wallets mock
         self.address_id_pattern = 'addr_id_'
-        self._mock_rpc()
-        self._mock_uphold()
         self.create_main_user()
 
         assert isinstance(self.user, User)
@@ -170,47 +170,6 @@ class UserBaseTestCase(TestCase):
                 User.objects.get_or_create(username=self.username)
             self.user.set_password(self.password)
             self.user.save()
-            Verification(user=self.user,
-                         id_status=Verification.OK,
-                         util_status=Verification.OK).save()
-            convert_cash.return_value = True
-
-            def text_callback(request, context):
-                body = request._request.body
-                params = json.loads(body)
-                if all([params.get('action') == 'account_create',
-                        params.get('wallet')]):
-                    return {'account': self._get_id('xrb_')}
-                if params.get('method') == 'create_address':
-                    return {'id': 0,
-                            'jsonrpc': '2.0',
-                            'result': {
-                                'address': self._get_id('4'),
-                                'address_index': 6}
-                            }
-                if params.get('method') == 'open_wallet':
-                    return {'id': 0, 'jsonrpc': '2.0', 'result': {}}
-                if params.get('method') == 'stop_wallet':
-                    return {'id': 0, 'jsonrpc': '2.0', 'result': {}}
-
-            m.post(RPC8_URL, json=text_callback)
-            m.post(RPC11_URL, json=text_callback)
-
-    # deprecated
-    def _request_card(self, request, context):  # noqa
-        post_params = {}
-        params = request._request.body.split('&')
-        for param in params:
-            p = param.split('=')
-            post_params.update({p[0]: p[1]})
-        currency = post_params['currency']
-        card_id = '{}{}'.format(str(time()), randint(1, 999))
-        res = (
-            '{{"id":"{card_id}", "currency": '
-            '"{currency}"}}'.format(currency=currency,
-                                    card_id=card_id)
-        )
-        return res
 
     def _get_id(self, prefix, pattern=None):
         id = str(time()).split('.')[1]
@@ -229,58 +188,6 @@ class UserBaseTestCase(TestCase):
             addr=self._get_id('addr')
         )
         return res
-
-    def _mock_rpc(self):
-        def addr_response(_self, currency):
-            pattern = None
-            if currency.wallet == 'rpc7':
-                pattern = '0x{rand:02x}' + ('1' * 36)
-            return {
-                'address': self._get_id('addr', pattern=pattern),
-                'currency': currency
-            }
-
-        def ethash_addr_response(_self, currency):
-            pattern = '0x{rand:02x}' + ('1' * 36)
-            return self._get_id('addr', pattern=pattern)
-
-        self.rpc_mock_addr = \
-            mock.patch(SCRYPT_ROOT + 'create_address',
-                       new=addr_response)
-        self.rpc_mock_addr.start()
-        self.rpc_mock_backup = \
-            mock.patch(SCRYPT_ROOT + 'backup_wallet',
-                       new=addr_response)
-        self.rpc_mock_backup.start()
-        self.zcash_mock_backup = \
-            mock.patch(ZCASH_ROOT + 'backup_wallet',
-                       new=addr_response)
-        self.zcash_mock_backup.start()
-        self.omni_mock_backup = \
-            mock.patch(OMNI_ROOT + 'backup_wallet',
-                       new=addr_response)
-        self.omni_mock_backup.start()
-
-        self.rpc_eth_mock_addr = \
-            mock.patch('web3.personal.Personal.newAccount',
-                       new=ethash_addr_response)
-        self.rpc_eth_mock_addr.start()
-
-        self.mock_rpc_txs = mock.patch(SCRYPT_ROOT + '_get_txs',
-                                       lambda _self, *args: [])
-        self.mock_rpc_txs.start()
-
-    def _mock_uphold(self):
-        uphold_client_path = 'nexchange.api_clients.uphold.UpholdApiClient.'
-        self.new_card_mock = mock.patch(
-            uphold_client_path + '_new_card',
-            new=lambda s, c: {'currency': c, 'id': self._get_id('card')})
-        self.new_addr_mock = mock.patch(
-            uphold_client_path + '_new_address',
-            new=lambda s, c, n: {'id': self._get_id('addr')})
-
-        self.new_addr_mock.start()
-        self.new_card_mock.start()
 
     # deprecated
     def _mock_cards_reserve(self, _mock):
@@ -304,11 +211,6 @@ class UserBaseTestCase(TestCase):
 
         _mock.post(RPC8_URL, json=text_callback)
         _mock.post(RPC11_URL, json=text_callback)
-        # renos_coin = Currency.objects.get(code='RNS')
-        _mock.post(
-            'https://api.uphold.com/v0/me/cards/',
-            text=self._request_card
-        )
         pattern_addr = re.compile('https://api.uphold.com/v0/me/cards/.+/addresses')  # noqa
         _mock.post(pattern_addr, text=self._request_address)
 
@@ -341,6 +243,13 @@ class UserBaseTestCase(TestCase):
                       amount_base=0.5, pair_name='LTCBTC',
                       payment_preference=None, user=None, amount_quote=None,
                       validate_amount=False, payment_id=None, dest_tag=None):
+        warnings.warn(
+            'UserBaseTestCase._create_order should be changed with '
+            'OrderBaseTestCase._create_order_api or any other method which '
+            'uses API to create orders ',
+            DeprecationWarning
+        )
+
         def text_callback(request, context):
             body = request._request.body
             params = json.loads(body)
@@ -454,9 +363,17 @@ class OrderBaseTestCase(UserBaseTestCase):
 
     RATE_EUR = 70.00
 
+    TEST_ADDRESSES = {
+        'BTC': '17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ',
+        'LTC': 'LYUoUn9ATCxvkbtHseBJyVZMkLonx7agXA',
+        'ETH': '0x8116546AaC209EB58c5B531011ec42DD28EdFb71',
+        'XVG': 'DQkwDpRYUyNNnoEZDf5Cb3QVazh4FuPRs9',
+    }
+
     def setUp(self):
 
         super(OrderBaseTestCase, self).setUp()
+        self._mock_rpc()
         self.patcher_twilio_send_sms = patch(
             'accounts.api_clients.auth_messages._send_sms')
         self.patcher_twilio_send_sms2 = patch(
@@ -480,6 +397,59 @@ class OrderBaseTestCase(UserBaseTestCase):
         self.ethash_client = EthashRpcApiClient()
         self.default_eth_from = '0x1ff21eca1c3ba96ed53783ab9c92ffbf77862584'
 
+    def _mock_rpc(self):
+        def addr_response(_self, currency):
+            pattern = None
+            if currency.wallet == 'rpc7':
+                pattern = '0x{rand:02x}' + ('1' * 36)
+            return {
+                'address': self._get_id('addr', pattern=pattern),
+                'currency': currency
+            }
+
+        def ethash_addr_response(_self, currency):
+            pattern = '0x{rand:02x}' + ('1' * 36)
+            return self._get_id('addr', pattern=pattern)
+
+        self.rpc_mock_addr = \
+            mock.patch(SCRYPT_ROOT + 'create_address',
+                       new=addr_response)
+        self.rpc_mock_addr.start()
+        self.rpc_mock_backup = \
+            mock.patch(SCRYPT_ROOT + 'backup_wallet',
+                       new=addr_response)
+        self.rpc_mock_backup.start()
+        self.zcash_mock_backup = \
+            mock.patch(ZCASH_ROOT + 'backup_wallet',
+                       new=addr_response)
+        self.zcash_mock_backup.start()
+        self.omni_mock_backup = \
+            mock.patch(OMNI_ROOT + 'backup_wallet',
+                       new=addr_response)
+        self.omni_mock_backup.start()
+
+        self.rpc_eth_mock_addr = \
+            mock.patch('web3.personal.Personal.newAccount',
+                       new=ethash_addr_response)
+        self.rpc_eth_mock_addr.start()
+        self.rpc_eth_mock_passw = \
+            mock.patch('nexchange.rpc.ethash.RpcMapper.get_pass',
+                       return_value='very_password')
+        self.rpc_eth_mock_passw.start()
+
+        self.mock_rpc_txs = mock.patch(SCRYPT_ROOT + '_get_txs',
+                                       lambda _self, *args: [])
+        self.mock_rpc_txs.start()
+
+    def _stop_rpc_mock(self):
+        self.rpc_mock_addr.stop()
+        self.rpc_mock_backup.stop()
+        self.mock_rpc_txs.stop()
+        self.rpc_eth_mock_addr.stop()
+        self.rpc_eth_mock_passw.stop()
+        self.zcash_mock_backup.stop()
+        self.omni_mock_backup.stop()
+
     def tearDown(self):
         super(OrderBaseTestCase, self).tearDown()
         self.patcher_twilio_send_sms.stop()
@@ -490,12 +460,7 @@ class OrderBaseTestCase(UserBaseTestCase):
         # self.card.delete()
 
         # rpc
-        self.rpc_mock_addr.stop()
-        self.rpc_mock_backup.stop()
-        self.mock_rpc_txs.stop()
-        self.rpc_eth_mock_addr.stop()
-        self.zcash_mock_backup.stop()
-        self.omni_mock_backup.stop()
+        self._stop_rpc_mock()
 
     @classmethod
     def setUpClass(cls):
@@ -615,20 +580,38 @@ class OrderBaseTestCase(UserBaseTestCase):
                 order.complete(tx)
             self.assertEqual(_before + 1, order.status)
 
+    def _get_default_address(self, pair=None):
+        # add currency logic if needed
+        if pair:
+            _pair = pair if isinstance(pair, Pair) \
+                else Pair.objects.get(name=pair)
+            _currency = _pair.base
+        else:
+            _currency = Currency.objects.get('BTC')
+
+        return self.TEST_ADDRESSES.get(_currency.code)
+
     def _create_order_api(self, **kwargs):
         order_data = kwargs.get('order_data', None)
         pair_name = kwargs.get('pair_name', 'BTCEUR')
-        address = kwargs.get('address', '17dBqMpMr6r8ju7BoBdeZiSD3cjVZG62yJ')
+        withdraw_address = kwargs.get(
+            'withdraw_address', self._get_default_address(pair=pair_name)
+        )
+        amount_base = kwargs.get('amount_base', None)
+        amount_quote = kwargs.get('amount_quote', 100)
         if not order_data:
             order_data = {
-                "amount_quote": 100,
                 "pair": {
                     "name": pair_name
                 },
                 "withdraw_address": {
-                    "address": address
+                    "address": withdraw_address
                 }
             }
+            if amount_base:
+                order_data.update({'amount_base': amount_base})
+            if amount_quote:
+                order_data.update({'amount_quote': amount_quote})
         order_api_url = '/en/api/v1/orders/'
         response = self.api_client.post(
             order_api_url, order_data, format='json')
@@ -1214,13 +1197,6 @@ class TransactionImportBaseTestCase(OrderBaseTestCase):
             len(tx_ok), 1,
             'Transaction must be created only one time!'
         )
-
-    def mock_empty_transactions_for_blockchain_address(self, mock,
-                                                       pattern=None):
-        if pattern is None:
-            pattern = '/api/v1/address/txs/{}'.format(self.address_id_pattern)
-        matcher = re.compile(pattern)
-        mock.get(matcher, text='{"data":{"txs":[]}}')
 
     def _update_withdraw_address(self, order, address):
         order.refresh_from_db()

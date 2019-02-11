@@ -67,7 +67,6 @@ class DreddTestAPI(NexchangeLiveServerTestCase, TransactionImportBaseTestCase,
         # this is used to identify addresses created by allocate_wallets mock
         self.address_id_pattern = 'addr_id_'
         self._mock_rpc()
-        self._mock_uphold()
         self.create_main_user()
 
         self.client = NexchangeClient()

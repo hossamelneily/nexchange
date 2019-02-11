@@ -281,7 +281,13 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     property_id = models.IntegerField(unique=True, null=True, blank=True)
     contract_address = models.CharField(max_length=42, unique=True, null=True,
                                         blank=True)
-    decimals = models.IntegerField(default=8)
+    decimals = models.IntegerField(
+        default=8,
+        help_text=_('Decimal places used to convert satoshis to human '
+                    'readable decimal numbers.')
+    )
+    rounding = models.IntegerField(
+        default=8, help_text=_('Decimal places for order amount rounding.'))
     execute_cover = models.BooleanField(default=False)
     tx_price = models.ForeignKey('core.TransactionPrice',
                                  on_delete=models.DO_NOTHING,

@@ -526,11 +526,16 @@ class Order(BaseOrder, BaseUserOrder):
                      OrderFee.PAYMENT_METHOD),
                  'order': self},
             ]})
-        decimal_places = getattr(
+        decimal_places_output = getattr(
             self, 'recommended_{}_decimal_places'.format(_to))
         amount_output_formatted = money_format(amount_output,
-                                               places=decimal_places)
+                                               places=decimal_places_output)
         setattr(self, 'amount_{}'.format(_to), amount_output_formatted)
+        decimal_places_input = getattr(
+            self, 'recommended_{}_decimal_places'.format(_from))
+        amount_input_formatted = money_format(amount_input,
+                                              places=decimal_places_input)
+        setattr(self, 'amount_{}'.format(_from), amount_input_formatted)
 
     @property
     def payment_url(self):
@@ -620,6 +625,7 @@ class Order(BaseOrder, BaseUserOrder):
 
     @property
     def dynamic_decimal_places(self):
+
         return False
 
     @property
@@ -646,14 +652,11 @@ class Order(BaseOrder, BaseUserOrder):
             return self.pair.base.withdrawal_fee * self.price.ticker.bid
 
     def recommended_decimal_places(self, amount, currency, dynamic=False):
-        decimal_places = 2
-        if currency.is_crypto:
-            if dynamic:
-                add_places = -int(floor(log10(abs(amount))))
-                if add_places > 0:
-                    decimal_places += add_places
-            else:
-                decimal_places = 8
+        decimal_places = currency.rounding
+        if dynamic and currency.is_crypto:
+            add_places = -int(floor(log10(abs(amount))))
+            _add_places = add_places if add_places > 0 else 0
+            decimal_places = 2 + _add_places
         return decimal_places
 
     def _get_minimal_payment_method_fee(self, currency):

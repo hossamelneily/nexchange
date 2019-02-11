@@ -7,6 +7,7 @@ import os
 from http.client import RemoteDisconnected
 from decimal import Decimal
 from django.core.exceptions import ValidationError
+from payments.utils import money_format
 
 
 class ScryptRpcApiClient(BaseRpcClient):
@@ -140,11 +141,14 @@ class ScryptRpcApiClient(BaseRpcClient):
             tx_count=settings.RPC_IMPORT_TRANSACTIONS_VALIDATION_COUNT
         )
         _address = getattr(address, 'address', address)
+        _places = currency.rounding
         same_amount_txs = [
             t for t in res if
             t['category'] == 'send' and
             t['address'] == _address and
-            t['amount'] == -amount
+            money_format(
+                t['amount'], places=_places
+            ) == -money_format(amount, places=_places)
         ]
         if same_amount_txs:
             raise ValidationError(

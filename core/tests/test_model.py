@@ -124,6 +124,13 @@ class CurrencyTestCase(OrderBaseTestCase):
         self.assertTrue(curr.is_base_of_enabled_pair)
         self.assertTrue(curr.is_base_of_enabled_pair_for_test)
 
+    def test_currency_rounding(self):
+        currencies = Currency.objects.all()
+        for c in currencies:
+            expected_rounding = \
+                6 if c.code == 'XVG' else 8 if c.is_crypto else 2
+            self.assertEqual(c.rounding, expected_rounding, c.code)
+
 
 class AddressReserveTest(OrderBaseTestCase):
 
@@ -306,7 +313,7 @@ class PairFixtureTestCase(OrderBaseTestCase):
         for i in range(1, max_pk + 1):
             try:
                 Pair.objects.get(pk=i)
-            except:
+            except Exception:
                 raised = True
                 missed_pk = i
         self.assertFalse(raised, 'Raised error while getting pair by pk. '

@@ -461,13 +461,13 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
         self.order = Order(**data)
         self.order.save()
 
-    def check_object_properties(self, object, properties_to_check,
+    def check_object_properties(self, obj, properties_to_check,
                                 test_case_name='Undefined',
                                 check_property_len=False):
-        object.refresh_from_db()
+        obj.refresh_from_db()
         for key, value in properties_to_check.items():
             expected = value
-            real = getattr(object, key)
+            real = getattr(obj, key)
             if check_property_len:
                 real = len(real)
             self.assertEqual(
@@ -476,10 +476,10 @@ class OrderPropertiesTestCase(OrderBaseTestCase):
                 'Assertion: {length}({obj_name}.{attr}) != {value} | '
                 'Object Desc: {obj_name} == {obj_str} |'.format(
                     name=test_case_name,
-                    obj_name=object.__class__.__name__.lower(),
+                    obj_name=obj.__class__.__name__.lower(),
                     attr=key,
                     value=value,
-                    obj_str=object,
+                    obj_str=obj,
                     length='len' if check_property_len else ''
                 )
             )
