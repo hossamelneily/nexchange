@@ -331,6 +331,7 @@ class Blake2Proxy:
             history = []
         else:
             for tx in history:
+                # FIXME: it's wrong, if type is 'receive'
                 tx['account_to'] = account
         return history
 

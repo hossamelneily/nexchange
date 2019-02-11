@@ -517,6 +517,7 @@ build:
           # Apply migrations
           python /usr/src/app/manage.py migrate
           # Import fixtures
+          python /usr/src/app/manage.py loaddata audit/fixtures/suspicious_transactions_categories.json
           python /usr/src/app/manage.py loaddata core/fixtures/market.json
           python /usr/src/app/manage.py loaddata core/fixtures/currency_algorithm.json
           python /usr/src/app/manage.py loaddata core/fixtures/transaction_price.json

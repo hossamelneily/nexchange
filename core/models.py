@@ -402,6 +402,11 @@ class Currency(TimeStampedModel, SoftDeletableModel, FlagableMixin):
     def __str__(self):
         return self.code
 
+    @property
+    def has_suspicious_transactions(self):
+        return True if len(self.suspicioustransactions_set.all()) != 0 \
+            else False
+
 
 class Market(TimeStampedModel):
 

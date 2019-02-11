@@ -1,0 +1,42 @@
+[
+{
+  "model": "audit.suspicioustransactioncategory",
+  "pk": 1,
+  "fields": {
+    "name": "WRONG SPEND",
+    "description": "Transaction amount is not the same as orders withdraw amount",
+    "created_on": "2019-01-25T10:06:33.383Z",
+    "modified_on": "2019-01-25T10:06:44.619Z"
+  }
+},
+{
+  "model": "audit.suspicioustransactioncategory",
+  "pk": 2,
+  "fields": {
+    "name": "CURRENCIES MISMATCHING",
+    "description": "Currency in blockchain and currency in database are different",
+    "created_on": "2019-01-25T10:06:33.383Z",
+    "modified_on": "2019-01-25T10:06:44.619Z"
+  }
+},
+{
+  "model": "audit.suspicioustransactioncategory",
+  "pk": 3,
+  "fields": {
+    "name": "AMOUNTS MISMATCHING",
+    "description": "Transaction amount is not the same as orders withdraw amount",
+    "created_on": "2019-01-25T10:06:33.383Z",
+    "modified_on": "2019-01-25T10:06:44.619Z"
+  }
+},
+{
+  "model": "audit.suspicioustransactioncategory",
+  "pk": 4,
+  "fields": {
+    "name": "TRANSACTION IS NOT IN DATABASE",
+    "description": "Blockchain transaction is not found in database",
+    "created_on": "2019-01-25T10:06:33.383Z",
+    "modified_on": "2019-01-25T10:06:44.619Z"
+  }
+}
+]

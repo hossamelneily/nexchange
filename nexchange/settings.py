@@ -397,8 +397,8 @@ TRADING_TASKS = {
 AUDIT_TASKS = {
     'audit_transactions': {
         'task': 'audit.task_summary.'
-                'check_suspicious_transactions_all_currencies_invoke',
-        'schedule': timedelta(hours=24),
+                'check_suspicious_transactions_all_currencies_periodic',
+        'schedule': timedelta(minutes=10),
     },
 }
 

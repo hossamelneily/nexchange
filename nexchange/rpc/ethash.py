@@ -167,7 +167,7 @@ class EthashRpcApiClient(BaseRpcClient):
                         contract_address__iexact=main_to).last()
                     currency_code = _currency.code if _currency else ''
                     input = tx_data.get('input')
-                    decoded_input = self.decode_transaction_input(input)
+                    decoded_input = self._decode_transaction_input(input)
                     try:
                         if decoded_input[0] in self.ERC20_TRANSFER_FINCTIONS:
                             to = self._strip_address_padding(
@@ -324,7 +324,7 @@ class EthashRpcApiClient(BaseRpcClient):
     def _strip_address_padding(self, address):
         return address.replace(24 * '0', '')
 
-    def decode_transaction_input(self, input):
+    def _decode_transaction_input(self, input):
         if input == '0x':
             return False, []
         sha3_method = input[:10]
@@ -387,7 +387,7 @@ class EthashRpcApiClient(BaseRpcClient):
         return receipt_status and value_status and to_status and from_status
 
     def _get_transfer_data_from_eth_input(self, tx_input):
-        decoded_input = self.decode_transaction_input(tx_input)
+        decoded_input = self._decode_transaction_input(tx_input)
         to, value = None, None
         if decoded_input[0] in self.ERC20_TRANSFER_FINCTIONS:
             to = self._strip_address_padding(
@@ -400,7 +400,7 @@ class EthashRpcApiClient(BaseRpcClient):
         node = currency.wallet
         address = os.getenv('{}_PUBLIC_KEY_C1'.format(node.upper()))
         all_accounts = self.get_accounts(node)
-        all_accounts_lower = [acc.lower() for acc in all_accounts]  # noqa
+        all_accounts_lower = [acc.lower() for acc in all_accounts]
         assert address.lower() in all_accounts_lower,\
             'Main address must be in get_accounts resp {}'.format(currency)
         return address
@@ -435,7 +435,7 @@ class EthashRpcApiClient(BaseRpcClient):
                 'Error: {err_msg}, url: {url}'.format(err_msg=err_msg, url=url)
             )
         else:
-            return res_json.get('result')
+            return result
 
     def assert_tx_unique(self, currency, address, amount, **kwargs):
         action = 'txlist' if not currency.is_token else 'tokentx'

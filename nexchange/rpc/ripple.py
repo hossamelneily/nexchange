@@ -67,10 +67,7 @@ class RippleRpcApiClient(BaseRpcClient):
             code=self.related_coins[self.related_nodes.index(node)]
         )
         account = self.get_main_address(currency)
-        resp = self.call_api(
-            node, 'account_tx',
-            *[account, tx_count]
-        )
+        resp = self.call_api(node, 'account_tx', *[account, tx_count])
         txs = [tx.get('tx') for tx in resp]
         return txs
 
@@ -82,6 +79,7 @@ class RippleRpcApiClient(BaseRpcClient):
             code=self.related_coins[self.related_nodes.index(node)]
         )
         address = self.get_main_address(currency)
+        # FIXME: There might be no Destination key
         in_txs.extend([tx for tx in txs if tx.get('Destination') == address])
         return in_txs
 

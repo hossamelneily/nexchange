@@ -102,8 +102,8 @@ def check_kyc_pending_documents_periodic():
                     doc_created = document.created_on.replace(tzinfo=None)
                     doc_pending_time = datetime.now() - doc_created
                     if doc_pending_time.days >= 1:
-                        subject = 'Customer\'s verification document PENDING is too long'
-                        message = 'Verification document status PENDING wasn\'nt changed from PENDING status for {} day(s)'.format(doc_pending_time.days)
+                        subject = 'Customer\'s verification document PENDING is too long'  # noqa
+                        message = 'Verification document status PENDING wasn\'nt changed from PENDING status for {} day(s)'.format(doc_pending_time.days)  # noqa
                         payment_preference.notify(
                             email_to=settings.SUPPORT_EMAIL,
                             subject=subject,
