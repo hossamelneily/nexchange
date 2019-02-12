@@ -21,4 +21,4 @@ def notify_orders(sender, instance=None, **kwargs):
             return
         instance.notify()
     except Exception as e:
-        logger.error('Unable to send order notification. error: {}'.format(e))
+        logger.warning('Unable to send order notification. error: {}'.format(e))
