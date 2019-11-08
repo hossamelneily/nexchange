@@ -76,4 +76,4 @@ django-picklefield===1.1.0
 pytest==4.1.0
 pytest-django==3.4.5
 pdbpp==0.9.3
-pyyaml==3.13
+pyyaml==5.1
