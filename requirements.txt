@@ -43,7 +43,7 @@ mock
 requests-cache>=0.4.13
 xmltodict>=0.10.2
 python-bitcoinrpc
-urllib3==1.22
+urllib3==1.24.2
 pillow
 -e git+git://github.com/skinderis/django-loginurl.git#egg=loginurl
 social-auth-app-django==2.1.0
