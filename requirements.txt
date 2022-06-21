@@ -62,7 +62,7 @@ pycrypto==2.6.1
 django-extensions==1.9.9
 django-oauth-toolkit==1.0.0
 iptools==0.6.1
-numpy==1.14.1
+numpy==1.22.0
 django-otp==0.4.3
 qrcode==6.0
 git+git://github.com/vvangelovski/django-audit-log.git@0a3b1a03b2ce0b560859cefab00bdd2af6641d59
