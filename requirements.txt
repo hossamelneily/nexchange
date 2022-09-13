@@ -49,7 +49,7 @@ pillow
 social-auth-app-django==2.1.0
 coveralls==1.1
 django-countries==4.6.1
-flower==0.9.2
+flower==1.2.0
 django-guardian==1.4.9
 dredd-hooks==0.2.0
 django-fsm==2.6.0
